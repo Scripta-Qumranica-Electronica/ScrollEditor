@@ -3,9 +3,11 @@
     <div class="col-3">
       <p>Hello</p>
     </div>
-    <div class="col-9">
+    <div class="col-8">
       <p>World</p>
     </div>
+    <div class="col-1">
+      <font-awesome-icon icon="language" />
   </div>
 </template>
 
@@ -18,11 +20,4 @@ export default Vue.extend({
 </script>
 
 <style>
-.home {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 </style>
