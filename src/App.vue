@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <navbar></navbar>
-    <div id="content">
+    <div class="container-fluid">
       <router-view></router-view>
     </div>
   </div>
@@ -19,12 +19,4 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>

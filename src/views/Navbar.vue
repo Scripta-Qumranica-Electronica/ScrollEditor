@@ -1,12 +1,12 @@
 <template>
-  <div class="navbar">
-    <nav>
-    <ul>
-        <li><router-link to="/">Home</router-link></li>
-        <li><router-link to="/about">About</router-link></li>
-    </ul>
-    </nav>
-  </div>
+  <b-navbar toggleable="md" type="dark" variant="dark">
+    <b-navbar-brand to="/">Scrollery</b-navbar-brand>
+
+    <b-navbar-nav>
+      <b-nav-item to="/">Home</b-nav-item>
+      <b-nav-item to="/about">About</b-nav-item>
+    </b-navbar-nav>
+  </b-navbar>
 </template>
 
 <script lang="ts">
