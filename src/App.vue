@@ -1,26 +1,20 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <div>
-      <p>
-        If Element is successfully added to this project, you'll see an
-        <code v-text="'<el-button>'"></code>
-        below
-      </p>
-      <el-button>el-button</el-button>
+    <navbar></navbar>
+    <div id="content">
+      <router-view></router-view>
     </div>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Navbar from '@/views/Navbar.vue';
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
-  }
+    Navbar,
+  },
 };
 </script>
 
