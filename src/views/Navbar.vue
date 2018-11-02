@@ -3,8 +3,8 @@
     <b-navbar-brand to="/">Scrollery</b-navbar-brand>
 
     <b-navbar-nav>
-      <b-nav-item to="/">Home</b-nav-item>
-      <b-nav-item to="/about">About</b-nav-item>
+      <b-nav-item to="/">{{ $t('navbar.home') }}</b-nav-item>
+      <b-nav-item to="/about">{{ $t('navbar.about') }}</b-nav-item>
     </b-navbar-nav>
   </b-navbar>
 </template>
