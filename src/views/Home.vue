@@ -8,6 +8,7 @@
     </div>
     <div class="col-1">
       <font-awesome-icon icon="language" />
+    </div>
   </div>
 </template>
 
