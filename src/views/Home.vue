@@ -20,5 +20,8 @@ export default Vue.extend({
 });
 </script>
 
-<style>
+<style scoped>
+.active-language {
+  font-weight: bold;
+}
 </style>

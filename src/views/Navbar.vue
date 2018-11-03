@@ -12,13 +12,16 @@
         <template slot="button-content">
           <font-awesome-icon icon="language"/>
         </template>
-        <b-dropdown-item v-for="(texts, language) in localizedTexts" :key=language>
+        <b-dropdown-item-button v-for="(texts, language) in localizedTexts" 
+                         :key=language
+                         @click="changeLanguage(language)">
           {{ texts.display }}
-        </b-dropdown-item>
+          <span v-if="language===currentLanguage">&#x2714;</span>
+        </b-dropdown-item-button>
       </b-nav-item-dropdown>
       <b-nav-item-dropdown right text="Not logged in">
-        <b-dropdown-item>Login</b-dropdown-item>
-        <b-dropdown-item>Register</b-dropdown-item>
+        <b-dropdown-item-button>Login</b-dropdown-item-button>
+        <b-dropdown-item-button>Register</b-dropdown-item-button>
       </b-nav-item-dropdown>
     </b-navbar-nav>
   </b-navbar>
@@ -37,8 +40,15 @@ export default Vue.extend({
     };
   },
   computed: {
-    language(this:any): string {
-      return this.$state.language.language;
+    currentLanguage(): string {
+      const current = this.$store.state.language.language;
+      return current;
+    }
+  },
+  methods: {
+    changeLanguage(language: string) {
+      this.$i18n.locale = language;
+      this.$store.dispatch('language/setLanguage', language, { root: true });
     }
   }
 });

@@ -15,11 +15,9 @@ export default {
   components: {
     Navbar,
   },
-  methods: {
-    mount() {
-      // Restore language based on the value in the store
-      this.$i18n.locale = this.$store.state.language.language;
-    }
+  created() {
+    // Set the language
+    this.$i18n.locale = this.$store.state.language.language;
   }
 };
 </script>
