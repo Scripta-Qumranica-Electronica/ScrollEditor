@@ -3,4 +3,5 @@ import navbar from './navbar';
 
 export default {
     misc, navbar,
+    display: 'עברית',
 };

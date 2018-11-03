@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // i18n
 import VueI18n from 'vue-i18n';
-import localizedTexts from './i18n';
+import { localizedTexts } from './i18n';
 
 Vue.config.productionTip = false;
 
