@@ -3,9 +3,11 @@ export interface LanguageState {
 }
 
 export interface UserState {
-    userName: string;
-    sessionId: string;
     loggedIn: boolean;
+    sessionId?: string;
+
+    userName?: string;
+    fullName?: string;
 }
 
 export interface RootState {

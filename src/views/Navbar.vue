@@ -7,8 +7,13 @@
       <b-nav-item to="/about">{{ $t('navbar.about') }}</b-nav-item>
     </b-navbar-nav>
 
-    <b-navbar-nav class="ml-auto">
-      <b-nav-item-dropdown right>
+    <b-navbar-nav class="ml-auto"> <!-- Current user -->
+      <b-nav-item right v-if="!userName" @click="login()">{{ $t('navbar.login') }}</b-nav-item>
+      <b-nav-item-dropdown v-if="userName" right :text="userName">
+        <b-dropdown-item-button @click="logout()">{{ $t('navbar.logout') }}</b-dropdown-item-button>
+      </b-nav-item-dropdown>
+ 
+      <b-nav-item-dropdown right> <!-- Change language -->
         <template slot="button-content">
           <font-awesome-icon icon="language"/>
         </template>
@@ -18,10 +23,6 @@
           {{ texts.display }}
           <span v-if="language===currentLanguage">&#x2714;</span>
         </b-dropdown-item-button>
-      </b-nav-item-dropdown>
-      <b-nav-item-dropdown right text="Not logged in">
-        <b-dropdown-item-button>Login</b-dropdown-item-button>
-        <b-dropdown-item-button>Register</b-dropdown-item-button>
       </b-nav-item-dropdown>
     </b-navbar-nav>
   </b-navbar>
@@ -43,13 +44,22 @@ export default Vue.extend({
     currentLanguage(): string {
       const current = this.$store.state.language.language;
       return current;
+    },
+    userName(): string | undefined {
+      return this.$store.state.user.loggedIn ? this.$store.state.user.fullName : undefined;
     }
   },
   methods: {
     changeLanguage(language: string) {
       this.$i18n.locale = language;
       this.$store.dispatch('language/setLanguage', language, { root: true });
-    }
+    },
+    login() {
+      console.log('About to login');
+    },
+    logout() {
+      console.log('About to log out');
+    },
   }
 });
 </script>
