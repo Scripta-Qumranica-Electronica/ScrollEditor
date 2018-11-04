@@ -4,6 +4,7 @@ import { MutationTree, ActionTree, Module } from 'vuex';
 function getLocalStorageSession(): SessionState {
     const sessionState: SessionState = {
         sessionId: localStorage.getItem('sessionId') || undefined,
+        userId: localStorage.getItem('userId') as (number | null) || undefined,
         loggedIn: localStorage.getItem('loggedIn') === 'true',
         userName: localStorage.getItem('userName') || undefined,
         fullName: localStorage.getItem('fullName') || undefined,
@@ -22,6 +23,7 @@ function setLocalStorageSession(state: SessionState) {
     }
 
     setEntry('sessionId', state.sessionId);
+    setEntry('userId', String(state.userId));
     setEntry('loggedIn', state.loggedIn ? 'true' : 'false');
     setEntry('userName', state.userName);
     setEntry('fullName', state.fullName);
@@ -30,9 +32,10 @@ function setLocalStorageSession(state: SessionState) {
 const userState = getLocalStorageSession();
 
 const mutations: MutationTree<SessionState> = {
-    SET_LOGGED_IN(state, { sessionId, userName, fullName }) {
+    SET_LOGGED_IN(state, { sessionId, userId, userName, fullName }) {
         state.loggedIn = true;
         state.sessionId = sessionId;
+        state.userId = userId;
         state.userName = userName;
         state.fullName = fullName;
     },
@@ -40,6 +43,7 @@ const mutations: MutationTree<SessionState> = {
     SET_LOGGED_OUT(state) {
         state.loggedIn = false;
         state.sessionId = undefined;
+        state.userId = undefined;
         state.userName = undefined;
         state.fullName = undefined;
     }
@@ -47,8 +51,8 @@ const mutations: MutationTree<SessionState> = {
 
 
 const actions: ActionTree<SessionState, RootState> = {
-    logIn({ commit, state }, { sessionId, userName, fullName }) {
-        commit('SET_LOGGED_IN', { sessionId, userName, fullName });
+    logIn({ commit, state }, { sessionId, userId, userName, fullName }) {
+        commit('SET_LOGGED_IN', { sessionId, userId, userName, fullName });
         setLocalStorageSession(state);
     },
 

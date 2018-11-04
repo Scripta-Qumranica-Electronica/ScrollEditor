@@ -32,12 +32,14 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import { localizedTexts } from '../i18n';
+import SessionService from '../services/session'; 
 
 export default Vue.extend({
   name: 'navbar',
   data() {
     return {
       localizedTexts,
+      sessionService: new SessionService(this.$store),
     };
   },
   computed: {
@@ -55,10 +57,11 @@ export default Vue.extend({
       this.$store.dispatch('language/setLanguage', language, { root: true });
     },
     login() {
-      console.log('About to login');
+      // TODO: Show a login modal
+      this.sessionService.login('test', 'asdf');
     },
     logout() {
-      console.log('About to log out');
+      this.sessionService.logout();
     },
   }
 });

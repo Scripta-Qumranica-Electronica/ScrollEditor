@@ -5,6 +5,7 @@ export interface LanguageState {
 export interface SessionState {
     loggedIn: boolean;
     sessionId?: string;
+    userId?: number;
 
     userName?: string;
     fullName?: string;

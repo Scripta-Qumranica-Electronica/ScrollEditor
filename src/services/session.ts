@@ -1,28 +1,50 @@
 import { Store } from 'vuex';
+import { Communicator, ValidateSessionResponse } from './communications';
+
 
 class SessionService {
-    constructor(private store: Store<any>) {}
-
-    public async login(userName: string, password: string) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));  // Just to make sure things take time
-        this.store.dispatch('session/logIn', { sessionId: 1, userName, fullName: userName }, { root: true });
+    private communicator: Communicator;
+    constructor(private store: Store<any>) {
+        this.communicator = new Communicator(this.store);
     }
 
-    public async logout() {
-        await new Promise((resolve) => setTimeout(resolve, 2000));  // Just to make sure things take time
+    public async login(userName: string, password: string) {
+        const response = await this.communicator.request<ValidateSessionResponse>('validateSession', {
+            USER_NAME: userName,
+            PASSWORD: password,
+            SCROLLVERSION: 1,
+        });
+
+        this.store.dispatch('session/logIn', {
+            sessionId: response.data.SESSION_ID,
+            userId: response.data.USER_ID,
+            userName,
+            fullName: userName,
+        }, { root: true });
+    }
+
+    public logout() {
+        // No need to contact the server, we just forget the session
         this.store.dispatch('session/logOut', {}, { root: true });
     }
 
     public async isSessionValid() {
-        const valid = false;
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));  // Just to make sure things take time
-
-        if (!valid) {
-            // Mark is if logged out, without contacting the server
-            this.store.dispatch('session/logOut', {}, { root: true });
+        if (!this.store.state.session.sessionId) {
+            return false;
         }
-        return valid;
+
+        try
+        {
+            const response = await this.communicator.request<ValidateSessionResponse>('validateSession', {
+                SCROLLVERSION: 1,
+            });
+            console.log(`Got response ${response}`);
+            return true;
+        } catch (error) {
+            console.log(`Got error response ${error}`);
+            this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out
+            return false;
+        }
     }
 }
 
