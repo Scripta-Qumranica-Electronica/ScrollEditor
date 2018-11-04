@@ -10,7 +10,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faLanguage } from '@fortawesome/free-solid-svg-icons';
+import { faLanguage, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // i18n
@@ -21,7 +21,7 @@ Vue.config.productionTip = false;
 
 Vue.use(BootstrapVue);
 
-library.add(faLanguage);
+library.add(faLanguage, faSpinner);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);

@@ -2,7 +2,7 @@ export interface LanguageState {
     language: string;
 }
 
-export interface UserState {
+export interface SessionState {
     loggedIn: boolean;
     sessionId?: string;
 
