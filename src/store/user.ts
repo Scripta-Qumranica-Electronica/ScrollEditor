@@ -19,10 +19,10 @@ function setLocalStorageSession(sessionId?: string) {
 }
 
 const userState: UserState = {
-    loggedIn: true,
+    loggedIn: false,
     sessionId: getLocalStorageSession(),
     userName: undefined,
-    fullName: 'Obadia Lindthouse',
+    fullName: undefined,
 };
 
 /*
