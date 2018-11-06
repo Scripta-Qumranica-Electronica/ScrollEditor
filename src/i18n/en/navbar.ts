@@ -3,4 +3,7 @@ export default {
     about: 'About',
     login: 'Login',
     logout: 'Logout',
+
+    username: 'Username',
+    password: 'Password',
 };

@@ -7,8 +7,9 @@
       <b-nav-item to="/about">{{ $t('navbar.about') }}</b-nav-item>
     </b-navbar-nav>
 
+
     <b-navbar-nav class="ml-auto"> <!-- Current user -->
-      <b-nav-item right v-if="!userName" @click="login()">{{ $t('navbar.login') }}</b-nav-item>
+      <b-nav-item right v-if="!userName"><login></login></b-nav-item>
       <b-nav-item-dropdown v-if="userName" right :text="userName">
         <b-dropdown-item-button @click="logout()">{{ $t('navbar.logout') }}</b-dropdown-item-button>
       </b-nav-item-dropdown>
@@ -32,10 +33,15 @@
 import Vue from 'vue';
 import { mapState } from 'vuex';
 import { localizedTexts } from '../i18n';
-import SessionService from '../services/session'; 
+import SessionService from '../services/session';
+import Login from './Login.vue';
+
 
 export default Vue.extend({
   name: 'navbar',
+  components: {
+    Login
+  },
   data() {
     return {
       localizedTexts,
@@ -56,10 +62,10 @@ export default Vue.extend({
       this.$i18n.locale = language;
       this.$store.dispatch('language/setLanguage', language, { root: true });
     },
-    login() {
-      // TODO: Show a login modal
-      this.sessionService.login('test', 'asdf');
-    },
+    // login() {
+    //   // TODO: Show a login modal
+    //   this.sessionService.login('test', 'asdf');
+    // },
     logout() {
       this.sessionService.logout();
     },

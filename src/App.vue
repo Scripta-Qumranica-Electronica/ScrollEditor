@@ -8,6 +8,8 @@
       <router-view></router-view>
     </div>
   </div>
+
+  <!-- TODO: Add footer -->
 </template>
 
 <script>

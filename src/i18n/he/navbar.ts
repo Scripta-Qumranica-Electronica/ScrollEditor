@@ -3,4 +3,7 @@ export default {
     about: 'אודות',
     login: 'כניסה',
     logout: 'התנתקות',
+
+    username: 'שם משתמש',
+    password: 'סיסמא',
 };

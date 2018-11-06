@@ -33,15 +33,12 @@ class SessionService {
             return false;
         }
 
-        try
-        {
+        try {
             const response = await this.communicator.request<ValidateSessionResponse>('validateSession', {
                 SCROLLVERSION: 1,
             });
-            console.log(`Got response ${response}`);
             return true;
         } catch (error) {
-            console.log(`Got error response ${error}`);
             this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out
             return false;
         }
