@@ -1,17 +1,31 @@
  <template>
-    <div>
-  <b-btn v-b-modal.myModal>{{ $t('navbar.login') }}</b-btn>
+  <div>
+    <b-modal ref="loginModalRef" id="loginModal" title="Login">
+        <b-container fluid>
+            <b-row class="mb-2">
+                <b-col cols="3">{{ $t('navbar.username') }}</b-col>
+                <b-col><b-form-input v-model="username"></b-form-input></b-col>
+            </b-row>
+            <b-row class="mb-2">
+                <b-col cols="3">{{ $t('navbar.password') }}</b-col>
+                <b-col>
+                    <b-form-input v-model="password" type="password"></b-form-input>
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col class="error">
+                    {{ errorMessage }}
+                </b-col>
+            </b-row>
+        </b-container>
 
-  <!-- the modal -->
-  <b-modal id="myModal" title="Login">
-    <label>{{ $t('navbar.username') }}: </label>
-    <input v-model="username">
-    <p>Message is: {{ username }}</p>
-    
-    <label>{{ $t('navbar.password') }}: </label>
-    <input v-model="password">
-    <p>Message is: {{ password }}</p>
-  </b-modal>
+        <div slot="modal-footer">
+            <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
+            <b-button @click="login" variant="primary" type="submit" :disabled="incomplete">
+                {{ $t('navbar.login') }}
+            </b-button>
+        </div>
+    </b-modal>
   </div>
  </template>
 
@@ -22,26 +36,34 @@ import { localizedTexts } from '../i18n';
 import SessionService from '../services/session';
 
 export default Vue.extend({
-name: 'login',
-data() {
-    return {
-      username: 'tal',
-      password: 'aaa',
-      localizedTexts,
-      sessionService: new SessionService(this.$store),
-    };
-},
-computed: {
-    currentLanguage(): string {
-    const current = this.$store.state.language.language;
-    return current;
+    name: 'login',
+    data() {
+        return {
+            username: this.$store.state.session.userName,
+            password: '',
+            errorMessage: '',
+            sessionService: new SessionService(this.$store),
+        };
     },
-},
-methods: {
-    login() {
-    this.sessionService.login(this.username, this.password);
+    computed: {
+        incomplete(): boolean {
+            return !this.username || !this.password;
+        },
     },
-}
+    methods: {
+        async login() {
+            try {
+                await this.sessionService.login(this.username, this.password);
+                this.close();
+            } catch (err) {
+                this.errorMessage = 'Login failed';
+                console.exception('Login error', err);
+            }
+        },
+        close() {
+            (this.$refs.loginModalRef as any).hide();
+        },
+    }
 });
 </script>
  

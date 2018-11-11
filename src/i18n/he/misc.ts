@@ -1,3 +1,3 @@
 export default {
-    message: 'זו הודעה',
+    cancel: 'ביטול',
 };

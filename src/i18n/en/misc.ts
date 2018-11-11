@@ -1,3 +1,3 @@
 export default {
-    message: 'This is a fine message',
+    cancel: 'Cancel',
 };
