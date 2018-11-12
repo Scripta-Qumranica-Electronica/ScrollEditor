@@ -1,6 +1,6 @@
  <template>
   <div>
-    <b-modal ref="loginModalRef" id="loginModal" title="Login" @shown="clearError">
+    <b-modal ref="loginModalRef" id="loginModal" title="Login" @shown="shown">
         <b-container fluid>
             <b-row class="mb-2">
                 <b-col cols="3">{{ $t('navbar.username') }}</b-col>
