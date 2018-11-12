@@ -19,8 +19,11 @@
 
         <div slot="modal-footer">
             <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
-            <b-button @click="login" variant="primary" type="submit" :disabled="incomplete">
+            <b-button @click="login" variant="primary" type="submit" :disabled="disabledLogin">
                 {{ $t('navbar.login') }}
+                <span v-if="waiting">
+                    <font-awesome-icon icon="spinner" spin></font-awesome-icon>
+                </span>
             </b-button>
         </div>
     </b-modal>
@@ -42,16 +45,18 @@ export default Vue.extend({
             password: '',
             errorMessage: '',
             sessionService: new SessionService(this.$store),
+            waiting: false,
         };
     },
     computed: {
-        incomplete(): boolean {
-            return !this.username || !this.password;
+        disabledLogin(): boolean {
+            return !this.username || !this.password || this.waiting;
         },
     },
     methods: {
         async login() {
             try {
+                this.waiting = true;
                 await this.sessionService.login(this.username, this.password);
                 this.close();
             } catch (err) {
@@ -61,13 +66,16 @@ export default Vue.extend({
                 } else {
                     this.errorMessage = this.$t('error.server').toString();
                 }
+            } finally {
+                this.waiting = false;
             }
         },
         close() {
             (this.$refs.loginModalRef as any).hide();
         },
-        clearError() {
+        shown() {
             this.errorMessage = '';
+            this.waiting = false;
         }
     }
 });
