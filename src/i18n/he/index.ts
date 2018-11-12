@@ -1,7 +1,8 @@
 import misc from './misc';
 import navbar from './navbar';
+import error from './error';
 
 export default {
-    misc, navbar,
+    error, misc, navbar,
     display: 'עברית',
 };

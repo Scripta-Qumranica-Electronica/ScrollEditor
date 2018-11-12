@@ -1,6 +1,6 @@
  <template>
   <div>
-    <b-modal ref="loginModalRef" id="loginModal" title="Login">
+    <b-modal ref="loginModalRef" id="loginModal" title="Login" @shown="clearError">
         <b-container fluid>
             <b-row class="mb-2">
                 <b-col cols="3">{{ $t('navbar.username') }}</b-col>
@@ -13,9 +13,7 @@
                 </b-col>
             </b-row>
             <b-row>
-                <b-col class="error">
-                    {{ errorMessage }}
-                </b-col>
+                <b-col class="text-danger">{{ errorMessage }}</b-col>
             </b-row>
         </b-container>
 
@@ -34,6 +32,7 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import { localizedTexts } from '../i18n';
 import SessionService from '../services/session';
+import { ServerError } from '../services/communications';
 
 export default Vue.extend({
     name: 'login',
@@ -56,13 +55,20 @@ export default Vue.extend({
                 await this.sessionService.login(this.username, this.password);
                 this.close();
             } catch (err) {
-                this.errorMessage = 'Login failed';
-                console.exception('Login error', err);
+                const serverError = (err as ServerError);
+                if (serverError) {
+                    this.errorMessage = this.$t( `error.server${serverError.errorCode}`).toString();
+                } else {
+                    this.errorMessage = this.$t('error.server').toString();
+                }
             }
         },
         close() {
             (this.$refs.loginModalRef as any).hide();
         },
+        clearError() {
+            this.errorMessage = '';
+        }
     }
 });
 </script>

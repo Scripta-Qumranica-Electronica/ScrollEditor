@@ -6,6 +6,19 @@ export interface ValidateSessionResponse {
     USER_ID: number;
 }
 
+export class ServerError extends Error {
+    public type: string;
+    public errorCode: number;
+    public errorText: string;
+
+    constructor(obj: any) {
+        super(obj.ERROR_TEXT || 'Server Error');
+        this.type = obj.TYPE || '';
+        this.errorCode = obj.ERROR_CODE || 0;
+        this.errorText = obj.ERROR_TEXT || '';
+    }
+}
+
 // Server communications
 export class Communicator {
     private url = '/resources/cgi-bin/scrollery-cgi.pl';
@@ -19,6 +32,11 @@ export class Communicator {
             ...payload
         };
 
-        return await axios.post<T>(this.url, body);
+        const response = await axios.post<T>(this.url, body);
+        if ((response.data as any).TYPE === 'ERROR') {
+            throw new ServerError(response.data);
+        }
+
+        return response;
     }
 }

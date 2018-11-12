@@ -11,7 +11,7 @@
 
       <b-navbar-nav class="ml-auto"> <!-- Current user -->
         <b-nav-item right v-if="!userName">
-          <b-btn @click="login">{{ $t('navbar.login') }}</b-btn>
+          <b-btn @click="login" size="sm">{{ $t('navbar.login') }}</b-btn>
         </b-nav-item>
         <b-nav-item-dropdown v-if="userName" right :text="userName">
           <b-dropdown-item-button @click="logout()">{{ $t('navbar.logout') }}</b-dropdown-item-button>
