@@ -59,6 +59,7 @@ export default Vue.extend({
                 this.waiting = true;
                 await this.sessionService.login(this.username, this.password);
                 this.close();
+                location.reload();
             } catch (err) {
                 const serverError = (err as ServerError);
                 if (serverError) {

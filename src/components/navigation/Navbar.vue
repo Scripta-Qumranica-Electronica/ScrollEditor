@@ -66,6 +66,7 @@ export default Vue.extend({
     },
     logout() {
       this.sessionService.logout();
+      location.reload();
     },
   }
 });

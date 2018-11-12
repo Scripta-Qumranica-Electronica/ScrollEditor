@@ -3,13 +3,11 @@
     <b-row><b-col>
       <search-scroll :disabled="searching"></search-scroll>
     </b-col></b-row>
-    <b-row>
-      <ul class="list-unstyled" id="search-results" v-if="!searching">
-        <li class="col-sm-6 col-md-4 col-lg-3 list-item" v-for="scroll in scrolls" :key="scroll.name">
-          <scroll-card :scroll="scroll"></scroll-card>
-        </li>
-      </ul>
-    </b-row>
+    <ul class="list-unstyled row mt-5" id="search-results" v-if="!searching">
+      <li class="col-sm-6 col-md-4 col-lg-3 list-item" v-for="combination in combinations" :key="combination.versionId">
+        <scroll-card :scroll="combination"></scroll-card>
+      </li>
+    </ul>
     <b-row v-if="searching">
       <waiting></waiting>
     </b-row>
@@ -20,21 +18,25 @@
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchScroll from './components/SearchScroll.vue';
+import CombinationSearchService from '@/services/combination-search';
+import ScrollCard from './components/ScrollCard.vue';
 
 export default Vue.extend({
   name: 'home',
   components: {
     Waiting,
     SearchScroll,
+    ScrollCard,
   },
   data() {
     return {
+      combinationSearchService: new CombinationSearchService(this.$store),
       searching: false,
-      scrolls: [],
+      combinations: [],
     };
   },
-  mounted() {
-    // Load a randomized selection of scrolls for the first display
+  async mounted() {
+    this.combinations = await this.combinationSearchService.getAllCombinations();
   },
 });
 </script>
