@@ -13,8 +13,8 @@
 </template>
 
 <script>
-import Navbar from '@/components/Navbar.vue';
-import Waiting from '@/components/Waiting.vue';
+import Navbar from '@/components/navigation/Navbar.vue';
+import Waiting from '@/components/misc/Waiting.vue';
 import SessionService from '@/services/session.ts';
 
 export default {
