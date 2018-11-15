@@ -1,4 +1,4 @@
-import { StoreOptions, Module, MutationTree, ActionTree, GetterTree } from 'vuex';
+import { Module, MutationTree, ActionTree, GetterTree } from 'vuex';
 import { LanguageState, RootState } from './types';
 
 function getLocalStorageLanguage() {

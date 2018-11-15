@@ -18,8 +18,10 @@
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchScroll from './components/SearchScroll.vue';
-import CombinationSearchService from '@/services/combination-search';
+import CombinationService from '@/services/combinations';
 import ScrollCard from './components/ScrollCard.vue';
+import Combination from '@/models/combination';
+import Scroll from '@/models/scroll';
 
 export default Vue.extend({
   name: 'home',
@@ -30,13 +32,17 @@ export default Vue.extend({
   },
   data() {
     return {
-      combinationSearchService: new CombinationSearchService(this.$store),
+      combinationsService: new CombinationService(this.$store),
       searching: false,
-      combinations: [],
     };
   },
+  computed: {
+    privateCombinations(): Combination[] {
+      return this.$store.state.allScrollsState.combinations.filter((comb: Combination) => !comb.public);
+    }
+  },
   async mounted() {
-    this.combinations = await this.combinationSearchService.getAllCombinations();
+    this.combinationsService.fetchAllCombinations();
   },
 });
 </script>

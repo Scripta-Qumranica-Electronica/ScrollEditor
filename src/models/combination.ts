@@ -1,15 +1,14 @@
+import Scroll from './scroll';
+
 class Combination {
     public name: string;
     public id: number;
     public versionId: number;
     public locked: boolean;
     public userId: number;
-    public cols: any[];
-    public lines: any[];
-    public images: any[];
-    public artefacts: any[];
-    public rois: any[];
-    public initialSignId?: number;
+    public sharedBy: string[];
+
+    public scroll?: Scroll;
 
     constructor(serverObj: any) {
         this.name = serverObj.name;
@@ -17,12 +16,13 @@ class Combination {
         this.locked = serverObj.locked;
         this.versionId = serverObj.scroll_version_id;
         this.userId = serverObj.user_id;
-        this.cols = serverObj.cols || [];   // TODO: Change this into a class
-        this.lines = serverObj.lines || []; // TODO: Change this into a class
-        this.images = serverObj.imageReferences || []; // TODO: Change this into a class
-        this.artefacts = serverObj.artefacts || [];
-        this.rois = serverObj.rois || [];
-        this.initialSignId = serverObj.initial_sign_id;
+        this.sharedBy = serverObj.shared_by || [];
+
+        // scroll will be set by the combinations service after creating all combinations
+    }
+
+    get public() {
+        return this.userId === 1;
     }
 }
 
