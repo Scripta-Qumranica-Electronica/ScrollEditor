@@ -2,12 +2,19 @@ import Combination from './combination';
 
 class Scroll {
     public name: string;
-    public thumbnailUrl?: string;
+    public thumbnailUrls: string[];
+    public scrollVersionIds: number[];
+    public defaultScrollVersionId: number;
+    public numImageFragments: number;
     public combinations: Combination[] = [];
     public defaultCombination?: Combination;
 
-    constructor(name: string) {
-        this.name = name;
+    constructor(serverObj: any) {
+        this.name = serverObj.name;
+        this.thumbnailUrls = serverObj.thumbnails || [];
+        this.scrollVersionIds = serverObj.scroll_version_ids;
+        this.defaultScrollVersionId = serverObj.scroll_version_id;
+        this.numImageFragments = serverObj.image_fragments;
     }
 }
 

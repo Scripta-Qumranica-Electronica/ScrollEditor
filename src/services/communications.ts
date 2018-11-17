@@ -16,10 +16,10 @@ export class ServerError extends Error {
     public errorText: string;
 
     constructor(obj: any) {
-        super(obj.ERROR_TEXT || 'Server Error');
+        super(obj.ERROR_TEXT || obj.error || 'Server Error');
         this.type = obj.TYPE || '';
         this.errorCode = obj.ERROR_CODE || 0;
-        this.errorText = obj.ERROR_TEXT || '';
+        this.errorText = obj.ERROR_TEXT || obj.error || '';
     }
 }
 
@@ -45,10 +45,33 @@ export class Communicator {
         }
 
         const response = await axios.post<T>(this.url, body);
-        if ((response.data as any).TYPE === 'ERROR') {
+        const data = response.data as any;
+        if (data.TYPE === 'ERROR' || data.error) {
             throw new ServerError(response.data);
         }
 
         return response;
+    }
+
+    // Helper method that returns a list, converting a server error saying there are no items into an empty
+    // response.
+    // We do not return a generic type because we usually don't bother providing an interface for the server
+    // response, and need to convert it to your type. This conversion can't be done inside a generic function
+    // in typescript (no way to call new T()), so it has to be done outside.
+    public async listRequest(transactionType: string, payload?: any): Promise<ListResults<any>> {
+        try {
+            const response = await this.request<ListResults<any>>(transactionType, payload);
+            return response.data;
+        } catch (err) {
+            const serverError = err as ServerError;
+            if (err && err.errorText === 'No results found.') {
+                const empty: ListResults<string> = {
+                    results: []
+                };
+                return empty;
+            }
+            throw err;
+        }
+
     }
 }

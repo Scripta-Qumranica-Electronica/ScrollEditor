@@ -14,11 +14,6 @@ export interface SessionState {
     fullName?: string;
 }
 
-export interface AllScrollState {
-    scrolls: Scroll[];
-    combinations: Combination[];
-}
-
 export interface RootState {
 
 }
