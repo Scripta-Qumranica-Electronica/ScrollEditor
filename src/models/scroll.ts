@@ -11,8 +11,8 @@ class Scroll {
 
     constructor(serverObj: any) {
         this.name = serverObj.name;
-        this.thumbnailUrls = serverObj.thumbnails || [];
-        this.scrollVersionIds = serverObj.scroll_version_ids;
+        this.thumbnailUrls = JSON.parse(serverObj.thumbnails) || [];
+        this.scrollVersionIds = JSON.parse(serverObj.scroll_version_ids);
         this.defaultScrollVersionId = serverObj.scroll_version_id;
         this.numImageFragments = serverObj.image_fragments;
     }
