@@ -1,6 +1,7 @@
 <template>
   <div class="card">
-    <img class="card-img-top" :src="thumbnailSource" :alt="scroll.name">
+    <img class="card-img-top" v-if="thumbnailSource" :src="thumbnailSource" :alt="scroll.name">
+    <img class="card-img-top" v-if="!thumbnailSource" src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
     <h5 class="cart-title"> {{ scroll.name }}</h5>
   </div>
 </template>
@@ -15,12 +16,8 @@ export default Vue.extend({
     scroll: Scroll,
   },
   computed: {
-    thumbnailSource(): string {
-      if (this.scroll.thumbnailUrls.length) {
-        return this.scroll.thumbnailUrls[0];
-      }
-
-      return '@/assets/images/if_scroll_1375614.svg';
+    thumbnailSource(): string | undefined {
+      return this.scroll.thumbnailUrls.length ? this.scroll.thumbnailUrls[0] : undefined;
     }
   }
 });
@@ -31,7 +28,6 @@ export default Vue.extend({
 img {
   display: block;
   height: 100px;
+  max-height: 100px;
 }
 </style>
-
-
