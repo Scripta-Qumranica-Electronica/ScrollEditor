@@ -3,13 +3,13 @@
     <div class="col-sm-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
       <b-row><b-col>
         <b-form inline class="mt-2" @submit.prevent="">
-            <label for="filter">Filter Scroll:</label>
+            <label for="filter">{{ $t('home.filter') }}:</label>
             <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
         </b-form>
       </b-col></b-row>
       <div class="row">
         <div class="col">
-          <small>Number of scrolls: {{ filteredScrolls.length }}</small>
+          <small>{{ $tc('home.scrollCount', filteredScrolls.length) }}</small>
         </div>
       </div>
       <ul class="list-unstyled row mt-2" id="search-results" v-if="filteredScrolls.length">
