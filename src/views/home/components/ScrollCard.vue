@@ -1,14 +1,16 @@
 <template>
   <div class="card">
-    <img class="card-img-top" v-if="thumbnailSource" :src="thumbnailSource" :alt="scroll.name">
-    <img class="card-img-top" v-if="!thumbnailSource" src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
-    <h5 class="cart-title"> {{ scroll.name }}</h5>
+    <router-link tag="div" :to="{ name: 'scroll-ver', params: { id: scroll.defaultScrollVersionId }}">
+      <img class="card-img-top" v-if="thumbnailSource" :src="thumbnailSource" :alt="scroll.name">
+      <img class="card-img-top" v-if="!thumbnailSource" src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
+      <h5 class="cart-title">{{ scroll.name }}</h5>
+    </router-link>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import Scroll from '@/models/scroll';
+import { Scroll } from '@/models/scroll';
 
 export default Vue.extend({
   name: 'scroll-card',
@@ -29,5 +31,9 @@ img {
   display: block;
   height: 100px;
   max-height: 100px;
+}
+
+.card {
+  cursor: pointer;
 }
 </style>

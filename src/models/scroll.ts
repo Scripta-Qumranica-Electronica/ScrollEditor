@@ -18,4 +18,28 @@ class Scroll {
     }
 }
 
-export default Scroll;
+class ScrollVersionInfo {
+    public name: string;
+    public versionId: number;
+    public userName: string;
+    public numOfArtefacts: number;
+    public numOfColsFrags: number;
+    public canWrite: boolean;
+    public canLock: boolean;
+    public locked: boolean;
+    public lastEdit: Date | null;
+
+    constructor(serverObj: any) {
+        this.name = serverObj.scrollName;
+        this.versionId = serverObj.scrollVersionId;
+        this.userName = serverObj.userName;
+        this.numOfArtefacts = serverObj.numOfArtefacts;
+        this.numOfColsFrags = serverObj.numOfColsFrags;
+        this.canWrite = serverObj.canWrite === 1;
+        this.canLock = serverObj.canLock === 1;
+        this.locked = serverObj.locked === 1;
+        this.lastEdit = serverObj.lastEdit ? new Date(Date.parse(serverObj.lastEdit)) : null;
+    }
+}
+
+export { Scroll, ScrollVersionInfo };
