@@ -6,6 +6,10 @@ export interface ValidateSessionResponse {
     USER_ID: number;
 }
 
+export interface CopyCombinationResponse {
+    new_scroll_id: number;
+}
+
 export interface ListResults<T> {
     results: T[];
 }

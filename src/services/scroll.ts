@@ -1,5 +1,5 @@
 import { Store } from 'vuex';
-import { Communicator, ListResults } from './communications';
+import { Communicator, ListResults, CopyCombinationResponse } from './communications';
 import { Scroll, ScrollVersionInfo } from '@/models/scroll';
 
 class ScrollService {
@@ -20,6 +20,12 @@ class ScrollService {
 
         const list = response.results.map((obj) => new ScrollVersionInfo(obj));
         return list;
+    }
+
+    public async copyScrollVersion(versionId: number): Promise<number> {
+        const response = await this.communicator.request<CopyCombinationResponse>('copyCombination',
+                        { scroll_version_id: versionId });
+        return response.data.new_scroll_id;
     }
 }
 

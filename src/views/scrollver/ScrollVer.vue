@@ -8,7 +8,7 @@
                 <!-- Main display goes here -->
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4">
-                <scroll-ver-sidebar v-if="!waiting" :versions="scrollVersions" :current="currentVersion"/>
+                <scroll-ver-sidebar v-if="!waiting" :versions="scrollVersions" :current="currentVersion" :isNew="isNew"/>
             </div>
         </div>
     </div>
@@ -39,6 +39,9 @@ export default Vue.extend({
         currentVersionId(): number {
             return parseInt(this.$route.params.id, 10);
         },
+        isNew(): boolean {
+            return this.$route.params.new==='new';
+        }
     },
     mounted() {
         this.loadInfo();
