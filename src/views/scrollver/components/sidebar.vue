@@ -7,10 +7,11 @@
         </ul>
         <legend><h6>Versions</h6></legend>
         <ul>
-            <li v-for="version in versions" :key="version.versionId">
+            <router-link tag="li" v-for="version in versions" :key="version.versionId"
+                         :to="{ name: 'scroll-ver', params: { id: version.versionId }}">
                 {{ versionString(version) }} 
                 <span v-if="version.versionId===current.versionId" class="badge badge-secondary">Current</span>
-            </li>
+            </router-link>
         </ul>
         <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">Copy</b-btn>
 

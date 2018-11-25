@@ -24,7 +24,6 @@ class ScrollService {
 
     public async getMyScrollVersions(): Promise<ScrollVersionInfo[]> {
         const response = await this.communicator.listRequest('getMyScrollVersions');
-        console.log(response);
         const list = response.results.map((obj) => new ScrollVersionInfo(obj));
         return list;
     }
