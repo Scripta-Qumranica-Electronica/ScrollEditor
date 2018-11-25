@@ -59,7 +59,7 @@ export default Vue.extend({
                 // Can be called due to ENTER key
                 return;
             }
-            
+
             try {
                 this.waiting = true;
                 await this.sessionService.login(this.username, this.password);

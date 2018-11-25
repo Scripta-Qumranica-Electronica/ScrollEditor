@@ -1,6 +1,6 @@
 import { Store } from 'vuex';
 import { Communicator, ListResults, CopyCombinationResponse } from './communications';
-import { Scroll, ScrollVersionInfo } from '@/models/scroll';
+import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
 
 class ScrollService {
     private communicator: Communicator;
@@ -8,10 +8,10 @@ class ScrollService {
         this.communicator = new Communicator(this.store);
     }
 
-    public async listScrolls(): Promise<Scroll[]> {
+    public async listScrolls(): Promise<ScrollInfo[]> {
         const response = await this.communicator.listRequest('listScrolls');
 
-        const list = response.results.map((obj) => new Scroll(obj));
+        const list = response.results.map((obj) => new ScrollInfo(obj));
         return list;
     }
 

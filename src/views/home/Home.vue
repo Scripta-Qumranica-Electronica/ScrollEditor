@@ -26,7 +26,7 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ScrollService from '@/services/scroll';
 import ScrollCard from './components/ScrollCard.vue';
-import { Scroll } from '@/models/scroll';
+import { ScrollInfo } from '@/models/scroll';
 
 export default Vue.extend({
   name: 'home',
@@ -37,12 +37,12 @@ export default Vue.extend({
   data() {
     return {
       scrollService: new ScrollService(this.$store),
-      allScrolls: [] as Scroll[],
+      allScrolls: [] as ScrollInfo[],
       filter: '',
     };
   },
   computed: {
-    filteredScrolls(): Scroll[] {
+    filteredScrolls(): ScrollInfo[] {
       if (!this.filter) {
         return this.allScrolls;
       }

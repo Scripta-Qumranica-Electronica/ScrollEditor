@@ -1,13 +1,11 @@
 import Combination from './combination';
 
-class Scroll {
+class ScrollInfo {
     public name: string;
     public thumbnailUrls: string[];
     public scrollVersionIds: number[];
     public defaultScrollVersionId: number;
     public numImageFragments: number;
-    public combinations: Combination[] = [];
-    public defaultCombination?: Combination;
 
     constructor(serverObj: any) {
         this.name = serverObj.name;
@@ -42,4 +40,4 @@ class ScrollVersionInfo {
     }
 }
 
-export { Scroll, ScrollVersionInfo };
+export { ScrollInfo, ScrollVersionInfo };
