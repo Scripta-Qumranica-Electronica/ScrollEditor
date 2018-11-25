@@ -35,6 +35,9 @@ export default Vue.extend({
     publicVersionCount(): number {
       return this.scroll.scrollVersionIds.length;
     },
+    personalVersionCount(): number {
+      return 0;
+    }
   },
 });
 
