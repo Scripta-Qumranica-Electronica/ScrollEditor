@@ -1,11 +1,11 @@
 <template>
   <div class="card">
-    <router-link tag="a" :to="{ path: '/scroll', params: { id: scroll.id } }">
+    <router-link tag="a" :to="{ name: 'scroll-ver', params: { id: scroll.defaultScrollVersionId }}">
       <img class="card-img-top" v-if="thumbnailSource" :src="thumbnailSource" :alt="scroll.name">
       <img class="card-img-top" v-if="!thumbnailSource" src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
     </router-link>
     <div class="card-body">
-      <router-link tag="div" :to="{ path: '/scroll', params: { id: scroll.id } }">
+      <router-link tag="div" :to="{ name: 'scroll-ver', params: { id: scroll.defaultScrollVersionId }}">
         <h5 class="cart-title"> {{ scroll.name }}</h5>
         <p>
           <span class="badge badge-info mr-1">{{ publicVersionCount }}</span>{{ $tc('home.publicVersionCount', publicVersionCount)}}
@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Scroll from '@/models/scroll';
+import { Scroll } from '@/models/scroll';
 
 export default Vue.extend({
   name: 'scroll-card',

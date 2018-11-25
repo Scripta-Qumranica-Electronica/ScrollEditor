@@ -26,7 +26,7 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ScrollService from '@/services/scroll';
 import ScrollCard from './components/ScrollCard.vue';
-import Scroll from '@/models/scroll';
+import { Scroll } from '@/models/scroll';
 
 export default Vue.extend({
   name: 'home',
