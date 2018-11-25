@@ -51,6 +51,7 @@ class ScrollVersionInfo {
     public versionId: number;
     public owner: UserInfo;
     public permissions: Permissions;
+    public thumbnailUrls: string[];
 
     public shares: ShareInfo[];
 
@@ -61,12 +62,13 @@ class ScrollVersionInfo {
     public lastEdit: Date | null;
 
     constructor(serverObj: any) {
-        this.name = serverObj.scrollName;
-        this.versionId = serverObj.scrollVersionId;
+        this.name = serverObj.name;
+        this.versionId = serverObj.scroll_version_id;
         this.owner = new UserInfo(JSON.parse(serverObj.owner));
         this.permissions = new Permissions(serverObj);
+        this.thumbnailUrls = JSON.parse(serverObj.thumbnails || '[]');
 
-        const sharedObj: any[] = JSON.parse(serverObj.shares || '[]');
+        const sharedObj: any[] = JSON.parse(serverObj.shared || '[]');
         this.shares = sharedObj.map((obj) => new ShareInfo(obj));
 
         this.numOfArtefacts = serverObj.numOfArtefacts;

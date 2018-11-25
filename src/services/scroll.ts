@@ -22,6 +22,13 @@ class ScrollService {
         return list;
     }
 
+    public async getMyScrollVersions(): Promise<ScrollVersionInfo[]> {
+        const response = await this.communicator.listRequest('getMyScrollVersions');
+        console.log(response);
+        const list = response.results.map((obj) => new ScrollVersionInfo(obj));
+        return list;
+    }
+
     public async copyScrollVersion(versionId: number): Promise<number> {
         const response = await this.communicator.request<CopyCombinationResponse>('copyCombination',
                         { scroll_version_id: versionId });
