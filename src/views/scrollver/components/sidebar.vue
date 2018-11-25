@@ -54,7 +54,7 @@ export default Vue.extend({
     data() {
         return {
             scrollService: new ScrollService(this.$store),
-            newCopyName: '',
+            newCopyName: this.current.name,
             waiting: false,
             errorMessage: '',
         }
@@ -70,6 +70,12 @@ export default Vue.extend({
             this.errorMessage = '';
             try {
                 const newScrollVersion = await this.scrollService.copyScrollVersion(this.current.versionId);
+                
+                this.newCopyName = this.newCopyName.trim();
+                if (this.current.name !== this.newCopyName) {
+                    await this.scrollService.renameScrollVersion(newScrollVersion, this.newCopyName);
+                }
+
                 this.$router.push({ 
                     name: 'scroll-ver',
                     params: { 

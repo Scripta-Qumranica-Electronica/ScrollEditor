@@ -27,6 +27,10 @@ class ScrollService {
                         { scroll_version_id: versionId });
         return response.data.new_scroll_id;
     }
+
+    public async renameScrollVersion(versionId: number, newName: string): Promise<void> {
+        await this.communicator.request<any>('changeCombinationName', { scroll_version_id: versionId, name: newName });
+    }
 }
 
 export default ScrollService;
