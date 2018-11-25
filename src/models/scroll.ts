@@ -1,13 +1,32 @@
 import Combination from './combination';
 
+class UserInformation {
+    public userName: string;
+    public userId: string;
+
+    constructor(serverObj: any) {
+        this.userName = serverObj.name;
+        this.userId = serverObj.user_id;
+    }
+}
+
+class ShareInformation extends UserInformation {
+    public mayWrite: boolean;
+    public mayLock: boolean;
+
+    constructor(serverObj: any) {
+        super(serverObj);
+        this.mayWrite = serverObj.may_write === 1;
+        this.mayLock = serverObj.may_lock === 1;
+    }
+}
+
 class Scroll {
     public name: string;
     public thumbnailUrls: string[];
     public scrollVersionIds: number[];
     public defaultScrollVersionId: number;
     public numImageFragments: number;
-    public combinations: Combination[] = [];
-    public defaultCombination?: Combination;
 
     constructor(serverObj: any) {
         this.name = serverObj.name;
