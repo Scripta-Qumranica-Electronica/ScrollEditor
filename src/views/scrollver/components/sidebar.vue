@@ -57,7 +57,7 @@ export default Vue.extend({
             newCopyName: this.current.name,
             waiting: false,
             errorMessage: '',
-        }
+        };
     },
     methods: {
         versionString(ver: ScrollVersionInfo) {
@@ -65,30 +65,29 @@ export default Vue.extend({
         },
         async copyScroll(evt: Event) {
             evt.preventDefault();
-            
+
             this.waiting = true;
             this.errorMessage = '';
             try {
                 const newScrollVersion = await this.scrollService.copyScrollVersion(this.current.versionId);
-                
+
                 this.newCopyName = this.newCopyName.trim();
                 if (this.current.name !== this.newCopyName) {
                     await this.scrollService.renameScrollVersion(newScrollVersion, this.newCopyName);
                 }
 
-                this.$router.push({ 
+                this.$router.push({
                     name: 'scroll-ver',
-                    params: { 
+                    params: {
                         id: newScrollVersion.toString(),
                         new: 'new',
-                    } 
+                    },
                 });
-            } catch(err) {
+            } catch (err) {
                 this.errorMessage = err;
             } finally {
                 this.waiting = false;
             }
-            console.log("About to copy scroll ", this.newCopyName);
         },
         copyModalShown() {
             this.newCopyName = '';
