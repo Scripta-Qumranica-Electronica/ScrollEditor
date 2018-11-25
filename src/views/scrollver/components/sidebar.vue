@@ -63,7 +63,9 @@ export default Vue.extend({
         versionString(ver: ScrollVersionInfo) {
             return `${ver.name} - ${ver.userName}`;
         },
-        async copyScroll() {
+        async copyScroll(evt: Event) {
+            evt.preventDefault();
+            
             this.waiting = true;
             this.errorMessage = '';
             try {
