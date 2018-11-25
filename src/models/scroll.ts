@@ -36,13 +36,23 @@ class Permissions {
     }
 }
 
+class ShareInfo {
+    public user: UserInfo;
+    public permissions: Permissions;
+
+    constructor(serverObj: any) {
+        this.user = new UserInfo(serverObj);
+        this.permissions = new Permissions(serverObj);
+    }
+}
+
 class ScrollVersionInfo {
     public name: string;
     public versionId: number;
-    public ownerName: string;
+    public owner: UserInfo;
     public permissions: Permissions;
 
-    public shares: { [user: string]: Permissions };
+    public shares: ShareInfo[];
 
     public numOfArtefacts: number;
     public numOfColsFrags: number;
@@ -53,9 +63,11 @@ class ScrollVersionInfo {
     constructor(serverObj: any) {
         this.name = serverObj.scrollName;
         this.versionId = serverObj.scrollVersionId;
-        this.ownerName = serverObj.userName;
+        this.owner = new UserInfo(JSON.parse(serverObj.owner));
         this.permissions = new Permissions(serverObj);
-        this.shares = { };
+
+        const sharedObj: any[] = JSON.parse(serverObj.shares || '[]');
+        this.shares = sharedObj.map((obj) => new ShareInfo(obj));
 
         this.numOfArtefacts = serverObj.numOfArtefacts;
         this.numOfColsFrags = serverObj.numOfColsFrags;
