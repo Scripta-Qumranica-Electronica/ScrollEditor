@@ -18,13 +18,18 @@
                  :title="`Copy ${current.name} by ${current.userName}`" 
                  @shown="copyModalShown"
                  @ok="copyScroll"
-                 :ok-disabled="!newCopyName || waiting"
+                 :ok-disabled="waiting || !canCopy"
                  :cancel-disabled="waiting">
             <form @submit.stop.prevent="copyScroll">
                 <b-form-group label="New Scroll Name"
                               label-for="newCopyName"
                               description="Please provide a name for the new scroll">
-                    <b-form-input ref="newCopyName" id="newName" v-model="newCopyName" type="text" required placeholder="Scroll Name">
+                    <b-form-input ref="newCopyName"
+                                  id="newName" 
+                                  v-model="newCopyName" 
+                                  type="text"
+                                  @keyup.enter="copyScroll" 
+                                  required placeholder="Scroll Name">
                     </b-form-input>
                 </b-form-group>
                 <p v-if="waiting">
@@ -54,10 +59,15 @@ export default Vue.extend({
     data() {
         return {
             scrollService: new ScrollService(this.$store),
-            newCopyName: this.current.name,
+            newCopyName: '',
             waiting: false,
             errorMessage: '',
         };
+    },
+    computed: {
+        canCopy(): boolean {
+            return this.newCopyName.trim().length > 0;
+        }
     },
     methods: {
         versionString(ver: ScrollVersionInfo) {
@@ -66,12 +76,16 @@ export default Vue.extend({
         async copyScroll(evt: Event) {
             evt.preventDefault();
 
+            if (!this.canCopy) {
+                return;  // ENTER key calls this handler even if the button is disabled
+            }
+            this.newCopyName = this.newCopyName.trim();
+
             this.waiting = true;
             this.errorMessage = '';
             try {
                 const newScrollVersion = await this.scrollService.copyScrollVersion(this.current.versionId);
 
-                this.newCopyName = this.newCopyName.trim();
                 if (this.current.name !== this.newCopyName) {
                     await this.scrollService.renameScrollVersion(newScrollVersion, this.newCopyName);
                 }
@@ -90,7 +104,7 @@ export default Vue.extend({
             }
         },
         copyModalShown() {
-            this.newCopyName = '';
+            this.newCopyName = this.current.name;
             (this.$refs.newCopyName as any).focus();
         },
     },
