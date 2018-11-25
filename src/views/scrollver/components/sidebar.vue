@@ -15,7 +15,7 @@
         <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">Copy</b-btn>
 
         <b-modal id="copyModal" 
-                 :title="`Copy ${current.name} by ${current.userName}`" 
+                 :title="`Copy ${current.name} by ${current.ownerName}`" 
                  @shown="copyModalShown"
                  @ok="copyScroll"
                  :ok-disabled="waiting || !canCopy"
@@ -71,7 +71,7 @@ export default Vue.extend({
     },
     methods: {
         versionString(ver: ScrollVersionInfo) {
-            return `${ver.name} - ${ver.userName}`;
+            return `${ver.name} - ${ver.ownerName}`;
         },
         async copyScroll(evt: Event) {
             evt.preventDefault();
