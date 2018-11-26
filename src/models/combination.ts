@@ -1,4 +1,4 @@
-import { Scroll } from './scroll';
+import { ScrollInfo } from './scroll';
 
 // A combination is called scroll_version in the server
 class Combination {

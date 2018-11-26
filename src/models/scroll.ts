@@ -37,28 +37,67 @@ class Scroll {
     }
 }
 
+class UserInfo {
+    public userName: string;
+    public userId: number;
+
+    constructor(serverObj: any) {
+        this.userName = serverObj.name;
+        this.userId = serverObj.id;
+    }
+}
+
+class Permissions {
+    public canWrite: boolean;
+    public canLock: boolean;
+
+    constructor(serverObj: any) {
+        this.canWrite = serverObj.can_write === 1;
+        this.canLock = serverObj.can_lock === 1;
+    }
+}
+
+class ShareInfo {
+    public user: UserInfo;
+    public permissions: Permissions;
+
+    constructor(serverObj: any) {
+        this.user = new UserInfo(serverObj);
+        this.permissions = new Permissions(serverObj);
+    }
+}
+
 class ScrollVersionInfo {
     public name: string;
     public versionId: number;
-    public userName: string;
+    public owner: UserInfo;
+    public permissions: Permissions;
+    public thumbnailUrls: string[];
+
+    public shares: ShareInfo[];
+
     public numOfArtefacts: number;
     public numOfColsFrags: number;
-    public canWrite: boolean;
-    public canLock: boolean;
+
     public locked: boolean;
     public lastEdit: Date | null;
 
     constructor(serverObj: any) {
-        this.name = serverObj.scrollName;
-        this.versionId = serverObj.scrollVersionId;
-        this.userName = serverObj.userName;
+        this.name = serverObj.name;
+        this.versionId = serverObj.scroll_version_id;
+        this.owner = new UserInfo(JSON.parse(serverObj.owner));
+        this.permissions = new Permissions(serverObj);
+        this.thumbnailUrls = JSON.parse(serverObj.thumbnails || '[]');
+
+        const sharedObj: any[] = JSON.parse(serverObj.shared || '[]');
+        this.shares = sharedObj.map((obj) => new ShareInfo(obj));
+
         this.numOfArtefacts = serverObj.numOfArtefacts;
         this.numOfColsFrags = serverObj.numOfColsFrags;
-        this.canWrite = serverObj.canWrite === 1;
-        this.canLock = serverObj.canLock === 1;
+
         this.locked = serverObj.locked === 1;
         this.lastEdit = serverObj.lastEdit ? new Date(Date.parse(serverObj.lastEdit)) : null;
     }
 }
 
-export { Scroll, ScrollVersionInfo };
+export { ScrollInfo, ScrollVersionInfo };

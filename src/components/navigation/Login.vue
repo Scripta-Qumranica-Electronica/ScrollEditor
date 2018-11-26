@@ -1,10 +1,10 @@
  <template>
   <div>
     <b-modal ref="loginModalRef" id="loginModal" title="Login" @shown="shown">
-        <b-container fluid>
+        <b-container fluid @keyup.enter="login">
             <b-row class="mb-2">
                 <b-col cols="3">{{ $t('navbar.username') }}</b-col>
-                <b-col><b-form-input v-model="username"></b-form-input></b-col>
+                <b-col><b-form-input ref="username" v-model="username"></b-form-input></b-col>
             </b-row>
             <b-row class="mb-2">
                 <b-col cols="3">{{ $t('navbar.password') }}</b-col>
@@ -55,6 +55,11 @@ export default Vue.extend({
     },
     methods: {
         async login() {
+            if (this.disabledLogin) {
+                // Can be called due to ENTER key
+                return;
+            }
+
             try {
                 this.waiting = true;
                 await this.sessionService.login(this.username, this.password);
@@ -77,6 +82,7 @@ export default Vue.extend({
         shown() {
             this.errorMessage = '';
             this.waiting = false;
+            (this.$refs.username as any).focus();
         }
     }
 });
