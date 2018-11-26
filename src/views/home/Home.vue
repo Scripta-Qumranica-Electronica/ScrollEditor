@@ -55,7 +55,7 @@ export default Vue.extend({
     };
   },
   computed: {
-    filteredMyScrolls() : ScrollVersionInfo[] {
+    filteredMyScrolls(): ScrollVersionInfo[] {
       if (!this.filter) {
         return this.myScrolls;
       }

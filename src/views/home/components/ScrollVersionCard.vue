@@ -28,7 +28,7 @@ export default Vue.extend({
     thumbnailSource(): string | undefined {
       return this.scrollVer.thumbnailUrls.length ? this.scrollVer.thumbnailUrls[0] : undefined;
     },
-    shareCount() : number {
+    shareCount(): number {
       return this.scrollVer.shares.length - 1; // One is the current user
     }
   },

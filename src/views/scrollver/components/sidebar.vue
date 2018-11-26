@@ -6,7 +6,7 @@
             <li>Columns &amp; Fragments: {{ current.numOfColsFrags }}</li>
         </ul>
         <legend><h6>Versions</h6></legend>
-        <ul>
+        <ul id="version-list">
             <router-link tag="li" v-for="version in versions" :key="version.versionId"
                          :to="{ name: 'scroll-ver', params: { id: version.versionId }}">
                 {{ versionString(version) }} 
@@ -116,5 +116,9 @@ export default Vue.extend({
 ul {
     list-style-type: none;
     padding: 0px;
+}
+
+ul#version-list li {
+    cursor: pointer;
 }
 </style>

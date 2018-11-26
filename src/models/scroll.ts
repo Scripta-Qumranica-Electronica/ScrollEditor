@@ -21,7 +21,7 @@ class ShareInformation extends UserInformation {
     }
 }
 
-class Scroll {
+class ScrollInfo {
     public name: string;
     public thumbnailUrls: string[];
     public scrollVersionIds: number[];
