@@ -5,4 +5,11 @@ export default {
     publicVersionCount: ' | public version | public versions',
     personalVersionCount: ' | personal version | persinal versions',
     shares: ' | share | shares',
+    artefacts: 'Artefacts',
+    versions: 'Versions',
+    colsAndFrags: 'Columns & Fragments',
+    copyTitle: 'Copy {name} by {owner}',
+    newScrollName: 'New Scroll Name',
+    newScrollDesc: 'Please provide a name for the new scroll',
+    copyingScroll: 'Copying scroll'
 };

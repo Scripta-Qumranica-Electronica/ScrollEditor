@@ -1,40 +1,43 @@
 <template>
     <div v-if="current">
-        <h5>{{ versionString(current) }} <span class="badge badge-success" v-if="isNew">New</span></h5>
+        <h5>{{ versionString(current) }} <span class="badge badge-success" v-if="isNew">{{ $t('misc.new') }}</span></h5>
         <ul>
-            <li>Artefacts: {{ current.numOfArtefacts }}</li>
-            <li>Columns &amp; Fragments: {{ current.numOfColsFrags }}</li>
+            <li>{{ $t('home.artefacts') }}: {{ current.numOfArtefacts }}</li>
+            <li>{{ $t('home.colsAndFrags') }}: {{ current.numOfColsFrags }}</li>
         </ul>
-        <legend><h6>Versions</h6></legend>
+        <legend><h6>{{ $t('home.versions') }}</h6></legend>
         <ul id="version-list">
             <router-link tag="li" v-for="version in versions" :key="version.versionId"
                          :to="{ name: 'scroll-ver', params: { id: version.versionId }}">
                 {{ versionString(version) }} 
-                <span v-if="version.versionId===current.versionId" class="badge badge-secondary">Current</span>
+                <span v-if="version.versionId===current.versionId" class="badge badge-secondary">{{ $t('misc.current') }}</span>
             </router-link>
         </ul>
-        <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">Copy</b-btn>
+        <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
 
         <b-modal id="copyModal" 
-                 :title="`Copy ${current.name} by ${current.owner.userName}`" 
+                 :title="$t('home.copyTitle', { name: current.name, owner: current.owner.userName })"
                  @shown="copyModalShown"
                  @ok="copyScroll"
+                 :ok-title="$t('misc.copy')"
+                 :cancel-title="$t('misc.cancel')"
                  :ok-disabled="waiting || !canCopy"
                  :cancel-disabled="waiting">
             <form @submit.stop.prevent="copyScroll">
-                <b-form-group label="New Scroll Name"
+                <b-form-group :label="$t('home.newScrollName')"
                               label-for="newCopyName"
-                              description="Please provide a name for the new scroll">
+                              :description="$t('home.newScrollDesc')">
                     <b-form-input ref="newCopyName"
                                   id="newName" 
                                   v-model="newCopyName" 
                                   type="text"
                                   @keyup.enter="copyScroll" 
-                                  required placeholder="Scroll Name">
+                                  required 
+                                  :placeholder="$t('home.newScrollName')">
                     </b-form-input>
                 </b-form-group>
                 <p v-if="waiting">
-                    Copying scroll...
+                    {{ $t('home.copyingScroll') }}...
                     <font-awesome-icon icon="spinner" spin></font-awesome-icon>
                 </p>
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>

@@ -5,4 +5,11 @@ export default {
     publicVersionCount: ' | גירסא ציבורית | גרסאות ציבוריות',
     personalVersionCount: ' | גירסה אישית | גירסאות אישיות',
     shares: ' | שיתוף | שיתופים',
+    artefacts: 'ממצאים',
+    versions: 'גרסאות',
+    colsAndFrags: 'טורים ומקטעים',
+    copyTitle: 'העתקת {name} מאת {owner}',
+    newScrollName: 'שם המגילה החדש',
+    newScrollDesc: 'יש למלא את השם החדש של המגילה',
+    copyingScroll: 'מעתיק מגילה'
 };
