@@ -9,4 +9,5 @@ export default {
     navbar,
     home,
     display: 'English',
+    dir: 'ltr',
 };

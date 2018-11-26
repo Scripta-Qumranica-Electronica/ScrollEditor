@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :dir="$t('dir')">
     <navbar></navbar>
     <div v-if="waiting">
       <Waiting></Waiting>

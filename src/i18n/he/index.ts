@@ -6,4 +6,5 @@ import home from './home';
 export default {
     error, misc, navbar, home,
     display: 'עברית',
+    dir: 'rtl',
 };
