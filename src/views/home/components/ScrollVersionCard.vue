@@ -8,7 +8,9 @@
       <router-link tag="div" :to="{ name: 'scroll-ver', params: { id: scrollVer.versionId }}">
         <h5 class="cart-title"> {{ scrollVer.name }}</h5>
         <p v-if="shareCount">
-          <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
+          <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
+            <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
+          </b-btn>
         </p>
       </router-link>
     </div>
@@ -30,6 +32,16 @@ export default Vue.extend({
     },
     shareCount(): number {
       return this.scrollVer.shares.length - 1; // One is the current user
+    },
+    shareNames(): string {
+      var names = "";
+      for (var i = 1 ; i < this.scrollVer.shares.length; i++) {
+        names += this.scrollVer.shares[i].user.userName;
+        if (i <  this.scrollVer.shares.length-1) {
+          names += ", ";
+        }
+      }
+      return names;
     }
   },
 });
@@ -44,5 +56,10 @@ img {
 }
 h5 {
   cursor: pointer;
+}
+
+.share {
+  color: black; 
+  background-color: white
 }
 </style>
