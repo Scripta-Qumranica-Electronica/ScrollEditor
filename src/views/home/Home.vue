@@ -9,21 +9,29 @@
       </b-col></b-row>
       <div class="row">
         <div class="col">
-          <small>{{ $tc('home.personalScrollCount', filteredMyScrolls.length) }}</small>
+          <small>{{ $tc('home.personalScrollCount', numberOfMyScrolls)}}</small>
         </div>
       </div>
-      <ul class="list-unstyled row mt-2" id="search-results" v-if="filteredMyScrolls.length">
-        <li class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item" v-for="scrollVer in filteredMyScrolls" :key="scrollVer.versionId">
+      <ul class="list-unstyled row mt-2" id="search-results" v-if="myScrolls.length">
+        <li 
+            class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item" 
+            v-for="scrollVer in myScrolls" 
+            v-show="filter === '' || scrollVer.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1" 
+            :key="scrollVer.versionId">
           <scroll-version-card :scrollVer="scrollVer"></scroll-version-card>
         </li>
       </ul>
       <div class="row">
         <div class="col">
-          <small>{{ $tc('home.publicScrollCount', filteredAllScrolls.length) }}</small>
+          <small>{{ $tc('home.publicScrollCount', numberOfScrolls)}}</small>
         </div>
       </div>
-      <ul class="list-unstyled row mt-2" id="search-results" v-if="filteredAllScrolls.length">
-        <li class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item" v-for="scroll in filteredAllScrolls" :key="scroll.id">
+      <ul class="list-unstyled row mt-2" id="search-results" v-if="allScrolls.length">
+        <li 
+            class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item" 
+            v-for="scroll in allScrolls" 
+            v-show="filter === '' || scroll.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1" 
+            :key="scroll.id">
           <scroll-card :scroll="scroll"></scroll-card>
         </li>
       </ul>
@@ -55,20 +63,12 @@ export default Vue.extend({
     };
   },
   computed: {
-    filteredMyScrolls(): ScrollVersionInfo[] {
-      if (!this.filter) {
-        return this.myScrolls;
-      }
-
-      return this.myScrolls.filter((scroll) => scroll.name.toLowerCase().startsWith(this.filter.toLowerCase()));
+    numberOfScrolls(): number {
+        return this.allScrolls.reduce((x,scroll) => scroll.name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1 ? x + 1 : x, 0)
     },
-    filteredAllScrolls(): ScrollInfo[] {
-      if (!this.filter) {
-        return this.allScrolls;
-      }
-
-      return this.allScrolls.filter((scroll) => scroll.name.toLowerCase().startsWith(this.filter.toLowerCase()));
-    }
+    numberOfMyScrolls(): number {
+        return this.myScrolls.reduce((x,scroll) => scroll.name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1 ? x + 1 : x, 0)
+    }  
   },
   mounted() {
     // We do not use async/await here because we want both requests to go out simultaneously.
@@ -83,6 +83,11 @@ export default Vue.extend({
       throw error;
     });
   },
+  filters: {
+      nameMatch: function (value: string): boolean {
+          return value.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1
+      }
+  }
 });
 </script>
 

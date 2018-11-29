@@ -45,10 +45,11 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-img {
+img.card-img-top {
   display: block;
   height: 100px;
   max-height: 100px;
+  object-fit: cover;
 }
 h5 {
   cursor: pointer;

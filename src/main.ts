@@ -26,7 +26,7 @@ Vue.config.productionTip = false;
 // TODO do we need a polyfill for Intersection Observer?
 Vue.use(VueLazyload, {
   /*error: 'dist/error.png',*/
-  loading: '@/assets/images/if_scroll_1375614.svg',
+  loading: 'rings.svg',
   observer: true,
   observerOptions: {
     rootMargin: '0px',
