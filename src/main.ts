@@ -3,6 +3,9 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 
+// TODOcan we add or find a .d.ts file for this?
+const VueLazyload= require('vue-lazyload');
+
 // Bootstrap
 import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -18,6 +21,18 @@ import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
 
 Vue.config.productionTip = false;
+
+// TODO use a real loading image and add an error image
+// TODO do we need a polyfill for Intersection Observer?
+Vue.use(VueLazyload, {
+  /*error: 'dist/error.png',*/
+  loading: '@/assets/images/if_scroll_1375614.svg',
+  observer: true,
+  observerOptions: {
+    rootMargin: '0px',
+    threshold: 0.5
+  }
+});
 
 Vue.use(BootstrapVue);
 

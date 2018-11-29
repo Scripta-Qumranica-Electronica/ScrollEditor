@@ -1,8 +1,9 @@
 <template>
   <div class="card">
     <router-link tag="a" :to="{ name: 'scroll-ver', params: { id: scroll.defaultScrollVersionId }}">
-      <img class="card-img-top" v-if="thumbnailSource" :src="thumbnailSource" :alt="scroll.name">
-      <img class="card-img-top" v-if="!thumbnailSource" src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
+      <!--TODO do not hardcode the image proxy server-->
+      <img class="card-img-top" v-if="thumbnailSource" v-lazy="`https://www.qumranica.org/image-proxy?address=${thumbnailSource}`" :alt="scroll.name">
+      <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
     </router-link>
     <div class="card-body">
       <router-link tag="div" :to="{ name: 'scroll-ver', params: { id: scroll.defaultScrollVersionId }}">
