@@ -1,14 +1,17 @@
 <template>
   <div class="card">
     <router-link tag="a" :to="{ name: 'scroll-ver', params: { id: scrollVer.versionId }}">
-      <img class="card-img-top" v-if="thumbnailSource" :src="thumbnailSource" :alt="scrollVer.name">
-      <img class="card-img-top" v-if="!thumbnailSource" src="@/assets/images/if_scroll_1375614.svg" :alt="scrollVer.name">
+      <!--TODO do not hardcode the image proxy server-->
+      <img class="card-img-top" v-if="thumbnailSource" v-lazy="`https://www.qumranica.org/image-proxy?address=${thumbnailSource}`" :alt="scrollVer.name">
+      <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scrollVer.name">
     </router-link>
     <div class="card-body">
       <router-link tag="div" :to="{ name: 'scroll-ver', params: { id: scrollVer.versionId }}">
         <h5 class="cart-title"> {{ scrollVer.name }}</h5>
         <p v-if="shareCount">
-          <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
+          <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
+            <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
+          </b-btn>
         </p>
       </router-link>
     </div>
@@ -30,6 +33,16 @@ export default Vue.extend({
     },
     shareCount(): number {
       return this.scrollVer.shares.length - 1; // One is the current user
+    },
+    shareNames(): string {
+      var names = "";
+      for (var i = 1 ; i < this.scrollVer.shares.length; i++) {
+        names += this.scrollVer.shares[i].user.userName;
+        if (i <  this.scrollVer.shares.length-1) {
+          names += ", ";
+        }
+      }
+      return names;
     }
   },
 });
@@ -44,5 +57,10 @@ img {
 }
 h5 {
   cursor: pointer;
+}
+
+.share {
+  color: black; 
+  background-color: white
 }
 </style>

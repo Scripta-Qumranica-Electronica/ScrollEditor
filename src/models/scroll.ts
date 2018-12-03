@@ -1,26 +1,5 @@
 import Combination from './combination';
 
-class UserInformation {
-    public userName: string;
-    public userId: string;
-
-    constructor(serverObj: any) {
-        this.userName = serverObj.name;
-        this.userId = serverObj.user_id;
-    }
-}
-
-class ShareInformation extends UserInformation {
-    public mayWrite: boolean;
-    public mayLock: boolean;
-
-    constructor(serverObj: any) {
-        super(serverObj);
-        this.mayWrite = serverObj.may_write === 1;
-        this.mayLock = serverObj.may_lock === 1;
-    }
-}
-
 class ScrollInfo {
     public name: string;
     public thumbnailUrls: string[];
@@ -100,4 +79,4 @@ class ScrollVersionInfo {
     }
 }
 
-export { ScrollInfo, ScrollVersionInfo };
+export { ScrollInfo, ScrollVersionInfo, ShareInfo };
