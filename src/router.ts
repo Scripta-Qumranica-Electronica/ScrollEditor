@@ -15,7 +15,7 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/scroll/:id/:new?',
+      path: '/scroll/:id',
       component: ScrollVer,
       name: 'scroll-ver',
     },

@@ -14,6 +14,10 @@ export interface SessionState {
     fullName?: string;
 }
 
+export interface MiscUIState {
+    newScrollVersionId: number | null;
+}
+
 export interface RootState {
 
 }

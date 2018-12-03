@@ -40,7 +40,7 @@ export default Vue.extend({
             return parseInt(this.$route.params.id, 10);
         },
         isNew(): boolean {
-            return this.$route.params.new === 'new';
+            return this.$store.state.miscUI.newScrollVersionId === this.currentVersionId;
         }
     },
     mounted() {

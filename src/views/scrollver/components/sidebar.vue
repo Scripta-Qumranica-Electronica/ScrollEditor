@@ -88,17 +88,19 @@ export default Vue.extend({
             this.waiting = true;
             this.errorMessage = '';
             try {
-                const newScrollVersion = await this.scrollService.copyScrollVersion(this.current.versionId);
+                const newScrollVersionId = await this.scrollService.copyScrollVersion(this.current.versionId);
 
                 if (this.current.name !== this.newCopyName) {
-                    await this.scrollService.renameScrollVersion(newScrollVersion, this.newCopyName);
+                    await this.scrollService.renameScrollVersion(newScrollVersionId, this.newCopyName);
                 }
 
+                this.$store.dispatch('miscUI/setNewScrollVersionId',
+                                     newScrollVersionId,
+                                     { root: true }) ;
                 this.$router.push({
                     name: 'scroll-ver',
                     params: {
-                        id: newScrollVersion.toString(),
-                        new: 'new',
+                        id: newScrollVersionId.toString(),
                     },
                 });
             } catch (err) {
