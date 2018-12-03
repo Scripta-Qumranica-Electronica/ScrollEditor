@@ -1,14 +1,21 @@
 <template>
     <div v-if="current">
         <h5>{{ versionString(current) }} <span class="badge badge-success" v-if="isNew">{{ $t('misc.new') }}</span></h5>
-        <ul>
-            <li>{{ $t('home.artefacts') }}: {{ current.numOfArtefacts }}</li>
-            <li>{{ $t('home.colsAndFrags') }}: {{ current.numOfColsFrags }}</li>
+        <ul id="links">
+            <router-link tag='li' :to="`/scroll/${current.versionId}/artefacts`">
+                {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }}
+            </router-link>
+            <router-link tag='li' :to="`/scroll/${current.versionId}/columns`">
+                {{ $t('home.columns') }}: {{ current.numOfColumns }}
+            </router-link>
+            <router-link tag='li' :to="`/scroll/${current.versionId}/fragments`">
+                {{ $t('home.fragments') }}: {{ current.numOfFragments }}
+            </router-link>
         </ul>
         <legend><h6>{{ $t('home.versions') }}</h6></legend>
         <ul id="version-list">
             <router-link tag="li" v-for="version in versions" :key="version.versionId"
-                         :to="{ name: 'scroll-ver', params: { id: version.versionId }}">
+                         :to="`/scroll/${version.versionId}`">
                 {{ versionString(version) }} 
                 <span v-if="version.versionId===current.versionId" class="badge badge-secondary">{{ $t('misc.current') }}</span>
             </router-link>
@@ -88,18 +95,17 @@ export default Vue.extend({
             this.waiting = true;
             this.errorMessage = '';
             try {
-                const newScrollVersion = await this.scrollService.copyScrollVersion(this.current.versionId);
+                const newScrollVersionId = await this.scrollService.copyScrollVersion(this.current.versionId);
 
                 if (this.current.name !== this.newCopyName) {
-                    await this.scrollService.renameScrollVersion(newScrollVersion, this.newCopyName);
+                    await this.scrollService.renameScrollVersion(newScrollVersionId, this.newCopyName);
                 }
 
+                this.$store.dispatch('miscUI/setNewScrollVersionId',
+                                     newScrollVersionId,
+                                     { root: true }) ;
                 this.$router.push({
-                    name: 'scroll-ver',
-                    params: {
-                        id: newScrollVersion.toString(),
-                        new: 'new',
-                    },
+                    path: `/scroll/${newScrollVersionId}`,
                 });
             } catch (err) {
                 this.errorMessage = err;
@@ -119,6 +125,13 @@ export default Vue.extend({
 ul {
     list-style-type: none;
     padding: 0px;
+}
+
+ul#links {
+    cursor: pointer;
+    li.router-link-active {
+        font-weight: bold;
+    }
 }
 
 ul#version-list li {
