@@ -1,26 +1,31 @@
 <template>
     <div v-if="current">
-        <h5>{{ versionString(current) }} <span class="badge badge-success" v-if="isNew">{{ $t('misc.new') }}</span></h5>
-        <ul id="links">
-            <router-link tag='li' :to="`/scroll/${current.versionId}/artefacts`">
+        <div class="sidebar-header">
+            <h5>{{ versionString(current) }} 
+                <span class="badge badge-success" v-if="isNew">{{ $t('misc.new') }}</span>
+            </h5>
+        </div>
+
+        <b-nav vertical>
+            <b-nav-item :to="`/scroll/${current.versionId}/artefacts`">
                 {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }}
-            </router-link>
-            <router-link tag='li' :to="`/scroll/${current.versionId}/columns`">
+            </b-nav-item>
+            <b-nav-item :to="`/scroll/${current.versionId}/columns`">
                 {{ $t('home.columns') }}: {{ current.numOfColumns }}
-            </router-link>
-            <router-link tag='li' :to="`/scroll/${current.versionId}/fragments`">
+            </b-nav-item>
+            <b-nav-item :to="`/scroll/${current.versionId}/fragments`">
                 {{ $t('home.fragments') }}: {{ current.numOfFragments }}
-            </router-link>
-        </ul>
-        <legend><h6>{{ $t('home.versions') }}</h6></legend>
-        <ul id="version-list" v-if="current.otherVersions">
-            <router-link tag="li" v-for="version in current.otherVersions" :key="version.versionId"
-                         :to="`/scroll/${version.versionId}`">
-                {{ versionString(version) }} 
-            </router-link>
-        </ul>
-        <p v-if="!current.otherVersions"><small>{ $t("home.noVersions") }</small></p>
-        <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
+            </b-nav-item>
+            <b-nav-item-dropdown v-if="current.otherVersions" :text="$t('home.versions')">
+                <b-dropdown-item v-for="version in current.otherVersions" :key="version.versionId"
+                                 :to="`/scroll/${version.versionId}`">
+                    {{ versionString(version) }}
+                </b-dropdown-item>
+            </b-nav-item-dropdown>
+            <b-nav-text v-if="!current.otherVersions">
+                <small>{ $t("home.noVersions") }</small>
+            </b-nav-text>
+        </b-nav>
 
         <b-modal id="copyModal" 
                  :title="$t('home.copyTitle', { name: current.name, owner: current.owner.userName })"
