@@ -1,5 +1,3 @@
-import Combination from './combination';
-
 class ScrollInfo {
     public name: string;
     public thumbnailUrls: string[];
