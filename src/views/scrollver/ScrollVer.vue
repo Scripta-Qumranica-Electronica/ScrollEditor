@@ -7,7 +7,7 @@
                 <router-view></router-view>
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4">
-                <scroll-ver-sidebar v-if="!waiting" :versions="scrollVersions" :current="currentVersion" :isNew="isNew"/>
+                <scroll-ver-sidebar/>
             </div>
         </div>
     </div>
@@ -29,35 +29,29 @@ export default Vue.extend({
     data() {
         return {
             scrollService: new ScrollService(this.$store),
-            scrollVersions: [] as ScrollVersionInfo[],
-            currentVersion: undefined as ScrollVersionInfo | undefined,
-            waiting: false,
+            currentVersionId: 0,
         };
     },
     computed: {
-        currentVersionId(): number {
-            return parseInt(this.$route.params.id, 10);
+        currentVersion(): ScrollVersionInfo {
+            return this.$store.state.scroll.scrollVersion;
         },
-        isNew(): boolean {
-            return this.$store.state.miscUI.newScrollVersionId === this.currentVersionId;
+        waiting(): boolean {
+            return !this.currentVersion;
         }
     },
     mounted() {
+        this.currentVersionId = parseInt(this.$route.params.id, 10);
         this.loadInfo();
     },
     beforeRouteUpdate(to, from, next) {
+        this.currentVersionId = parseInt(to.params.id, 10);
         this.loadInfo();
         next();
     },
     methods: {
         async loadInfo() {
-            this.waiting = true;
-            try {
-                this.scrollVersions = await this.scrollService.getScrollVersions(this.currentVersionId);
-                this.currentVersion = this.scrollVersions.find((sv) => sv.versionId === this.currentVersionId);
-            } finally {
-                this.waiting = false;
-            }
+            await this.scrollService.fetchScrollVersion(this.currentVersionId);
         }
     },
 });

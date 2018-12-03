@@ -12,5 +12,6 @@ export default {
     copyTitle: 'העתקת {name} מאת {owner}',
     newScrollName: 'שם המגילה החדש',
     newScrollDesc: 'יש למלא את השם החדש של המגילה',
-    copyingScroll: 'מעתיק מגילה'
+    copyingScroll: 'מעתיק מגילה',
+    noVersions: 'אין גרסאות נוספות',
 };

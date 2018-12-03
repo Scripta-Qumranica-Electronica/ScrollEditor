@@ -13,13 +13,13 @@
             </router-link>
         </ul>
         <legend><h6>{{ $t('home.versions') }}</h6></legend>
-        <ul id="version-list">
-            <router-link tag="li" v-for="version in versions" :key="version.versionId"
+        <ul id="version-list" v-if="current.otherVersions">
+            <router-link tag="li" v-for="version in current.otherVersions" :key="version.versionId"
                          :to="`/scroll/${version.versionId}`">
                 {{ versionString(version) }} 
-                <span v-if="version.versionId===current.versionId" class="badge badge-secondary">{{ $t('misc.current') }}</span>
             </router-link>
         </ul>
+        <p v-if="!current.otherVersions"><small>{ $t("home.noVersions") }</small></p>
         <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
 
         <b-modal id="copyModal" 
@@ -60,13 +60,6 @@ import ScrollService from '@/services/scroll';
 
 export default Vue.extend({
     name: 'scroll-ver-sidebar',
-    props: {
-        versions: {
-            type: Array,
-        } as PropOptions<ScrollVersionInfo[]>,
-        current: ScrollVersionInfo,
-        isNew: Boolean,
-    },
     data() {
         return {
             scrollService: new ScrollService(this.$store),
@@ -78,6 +71,12 @@ export default Vue.extend({
     computed: {
         canCopy(): boolean {
             return this.newCopyName.trim().length > 0;
+        },
+        current(): ScrollVersionInfo {
+            return this.$store.state.scroll.scrollVersion;
+        },
+        isNew(): boolean {
+            return this.current.versionId === this.$store.state.scroll.newScrollVersionId;
         }
     },
     methods: {
@@ -101,7 +100,7 @@ export default Vue.extend({
                     await this.scrollService.renameScrollVersion(newScrollVersionId, this.newCopyName);
                 }
 
-                this.$store.dispatch('miscUI/setNewScrollVersionId',
+                this.$store.dispatch('scroll/setNewScrollVersionId',
                                      newScrollVersionId,
                                      { root: true }) ;
                 this.$router.push({
