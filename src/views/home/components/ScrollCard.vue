@@ -1,12 +1,12 @@
 <template>
   <div class="card">
-    <router-link tag="a" :to="{ name: 'scroll-ver', params: { id: scroll.defaultScrollVersionId }}">
+    <router-link tag="a" :to="{ path:`/scroll/${scroll.defaultScrollVersionId}` }">
       <!--TODO do not hardcode the image proxy server-->
       <img class="card-img-top" v-if="thumbnailSource" v-lazy="`https://www.qumranica.org/image-proxy?address=${thumbnailSource}`" :alt="scroll.name">
       <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
     </router-link>
     <div class="card-body">
-      <router-link tag="div" :to="{ name: 'scroll-ver', params: { id: scroll.defaultScrollVersionId }}">
+      <router-link tag="div" :to="{ path:`/scroll/${scroll.defaultScrollVersionId}` }">
         <h5 class="cart-title"> {{ scroll.name }}</h5>
         <p>
           <span class="badge badge-info mr-1">{{ publicVersionCount }}</span>{{ $tc('home.publicVersionCount', publicVersionCount)}}
