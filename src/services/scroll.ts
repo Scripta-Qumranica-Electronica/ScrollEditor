@@ -1,6 +1,6 @@
 import { Store } from 'vuex';
-import { Communicator, ListResults, CopyCombinationResponse } from './communications';
-import { ScrollInfo, ScrollVersionInfo, ShareInfo } from '@/models/scroll';
+import { Communicator, CopyCombinationResponse, ServerError } from './communications';
+import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
 
 class ScrollService {
     private communicator: Communicator;
@@ -15,11 +15,33 @@ class ScrollService {
         return list;
     }
 
-    public async getScrollVersions(versionId: number): Promise<ScrollVersionInfo[]> {
+    public async fetchScrollVersion(versionId: number, ignoreCache = false): Promise<ScrollVersionInfo> {
+        // Fetches a scroll version from the server and puts it in the store.
+        // Returns immediately if the requested scroll version is already in the store
+        if (!ignoreCache &&
+            this.store.state.scroll.scrollVersion &&
+            this.store.state.scroll.scrollVersion.versionId === versionId) {
+            return this.store.state.scroll.scrollVersion;
+        }
+
+        this.store.dispatch('scroll/setScrollVersion', null); // Trigget a spinner on all views
+
         const response = await this.communicator.listRequest('getScrollVersions', { scroll_version_id: versionId});
 
         const list = response.results.map((obj) => new ScrollVersionInfo(obj));
-        return list;
+
+        // Convert the server response into a single ScrollVersionInfo entity, putting all the other versions
+        // in its otherVersions array
+
+        const primary = list.find((sv) => sv.versionId === versionId);
+        if (!primary) {
+            throw new ServerError( { error: 'Server did not return the version we asked for' } );
+        }
+        const others = list.filter((sv) => sv.versionId !== versionId);
+        primary.otherVersions = others;
+
+        this.store.dispatch('scroll/setScrollVersion', primary);
+        return primary;
     }
 
     public async getMyScrollVersions(): Promise<ScrollVersionInfo[]> {

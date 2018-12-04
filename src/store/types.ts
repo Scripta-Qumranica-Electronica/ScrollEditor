@@ -1,5 +1,4 @@
-import { ScrollInfo } from '@/models/scroll';
-// import Combination from '@/models/combination';
+import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
 
 export interface LanguageState {
     language: string;
@@ -14,7 +13,8 @@ export interface SessionState {
     fullName?: string;
 }
 
-export interface MiscUIState {
+export interface ScrollState {
+    scrollVersion: ScrollVersionInfo | null;
     newScrollVersionId: number | null;
 }
 
