@@ -12,5 +12,6 @@ export default {
     copyTitle: 'Copy {name} by {owner}',
     newScrollName: 'New Scroll Name',
     newScrollDesc: 'Please provide a name for the new scroll',
-    copyingScroll: 'Copying scroll'
+    copyingScroll: 'Copying scroll',
+    noVersions: 'No other versions',
 };

@@ -35,14 +35,8 @@ export default Vue.extend({
       return this.scrollVer.shares.length - 1; // One is the current user
     },
     shareNames(): string {
-      let names = '';
-      for (let i = 1 ; i < this.scrollVer.shares.length; i++) {
-        names += this.scrollVer.shares[i].user.userName;
-        if (i <  this.scrollVer.shares.length - 1) {
-          names += ', ';
-        }
-      }
-      return names;
+      const names = this.scrollVer.shares.map((share) => share.user.userName);
+      return names.join(', ');
     }
   },
 });

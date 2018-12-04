@@ -60,6 +60,8 @@ class ScrollVersionInfo {
     public locked: boolean;
     public lastEdit: Date | null;
 
+    public otherVersions: ScrollVersionInfo[] = [];
+
     constructor(serverObj: any) {
         this.name = serverObj.name;
         this.versionId = serverObj.scroll_version_id;
