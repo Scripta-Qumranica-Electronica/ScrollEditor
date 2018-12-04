@@ -23,7 +23,7 @@ Vue.config.productionTip = false;
 
 // TODO use a real loading image and add an error image
 // TODO do we need a polyfill for Intersection Observer?
-Vue.use(VueLazyLoad, {
+Vue.use(VueLazyload, {
   /*error: 'dist/error.png',*/
   loading: require('@/assets/images/rings.svg'),
   observer: true,
