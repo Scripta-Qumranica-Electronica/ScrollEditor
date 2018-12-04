@@ -4,7 +4,7 @@ import router from './router';
 import store from './store';
 
 // TODOcan we add or find a .d.ts file for this?
-const VueLazyload= require('vue-lazyload');
+import VueLazyload from 'vue-lazyload';
 
 // Bootstrap
 import BootstrapVue from 'bootstrap-vue';
@@ -26,7 +26,7 @@ Vue.config.productionTip = false;
 // TODO do we need a polyfill for Intersection Observer?
 Vue.use(VueLazyload, {
   /*error: 'dist/error.png',*/
-  loading: '@/assets/images/if_scroll_1375614.svg',
+  loading: require('@/assets/images/rings.svg'),
   observer: true,
   observerOptions: {
     rootMargin: '0px',

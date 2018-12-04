@@ -2,7 +2,7 @@
   <div class="card">
     <router-link tag="a" :to="{ name: 'scroll-ver', params: { id: scrollVer.versionId }}">
       <!--TODO do not hardcode the image proxy server-->
-      <img class="card-img-top" v-if="thumbnailSource" v-lazy="`https://www.qumranica.org/image-proxy?address=${thumbnailSource}`" :alt="scrollVer.name">
+      <img class="card-img-top" v-if="thumbnailSource" v-lazy="`${thumbnailSource}/full/150,/0/default.jpg`" :alt="scrollVer.name">
       <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scrollVer.name">
     </router-link>
     <div class="card-body">
@@ -35,11 +35,11 @@ export default Vue.extend({
       return this.scrollVer.shares.length - 1; // One is the current user
     },
     shareNames(): string {
-      var names = "";
-      for (var i = 1 ; i < this.scrollVer.shares.length; i++) {
+      let names = '';
+      for (let i = 1 ; i < this.scrollVer.shares.length; i++) {
         names += this.scrollVer.shares[i].user.userName;
-        if (i <  this.scrollVer.shares.length-1) {
-          names += ", ";
+        if (i <  this.scrollVer.shares.length - 1) {
+          names += ', ';
         }
       }
       return names;
