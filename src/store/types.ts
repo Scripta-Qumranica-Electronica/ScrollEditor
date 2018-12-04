@@ -1,5 +1,5 @@
 import { ScrollInfo } from '@/models/scroll';
-import Combination from '@/models/combination';
+// import Combination from '@/models/combination';
 
 export interface LanguageState {
     language: string;
