@@ -1,5 +1,3 @@
-import Combination from './combination';
-
 class ScrollInfo {
     public name: string;
     public thumbnailUrls: string[];
@@ -56,7 +54,8 @@ class ScrollVersionInfo {
     public shares: ShareInfo[];
 
     public numOfArtefacts: number;
-    public numOfColsFrags: number;
+    public numOfColumns: number;
+    public numOfFragments: number;
 
     public locked: boolean;
     public lastEdit: Date | null;
@@ -72,7 +71,8 @@ class ScrollVersionInfo {
         this.shares = sharedObj.map((obj) => new ShareInfo(obj));
 
         this.numOfArtefacts = serverObj.numOfArtefacts;
-        this.numOfColsFrags = serverObj.numOfColsFrags;
+        this.numOfColumns = serverObj.numOfColsFrags / 2;  // TODO: Replace with actual count from server
+        this.numOfFragments = serverObj.numOfColsFrags / 2;
 
         this.locked = serverObj.locked === 1;
         this.lastEdit = serverObj.lastEdit ? new Date(Date.parse(serverObj.lastEdit)) : null;

@@ -3,9 +3,8 @@
         <div v-if="waiting" class="row"><div class="col"><waiting></waiting></div></div>
         <div v-if="!waiting" class="row">
             <div class="col" v-if="waiting"><waiting></waiting></div>
-            <div class="col">
-                <p>Info for scroll {{ currentVersionId }}</p>
-                <!-- Main display goes here -->
+            <div class="col" v-if="!waiting">
+                <router-view></router-view>
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4">
                 <scroll-ver-sidebar v-if="!waiting" :versions="scrollVersions" :current="currentVersion" :isNew="isNew"/>
@@ -40,7 +39,7 @@ export default Vue.extend({
             return parseInt(this.$route.params.id, 10);
         },
         isNew(): boolean {
-            return this.$route.params.new === 'new';
+            return this.$store.state.miscUI.newScrollVersionId === this.currentVersionId;
         }
     },
     mounted() {

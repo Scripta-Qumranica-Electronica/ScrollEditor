@@ -1,12 +1,12 @@
 <template>
   <div class="card">
-    <router-link tag="a" :to="{ name: 'scroll-ver', params: { id: scrollVer.versionId }}">
+    <router-link tag="a" :to="{  path:`/scroll/${scrollVer.versionId}` }">
       <!--TODO do not hardcode the image proxy server-->
       <img class="card-img-top" v-if="thumbnailSource" v-lazy="`${thumbnailSource}/full/150,/0/default.jpg`" :alt="scrollVer.name">
       <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scrollVer.name">
     </router-link>
     <div class="card-body">
-      <router-link tag="div" :to="{ name: 'scroll-ver', params: { id: scrollVer.versionId }}">
+      <router-link tag="div" :to="{  path:`/scroll/${scrollVer.versionId}` }">
         <h5 class="cart-title"> {{ scrollVer.name }}</h5>
         <p v-if="shareCount">
           <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
