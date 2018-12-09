@@ -3,7 +3,6 @@ import Router from 'vue-router';
 import Home from './views/home/Home.vue';
 import ScrollVer from './views/scrollver/ScrollVer.vue';
 import ScrollVerFragments from './views/scrollver/components/fragments.vue';
-import ScrollVerColumns from './views/scrollver/components/columns.vue';
 import ScrollVerArtefacts from './views/scrollver/components/artefacts.vue';
 
 Vue.use(Router);
@@ -23,10 +22,6 @@ export default new Router({
       children: [{
         path: 'artefacts',
         component: ScrollVerArtefacts,
-      },
-      {
-        path: 'columns',
-        component: ScrollVerColumns,
       },
       {
         path: 'fragments',

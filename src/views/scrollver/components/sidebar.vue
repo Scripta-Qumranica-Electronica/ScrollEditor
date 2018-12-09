@@ -10,21 +10,19 @@
             <b-nav-item :to="`/scroll/${current.versionId}/artefacts`">
                 {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }}
             </b-nav-item>
-            <b-nav-item :to="`/scroll/${current.versionId}/columns`">
-                {{ $t('home.columns') }}: {{ current.numOfColumns }}
-            </b-nav-item>
             <b-nav-item :to="`/scroll/${current.versionId}/fragments`">
                 {{ $t('home.fragments') }}: {{ current.numOfFragments }}
             </b-nav-item>
-            <b-nav-item-dropdown v-if="current.otherVersions" :text="$t('home.versions')">
+            <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item v-for="version in current.otherVersions" :key="version.versionId"
                                  :to="`/scroll/${version.versionId}`">
                     {{ versionString(version) }}
                 </b-dropdown-item>
             </b-nav-item-dropdown>
-            <b-nav-text v-if="!current.otherVersions">
-                <small>{ $t("home.noVersions") }</small>
+            <b-nav-text v-if="!current.otherVersions.length">
+                <small>{{ $t("home.noVersions") }}</small>
             </b-nav-text>
+            <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
         </b-nav>
 
         <b-modal id="copyModal" 
