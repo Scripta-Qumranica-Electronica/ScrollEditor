@@ -1,6 +1,7 @@
 import { Store } from 'vuex';
 import { Communicator, CopyCombinationResponse, ServerError } from './communications';
 import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
+import { Fragment } from '@/models/fragment';
 
 class ScrollService {
     private communicator: Communicator;
@@ -63,6 +64,19 @@ class ScrollService {
 
     public async renameScrollVersion(versionId: number, newName: string): Promise<void> {
         await this.communicator.request<any>('changeCombinationName', { scroll_version_id: versionId, name: newName });
+    }
+
+    public async fetchScrollVersionFragments(ignoreCache = false): Promise<Fragment[]> {
+        if (!ignoreCache && this.store.state.scroll.fragments !== null) {
+            return this.store.state.scroll.fragments;
+        }
+
+        const response = await this.communicator.listRequest('getScrollVersionFragments',
+                                    { scroll_version_id: this.store.state.scroll.scrollVersion.versionId });
+
+        const fragments = response.results.map((obj) => new Fragment(obj));
+        this.store.dispatch('scroll/setFragments', fragments);
+        return fragments;
     }
 }
 

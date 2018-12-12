@@ -5,6 +5,7 @@ import { ScrollState, RootState } from './types';
 const scrollState: ScrollState = {
     scrollVersion: null,
     newScrollVersionId: null,
+    fragments: null,
 };
 
 
@@ -15,6 +16,10 @@ const mutations: MutationTree<ScrollState> = {
 
     SET_NEW_SCROLL_VERSION_ID(state, newScrollVersionId) {
         state.newScrollVersionId = newScrollVersionId;
+    },
+
+    SET_FRAGMENTS(state, fragments) {
+        state.fragments = fragments;
     }
 };
 
@@ -25,6 +30,10 @@ const actions: ActionTree<ScrollState, RootState> = {
 
     setNewScrollVersionId(context, newScrollVersionId) {
         context.commit('SET_NEW_SCROLL_VERSION_ID', newScrollVersionId);
+    },
+
+    setFragments(context, fragments) {
+        context.commit('SET_FRAGMENTS', fragments);
     }
 };
 

@@ -2,7 +2,7 @@
   <div class="card">
     <router-link tag="a" :to="{  path:`/scroll/${scrollVer.versionId}` }">
       <!--TODO do not hardcode the image proxy server-->
-      <img class="card-img-top" v-if="thumbnailSource" v-lazy="`${thumbnailSource}/full/150,/0/default.jpg`" :alt="scrollVer.name">
+      <img class="card-img-top" v-if="thumbnailSource" v-lazy="thumbnailSource" :alt="scrollVer.name">
       <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scrollVer.name">
     </router-link>
     <div class="card-body">
@@ -29,7 +29,7 @@ export default Vue.extend({
   },
   computed: {
     thumbnailSource(): string | undefined {
-      return this.scrollVer.thumbnailUrls.length ? this.scrollVer.thumbnailUrls[0] : undefined;
+      return this.scrollVer.thumbnails.length ? this.scrollVer.thumbnails[0].thumbnailUrl : undefined;
     },
     shareCount(): number {
       return this.scrollVer.shares.length - 1; // One is the current user

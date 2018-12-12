@@ -1,13 +1,18 @@
+import { IIIFImage } from './image';
+
 class ScrollInfo {
     public name: string;
-    public thumbnailUrls: string[];
+    public thumbnails: IIIFImage[];
     public scrollVersionIds: number[];
     public defaultScrollVersionId: number;
     public numImageFragments: number;
 
     constructor(serverObj: any) {
         this.name = serverObj.name;
-        this.thumbnailUrls = JSON.parse(serverObj.thumbnails) || [];
+
+        const thumbnailUrls: string[] = JSON.parse(serverObj.thumbnails || '[]');
+        this.thumbnails = thumbnailUrls.map((url) => new IIIFImage(url));
+
         this.scrollVersionIds = JSON.parse(serverObj.scroll_version_ids);
         this.defaultScrollVersionId = serverObj.scroll_version_id;
         this.numImageFragments = serverObj.image_fragments;
@@ -49,7 +54,7 @@ class ScrollVersionInfo {
     public versionId: number;
     public owner: UserInfo;
     public permissions: Permissions;
-    public thumbnailUrls: string[];
+    public thumbnails: IIIFImage[];
 
     public shares: ShareInfo[];
 
@@ -67,7 +72,9 @@ class ScrollVersionInfo {
         this.versionId = serverObj.scroll_version_id;
         this.owner = new UserInfo(JSON.parse(serverObj.owner));
         this.permissions = new Permissions(serverObj);
-        this.thumbnailUrls = JSON.parse(serverObj.thumbnails || '[]');
+
+        const thumbnailUrls: string[] = JSON.parse(serverObj.thumbnails || '[]');
+        this.thumbnails = thumbnailUrls.map((url) => new IIIFImage(url));
 
         const sharedObj: any[] = JSON.parse(serverObj.shared || '[]');
         this.shares = sharedObj.map((obj) => new ShareInfo(obj));

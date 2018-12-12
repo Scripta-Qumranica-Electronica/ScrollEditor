@@ -85,7 +85,7 @@ export default Vue.extend({
   },
   filters: {
       nameMatch: function (value: string): boolean {
-          return value.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1
+          return value.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
       }
   }
 });
