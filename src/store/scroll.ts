@@ -32,6 +32,7 @@ const mutations: MutationTree<ScrollState> = {
 const actions: ActionTree<ScrollState, RootState> = {
     setScrollVersion(context, scrollVersion) {
         context.commit('SET_SCROLL_VERSION', scrollVersion);
+        context.commit('SET_FRAGMENTS', null);
     },
 
     setNewScrollVersionId(context, newScrollVersionId) {
