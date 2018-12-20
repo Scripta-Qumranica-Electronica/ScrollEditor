@@ -6,7 +6,7 @@
                 <small>{{ $t('home.fragments') }}: {{ fragments.length }}</small>
             </div></div>
             <ul class="list-unstyled row mt-2"  v-if="fragments.length">
-                <li class="col-md-12 col-lg-6 list-item"
+                <li class="col-sm-12 col-md-6 col-xl-4 list-item"
                     v-for="fragment in fragments"
                     :key="fragment.id">
                     <fragment-card :fragment="fragment"></fragment-card>
