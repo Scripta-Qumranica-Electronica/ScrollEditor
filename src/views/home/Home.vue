@@ -46,6 +46,7 @@ import ScrollService from '@/services/scroll';
 import ScrollCard from './components/ScrollCard.vue';
 import ScrollVersionCard from './components/ScrollVersionCard.vue';
 import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
+import { countIf } from '@/utils/helpers';
 
 export default Vue.extend({
   name: 'home',
@@ -64,11 +65,11 @@ export default Vue.extend({
   },
   computed: {
     numberOfScrolls(): number {
-        return this.allScrolls.reduce((x,scroll) => scroll.name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1 ? x + 1 : x, 0)
+      return countIf(this.allScrolls, (scroll) => this.nameMatch(scroll.name));
     },
     numberOfMyScrolls(): number {
-        return this.myScrolls.reduce((x,scroll) => scroll.name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1 ? x + 1 : x, 0)
-    }  
+      return countIf(this.myScrolls, (scrollVer) => this.nameMatch(scrollVer.name));
+    }
   },
   mounted() {
     // We do not use async/await here because we want both requests to go out simultaneously.
@@ -83,9 +84,9 @@ export default Vue.extend({
       throw error;
     });
   },
-  filters: {
-      nameMatch: function (value: string): boolean {
-          return value.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
+  methods: {
+      nameMatch(name: string): boolean {
+          return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
       }
   }
 });

@@ -40,7 +40,7 @@ export default Vue.extend({
         }
     },
     mounted() {
-        this.scrollService.fetchScrollVersionFragments()
+        this.scrollService.fetchScrollVersionFragments();
     }
 });
 </script>
