@@ -27,6 +27,12 @@ export class ServerError extends Error {
     }
 }
 
+export class NotFoundError extends Error {
+    constructor(public entityType: string, public entityId: number) {
+        super(`${entityType} ${entityId} not found`);
+    }
+}
+
 // Server communications
 export class Communicator {
     private url = '/resources/cgi-bin/scrollery-cgi.pl';

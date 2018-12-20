@@ -71,11 +71,17 @@ class ScrollService {
             return this.store.state.scroll.fragments;
         }
 
+        const fragments = await this.getScrollVersionFragments(this.store.state.scroll.scrollVersion.versionId);
+        this.store.dispatch('scroll/setFragments', fragments);
+        return fragments;
+    }
+
+    public async getScrollVersionFragments(scrollVersionId: number): Promise<Fragment[]> {
         const response = await this.communicator.listRequest('getScrollVersionFragments',
-                                    { scroll_version_id: this.store.state.scroll.scrollVersion.versionId });
+                                    { scroll_version_id: scrollVersionId });
 
         const fragments = response.results.map((obj) => new Fragment(obj));
-        this.store.dispatch('scroll/setFragments', fragments);
+
         return fragments;
     }
 }

@@ -20,6 +20,11 @@ export interface ScrollState {
     fragments: Fragment[] | null;
 }
 
+export interface FragmentState {
+    fragment: Fragment | null;
+    // artefacts: Artefact[] | null;
+}
+
 export interface RootState {
 
 }

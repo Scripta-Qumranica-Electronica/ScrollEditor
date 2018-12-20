@@ -20,6 +20,12 @@ const mutations: MutationTree<ScrollState> = {
 
     SET_FRAGMENTS(state, fragments) {
         state.fragments = fragments;
+    },
+
+    RESET_DATA(state) {
+        state.scrollVersion = null;
+        state.newScrollVersionId = null;
+        state.fragments = null;
     }
 };
 
@@ -34,7 +40,11 @@ const actions: ActionTree<ScrollState, RootState> = {
 
     setFragments(context, fragments) {
         context.commit('SET_FRAGMENTS', fragments);
-    }
+    },
+
+    resetData(context) {
+        context.commit('RESET_DATA');
+    },
 };
 
 const store: Module<ScrollState, RootState> = {

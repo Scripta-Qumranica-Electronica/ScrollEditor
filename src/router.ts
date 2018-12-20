@@ -4,6 +4,7 @@ import Home from './views/home/Home.vue';
 import ScrollVer from './views/scrollver/ScrollVer.vue';
 import ScrollVerFragments from './views/scrollver/components/fragments.vue';
 import ScrollVerArtefacts from './views/scrollver/components/artefacts.vue';
+import FragmentEditor from './views/fragment-editor/FragmentEditor.vue';
 
 Vue.use(Router);
 
@@ -31,6 +32,10 @@ export default new Router({
         path: '',
         redirect: '/scroll/:id/fragments',
       }]
+    },
+    {
+      path: '/fragment/:scrollVersionId/:fragmentId',
+      component: FragmentEditor,
     },
   ],
 });

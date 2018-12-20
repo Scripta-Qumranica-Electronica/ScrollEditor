@@ -1,6 +1,8 @@
 <template>
     <div class="card">
-        <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Fragment Image">
+        <router-link :to="{ path: `/fragment/${scrollVersionId}/${fragment.id}` }">
+            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Fragment Image">
+        </router-link>
     </div>
 </template>
 
@@ -19,7 +21,16 @@ export default Vue.extend({
                 return this.fragment.recto.color.getThumbnailUrl(800);
             }
             return undefined;
-        }
+        },
+        scrollVersionId(): number {
+            return this.$store.state.scroll.scrollVersion.versionId;
+        },
     }
 });
 </script>
+
+<style lang="scss" scoped>
+div.card img {
+    cursor: pointer;
+}
+</style>
