@@ -28,7 +28,7 @@ export default Vue.extend({
             return this.$store.state.scroll.scrollVersion.versionId;
         },
         artefactsNames(): string {
-            const names = this.fragment.artefacts.map((a) => a.name);
+            const names = this.fragment.artefactRefs.map((a) => a.name);
             const unique = [...new Set(names)]; // Taken from here: https://stackoverflow.com/a/42123984/871910
             return unique.join(', ');
         }

@@ -13,7 +13,7 @@ export class ArtefactRef {
 export class Fragment {
     public id: number;
     public institution: string;
-    public artefacts: ArtefactRef[];
+    public artefactRefs: ArtefactRef[];
     public plate: string;
 
     public recto?: IIAImageSet;
@@ -24,9 +24,9 @@ export class Fragment {
         this.institution = obj.institution;
         if (obj.artefacts) {
             const artefacts = JSON.parse(obj.artefacts);
-            this.artefacts = artefacts.map((subObj: any) => new ArtefactRef(subObj));
+            this.artefactRefs = artefacts.map((subObj: any) => new ArtefactRef(subObj));
         } else {
-            this.artefacts = [];
+            this.artefactRefs = [];
         }
         this.plate = obj.plate;
 

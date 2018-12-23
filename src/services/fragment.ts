@@ -25,6 +25,10 @@ class FragmentService {
         return fragment;
     }
 
+    /*private _getFragmentArtefacts(scrollVersionId: number, fragment: Fragment) : Artefact[] {
+
+    } */
+
     private _getCachedFragment(scrollVersionId: number, fragmentId: number): Fragment | undefined {
         if (!this.store.state.scroll.scrollVersion ||
             scrollVersionId !== this.store.state.scroll.scrollVersion.versionId) {
