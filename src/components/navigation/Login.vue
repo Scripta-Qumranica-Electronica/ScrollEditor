@@ -36,6 +36,7 @@ import { mapState } from 'vuex';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import { ServerError } from '@/services/communications';
+import ErrorService from '@/services/error';
 
 export default Vue.extend({
     name: 'login',
@@ -45,6 +46,7 @@ export default Vue.extend({
             password: '',
             errorMessage: '',
             sessionService: new SessionService(this.$store),
+            errorService: new ErrorService(this),
             waiting: false,
         };
     },
@@ -66,12 +68,13 @@ export default Vue.extend({
                 this.close();
                 location.reload();
             } catch (err) {
-                const serverError = (err as ServerError);
-                if (serverError) {
-                    this.errorMessage = this.$t( `error.server${serverError.errorCode}`).toString();
-                } else {
-                    this.errorMessage = this.$t('error.server').toString();
-                }
+                this.errorMessage = this.errorService.getErrorMsg(err);
+                // const serverError = (err as ServerError);
+                // if (serverError) {
+                //     this.errorMessage = this.$t( `error.server${serverError.errorCode}`).toString();
+                // } else {
+                //     this.errorMessage = this.$t('error.server').toString();
+                // }
             } finally {
                 this.waiting = false;
             }
