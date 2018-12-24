@@ -7,11 +7,15 @@
         </div>
 
         <b-nav vertical>
-            <b-nav-item :to="`/scroll/${current.versionId}/artefacts`">
-                {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }}
+            <b-nav-item>
+                <router-link :to="`/scroll/${current.versionId}/artefacts`" replace>
+                    {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }} 
+                </router-link>
             </b-nav-item>
-            <b-nav-item :to="`/scroll/${current.versionId}/fragments`">
-                {{ $t('home.fragments') }}: {{ current.numOfFragments }}
+            <b-nav-item>
+                <router-link :to="`/scroll/${current.versionId}/fragments`" replace>
+                    {{ $t('home.fragments') }}: {{ current.numOfFragments }}
+                </router-link>
             </b-nav-item>
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item v-for="version in current.otherVersions" :key="version.versionId"

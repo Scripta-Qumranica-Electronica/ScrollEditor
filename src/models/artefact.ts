@@ -42,4 +42,3 @@ export class Artefact {
         this.ROIs = obj.rois || [];
     }
   }
-}
