@@ -14,6 +14,10 @@ export interface ListResults<T> {
     results: T[];
 }
 
+export interface DictionaryListResults<T> {
+    results: { [key: string]: T };
+}
+
 export class ServerError extends Error {
     public type: string;
     public errorCode: number;

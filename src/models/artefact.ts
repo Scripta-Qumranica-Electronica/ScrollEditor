@@ -1,6 +1,5 @@
-export enum Side {
-    recto, verso
-}
+
+export type SVG = string;
 
 export class Artefact {
     public id: number;
@@ -8,22 +7,22 @@ export class Artefact {
     public shapeId: number;
     public scrollVersionId: number;
     public name: string;
-    public side: Side;
-    public mask: string;
-    public transformMatrix: any; // TODO: Change to a Matrix type
-    public rect: any;  // TODO: Change to a Rect type
+    public mask: SVG;
+    public transformMatrix: any; // TODO: Change to matrix type?
+    public rect: SVG;
     public imageCatalogId: number; // Probably not needed
     public sqeImageId: number;  // Probable not needed
-    public catalogSide: string; // May be Side, probably not needed
-    public ROIs: any[]; // TODO: Change to ROI type
 
     constructor(obj: any) {
+        if (obj.side !== 0) {
+            console.error('Received a non-recto artefact ', obj);
+            throw new Error('Non-recto artefacts are not supported');
+        }
         this.id = obj.artefact_id;
         this.positionId = obj.artefact_position_id;
         this.shapeId = obj.artefact_shape_id;
         this.scrollVersionId = obj.scroll_version_id;
         this.name = obj.name;
-        this.side = obj.side.toLowerCase() === 'verso' ? Side.verso : Side.recto;
         this.mask = obj.mask;
         /* TODO: This should be a getter
         this.svgInCombination =
@@ -38,8 +37,5 @@ export class Artefact {
         this.rect = obj.rect;
         this.imageCatalogId = obj.image_catalog_id;
         this.sqeImageId = obj.id_of_sqe_image;
-        this.catalogSide = obj.catalog_side;
-        this.ROIs = obj.rois || [];
     }
-  }
 }
