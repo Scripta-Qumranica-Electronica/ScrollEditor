@@ -5,19 +5,16 @@
     </div>
     <div v-if="!waiting && fragment" class="row no-gutters">
       <div class="col-xl-2 col-lg-3 col-md-4">
-        <!--
         <image-menu
-          :corpus="corpus"
-          :scrollVersionId="scrollVersionId"
-          :images="filenames"
           :imageSettings="imageSettings"
           :artefact="artefact"
           :zoom="zoom"
           :viewMode="viewMode"
           :artefact-editable="true"
           :roi-editable="false"
-          :brushCursorSize="brushCursorSize"
-          v-on:opacity="setOpacity"
+          :brushCursorSize="brushCursorSize"> 
+          <!-- old event handlers
+                    v-on:opacity="setOpacity"
           v-on:changeBrushSize="changeBrushSize"
           v-on:visible="toggleVisible"
           v-on:drawingMode="toggleDrawingMode"
@@ -25,8 +22,9 @@
           v-on:delSelectedRoi="delSelectedRoi"
           v-on:changeViewMode="changeViewMode"
           v-on:changeZoom="changeZoom"
-          v-on:fullscreen="toggleFullScreen">
-        </image-menu>  -->
+          v-on:fullscreen="toggleFullScreen"
+          -->
+        </image-menu>
       </div>
     
       <div class="col">
@@ -71,6 +69,7 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import FragmentService from '@/services/fragment';
 import { Fragment } from '@/models/fragment';
+import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 
 export default Vue.extend({
@@ -83,6 +82,7 @@ export default Vue.extend({
     return {
       fragmentService: new FragmentService(this.$store),
       waiting: false,
+      artefact: <Artefact | undefined>undefined,
     };
   },
   computed: {
