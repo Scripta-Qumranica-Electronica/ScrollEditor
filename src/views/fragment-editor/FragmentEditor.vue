@@ -3,63 +3,57 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting && fragment" class="row no-gutters">
-      <div class="col-xl-2 col-lg-3 col-md-4">
-        <image-menu
-          :imageSettings="imageSettings"
-          :artefact="artefact"
-          :zoom="zoom"
-          :viewMode="viewMode"
-          :artefact-editable="true"
-          :roi-editable="false"
-          :brushCursorSize="brushCursorSize"> 
-          <!-- old event handlers
-                    v-on:opacity="setOpacity"
-          v-on:changeBrushSize="changeBrushSize"
-          v-on:visible="toggleVisible"
-          v-on:drawingMode="toggleDrawingMode"
-          v-on:toggleMask="toggleMask"
-          v-on:delSelectedRoi="delSelectedRoi"
-          v-on:changeViewMode="changeViewMode"
-          v-on:changeZoom="changeZoom"
-          v-on:fullscreen="toggleFullScreen"
-          -->
-        </image-menu>
-      </div>
-    
-      <div class="col">
-        <!--
-        <roi-canvas class="overlay-image"
-                    :width="masterImage.width ? masterImage.width : 0"
-                    :height="masterImage.height ? masterImage.height : 0"
-                    :zoom-level="zoom"
-                    :images="filenames"
-                    :image-settings="imageSettings"
-                    :divisor="imageShrink"
-                    :clipping-mask="$route.params.artID === '~' || !corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID) ? 
-                                      undefined : 
-                                      corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID).mask"
-                    :clip="clippingOn"
-                    :corpus="corpus"
-                    ref="currentRoiCanvas">
-        </roi-canvas>
-        <artefact-canvas  class="overlay-canvas"
-                          v-show="viewMode === 'ART'"
-                          :width="masterImage.width ? masterImage.width / 2 : 0"
-                          :height="masterImage.height ? masterImage.height / 2 : 0"
-                          :scale="zoom"
-                          :draw-mode="drawingMode"
-                          :brush-size="brushCursorSize"
-                          :divisor="imageShrink"
-                          :mask="$route.params.artID === '~' || !corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID) ? 
-                                    undefined :
+    <div v-if="!waiting && fragment" class="col">
+      <!--
+      <roi-canvas class="overlay-image"
+                  :width="masterImage.width ? masterImage.width : 0"
+                  :height="masterImage.height ? masterImage.height : 0"
+                  :zoom-level="zoom"
+                  :images="filenames"
+                  :image-settings="imageSettings"
+                  :divisor="imageShrink"
+                  :clipping-mask="$route.params.artID === '~' || !corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID) ? 
+                                    undefined : 
                                     corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID).mask"
-                          :locked="lock"
-                          :clip="clippingOn"
-                          v-on:mask="setClipMask"
-                          ref="currentArtCanvas">
-        </artefact-canvas> -->
-      </div>
+                  :clip="clippingOn"
+                  :corpus="corpus"
+                  ref="currentRoiCanvas">
+      </roi-canvas>
+      <artefact-canvas  class="overlay-canvas"
+                        v-show="viewMode === 'ART'"
+                        :width="masterImage.width ? masterImage.width / 2 : 0"
+                        :height="masterImage.height ? masterImage.height / 2 : 0"
+                        :scale="zoom"
+                        :draw-mode="drawingMode"
+                        :brush-size="brushCursorSize"
+                        :divisor="imageShrink"
+                        :mask="$route.params.artID === '~' || !corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID) ? 
+                                  undefined :
+                                  corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID).mask"
+                        :locked="lock"
+                        :clip="clippingOn"
+                        v-on:mask="setClipMask"
+                        ref="currentArtCanvas">
+      </artefact-canvas> -->
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
+      <image-menu
+        :fragment="fragment"
+        :artefact="artefact"
+        :params="params"
+        :editable="canEdit">
+        <!-- old event handlers
+                  v-on:opacity="setOpacity"
+        v-on:changeBrushSize="changeBrushSize"
+        v-on:visible="toggleVisible"
+        v-on:drawingMode="toggleDrawingMode"
+        v-on:toggleMask="toggleMask"
+        v-on:delSelectedRoi="delSelectedRoi"
+        v-on:changeViewMode="changeViewMode"
+        v-on:changeZoom="changeZoom"
+        v-on:fullscreen="toggleFullScreen"
+        -->
+      </image-menu>
     </div>
   </div>
 </template>
@@ -68,9 +62,11 @@
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import FragmentService from '@/services/fragment';
+import ScrollService from '@/services/scroll';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
+import { EditorParams } from './types';
 
 export default Vue.extend({
   name: 'fragment-editor',
@@ -81,8 +77,10 @@ export default Vue.extend({
   data() {
     return {
       fragmentService: new FragmentService(this.$store),
+      scrollService: new ScrollService(this.$store),
       waiting: false,
-      artefact: <Artefact | undefined>undefined,
+      artefact: undefined as Artefact | undefined,
+      params: new EditorParams(),
     };
   },
   computed: {
@@ -91,16 +89,40 @@ export default Vue.extend({
     },
     scrollVersionId(): number {
       return parseInt(this.$route.params.scrollVersionId);
-    }
+    },
+    canEdit(): boolean {
+      return this.$store.state.scroll.scrollVersion.permissions.canWrite;
+    },
   },
   async mounted() {
     try {
       this.waiting = true;
+      await this.scrollService.fetchScrollVersion(this.scrollVersionId);
       await this.fragmentService.fetchFragmentInfo(
         parseInt(this.$route.params.scrollVersionId),
-        parseInt(this.$route.params.fragmentId));
+        this.$route.params.fragmentId);
+
+      if (this.fragment!.artefacts!.length) {
+        this.artefact = this.fragment!.artefacts![0];
+      } else {
+        this.artefact = undefined;
+      }
     } finally {
       this.waiting = false;
+    }
+
+    this.fillImageSettings();
+  },
+  methods: {
+    fillImageSettings() {
+      this.params.imageSettings = {};
+      if(this.fragment.recto && this.fragment.recto) {
+        let first = true;
+        for(let imageName of this.fragment.recto.availableImages) {
+          this.params.imageSettings[imageName] = { show: first, intensity: 100 };
+          first = false;
+        }
+      }
     }
   }
 });
@@ -119,14 +141,5 @@ export default Vue.extend({
   top: 0;
   left: 0;
   transform-origin: top left;
-}
-.single-image-pane.fullscreen {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 2000;
-  background: #fff;
 }
 </style>

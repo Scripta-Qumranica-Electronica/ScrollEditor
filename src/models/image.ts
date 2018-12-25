@@ -26,6 +26,8 @@ export class IIIFImage {
 }
 
 export class IIAImageSet {
+    private static availableImages = ['color', 'infrared', 'rakingLeft', 'rakingRight'];
+
     public imageCatalogId: number;
     public color?: IIIFImage;
     public infrared?: IIIFImage;
@@ -46,5 +48,9 @@ export class IIAImageSet {
         }
 
         return undefined;
+    }
+
+    public get availableImages() {
+        return IIAImageSet.availableImages;
     }
 }

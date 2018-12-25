@@ -32,7 +32,7 @@ export class ServerError extends Error {
 }
 
 export class NotFoundError extends Error {
-    constructor(public entityType: string, public entityId: number) {
+    constructor(public entityType: string, public entityId: string) {
         super(`${entityType} ${entityId} not found`);
     }
 }

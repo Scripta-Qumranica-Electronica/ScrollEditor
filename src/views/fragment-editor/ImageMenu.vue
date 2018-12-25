@@ -1,5 +1,22 @@
 <template>
-  <el-row 
+  <div id="image-menu">
+    <section>
+      <h5>Artefacts</h5>
+      <ul class="list">
+        <li v-for="art in fragment.artefacts" :key="art.id">
+          <span :class="{ selected: art===artefact }">{{ art.name }}</span>
+        </li>
+      </ul>
+      <b-button>New</b-button>
+    </section>
+    <section>
+      <h5>Images</h5>
+      <single-image-setting v-for="imageType in fragment.recto.availableImages" :key="imageType" 
+                            :type="imageType" :settings="params.imageSettings[imageType]" @changed="onSettingChanged(imageType, $event)">
+      </single-image-setting>
+    </section>
+  </div>
+<!--  <el-row 
     class="single-image-pane-menu" 
     :gutter="1" 
     type="flex" 
@@ -101,10 +118,15 @@
         <i class="fa fa-arrows-alt" aria-hidden="true"></i>
       </el-button>
     </el-col>
-  </el-row>
+  </el-row> -->
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue';
+import { Fragment } from '@/models/fragment';
+import { Artefact } from '@/models/artefact';
+import { EditorParams, DrawingMode } from './types';
+import SingleImageSetting from './SingleImageSetting.vue';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
  * to create a modular container that holds this menu and the possible
@@ -114,56 +136,61 @@
  * The props `artefactEditable` and `roiEditable` are switches that allow
  * the parent component to turn on/off certain menu functionality.
  */
-export default {
+export default Vue.extend({
+  components: {
+    SingleImageSetting,
+  },
   props: {
-    corpus: undefined,
-    scrollVersionID: undefined,
-    images: undefined,
-    imageSettings: undefined,
-    artefact: undefined,
-    zoom: undefined,
-    viewMode: undefined,
-    artefactEditable: undefined,
-    roiEditable: undefined,
-    brushCursorSize: undefined,
+    fragment: Fragment,
+    artefact: Artefact,
+    editable: Boolean,
+    params: EditorParams,
   },
   data() {
     return {
-      drawingMode: 'draw',
-      selectedImage: [],
-    }
+    };
   },
   computed: {
-    changeBrushSize: {
-      get() {
-        return this.brushCursorSize
+    // Typescript doesn't like computed setters just yet, so we cast this to any to make it feel more relaxed
+    brushSize: {
+      get(): number {
+        return (this as any).params.brushSize;
       },
-      set(val) {
-        this.$emit('changeBrushSize', val)
-      },
+      set(val: number) {
+        (this as any).params.brushSize = val;
+        (this as any).$emit('paramsChanged', 'brushSize', val);
+      }
     },
-    changeViewMode: {
-      get() {
-        return this.viewMode
+    zoom: {
+      get(): number {
+        return (this as any).params.zoom;
       },
-      set(val) {
-        this.$emit('changeViewMode', val)
-      },
+      set(val: number) {
+        (this as any).params.zoom = val;
+        (this as any).$emit('paramsChanged', 'zoom', val);
+      }
     },
-    changeZoom: {
-      get() {
-        return this.zoom
+    drawingMode: {
+      get(): DrawingMode {
+        return (this as any).params.drawingMode;
       },
-      set(val) {
-        this.$emit('changeZoom', val)
-      },
-    },
-    scrollLocked() {
-      return this.artefact ? this.$store.getters.isScrollLocked(this.scrollVersionID) : false
-    },
+      set(val: string) {
+        let mode;
+        if (val === 'draw') {
+          mode = DrawingMode.DRAW;
+        } else if (val === 'erase') {
+          mode = DrawingMode.ERASE;
+        } else {
+          console.error('Invalid drawing mode ', val);
+          return;
+        }
+        (this as any).params.drawingMode = mode;
+        (this as any).$emit('paramsChanged', 'drawingMode', mode);
+      }
+    }
   },
   methods: {
-    setOpacity(image, value) {
+    /*setOpacity(image, value) {
       this.$emit('opacity', image, value)
     },
     toggleVisible(image) {
@@ -184,10 +211,10 @@ export default {
     },
     toggleFullscreen() {
       this.$emit('fullscreen')
-    },
+    }, */
   },
   filters: {
-    formatImageType(value) {
+    /*formatImageType(value) {
       let formattedString = ''
       switch (value) {
         case 0:
@@ -204,33 +231,19 @@ export default {
           break
       }
       return formattedString
-    },
+    }, */
   },
-}
+});
 </script>
 
 <style lang="scss" scoped>
-.single-image-pane-menu {
-  width: 100%;
-  height: 32px; // Should be 30px, but 32px looks better
-  max-height: 32px; // Should be 30px, but 32px looks better
-  background: #dedede;
-  margin-left: 0px !important; // Not sure why I have to do this, there is bleed through somewhere.
-  margin-right: 0px !important; // Not sure why I have to do this, there is bleed through somewhere.
-  user-select: none;
+ul.list {
+  list-style: none;
 }
-.image-select-entry {
-  width: 100%;
-  user-select: none;
+span.selected {
+  font-weight: bold;
 }
-.label {
-  font-size: small;
-}
-.image-slider {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-i.image-select-entry {
-  padding-left: 6px;
+section {
+  margin-bottom: 20px;
 }
 </style>

@@ -12,7 +12,7 @@ export class ArtefactRef {
 }
 
 export class Fragment {
-    public id: number;
+    public number: number;
     public institution: string;
     public artefactRefs: ArtefactRef[];
     public plate: string;
@@ -22,8 +22,12 @@ export class Fragment {
 
     public artefacts: Artefact[] | undefined;
 
+    public get uniqueId() {
+        return `${this.institution}-${this.plate}-${this.number}`;
+    }
+
     constructor(obj: any) {
-        this.id = parseInt(obj.fragment, 10);
+        this.number = parseInt(obj.fragment, 10);
         this.institution = obj.institution;
         if (obj.artefacts) {
             const artefacts = JSON.parse(obj.artefacts);
@@ -34,12 +38,14 @@ export class Fragment {
         this.plate = obj.plate;
 
         const sides = JSON.parse(obj.sides);
-        if (sides.recto) {
-            this.recto = new IIAImageSet(sides.recto);
-        }
+        if (sides) { // Some fragments do not have sides (Why?)
+            if (sides.recto) {
+                this.recto = new IIAImageSet(sides.recto);
+            }
 
-        if (sides.verso) {
-            this.verso = new IIAImageSet(sides.verso);
+            if (sides.verso) {
+                this.verso = new IIAImageSet(sides.verso);
+            }
         }
 
         // artefacts are filled with another server call, from somewhere else

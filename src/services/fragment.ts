@@ -11,7 +11,7 @@ class FragmentService {
         this.communicator = new Communicator(store);
     }
 
-    public async fetchFragmentInfo(scrollVersionId: number, fragmentId: number) {
+    public async fetchFragmentInfo(scrollVersionId: number, fragmentId: string) {
         let fragment = this._getCachedFragment(scrollVersionId, fragmentId);
         if (!fragment) {
             fragment = await this._getFragment(scrollVersionId, fragmentId);
@@ -50,7 +50,7 @@ class FragmentService {
         return artefacts;
     }
 
-    private _getCachedFragment(scrollVersionId: number, fragmentId: number): Fragment | undefined {
+    private _getCachedFragment(scrollVersionId: number, fragmentId: string): Fragment | undefined {
         if (!this.store.state.scroll.scrollVersion ||
             scrollVersionId !== this.store.state.scroll.scrollVersion.versionId) {
             return undefined;
@@ -59,14 +59,14 @@ class FragmentService {
             return undefined;
         }
 
-        return this.store.state.scroll.fragments.find((f: Fragment) => f.id === fragmentId);
+        return this.store.state.scroll.fragments.find((f: Fragment) => f.uniqueId === fragmentId);
     }
 
-    private async _getFragment(scrollVersionId: number, fragmentId: number) {
+    private async _getFragment(scrollVersionId: number, fragmentId: string) {
         const scrollService = new ScrollService(this.store);
         const fragments = await scrollService.getScrollVersionFragments(scrollVersionId);
 
-        return fragments.find((f: Fragment) => f.id === fragmentId);
+        return fragments.find((f: Fragment) => f.uniqueId === fragmentId);
     }
 }
 
