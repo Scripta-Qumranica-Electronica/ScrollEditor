@@ -24,7 +24,7 @@ export default Vue.extend({
     props: {
         type: String,
         settings: {
-            // Ugly, taking from
+            // Ugly, taken from
             // https://frontendsociety.com/using-a-typescript-interfaces-and-types-as-a-prop-type-in-vuejs-508ab3f83480
             type: Object as () => SingleImageSetting,
         },
