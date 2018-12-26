@@ -12,8 +12,19 @@
     <section>
       <h5>Images</h5>
       <single-image-setting v-for="imageType in fragment.recto.availableImages" :key="imageType" 
-                            :type="imageType" :settings="params.imageSettings[imageType]" @changed="onSettingChanged(imageType, $event)">
+                            :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged(imageType, $event)">
       </single-image-setting>
+    </section>
+    <section>
+      <!-- zoom -->
+      <div class="row">
+        <div class="col-4">
+          Zoom:
+        </div>
+        <div class="col">
+          <b-form-input type="range" min="1" max="200" v-model="zoom"></b-form-input>
+        </div>
+      </div>
     </section>
   </div>
 <!--  <el-row 
@@ -125,8 +136,8 @@
 import Vue from 'vue';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
-import { EditorParams, DrawingMode } from './types';
-import SingleImageSetting from './SingleImageSetting.vue';
+import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting } from './types';
+import SingleImageSettingComponent from './SingleImageSetting.vue';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
  * to create a modular container that holds this menu and the possible
@@ -137,8 +148,9 @@ import SingleImageSetting from './SingleImageSetting.vue';
  * the parent component to turn on/off certain menu functionality.
  */
 export default Vue.extend({
+  name: 'image-menu',
   components: {
-    SingleImageSetting,
+    'single-image-setting': SingleImageSettingComponent,
   },
   props: {
     fragment: Fragment,
@@ -148,28 +160,19 @@ export default Vue.extend({
   },
   data() {
     return {
+
     };
   },
   computed: {
-    // Typescript doesn't like computed setters just yet, so we cast this to any to make it feel more relaxed
-    brushSize: {
-      get(): number {
-        return (this as any).params.brushSize;
-      },
-      set(val: number) {
-        (this as any).params.brushSize = val;
-        (this as any).$emit('paramsChanged', 'brushSize', val);
-      }
-    },
     zoom: {
       get(): number {
-        return (this as any).params.zoom;
+        return this.params.zoom;
       },
       set(val: number) {
-        (this as any).params.zoom = val;
-        (this as any).$emit('paramsChanged', 'zoom', val);
+        this.params.zoom = val;
+        this.notifyChange('zoom', val);
       }
-    },
+    }, /*
     drawingMode: {
       get(): DrawingMode {
         return (this as any).params.drawingMode;
@@ -187,9 +190,22 @@ export default Vue.extend({
         (this as any).params.drawingMode = mode;
         (this as any).$emit('paramsChanged', 'drawingMode', mode);
       }
-    }
+    } */
   },
   methods: {
+    onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
+      this.params.imageSettings[imageType] = settings;
+      this.notifyChange('imageSettings', this.params.imageSettings);
+    },
+    notifyChange(paramName: string, paramValue: any) {
+      const args = {
+        property: paramName,
+        value: paramValue,
+        params: this.params,
+      } as EditorParamsChangedArgs;
+      this.$emit('paramsChanged', args);
+      console.debug(`Property ${paramName} changed to ${JSON.stringify(paramValue)}`);
+    }
     /*setOpacity(image, value) {
       this.$emit('opacity', image, value)
     },

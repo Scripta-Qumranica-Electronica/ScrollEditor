@@ -7,7 +7,7 @@ export interface SingleImageSetting {
     intensity: number;
 }
 
-export interface ImageSetting { 
+export interface ImageSetting {
     [image: string]: SingleImageSetting;
 }
 
@@ -17,4 +17,10 @@ export class EditorParams {
     public brushSize = 20;
     public mask = false;
     public drawingMode = DrawingMode.DRAW;
+}
+
+export interface EditorParamsChangedArgs {
+    property: string;
+    value: any;
+    params: EditorParams;
 }

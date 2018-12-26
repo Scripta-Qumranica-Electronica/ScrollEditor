@@ -116,9 +116,9 @@ export default Vue.extend({
   methods: {
     fillImageSettings() {
       this.params.imageSettings = {};
-      if(this.fragment.recto && this.fragment.recto) {
+      if (this.fragment.recto && this.fragment.recto) {
         let first = true;
-        for(let imageName of this.fragment.recto.availableImages) {
+        for (const imageName of this.fragment.recto.availableImages) {
           this.params.imageSettings[imageName] = { show: first, intensity: 100 };
           first = false;
         }

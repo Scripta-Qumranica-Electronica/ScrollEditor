@@ -1,10 +1,10 @@
 <template>
     <div class="row">
         <div class="col">
-            <b-form-checkbox v-model="settings.show">{{ type }}</b-form-checkbox>
+            <b-form-checkbox v-model="settings.show" @change="onChange">{{ type }}</b-form-checkbox>
         </div>
         <div class="col">
-            <b-form-input v-model="settings.intesity" type="range" min="0" max="100"></b-form-input>
+            <b-form-input v-model="settings.intensity" type="range" min="0" max="100" @change="onChange"></b-form-input>
         </div>
     </div>
 </template>
@@ -24,9 +24,18 @@ export default Vue.extend({
     props: {
         type: String,
         settings: {
-            // Ugly, taking from here: https://frontendsociety.com/using-a-typescript-interfaces-and-types-as-a-prop-type-in-vuejs-508ab3f83480
+            // Ugly, taking from
+            // https://frontendsociety.com/using-a-typescript-interfaces-and-types-as-a-prop-type-in-vuejs-508ab3f83480
             type: Object as () => SingleImageSetting,
         },
+    },
+    methods: {
+        onChange() {
+            // use setTimeout because checkbox models update *after* the change event is fired
+            setTimeout(() => {
+                this.$emit('change', this.settings);
+            } , 0);
+        }
     }
 });
 </script>
