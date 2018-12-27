@@ -3,8 +3,8 @@ export enum DrawingMode {
 }
 
 export interface SingleImageSetting {
-    show: boolean;
-    intensity: number;
+    visible: boolean;
+    opacity: number;
 }
 
 export interface ImageSetting {
@@ -15,7 +15,7 @@ export class EditorParams {
     public imageSettings = {} as ImageSetting;
     public zoom = 50;
     public brushSize = 20;
-    public mask = false;
+    public clipMask = false;
     public drawingMode = DrawingMode.DRAW;
 }
 

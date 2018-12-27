@@ -20,26 +20,61 @@ export class IIIFImage {
         return this.append(`full/${width},/0/default.jpg`);
     }
 
+    public fullUrl() {
+        return this.getFullUrl(100);
+    }
+
+    public getFullUrl(pct: number, extension = 'jpg') {
+        // Partial code that builds the full URL, taken from the old RoiCanvas:
+        // imageProxy + corpus.images.get(image).getAddress() + 'full/pct:' + 100 / divisor + '/0/' + corpus.images.get(image).suffix
+        return this.append(`full/pct:${pct}/0/default.${extension}`);
+    }
+
     private append(suffix: string) {
         return `${this.url}/${suffix}`;
     }
 }
 
-export class IIAImageSet {
+export abstract class ImageSet {
+    public imageCatalogId: number;
+    public abstract get master(): IIIFImage | undefined;
+    public abstract get availableImageTypes(): string[];
+
+    constructor(imageCatalogId: number) {
+        this.imageCatalogId = imageCatalogId;
+    }
+
+    public getImage(type: string) {
+        const candidate: any = (this as any)[type];
+        if (candidate && candidate instanceof IIIFImage) {
+            return candidate;
+        }
+
+        return undefined;
+    }
+
+    public get images(): IIIFImage[] {
+        let images = this.availableImageTypes.map((t) => this.getImage(t));
+        images = images.filter((image) => image !== undefined);
+
+        return images as IIIFImage[];
+    }
+}
+
+export class IIAImageSet extends ImageSet {
     private static availableImages = ['color', 'infrared', 'rakingLeft', 'rakingRight'];
 
-    public imageCatalogId: number;
     public color?: IIIFImage;
     public infrared?: IIIFImage;
     public rakingLeft?: IIIFImage;
     public rakingRight?: IIIFImage;
 
     constructor(serverObj: any) {
-        this.imageCatalogId = serverObj.image_catalog_id;
+        super(serverObj.image_catalog_id);
         this.color = this.createIIIF(serverObj.color);
         this.infrared = this.createIIIF(serverObj.infrared);
-        this.rakingLeft = this.createIIIF(serverObj.raking_left);
-        this.rakingRight = this.createIIIF(serverObj.raking_right);
+        this.rakingLeft = this.createIIIF(serverObj['raking-left']);
+        this.rakingRight = this.createIIIF(serverObj['raking-right']);
     }
 
     private createIIIF(url: string | undefined) {
@@ -50,7 +85,11 @@ export class IIAImageSet {
         return undefined;
     }
 
-    public get availableImages() {
+    public get availableImageTypes() {
         return IIAImageSet.availableImages;
+    }
+
+    public get master(): IIIFImage | undefined {
+        return this.color;
     }
 }

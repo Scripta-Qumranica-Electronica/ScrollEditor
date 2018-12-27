@@ -11,7 +11,7 @@
     </section>
     <section>
       <h5>Images</h5>
-      <single-image-setting v-for="imageType in fragment.recto.availableImages" :key="imageType" 
+      <single-image-setting v-for="imageType in fragment.recto.availableImageTypes" :key="imageType" 
                             :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged(imageType, $event)">
       </single-image-setting>
     </section>

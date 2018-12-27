@@ -19,8 +19,8 @@ export default Vue.extend({
     },
     computed: {
         imageUrl(): string | undefined {
-            if (this.fragment && this.fragment.recto && this.fragment.recto.color) {
-                return this.fragment.recto.color.getThumbnailUrl(600);
+            if (this.fragment && this.fragment.recto && this.fragment.recto.master) {
+                return this.fragment.recto.master.getThumbnailUrl(600);
             }
             return undefined;
         },

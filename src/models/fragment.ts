@@ -1,4 +1,4 @@
-import { IIAImageSet } from './image';
+import { IIAImageSet, ImageSet } from './image';
 import { Artefact } from './artefact';
 
 export class ArtefactRef {
@@ -17,8 +17,8 @@ export class Fragment {
     public artefactRefs: ArtefactRef[];
     public plate: string;
 
-    public recto?: IIAImageSet;
-    public verso?: IIAImageSet;
+    public recto?: ImageSet;
+    public verso?: ImageSet;
 
     public artefacts: Artefact[] | undefined;
 
@@ -29,6 +29,7 @@ export class Fragment {
     constructor(obj: any) {
         this.number = parseInt(obj.fragment, 10);
         this.institution = obj.institution;
+
         if (obj.artefacts) {
             const artefacts = JSON.parse(obj.artefacts);
             this.artefactRefs = artefacts.map((subObj: any) => new ArtefactRef(subObj));

@@ -1,28 +1,26 @@
 <template>
-  <div class="row">
+  <div class="row" id="fragment-editor">
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
     <div v-if="!waiting && fragment" class="col">
-      <!--
       <roi-canvas class="overlay-image"
-                  :width="masterImage.width ? masterImage.width : 0"
-                  :height="masterImage.height ? masterImage.height : 0"
-                  :zoom-level="zoom"
-                  :images="filenames"
-                  :image-settings="imageSettings"
+                  :width="masterImage.manifest.width || 0"
+                  :height="masterImage.manifest.height || 0"
+                  :params="params"
+                  :side="fragment.recto"
                   :divisor="imageShrink"
-                  :clipping-mask="$route.params.artID === '~' || !corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID) ? 
-                                    undefined : 
-                                    corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID).mask"
-                  :clip="clippingOn"
-                  :corpus="corpus"
-                  ref="currentRoiCanvas">
+                  :clipping-mask="artefact.mask">
       </roi-canvas>
+      <!--
       <artefact-canvas  class="overlay-canvas"
                         v-show="viewMode === 'ART'"
                         :width="masterImage.width ? masterImage.width / 2 : 0"
+
+
                         :height="masterImage.height ? masterImage.height / 2 : 0"
+
+
                         :scale="zoom"
                         :draw-mode="drawingMode"
                         :brush-size="brushCursorSize"
@@ -63,24 +61,30 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import FragmentService from '@/services/fragment';
 import ScrollService from '@/services/scroll';
+import ImageService from '@/services/image';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 import { EditorParams } from './types';
+import { IIIFImage } from '@/models/image';
+import ROICanvas from './RoiCanvas.vue';
 
 export default Vue.extend({
   name: 'fragment-editor',
   components: {
     Waiting,
     'image-menu': ImageMenu,
+    'roi-canvas': ROICanvas,
   },
   data() {
     return {
       fragmentService: new FragmentService(this.$store),
       scrollService: new ScrollService(this.$store),
+      imageService: new ImageService(),
       waiting: false,
       artefact: undefined as Artefact | undefined,
       params: new EditorParams(),
+      imageShrink: 2,
     };
   },
   computed: {
@@ -93,6 +97,12 @@ export default Vue.extend({
     canEdit(): boolean {
       return this.$store.state.scroll.scrollVersion.permissions.canWrite;
     },
+    masterImage(): IIIFImage  | undefined {
+      if (this.fragment && this.fragment.recto) {
+        return this.fragment.recto.master;
+      }
+      return undefined;
+    }
   },
   async mounted() {
     try {
@@ -102,11 +112,17 @@ export default Vue.extend({
         parseInt(this.$route.params.scrollVersionId),
         this.$route.params.fragmentId);
 
+      if (this.fragment && this.fragment.recto && this.fragment.recto.master) {
+        await this.imageService.fetchImageManifest(this.fragment.recto.master);
+        console.log('Master image manifest is ', this.fragment.recto.master.manifest);
+      }
+
       if (this.fragment!.artefacts!.length) {
         this.artefact = this.fragment!.artefacts![0];
       } else {
         this.artefact = undefined;
       }
+
     } finally {
       this.waiting = false;
     }
@@ -118,8 +134,8 @@ export default Vue.extend({
       this.params.imageSettings = {};
       if (this.fragment.recto && this.fragment.recto) {
         let first = true;
-        for (const imageName of this.fragment.recto.availableImages) {
-          this.params.imageSettings[imageName] = { show: first, intensity: 100 };
+        for (const imageName of this.fragment.recto.availableImageTypes) {
+          this.params.imageSettings[imageName] = { visible: first, opacity: 100 };
           first = false;
         }
       }
@@ -135,11 +151,15 @@ export default Vue.extend({
   top: 0;
   left: 0;
   transform-origin: top left;
+  overflow: scroll;
 }
 .overlay-canvas {
   position: absolute;
   top: 0;
   left: 0;
   transform-origin: top left;
+}
+#fragment-editor {
+  overflow: hidden;
 }
 </style>
