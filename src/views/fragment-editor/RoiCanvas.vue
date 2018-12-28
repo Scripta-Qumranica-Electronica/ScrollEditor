@@ -6,7 +6,7 @@
             @mousemove="moveROI($event)" 
             @mousedown="newROI($event)"
             @mouseup="deselectROI()"
-            :transform="`scale(${params.zoom})`"
+            :transform="`scale(${zoomLevel})`"
             >
     <defs>
       <path id="Full-clip-path" :d="fullImageMask" :transform="`scale(${scale})`"></path>
@@ -19,18 +19,18 @@
       </clipPath>
     </defs>
     <g pointer-events="none" :clip-path="params.clipMask ? 'url(#Clipping-outline)' : 'url(#Full-clipping-outline)'">
-      <image v-for="imageType of side.availableImageTypes" 
-            :key="'svg-image-' + side.getImage(imageType).url"
+      <image v-for="imageSetting in imageSettings" 
+            :key="'svg-image-' + imageSetting.image.url"
             class="clippedImg" 
             draggable="false" 
-            :xlink:href="side.getImage(imageType).getFullUrl(100 / divisor)"
+            :xlink:href="imageSetting.image.getFullUrl(100 / divisor)"
             :width="width / divisor"
             :height="height / divisor"
-            :opacity="params.imageSettings[imageType].opacity"
-            :visibility="params.imageSettings[imageType].visible ? 'visible' : 'hidden'"></image>
+            :opacity="imageSetting.opacity"
+            :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
     </g>
     <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use>
-    <g v-for="box of boxes" :key="box">
+    <g v-for="box of boxes" :key="`${box.x}_${box.y}_${box.width}_${box.height}`">
       <rect :x="box.x" 
             :y="box.y" 
             :width="box.width"
@@ -89,7 +89,7 @@ import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory'
 import { mapGetters } from 'vuex'
 import { Fragment } from '@/models/fragment';
-import { EditorParams } from './types';
+import { EditorParams, SingleImageSetting } from './types';
 import { ImageSet } from '@/models/image';
 
 export default Vue.extend({
@@ -124,6 +124,16 @@ export default Vue.extend({
     svgMask(): string {
       return wktPolygonToSvg(this.clippingMask, undefined)
     },
+    zoomLevel(): number {
+      // Lot of the old code uses zoomLevel
+      return this.params.zoom;
+    },
+    imageSettings(): SingleImageSetting[] {
+      const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
+
+      console.log("imageSettings", values);
+      return values;
+    }
   },
   methods: {
     newROI(event: any) {
@@ -177,8 +187,8 @@ export default Vue.extend({
     moveROI(event: any) {
       if (this.mouseMoveType) {
         const move = {
-          x: (event.clientX - this.oldMousePos.x) / this.params.zoom,
-          y: (event.clientY - this.oldMousePos.y) / this.params.zoom,
+          x: (event.clientX - this.oldMousePos.x) / this.zoomLevel,
+          y: (event.clientY - this.oldMousePos.y) / this.zoomLevel,
         }
         this.oldMousePos = {
           x: event.clientX,

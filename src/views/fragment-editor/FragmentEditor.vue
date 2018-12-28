@@ -39,7 +39,8 @@
         :fragment="fragment"
         :artefact="artefact"
         :params="params"
-        :editable="canEdit">
+        :editable="canEdit"
+        @paramsChanged="onParamsChanged($event)">
         <!-- old event handlers
                   v-on:opacity="setOpacity"
         v-on:changeBrushSize="changeBrushSize"
@@ -65,7 +66,7 @@ import ImageService from '@/services/image';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
-import { EditorParams } from './types';
+import { EditorParams, EditorParamsChangedArgs } from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 
@@ -133,13 +134,25 @@ export default Vue.extend({
     fillImageSettings() {
       this.params.imageSettings = {};
       if (this.fragment.recto && this.fragment.recto) {
-        let first = true;
-        for (const imageName of this.fragment.recto.availableImageTypes) {
-          this.params.imageSettings[imageName] = { visible: first, opacity: 100 };
-          first = false;
+        for (const imageType of this.fragment.recto.availableImageTypes) {
+          const image = this.fragment.recto.getImage(imageType);
+          if (image) {
+            const master = this.fragment.recto.master === this.fragment.recto.getImage(imageType);
+            const imageSetting = { 
+              image: image,
+              type: imageType,
+              visible: master, 
+              opacity: 100 
+            };
+            this.$set(this.params.imageSettings, imageType, imageSetting); // Make sure this object is tracked by Vue
+          }
         }
       }
-    }
+    },
+    onParamsChanged(evt: EditorParamsChangedArgs) {
+      console.log('Editor parameters changed to ', JSON.stringify(evt.params));
+      this.params = evt.params;
+    },
   }
 });
 </script>

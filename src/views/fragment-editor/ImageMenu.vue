@@ -22,7 +22,7 @@
           Zoom:
         </div>
         <div class="col">
-          <b-form-input type="range" min="1" max="200" v-model="zoom"></b-form-input>
+          <b-form-input type="range" min="0.1" max="100"  v-model="zoom"></b-form-input>
         </div>
       </div>
     </section>
