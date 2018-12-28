@@ -86,8 +86,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { wktPolygonToSvg } from '@/utils/VectorFactory'
-import { mapGetters } from 'vuex'
+import { wktPolygonToSvg } from '@/utils/VectorFactory';
 import { Fragment } from '@/models/fragment';
 import { EditorParams, SingleImageSetting } from './types';
 import { ImageSet } from '@/models/image';
@@ -112,17 +111,17 @@ export default Vue.extend({
       mouseMoveType: undefined as any,
       oldMousePos: undefined as any,
       click: false,
-    }
+    };
   },
   computed: {
     scale(): number {
-      return 1 / this.divisor
+      return 1 / this.divisor;
     },
     fullImageMask(): string {
-      return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`
+      return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
     },
     svgMask(): string {
-      return wktPolygonToSvg(this.clippingMask, undefined)
+      return wktPolygonToSvg(this.clippingMask, undefined);
     },
     zoomLevel(): number {
       // Lot of the old code uses zoomLevel
@@ -130,40 +129,38 @@ export default Vue.extend({
     },
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
-
-      console.log("imageSettings", values);
       return values;
     }
   },
   methods: {
     newROI(event: any) {
       if (event.target.nodeName === 'svg') {
-        const point = this.pointInSvg(event.clientX, event.clientY)
+        const point = this.pointInSvg(event.clientX, event.clientY);
         const box = {
           x: point.x,
           y: point.y,
           width: 10,
           height: 10,
           color: 'purple',
-        }
-        this.boxes.push(box)
-        this.selectROI(event, box, 'resizeWH')
+        };
+        this.boxes.push(box);
+        this.selectROI(event, box, 'resizeWH');
       }
     },
 
     selectROI(event: any, box: any, type: any) {
       if (this.selectedBox) {
-        this.selectedBox.color = 'purple'
+        this.selectedBox.color = 'purple';
       }
-      this.selectedBox = box
-      this.selectedBox.color = 'orange'
+      this.selectedBox = box;
+      this.selectedBox.color = 'orange';
       this.oldMousePos = {
         x: event.clientX,
         y: event.clientY,
-      }
-      this.mouseMoveType = type
-      this.click = true
-      window.setTimeout(() => (this.click = false), 200)
+      };
+      this.mouseMoveType = type;
+      this.click = true;
+      window.setTimeout(() => (this.click = false), 200);
     },
 
     deselectROI() {
@@ -173,7 +170,7 @@ export default Vue.extend({
         y: this.selectedBox.y * 2,
         width: this.selectedBox.width * 2,
         height: this.selectedBox.height * 2,
-      }
+      };
       console.log('Deselection RIO ', roi);
       /* this.corpus
         .setRoiOfArtefact(id, roi, this.$route.params.artID, this.$route.params.scrollVersionID)
@@ -189,49 +186,49 @@ export default Vue.extend({
         const move = {
           x: (event.clientX - this.oldMousePos.x) / this.zoomLevel,
           y: (event.clientY - this.oldMousePos.y) / this.zoomLevel,
-        }
+        };
         this.oldMousePos = {
           x: event.clientX,
           y: event.clientY,
-        }
+        };
         if (this.mouseMoveType === 'drag') {
-          this.selectedBox.x += move.x
-          this.selectedBox.y += move.y
+          this.selectedBox.x += move.x;
+          this.selectedBox.y += move.y;
         } else if (this.mouseMoveType === 'resizeXY') {
-          this.selectedBox.x += move.x
-          this.selectedBox.y += move.y
-          this.selectedBox.width -= move.x
-          this.selectedBox.height -= move.y
+          this.selectedBox.x += move.x;
+          this.selectedBox.y += move.y;
+          this.selectedBox.width -= move.x;
+          this.selectedBox.height -= move.y;
         } else if (this.mouseMoveType === 'resizeWY') {
-          this.selectedBox.y += move.y
-          this.selectedBox.width += move.x
-          this.selectedBox.height -= move.y
+          this.selectedBox.y += move.y;
+          this.selectedBox.width += move.x;
+          this.selectedBox.height -= move.y;
         } else if (this.mouseMoveType === 'resizeWH') {
-          this.selectedBox.width += move.x
-          this.selectedBox.height += move.y
+          this.selectedBox.width += move.x;
+          this.selectedBox.height += move.y;
         } else if (this.mouseMoveType === 'resizeXH') {
-          this.selectedBox.x += move.x
-          this.selectedBox.width -= move.x
-          this.selectedBox.height += move.y
+          this.selectedBox.x += move.x;
+          this.selectedBox.width -= move.x;
+          this.selectedBox.height += move.y;
         }
       }
     },
 
     deleteSelectedRoi() {
       if (this.selectedBox) {
-        const idx = this.boxes.indexOf(this.selectedBox)
+        const idx = this.boxes.indexOf(this.selectedBox);
         if (idx !== -1) {
-          this.boxes.splice(idx, 1)
+          this.boxes.splice(idx, 1);
         }
       }
     },
 
     pointInSvg(x: any, y: any) {
       const svgElem = this.$refs.roiSvg as any;
-      const pt = svgElem.createSVGPoint()
-      pt.x = x
-      pt.y = y
-      return pt.matrixTransform(svgElem.getScreenCTM().inverse())
+      const pt = svgElem.createSVGPoint();
+      pt.x = x;
+      pt.y = y;
+      return pt.matrixTransform(svgElem.getScreenCTM().inverse());
     },
   },
 });

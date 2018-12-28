@@ -138,10 +138,10 @@ export default Vue.extend({
           const image = this.fragment.recto.getImage(imageType);
           if (image) {
             const master = this.fragment.recto.master === this.fragment.recto.getImage(imageType);
-            const imageSetting = { 
-              image: image,
+            const imageSetting = {
+              image,
               type: imageType,
-              visible: master, 
+              visible: master,
               opacity: 1
             };
             this.$set(this.params.imageSettings, imageType, imageSetting); // Make sure this object is tracked by Vue
