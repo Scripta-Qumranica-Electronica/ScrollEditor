@@ -142,7 +142,7 @@ export default Vue.extend({
               image: image,
               type: imageType,
               visible: master, 
-              opacity: 100 
+              opacity: 1
             };
             this.$set(this.params.imageSettings, imageType, imageSetting); // Make sure this object is tracked by Vue
           }
@@ -150,8 +150,7 @@ export default Vue.extend({
       }
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
-      console.log('Editor parameters changed to ', JSON.stringify(evt.params));
-      this.params = evt.params;
+      this.params = evt.params; // This makes sure a change is triggered in child components
     },
   }
 });

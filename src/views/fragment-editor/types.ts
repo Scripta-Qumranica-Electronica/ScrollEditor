@@ -9,7 +9,7 @@ export interface SingleImageSetting {
     image: IIIFImage;
     type: string;
     visible: boolean;
-    opacity: number;
+    opacity: number; // Between 0 and 1
 }
 
 export interface ImageSetting {
@@ -18,7 +18,7 @@ export interface ImageSetting {
 
 export class EditorParams {
     public imageSettings = {} as ImageSetting;
-    public zoom = 10;
+    public zoom = 0.1;  // Zoom between 0 and 1
     public brushSize = 20;
     public clipMask = false;
     public drawingMode = DrawingMode.DRAW;
