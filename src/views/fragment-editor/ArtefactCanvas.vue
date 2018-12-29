@@ -61,7 +61,7 @@ import { Artefact } from '@/models/artefact';
 interface Position {
   x: number,
   y: number,
-};
+}
 
 export default Vue.extend({
   props: {
@@ -163,7 +163,6 @@ export default Vue.extend({
           editingCTX.fillStyle = 'purple';
           editingCTX.fill();
         }
-        console.log('Editing canvas now ', this.editingCanvas);
       }
     },
     mousePositionInElement(event: MouseEvent, element: HTMLElement) {
@@ -176,7 +175,6 @@ export default Vue.extend({
     },
     async canvasToSVG() {
       const canvas = this.editingCanvas;
-      console.log('Converting canvas ', canvas, ' to SVG');
       const res: any = await trace(this.editingCanvas, this.divisor);
       const newClipperPolygon = svgPolygonToClipper(res);
       const cpr = new ClipperLib.Clipper();
@@ -231,6 +229,11 @@ export default Vue.extend({
       }
     },
   },
+  mounted() {
+    // Set the initial size of the editingCanvas
+    this.editingCanvas.width = this.width;
+    this.editingCanvas.height = this.height;
+  }
 });
 </script>
 
