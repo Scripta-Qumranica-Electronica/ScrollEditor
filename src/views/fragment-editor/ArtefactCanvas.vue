@@ -95,6 +95,12 @@ export default Vue.extend({
     scale(): number {
       return this.params.zoom;
     },
+    brushSize(): number {
+      return this.params.brushSize;
+    },
+    clip(): boolean {
+      return this.params.clipMask;
+    },
   },
   methods: {
     trackMouse(event: MouseEvent) {
@@ -107,9 +113,9 @@ export default Vue.extend({
       this.drawing = true;
       this.drawOnCanvas();
     },
-    processMouseUp() {
+    async processMouseUp() {
       this.drawing = false;
-      this.canvasToSVG();
+      await this.canvasToSVG();
     },
     drawOnCanvas() {
       if (!this.locked) {
@@ -157,6 +163,7 @@ export default Vue.extend({
           editingCTX.fillStyle = 'purple';
           editingCTX.fill();
         }
+        console.log('Editing canvas now ', this.editingCanvas);
       }
     },
     mousePositionInElement(event: MouseEvent, element: HTMLElement) {
@@ -167,35 +174,36 @@ export default Vue.extend({
       } as Position;
       return returnPos;
     },
-    canvasToSVG() {
-      trace(this.editingCanvas, this.divisor).then((res) => {
-        const newClipperPolygon = svgPolygonToClipper(res);
-        const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(this.currentClipperPolygon, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(newClipperPolygon, ClipperLib.PolyType.ptClip, true);
-        const solution_paths = new ClipperLib.Paths();
-        if (this.params.drawingMode === DrawingMode.ERASE) {
-          const succeeded = cpr.Execute(
-            ClipperLib.ClipType.ctDifference,
-            solution_paths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
-          );
-        } else {
-         const succeeded = cpr.Execute(
-            ClipperLib.ClipType.ctUnion,
-            solution_paths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
-          );
-        }
-       const ctx = this.editingCanvas.getContext('2d');
-        if (ctx === null) {
-          throw new Error('Received null editing canvas context');
-        }
-        ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
-        this.$emit('mask', clipperToSVGPolygon(solution_paths));
-      });
+    async canvasToSVG() {
+      const canvas = this.editingCanvas;
+      console.log('Converting canvas ', canvas, ' to SVG');
+      const res: any = await trace(this.editingCanvas, this.divisor);
+      const newClipperPolygon = svgPolygonToClipper(res);
+      const cpr = new ClipperLib.Clipper();
+      cpr.AddPaths(this.currentClipperPolygon, ClipperLib.PolyType.ptSubject, true);
+      cpr.AddPaths(newClipperPolygon, ClipperLib.PolyType.ptClip, true);
+      const solution_paths = new ClipperLib.Paths();
+      if (this.params.drawingMode === DrawingMode.ERASE) {
+        const succeeded = cpr.Execute(
+          ClipperLib.ClipType.ctDifference,
+          solution_paths,
+          ClipperLib.PolyFillType.pftNonZero,
+          ClipperLib.PolyFillType.pftNonZero
+        );
+      } else {
+        const succeeded = cpr.Execute(
+          ClipperLib.ClipType.ctUnion,
+          solution_paths,
+          ClipperLib.PolyFillType.pftNonZero,
+          ClipperLib.PolyFillType.pftNonZero
+        );
+      }
+      const ctx = this.editingCanvas.getContext('2d');
+      if (ctx === null) {
+        throw new Error('Received null editing canvas context');
+      }
+      ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
+      this.$emit('mask', clipperToSVGPolygon(solution_paths));
     },
   },
   watch: {

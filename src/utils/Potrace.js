@@ -2,12 +2,12 @@
  * It wasn't changed to Typescript yet, we might do so in the future.
  */
 export function trace(canvas, multiplyFactor) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     var potrace = new Potrace(canvas, multiplyFactor)
     potrace.process(() => {
       let path = potrace.getPolyPath(1)
       if (path === '') {
-        path = Error('Canvas is blank!')
+        reject(new Error('Canvas is blank!'))
       }
       resolve(path)
     })

@@ -13,7 +13,7 @@
                   :clipping-mask="artefact.mask">
       </roi-canvas>
       <artefact-canvas  class="overlay-canvas"
-                        v-show="~~artefact"
+                        v-show="artefact !== undefined"
                         :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
                         :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
                         :params="params"
@@ -58,6 +58,7 @@ import ImageMenu from './ImageMenu.vue';
 import { EditorParams, EditorParamsChangedArgs } from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
+import ArtefactCanvas from './ArtefactCanvas.vue';
 
 export default Vue.extend({
   name: 'fragment-editor',
@@ -65,6 +66,7 @@ export default Vue.extend({
     Waiting,
     'image-menu': ImageMenu,
     'roi-canvas': ROICanvas,
+    'artefact-canvas': ArtefactCanvas,
   },
   data() {
     return {
