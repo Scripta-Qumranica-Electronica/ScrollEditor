@@ -12,24 +12,13 @@
                   :divisor="imageShrink"
                   :clipping-mask="artefact.mask">
       </roi-canvas>
-      <!--
       <artefact-canvas  class="overlay-canvas"
-                        v-show="viewMode === 'ART'"
-                        :width="masterImage.width ? masterImage.width / 2 : 0"
-
-
-                        :height="masterImage.height ? masterImage.height / 2 : 0"
-
-
-                        :scale="zoom"
-                        :draw-mode="drawingMode"
-                        :brush-size="brushCursorSize"
+                        v-show="~~artefact"
+                        :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
+                        :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
+                        :params="params"
+                        :artefact="artefact"
                         :divisor="imageShrink"
-                        :mask="$route.params.artID === '~' || !corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID) ? 
-                                  undefined :
-                                  corpus.artefacts.get($route.params.artID, $route.params.scrollVersionID).mask"
-                        :locked="lock"
-                        :clip="clippingOn"
                         v-on:mask="setClipMask"
                         ref="currentArtCanvas">
       </artefact-canvas> -->
@@ -139,7 +128,11 @@ export default Vue.extend({
           first = false;
         }
       }
-    }
+    },
+    setClipMask(svgMask: string) {
+      console.log('svgMask set to ', svgMask);
+      this.artefact!.mask = svgMask; // TODO: Save old mask so we can RESET and UNDO
+    },
   }
 });
 </script>

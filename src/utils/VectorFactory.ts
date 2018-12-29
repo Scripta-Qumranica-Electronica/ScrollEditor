@@ -14,7 +14,7 @@
  * Otherwise, we just add each point to the string
  * unaltered.
  */
-export function wktPolygonToSvg(wkt: any , boundingRect: any) {
+export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
   let svg: any;
   if (wkt.substring(0, 9) === 'POLYGON((') {
     const polygonInitRegex = /POLYGON/g;

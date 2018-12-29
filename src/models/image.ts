@@ -25,8 +25,6 @@ export class IIIFImage {
     }
 
     public getFullUrl(pct: number, extension = 'jpg') {
-        // Partial code that builds the full URL, taken from the old RoiCanvas:
-        // imageProxy + corpus.images.get(image).getAddress() + 'full/pct:' + 100 / divisor + '/0/' + corpus.images.get(image).suffix
         return this.append(`full/pct:${pct}/0/default.${extension}`);
     }
 
