@@ -91,7 +91,7 @@ export default Vue.extend({
     },
     masterImage(): IIIFImage  | undefined {
       if (this.fragment && this.fragment.recto) {
-        return this.fragment.recto.master;
+        return this.fragment.recto.color; //You were looking for "master", but that did not exist in the object.
       }
       return undefined;
     }

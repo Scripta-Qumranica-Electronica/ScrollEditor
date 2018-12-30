@@ -45,7 +45,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { trace } from '@/utils/Potrace.js';
+// You can use a plain JS lib in TS with require instead of import.
+const trace = require('@/utils/Potrace.js').trace;
 import {
   clipCanvas,
   wktPolygonToSvg,
@@ -54,7 +55,8 @@ import {
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
 import { EditorParams, DrawingMode } from './types';
-import ClipperLib from 'js-clipper/clipper';
+// You can use a plain JS lib in TS with require instead of import.
+const ClipperLib = require('js-clipper/clipper');
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 
@@ -211,7 +213,7 @@ export default Vue.extend({
         clipCanvas(this.$refs.maskCanvas, svgMask, this.divisor);
         this.currentClipperPolygon = svgPolygonToClipper(svgMask);
       } else {
-       const ctx = this.maskCanvas.getContext('2d');
+        const ctx = this.maskCanvas.getContext('2d');
         if (ctx === null) {
           throw new Error('Received null mask canvas context');
         }
