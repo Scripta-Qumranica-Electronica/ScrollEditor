@@ -22,10 +22,21 @@
           Zoom:
         </div>
         <div class="col">
-          <b-form-input type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input>
+          <b-form-input v-b-tooltip.hover :title="zoom" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input>
         </div>
       </div>
     </section>
+    <section>
+      <b-form-checkbox v-model="mask">Musk</b-form-checkbox>
+    </section>
+    <section>
+      <b-button-group>
+        <!-- <b-button v-for="mode in ['draw', 'erase']" :key="mode" :value="mode" v-model="draw">{{ mode }}</b-button> -->
+        <b-button v-for="mode in [{name: 'draw', val:'DRAW'}, {name: 'earse', val: 'ERASE'}]" :key="mode.val" @click="notifyChange('drawingMode', mode.val)">{{ mode.name }}</b-button>
+      </b-button-group>
+
+    </section>
+    
   </div>
 <!--  <el-row 
     class="single-image-pane-menu" 
@@ -172,8 +183,16 @@ export default Vue.extend({
         this.params.zoom = val;
         this.notifyChange('zoom', val);
       }
+    },mask: {
+      get(): boolean {
+        return this.params.clipMask;
+      },
+      set(val: boolean) {
+        this.params.clipMask = val;
+        this.notifyChange('clipMask', val);
+      }
     }, /*
-    drawingMode: {
+    draw: {
       get(): DrawingMode {
         return (this as any).params.drawingMode;
       },
@@ -188,9 +207,9 @@ export default Vue.extend({
           return;
         }
         (this as any).params.drawingMode = mode;
-        (this as any).$emit('paramsChanged', 'drawingMode', mode);
+        this.notifyChange('drawingMode', mode);
       }
-    } */
+    },*/
   },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {

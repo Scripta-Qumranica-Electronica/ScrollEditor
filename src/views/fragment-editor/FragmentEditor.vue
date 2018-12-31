@@ -3,7 +3,7 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting && fragment" class="col">
+    <div v-if="!waiting && fragment" id="overlay-div">
       <roi-canvas class="overlay-image"
                   :width="masterImage.manifest.width || 0"
                   :height="masterImage.manifest.height || 0"
@@ -12,7 +12,7 @@
                   :divisor="imageShrink"
                   :clipping-mask="artefact.mask">
       </roi-canvas>
-      <artefact-canvas  class="overlay-canvas"
+      <artefact-canvas class="overlay-canvas"
                         v-show="artefact !== undefined"
                         :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
                         :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
@@ -21,7 +21,7 @@
                         :divisor="imageShrink"
                         v-on:mask="setClipMask"
                         ref="currentArtCanvas">
-      </artefact-canvas> -->
+      </artefact-canvas>
     </div>
     <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
       <image-menu
@@ -154,11 +154,8 @@ export default Vue.extend({
 <style lang="scss" scoped>
 // @import '~sass-vars';
 .overlay-image {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: absolute; 
   transform-origin: top left;
-  overflow: scroll;
 }
 .overlay-canvas {
   position: absolute;
@@ -168,5 +165,12 @@ export default Vue.extend({
 }
 #fragment-editor {
   overflow: hidden;
+}
+#overlay-div {
+  position: relative;
+  height: 800px;
+  min-width: 1500px;
+  overflow: scroll;
+  margin-right: 15px;
 }
 </style>
