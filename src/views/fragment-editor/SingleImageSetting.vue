@@ -4,7 +4,7 @@
             <b-form-checkbox v-model="settings.visible" @change="onChange">{{ type }}</b-form-checkbox>
         </div>
         <div class="col">
-            <b-form-input v-model="settings.opacity" v-b-tooltip.hover :title="settings.opacity" type="range" min="0" max="1" step="0.05" @change="onChange"></b-form-input>
+            <b-form-input v-model="settings.opacity" v-b-tooltip.hover :title="formatTooltip(settings.opacity)" type="range" min="0" max="1" step="0.05" @change="onChange"></b-form-input>
         </div>
     </div>
 </template>
@@ -35,6 +35,9 @@ export default Vue.extend({
             setTimeout(() => {
                 this.$emit('change', this.settings);
             } , 0);
+        },
+        formatTooltip(val: number): string {
+            return (val * 100) + '%';
         }
     }
 });

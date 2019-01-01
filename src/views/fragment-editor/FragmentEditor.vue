@@ -3,7 +3,7 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting && fragment" id="overlay-div">
+    <div v-if="!waiting && fragment" id="overlay-div" class="col">
       <roi-canvas class="overlay-image"
                   :width="masterImage.manifest.width || 0"
                   :height="masterImage.manifest.height || 0"
@@ -169,7 +169,7 @@ export default Vue.extend({
 #overlay-div {
   position: relative;
   height: 800px;
-  min-width: 1500px;
+  width: 1500px;
   overflow: scroll;
   margin-right: 15px;
 }

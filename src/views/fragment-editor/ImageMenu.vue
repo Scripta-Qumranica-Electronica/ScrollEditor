@@ -22,7 +22,7 @@
           Zoom:
         </div>
         <div class="col">
-          <b-form-input v-b-tooltip.hover :title="zoom" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input>
+          <b-form-input v-b-tooltip.hover :title="formatTooltip()" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input>
         </div>
       </div>
     </section>
@@ -34,9 +34,11 @@
         <!-- <b-button v-for="mode in ['draw', 'erase']" :key="mode" :value="mode" v-model="draw">{{ mode }}</b-button> -->
         <b-button v-for="mode in [{name: 'draw', val:'DRAW'}, {name: 'earse', val: 'ERASE'}]" :key="mode.val" @click="notifyChange('drawingMode', mode.val)">{{ mode.name }}</b-button>
       </b-button-group>
-
     </section>
-    
+    <section>
+      <b-button @click="save()">Save</b-button>&nbsp;
+      <b-button @click="reset()">Reset</b-button>
+    </section>    
   </div>
 <!--  <el-row 
     class="single-image-pane-menu" 
@@ -224,15 +226,15 @@ export default Vue.extend({
       } as EditorParamsChangedArgs;
       this.$emit('paramsChanged', args);
       console.debug(`Property ${paramName} changed to ${JSON.stringify(paramValue)}`);
-    }
+    },
+    formatTooltip() {
+      return (this.zoom * 100) + '%';
+    },
     /*setOpacity(image, value) {
       this.$emit('opacity', image, value)
     },
     toggleVisible(image) {
       this.$emit('visible', image)
-    },
-    formatTooltip() {
-      return (this.zoom * 100).toFixed(2) + '%'
     },
     toggleDrawingMode() {
       this.$emit('drawingMode')
