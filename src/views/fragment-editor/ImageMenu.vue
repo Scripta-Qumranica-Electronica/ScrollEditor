@@ -22,7 +22,7 @@
           Zoom:
         </div>
         <div class="col">
-          <b-form-input v-b-tooltip.hover :title="formatTooltip()" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input>
+          <b-form-input id="aaa" v-b-tooltip.hover :title="formatTooltip()" :data-original-title="zoom" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input>
         </div>
       </div>
     </section>
@@ -170,6 +170,7 @@ export default Vue.extend({
     artefact: Artefact,
     editable: Boolean,
     params: EditorParams,
+    aaa: Object,
   },
   data() {
     return {
@@ -184,6 +185,15 @@ export default Vue.extend({
       set(val: number) {
         this.params.zoom = val;
         this.notifyChange('zoom', val);
+        // this.aaa.tooltip('hide')
+        // .attr('data-original-title', this.formatTooltip())
+        //   .tooltip('fixTitle')
+        //   .tooltip('show');
+
+        // var el = document.getElementById('aaa');
+        // el.title = val + '%';
+
+        // $("#aaa").tooltip('hide').tooltip('show');
       }
     },mask: {
       get(): boolean {
