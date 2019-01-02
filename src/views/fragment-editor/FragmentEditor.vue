@@ -29,7 +29,8 @@
         :artefact="artefact"
         :params="params"
         :editable="canEdit"
-        @paramsChanged="onParamsChanged($event)">
+        @paramsChanged="onParamsChanged($event)"
+        @save="onSaved($event)">
         <!-- old event handlers
                   v-on:opacity="setOpacity"
         v-on:changeBrushSize="changeBrushSize"
@@ -147,6 +148,13 @@ export default Vue.extend({
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
+    onSaved(evt: any) {
+      if (evt === {}) {
+        // TODO: reset
+      } else {
+        // TODO: save
+      }
+    }
   }
 });
 </script>

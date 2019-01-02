@@ -237,9 +237,15 @@ export default Vue.extend({
       this.$emit('paramsChanged', args);
       console.debug(`Property ${paramName} changed to ${JSON.stringify(paramValue)}`);
     },
-    formatTooltip() {
+    formatTooltip(): string {
       return (this.zoom * 100) + '%';
     },
+    save() {
+      this.$emit('save', this.params); // todo- what send here- params?
+    },
+    reset() {
+      this.$emit('save', {});
+    }
     /*setOpacity(image, value) {
       this.$emit('opacity', image, value)
     },
