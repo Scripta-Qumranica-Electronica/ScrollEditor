@@ -23,6 +23,10 @@ export interface ScrollState {
 export interface FragmentState {
     fragment: Fragment | null;
     // artefacts: Artefact[] | null;
+
+}
+export interface MaskState {
+    mask: string | null;
 }
 
 export interface RootState {

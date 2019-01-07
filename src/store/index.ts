@@ -5,6 +5,7 @@ import language from './language';
 import session from './session';
 import scroll from './scroll';
 import fragment from './fragment';
+import mask from './mask';
 import { RootState } from './types';
 
 Vue.use(Vuex);
@@ -15,6 +16,7 @@ const store: StoreOptions<RootState> = {
         session,
         scroll,
         fragment,
+        mask,
     }
 };
 

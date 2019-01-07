@@ -30,7 +30,8 @@
         :params="params"
         :editable="canEdit"
         @paramsChanged="onParamsChanged($event)"
-        @save="onSaved($event)">
+        @save="onSaved($event)"
+        @reset="onReseted($event)">
         <!-- old event handlers
                   v-on:opacity="setOpacity"
         v-on:changeBrushSize="changeBrushSize"
@@ -53,6 +54,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import FragmentService from '@/services/fragment';
 import ScrollService from '@/services/scroll';
 import ImageService from '@/services/image';
+import MaskService from '@/services/mask';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
@@ -74,6 +76,7 @@ export default Vue.extend({
       fragmentService: new FragmentService(this.$store),
       scrollService: new ScrollService(this.$store),
       imageService: new ImageService(),
+      maskService: new MaskService(this.$store),
       waiting: false,
       artefact: undefined as Artefact | undefined,
       params: new EditorParams(),
@@ -120,6 +123,12 @@ export default Vue.extend({
       this.waiting = false;
     }
 
+    // Save old mask so we can RESET and UNDO
+    // TODO: where do it?
+    console.log("mask in store in the beginning:", this.$store.state.mask.mask);
+    console.log("artefact.mask in the beginning:", this.artefact!.mask);
+    this.maskService.setMask(this.artefact!.mask);
+
     this.fillImageSettings();
   },
   methods: {
@@ -149,11 +158,13 @@ export default Vue.extend({
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
     onSaved(evt: any) {
-      if (evt === {}) {
-        // TODO: reset
-      } else {
-        // TODO: save
-      }
+      // TODO: save
+      this.maskService.setMask(this.artefact!.mask);
+    },
+    onReseted() {
+      console.log("before reset: mask=", this.artefact!.mask)
+      this.artefact!.mask = this.$store.state.mask.mask; // taken from store
+      console.log("after reset: mask=", this.artefact!.mask)
     }
   }
 });

@@ -18,11 +18,11 @@
     <section>
       <!-- zoom -->
       <div class="row">
-        <div class="col-4">
-          Zoom:
+        <div class="col-5">
+          Zoom: {{formatTooltip()}}
         </div>
-        <div class="col">
-          <b-form-input id="aaa" v-b-tooltip.hover :title="formatTooltip()" :data-original-title="zoom" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input>
+        <div class="col">          
+          <b-form-input ref="zoomRef" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input> <!-- v-b-tooltip.hover :title="formatTooltip()"-->
         </div>
       </div>
     </section>
@@ -32,7 +32,7 @@
     <section>
       <b-button-group>
         <!-- <b-button v-for="mode in ['draw', 'erase']" :key="mode" :value="mode" v-model="draw">{{ mode }}</b-button> -->
-        <b-button v-for="mode in [{name: 'draw', val:'DRAW'}, {name: 'earse', val: 'ERASE'}]" :key="mode.val" @click="notifyChange('drawingMode', mode.val)">{{ mode.name }}</b-button>
+        <b-button v-for="mode in [{name: 'draw', val:'DRAW'}, {name: 'earse', val: 'ERASE'}]" :key="mode.val" @click="onDrawChanged(mode.val)">{{ mode.name }}</b-button>
       </b-button-group>
     </section>
     <section>
@@ -170,13 +170,25 @@ export default Vue.extend({
     artefact: Artefact,
     editable: Boolean,
     params: EditorParams,
-    aaa: Object,
   },
   data() {
     return {
 
     };
+    
   },
+  watch: {
+    zoom: function (newValue, oldValue):any {
+      console.log("zoom changed", newValue, oldValue);
+        // This callback will be called when zoom changes
+        // console.log("zoom ref", (this.$refs.zoomRef as any));
+
+        // (this.$refs.zoomRef as any).tooltip('hide')
+        //  .attr('data-original-title', this.formatTooltip())
+        //   .tooltip('fixTitle')
+        //   .tooltip('show');
+    }
+  },   
   computed: {
     zoom: {
       get(): number {
@@ -185,15 +197,6 @@ export default Vue.extend({
       set(val: number) {
         this.params.zoom = val;
         this.notifyChange('zoom', val);
-        // this.aaa.tooltip('hide')
-        // .attr('data-original-title', this.formatTooltip())
-        //   .tooltip('fixTitle')
-        //   .tooltip('show');
-
-        // var el = document.getElementById('aaa');
-        // el.title = val + '%';
-
-        // $("#aaa").tooltip('hide').tooltip('show');
       }
     },mask: {
       get(): boolean {
@@ -228,6 +231,11 @@ export default Vue.extend({
       this.params.imageSettings[imageType] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
     },
+    onDrawChanged(val: DrawingMode) {
+        const mode = DrawingMode[val];
+        (this as any).params.drawingMode = mode;
+        this.notifyChange('drawingMode', mode);
+    },
     notifyChange(paramName: string, paramValue: any) {
       const args = {
         property: paramName,
@@ -238,13 +246,13 @@ export default Vue.extend({
       console.debug(`Property ${paramName} changed to ${JSON.stringify(paramValue)}`);
     },
     formatTooltip(): string {
-      return (this.zoom * 100) + '%';
+      return (this.zoom * 100).toFixed(0) + '%';
     },
     save() {
-      this.$emit('save', this.params); // todo- what send here- params?
+      this.$emit('save', this.artefact.mask);
     },
     reset() {
-      this.$emit('save', {});
+      this.$emit('reset');
     }
     /*setOpacity(image, value) {
       this.$emit('opacity', image, value)
