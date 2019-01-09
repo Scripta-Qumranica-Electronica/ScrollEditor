@@ -27,12 +27,12 @@
       </div>
     </section>
     <section>
-      <b-form-checkbox v-model="mask">Musk</b-form-checkbox>
+      <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
     </section>
     <section>
       <b-button-group>
         <!-- <b-button v-for="mode in ['draw', 'erase']" :key="mode" :value="mode" v-model="draw">{{ mode }}</b-button> -->
-        <b-button v-for="mode in [{name: 'draw', val:'DRAW'}, {name: 'earse', val: 'ERASE'}]" :key="mode.val" @click="onDrawChanged(mode.val)">{{ mode.name }}</b-button>
+        <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" :key="mode.val" @click="onDrawChanged(mode.val)">{{ mode.name }}</b-button>
       </b-button-group>
     </section>
     <section>
