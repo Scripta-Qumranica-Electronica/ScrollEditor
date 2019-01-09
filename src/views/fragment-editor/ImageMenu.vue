@@ -175,11 +175,11 @@ export default Vue.extend({
     return {
 
     };
-    
+
   },
   watch: {
-    zoom: function (newValue, oldValue):any {
-      console.log("zoom changed", newValue, oldValue);
+    zoom(newValue, oldValue): any {
+      console.log('zoom changed', newValue, oldValue);
         // This callback will be called when zoom changes
         // console.log("zoom ref", (this.$refs.zoomRef as any));
 
@@ -188,7 +188,7 @@ export default Vue.extend({
         //   .tooltip('fixTitle')
         //   .tooltip('show');
     }
-  },   
+  },
   computed: {
     zoom: {
       get(): number {
@@ -198,7 +198,8 @@ export default Vue.extend({
         this.params.zoom = val;
         this.notifyChange('zoom', val);
       }
-    },mask: {
+    },
+    mask: {
       get(): boolean {
         return this.params.clipMask;
       },

@@ -45,8 +45,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
-// You can use a plain JS lib in TS with require instead of import.
+
+// tslint:disable:no-var-requires
 const trace = require('@/utils/Potrace.js').trace;
+const ClipperLib = require('js-clipper/clipper');
+// tslint:enable:no-var-requires
+
 import {
   clipCanvas,
   wktPolygonToSvg,
@@ -55,14 +59,12 @@ import {
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
 import { EditorParams, DrawingMode } from './types';
-// You can use a plain JS lib in TS with require instead of import.
-const ClipperLib = require('js-clipper/clipper');
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 
 interface Position {
-  x: number,
-  y: number,
+  x: number;
+  y: number;
 }
 
 export default Vue.extend({
@@ -182,18 +184,18 @@ export default Vue.extend({
       const cpr = new ClipperLib.Clipper();
       cpr.AddPaths(this.currentClipperPolygon, ClipperLib.PolyType.ptSubject, true);
       cpr.AddPaths(newClipperPolygon, ClipperLib.PolyType.ptClip, true);
-      const solution_paths = new ClipperLib.Paths();
+      const solutionPaths = new ClipperLib.Paths();
       if (this.params.drawingMode === DrawingMode.ERASE) {
         const succeeded = cpr.Execute(
           ClipperLib.ClipType.ctDifference,
-          solution_paths,
+          solutionPaths,
           ClipperLib.PolyFillType.pftNonZero,
           ClipperLib.PolyFillType.pftNonZero
         );
       } else {
         const succeeded = cpr.Execute(
           ClipperLib.ClipType.ctUnion,
-          solution_paths,
+          solutionPaths,
           ClipperLib.PolyFillType.pftNonZero,
           ClipperLib.PolyFillType.pftNonZero
         );
@@ -203,7 +205,7 @@ export default Vue.extend({
         throw new Error('Received null editing canvas context');
       }
       ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
-      this.$emit('mask', clipperToSVGPolygon(solution_paths));
+      this.$emit('mask', clipperToSVGPolygon(solutionPaths));
     },
   },
   watch: {

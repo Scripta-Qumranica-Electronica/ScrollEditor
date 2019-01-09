@@ -95,7 +95,7 @@ export default Vue.extend({
     },
     masterImage(): IIIFImage  | undefined {
       if (this.fragment && this.fragment.recto) {
-        return this.fragment.recto.color; //You were looking for "master", but that did not exist in the object.
+        return this.fragment.recto.master;
       }
       return undefined;
     }
@@ -125,8 +125,8 @@ export default Vue.extend({
 
     // Save old mask so we can RESET and UNDO
     // TODO: where do it?
-    console.log("mask in store in the beginning:", this.$store.state.mask.mask);
-    console.log("artefact.mask in the beginning:", this.artefact!.mask);
+    console.log('mask in store in the beginning:', this.$store.state.mask.mask);
+    console.log('artefact.mask in the beginning:', this.artefact!.mask);
     this.maskService.setMask(this.artefact!.mask);
 
     this.fillImageSettings();
@@ -162,9 +162,9 @@ export default Vue.extend({
       this.maskService.setMask(this.artefact!.mask);
     },
     onReseted() {
-      console.log("before reset: mask=", this.artefact!.mask)
+      console.log('before reset: mask=', this.artefact!.mask);
       this.artefact!.mask = this.$store.state.mask.mask; // taken from store
-      console.log("after reset: mask=", this.artefact!.mask)
+      console.log('after reset: mask=', this.artefact!.mask);
     }
   }
 });
