@@ -26,6 +26,10 @@ export class Polygon {
         return new Polygon(svg);
     }
 
+    public static fromSvg(svg: any) {
+        return new Polygon(svg);
+    }
+
     // tslint:disable-next-line:variable-name
     private _svg: string;
 

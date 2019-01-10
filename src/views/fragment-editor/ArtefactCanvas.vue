@@ -194,7 +194,7 @@ export default Vue.extend({
     async recalculateMask() {
       const canvas = this.editingCanvas;
       const canvasSvg: any = await trace(this.editingCanvas, this.divisor);
-      const canvasPolygon = new Polygon(canvasSvg);
+      const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
       const cpr = new ClipperLib.Clipper();
       if (this.clippingMask) { // We may not have a mask at all
