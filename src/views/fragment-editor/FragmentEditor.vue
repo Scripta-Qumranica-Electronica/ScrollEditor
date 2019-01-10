@@ -85,6 +85,7 @@ export default Vue.extend({
       params: new EditorParams(),
       imageShrink: 2,
       saving: false,
+      // ADd undo and redo lists : Polygon[]
     };
   },
   computed: {
@@ -151,6 +152,7 @@ export default Vue.extend({
       }
     },
     setClipMask(newMask: Polygon) {
+      // TODO: Place current mask in undo buffer, clear redo buffer
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
