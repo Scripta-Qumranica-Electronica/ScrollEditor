@@ -26,6 +26,16 @@
         </div>
       </div>
     </section>
+    <section>
+      <div class="row">
+        <div class="col-5">
+          Brush Size: {{brushSize}}
+        </div>
+        <div class="col">          
+          <b-form-input type="range" min="2" max="40" step="1"  v-model="brushSize"></b-form-input>
+        </div>
+      </div>
+    </section>
     <section v-if="artefact.mask">
       <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
     </section>
@@ -207,6 +217,15 @@ export default Vue.extend({
       set(val: boolean) {
         this.params.clipMask = val;
         this.notifyChange('clipMask', val);
+      }
+    },
+    brushSize: {
+      get(): number {
+        return this.params.brushSize;
+      },
+      set(val: number) {
+        this.params.brushSize = val;
+        this.notifyChange('brushSize', val);
       }
     }, /*
     draw: {
