@@ -2,6 +2,7 @@
   <div 
     ref="artefactOverlay"
     class="artefactOverlay"
+    :class="{ editable: editable} "
     :width="width"
     :height="height"
     :style="{transform: `scale(${scale})`}">
@@ -253,7 +254,7 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-.artefactOverlay {
+.artefactOverlay.editable {
   cursor: none;
 }
 .maskCanvas {
