@@ -13,7 +13,7 @@
       <clipPath id="Full-clipping-outline">
         <use stroke="none" fill="black" fill-rule="evenodd" href="#Full-clip-path"></use>
       </clipPath>
-      <path id="Clip-path" v-if="clippingMask" :d="svgMask" :transform="`scale(${scale})`"></path>
+      <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg" :transform="`scale(${scale})`"></path>
       <clipPath id="Clipping-outline">
         <use stroke="none" fill="black" fill-rule="evenodd" href="#Clip-path"></use>
       </clipPath>
@@ -90,6 +90,7 @@ import { wktPolygonToSvg } from '@/utils/VectorFactory';
 import { Fragment } from '@/models/fragment';
 import { EditorParams, SingleImageSetting } from './types';
 import { ImageSet } from '@/models/image';
+import { Polygon } from '@/utils/Polygons';
 
 export default Vue.extend({
   name: 'roi-canvas',
@@ -103,7 +104,7 @@ export default Vue.extend({
       type: Object as () => ImageSet,
     },
     divisor: Number,
-    clippingMask: String,
+    clippingMask: Polygon,
   },
   data() {
     return {
@@ -120,9 +121,6 @@ export default Vue.extend({
     },
     fullImageMask(): string {
       return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
-    },
-    svgMask(): string {
-      return wktPolygonToSvg(this.clippingMask, undefined);
     },
     zoomLevel(): number {
       // Lot of the old code uses zoomLevel

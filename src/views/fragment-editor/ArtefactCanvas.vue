@@ -61,6 +61,7 @@ import {
 import { EditorParams, DrawingMode } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
+import { Polygon } from '@/utils/Polygons';
 
 interface Position {
   x: number;
@@ -73,7 +74,6 @@ export default Vue.extend({
     fragment: Fragment,
     artefact: Artefact,
     editable: Boolean,
-    mask: String,
     width: Number,
     height: Number,
     divisor: Number,
@@ -120,7 +120,7 @@ export default Vue.extend({
     },
     async processMouseUp() {
       this.drawing = false;
-      await this.canvasToSVG();
+      await this.recalculateMask();
     },
     drawOnCanvas() {
       if (!this.locked) {
@@ -178,13 +178,16 @@ export default Vue.extend({
       } as Position;
       return returnPos;
     },
-    async canvasToSVG() {
+    async recalculateMask() {
       const canvas = this.editingCanvas;
-      const res: any = await trace(this.editingCanvas, this.divisor);
-      const newClipperPolygon = svgPolygonToClipper(res);
+      const canvasSvg: any = await trace(this.editingCanvas, this.divisor);
+      const canvasPolygon = new Polygon(canvasSvg);
+
       const cpr = new ClipperLib.Clipper();
-      cpr.AddPaths(this.currentClipperPolygon, ClipperLib.PolyType.ptSubject, true);
-      cpr.AddPaths(newClipperPolygon, ClipperLib.PolyType.ptClip, true);
+      if (this.artefact && this.artefact.mask) { // We may not have a mask at all
+        cpr.AddPaths(this.artefact.mask.clipper, ClipperLib.PolyType.ptSubject, true);
+      }
+      cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
       const solutionPaths = new ClipperLib.Paths();
       if (this.params.drawingMode === DrawingMode.ERASE) {
         const succeeded = cpr.Execute(
@@ -206,23 +209,12 @@ export default Vue.extend({
         throw new Error('Received null editing canvas context');
       }
       ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
-      this.$emit('mask', clipperToSVGPolygon(solutionPaths));
+
+      const newMask = Polygon.fromClipper(solutionPaths);
+      this.$emit('mask', newMask);
     },
   },
   watch: {
-    mask(to, from) {
-      if (to && from !== to) {
-        const svgMask = wktPolygonToSvg(to);
-        clipCanvas(this.$refs.maskCanvas, svgMask, this.divisor);
-        this.currentClipperPolygon = svgPolygonToClipper(svgMask);
-      } else {
-        const ctx = this.maskCanvas.getContext('2d');
-        if (ctx === null) {
-          throw new Error('Received null mask canvas context');
-        }
-        ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-      }
-    },
     width(to, from) {
       if (to && from !== to) {
         this.editingCanvas.width = to;
@@ -238,6 +230,12 @@ export default Vue.extend({
     // Set the initial size of the editingCanvas
     this.editingCanvas.width = this.width;
     this.editingCanvas.height = this.height;
+
+    const ctx = this.maskCanvas.getContext('2d');
+    if (ctx === null) {
+      throw new Error('Received null mask canvas context');
+    }
+    ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
   }
 });
 </script>

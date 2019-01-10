@@ -56,7 +56,6 @@ import Waiting from '@/components/misc/Waiting.vue';
 import FragmentService from '@/services/fragment';
 import ScrollService from '@/services/scroll';
 import ImageService from '@/services/image';
-import MaskService from '@/services/mask';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
@@ -64,6 +63,7 @@ import { EditorParams, EditorParamsChangedArgs } from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
+import { Polygon } from '@/utils/Polygons';
 
 export default Vue.extend({
   name: 'fragment-editor',
@@ -78,9 +78,9 @@ export default Vue.extend({
       fragmentService: new FragmentService(this.$store),
       scrollService: new ScrollService(this.$store),
       imageService: new ImageService(),
-      maskService: new MaskService(this.$store),
       waiting: false,
       artefact: undefined as Artefact | undefined,
+      initialMask: undefined as Polygon | undefined,
       params: new EditorParams(),
       imageShrink: 2,
     };
@@ -117,19 +117,15 @@ export default Vue.extend({
 
       if (this.fragment!.artefacts!.length) {
         this.artefact = this.fragment!.artefacts![0];
+        this.initialMask = this.artefact.mask;
       } else {
         this.artefact = undefined;
+        this.initialMask = undefined;
       }
 
     } finally {
       this.waiting = false;
     }
-
-    // Save old mask so we can RESET and UNDO
-    // TODO: where do it?
-    console.log('mask in store in the beginning:', this.$store.state.mask.mask);
-    console.log('artefact.mask in the beginning:', this.artefact!.mask);
-    this.maskService.setMask(this.artefact!.mask);
 
     this.fillImageSettings();
   },
@@ -152,21 +148,23 @@ export default Vue.extend({
         }
       }
     },
-    setClipMask(svgMask: string) {
-      console.log('svgMask set to ', svgMask);
-      this.artefact!.mask = svgMask; // TODO: Save old mask so we can RESET and UNDO
+    setClipMask(newMask: Polygon) {
+      if (!this.artefact) {
+        throw new Error("Can't set mask if there is no artefact");
+      }
+      this.artefact.mask = newMask;
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
     onSaved(evt: any) {
-      // TODO: save
-      this.maskService.setMask(this.artefact!.mask);
+      // TODO: Send mask to server
     },
     onReseted() {
-      console.log('before reset: mask=', this.artefact!.mask);
-      this.artefact!.mask = this.$store.state.mask.mask; // taken from store
-      console.log('after reset: mask=', this.artefact!.mask);
+      if (!this.artefact) {
+        throw new Error("Can't reset mask if there is no artefact");
+      }
+      this.artefact.mask = this.initialMask;
     }
   }
 });

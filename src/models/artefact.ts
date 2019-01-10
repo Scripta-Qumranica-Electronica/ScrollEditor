@@ -1,5 +1,4 @@
-
-export type SVG = string;
+import { Polygon } from '@/utils/Polygons';
 
 export class Artefact {
     public id: number;
@@ -7,9 +6,9 @@ export class Artefact {
     public shapeId: number;
     public scrollVersionId: number;
     public name: string;
-    public mask: SVG;
+    public mask: Polygon | undefined;
     public transformMatrix: any; // TODO: Change to matrix type?
-    public rect: SVG;
+    public rect: string;
     public imageCatalogId: number; // Probably not needed
     public sqeImageId: number;  // Probable not needed
 
@@ -23,7 +22,7 @@ export class Artefact {
         this.shapeId = obj.artefact_shape_id;
         this.scrollVersionId = obj.scroll_version_id;
         this.name = obj.name;
-        this.mask = obj.mask;
+        this.mask = Polygon.fromWkt(obj.mask);
         /* TODO: This should be a getter
         this.svgInCombination =
             obj.mask &&
