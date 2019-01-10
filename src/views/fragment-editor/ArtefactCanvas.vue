@@ -17,7 +17,7 @@
       @mousedown="processMouseDown"
       @mouseup="processMouseUp">
     </canvas>
-    <div 
+    <div v-if="editable"
       class="cursor" 
       v-show="mouseOver"
       :style="{
@@ -26,7 +26,7 @@
         transform: `translate3d(${cursorPos.x / scale}px,${cursorPos.y / scale}px,0px)`
       }">
       
-      <svg 
+      <svg
         :width="brushSize / scale" 
         :height="brushSize / scale">
         <circle 
@@ -109,18 +109,24 @@ export default Vue.extend({
   },
   methods: {
     trackMouse(event: MouseEvent) {
-      this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
-      if (this.drawing) {
-        this.drawOnCanvas();
+      if (this.editable) {
+        this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
+        if (this.drawing) {
+          this.drawOnCanvas();
+        }
       }
     },
     processMouseDown() {
-      this.drawing = true;
-      this.drawOnCanvas();
+      if (this.editable) {
+        this.drawing = true;
+        this.drawOnCanvas();
+      }
     },
     async processMouseUp() {
-      this.drawing = false;
-      await this.canvasToSVG();
+      if (this.editable) {
+        this.drawing = false;
+        await this.canvasToSVG();
+      }
     },
     drawOnCanvas() {
       if (!this.locked) {

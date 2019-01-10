@@ -26,17 +26,17 @@
         </div>
       </div>
     </section>
-    <section>
+    <section v-if="artefact.mask">
       <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
     </section>
-    <section>
+    <section v-if="editable">
       <b-button-group>
         <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" 
         :key="mode.val" @click="onDrawChanged(mode.val)" 
         :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
       </b-button-group>
     </section>
-    <section>
+    <section v-if="editable">
       <b-button @click="save()">Save</b-button>&nbsp;
       <b-button @click="reset()">Reset</b-button>
     </section>    
