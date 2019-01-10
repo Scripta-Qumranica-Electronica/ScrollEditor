@@ -19,7 +19,7 @@
                         :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
                         :params="params"
                         :editable="canEdit"
-                        :artefact="artefact"
+                        :clipping-mask="artefact.mask"
                         :divisor="imageShrink"
                         @mask="setClipMask"
                         ref="currentArtCanvas">

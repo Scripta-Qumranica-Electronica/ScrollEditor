@@ -13,7 +13,7 @@
       :width="width"
       :height="height"
       @mousemove="trackMouse($event)"
-      @mouseenter="mouseOver = locked ? false : true"
+      @mouseenter="mouseOver = editable"
       @mouseleave="mouseOver = false"
       @mousedown="processMouseDown"
       @mouseup="processMouseUp">
@@ -37,7 +37,7 @@
           :r="brushSize / scale / 2"
           stroke="black"
           stroke-width="1"
-          fill="blue">
+          :fill="cursorColor">
         </circle>
       </svg>
     </div>
@@ -73,7 +73,7 @@ export default Vue.extend({
   props: {
     params: EditorParams,
     fragment: Fragment,
-    artefact: Artefact,
+    clippingMask: Polygon,
     editable: Boolean,
     width: Number,
     height: Number,
@@ -92,9 +92,6 @@ export default Vue.extend({
     };
   },
   computed: {
-    locked(): boolean {
-      return !this.$store.state.scroll.scrollVersion.permissions.canWrite;
-    },
     maskCanvas(): HTMLCanvasElement {
       return this.$refs.maskCanvas as HTMLCanvasElement;
     },
@@ -107,6 +104,9 @@ export default Vue.extend({
     clip(): boolean {
       return this.params.clipMask;
     },
+    cursorColor(): string {
+      return this.params.drawingMode === DrawingMode.DRAW ? 'yellow' : 'black';
+    }
   },
   methods: {
     trackMouse(event: MouseEvent) {
@@ -129,14 +129,14 @@ export default Vue.extend({
     async processMouseUp() {
       this.drawing = false;
 
-      if(!this.editable) {
+      if (!this.editable) {
         return;
       }
 
       await this.recalculateMask();
     },
     drawOnCanvas() {
-      if (!this.locked) {
+      if (this.editable) {
         const ctx = this.maskCanvas.getContext('2d');
         if (ctx === null) {
           throw new Error('Got null canvas context');
@@ -197,8 +197,8 @@ export default Vue.extend({
       const canvasPolygon = new Polygon(canvasSvg);
 
       const cpr = new ClipperLib.Clipper();
-      if (this.artefact && this.artefact.mask) { // We may not have a mask at all
-        cpr.AddPaths(this.artefact.mask.clipper, ClipperLib.PolyType.ptSubject, true);
+      if (this.clippingMask) { // We may not have a mask at all
+        cpr.AddPaths(this.clippingMask.clipper, ClipperLib.PolyType.ptSubject, true);
       }
       cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
       const solutionPaths = new ClipperLib.Paths();
@@ -226,6 +226,17 @@ export default Vue.extend({
       const newMask = Polygon.fromClipper(solutionPaths);
       this.$emit('mask', newMask);
     },
+    applyMaskToCanvas(mask: Polygon | undefined) {
+      if(mask) {
+        clipCanvas(this.$refs.maskCanvas, mask.svg, this.divisor);   
+      } else {
+        const ctx = this.maskCanvas.getContext('2d');
+        if (ctx === null) {
+          throw new Error('Received null mask canvas context');
+        }
+        ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+      }
+    }
   },
   watch: {
     width(to, from) {
@@ -238,17 +249,16 @@ export default Vue.extend({
         this.editingCanvas.height = to;
       }
     },
+    clippingMask(to: Polygon | undefined, from: Polygon | undefined) {
+      this.applyMaskToCanvas(to);
+    },
   },
   mounted() {
     // Set the initial size of the editingCanvas
     this.editingCanvas.width = this.width;
     this.editingCanvas.height = this.height;
 
-    const ctx = this.maskCanvas.getContext('2d');
-    if (ctx === null) {
-      throw new Error('Received null mask canvas context');
-    }
-    ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+    this.applyMaskToCanvas(this.clippingMask);
   }
 });
 </script>
