@@ -187,9 +187,8 @@ export default Vue.extend({
 }
 #overlay-div {
   position: relative;
-  height: 800px;
-  width: 1500px;
   overflow: scroll;
   margin-right: 15px;
+  padding: 0;
 }
 </style>

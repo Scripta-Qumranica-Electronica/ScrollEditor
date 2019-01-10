@@ -31,8 +31,9 @@
     </section>
     <section>
       <b-button-group>
-        <!-- <b-button v-for="mode in ['draw', 'erase']" :key="mode" :value="mode" v-model="draw">{{ mode }}</b-button> -->
-        <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" :key="mode.val" @click="onDrawChanged(mode.val)">{{ mode.name }}</b-button>
+        <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" 
+        :key="mode.val" @click="onDrawChanged(mode.val)" 
+        :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
       </b-button-group>
     </section>
     <section>
@@ -177,18 +178,18 @@ export default Vue.extend({
     };
 
   },
-  watch: {
-    zoom(newValue, oldValue): any {
-      console.log('zoom changed', newValue, oldValue);
-        // This callback will be called when zoom changes
-        // console.log("zoom ref", (this.$refs.zoomRef as any));
+  // watch: {
+  //   zoom(newValue, oldValue): any {
+  //     console.log('zoom changed', newValue, oldValue);
+  //       This callback will be called when zoom changes
+  //       console.log("zoom ref", (this.$refs.zoomRef as any));
 
-        // (this.$refs.zoomRef as any).tooltip('hide')
-        //  .attr('data-original-title', this.formatTooltip())
-        //   .tooltip('fixTitle')
-        //   .tooltip('show');
-    }
-  },
+  //       (this.$refs.zoomRef as any).tooltip('hide')
+  //        .attr('data-original-title', this.formatTooltip())
+  //         .tooltip('fixTitle')
+  //         .tooltip('show');
+  //   }
+  // },
   computed: {
     zoom: {
       get(): number {
@@ -249,6 +250,9 @@ export default Vue.extend({
     formatTooltip(): string {
       return (this.zoom * 100).toFixed(0) + '%';
     },
+    modeChosen(val: DrawingMode) {
+      return DrawingMode[val].toString() === this.params.drawingMode.toString();
+    },
     save() {
       this.$emit('save', this.artefact.mask);
     },
@@ -307,5 +311,8 @@ span.selected {
 }
 section {
   margin-bottom: 20px;
+}
+#image-menu {
+  height: 94vh;
 }
 </style>
