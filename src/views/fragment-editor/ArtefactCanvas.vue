@@ -119,7 +119,7 @@ export default Vue.extend({
       }
     },
     processMouseDown() {
-      if(!this.editable) {
+      if (!this.editable) {
         return;
       }
 
@@ -227,8 +227,8 @@ export default Vue.extend({
       this.$emit('mask', newMask);
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
-      if(mask) {
-        clipCanvas(this.$refs.maskCanvas, mask.svg, this.divisor);   
+      if (mask) {
+        clipCanvas(this.$refs.maskCanvas, mask.svg, this.divisor);
       } else {
         const ctx = this.maskCanvas.getContext('2d');
         if (ctx === null) {

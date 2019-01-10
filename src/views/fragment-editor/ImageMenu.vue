@@ -171,6 +171,7 @@ export default Vue.extend({
     artefact: Artefact,
     editable: Boolean,
     params: EditorParams,
+    saving: Boolean,
   },
   data() {
     return {

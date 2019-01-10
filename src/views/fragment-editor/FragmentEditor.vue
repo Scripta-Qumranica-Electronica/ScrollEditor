@@ -32,8 +32,9 @@
         :params="params"
         :editable="canEdit"
         @paramsChanged="onParamsChanged($event)"
-        @save="onSaved($event)"
-        @reset="onReseted($event)">
+        @save="onSave($event)"
+        @reset="onReset($event)"
+        :saving="saving">
         <!-- old event handlers
                   v-on:opacity="setOpacity"
         v-on:changeBrushSize="changeBrushSize"
@@ -83,6 +84,7 @@ export default Vue.extend({
       initialMask: undefined as Polygon | undefined,
       params: new EditorParams(),
       imageShrink: 2,
+      saving: false,
     };
   },
   computed: {
@@ -157,14 +159,33 @@ export default Vue.extend({
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
-    onSaved(evt: any) {
-      // TODO: Send mask to server
+    async onSave() {
+      if (!this.artefact) {
+        throw new Error("Can't save if there is no artefact");
+      }
+
+      this.saving = true;
+      try {
+        await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, this.artefact);
+        this.showMessage('Artefact Saved', false);
+      } catch (err) {
+        this.showMessage('Artefact save failed', true);
+      } finally {
+        this.saving = false;
+      }
     },
-    onReseted() {
+    onReset() {
       if (!this.artefact) {
         throw new Error("Can't reset mask if there is no artefact");
       }
       this.artefact.mask = this.initialMask;
+    },
+    showMessage(msg: string, error: boolean) {
+      if (error) {
+        console.error(msg);
+      } else {
+        console.log(msg);
+      }
     }
   }
 });

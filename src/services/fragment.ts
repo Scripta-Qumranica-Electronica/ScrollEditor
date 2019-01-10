@@ -4,6 +4,9 @@ import { Fragment } from '@/models/fragment';
 import ScrollService from './scroll';
 import { Artefact } from '@/models/artefact';
 
+export interface ArtefactShapeChangedResult {
+}
+
 class FragmentService {
     private communicator: Communicator;
 
@@ -48,6 +51,20 @@ class FragmentService {
         fragment.artefacts = artefacts;
 
         return artefacts;
+    }
+
+    public async changeFragmentArtefactShape(scrollVersionId: number, fragment: Fragment, artefact: Artefact):
+        Promise<ArtefactShapeChangedResult> {
+        const mask = artefact.mask ? artefact.mask.wkt : '';
+        const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactShape', {
+            scroll_version_id: scrollVersionId,
+            artefact_id: artefact.id,
+            region_in_master_image: mask,
+            image_catalog_id: artefact.imageCatalogId,
+            id_of_sqe_image: artefact.sqeImageId,
+        });
+
+        return response.data;
     }
 
     private _getCachedFragment(scrollVersionId: number, fragmentId: string): Fragment | undefined {
