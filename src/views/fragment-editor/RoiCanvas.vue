@@ -98,6 +98,7 @@ export default Vue.extend({
     height: Number,
     fragment: Fragment,
     params: EditorParams,
+    editable: Boolean,
     side: {
       type: Object as () => ImageSet,
     },

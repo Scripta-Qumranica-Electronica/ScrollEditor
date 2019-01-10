@@ -8,6 +8,7 @@
                   :width="masterImage.manifest.width || 0"
                   :height="masterImage.manifest.height || 0"
                   :params="params"
+                  :editable="canEdit"
                   :side="fragment.recto"
                   :divisor="imageShrink"
                   :clipping-mask="artefact.mask">
@@ -17,9 +18,10 @@
                         :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
                         :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
                         :params="params"
+                        :editable="canEdit"
                         :artefact="artefact"
                         :divisor="imageShrink"
-                        v-on:mask="setClipMask"
+                        @mask="setClipMask"
                         ref="currentArtCanvas">
       </artefact-canvas>
     </div>

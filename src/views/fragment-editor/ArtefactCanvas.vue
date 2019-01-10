@@ -72,6 +72,7 @@ export default Vue.extend({
     params: EditorParams,
     fragment: Fragment,
     artefact: Artefact,
+    editable: Boolean,
     mask: String,
     width: Number,
     height: Number,
