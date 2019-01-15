@@ -33,8 +33,11 @@
         :editable="canEdit"
         @paramsChanged="onParamsChanged($event)"
         @save="onSave($event)"
-        @reset="onReset($event)"
-        :saving="saving">
+        @undo="onUndo($event)"
+        @redo="onRedo($event)"
+        @rename="onRename($event)"
+        :saving="saving"
+        :renaming="renaming">
         <!-- old event handlers
                   v-on:opacity="setOpacity"
         v-on:changeBrushSize="changeBrushSize"
@@ -51,6 +54,7 @@
   </div>
 </template>
 
+<!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
@@ -65,6 +69,8 @@ import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
+import Toasted from 'vue-toasted';
+Vue.use(Toasted);
 
 export default Vue.extend({
   name: 'fragment-editor',
@@ -85,7 +91,9 @@ export default Vue.extend({
       params: new EditorParams(),
       imageShrink: 2,
       saving: false,
-      // ADd undo and redo lists : Polygon[]
+      renaming: false,
+      undoList: [] as any[], // as Polygon[] | undefined
+      redoList: [] as any[]
     };
   },
   computed: {
@@ -152,10 +160,15 @@ export default Vue.extend({
       }
     },
     setClipMask(newMask: Polygon) {
-      // TODO: Place current mask in undo buffer, clear redo buffer
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
+      // Place current mask in undo buffer, clear redo buffer
+      if (this.undoList.length >= 50) {
+        this.undoList.slice(1);
+      } 
+      this.undoList.push(this.artefact!.mask);
+      this.redoList = [];
       this.artefact.mask = newMask;
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
@@ -176,17 +189,65 @@ export default Vue.extend({
         this.saving = false;
       }
     },
-    onReset() {
+    // onReset() {
+    //   if (!this.artefact) {
+    //     throw new Error("Can't reset mask if there is no artefact");
+    //   }
+    //   this.artefact.mask = this.initialMask;
+    // },
+    onUndo() {
       if (!this.artefact) {
-        throw new Error("Can't reset mask if there is no artefact");
+        throw new Error("Can't undo mask if there is no artefact");
       }
-      this.artefact.mask = this.initialMask;
+      if (this.undoList.length) {
+        if (this.redoList.length >= 50) {
+          this.redoList.slice(1);
+        } 
+        this.redoList.push(this.artefact!.mask);
+        this.artefact!.mask = this.undoList.pop();
+      }
+    },
+    onRedo() {
+      if (!this.artefact) {
+        throw new Error("Can't redo mask if there is no artefact");
+      }
+      if (this.redoList.length) {
+        if (this.undoList.length >= 50) {
+          this.undoList.slice(1);
+        } 
+        this.undoList.push(this.artefact!.mask);
+        this.artefact!.mask = this.redoList.pop();
+      }
+    },
+    async onRename() {
+      console.log("Rename artefact", this.artefact);
+      if (!this.artefact) {
+        throw new Error("Can't rename if there is no artefact");
+      }
+      this.renaming = true;
+      try {
+        await this.fragmentService.changeFragmentArtefactName(this.scrollVersionId, this.fragment, this.artefact);
+        this.showMessage('Artefact renamed', false);
+      } catch (err) {
+        this.showMessage('Artefact rename failed', true);
+      } finally {
+        this.renaming = false;
+      }
+
     },
     showMessage(msg: string, error: boolean) {
       if (error) {
-        console.error(msg);
+        this.$toasted.show(msg, {
+          type: 'error',
+          position: 'top-right',
+          duration : 7000
+        });
       } else {
-        console.log(msg);
+        this.$toasted.show(msg, {
+        type: 'success',
+        position: 'top-right',
+        duration : 7000
+      });
       }
     }
   }

@@ -6,6 +6,8 @@ import { Artefact } from '@/models/artefact';
 
 export interface ArtefactShapeChangedResult {
 }
+export interface ArtefactNameChangedResult {
+}
 
 class FragmentService {
     private communicator: Communicator;
@@ -62,6 +64,17 @@ class FragmentService {
             region_in_master_image: mask,
             image_catalog_id: artefact.imageCatalogId,
             id_of_sqe_image: artefact.sqeImageId,
+        });
+
+        return response.data;
+    }
+
+    public async changeFragmentArtefactName(scrollVersionId: number, fragment: Fragment, artefact: Artefact):
+        Promise<ArtefactNameChangedResult> {
+        const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactName', {
+            scroll_version_id: scrollVersionId,
+            artefact_id: artefact.id,
+            name: artefact.name
         });
 
         return response.data;

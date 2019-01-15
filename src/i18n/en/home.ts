@@ -14,4 +14,6 @@ export default {
     newScrollDesc: 'Please provide a name for the new scroll',
     copyingScroll: 'Copying scroll',
     noVersions: 'No other versions',
+
+    newArtefactName: 'New Artefact Name',
 };

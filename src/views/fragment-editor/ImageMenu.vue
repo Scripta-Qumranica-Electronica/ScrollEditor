@@ -4,7 +4,14 @@
       <h5>Artefacts</h5>
       <ul class="list">
         <li v-for="art in fragment.artefacts" :key="art.id">
-          <span :class="{ selected: art===artefact }">{{ art.name }}</span>
+          <span v-if="!renameFlag" :class="{ selected: art===artefact }">{{ art.name }}</span>
+          <b-button v-if="!renameFlag && !renaming" @click="openRename()">Rename</b-button>
+      
+          <input v-if="renameFlag" v-model="art.name" />
+          <b-button v-if="!renaming && renameFlag" :disabled="!art.name" @click="rename(art.name)">Submit</b-button>
+          <b-button v-if="renaming" disabled class="disable">
+            Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+          </b-button>
         </li>
       </ul>
       <b-button>New</b-button>
@@ -47,10 +54,14 @@
       </b-button-group>
     </section>
     <section v-if="editable">
-      <b-button @click="save()">Save</b-button>&nbsp;
-      <b-button @click="reset()">Reset</b-button>
-    </section>    
-  </div>
+      <b-button v-if="!saving" @click="save()">Save</b-button>&nbsp;
+      <b-button v-if="saving" disabled class="disable">
+        Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+      </b-button>
+      <b-button @click="undo()">Undo</b-button>
+      <b-button @click="redo()">Redo</b-button>
+    </section>
+</div>
 <!--  <el-row 
     class="single-image-pane-menu" 
     :gutter="1" 
@@ -160,6 +171,7 @@
 import Vue from 'vue';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
+// import Waiting from '@/components/misc/Waiting.vue';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
 /**
@@ -174,6 +186,7 @@ import SingleImageSettingComponent from './SingleImageSetting.vue';
 export default Vue.extend({
   name: 'image-menu',
   components: {
+    // Waiting,
     'single-image-setting': SingleImageSettingComponent,
   },
   props: {
@@ -182,10 +195,12 @@ export default Vue.extend({
     editable: Boolean,
     params: EditorParams,
     saving: Boolean,
+    renaming: Boolean,
   },
   data() {
     return {
-
+      renameFlag: false,
+      errorMessage: '',
     };
 
   },
@@ -276,8 +291,18 @@ export default Vue.extend({
     save() {
       this.$emit('save', this.artefact.mask);
     },
-    reset() {
-      this.$emit('reset');
+    undo() {
+      this.$emit('undo');
+    },
+    redo() {
+      this.$emit('redo');
+    },
+    rename() {
+      this.renameFlag = false;
+      this.$emit('rename');
+    },
+    openRename() {
+      this.renameFlag = true;
     }
     /*setOpacity(image, value) {
       this.$emit('opacity', image, value)
@@ -334,5 +359,12 @@ section {
 }
 #image-menu {
   height: 94vh;
+}
+button.disable {
+  cursor: not-allowed;
+}
+button {
+  margin-right: 10px;
+  margin-left: 10px;
 }
 </style>

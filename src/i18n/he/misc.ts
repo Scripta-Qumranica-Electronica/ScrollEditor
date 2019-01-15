@@ -3,4 +3,5 @@ export default {
     new: 'חדש',
     current: 'נוכחי',
     copy: 'העתק',
+    rename: 'שנה שם',
 };

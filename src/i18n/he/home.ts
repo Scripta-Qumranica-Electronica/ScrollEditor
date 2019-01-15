@@ -14,4 +14,7 @@ export default {
     newScrollDesc: 'יש למלא את השם החדש של המגילה',
     copyingScroll: 'מעתיק מגילה',
     noVersions: 'אין גרסאות נוספות',
+
+    newArtefactName: 'שם הממצא החדש',
+
 };
