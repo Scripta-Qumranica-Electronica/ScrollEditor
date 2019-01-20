@@ -19,6 +19,15 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
 
+// Toasted
+import Toasted from 'vue-toasted';
+
+// Touch events
+import Vue2TouchEvents from 'vue2-touch-events';
+import VueTouch from 'vue-touch';
+
+import VueShortcuts from 'vue-shortcuts';
+ 
 Vue.config.productionTip = false;
 
 // TODO use a real loading image and add an error image
@@ -43,6 +52,11 @@ const i18n = new VueI18n( {
   locale: 'en',
   messages: localizedTexts,
 });
+
+Vue.use(Toasted);
+Vue.use(Vue2TouchEvents);
+Vue.use(VueTouch);
+Vue.use(VueShortcuts, { prevent: ['input'] });
 
 new Vue({
   router,

@@ -17,7 +17,13 @@
       @mouseleave="mouseOver = false"
       @mousedown="processMouseDown"
       @mouseup="processMouseUp">
+     <!-- v-touch:tap="tapHandler"
+      v-touch:longtap="longtapHandler"
+      v-touch:swipe.left="swipeLeftHandler"
+      v-touch:swipe.right="swipeRightHandler"
+      v-touch:doubletap="onDoubleTap">-->
     </canvas>
+      
     <div v-if="editable"
       class="cursor" 
       v-show="mouseOver"
@@ -49,7 +55,6 @@ import Vue from 'vue';
 
 // tslint:disable:no-var-requires
 const trace = require('@/utils/Potrace.js').trace;
-const ClipperLib = require('js-clipper/clipper');
 // tslint:enable:no-var-requires
 
 import {
@@ -59,7 +64,7 @@ import {
   svgPolygonToClipper,
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
-import { EditorParams, DrawingMode } from './types';
+import { EditorParams, DrawingMode, MaskChangedEventArgs } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
@@ -135,6 +140,21 @@ export default Vue.extend({
 
       await this.recalculateMask();
     },
+    tapHandler() {
+      console.log("tapHandler*****************");
+    },
+    longtapHandler() {
+      console.log("longtapHandler");
+    },
+    swipeLeftHandler() {
+      console.log("swipeLeftHandler");
+    },
+    swipeRightHandler() {
+      console.log("swipeRightHandler");
+    },
+    onDoubleTap() {
+      console.log("-----onDoubleTap");
+    },
     drawOnCanvas() {
       if (this.editable) {
         const ctx = this.maskCanvas.getContext('2d');
@@ -196,35 +216,34 @@ export default Vue.extend({
       const canvasSvg: any = await trace(this.editingCanvas, this.divisor);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
-      const cpr = new ClipperLib.Clipper();
-      if (this.clippingMask) { // We may not have a mask at all
-        cpr.AddPaths(this.clippingMask.clipper, ClipperLib.PolyType.ptSubject, true);
-      }
-      cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
-      const solutionPaths = new ClipperLib.Paths();
-      if (this.params.drawingMode === DrawingMode.ERASE) {
-        const succeeded = cpr.Execute(
-          ClipperLib.ClipType.ctDifference,
-          solutionPaths,
-          ClipperLib.PolyFillType.pftNonZero,
-          ClipperLib.PolyFillType.pftNonZero
-        );
+      let newMask: Polygon;
+      let deltaNeto: Polygon;
+      if (this.clippingMask) {
+        if (this.params.drawingMode === DrawingMode.DRAW) {
+          newMask = Polygon.add(this.clippingMask, canvasPolygon);
+          // canvasPolygon is the delteGross, we have to find the deltaNeto according to old mask and new mask.
+          deltaNeto = Polygon.subtract(newMask, this.clippingMask);
+        } else {
+          newMask = Polygon.subtract(this.clippingMask, canvasPolygon);
+          deltaNeto = Polygon.subtract(this.clippingMask, newMask);
+        }
       } else {
-        const succeeded = cpr.Execute(
-          ClipperLib.ClipType.ctUnion,
-          solutionPaths,
-          ClipperLib.PolyFillType.pftNonZero,
-          ClipperLib.PolyFillType.pftNonZero
-        );
+        newMask = canvasPolygon;
+        deltaNeto = canvasPolygon;
       }
+
       const ctx = this.editingCanvas.getContext('2d');
       if (ctx === null) {
         throw new Error('Received null editing canvas context');
       }
       ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
 
-      const newMask = Polygon.fromClipper(solutionPaths);
-      this.$emit('mask', newMask);
+      let maskChangedEventArgs: MaskChangedEventArgs = {} as MaskChangedEventArgs;
+      maskChangedEventArgs.polygon = newMask;
+      maskChangedEventArgs.drawingMode = this.params.drawingMode;
+      maskChangedEventArgs.delta = deltaNeto;
+
+      this.$emit('mask', maskChangedEventArgs);
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {

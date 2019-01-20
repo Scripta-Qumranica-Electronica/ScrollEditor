@@ -1,3 +1,5 @@
+const ClipperLib = require('js-clipper/clipper');
+
 import { svgPolygonToWKT,
     svgPolygonToGeoJSON,
     svgPolygonToClipper,
@@ -11,6 +13,40 @@ import { svgPolygonToWKT,
 //
 // Please do not use the VectorFactory methods directly.
 export class Polygon {
+    public static add(clippingMask: Polygon, canvasPolygon: Polygon): Polygon {
+        const cpr = new ClipperLib.Clipper();
+        cpr.AddPaths(clippingMask.clipper, ClipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
+        const solutionPaths = new ClipperLib.Paths();
+
+        let newMask = cpr.Execute(
+            ClipperLib.ClipType.ctUnion,
+            solutionPaths,
+            ClipperLib.PolyFillType.pftNonZero,
+            ClipperLib.PolyFillType.pftNonZero
+        );
+
+        newMask = Polygon.fromClipper(solutionPaths);
+        return newMask;
+    }
+
+    public static subtract(clippingMask: Polygon, canvasPolygon: Polygon,): Polygon {
+        const cpr = new ClipperLib.Clipper();
+        cpr.AddPaths(clippingMask.clipper, ClipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
+        const solutionPaths = new ClipperLib.Paths();
+
+        let newMask = cpr.Execute(
+            ClipperLib.ClipType.ctDifference,
+            solutionPaths,
+            ClipperLib.PolyFillType.pftNonZero,
+            ClipperLib.PolyFillType.pftNonZero
+          );
+
+        newMask = Polygon.fromClipper(solutionPaths);
+        return newMask;
+    }
+
     public static fromWkt(wkt: string, boundingRect?: any) {
         const svg = wktPolygonToSvg(wkt, boundingRect);
         return new Polygon(svg);

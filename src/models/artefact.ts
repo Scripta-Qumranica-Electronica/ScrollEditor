@@ -6,7 +6,7 @@ export class Artefact {
     public shapeId: number;
     public scrollVersionId: number;
     public name: string;
-    public mask: Polygon | undefined;
+    public mask: Polygon;
     public transformMatrix: any; // TODO: Change to matrix type?
     public rect: string;
     public imageCatalogId: number; // Probably not needed

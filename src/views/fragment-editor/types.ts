@@ -1,4 +1,5 @@
 import { IIIFImage } from '@/models/image';
+import { Polygon } from '@/utils/Polygons';
 
 export enum DrawingMode {
     DRAW, ERASE
@@ -28,4 +29,10 @@ export interface EditorParamsChangedArgs {
     property: string;
     value: any;
     params: EditorParams;
+}
+
+export class MaskChangedEventArgs {
+    public polygon = {} as Polygon;
+    public drawingMode = DrawingMode.DRAW;
+    public delta = {} as Polygon;
 }

@@ -1,9 +1,20 @@
 <template>
-  <div class="row" id="fragment-editor">
+  <div class="row" id="fragment-editor"
+  v-shortcuts="[
+  { shortcut: [ '+' ], callback: zoomIn, push: true, focus: true },
+  { shortcut: [ '-' ], callback: zoomOut },
+]">
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
     <div v-if="!waiting && fragment" id="overlay-div" class="col">
+  <!--     AAAAAAAA
+     <v-touch @swipeleft="doSomething">
+      <p>I can now be swiped on!</p>
+      </v-touch>
+      <v-touch @rotate="rotateAThing">
+        <p>Rotate me!</p>
+      </v-touch> -->
       <roi-canvas class="overlay-image"
                   :width="masterImage.manifest.width || 0"
                   :height="masterImage.manifest.height || 0"
@@ -64,13 +75,11 @@ import ImageService from '@/services/image';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
-import { EditorParams, EditorParamsChangedArgs } from './types';
+import { EditorParams, EditorParamsChangedArgs, MaskChangedEventArgs, DrawingMode } from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
-import Toasted from 'vue-toasted';
-Vue.use(Toasted);
 
 export default Vue.extend({
   name: 'fragment-editor',
@@ -92,8 +101,8 @@ export default Vue.extend({
       imageShrink: 2,
       saving: false,
       renaming: false,
-      undoList: [] as any[], // as Polygon[] | undefined
-      redoList: [] as any[]
+      undoList: [] as MaskChangedEventArgs[],
+      redoList: [] as MaskChangedEventArgs[],
     };
   },
   computed: {
@@ -159,7 +168,7 @@ export default Vue.extend({
         }
       }
     },
-    setClipMask(newMask: Polygon) {
+    setClipMask(eventArgs: MaskChangedEventArgs) { //} Polygon) {
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
@@ -167,9 +176,9 @@ export default Vue.extend({
       if (this.undoList.length >= 50) {
         this.undoList.slice(1);
       } 
-      this.undoList.push(this.artefact!.mask);
+      this.undoList.push(eventArgs);
       this.redoList = [];
-      this.artefact.mask = newMask;
+      this.artefact.mask = eventArgs.polygon;
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
@@ -200,11 +209,15 @@ export default Vue.extend({
         throw new Error("Can't undo mask if there is no artefact");
       }
       if (this.undoList.length) {
-        if (this.redoList.length >= 50) {
-          this.redoList.slice(1);
-        } 
-        this.redoList.push(this.artefact!.mask);
-        this.artefact!.mask = this.undoList.pop();
+        const toUndo: MaskChangedEventArgs = this.undoList.pop()!;
+        this.redoList.push(toUndo);
+
+        // Undo the operation by applying the delta in the opposite direction
+        if (toUndo.drawingMode === DrawingMode.DRAW) {
+          this.artefact.mask = Polygon.subtract(this.artefact.mask, toUndo.delta);
+        } else {
+          this.artefact.mask = Polygon.add(this.artefact.mask, toUndo.delta);
+        }
       }
     },
     onRedo() {
@@ -212,15 +225,17 @@ export default Vue.extend({
         throw new Error("Can't redo mask if there is no artefact");
       }
       if (this.redoList.length) {
-        if (this.undoList.length >= 50) {
-          this.undoList.slice(1);
-        } 
-        this.undoList.push(this.artefact!.mask);
-        this.artefact!.mask = this.redoList.pop();
+        const toRedo: MaskChangedEventArgs = this.redoList.pop()!;
+        this.undoList.push(toRedo);
+
+        if (toRedo.drawingMode === DrawingMode.DRAW) {
+          this.artefact.mask = Polygon.add(this.artefact.mask, toRedo.delta);
+        } else {
+          this.artefact.mask = Polygon.subtract(this.artefact.mask, toRedo.delta);
+        }
       }
     },
     async onRename() {
-      console.log("Rename artefact", this.artefact);
       if (!this.artefact) {
         throw new Error("Can't rename if there is no artefact");
       }
@@ -249,7 +264,24 @@ export default Vue.extend({
         duration : 7000
       });
       }
-    }
+    },
+
+    zoomIn() {
+      if (this.params.zoom < 1) {
+        this.params.zoom += 0.01;
+      }
+    },
+    zoomOut() {
+      if (this.params.zoom > 0.1) {
+        this.params.zoom -= 0.01;
+      }
+    },
+    doSomething() {
+      console.log("do something!!");
+    },
+    rotateAThing() {
+      console.log("rotateAThing");
+    },
   }
 });
 </script>
