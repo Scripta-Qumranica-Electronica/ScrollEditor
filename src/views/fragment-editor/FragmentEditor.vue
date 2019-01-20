@@ -1,7 +1,7 @@
 <template>
   <div class="row" id="fragment-editor"
   v-shortcuts="[
-  { shortcut: [ '+' ], callback: zoomIn, push: true, focus: true },
+  { shortcut: [ '+' ], callback: zoomIn },
   { shortcut: [ '-' ], callback: zoomOut },
 ]">
     <div v-if="waiting" class="col">
@@ -268,12 +268,12 @@ export default Vue.extend({
 
     zoomIn() {
       if (this.params.zoom < 1) {
-        this.params.zoom += 0.01;
+        this.params.zoom += 0.02;
       }
     },
     zoomOut() {
       if (this.params.zoom > 0.1) {
-        this.params.zoom -= 0.01;
+        this.params.zoom -= 0.02;
       }
     },
     doSomething() {
