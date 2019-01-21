@@ -1,5 +1,6 @@
 <template>
   <div class="row" id="fragment-editor"
+  @wheel="mouseWheel"
   v-shortcuts="[
   { shortcut: [ '+' ], callback: zoomIn },
   { shortcut: [ '-' ], callback: zoomOut },
@@ -265,7 +266,13 @@ export default Vue.extend({
       });
       }
     },
-
+    mouseWheel(event: any) {
+      if (event.deltaY > 0) {
+        this.zoomOut();
+      } else {
+        this.zoomIn();
+      }
+    },
     zoomIn() {
       if (this.params.zoom < 1) {
         this.params.zoom += 0.02;

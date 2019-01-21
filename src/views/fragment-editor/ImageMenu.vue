@@ -8,7 +8,7 @@
           <b-button v-if="!renameFlag && !renaming" @click="openRename()">Rename</b-button>
       
           <input v-if="renameFlag" v-model="art.name" />
-          <b-button v-if="!renaming && renameFlag" :disabled="!art.name" @click="rename(art.name)">Submit</b-button>
+          <b-button v-if="!renaming && renameFlag" :disabled="!art.name" @click="rename(art.name)">Rename</b-button>
           <b-button v-if="renaming" disabled class="disable">
             Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
           </b-button>

@@ -71,7 +71,7 @@ class FragmentService {
 
     public async changeFragmentArtefactName(scrollVersionId: number, fragment: Fragment, artefact: Artefact):
         Promise<ArtefactNameChangedResult> {
-        const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactName', {
+        const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
             scroll_version_id: scrollVersionId,
             artefact_id: artefact.id,
             name: artefact.name
