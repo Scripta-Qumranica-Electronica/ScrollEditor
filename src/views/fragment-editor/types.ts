@@ -36,3 +36,13 @@ export class MaskChangedEventArgs {
     public drawingMode = DrawingMode.DRAW;
     public delta = {} as Polygon;
 }
+
+export class Point {
+    public x: number;
+    public y: number;
+
+    constructor(obj: any) {
+        this.x = obj.x;
+        this.y = obj.y;
+    }
+}
