@@ -13,6 +13,8 @@
     { shortcut: [ '+' ], callback: zoomIn },
     { shortcut: [ '-' ], callback: zoomOut },
     ]">
+     <!--:style="{transform: `scale(${scale}); top: ${this.corner.x}; left: ${this.corner.y}; `}"
+    -->
     <canvas
       class="maskCanvas"
       :class="{hidden: clip, pulse: !drawing}"
@@ -101,6 +103,7 @@ export default Vue.extend({
       drawing: false,
       editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
+      corner: {} as Position,
     };
   },
   computed: {
@@ -288,27 +291,33 @@ Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner
 
       var artefact = document.querySelector('#artefactOverlay');
       const artefactRect = artefact!.getBoundingClientRect();
-      let cornerPoint = new Point(artefactRect);
+      let cornerPoint = {x: artefactRect.x, y: artefactRect.y} as Position;
+      // let cornerPoint = new Point(artefactRect);
       
-      let mousePoint = new Point({x: event.pageX, y: event.pageY});
+      // let mousePoint = new Point({x: event.pageX, y: event.pageY});
+      let mousePoint = {x: event.pageX, y: event.pageY} as Position;
       console.log("pointCorner", cornerPoint);
       console.log("mousePoint", mousePoint);
 
-      let newPoint = {} as Point;
-      newPoint.x = mousePoint.x * newZoom / oldZoom
-      newPoint.y = mousePoint.y * newZoom / oldZoom
+      // let newPoint = {} as Point;
+      // newPoint.x = mousePoint.x * newZoom / oldZoom
+      // newPoint.y = mousePoint.y * newZoom / oldZoom
+      let newPoint = {x: mousePoint.x * newZoom / oldZoom, y: mousePoint.y * newZoom / oldZoom} as Position;
 
-      let newCornerPoint = {} as Point;
-      newCornerPoint.x = Math.abs(cornerPoint.x + newPoint.x - mousePoint.x); // Why max ?
-      newCornerPoint.y = Math.abs(cornerPoint.y + newPoint.y - mousePoint.y);
-      console.log("**********************************newCornerPoint", newCornerPoint);
-      if(!newCornerPoint.x || !newCornerPoint.y) {
-        debugger
-      }
+      // let newCornerPoint = {} as Point;
+      // newCornerPoint.x = Math.abs(cornerPoint.x + newPoint.x - mousePoint.x); // Why max ?
+      // newCornerPoint.y = Math.abs(cornerPoint.y + newPoint.y - mousePoint.y);
+      this.corner.x = Math.abs(cornerPoint.x + newPoint.x - mousePoint.x); // Why max ?
+      this.corner.y = Math.abs(cornerPoint.y + newPoint.y - mousePoint.y);
+      console.log("**********************************newCornerPoint", this.corner);
+    
 
-      artefact!.style.top = newCornerPoint.x + "px";
-      artefact!.style.left = newCornerPoint.y + "px";
+      artefact!.style.top = this.corner.x + "px";
+      artefact!.style.left = this.corner.y + "px";
       debugger
+
+      var artefact = document.querySelector('#artefactOverlay');
+      artefact!.scrollLeft += this.corner.x;// scroll right
 
       // TODO: Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport
     },
