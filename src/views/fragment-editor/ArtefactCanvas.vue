@@ -25,11 +25,11 @@
       @mouseenter="mouseOver = editable"
       @mouseleave="mouseOver = false"
       @mousedown="processMouseDown"
-      @mouseup="processMouseUp">
-     <!-- v-touch:tap="tapHandler"
+      @mouseup="processMouseUp"
+      v-touch:tap="mouseOver = editable"
       v-touch:longtap="longtapHandler"
-      v-touch:swipe.left="swipeLeftHandler"
-      v-touch:swipe.right="swipeRightHandler"
+      v-touch:swipe.left="processMouseDown"
+      v-touch:swipe.right="swipeRight"
       v-touch:doubletap="onDoubleTap">-->
     </canvas>
       
@@ -132,6 +132,10 @@ export default Vue.extend({
       if (this.drawing) {
         this.drawOnCanvas();
       }
+    },
+    swipeRight() {
+      debugger
+      this.processMouseDown();
     },
     processMouseDown() {
       if (!this.editable) {
