@@ -30,7 +30,7 @@ export class Polygon {
         return newMask;
     }
 
-    public static subtract(clippingMask: Polygon, canvasPolygon: Polygon,): Polygon {
+    public static subtract(clippingMask: Polygon, canvasPolygon: Polygon): Polygon {
         const cpr = new ClipperLib.Clipper();
         cpr.AddPaths(clippingMask.clipper, ClipperLib.PolyType.ptSubject, true);
         cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
