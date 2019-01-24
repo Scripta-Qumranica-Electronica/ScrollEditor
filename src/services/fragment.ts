@@ -8,6 +8,9 @@ export interface ArtefactShapeChangedResult {
 }
 export interface ArtefactNameChangedResult {
 }
+export interface AddArtefactResult {
+    returned_info: number;
+}
 
 class FragmentService {
     private communicator: Communicator;
@@ -79,6 +82,11 @@ class FragmentService {
 
         return response.data;
     }
+
+    /*
+    public async createNewArtefact(scrollVersionId: number, fragment: Fragment, name: string): Promise<Artefact> {
+        const response1 = await this.communicator.request()
+    } */
 
     private _getCachedFragment(scrollVersionId: number, fragmentId: string): Fragment | undefined {
         if (!this.store.state.scroll.scrollVersion ||

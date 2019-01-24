@@ -35,11 +35,13 @@ export class IIIFImage {
 
 export abstract class ImageSet {
     public imageCatalogId: number;
+    public sqeImageId: number;
     public abstract get master(): IIIFImage | undefined;
     public abstract get availableImageTypes(): string[];
 
-    constructor(imageCatalogId: number) {
+    constructor(imageCatalogId: number, sqeImageId: number) {
         this.imageCatalogId = imageCatalogId;
+        this.sqeImageId = sqeImageId;
     }
 
     public getImage(type: string) {
@@ -68,7 +70,7 @@ export class IIAImageSet extends ImageSet {
     public rakingRight?: IIIFImage;
 
     constructor(serverObj: any) {
-        super(serverObj.image_catalog_id);
+        super(serverObj.image_catalog_id, serverObj.id_of_sqe_image);
         this.color = this.createIIIF(serverObj.color);
         this.infrared = this.createIIIF(serverObj.infrared);
         this.rakingLeft = this.createIIIF(serverObj['raking-left']);
