@@ -23,6 +23,7 @@ export class EditorParams {
     public brushSize = 20;
     public clipMask = false;
     public drawingMode = DrawingMode.DRAW;
+    public rotationAngle = 0;
 }
 
 export interface EditorParamsChangedArgs {

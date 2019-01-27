@@ -13,54 +13,55 @@
     { shortcut: [ '+' ], callback: zoomIn },
     { shortcut: [ '-' ], callback: zoomOut },
     ]">
-     <!--:style="{transform: `scale(${scale}); top: ${this.corner.x}; left: ${this.corner.y}; `}"
-    -->
-    <canvas
-      class="maskCanvas"
-      :class="{hidden: clip, pulse: !drawing}"
-      ref="maskCanvas"
-      :width="width"
-      :height="height"
-      @mousemove="trackMouse($event)"
-      @mouseenter="mouseOver = editable"
-      @mouseleave="mouseOver = false"
-      @mousedown="processMouseDown"
-      @mouseup="processMouseUp"
-      v-touch:tap="mouseOver = editable"
-      v-touch:longtap="longtapHandler"
-      v-touch:swipe.left="processMouseDown"
-      v-touch:swipe.right="swipeRight"
-      v-touch:doubletap="onDoubleTap">-->
-    </canvas>
-      
-    <div v-if="editable"
-      class="cursor" 
-      v-show="mouseOver"
-      :style="{
-        top: `-${brushSize / 2 / scale}px`, 
-        left: `-${brushSize / 2 / scale}px`,
-        transform: `translate3d(${cursorPos.x / scale}px,${cursorPos.y / scale}px,0px)`
-      }">
-      
-      <svg
-        :width="brushSize / scale" 
-        :height="brushSize / scale">
-        <circle 
-          class="cursor-img" 
-          :cx="brushSize / scale / 2"
-          :cy="brushSize / scale / 2"
-          :r="brushSize / scale / 2"
-          stroke="black"
-          stroke-width="1"
-          :fill="cursorColor">
-        </circle>
-      </svg>
+    <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
+      <canvas
+        class="maskCanvas"
+        :class="{hidden: clip, pulse: !drawing}"
+        ref="maskCanvas"
+        :width="width"
+        :height="height"
+        @mousemove="trackMouse($event)"
+        @mouseenter="mouseOver = editable"
+        @mouseleave="mouseOver = false"
+        @mousedown="processMouseDown"
+        @mouseup="processMouseUp"
+        v-touch:tap="mouseOver = editable"
+        v-touch:longtap="longtapHandler"
+        v-touch:swipe.left="processMouseDown"
+        v-touch:swipe.right="swipeRight"
+        v-touch:doubletap="onDoubleTap">-->
+      </canvas>
+        
+      <div v-if="editable"
+        class="cursor" 
+        v-show="mouseOver"
+        :style="{
+          top: `-${brushSize / 2 / scale}px`, 
+          left: `-${brushSize / 2 / scale}px`,
+          transform: `translate3d(${cursorPos.x / scale}px,${cursorPos.y / scale}px,0px)`
+        }">
+        
+        <svg
+          :width="brushSize / scale" 
+          :height="brushSize / scale">
+          <circle 
+            class="cursor-img" 
+            :cx="brushSize / scale / 2"
+            :cy="brushSize / scale / 2"
+            :r="brushSize / scale / 2"
+            stroke="black"
+            stroke-width="1"
+            :fill="cursorColor">
+          </circle>
+        </svg>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { Matrix } from '@/utils/Matrices';
 
 // tslint:disable:no-var-requires
 const trace = require('@/utils/Potrace.js').trace;
@@ -104,6 +105,7 @@ export default Vue.extend({
       editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
       corner: {} as Position,
+      cursorTransform: Matrix.unit(),
     };
   },
   computed: {
@@ -121,6 +123,12 @@ export default Vue.extend({
     },
     cursorColor(): string {
       return this.params.drawingMode === DrawingMode.DRAW ? 'yellow' : 'black';
+    },
+    rotateTransform(): string {
+      return `rotate(${this.rotationAngle} ${this.width / this.divisor / 2} ${this.height / this.divisor / 2}`;
+    },
+    rotationAngle(): number {
+      return this.params.rotationAngle;
     }
   },
   methods: {
@@ -128,6 +136,7 @@ export default Vue.extend({
       if (!this.editable) {
         return;
       }
+      // Cursor position should 
       this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
       if (this.drawing) {
         this.drawOnCanvas();
@@ -218,12 +227,34 @@ export default Vue.extend({
       }
     },
     mousePositionInElement(event: MouseEvent, element: HTMLElement) {
+      // The fragment editor only supports rotation by 90 degree increments.
+
       const initOffset = element.getBoundingClientRect();
-      const returnPos = {
+      const rawPos = {
         x: event.clientX - initOffset.left + element.scrollLeft,
         y: event.clientY - initOffset.top + element.scrollTop,
       } as Position;
-      return returnPos;
+
+      const angle = ((this.rotationAngle % 360) + 360) % 360 // https://stackoverflow.com/a/4467559/871910 - handle negative numbers
+      let rotatedPos = { ... rawPos };
+      if (angle === 180) {
+        rotatedPos = {
+          x: this.width * this.scale - rawPos.x,
+          y: this.height * this.scale - rawPos.y,
+        }
+      } else if (angle === 90) {
+        rotatedPos = {
+          x: rawPos.y,
+          y: this.width * this.scale - rawPos.x,
+        }
+      } else if (angle === 270) {
+        rotatedPos = {
+          x: this.height * this.scale - rawPos.y,
+          y: rawPos.x,
+        }
+      }
+      
+      return rotatedPos;
     },
     async recalculateMask() {
       const canvas = this.editingCanvas;
@@ -284,7 +315,7 @@ Y-CornerNew = Max(Y-CornerOld + Ynew - Yold, 0)
 Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport*/
 
     mouseWheel(event: any) {
-      const oldZoom = this.params.zoom;
+      /*const oldZoom = this.params.zoom;
       if (event.deltaY > 0) {
         this.zoomOut();
       } else {
@@ -323,7 +354,7 @@ Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner
       var artefact = document.querySelector('#artefactOverlay');
       artefact!.scrollLeft += this.corner.x;// scroll right
 
-      // TODO: Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport
+      // TODO: Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport */
     },
     zoomIn() {
       if (this.params.zoom < 1) {

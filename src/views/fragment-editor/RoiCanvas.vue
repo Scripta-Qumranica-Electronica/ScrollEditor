@@ -6,7 +6,7 @@
             @mousemove="moveROI($event)" 
             @mousedown="newROI($event)"
             @mouseup="deselectROI()"
-            :transform="`scale(${zoomLevel})`"
+            :transform="`scale(${zoomLevel}) ${rotateTransform})`"
             >
     <defs>
       <path id="Full-clip-path" :d="fullImageMask" :transform="`scale(${scale})`"></path>
@@ -125,6 +125,9 @@ export default Vue.extend({
     zoomLevel(): number {
       // Lot of the old code uses zoomLevel
       return this.params.zoom;
+    },
+    rotateTransform(): string {
+      return `rotate(${this.params.rotationAngle} ${this.width / this.divisor / 2} ${this.height / this.divisor / 2}`;
     },
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);

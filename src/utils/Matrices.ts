@@ -19,12 +19,27 @@ export class Matrix {
         return new Matrix(mat);
     }
 
+    public static fromXY(x: number, y: number): Matrix {
+        return new Matrix(math.matrix([x, y, 1]));
+    }
+
     public static multiply(mat1: Matrix, mat2: Matrix) {
-        return new Matrix(math.multiply(mat1._matrix, mat2._matrix) as math.Matrix);
+        const mult = math.multiply(mat1._matrix, mat2._matrix) as math.Matrix;
+        return new Matrix(mult);
+    }
+
+    public static scale(scale: number) {
+        const mat = [
+            [scale, 0, 0],
+            [0, scale, 0],
+            [0, 0, 1]
+        ];
+
+        return new Matrix(math.matrix(mat));
     }
 
     public static rotation(degrees: number) { // Return a rotation matrix by the angle specified in degrees
-        const radians = degrees / (2 * math.pi); // math.cos and math.sin are in radians
+        const radians = (degrees / 360) * 2 * math.pi; // math.cos and math.sin are in radians
 
         const mat = [
             [math.cos(radians), -math.sin(radians), 0],
@@ -36,8 +51,18 @@ export class Matrix {
 
     public static translation(x: number, y: number) { // Returns a translation matrix by x and y
         const mat = [
-            [0, 0, x],
-            [0, 0, y],
+            [1, 0, x],
+            [0, 1, y],
+            [0, 0, 1]
+        ];
+
+        return new Matrix(math.matrix(mat));
+    }
+
+    public static unit() {
+        const mat = [
+            [1, 0, 0],
+            [0, 1, 0],
             [0, 0, 1]
         ];
 
@@ -51,11 +76,15 @@ export class Matrix {
         this._matrix = mat;
     }
 
+    public get rawVector(): number[] {
+        return this._matrix.toArray() as number[];
+    }
+
     public toDB(): string {
         const array: number[][] = this._matrix.toArray() as number[][];
         const obj = {
             matrix: [array[0], array[1]]
-        }
+        };
 
         return JSON.stringify(obj);
     }
