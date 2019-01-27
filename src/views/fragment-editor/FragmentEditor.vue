@@ -3,7 +3,7 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting && fragment" id="overlay-div" class="col" :style="{ transform: `rotate(${params.rotationAngle})` }"> 
+    <div v-if="!waiting && fragment" id="overlay-div" class="col"> 
   <!--     AAAAAAAA
      <v-touch @swipeleft="doSomething">
       <p>I can now be swiped on!</p>
@@ -178,6 +178,7 @@ export default Vue.extend({
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
+      console.log(`Parameter ${evt.property} changed to ${evt.value}`);
     },
     async onSave() {
       if (!this.artefact) {

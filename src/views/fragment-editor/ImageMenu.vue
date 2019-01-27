@@ -47,8 +47,9 @@
       <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
     </section>
     <section>
-      <b-button @click="onRotateClick(90)"><font-awsome-icon icon="undo"></font-awsome-icon></b-button>
-      <b-button @click="onRotateClick(-90)"><font-awsome-icon icon="redo"></font-awsome-icon></b-button>
+      <b-button @click="onRotateClick(-90)"><font-awesome-icon icon="undo"></font-awesome-icon></b-button>
+      <b-button @click="onRotateClick(90)"><font-awesome-icon icon="redo"></font-awesome-icon></b-button>
+    </section>
     <section v-if="editable">
       <b-button-group>
         <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" 
@@ -65,109 +66,6 @@
       <b-button @click="redo()">Redo</b-button>
     </section>
 </div>
-<!--  <el-row 
-    class="single-image-pane-menu" 
-    :gutter="1" 
-    type="flex" 
-    align="middle">
-    <el-col :span="5">
-      <el-select 
-        class="image-select-entry" 
-        :value="selectedImage"
-        @input="selectedImage = []"
-        placeholder="Select Images" 
-        multiple size="mini">
-        <el-option
-          v-for="image of images"
-          :key="'selector-' + corpus.images.get(image).filename"
-          :label="corpus.images.get(image).type | formatImageType"
-          :value="image">
-          <el-row
-            :gutter="1" 
-            type="flex" 
-            justify="left"
-            align="middle">
-            <el-col :span="2">
-              <span class="drag-handle image-select-entry" style="float: left">☰</span>
-            </el-col>
-            <el-col :span="8">
-              <span class="image-select-entry">
-                &nbsp;{{corpus.images.get(image).type | formatImageType}}
-              </span>
-            </el-col>
-            <el-col :span="10">
-              <input
-              class="image-select-entry"
-              type="range"
-              min="0"
-              max="1.0"
-              step="0.001"
-              @input="setOpacity(image, $event.target.value)"/>
-            </el-col>
-            <el-col :span="4">
-              <span>
-                <i class="fa fa-eye image-select-entry"
-                  :style="{color: imageSettings[image].visible ? 'green' : 'red'}"
-                  @click="toggleVisible(image)">
-                </i>
-              </span>
-            </el-col>
-          </el-row>
-        </el-option>
-      </el-select>
-    </el-col>
-    <el-col :span="1">
-      <span class="label">Zoom</span>
-    </el-col>
-    <el-col :span="4">
-      <el-slider
-        class="image-slider"
-        v-model="changeZoom"
-        :min="0.1"
-        :step="0.01"
-        :max="1.0"
-        :format-tooltip="formatTooltip">
-      </el-slider>
-    </el-col>
-    <el-col v-if="roiEditable && !scrollLocked" v-show="artefact"  :span="4">
-      <el-radio-group v-model="changeViewMode" size="mini">
-        <el-radio-button label="ROI">{{$i18n.str('ROI')}}</el-radio-button>
-        <el-radio-button label="ART">{{$i18n.str('ART')}}</el-radio-button>
-      </el-radio-group>
-    </el-col>
-    <el-col v-show="artefact"  :span="3">
-      <el-button @click="toggleMask" size="mini">Mask</el-button>
-    </el-col>
-    <el-col v-if="roiEditable && !scrollLocked" v-show="viewMode === 'ROI' && artefact" :span="3">
-      <el-button @click="delSelectedRoi" size="mini">Del ROI</el-button>
-    </el-col>
-    <el-col v-if="artefactEditable && !scrollLocked" v-show="viewMode === 'ART' && artefact" :span="3">
-      <el-button
-              @click="toggleDrawingMode"
-              :type="drawingMode === 'draw' ? 'primary' : 'warning'"
-              size="mini">
-        {{drawingMode === 'draw' ? 'Draw' : 'Erase'}}
-      </el-button>
-    </el-col>
-    <el-col v-if="artefactEditable && !scrollLocked" v-show="viewMode === 'ART' && artefact" :span="4">
-      <el-slider
-        class="image-slider"
-        v-model="changeBrushSize"
-        :min="0"
-        :max="200"
-        :step="1">
-      </el-slider>
-    </el-col>
-    <el-col :span="1">
-      <el-button 
-        id="single-image-fullscreen" 
-        @click="toggleFullscreen" 
-        v-bind:title="$i18n.str('Editor.Fullscreen')"
-        size="mini">
-        <i class="fa fa-arrows-alt" aria-hidden="true"></i>
-      </el-button>
-    </el-col>
-  </el-row> -->
 </template>
 
 <script lang="ts">
@@ -278,7 +176,7 @@ export default Vue.extend({
     },
     onRotateClick(degrees: number) {
       this.params.rotationAngle += degrees;
-      this.notifyChange('rotationAngle', degrees);
+      this.notifyChange('rotationAngle', this.params.rotationAngle);
     },
     notifyChange(paramName: string, paramValue: any) {
       const args = {
