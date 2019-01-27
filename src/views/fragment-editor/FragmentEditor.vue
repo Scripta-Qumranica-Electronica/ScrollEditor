@@ -29,6 +29,7 @@
                         :clipping-mask="artefact.mask"
                         :divisor="imageShrink"
                         @mask="setClipMask"
+                        @zoom="setZoom"
                         ref="currentArtCanvas">
       </artefact-canvas>
     </div>
@@ -71,7 +72,7 @@ import ImageService from '@/services/image';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
-import { EditorParams, EditorParamsChangedArgs, MaskChangedEventArgs, DrawingMode } from './types';
+import { EditorParams, EditorParamsChangedArgs, MaskChangedEventArgs, DrawingMode, Position } from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
@@ -175,6 +176,29 @@ export default Vue.extend({
       this.undoList.push(eventArgs);
       this.redoList = [];
       this.artefact.mask = eventArgs.polygon;
+    },
+    setZoom(parametes: any) {
+      const newZoom = this.params.zoom;
+      const artefact = document.querySelector('#overlay-div');
+      const artefactRect = artefact!.getBoundingClientRect();
+      let cornerPoint = {x: artefactRect.x, y: artefactRect.y} as Position;
+      
+      let mousePoint = {x: parametes.mouseX, y: parametes.mouseY} as Position;
+      console.log("pointCorner", cornerPoint);
+      console.log("mousePoint", mousePoint);
+
+      let newPoint = {x: mousePoint.x * newZoom / parametes.oldZoom, y: mousePoint.y * newZoom / parametes.oldZoom} as Position;
+      let corner = {x: Math.max(cornerPoint.x + newPoint.x - mousePoint.x, 0), y: Math.max(cornerPoint.y + newPoint.y - mousePoint.y, 0)} as Position;
+      console.log("*******newCornerPoint", corner);
+    
+      debugger;
+      // artefact!.style.top = corner.x + "px";
+      // artefact!.style.left = corner.y + "px";
+
+      // TODO: Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport
+      // const artefact = document.querySelector('#overlay-div');
+      artefact!.scrollLeft = corner.x;// scroll right 
+      artefact!.scrollTop = corner.y;
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
@@ -288,6 +312,7 @@ export default Vue.extend({
   overflow: hidden;
 }
 #overlay-div {
+  transform-origin: top left;
   position: relative;
   overflow: scroll;
   margin-right: 15px;

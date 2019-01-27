@@ -8,7 +8,6 @@
     :height="height"
     style="top: 0px; left: 0px;"
     :style="{transform: `scale(${scale})`}"
-    @wheel="mouseWheel"
     v-shortcuts="[
     { shortcut: [ '+' ], callback: zoomIn },
     { shortcut: [ '-' ], callback: zoomOut },
@@ -74,15 +73,15 @@ import {
   svgPolygonToClipper,
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
-import { EditorParams, DrawingMode, MaskChangedEventArgs, Point } from './types';
+import { EditorParams, DrawingMode, MaskChangedEventArgs, Position } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 
-interface Position {
-  x: number;
-  y: number;
-}
+// interface Position {
+//   x: number;
+//   y: number;
+// }
 
 export default Vue.extend({
   props: {
@@ -104,7 +103,6 @@ export default Vue.extend({
       drawing: false,
       editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
-      corner: {} as Position,
       cursorTransform: Matrix.unit(),
     };
   },
@@ -133,9 +131,9 @@ export default Vue.extend({
   },
   methods: {
     trackMouse(event: MouseEvent) {
-      if (!this.editable) {
+      /* if (!this.editable) {
         return;
-      }
+      } */
       // Cursor position should 
       this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
       if (this.drawing) {
@@ -301,69 +299,18 @@ export default Vue.extend({
         ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       }
     },
-    /*
-When catching the event, get the viewport's top-left corner X and Y coordinates, and udpate them as such:
-
-(Xold, Yold) are the X,Y coordinates of the mouse cursor on the artefact canvas.
-
-Xnew = Xold * zoom-new / zoom-old
-Ynew = Yold * zoom-new / zoom-old
-
-X-CornerNew = Max(X-CornerOld + Xnew - Xold, 0)
-Y-CornerNew = Max(Y-CornerOld + Ynew - Yold, 0)
-
-Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport*/
-
-    mouseWheel(event: any) {
-      /*const oldZoom = this.params.zoom;
-      if (event.deltaY > 0) {
-        this.zoomOut();
-      } else {
-        this.zoomIn();
-      }
-      const newZoom = this.params.zoom;
-      console.log("zoom old=", oldZoom, "newZoom", newZoom)
-
-      var artefact = document.querySelector('#artefactOverlay');
-      const artefactRect = artefact!.getBoundingClientRect();
-      let cornerPoint = {x: artefactRect.x, y: artefactRect.y} as Position;
-      // let cornerPoint = new Point(artefactRect);
-      
-      // let mousePoint = new Point({x: event.pageX, y: event.pageY});
-      let mousePoint = {x: event.pageX, y: event.pageY} as Position;
-      console.log("pointCorner", cornerPoint);
-      console.log("mousePoint", mousePoint);
-
-      // let newPoint = {} as Point;
-      // newPoint.x = mousePoint.x * newZoom / oldZoom
-      // newPoint.y = mousePoint.y * newZoom / oldZoom
-      let newPoint = {x: mousePoint.x * newZoom / oldZoom, y: mousePoint.y * newZoom / oldZoom} as Position;
-
-      // let newCornerPoint = {} as Point;
-      // newCornerPoint.x = Math.abs(cornerPoint.x + newPoint.x - mousePoint.x); // Why max ?
-      // newCornerPoint.y = Math.abs(cornerPoint.y + newPoint.y - mousePoint.y);
-      this.corner.x = Math.abs(cornerPoint.x + newPoint.x - mousePoint.x); // Why max ?
-      this.corner.y = Math.abs(cornerPoint.y + newPoint.y - mousePoint.y);
-      console.log("**********************************newCornerPoint", this.corner);
-    
-
-      artefact!.style.top = this.corner.x + "px";
-      artefact!.style.left = this.corner.y + "px";
-      debugger
-
-      var artefact = document.querySelector('#artefactOverlay');
-      artefact!.scrollLeft += this.corner.x;// scroll right
-
-      // TODO: Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport */
-    },
     zoomIn() {
       if (this.params.zoom < 1) {
+        const oldZoom = this.params.zoom;
         this.params.zoom += 0.02;
+        this.$emit('zoom', {mouseX: this.cursorPos.x, mouseY: this.cursorPos.y, oldZoom});
       }
     },
     zoomOut() {
       if (this.params.zoom > 0.1) {
+        const oldZoom = this.params.zoom;
         this.params.zoom -= 0.02;
+        this.$emit('zoom', {mouseX: this.cursorPos.x, mouseY: this.cursorPos.y, oldZoom});
       }
     },
   },

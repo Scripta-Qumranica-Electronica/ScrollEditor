@@ -38,12 +38,7 @@ export class MaskChangedEventArgs {
     public delta = {} as Polygon;
 }
 
-export class Point {
-    public x: number;
-    public y: number;
-
-    constructor(obj: any) {
-        this.x = obj.x;
-        this.y = obj.y;
-    }
-}
+export interface Position {
+    x: number;
+    y: number;
+  }
