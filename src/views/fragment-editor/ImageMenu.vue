@@ -103,20 +103,7 @@ export default Vue.extend({
       renameFlag: false,
       errorMessage: '',
     };
-
   },
-  // watch: {
-  //   zoom(newValue, oldValue): any {
-  //     console.log('zoom changed', newValue, oldValue);
-  //       This callback will be called when zoom changes
-  //       console.log("zoom ref", (this.$refs.zoomRef as any));
-
-  //       (this.$refs.zoomRef as any).tooltip('hide')
-  //        .attr('data-original-title', this.formatTooltip())
-  //         .tooltip('fixTitle')
-  //         .tooltip('show');
-  //   }
-  // },
   computed: {
     zoom: {
       get(): number {
@@ -144,25 +131,7 @@ export default Vue.extend({
         this.params.brushSize = val;
         this.notifyChange('brushSize', val);
       }
-    }, /*
-    draw: {
-      get(): DrawingMode {
-        return (this as any).params.drawingMode;
-      },
-      set(val: string) {
-        let mode;
-        if (val === 'draw') {
-          mode = DrawingMode.DRAW;
-        } else if (val === 'erase') {
-          mode = DrawingMode.ERASE;
-        } else {
-          console.error('Invalid drawing mode ', val);
-          return;
-        }
-        (this as any).params.drawingMode = mode;
-        this.notifyChange('drawingMode', mode);
-      }
-    },*/
+    },
   },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
@@ -208,46 +177,7 @@ export default Vue.extend({
     },
     openRename() {
       this.renameFlag = true;
-    }
-    /*setOpacity(image, value) {
-      this.$emit('opacity', image, value)
     },
-    toggleVisible(image) {
-      this.$emit('visible', image)
-    },
-    toggleDrawingMode() {
-      this.$emit('drawingMode')
-      this.drawingMode = this.drawingMode === 'draw' ? 'erase' : 'draw'
-    },
-    toggleMask() {
-      this.$emit('toggleMask')
-    },
-    delSelectedRoi() {
-      this.$emit('delSelectedRoi')
-    },
-    toggleFullscreen() {
-      this.$emit('fullscreen')
-    }, */
-  },
-  filters: {
-    /*formatImageType(value) {
-      let formattedString = ''
-      switch (value) {
-        case 0:
-          formattedString += 'Full Color'
-          break
-        case 1:
-          formattedString += '940nm'
-          break
-        case 2:
-          formattedString += '940nm RL'
-          break
-        case 3:
-          formattedString += '940nm RR'
-          break
-      }
-      return formattedString
-    }, */
   },
 });
 </script>

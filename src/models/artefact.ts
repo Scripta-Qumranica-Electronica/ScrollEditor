@@ -4,7 +4,7 @@ import { ScrollVersionInfo } from './scroll';
 
 export class Artefact {
     public static createNew(scrollVersion: ScrollVersionInfo, fragment: Fragment, name: string) {
-        return new Artefact({
+        const artefact = new Artefact({
             id: -1,
             positionId: -1,
             shapeId: -1,
@@ -16,6 +16,13 @@ export class Artefact {
             imageCatalogId: fragment.recto!.imageCatalogId,
             sqeImageId: fragment.recto!.sqeImageId
         });
+
+        if (!fragment.artefacts) {
+            fragment.artefacts = [];
+        }
+        fragment.artefacts.push(artefact);
+
+        return artefact;
     }
 
     public id: number;
