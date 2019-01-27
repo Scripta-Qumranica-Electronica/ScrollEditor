@@ -1,6 +1,23 @@
 import { Polygon } from '@/utils/Polygons';
+import { Fragment } from './fragment';
+import { ScrollVersionInfo } from './scroll';
 
 export class Artefact {
+    public static createNew(scrollVersion: ScrollVersionInfo, fragment: Fragment, name: string) {
+        return new Artefact({
+            id: -1,
+            positionId: -1,
+            shapeId: -1,
+            scrollVersionId: scrollVersion.versionId,
+            name,
+            mask: new Polygon(''),
+            transformMatrix: '',
+            rect: '',
+            imageCatalogId: fragment.recto!.imageCatalogId,
+            sqeImageId: fragment.recto!.sqeImageId
+        });
+    }
+
     public id: number;
     public positionId: number;
     public shapeId: number;
