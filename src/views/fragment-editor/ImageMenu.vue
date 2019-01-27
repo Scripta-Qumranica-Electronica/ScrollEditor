@@ -46,6 +46,9 @@
     <section v-if="artefact.mask">
       <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
     </section>
+    <section>
+      <b-button @click="onRotateClick(90)"><font-awsome-icon icon="undo"></font-awsome-icon></b-button>
+      <b-button @click="onRotateClick(-90)"><font-awsome-icon icon="redo"></font-awsome-icon></b-button>
     <section v-if="editable">
       <b-button-group>
         <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" 
@@ -272,6 +275,10 @@ export default Vue.extend({
         const mode = DrawingMode[val];
         (this as any).params.drawingMode = mode;
         this.notifyChange('drawingMode', mode);
+    },
+    onRotateClick(degrees: number) {
+      this.params.rotationAngle += degrees;
+      this.notifyChange('rotationAngle', degrees);
     },
     notifyChange(paramName: string, paramValue: any) {
       const args = {

@@ -3,7 +3,7 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting && fragment" id="overlay-div" class="col">
+    <div v-if="!waiting && fragment" id="overlay-div" class="col" :style="{ transform: `rotate(${params.rotationAngle})` }"> 
   <!--     AAAAAAAA
      <v-touch @swipeleft="doSomething">
       <p>I can now be swiped on!</p>
