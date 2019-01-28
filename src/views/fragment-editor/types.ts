@@ -38,7 +38,12 @@ export class MaskChangedEventArgs {
     public delta = {} as Polygon;
 }
 
+export interface ZoomRequestEventArgs {
+    amount: number;
+    screenPosition: Position; // Position in screen coordinates
+}
+
 export interface Position {
     x: number;
     y: number;
-  }
+}

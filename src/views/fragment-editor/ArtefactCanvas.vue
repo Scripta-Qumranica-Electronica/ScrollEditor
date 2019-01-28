@@ -7,11 +7,7 @@
     :width="width"
     :height="height"
     style="top: 0px; left: 0px;"
-    :style="{transform: `scale(${scale})`}"
-    v-shortcuts="[
-    { shortcut: [ '+' ], callback: zoomIn },
-    { shortcut: [ '-' ], callback: zoomOut },
-    ]">
+    :style="{transform: `scale(${scale})`}">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         class="maskCanvas"
@@ -24,11 +20,7 @@
         @mouseleave="mouseOver = false"
         @mousedown="processMouseDown"
         @mouseup="processMouseUp"
-        v-touch:tap="mouseOver = editable"
-        v-touch:longtap="longtapHandler"
-        v-touch:swipe.left="processMouseDown"
-        v-touch:swipe.right="swipeRight"
-        v-touch:doubletap="onDoubleTap">-->
+        @wheel="onMouseWheel">
       </canvas>
         
       <div v-if="editable"
@@ -73,7 +65,7 @@ import {
   svgPolygonToClipper,
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
-import { EditorParams, DrawingMode, MaskChangedEventArgs, Position } from './types';
+import { EditorParams, DrawingMode, MaskChangedEventArgs, Position, ZoomRequestEventArgs } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
@@ -99,6 +91,7 @@ export default Vue.extend({
         x: 10,
         y: 10,
       } as Position,
+      screenMousePosition: {} as Position,
       mouseOver: false,
       drawing: false,
       editingCanvas: document.createElement('canvas'),
@@ -131,18 +124,17 @@ export default Vue.extend({
   },
   methods: {
     trackMouse(event: MouseEvent) {
+      this.screenMousePosition.x = event.screenX;
+      this.screenMousePosition.y = event.screenY;
+
       /* if (!this.editable) {
         return;
       } */
-      // Cursor position should 
+      // Cursor position should
       this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
       if (this.drawing) {
         this.drawOnCanvas();
       }
-    },
-    swipeRight() {
-      debugger
-      this.processMouseDown();
     },
     processMouseDown() {
       if (!this.editable) {
@@ -161,20 +153,18 @@ export default Vue.extend({
 
       await this.recalculateMask();
     },
-    tapHandler() {
-      console.log("tapHandler*****************");
-    },
-    longtapHandler() {
-      console.log("longtapHandler");
-    },
-    swipeLeftHandler() {
-      console.log("swipeLeftHandler");
-    },
-    swipeRightHandler() {
-      console.log("swipeRightHandler");
-    },
-    onDoubleTap() {
-      console.log("-----onDoubleTap");
+    onMouseWheel(event: WheelEvent) {
+      // Only catch control-mousewheel
+      if (!event.ctrlKey) {
+        return;
+      }
+
+      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
+      const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
+      this.$emit('zoomRequest', {
+        amount,
+        screenPosition: this.screenMousePosition,
+      } as ZoomRequestEventArgs);
     },
     drawOnCanvas() {
       if (this.editable) {
@@ -233,25 +223,25 @@ export default Vue.extend({
         y: event.clientY - initOffset.top + element.scrollTop,
       } as Position;
 
-      const angle = ((this.rotationAngle % 360) + 360) % 360 // https://stackoverflow.com/a/4467559/871910 - handle negative numbers
+      const angle = ((this.rotationAngle % 360) + 360) % 360; // Handle negative numbers
       let rotatedPos = { ... rawPos };
       if (angle === 180) {
         rotatedPos = {
           x: this.width * this.scale - rawPos.x,
           y: this.height * this.scale - rawPos.y,
-        }
+        };
       } else if (angle === 90) {
         rotatedPos = {
           x: rawPos.y,
           y: this.width * this.scale - rawPos.x,
-        }
+        };
       } else if (angle === 270) {
         rotatedPos = {
           x: this.height * this.scale - rawPos.y,
           y: rawPos.x,
-        }
+        };
       }
-      
+
       return rotatedPos;
     },
     async recalculateMask() {
@@ -281,10 +271,11 @@ export default Vue.extend({
       }
       ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
 
-      let maskChangedEventArgs: MaskChangedEventArgs = {} as MaskChangedEventArgs;
-      maskChangedEventArgs.polygon = newMask;
-      maskChangedEventArgs.drawingMode = this.params.drawingMode;
-      maskChangedEventArgs.delta = deltaNeto;
+      const maskChangedEventArgs: MaskChangedEventArgs = {
+        polygon: newMask,
+        drawingMode: this.params.drawingMode,
+        delta: deltaNeto,
+      } as MaskChangedEventArgs;
 
       this.$emit('mask', maskChangedEventArgs);
     },
@@ -299,7 +290,7 @@ export default Vue.extend({
         ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       }
     },
-    zoomIn() {
+    /* zoomIn() {
       if (this.params.zoom < 1) {
         const oldZoom = this.params.zoom;
         this.params.zoom += 0.02;
@@ -312,7 +303,7 @@ export default Vue.extend({
         this.params.zoom -= 0.02;
         this.$emit('zoom', {mouseX: this.cursorPos.x, mouseY: this.cursorPos.y, oldZoom});
       }
-    },
+    }, */
   },
   watch: {
     width(to, from) {

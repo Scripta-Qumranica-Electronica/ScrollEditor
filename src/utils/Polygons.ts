@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-var-requires
 const ClipperLib = require('js-clipper/clipper');
 
 import { svgPolygonToWKT,

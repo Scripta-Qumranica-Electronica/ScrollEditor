@@ -3,14 +3,9 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting && fragment" id="overlay-div" class="col"> 
-  <!--     AAAAAAAA
-     <v-touch @swipeleft="doSomething">
-      <p>I can now be swiped on!</p>
-      </v-touch>
-      <v-touch @rotate="rotateAThing">
-        <p>Rotate me!</p>
-      </v-touch> -->
+    <div ref="overlay-div" v-if="!waiting && fragment" 
+         id="overlay-div" 
+         class="col"> 
       <roi-canvas class="overlay-image"
                   :width="masterImage.manifest.width || 0"
                   :height="masterImage.manifest.height || 0"
@@ -29,8 +24,7 @@
                         :clipping-mask="artefact.mask"
                         :divisor="imageShrink"
                         @mask="setClipMask"
-                        @zoom="setZoom"
-                        ref="currentArtCanvas">
+                        @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
     </div>
     <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
@@ -46,17 +40,6 @@
         @rename="onRename($event)"
         :saving="saving"
         :renaming="renaming">
-        <!-- old event handlers
-                  v-on:opacity="setOpacity"
-        v-on:changeBrushSize="changeBrushSize"
-        v-on:visible="toggleVisible"
-        v-on:drawingMode="toggleDrawingMode"
-        v-on:toggleMask="toggleMask"
-        v-on:delSelectedRoi="delSelectedRoi"
-        v-on:changeViewMode="changeViewMode"
-        v-on:changeZoom="changeZoom"
-        v-on:fullscreen="toggleFullScreen"
-        -->
       </image-menu>
     </div>
   </div>
@@ -72,7 +55,7 @@ import ImageService from '@/services/image';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
-import { EditorParams, EditorParamsChangedArgs, MaskChangedEventArgs, DrawingMode, Position } from './types';
+import { EditorParams, EditorParamsChangedArgs, MaskChangedEventArgs, DrawingMode, Position, ZoomRequestEventArgs } from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
@@ -117,6 +100,9 @@ export default Vue.extend({
         return this.fragment.recto.master;
       }
       return undefined;
+    },
+    overlayDiv(): HTMLDivElement {
+      return this.$refs['overlay-div'] as HTMLDivElement;
     }
   },
   async mounted() {
@@ -165,44 +151,67 @@ export default Vue.extend({
         }
       }
     },
-    setClipMask(eventArgs: MaskChangedEventArgs) { //} Polygon) {
+    setClipMask(eventArgs: MaskChangedEventArgs) {
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
       // Place current mask in undo buffer, clear redo buffer
       if (this.undoList.length >= 50) {
         this.undoList.slice(1);
-      } 
+      }
       this.undoList.push(eventArgs);
       this.redoList = [];
       this.artefact.mask = eventArgs.polygon;
     },
+    onParamsChanged(evt: EditorParamsChangedArgs) {
+      this.params = evt.params; // This makes sure a change is triggered in child components
+      console.log(`Parameter ${evt.property} changed to ${evt.value}`);
+    },
+    onZoomRequest(event: ZoomRequestEventArgs) {
+      console.log(this.$refs);
+      const oldZoom = this.params.zoom;
+      const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.01), 1);
+      if (newZoom === oldZoom) {
+        return;
+      }
+
+      // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
+      // on the same place in the image. First we need to know the exact coordinates before the zoom
+      // We get screen cordinates, we need to translate them to client coordinates
+      const viewportOffest = this.overlayDiv.getBoundingClientRect();
+      console.log('viewport is ', viewportOffest);
+
+
+
+      this.params.zoom = newZoom;
+    },
     setZoom(parametes: any) {
       const newZoom = this.params.zoom;
       const artefact = document.querySelector('#overlay-div');
-      const artefactRect = artefact!.getBoundingClientRect();
-      let cornerPoint = {x: artefactRect.x, y: artefactRect.y} as Position;
-      
-      let mousePoint = {x: parametes.mouseX, y: parametes.mouseY} as Position;
-      console.log("pointCorner", cornerPoint);
-      console.log("mousePoint", mousePoint);
+      const artefactRect: any = artefact!.getBoundingClientRect();
+      const cornerPoint = {x: artefactRect.x, y: artefactRect.y} as Position;
 
-      let newPoint = {x: mousePoint.x * newZoom / parametes.oldZoom, y: mousePoint.y * newZoom / parametes.oldZoom} as Position;
-      let corner = {x: Math.max(cornerPoint.x + newPoint.x - mousePoint.x, 0), y: Math.max(cornerPoint.y + newPoint.y - mousePoint.y, 0)} as Position;
-      console.log("*******newCornerPoint", corner);
-    
-      debugger;
+      const mousePoint = {x: parametes.mouseX, y: parametes.mouseY} as Position;
+      console.log('pointCorner', cornerPoint);
+      console.log('mousePoint', mousePoint);
+
+      const newPoint = {
+        x: mousePoint.x * newZoom / parametes.oldZoom,
+        y: mousePoint.y * newZoom / parametes.oldZoom
+      } as Position;
+      const corner = {
+        x: Math.max(cornerPoint.x + newPoint.x - mousePoint.x, 0),
+        y: Math.max(cornerPoint.y + newPoint.y - mousePoint.y, 0)
+      } as Position;
+      console.log('*******newCornerPoint', corner);
+
       // artefact!.style.top = corner.x + "px";
       // artefact!.style.left = corner.y + "px";
 
       // TODO: Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport
       // const artefact = document.querySelector('#overlay-div');
-      artefact!.scrollLeft = corner.x;// scroll right 
+      artefact!.scrollLeft = corner.x; // scroll right
       artefact!.scrollTop = corner.y;
-    },
-    onParamsChanged(evt: EditorParamsChangedArgs) {
-      this.params = evt.params; // This makes sure a change is triggered in child components
-      console.log(`Parameter ${evt.property} changed to ${evt.value}`);
     },
     async onSave() {
       if (!this.artefact) {
@@ -269,7 +278,6 @@ export default Vue.extend({
       } finally {
         this.renaming = false;
       }
-
     },
     showMessage(msg: string, error: boolean) {
       if (error) {
@@ -285,12 +293,6 @@ export default Vue.extend({
         duration : 7000
       });
       }
-    },
-    doSomething() {
-      console.log("do something!!");
-    },
-    rotateAThing() {
-      console.log("rotateAThing");
     },
   }
 });

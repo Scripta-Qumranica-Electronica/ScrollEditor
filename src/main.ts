@@ -27,7 +27,7 @@ import Vue2TouchEvents from 'vue2-touch-events';
 import VueTouch from 'vue-touch';
 
 import VueShortcuts from 'vue-shortcuts';
- 
+
 Vue.config.productionTip = false;
 
 // TODO use a real loading image and add an error image
