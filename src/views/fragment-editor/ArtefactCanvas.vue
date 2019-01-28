@@ -3,7 +3,7 @@
     ref="artefactOverlay"
     class="artefactOverlay"
     id="artefactOverlay"
-    :class="{ editable: editable} "
+    :class="{ editable: editable, zoom: zooming }"
     :width="width"
     :height="height"
     style="top: 0px; left: 0px;"
@@ -23,7 +23,7 @@
         @wheel="onMouseWheel">
       </canvas>
         
-      <div v-if="editable"
+      <div v-if="editable && !zooming"
         class="cursor" 
         v-show="mouseOver"
         :style="{
@@ -97,6 +97,7 @@ export default Vue.extend({
       editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
+      zooming: false,
     };
   },
   computed: {
@@ -124,6 +125,8 @@ export default Vue.extend({
   },
   methods: {
     trackMouse(event: MouseEvent) {
+      this.zooming = event.ctrlKey;
+
       this.mouseClientPosition.x = event.clientX;
       this.mouseClientPosition.y = event.clientY;
 
@@ -136,15 +139,21 @@ export default Vue.extend({
         this.drawOnCanvas();
       }
     },
-    processMouseDown() {
+    processMouseDown(event: MouseEvent) {
       if (!this.editable) {
         return;
       }
-
+      if (event.ctrlKey || event.button !== 0) {
+        return;
+      }
       this.drawing = true;
       this.drawOnCanvas();
     },
-    async processMouseUp() {
+    async processMouseUp(event: MouseEvent) {
+      if (event.button !== 0) {
+        return;
+      }
+
       this.drawing = false;
 
       if (!this.editable) {
@@ -159,6 +168,7 @@ export default Vue.extend({
         return;
       }
 
+      this.zooming = true;
       event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
       const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
       this.$emit('zoomRequest', {
@@ -331,9 +341,15 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-.artefactOverlay.editable {
-  cursor: none;
+.artefactOverlay {
+  &.editable {
+    cursor: none;
+  }
+  &.zoom {
+    cursor: crosshair !important;
+  }
 }
+
 .maskCanvas {
   opacity: 0.3;
 }

@@ -115,7 +115,6 @@ export default Vue.extend({
 
       if (this.fragment && this.fragment.recto && this.fragment.recto.master) {
         await this.imageService.fetchImageManifest(this.fragment.recto.master);
-        console.log('Master image manifest is ', this.fragment.recto.master.manifest);
       }
 
       if (this.fragment!.artefacts!.length) {
@@ -165,10 +164,8 @@ export default Vue.extend({
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
-      console.log(`Parameter ${evt.property} changed to ${evt.value}`);
     },
     onZoomRequest(event: ZoomRequestEventArgs) {
-      console.log(`Asked to change zoom by ${JSON.stringify(event)}`);
       const oldZoom = this.params.zoom;
       const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.01), 1);
       if (newZoom === oldZoom) {
@@ -197,37 +194,7 @@ export default Vue.extend({
         this.overlayDiv.scrollTop += scrollDelta.y;
       }, 0);
 
-      console.log(`Changing zoom from ${oldZoom} to ${newZoom} and shifting by ${scrollDelta.x}, ${scrollDelta.y}`)
-
       this.params.zoom = newZoom;
-    },
-    setZoom(parametes: any) {
-      const newZoom = this.params.zoom;
-      const artefact = document.querySelector('#overlay-div');
-      const artefactRect: any = artefact!.getBoundingClientRect();
-      const cornerPoint = {x: artefactRect.x, y: artefactRect.y} as Position;
-
-      const mousePoint = {x: parametes.mouseX, y: parametes.mouseY} as Position;
-      console.log('pointCorner', cornerPoint);
-      console.log('mousePoint', mousePoint);
-
-      const newPoint = {
-        x: mousePoint.x * newZoom / parametes.oldZoom,
-        y: mousePoint.y * newZoom / parametes.oldZoom
-      } as Position;
-      const corner = {
-        x: Math.max(cornerPoint.x + newPoint.x - mousePoint.x, 0),
-        y: Math.max(cornerPoint.y + newPoint.y - mousePoint.y, 0)
-      } as Position;
-      console.log('*******newCornerPoint', corner);
-
-      // artefact!.style.top = corner.x + "px";
-      // artefact!.style.left = corner.y + "px";
-
-      // TODO: Change the scroll bars so that (X-CornerNew, Y-CornerNew) is the top-left corner of the viewport
-      // const artefact = document.querySelector('#overlay-div');
-      artefact!.scrollLeft = corner.x; // scroll right
-      artefact!.scrollTop = corner.y;
     },
     async onSave() {
       if (!this.artefact) {
