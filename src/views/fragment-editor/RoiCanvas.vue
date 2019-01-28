@@ -30,7 +30,9 @@
             :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
     </g>
     <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use>
-    <g v-for="box of boxes" :key="`${box.x}_${box.y}_${box.width}_${box.height}`">
+   <!-- -->
+    <use v-for="art in fragment.artefacts" :key="art.id" :class="{ pulstae: art===artefact }" :stroke="art.color" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use>
+   <g v-for="box of boxes" :key="`${box.x}_${box.y}_${box.width}_${box.height}`">
       <rect :x="box.x" 
             :y="box.y" 
             :width="box.width"
@@ -88,6 +90,7 @@
 import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
 import { Fragment } from '@/models/fragment';
+import { Artefact } from '@/models/artefact';
 import { EditorParams, SingleImageSetting } from './types';
 import { ImageSet } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
@@ -98,6 +101,7 @@ export default Vue.extend({
     width: Number,
     height: Number,
     fragment: Fragment,
+    artefact: Artefact,
     params: EditorParams,
     editable: Boolean,
     side: {

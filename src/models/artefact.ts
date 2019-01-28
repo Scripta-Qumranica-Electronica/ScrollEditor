@@ -2,13 +2,17 @@ import { Polygon } from '@/utils/Polygons';
 import { Fragment } from './fragment';
 import { ScrollVersionInfo } from './scroll';
 
+const colors = ['purple', 'blue', 'orange', 'red', 'green', 'gray', 'magenta', 'olive', 'brown', 'cadetBlue'];
+let index = 0;
+
 export class Artefact {
-    public static createNew(scrollVersion: ScrollVersionInfo, fragment: Fragment, name: string) {
+    public static createNew(scrollVersionId: number, fragment: Fragment, name: string) {
+         // scrollVersion: ScrollVersionInfo
         const artefact = new Artefact({
             id: -1,
             positionId: -1,
             shapeId: -1,
-            scrollVersionId: scrollVersion.versionId,
+            scrollVersionId, // scrollVersion.versionId,
             name,
             mask: new Polygon(''),
             transformMatrix: '',
@@ -35,6 +39,7 @@ export class Artefact {
     public rect: string;
     public imageCatalogId: number; // Probably not needed
     public sqeImageId: number;  // Probable not needed
+    public color: string;
 
     constructor(obj: any) {
         if (obj.side !== 0) {
@@ -60,5 +65,7 @@ export class Artefact {
         this.rect = obj.rect;
         this.imageCatalogId = obj.image_catalog_id;
         this.sqeImageId = obj.id_of_sqe_image;
+        this.color = obj.color ? obj.color : colors[index];
+        index += 1;
     }
 }

@@ -10,6 +10,8 @@
                   :width="masterImage.manifest.width || 0"
                   :height="masterImage.manifest.height || 0"
                   :params="params"
+                  :fragment="fragment"
+                  :artefact="artefact"
                   :editable="canEdit"
                   :side="fragment.recto"
                   :divisor="imageShrink"
@@ -38,6 +40,7 @@
         @undo="onUndo($event)"
         @redo="onRedo($event)"
         @rename="onRename($event)"
+        @artefactChanged="onArtefactChanged($event)"
         :saving="saving"
         :renaming="renaming">
       </image-menu>
@@ -120,6 +123,9 @@ export default Vue.extend({
       if (this.fragment!.artefacts!.length) {
         this.artefact = this.fragment!.artefacts![0];
         this.initialMask = this.artefact.mask;
+        // this.fragment!.artefacts!.forEach((element, index) => {
+          // element.color = colors[index];
+        // });
       } else {
         this.artefact = undefined;
         this.initialMask = undefined;
@@ -261,6 +267,9 @@ export default Vue.extend({
       } finally {
         this.renaming = false;
       }
+    },
+    onArtefactChanged(art: Artefact) {
+      this.artefact = art;
     },
     showMessage(msg: string, error: boolean) {
       if (error) {

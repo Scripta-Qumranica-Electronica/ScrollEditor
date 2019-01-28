@@ -2,19 +2,50 @@
   <div id="image-menu">
     <section>
       <h5>Artefacts</h5>
-      <ul class="list">
-        <li v-for="art in fragment.artefacts" :key="art.id">
-          <span v-if="!renameFlag" :class="{ selected: art===artefact }">{{ art.name }}</span>
-          <b-button v-if="!renameFlag && !renaming" @click="openRename()">Rename</b-button>
-      
-          <input v-if="renameFlag" v-model="art.name" />
-          <b-button v-if="!renaming && renameFlag" :disabled="!art.name" @click="rename(art.name)">Rename</b-button>
-          <b-button v-if="renaming" disabled class="disable">
+      <table>
+        <tr v-for="art in fragment.artefacts" :key="art.id">
+          <td>
+            <span v-if="!renameFlag" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
+            </td>
+          <td>
+            <b-button v-if="!renameFlag && !renaming" class="btn btn-sm" @click="openRename()">Rename</b-button>
+            <input v-if="renameFlag" v-model="art.name" />
+            <b-button v-if="!renaming && renameFlag" class="btn btn-sm" :disabled="!art.name" @click="rename(art.name)">Rename</b-button>
+            <b-button v-if="renaming" disabled class="disable btn btn-sm">
             Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
-          </b-button>
-        </li>
-      </ul>
-      <b-button>New</b-button>
+            </b-button>
+          </td>
+        </tr>
+      </table>
+      <b-btn v-b-modal.modal="'newModal'" class="btn btn-sm btn-outline">{{ $t('misc.new') }}</b-btn>
+
+      <b-modal id="newModal" 
+                 :title="$t('home.newArtefact')"
+                 @shown="newModalShown"
+                 @ok="newArtefact"
+                 :ok-title="$t('misc.create')"
+                 :cancel-title="$t('misc.cancel')"
+                 :ok-disabled="waiting || !canCreate"
+                 :cancel-disabled="waiting">
+            <form @submit.stop.prevent="newArtefact">
+                <b-form-group :label="$t('home.newArtefactName')"
+                              label-for="newArtefactName">
+                    <b-form-input ref="newArtefactName"
+                                  id="newName" 
+                                  v-model="newArtefactName" 
+                                  type="text"
+                                  @keyup.enter="newArtefact" 
+                                  required 
+                                  :placeholder="$t('home.newArtefactName')">
+                    </b-form-input>
+                </b-form-group>
+                <p v-if="waiting">
+                    {{ $t('home.creatingNewArtefact') }}...
+                    <font-awesome-icon icon="spinner" spin></font-awesome-icon>
+                </p>
+                <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
+            </form>
+        </b-modal>
     </section>
     <section>
       <h5>Images</h5>
@@ -72,7 +103,6 @@
 import Vue from 'vue';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
-// import Waiting from '@/components/misc/Waiting.vue';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
 /**
@@ -87,7 +117,6 @@ import SingleImageSettingComponent from './SingleImageSetting.vue';
 export default Vue.extend({
   name: 'image-menu',
   components: {
-    // Waiting,
     'single-image-setting': SingleImageSettingComponent,
   },
   props: {
@@ -102,6 +131,8 @@ export default Vue.extend({
     return {
       renameFlag: false,
       errorMessage: '',
+      waiting: false,
+      newArtefactName: '',
     };
   },
   computed: {
@@ -131,6 +162,12 @@ export default Vue.extend({
         this.params.brushSize = val;
         this.notifyChange('brushSize', val);
       }
+    },
+    canCreate(): boolean {
+      return this.newArtefactName.trim().length > 0;
+    },
+    scrollVersionId(): number {
+      return parseInt(this.$route.params.scrollVersionId);
     },
   },
   methods: {
@@ -177,6 +214,20 @@ export default Vue.extend({
     },
     openRename() {
       this.renameFlag = true;
+    },
+    chooseArtefact(art: Artefact) {
+      this.$emit('artefactChanged', art);
+    },
+    newArtefact() {
+      console.log("In new artefact");
+      const newArtefact = Artefact.createNew(this.scrollVersionId, this.fragment, this.newArtefactName);
+
+      // waiting = false after artefact added
+      this.newArtefactName = '';
+    },
+    newModalShown() {
+      // this.waiting = true;
+      (this.$refs.newArtefactName as any).focus();
     },
   },
 });

@@ -4,4 +4,5 @@ export default {
     current: 'Current',
     copy: 'Copy',
     rename: 'Rename',
+    create: 'Create',
 };
