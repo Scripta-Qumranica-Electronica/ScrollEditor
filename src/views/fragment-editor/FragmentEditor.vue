@@ -168,7 +168,6 @@ export default Vue.extend({
       console.log(`Parameter ${evt.property} changed to ${evt.value}`);
     },
     onZoomRequest(event: ZoomRequestEventArgs) {
-      console.log(this.$refs);
       const oldZoom = this.params.zoom;
       const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.01), 1);
       if (newZoom === oldZoom) {
@@ -183,8 +182,23 @@ export default Vue.extend({
         x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
         y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop,
       }
-      console.log(`Translated client ${event.clientPosition.x}, ${event.clientPosition.y} to ${oldMousePosition.x}, ${oldMousePosition.y}`)
-      // this.params.zoom = newZoom;
+      const newMousePosition = {
+        x: oldMousePosition.x * newZoom / oldZoom,
+        y: oldMousePosition.x * newZoom / oldZoom,
+      };
+      const scrollDelta = {
+        x: newMousePosition.x - oldMousePosition.x,
+        y: newMousePosition.y - oldMousePosition.y,
+      };
+
+      setTimeout(() => {
+        this.overlayDiv.scrollLeft += scrollDelta.x;
+        this.overlayDiv.scrollTop += scrollDelta.y;
+      }, 0);
+
+      console.log(`Changing zoom from ${oldZoom} to ${newZoom} and shifting by ${scrollDelta.x}, ${scrollDelta.y}`)
+
+      this.params.zoom = newZoom;
     },
     setZoom(parametes: any) {
       const newZoom = this.params.zoom;
