@@ -19,7 +19,7 @@ export interface ImageSetting {
 
 export class EditorParams {
     public imageSettings = {} as ImageSetting;
-    public zoom = 0.1;  // Zoom between 0 and 1
+    public zoom: number = 0.1;  // Zoom between 0 and 1
     public brushSize = 20;
     public clipMask = false;
     public drawingMode = DrawingMode.DRAW;

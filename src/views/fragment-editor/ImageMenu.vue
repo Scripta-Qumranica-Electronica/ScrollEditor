@@ -109,8 +109,8 @@ export default Vue.extend({
       get(): number {
         return this.params.zoom;
       },
-      set(val: number) {
-        this.params.zoom = val;
+      set(val: any) {
+        this.params.zoom = parseFloat(val);
         this.notifyChange('zoom', val);
       }
     },

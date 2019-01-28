@@ -168,6 +168,7 @@ export default Vue.extend({
       console.log(`Parameter ${evt.property} changed to ${evt.value}`);
     },
     onZoomRequest(event: ZoomRequestEventArgs) {
+      console.log(`Asked to change zoom by ${JSON.stringify(event)}`);
       const oldZoom = this.params.zoom;
       const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.01), 1);
       if (newZoom === oldZoom) {
@@ -184,7 +185,7 @@ export default Vue.extend({
       }
       const newMousePosition = {
         x: oldMousePosition.x * newZoom / oldZoom,
-        y: oldMousePosition.x * newZoom / oldZoom,
+        y: oldMousePosition.y * newZoom / oldZoom,
       };
       const scrollDelta = {
         x: newMousePosition.x - oldMousePosition.x,
