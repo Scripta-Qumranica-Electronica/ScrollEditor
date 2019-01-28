@@ -178,12 +178,13 @@ export default Vue.extend({
       // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
       // on the same place in the image. First we need to know the exact coordinates before the zoom
       // We get screen cordinates, we need to translate them to client coordinates
-      const viewportOffest = this.overlayDiv.getBoundingClientRect();
-      console.log('viewport is ', viewportOffest);
-
-
-
-      this.params.zoom = newZoom;
+      const viewport = this.overlayDiv.getBoundingClientRect();
+      const oldMousePosition = {
+        x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
+        y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop,
+      }
+      console.log(`Translated client ${event.clientPosition.x}, ${event.clientPosition.y} to ${oldMousePosition.x}, ${oldMousePosition.y}`)
+      // this.params.zoom = newZoom;
     },
     setZoom(parametes: any) {
       const newZoom = this.params.zoom;

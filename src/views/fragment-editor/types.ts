@@ -40,7 +40,7 @@ export class MaskChangedEventArgs {
 
 export interface ZoomRequestEventArgs {
     amount: number;
-    screenPosition: Position; // Position in screen coordinates
+    clientPosition: Position; // Position in client coordinates
 }
 
 export interface Position {

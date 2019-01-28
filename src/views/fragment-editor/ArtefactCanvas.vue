@@ -91,7 +91,7 @@ export default Vue.extend({
         x: 10,
         y: 10,
       } as Position,
-      screenMousePosition: {} as Position,
+      mouseClientPosition: {} as Position,
       mouseOver: false,
       drawing: false,
       editingCanvas: document.createElement('canvas'),
@@ -124,8 +124,8 @@ export default Vue.extend({
   },
   methods: {
     trackMouse(event: MouseEvent) {
-      this.screenMousePosition.x = event.screenX;
-      this.screenMousePosition.y = event.screenY;
+      this.mouseClientPosition.x = event.clientX;
+      this.mouseClientPosition.y = event.clientY;
 
       /* if (!this.editable) {
         return;
@@ -163,7 +163,7 @@ export default Vue.extend({
       const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
       this.$emit('zoomRequest', {
         amount,
-        screenPosition: this.screenMousePosition,
+        clientPosition: this.mouseClientPosition,
       } as ZoomRequestEventArgs);
     },
     drawOnCanvas() {
