@@ -16,6 +16,10 @@
  */
 export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
   let svg: any;
+  // TODO: Remove it
+  if (!wkt.wkt) {
+    return '';
+  }
   if (wkt.substring(0, 9) === 'POLYGON((') {
     const polygonInitRegex = /POLYGON/g;
     const parenInitRegex = /\(/g;

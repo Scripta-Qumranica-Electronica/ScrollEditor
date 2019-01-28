@@ -16,5 +16,7 @@ export default {
     noVersions: 'אין גרסאות נוספות',
 
     newArtefactName: 'שם הממצא החדש',
+    newArtefact: 'ממצא חדש',
+    creatingNewArtefact: 'מייצר ממצא חדש'
 
 };

@@ -4,4 +4,5 @@ export default {
     current: 'נוכחי',
     copy: 'העתק',
     rename: 'שנה שם',
+    create: 'יצור',
 };

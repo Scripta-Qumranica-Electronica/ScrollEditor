@@ -16,4 +16,6 @@ export default {
     noVersions: 'No other versions',
 
     newArtefactName: 'New Artefact Name',
+    newArtefact: 'New Artefact',
+    creatingNewArtefact: 'Creating New Artefact',
 };
