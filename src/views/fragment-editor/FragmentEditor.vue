@@ -185,7 +185,7 @@ export default Vue.extend({
       const oldMousePosition = {
         x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
         y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop,
-      }
+      };
       const newMousePosition = {
         x: oldMousePosition.x * newZoom / oldZoom,
         y: oldMousePosition.y * newZoom / oldZoom,
