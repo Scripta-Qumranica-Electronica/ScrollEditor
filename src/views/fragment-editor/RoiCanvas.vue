@@ -6,16 +6,16 @@
             @mousemove="moveROI($event)" 
             @mousedown="newROI($event)"
             @mouseup="deselectROI()"
-            :transform="`scale(${zoomLevel}) ${rotateTransform})`"
             >
+    <g :transform="`scale(${zoomLevel}) ${rotateTransform})`">
     <defs>
       <path id="Full-clip-path" :d="fullImageMask" :transform="`scale(${scale})`"></path>
       <clipPath id="Full-clipping-outline">
-        <use stroke="none" fill="black" fill-rule="evenodd" href="#Full-clip-path"></use>
+        <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Full-clip-path"></use>
       </clipPath>
       <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg" :transform="`scale(${scale})`"></path>
       <clipPath id="Clipping-outline">
-        <use stroke="none" fill="black" fill-rule="evenodd" href="#Clip-path"></use>
+        <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Clip-path"></use>
       </clipPath>
     </defs>
     <g pointer-events="none" :clip-path="params.clipMask ? 'url(#Clipping-outline)' : 'url(#Full-clipping-outline)'">
@@ -29,7 +29,7 @@
             :opacity="imageSetting.opacity"
             :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
     </g>
-     <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use> 
+     <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use> 
    <!-- <use v-for="art in fragment.artefacts" :key="art.id" :class="{ pulstae: art===artefact }" :stroke="art.color" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use> -->
     <g v-for="box of boxes" :key="`${box.x}_${box.y}_${box.width}_${box.height}`">
       <rect :x="box.x" 
@@ -82,6 +82,7 @@
               stroke-opacity="0.8" 
               @mousedown="selectROI($event, box, 'resizeWH')"/>
     </g>
+  </g>
   </svg>
 </template>
 
