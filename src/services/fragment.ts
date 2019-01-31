@@ -27,7 +27,6 @@ class FragmentService {
         }
         await this.fetchFragmentArtefacts(scrollVersionId, fragment);
 
-        console.log('Setting fragment to ', fragment);
         this.store.dispatch('fragment/setFragment', fragment);
 
         return fragment;

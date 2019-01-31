@@ -100,8 +100,8 @@ export class Polygon {
     // tslint:disable-next-line:variable-name
     private _svg: string;
 
-    public constructor(svg?: string) {
-        this._svg = svg ? svg : '';
+    public constructor(svg = '') {
+        this._svg = this.normalizeSvg(svg);
     }
 
     public get svg() {
@@ -131,5 +131,11 @@ export class Polygon {
 
     public get empty(): boolean {
         return this._svg === '';
+    }
+
+    private normalizeSvg(svg: string): string {
+        // Sometimes SVGs have spaces between commands and numbers, which breaks some canvases (on Chrome, at least)
+        // So we normalize them. Our problem is with spaces around Ls, so that's the only thing we fix
+        return svg.replace(/ L /g, 'L');
     }
 }
