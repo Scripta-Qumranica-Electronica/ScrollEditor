@@ -42,7 +42,8 @@ export class Artefact {
     public color: string;
 
     constructor(obj: any) {
-        if (obj.side !== 0) {
+        if (obj.side && obj.side !== 0) {
+        // if (obj.side !== 0) {
             console.error('Received a non-recto artefact ', obj);
             throw new Error('Non-recto artefacts are not supported');
         }

@@ -287,7 +287,7 @@ export default Vue.extend({
         delta: deltaNeto,
       } as MaskChangedEventArgs;
 
-      this.$emit('mask', maskChangedEventArgs);
+this.$emit('mask', maskChangedEventArgs);
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {

@@ -16,8 +16,7 @@
  */
 export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
   let svg: any;
-  // TODO: Remove it
-  if (!wkt.wkt) {
+  if (!wkt || wkt.wkt === '') {
     return '';
   }
   if (wkt.substring(0, 9) === 'POLYGON((') {
@@ -116,6 +115,9 @@ export function wktParseRect(wkt: any) {
  * converts it to a WKT Polygon.
  */
 export function svgPolygonToWKT(svg: any) {
+  if (!svg || svg === '') {
+    return '';
+  }
   let wkt: any;
   svg = svg.trim();
   if (svg.startsWith('M')) {
@@ -160,6 +162,9 @@ export function svgPolygonToWKT(svg: any) {
  * converts it to a GeoJSON Polygon.
  */
 export function svgPolygonToGeoJSON(svg: any) {
+  if (!svg || svg === '') {
+    return '';
+  }
   let json: any;
   svg = svg.trim();
   if (svg.startsWith('M')) {
@@ -196,6 +201,9 @@ export function svgPolygonToGeoJSON(svg: any) {
  * converts it to a Clipper Polygon.
  */
 export function svgPolygonToClipper(svg: any) {
+  if (!svg || svg === '') {
+    return '';
+  }
   let clipper: any;
   svg = svg.trim();
   if (svg.startsWith('M')) {

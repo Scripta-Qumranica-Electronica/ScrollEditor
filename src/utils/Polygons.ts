@@ -70,23 +70,35 @@ export class Polygon {
     // tslint:disable-next-line:variable-name
     private _svg: string;
 
-    public constructor(svg: string) {
-        this._svg = svg;
+    public constructor(svg?: string) {
+        this._svg = svg ? svg : '';
     }
 
     public get svg() {
+        if (!this._svg || this._svg === '') {
+            return '';
+        }
         return this._svg;
     }
 
     public get wkt() {
+        if (!this._svg || this._svg === '') {
+            return '';
+        }
         return svgPolygonToWKT(this._svg);
     }
 
     public get geoJSON() {
+        if (!this._svg || this._svg === '') {
+            return '';
+        }
         return svgPolygonToGeoJSON(this._svg);
     }
 
     public get clipper() {
+        if (!this._svg || this._svg === '') {
+            return '';
+        }
         return svgPolygonToClipper(this._svg);
     }
 }

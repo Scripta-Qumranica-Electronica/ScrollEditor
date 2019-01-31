@@ -3,14 +3,14 @@
     <section>
       <h5>Artefacts</h5>
       <table>
-        <tr v-for="art in fragment.artefacts" :key="art.id">
-          <td>
+        <tr v-for="(art, index) in fragment.artefacts" :key="art.id">
+          <td> <!--renameFlag[index]-->
             <span v-if="!renameFlag" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
             </td>
           <td>
-            <b-button v-if="!renameFlag && !renaming" class="btn btn-sm" @click="openRename()">Rename</b-button>
+            <b-button v-if="!renameFlag && !renaming" class="btn btn-sm" @click="openRename(art, index)">Rename</b-button>
             <input v-if="renameFlag" v-model="art.name" />
-            <b-button v-if="!renaming && renameFlag" class="btn btn-sm" :disabled="!art.name" @click="rename(art.name)">Rename</b-button>
+            <b-button v-if="!renaming && renameFlag" class="btn btn-sm" :disabled="!art.name" @click="rename(art, index)">Rename</b-button>
             <b-button v-if="renaming" disabled class="disable btn btn-sm">
             Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
             </b-button>
@@ -129,6 +129,7 @@ export default Vue.extend({
   },
   data() {
     return {
+      // renameFlag: [] as boolean[],
       renameFlag: false,
       errorMessage: '',
       waiting: false,
@@ -170,6 +171,9 @@ export default Vue.extend({
       return parseInt(this.$route.params.scrollVersionId);
     },
   },
+  mounted() {
+    // this.fillRenameFlag();
+  },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
       this.params.imageSettings[imageType] = settings;
@@ -208,18 +212,21 @@ export default Vue.extend({
     redo() {
       this.$emit('redo');
     },
-    rename() {
+    rename(art: Artefact, index: number) {
+      // this.renameFlag[index] = false;
       this.renameFlag = false;
       this.$emit('rename');
     },
-    openRename() {
+    openRename(art: Artefact, index: number) {
+      var id = art.id;
+      // this.renameFlag[index] = true;
       this.renameFlag = true;
+
     },
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);
     },
     newArtefact() {
-      console.log("In new artefact");
       const newArtefact = Artefact.createNew(this.scrollVersionId, this.fragment, this.newArtefactName);
 
       // waiting = false after artefact added
@@ -229,6 +236,11 @@ export default Vue.extend({
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
     },
+    // fillRenameFlag() {
+    //   this.fragment!.artefacts!.forEach((element, index) => {
+    //     this.renameFlag[index] = false;
+    //   });
+    // }
   },
 });
 </script>
