@@ -17,7 +17,7 @@
                   :divisor="imageShrink"
                   :clipping-mask="artefact.mask">
       </roi-canvas>
-      <artefact-canvas v-for="artefact in nonSelectedArtefact" :key="artefact.id" class="overlay-canvas"
+      <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
                         :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
                         :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
                         :params="params"
@@ -34,7 +34,7 @@
                         :editable="canEdit"
                         :artefact="artefact"
                         :divisor="imageShrink"
-                        @mask="setClipMask"
+                        @mask="onMaskChanged"
                         @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
     </div>
@@ -88,11 +88,13 @@ export default Vue.extend({
       imageService: new ImageService(),
       waiting: false,
       artefact: undefined as Artefact | undefined,
-      initialMask: undefined as Polygon | undefined,
+      initialMask: new Polygon(),
       params: new EditorParams(),
       imageShrink: 2,
       saving: false,
       renaming: false,
+      nonSelectedArtefacts: [] as Artefact[],
+      nonSelectedMask: new Polygon(),
       undoList: [] as MaskChangedEventArgs[],
       redoList: [] as MaskChangedEventArgs[],
     };
@@ -116,9 +118,6 @@ export default Vue.extend({
     overlayDiv(): HTMLDivElement {
       return this.$refs['overlay-div'] as HTMLDivElement;
     },
-    nonSelectedArtefact(): Artefact[] {
-      return this.fragment!.artefacts!.filter(artefact => artefact != this.artefact);
-    },
   },
   async mounted() {
     try {
@@ -140,7 +139,7 @@ export default Vue.extend({
         // });
       } else {
         this.artefact = undefined;
-        this.initialMask = undefined;
+        this.initialMask = new Polygon();
       }
 
     } finally {
@@ -148,6 +147,7 @@ export default Vue.extend({
     }
 
     this.fillImageSettings();
+    this.prepareNonSelectedArtefacts();
   },
   methods: {
     fillImageSettings() {
@@ -168,9 +168,23 @@ export default Vue.extend({
         }
       }
     },
-    setClipMask(eventArgs: MaskChangedEventArgs) {
+    onMaskChanged(eventArgs: MaskChangedEventArgs) {
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
+      }
+
+      // Check if the new mask intersects with a non selected artefact mask
+      const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
+      if (!intersection.empty) {
+        this.$toasted.show("Artefact can't overlap other artefacts", {
+          type: 'info',
+          position: 'top-center',
+          duration: 5000,
+        });
+
+        // Change current artefact's mask object so canvas is refreshed and edit is removed
+        this.artefact.mask = new Polygon(this.artefact.mask.svg);
+        return;
       }
       // Place current mask in undo buffer, clear redo buffer
       if (this.undoList.length >= 50) {
@@ -229,12 +243,6 @@ export default Vue.extend({
         this.saving = false;
       }
     },
-    // onReset() {
-    //   if (!this.artefact) {
-    //     throw new Error("Can't reset mask if there is no artefact");
-    //   }
-    //   this.artefact.mask = this.initialMask;
-    // },
     onUndo() {
       if (!this.artefact) {
         throw new Error("Can't undo mask if there is no artefact");
@@ -282,6 +290,7 @@ export default Vue.extend({
     },
     onArtefactChanged(art: Artefact) {
       this.artefact = art;
+      this.prepareNonSelectedArtefacts();
     },
     showMessage(msg: string, error: boolean) {
       if (error) {
@@ -298,6 +307,13 @@ export default Vue.extend({
       });
       }
     },
+    prepareNonSelectedArtefacts() {
+      this.nonSelectedArtefacts = this.fragment!.artefacts!.filter(artefact => artefact != this.artefact);
+      this.nonSelectedMask = new Polygon();
+      for(const artefact of this.nonSelectedArtefacts) {
+        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
+      }
+    }
   }
 });
 </script>

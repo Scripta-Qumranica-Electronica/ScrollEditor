@@ -14,38 +14,68 @@ import { svgPolygonToWKT,
 //
 // Please do not use the VectorFactory methods directly.
 export class Polygon {
-    public static add(clippingMask: Polygon, canvasPolygon: Polygon): Polygon {
+    public static add(a: Polygon, b: Polygon): Polygon {
+        if (a.empty) {
+            return b;
+        }
+        if (b.empty) {
+            return a;
+        }
         const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(clippingMask.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
+        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
         const solutionPaths = new ClipperLib.Paths();
 
-        let newMask = cpr.Execute(
+        cpr.Execute(
             ClipperLib.ClipType.ctUnion,
             solutionPaths,
             ClipperLib.PolyFillType.pftNonZero,
             ClipperLib.PolyFillType.pftNonZero
         );
 
-        newMask = Polygon.fromClipper(solutionPaths);
-        return newMask;
+        const result = Polygon.fromClipper(solutionPaths);
+        return result;
     }
 
-    public static subtract(clippingMask: Polygon, canvasPolygon: Polygon): Polygon {
+    public static subtract(a: Polygon, b: Polygon): Polygon {
+        if (a.empty || b.empty) {
+            return a;
+        }
         const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(clippingMask.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(canvasPolygon.clipper, ClipperLib.PolyType.ptClip, true);
+        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
         const solutionPaths = new ClipperLib.Paths();
 
-        let newMask = cpr.Execute(
+        cpr.Execute(
             ClipperLib.ClipType.ctDifference,
             solutionPaths,
             ClipperLib.PolyFillType.pftNonZero,
             ClipperLib.PolyFillType.pftNonZero
           );
 
-        newMask = Polygon.fromClipper(solutionPaths);
-        return newMask;
+        const result = Polygon.fromClipper(solutionPaths);
+        return result;
+    }
+
+    public static intersect(a: Polygon, b: Polygon): Polygon {
+        if (a.empty || b.empty) {
+            return new Polygon();
+        }
+
+        const cpr = new ClipperLib.Clipper();
+        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
+        const solutionPaths = new ClipperLib.Paths();
+
+        cpr.Execute(
+            ClipperLib.ClipType.ctIntersection,
+            solutionPaths,
+            ClipperLib.PolyFillType.pftNonZero,
+            ClipperLib.PolyFillType.pftNonZero
+          );
+
+        const result = Polygon.fromClipper(solutionPaths);
+        return result;
     }
 
     public static fromWkt(wkt: string, boundingRect?: any) {
@@ -75,30 +105,31 @@ export class Polygon {
     }
 
     public get svg() {
-        if (!this._svg || this._svg === '') {
-            return '';
-        }
         return this._svg;
     }
 
     public get wkt() {
-        if (!this._svg || this._svg === '') {
+        if (this.empty) {
             return '';
         }
         return svgPolygonToWKT(this._svg);
     }
 
     public get geoJSON() {
-        if (!this._svg || this._svg === '') {
-            return '';
+        if (this.empty) {
+            return null;
         }
         return svgPolygonToGeoJSON(this._svg);
     }
 
     public get clipper() {
-        if (!this._svg || this._svg === '') {
-            return '';
+        if (this.empty) {
+            return null;
         }
         return svgPolygonToClipper(this._svg);
+    }
+
+    public get empty(): boolean {
+        return this._svg === '';
     }
 }

@@ -193,51 +193,52 @@ export default Vue.extend({
       } as ZoomRequestEventArgs);
     },
     drawOnCanvas() {
-      if (this.editable) {
-        const ctx = this.maskCanvas.getContext('2d');
-        if (ctx === null) {
-          throw new Error('Got null canvas context');
-        }
-        ctx.beginPath();
-        ctx.arc(
-          this.cursorPos.x / this.scale,
-          this.cursorPos.y / this.scale,
-          this.params.brushSize / 2 / this.scale,
-          0,
-          2 * Math.PI
-        );
-        ctx.closePath();
+      if (!this.editable) {
+        return;
+      }
+      const ctx = this.maskCanvas.getContext('2d');
+      if (ctx === null) {
+        throw new Error('Got null canvas context');
+      }
+      ctx.beginPath();
+      ctx.arc(
+        this.cursorPos.x / this.scale,
+        this.cursorPos.y / this.scale,
+        this.params.brushSize / 2 / this.scale,
+        0,
+        2 * Math.PI
+      );
+      ctx.closePath();
 
-        const editingCTX = this.editingCanvas.getContext('2d');
-        if (editingCTX === null) {
-          throw new Error('Got null editing canvas context');
-        }
-        editingCTX.beginPath();
-        editingCTX.arc(
-          this.cursorPos.x / this.scale,
-          this.cursorPos.y / this.scale,
-          this.params.brushSize / 2 / this.scale,
-          0,
-          2 * Math.PI
-        );
-        editingCTX.closePath();
+      const editingCTX = this.editingCanvas.getContext('2d');
+      if (editingCTX === null) {
+        throw new Error('Got null editing canvas context');
+      }
+      editingCTX.beginPath();
+      editingCTX.arc(
+        this.cursorPos.x / this.scale,
+        this.cursorPos.y / this.scale,
+        this.params.brushSize / 2 / this.scale,
+        0,
+        2 * Math.PI
+      );
+      editingCTX.closePath();
 
-        if (this.params.drawingMode === DrawingMode.ERASE) {
-          ctx.globalCompositeOperation = 'destination-out';
-          ctx.fill();
+      if (this.params.drawingMode === DrawingMode.ERASE) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fill();
 
-          editingCTX.globalCompositeOperation = 'source-over';
-          editingCTX.fillStyle = this.artefact.color;
-          editingCTX.fill();
-        } else {
-          ctx.globalCompositeOperation = 'source-over';
-          ctx.fillStyle = this.artefact.color;
-          ctx.fill();
+        editingCTX.globalCompositeOperation = 'source-over';
+        editingCTX.fillStyle = this.artefact.color;
+        editingCTX.fill();
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = this.artefact.color;
+        ctx.fill();
 
-          editingCTX.globalCompositeOperation = 'source-over';
-          editingCTX.fillStyle = this.artefact.color;
-          editingCTX.fill();
-        }
+        editingCTX.globalCompositeOperation = 'source-over';
+        editingCTX.fillStyle = this.artefact.color;
+        editingCTX.fill();
       }
     },
     mousePositionInElement(event: MouseEvent, element: HTMLElement) {
