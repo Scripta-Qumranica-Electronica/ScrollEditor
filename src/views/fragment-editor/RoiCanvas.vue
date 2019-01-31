@@ -29,10 +29,9 @@
             :opacity="imageSetting.opacity"
             :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
     </g>
-    <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use>
-   <!-- <use v-for="art in fragment.artefacts" :key="art.id" :class="{ pulstae: art===artefact }" :stroke="art.color" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use>
-   --> 
-   <g v-for="box of boxes" :key="`${box.x}_${box.y}_${box.width}_${box.height}`">
+     <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use> 
+   <!-- <use v-for="art in fragment.artefacts" :key="art.id" :class="{ pulstae: art===artefact }" :stroke="art.color" fill="none" fill-rule="evenodd" stroke-width="2" href="#Clip-path"></use> -->
+    <g v-for="box of boxes" :key="`${box.x}_${box.y}_${box.width}_${box.height}`">
       <rect :x="box.x" 
             :y="box.y" 
             :width="box.width"
@@ -140,7 +139,6 @@ export default Vue.extend({
   },
   methods: {
     newROI(event: any) {
-      debugger
       if (event.target.nodeName === 'svg') {
         const point = this.pointInSvg(event.clientX, event.clientY);
         const box = {
