@@ -79,7 +79,7 @@ export default Vue.extend({
   props: {
     params: EditorParams,
     fragment: Fragment,
-    clippingMask: Polygon,
+    artefact: Artefact,
     editable: Boolean,
     width: Number,
     height: Number,
@@ -121,6 +121,9 @@ export default Vue.extend({
     },
     rotationAngle(): number {
       return this.params.rotationAngle;
+    },
+    clippingMask(): Polygon {
+      return this.artefact.mask;
     }
   },
   methods: {
@@ -211,15 +214,15 @@ export default Vue.extend({
           ctx.fill();
 
           editingCTX.globalCompositeOperation = 'source-over';
-          editingCTX.fillStyle = 'purple';
+          editingCTX.fillStyle = this.artefact.color;
           editingCTX.fill();
         } else {
           ctx.globalCompositeOperation = 'source-over';
-          ctx.fillStyle = 'purple';
+          ctx.fillStyle = this.artefact.color;
           ctx.fill();
 
           editingCTX.globalCompositeOperation = 'source-over';
-          editingCTX.fillStyle = 'purple';
+          editingCTX.fillStyle = this.artefact.color;
           editingCTX.fill();
         }
       }
@@ -287,11 +290,11 @@ export default Vue.extend({
         delta: deltaNeto,
       } as MaskChangedEventArgs;
 
-this.$emit('mask', maskChangedEventArgs);
+      this.$emit('mask', maskChangedEventArgs);
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
-        clipCanvas(this.$refs.maskCanvas, mask.svg, this.divisor);
+        clipCanvas(this.$refs.maskCanvas, mask.svg, this.divisor, this.artefact.color);
       } else {
         const ctx = this.maskCanvas.getContext('2d');
         if (ctx === null) {
@@ -300,20 +303,6 @@ this.$emit('mask', maskChangedEventArgs);
         ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       }
     },
-    /* zoomIn() {
-      if (this.params.zoom < 1) {
-        const oldZoom = this.params.zoom;
-        this.params.zoom += 0.02;
-        this.$emit('zoom', {mouseX: this.cursorPos.x, mouseY: this.cursorPos.y, oldZoom});
-      }
-    },
-    zoomOut() {
-      if (this.params.zoom > 0.1) {
-        const oldZoom = this.params.zoom;
-        this.params.zoom -= 0.02;
-        this.$emit('zoom', {mouseX: this.cursorPos.x, mouseY: this.cursorPos.y, oldZoom});
-      }
-    }, */
   },
   watch: {
     width(to, from) {

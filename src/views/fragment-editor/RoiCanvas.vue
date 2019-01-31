@@ -146,7 +146,7 @@ export default Vue.extend({
           y: point.y,
           width: 10,
           height: 10,
-          color: 'purple',
+          color: this.artefact.color,
         };
         this.boxes.push(box);
         this.selectROI(event, box, 'resizeWH');
@@ -155,7 +155,7 @@ export default Vue.extend({
 
     selectROI(event: any, box: any, type: any) {
       if (this.selectedBox) {
-        this.selectedBox.color = 'purple';
+        this.selectedBox.color = this.artefact.color;
       }
       this.selectedBox = box;
       this.selectedBox.color = 'orange';

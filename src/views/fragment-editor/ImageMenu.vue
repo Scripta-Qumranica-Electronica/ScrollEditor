@@ -4,13 +4,13 @@
       <h5>Artefacts</h5>
       <table>
         <tr v-for="(art, index) in fragment.artefacts" :key="art.id">
-          <td> <!--renameFlag[index]-->
-            <span v-if="!renameFlag" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
-            </td>
+          <td> <!--renameInputActive[index]-->
+            <span v-if="!renameInputActive" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
+          </td>
           <td>
-            <b-button v-if="!renameFlag && !renaming" class="btn btn-sm" @click="openRename(art, index)">Rename</b-button>
-            <input v-if="renameFlag" v-model="art.name" />
-            <b-button v-if="!renaming && renameFlag" class="btn btn-sm" :disabled="!art.name" @click="rename(art, index)">Rename</b-button>
+            <b-button v-if="!renameInputActive && !renaming" class="btn btn-sm" @click="openRename(art, index)">Rename</b-button>
+            <input v-if="renameInputActive" v-model="art.name" />
+            <b-button v-if="!renaming && renameInputActive" class="btn btn-sm" :disabled="!art.name" @click="rename(art, index)">Rename</b-button>
             <b-button v-if="renaming" disabled class="disable btn btn-sm">
             Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
             </b-button>
@@ -129,8 +129,8 @@ export default Vue.extend({
   },
   data() {
     return {
-      // renameFlag: [] as boolean[],
-      renameFlag: false,
+      // renameInputActive: [] as boolean[],
+      renameInputActive: false,
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
@@ -172,7 +172,7 @@ export default Vue.extend({
     },
   },
   mounted() {
-    // this.fillRenameFlag();
+    // this.fillrenameInputActive();
   },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
@@ -213,15 +213,12 @@ export default Vue.extend({
       this.$emit('redo');
     },
     rename(art: Artefact, index: number) {
-      // this.renameFlag[index] = false;
-      this.renameFlag = false;
+      // this.renameInputActive[index] = false;
+      this.renameInputActive = false;
       this.$emit('rename');
     },
     openRename(art: Artefact, index: number) {
-      var id = art.id;
-      // this.renameFlag[index] = true;
-      this.renameFlag = true;
-
+      this.renameInputActive = true;
     },
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);
@@ -236,9 +233,9 @@ export default Vue.extend({
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
     },
-    // fillRenameFlag() {
+    // fillrenameInputActive() {
     //   this.fragment!.artefacts!.forEach((element, index) => {
-    //     this.renameFlag[index] = false;
+    //     this.renameInputActive[index] = false;
     //   });
     // }
   },

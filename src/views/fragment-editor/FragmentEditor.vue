@@ -23,7 +23,7 @@
                         :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
                         :params="params"
                         :editable="canEdit"
-                        :clipping-mask="artefact.mask"
+                        :artefact="artefact"
                         :divisor="imageShrink"
                         @mask="setClipMask"
                         @zoomRequest="onZoomRequest($event)">

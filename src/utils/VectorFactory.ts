@@ -369,12 +369,12 @@ export function matrix16To6(matrix: any) {
  * mask and a divisor for the canvas scaling.
  * It then draws the svg path onto the canvas.
  */
-export function clipCanvas(canvas: any, svgClipPath: any, divisor: any) {
+export function clipCanvas(canvas: any, svgClipPath: any, divisor: any, fillColor: string) {
   divisor = divisor ? divisor : 1;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'purple';
+  ctx.fillStyle = fillColor;
   const polygons = svgClipPath.split('M').slice(1);
   ctx.beginPath();
   polygons.forEach((poly: any) => {
