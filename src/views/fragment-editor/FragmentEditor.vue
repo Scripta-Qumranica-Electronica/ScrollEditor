@@ -17,11 +17,20 @@
                   :divisor="imageShrink"
                   :clipping-mask="artefact.mask">
       </roi-canvas>
-      <artefact-canvas class="overlay-canvas"
+      <artefact-canvas v-for="artefact in nonSelectedArtefact" :key="artefact.id" class="overlay-canvas"
+                        :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
+                        :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
+                        :params="params"
+                        :selected="false"
+                        :artefact="artefact"
+                        :divisor="imageShrink">
+      </artefact-canvas>
+      <artefact-canvas  class="overlay-canvas"
                         v-show="artefact !== undefined"
                         :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
                         :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
                         :params="params"
+                        :selected="true"
                         :editable="canEdit"
                         :artefact="artefact"
                         :divisor="imageShrink"
@@ -106,7 +115,10 @@ export default Vue.extend({
     },
     overlayDiv(): HTMLDivElement {
       return this.$refs['overlay-div'] as HTMLDivElement;
-    }
+    },
+    nonSelectedArtefact(): Artefact[] {
+      return this.fragment!.artefacts!.filter(artefact => artefact != this.artefact);
+    },
   },
   async mounted() {
     try {

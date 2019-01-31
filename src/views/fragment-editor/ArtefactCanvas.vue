@@ -11,7 +11,7 @@
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         class="maskCanvas"
-        :class="{hidden: clip, pulse: !drawing}"
+        :class="{hidden: clip, pulse: !drawing && selected}"
         ref="maskCanvas"
         :width="width"
         :height="height"
@@ -80,6 +80,7 @@ export default Vue.extend({
     params: EditorParams,
     fragment: Fragment,
     artefact: Artefact,
+    selected: Boolean,
     editable: Boolean,
     width: Number,
     height: Number,
@@ -124,10 +125,13 @@ export default Vue.extend({
     },
     clippingMask(): Polygon {
       return this.artefact.mask;
-    }
+    },
   },
   methods: {
-    trackMouse(event: MouseEvent) {
+    trackMouse(event: MouseEvent) {      
+      if (!this.selected) {
+        return;
+      }
       this.zooming = event.ctrlKey;
 
       this.mouseClientPosition.x = event.clientX;
@@ -143,6 +147,9 @@ export default Vue.extend({
       }
     },
     processMouseDown(event: MouseEvent) {
+      if (!this.selected) {
+        return;
+      }
       if (!this.editable) {
         return;
       }
@@ -153,6 +160,9 @@ export default Vue.extend({
       this.drawOnCanvas();
     },
     async processMouseUp(event: MouseEvent) {
+      if (!this.selected) {
+        return;
+      }
       if (event.button !== 0) {
         return;
       }
@@ -166,6 +176,9 @@ export default Vue.extend({
       await this.recalculateMask();
     },
     onMouseWheel(event: WheelEvent) {
+      if (!this.selected) {
+        return;
+      }
       // Only catch control-mousewheel
       if (!event.ctrlKey) {
         return;
