@@ -4,7 +4,12 @@ import { Fragment } from '@/models/fragment';
 import ScrollService from './scroll';
 import { Artefact } from '@/models/artefact';
 
+export interface ArtefactCreateResult {
+    returned_info: number;
+}
 export interface ArtefactShapeChangedResult {
+}
+export interface ArtefactPositionChangedResult {
 }
 export interface ArtefactNameChangedResult {
 }
@@ -54,6 +59,22 @@ class FragmentService {
         return artefacts;
     }
 
+    public async createFragmentArtefact(scrollVersionId: number, fragment: Fragment, artefact: Artefact):
+        Promise<ArtefactCreateResult> {
+        const mask = artefact.mask ? artefact.mask.wkt : '';
+        const createResponse = await this.communicator.request<ArtefactCreateResult>('addArtefact', {
+            scroll_version_id: scrollVersionId,
+            id_of_sqe_image: artefact.sqeImageId,
+            region_in_master_image: ''
+        });
+
+        artefact.id = createResponse.data.returned_info;
+        const nameResponse = await this.changeFragmentArtefactName(scrollVersionId, fragment, artefact);
+        const postResponse = await this.changeFragmentArtefactPosition(scrollVersionId, artefact);
+
+        return Object.assign(createResponse.data, nameResponse, postResponse);
+    }
+
     public async changeFragmentArtefactShape(scrollVersionId: number, fragment: Fragment, artefact: Artefact):
         Promise<ArtefactShapeChangedResult> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
@@ -64,7 +85,20 @@ class FragmentService {
             image_catalog_id: artefact.imageCatalogId,
             id_of_sqe_image: artefact.sqeImageId,
         });
+        return response.data;
+    }
 
+    public async changeFragmentArtefactPosition(scrollVersionId: number, artefact: Artefact):
+        Promise<ArtefactPositionChangedResult> {
+        const transformMatrix = artefact.transformMatrix ?
+            artefact.transformMatrix :
+            '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
+        const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactPosition', {
+            scroll_version_id: scrollVersionId,
+            artefact_id: artefact.id,
+            transform_matrix: transformMatrix,
+            z_index: null // I think z-index will be removed
+        });
         return response.data;
     }
 

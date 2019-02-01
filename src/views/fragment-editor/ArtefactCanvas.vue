@@ -128,7 +128,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    trackMouse(event: MouseEvent) {      
+    trackMouse(event: MouseEvent) {
       if (!this.selected) {
         return;
       }

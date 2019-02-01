@@ -225,7 +225,10 @@ export default Vue.extend({
     },
     newArtefact() {
       const newArtefact = Artefact.createNew(this.scrollVersionId, this.fragment, this.newArtefactName);
-
+      console.log(this.artefact.sqeImageId);
+      newArtefact.sqeImageId = this.artefact.sqeImageId; // Somehow we lose sqeImageId from this.fragment
+      console.log(newArtefact.sqeImageId);
+      this.$emit('create', newArtefact);
       // waiting = false after artefact added
       this.newArtefactName = '';
     },
@@ -253,7 +256,8 @@ section {
   margin-bottom: 20px;
 }
 #image-menu {
-  height: 94vh;
+  height: 92vh;
+  overflow: auto;
 }
 button.disable {
   cursor: not-allowed;
