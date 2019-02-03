@@ -20,6 +20,7 @@
       <b-btn v-b-modal.modal="'newModal'" class="btn btn-sm btn-outline">{{ $t('misc.new') }}</b-btn>
 
       <b-modal id="newModal" 
+                 ref="newArtRef"
                  :title="$t('home.newArtefact')"
                  @shown="newModalShown"
                  @ok="newArtefact"
@@ -228,6 +229,8 @@ export default Vue.extend({
 
       // waiting = false after artefact added
       this.newArtefactName = '';
+      (this.$refs.newArtRef as any).hide();
+      this.chooseArtefact(newArtefact);
     },
     newModalShown() {
       // this.waiting = true;
