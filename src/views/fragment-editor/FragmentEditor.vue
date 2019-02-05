@@ -48,6 +48,7 @@
         @save="onSave($event)"
         @undo="onUndo($event)"
         @redo="onRedo($event)"
+        @create="onNew($event)"
         @rename="onRename($event)"
         @inputRenameChanged="inputRenameChanged($event)"
         @artefactChanged="onArtefactChanged($event)"
@@ -69,7 +70,14 @@ import ImageService from '@/services/image';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
-import { EditorParams, EditorParamsChangedArgs, MaskChangedEventArgs, DrawingMode, Position, ZoomRequestEventArgs } from './types';
+import {
+    EditorParams,
+    EditorParamsChangedArgs,
+    MaskChangedEventArgs,
+    DrawingMode,
+    Position,
+    ZoomRequestEventArgs,
+} from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
@@ -288,6 +296,22 @@ export default Vue.extend({
         }
       }
     },
+    async onNew(art: Artefact) {
+      this.artefact = art;
+      this.prepareNonSelectedArtefacts();
+      if (!this.artefact) {
+        throw new Error("Can't create if there is no artefact");
+      }
+      this.saving = true;
+      try {
+        await this.fragmentService.createFragmentArtefact(this.scrollVersionId, this.fragment, this.artefact);
+        this.showMessage('Artefact Created', false);
+      } catch (err) {
+        this.showMessage('Artefact creation failed', true);
+      } finally {
+        this.saving = false;
+      }
+    },
     async onRename() {
       if (!this.artefact) {
         throw new Error("Can't rename if there is no artefact");
@@ -327,9 +351,9 @@ export default Vue.extend({
       }
     },
     prepareNonSelectedArtefacts() {
-      this.nonSelectedArtefacts = this.fragment!.artefacts!.filter(artefact => artefact != this.artefact);
+      this.nonSelectedArtefacts = this.fragment!.artefacts!.filter((artefact) => artefact !== this.artefact);
       this.nonSelectedMask = new Polygon();
-      for(const artefact of this.nonSelectedArtefacts) {
+      for (const artefact of this.nonSelectedArtefacts) {
         this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
       }
     }
