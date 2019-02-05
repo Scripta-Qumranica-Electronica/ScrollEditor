@@ -4,14 +4,14 @@
       <h5>Artefacts</h5>
       <table>
         <tr v-for="(art, index) in fragment.artefacts" :key="art.id">
-          <td> <!--renameInputActive[index]-->
-            <span v-if="!renameInputActive" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
+          <td>
+            <span v-if="renameInputActive!==art" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
           </td>
           <td>
-            <b-button v-if="!renameInputActive && !renaming" class="btn btn-sm" @click="openRename(art, index)">Rename</b-button>
-            <input v-if="renameInputActive" v-model="art.name" />
-            <b-button v-if="!renaming && renameInputActive" class="btn btn-sm" :disabled="!art.name" @click="rename(art, index)">Rename</b-button>
-            <b-button v-if="renaming" disabled class="disable btn btn-sm">
+            <b-button v-if="renameInputActive!==art" class="btn btn-sm" @click="openRename(art, index)">Rename</b-button>
+            <input v-if="renameInputActive===art" v-model="art.name" />
+            <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art, index)">Rename</b-button>
+            <b-button v-if="renameInputActive===art && renaming" disabled class="disable btn btn-sm">
             Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
             </b-button>
           </td>
@@ -127,11 +127,10 @@ export default Vue.extend({
     params: EditorParams,
     saving: Boolean,
     renaming: Boolean,
+    renameInputActive: Artefact,
   },
   data() {
     return {
-      // renameInputActive: [] as boolean[],
-      renameInputActive: false,
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
@@ -172,15 +171,13 @@ export default Vue.extend({
       return parseInt(this.$route.params.scrollVersionId);
     },
   },
-  mounted() {
-    // this.fillrenameInputActive();
-  },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
       this.params.imageSettings[imageType] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
     },
     onDrawChanged(val: DrawingMode) {
+      console.log('val===', val)
         const mode = DrawingMode[val];
         (this as any).params.drawingMode = mode;
         this.notifyChange('drawingMode', mode);
@@ -214,15 +211,14 @@ export default Vue.extend({
       this.$emit('redo');
     },
     rename(art: Artefact, index: number) {
-      // this.renameInputActive[index] = false;
-      this.renameInputActive = false;
       this.$emit('rename');
-    },
+},
     openRename(art: Artefact, index: number) {
-      this.renameInputActive = true;
+      this.$emit('inputRenameChanged', art);
     },
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);
+      this.onDrawChanged(DrawingMode.DRAW);
     },
     newArtefact() {
       const newArtefact = Artefact.createNew(this.scrollVersionId, this.fragment, this.newArtefactName);
@@ -231,16 +227,12 @@ export default Vue.extend({
       this.newArtefactName = '';
       (this.$refs.newArtRef as any).hide();
       this.chooseArtefact(newArtefact);
+      // this.onDrawChanged(DrawingMode.DRAW);
     },
     newModalShown() {
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
     },
-    // fillrenameInputActive() {
-    //   this.fragment!.artefacts!.forEach((element, index) => {
-    //     this.renameInputActive[index] = false;
-    //   });
-    // }
   },
 });
 </script>

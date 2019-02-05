@@ -49,9 +49,11 @@
         @undo="onUndo($event)"
         @redo="onRedo($event)"
         @rename="onRename($event)"
+        @inputRenameChanged="inputRenameChanged($event)"
         @artefactChanged="onArtefactChanged($event)"
         :saving="saving"
-        :renaming="renaming">
+        :renaming="renaming"
+        :renameInputActive="renameInputActive">
       </image-menu>
     </div>
   </div>
@@ -93,6 +95,7 @@ export default Vue.extend({
       imageShrink: 2,
       saving: false,
       renaming: false,
+      renameInputActive: undefined as Artefact | undefined,
       nonSelectedArtefacts: [] as Artefact[],
       nonSelectedMask: new Polygon(),
       undoList: [] as MaskChangedEventArgs[],
@@ -149,7 +152,14 @@ export default Vue.extend({
     this.fillImageSettings();
     this.prepareNonSelectedArtefacts();
   },
+  // created () {    
+  //     window.addEventListener('beforeunload', this.confirmLeaving);
+  // },
   methods: {
+    // confirmLeaving () {
+    //   // check if there unsaved changes
+    //   alert('confirm leaving the the page');
+    // },
     fillImageSettings() {
       this.params.imageSettings = {};
       if (this.fragment.recto && this.fragment.recto) {
@@ -235,12 +245,16 @@ export default Vue.extend({
 
       this.saving = true;
       try {
+        // this.fragment!.artefacts!.forEach((art) => {
+          // await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
+
+        // })
         await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, this.artefact);
-        this.showMessage('Artefact Saved', false);
+        this.showMessage('Fragment Saved', false);
       } catch (err) {
-        this.showMessage('Artefact save failed', true);
+        this.showMessage('Fragment save failed', true);
       } finally {
-        this.saving = false;
+        this.saving = false;  
       }
     },
     onUndo() {
@@ -282,11 +296,16 @@ export default Vue.extend({
       try {
         await this.fragmentService.changeFragmentArtefactName(this.scrollVersionId, this.fragment, this.artefact);
         this.showMessage('Artefact renamed', false);
+        // this.renameInputActive = {};
+        this.inputRenameChanged(undefined);
       } catch (err) {
         this.showMessage('Artefact rename failed', true);
       } finally {
         this.renaming = false;
       }
+    },
+    inputRenameChanged(art: Artefact| undefined) {
+      this.renameInputActive = art;
     },
     onArtefactChanged(art: Artefact) {
       this.artefact = art;
