@@ -145,14 +145,11 @@ export default Vue.extend({
 
       if (this.fragment!.artefacts!.length) {
         this.artefact = this.fragment!.artefacts![0];
-        this.artefactEditingData = this.getArtefactEditingData(0);
-        this.initialMask = this.artefact.mask;
-        // this.fragment!.artefacts!.forEach((element, index) => {
-          // element.color = colors[index];
-        // });
         this.fragment!.artefacts!.forEach(element => {
           this.artefactEditingDataList.push(new ArtefactEditingData());
         });
+        this.artefactEditingData = this.getArtefactEditingData(0);
+        this.initialMask = this.artefact.mask;
       } else {
         this.artefact = undefined;
         this.initialMask = new Polygon();
