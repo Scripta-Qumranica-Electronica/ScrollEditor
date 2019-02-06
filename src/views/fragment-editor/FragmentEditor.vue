@@ -145,7 +145,7 @@ export default Vue.extend({
 
       if (this.fragment!.artefacts!.length) {
         this.artefact = this.fragment!.artefacts![0];
-        this.fragment!.artefacts!.forEach(element => {
+        this.fragment!.artefacts!.forEach((element) => {
           this.artefactEditingDataList.push(new ArtefactEditingData());
         });
         this.artefactEditingData = this.getArtefactEditingData(0);
