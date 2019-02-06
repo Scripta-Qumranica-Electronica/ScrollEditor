@@ -3,14 +3,14 @@
     <section>
       <h5>Artefacts</h5>
       <table>
-        <tr v-for="(art, index) in fragment.artefacts" :key="art.id">
+        <tr v-for="art in fragment.artefacts" :key="art.id">
           <td>
             <span v-if="renameInputActive!==art" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
           </td>
           <td>
-            <b-button v-if="renameInputActive!==art" class="btn btn-sm" @click="openRename(art, index)">Rename</b-button>
+            <b-button v-if="renameInputActive!==art" class="btn btn-sm" @click="openRename(art)">Rename</b-button>
             <input v-if="renameInputActive===art" v-model="art.name" />
-            <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art, index)">Rename</b-button>
+            <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art)">Rename</b-button>
             <b-button v-if="renameInputActive===art && renaming" disabled class="disable btn btn-sm">
             Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
             </b-button>
@@ -176,7 +176,7 @@ export default Vue.extend({
       this.params.imageSettings[imageType] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
     },
-    onDrawChanged(val: DrawingMode) {
+    onDrawChanged(val: any) { // DrawingMode
       console.log('val===', val)
         const mode = DrawingMode[val];
         (this as any).params.drawingMode = mode;
@@ -210,15 +210,15 @@ export default Vue.extend({
     redo() {
       this.$emit('redo');
     },
-    rename(art: Artefact, index: number) {
+    rename(art: Artefact) {
       this.$emit('rename');
 },
-    openRename(art: Artefact, index: number) {
+    openRename(art: Artefact) {
+      this.chooseArtefact(art);
       this.$emit('inputRenameChanged', art);
     },
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);
-      this.onDrawChanged(DrawingMode.DRAW);
     },
     newArtefact() {
       const newArtefact = Artefact.createNew(this.scrollVersionId, this.fragment, this.newArtefactName);
@@ -228,7 +228,8 @@ export default Vue.extend({
       this.newArtefactName = '';
       (this.$refs.newArtRef as any).hide();
       this.chooseArtefact(newArtefact);
-      // this.onDrawChanged(DrawingMode.DRAW);
+
+      this.onDrawChanged('DRAW');
     },
     newModalShown() {
       // this.waiting = true;

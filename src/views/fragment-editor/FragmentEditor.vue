@@ -246,18 +246,17 @@ export default Vue.extend({
 
       this.params.zoom = newZoom;
     },
-    async onSave() {
+    onSave() {
       if (!this.artefact) {
         throw new Error("Can't save if there is no artefact");
       }
 
       this.saving = true;
       try {
-        // this.fragment!.artefacts!.forEach((art) => {
-          // await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
-
-        // })
-        await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, this.artefact);
+        this.fragment!.artefacts!.forEach(async (art) => {
+          // TODO: save only changed artefacts (add dirty field)
+          await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
+        })
         this.showMessage('Fragment Saved', false);
       } catch (err) {
         this.showMessage('Fragment save failed', true);
