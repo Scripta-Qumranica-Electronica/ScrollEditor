@@ -47,3 +47,9 @@ export interface Position {
     x: number;
     y: number;
 }
+
+export class ArtefactEditingData {
+    public undoList = [] as MaskChangedEventArgs[];
+    public redoList = [] as MaskChangedEventArgs[];
+    public dirty = false;
+}

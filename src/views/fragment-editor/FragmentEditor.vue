@@ -77,6 +77,7 @@ import {
     DrawingMode,
     Position,
     ZoomRequestEventArgs,
+    ArtefactEditingData,
 } from './types';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
@@ -106,8 +107,8 @@ export default Vue.extend({
       renameInputActive: undefined as Artefact | undefined,
       nonSelectedArtefacts: [] as Artefact[],
       nonSelectedMask: new Polygon(),
-      undoList: [] as MaskChangedEventArgs[],
-      redoList: [] as MaskChangedEventArgs[],
+      artefactEditingDataList: [] as ArtefactEditingData[],
+      artefactEditingData: new ArtefactEditingData(),
     };
   },
   computed: {
@@ -144,10 +145,14 @@ export default Vue.extend({
 
       if (this.fragment!.artefacts!.length) {
         this.artefact = this.fragment!.artefacts![0];
+        this.artefactEditingData = this.getArtefactEditingData(0);
         this.initialMask = this.artefact.mask;
         // this.fragment!.artefacts!.forEach((element, index) => {
           // element.color = colors[index];
         // });
+        this.fragment!.artefacts!.forEach(element => {
+          this.artefactEditingDataList.push(new ArtefactEditingData());
+        });
       } else {
         this.artefact = undefined;
         this.initialMask = new Polygon();
@@ -160,7 +165,7 @@ export default Vue.extend({
     this.fillImageSettings();
     this.prepareNonSelectedArtefacts();
   },
-  // created () {    
+  // created () {
   //     window.addEventListener('beforeunload', this.confirmLeaving);
   // },
   methods: {
@@ -190,6 +195,7 @@ export default Vue.extend({
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
+      // this.artefactEditingData.dirty = true;
 
       // Check if the new mask intersects with a non selected artefact mask
       const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
@@ -205,11 +211,11 @@ export default Vue.extend({
         return;
       }
       // Place current mask in undo buffer, clear redo buffer
-      if (this.undoList.length >= 50) {
-        this.undoList.slice(1);
+      if (this.artefactEditingData.undoList.length >= 50) {
+        this.artefactEditingData.undoList.slice(1);
       }
-      this.undoList.push(eventArgs);
-      this.redoList = [];
+      this.artefactEditingData.undoList.push(eventArgs);
+      this.artefactEditingData.redoList = [];
       this.artefact.mask = eventArgs.polygon;
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
@@ -256,21 +262,22 @@ export default Vue.extend({
         this.fragment!.artefacts!.forEach(async (art) => {
           // TODO: save only changed artefacts (add dirty field)
           await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
-        })
+        });
         this.showMessage('Fragment Saved', false);
       } catch (err) {
         this.showMessage('Fragment save failed', true);
       } finally {
-        this.saving = false;  
+        this.saving = false;
       }
     },
     onUndo() {
       if (!this.artefact) {
         throw new Error("Can't undo mask if there is no artefact");
       }
-      if (this.undoList.length) {
-        const toUndo: MaskChangedEventArgs = this.undoList.pop()!;
-        this.redoList.push(toUndo);
+      if (this.artefactEditingData.undoList.length) {
+        // this.artefactEditingData.dirty = true;
+        const toUndo: MaskChangedEventArgs = this. artefactEditingData.undoList.pop()!;
+        this.artefactEditingData.redoList.push(toUndo);
 
         // Undo the operation by applying the delta in the opposite direction
         if (toUndo.drawingMode === DrawingMode.DRAW) {
@@ -284,9 +291,9 @@ export default Vue.extend({
       if (!this.artefact) {
         throw new Error("Can't redo mask if there is no artefact");
       }
-      if (this.redoList.length) {
-        const toRedo: MaskChangedEventArgs = this.redoList.pop()!;
-        this.undoList.push(toRedo);
+      if (this.artefactEditingData.redoList.length) {
+        const toRedo: MaskChangedEventArgs = this.artefactEditingData.redoList.pop()!;
+        this.artefactEditingData.undoList.push(toRedo);
 
         if (toRedo.drawingMode === DrawingMode.DRAW) {
           this.artefact.mask = Polygon.add(this.artefact.mask, toRedo.delta);
@@ -304,6 +311,7 @@ export default Vue.extend({
       this.saving = true;
       try {
         await this.fragmentService.createFragmentArtefact(this.scrollVersionId, this.fragment, this.artefact);
+        this.artefactEditingDataList.push(new ArtefactEditingData());
         this.showMessage('Artefact Created', false);
       } catch (err) {
         this.showMessage('Artefact creation failed', true);
@@ -332,7 +340,12 @@ export default Vue.extend({
     },
     onArtefactChanged(art: Artefact) {
       this.artefact = art;
+      const index = this.fragment!.artefacts!.indexOf(art); // index artefact in artefact list.
+      this.artefactEditingData = this.getArtefactEditingData(index);
       this.prepareNonSelectedArtefacts();
+    },
+    getArtefactEditingData(index: number) {
+      return this.artefactEditingDataList[index];
     },
     showMessage(msg: string, error: boolean) {
       if (error) {

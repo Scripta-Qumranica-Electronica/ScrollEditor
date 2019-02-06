@@ -177,7 +177,6 @@ export default Vue.extend({
       this.notifyChange('imageSettings', this.params.imageSettings);
     },
     onDrawChanged(val: any) { // DrawingMode
-      console.log('val===', val)
         const mode = DrawingMode[val];
         (this as any).params.drawingMode = mode;
         this.notifyChange('drawingMode', mode);
