@@ -5,4 +5,6 @@ export default {
     copy: 'Copy',
     rename: 'Rename',
     create: 'Create',
+    undo: 'Undo',
+    redo: 'Redo',
 };

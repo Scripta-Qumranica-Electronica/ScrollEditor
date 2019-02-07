@@ -99,6 +99,21 @@
       </b-button>
       <b-button @click="undo()">Undo</b-button>
       <b-button @click="redo()">Redo</b-button>
+
+      <b-modal id="undoModal" 
+                 ref="undoRef"
+                 :title="$t('home.undo')"
+                 @shown="undoModalShown"
+                 @ok="undo"
+                 :ok-title="$t('misc.undo')"
+                 :cancel-title="$t('misc.cancel')"
+                 :ok-disabled="waiting || !canUndo"
+                 :cancel-disabled="waiting">
+            <form @submit.stop.prevent="undo">
+              <label>....</label>
+            </form>
+        </b-modal>
+
     </section>
 </div>
 </template>
@@ -170,6 +185,9 @@ export default Vue.extend({
     canCreate(): boolean {
       return this.newArtefactName.trim().length > 0;
     },
+    canUndo() {
+      return true;
+    },
     scrollVersionId(): number {
       return parseInt(this.$route.params.scrollVersionId);
     },
@@ -207,7 +225,7 @@ export default Vue.extend({
       this.$emit('save', this.artefact.mask);
     },
     undoModal() {
-      console.log('undo modal');
+      (this.$refs.undoRef as any).show();
     },
     redoModal() {
       console.log('redo modal');
@@ -243,6 +261,7 @@ export default Vue.extend({
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
     },
+    undoModalShown() {},
   },
 });
 </script>

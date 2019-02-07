@@ -45,14 +45,18 @@ export class Operation {
     }
 }
 
-export class MaskChangeOperation extends Operation {
+export class MaskChangeOperation { // extends Operation {
     public polygon = {} as Polygon;
     public drawingMode = DrawingMode.DRAW;
     public delta = {} as Polygon;
 }
 
 export class RotationOperation extends Operation {
+    public angle = 0;
 
+    public combine() {
+        console.log('combine angles');
+    }
 }
 
 export interface ZoomRequestEventArgs {
