@@ -1,5 +1,6 @@
 import { IIIFImage } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
+import { Artefact } from '@/models/artefact';
 
 export enum DrawingMode {
     DRAW, ERASE
@@ -32,10 +33,26 @@ export interface EditorParamsChangedArgs {
     params: EditorParams;
 }
 
-export class MaskChangedEventArgs {
+export class Operation {
+    public artefact = {} as Artefact;
+
+    public undo() {
+        console.log('operation. undo');
+    }
+
+    public redo() {
+        console.log('operation. redo');
+    }
+}
+
+export class MaskChangeOperation extends Operation {
     public polygon = {} as Polygon;
     public drawingMode = DrawingMode.DRAW;
     public delta = {} as Polygon;
+}
+
+export class RotationOperation extends Operation {
+
 }
 
 export interface ZoomRequestEventArgs {
@@ -49,7 +66,7 @@ export interface Position {
 }
 
 export class ArtefactEditingData {
-    public undoList = [] as MaskChangedEventArgs[];
-    public redoList = [] as MaskChangedEventArgs[];
+    public undoList = [] as MaskChangeOperation[];
+    public redoList = [] as MaskChangeOperation[];
     public dirty = false;
 }

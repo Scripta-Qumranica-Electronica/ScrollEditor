@@ -89,7 +89,10 @@
         :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
       </b-button-group>
     </section>
-    <section v-if="editable">
+    <section v-if="editable" v-shortcuts="[
+      { shortcut: [ 'arrowright' ], callback: redoModal },
+      { shortcut: [ 'arrowleft' ], callback: undoModal },
+    ]">
       <b-button v-if="!saving" @click="save()">Save</b-button>&nbsp;
       <b-button v-if="saving" disabled class="disable">
         Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
@@ -203,6 +206,12 @@ export default Vue.extend({
     save() {
       this.$emit('save', this.artefact.mask);
     },
+    undoModal() {
+      console.log('undo modal');
+    },
+    redoModal() {
+      console.log('redo modal');
+    },
     undo() {
       this.$emit('undo');
     },
@@ -211,7 +220,7 @@ export default Vue.extend({
     },
     rename(art: Artefact) {
       this.$emit('rename');
-},
+    },
     openRename(art: Artefact) {
       this.chooseArtefact(art);
       this.$emit('inputRenameChanged', art);

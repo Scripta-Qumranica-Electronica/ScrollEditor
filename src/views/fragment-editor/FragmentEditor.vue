@@ -73,7 +73,7 @@ import ImageMenu from './ImageMenu.vue';
 import {
     EditorParams,
     EditorParamsChangedArgs,
-    MaskChangedEventArgs,
+    MaskChangeOperation,
     DrawingMode,
     Position,
     ZoomRequestEventArgs,
@@ -162,14 +162,21 @@ export default Vue.extend({
     this.fillImageSettings();
     this.prepareNonSelectedArtefacts();
   },
-  // created () {
-  //     window.addEventListener('beforeunload', this.confirmLeaving);
-  // },
+  created() {
+      window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));
+  },
   methods: {
-    // confirmLeaving () {
-    //   // check if there unsaved changes
-    //   alert('confirm leaving the the page');
-    // },
+    confirmLeaving(e: BeforeUnloadEvent ) {
+      this.artefactEditingDataList.forEach((art) => {
+        if (art.dirty) {// check if there unsaved changes
+          const confirmationMessage = 'It looks like you have been editing something. '
+                                + 'If you leave before saving, your changes will be lost.';
+
+          (e || window.event).returnValue = confirmationMessage;
+          return confirmationMessage;
+        }
+      });
+    },
     fillImageSettings() {
       this.params.imageSettings = {};
       if (this.fragment.recto && this.fragment.recto) {
@@ -188,11 +195,11 @@ export default Vue.extend({
         }
       }
     },
-    onMaskChanged(eventArgs: MaskChangedEventArgs) {
+    onMaskChanged(eventArgs: MaskChangeOperation) {
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
-      // this.artefactEditingData.dirty = true;
+      this.artefactEditingData.dirty = true;
 
       // Check if the new mask intersects with a non selected artefact mask
       const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
@@ -272,8 +279,8 @@ export default Vue.extend({
         throw new Error("Can't undo mask if there is no artefact");
       }
       if (this.artefactEditingData.undoList.length) {
-        // this.artefactEditingData.dirty = true;
-        const toUndo: MaskChangedEventArgs = this. artefactEditingData.undoList.pop()!;
+        this.artefactEditingData.dirty = true;
+        const toUndo: MaskChangeOperation = this. artefactEditingData.undoList.pop()!;
         this.artefactEditingData.redoList.push(toUndo);
 
         // Undo the operation by applying the delta in the opposite direction
@@ -289,7 +296,7 @@ export default Vue.extend({
         throw new Error("Can't redo mask if there is no artefact");
       }
       if (this.artefactEditingData.redoList.length) {
-        const toRedo: MaskChangedEventArgs = this.artefactEditingData.redoList.pop()!;
+        const toRedo: MaskChangeOperation = this.artefactEditingData.redoList.pop()!;
         this.artefactEditingData.undoList.push(toRedo);
 
         if (toRedo.drawingMode === DrawingMode.DRAW) {
