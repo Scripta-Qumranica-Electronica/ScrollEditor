@@ -65,7 +65,7 @@ import {
   svgPolygonToClipper,
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
-import { EditorParams, DrawingMode, MaskChangedEventArgs, Position, ZoomRequestEventArgs } from './types';
+import { EditorParams, DrawingMode, MaskChangeOperation, Position, ZoomRequestEventArgs } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
@@ -298,13 +298,13 @@ export default Vue.extend({
       }
       ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
 
-      const maskChangedEventArgs: MaskChangedEventArgs = {
+      const maskChangeOperation: MaskChangeOperation = {
         polygon: newMask,
         drawingMode: this.params.drawingMode,
         delta: deltaNeto,
-      } as MaskChangedEventArgs;
+      } as MaskChangeOperation;
 
-      this.$emit('mask', maskChangedEventArgs);
+      this.$emit('mask', maskChangeOperation);
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {

@@ -18,4 +18,6 @@ export default {
     newArtefactName: 'New Artefact Name',
     newArtefact: 'New Artefact',
     creatingNewArtefact: 'Creating New Artefact',
+    undo: 'Undo',
+    redo: 'Redo',
 };
