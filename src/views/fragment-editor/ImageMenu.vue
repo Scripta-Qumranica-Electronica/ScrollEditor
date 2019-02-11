@@ -226,7 +226,11 @@ export default Vue.extend({
     },
     newArtefact() {
       const newArtefact = Artefact.createNew(this.scrollVersionId, this.fragment, this.newArtefactName);
-      newArtefact.sqeImageId = this.artefact.sqeImageId; // Somehow we lose sqeImageId from this.fragment
+      newArtefact.sqeImageId = this.fragment.recto!.sqeImageId;
+      if (!newArtefact.sqeImageId) {
+        console.error('There is no sqeImageId in the fragment');
+        newArtefact.sqeImageId = this.artefact.sqeImageId;
+      }
       this.$emit('create', newArtefact);
       // waiting = false after artefact added
       this.newArtefactName = '';

@@ -4,7 +4,6 @@
             <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Fragment Image">
         </router-link>
         <label>{{artefactsNames}}</label>
-        <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Fragment Image">
     </div>
 </template>
 
