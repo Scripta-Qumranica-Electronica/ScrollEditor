@@ -15,12 +15,13 @@
         ref="maskCanvas"
         :width="width"
         :height="height"
-        @mousemove="trackMouse($event)"
-        @mouseenter="mouseOver = editable"
-        @mouseleave="mouseOver = false"
-        @mousedown="processMouseDown"
-        @mouseup="processMouseUp"
-        @wheel="onMouseWheel">
+        @pointermove="trackMouse($event)"
+        @pointerenter="mouseOver = editable"
+        @pointerleave="mouseOver = false"
+        @pointerdown="processMouseDown"
+        @pointerup="processMouseUp"
+        @wheel="onMouseWheel"
+      >
       </canvas>
         
       <div v-if="editable && !zooming"
@@ -99,6 +100,7 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
+      timeFlag: 0
     };
   },
   computed: {
@@ -129,6 +131,7 @@ export default Vue.extend({
   },
   methods: {
     trackMouse(event: MouseEvent) {
+      // console.log('tarck mouse', event)
       if (!this.selected) {
         return;
       }
@@ -147,6 +150,7 @@ export default Vue.extend({
       }
     },
     processMouseDown(event: MouseEvent) {
+      clearTimeout(this.timeFlag);
       if (!this.selected) {
         return;
       }
@@ -159,7 +163,7 @@ export default Vue.extend({
       this.drawing = true;
       this.drawOnCanvas();
     },
-    async processMouseUp(event: MouseEvent) {
+    processMouseUp(event: MouseEvent) {
       if (!this.selected) {
         return;
       }
@@ -173,7 +177,8 @@ export default Vue.extend({
         return;
       }
 
-      await this.recalculateMask();
+      var self = this;
+      this.timeFlag = setTimeout(async function() {await self.recalculateMask()}, 200);    
     },
     onMouseWheel(event: WheelEvent) {
       if (!this.selected) {
@@ -345,6 +350,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .artefactOverlay {
+  touch-action: pinch-zoom;
   &.editable {
     cursor: none;
   }
