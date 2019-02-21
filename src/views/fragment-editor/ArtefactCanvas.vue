@@ -36,7 +36,16 @@
         <svg
           :width="brushSize / scale" 
           :height="brushSize / scale">
-          <circle 
+          <rect 
+            class="cursor-img" 
+            :width="brushSize / scale"
+            :height="brushSize / scale"
+            stroke="black"
+            stroke-width="1"
+            :fill="cursorColor">
+          </rect>
+          <!--
+            <circle 
             class="cursor-img" 
             :cx="brushSize / scale / 2"
             :cy="brushSize / scale / 2"
@@ -45,6 +54,7 @@
             stroke-width="1"
             :fill="cursorColor">
           </circle>
+          -->
         </svg>
       </div>
     </div>
@@ -206,13 +216,19 @@ export default Vue.extend({
         throw new Error('Got null canvas context');
       }
       ctx.beginPath();
-      ctx.arc(
+      ctx.rect(
         this.cursorPos.x / this.scale,
         this.cursorPos.y / this.scale,
-        this.params.brushSize / 2 / this.scale,
-        0,
-        2 * Math.PI
-      );
+        this.params.brushSize / this.scale,
+        this.params.brushSize / this.scale
+        );
+      // ctx.arc(
+      //   this.cursorPos.x / this.scale,
+      //   this.cursorPos.y / this.scale,
+      //   this.params.brushSize / 2 / this.scale,
+      //   0,
+      //   2 * Math.PI
+      // );
       ctx.closePath();
 
       const editingCTX = this.editingCanvas.getContext('2d');
@@ -220,13 +236,19 @@ export default Vue.extend({
         throw new Error('Got null editing canvas context');
       }
       editingCTX.beginPath();
-      editingCTX.arc(
+      editingCTX.rect(
         this.cursorPos.x / this.scale,
         this.cursorPos.y / this.scale,
-        this.params.brushSize / 2 / this.scale,
-        0,
-        2 * Math.PI
+        this.params.brushSize / this.scale,
+        this.params.brushSize / this.scale
       );
+      // editingCTX.arc(
+      //   this.cursorPos.x / this.scale,
+      //   this.cursorPos.y / this.scale,
+      //   this.params.brushSize / 2 / this.scale,
+      //   0,
+      //   2 * Math.PI
+      // );
       editingCTX.closePath();
 
       if (this.params.drawingMode === DrawingMode.ERASE) {
