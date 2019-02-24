@@ -10,6 +10,7 @@
     :style="{transform: `scale(${scale})`}">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
+        id="maskCanvas"
         class="maskCanvas"
         :class="{hidden: clip, pulse: !drawing && selected}"
         ref="maskCanvas"
@@ -21,6 +22,8 @@
         @pointerdown="processMouseDown"
         @pointerup="processMouseUp"
         @wheel="onMouseWheel"
+        @touchstart="onTouchStart"
+        @touchmove="onTouchMove"
       >
       </canvas>
         
@@ -44,7 +47,7 @@
             stroke-width="1"
             :fill="cursorColor">
           </rect>
-          <!--
+          <!--  
             <circle 
             class="cursor-img" 
             :cx="brushSize / scale / 2"
@@ -207,7 +210,22 @@ export default Vue.extend({
         clientPosition: this.mouseClientPosition,
       } as ZoomRequestEventArgs);
     },
-    drawOnCanvas() {
+    onTouchStart(event: TouchEvent) {
+      if (event.touches.length > 1) {
+        console.log('multi fingers event');
+      }
+    },
+    onTouchMove(event :TouchEvent) {
+      // event.preventDefault();
+      var touch = event.touches[0];
+      if (document.elementFromPoint(touch.pageX,touch.pageY).id !== 'maskCanvas') {
+        this.touchleave();
+      }
+    },
+    touchleave() {
+      this.mouseOver = false;
+    },
+   drawOnCanvas() {
       if (!this.editable) {
         return;
       }
@@ -215,12 +233,13 @@ export default Vue.extend({
       if (ctx === null) {
         throw new Error('Got null canvas context');
       }
+      const length = this.params.brushSize / this.scale;
       ctx.beginPath();
       ctx.rect(
-        this.cursorPos.x / this.scale,
-        this.cursorPos.y / this.scale,
-        this.params.brushSize / this.scale,
-        this.params.brushSize / this.scale
+        this.cursorPos.x / this.scale - length / 2,
+        this.cursorPos.y / this.scale - length / 2,
+        length,
+        length
         );
       // ctx.arc(
       //   this.cursorPos.x / this.scale,
@@ -237,10 +256,10 @@ export default Vue.extend({
       }
       editingCTX.beginPath();
       editingCTX.rect(
-        this.cursorPos.x / this.scale,
-        this.cursorPos.y / this.scale,
-        this.params.brushSize / this.scale,
-        this.params.brushSize / this.scale
+        this.cursorPos.x / this.scale - length / 2,
+        this.cursorPos.y / this.scale - length / 2,
+        length,
+        length
       );
       // editingCTX.arc(
       //   this.cursorPos.x / this.scale,
