@@ -40,6 +40,7 @@
     </div>
     <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
       <image-menu
+        class="aaa"
         :fragment="fragment"
         :artefact="artefact"
         :params="params"
@@ -267,7 +268,7 @@ export default Vue.extend({
           if (this.artefactEditingDataList[index].dirty) {
             await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
             this.artefactEditingDataList[index].dirty = false;
-          }         
+          }
         });
         this.showMessage('Fragment Saved', false);
       } catch (err) {
@@ -400,5 +401,9 @@ export default Vue.extend({
   overflow: scroll;
   margin-right: 15px;
   padding: 0;
+  // touch-action: none;
+}
+.aaa{
+  // position: fixed;
 }
 </style>

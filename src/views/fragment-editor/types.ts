@@ -65,8 +65,8 @@ export interface ZoomRequestEventArgs {
 }
 
 export interface Position {
-    x: number;
-    y: number;
+    x: number | undefined;
+    y: number | undefined;
 }
 
 export class ArtefactEditingData {

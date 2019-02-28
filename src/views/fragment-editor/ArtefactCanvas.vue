@@ -39,7 +39,7 @@
         <svg
           :width="brushSize / scale" 
           :height="brushSize / scale">
-          <rect 
+      <!--      <rect 
             class="cursor-img" 
             :width="brushSize / scale"
             :height="brushSize / scale"
@@ -47,7 +47,7 @@
             stroke-width="1"
             :fill="cursorColor">
           </rect>
-          <!--  
+             -->
             <circle 
             class="cursor-img" 
             :cx="brushSize / scale / 2"
@@ -57,7 +57,7 @@
             stroke-width="1"
             :fill="cursorColor">
           </circle>
-          -->
+       
         </svg>
       </div>
     </div>
@@ -103,9 +103,10 @@ export default Vue.extend({
   data() {
     return {
       cursorPos: {
-        x: 10,
-        y: 10,
+        x: undefined,
+        y: undefined,
       } as Position,
+      oldPos: {} as Position,
       mouseClientPosition: {} as Position,
       mouseOver: false,
       drawing: false,
@@ -113,7 +114,7 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
-      timeFlag: 0
+      // timeFlag: 0
     };
   },
   computed: {
@@ -157,13 +158,17 @@ export default Vue.extend({
         return;
       } */
       // Cursor position should
+      // *** console.log('oldPos = cursorPos');
+      // this.oldPos.x = this.cursorPos.x; //uncomment it
+      // this.oldPos.y = this.cursorPos.y;
       this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
       if (this.drawing) {
         this.drawOnCanvas();
       }
     },
     processMouseDown(event: MouseEvent) {
-      clearTimeout(this.timeFlag);
+      console.log('down down down')
+      // clearTimeout(this.timeFlag);
       if (!this.selected) {
         return;
       }
@@ -176,7 +181,10 @@ export default Vue.extend({
       this.drawing = true;
       this.drawOnCanvas();
     },
-    processMouseUp(event: MouseEvent) {
+    async processMouseUp(event: MouseEvent) {
+      // *** console.log('up, --oldPos=undefined')
+      this.oldPos.x = undefined;
+      this.oldPos.y = undefined;  
       if (!this.selected) {
         return;
       }
@@ -190,8 +198,10 @@ export default Vue.extend({
         return;
       }
 
-      var self = this;
-      this.timeFlag = setTimeout(async function() {await self.recalculateMask()}, 200);    
+      
+      await this.recalculateMask();
+      // var self = this;
+      // this.timeFlag = setTimeout(async function() {await self.recalculateMask()}, 200);      
     },
     onMouseWheel(event: WheelEvent) {
       if (!this.selected) {
@@ -217,8 +227,8 @@ export default Vue.extend({
     },
     onTouchMove(event :TouchEvent) {
       // event.preventDefault();
-      var touch = event.touches[0];
-      if (document.elementFromPoint(touch.pageX,touch.pageY).id !== 'maskCanvas') {
+      const touch = event.touches[0];
+      if (document.elementFromPoint(touch.pageX,touch.pageY).id === 'maskCanvas') {
         this.touchleave();
       }
     },
@@ -235,19 +245,19 @@ export default Vue.extend({
       }
       const length = this.params.brushSize / this.scale;
       ctx.beginPath();
-      ctx.rect(
-        this.cursorPos.x / this.scale - length / 2,
-        this.cursorPos.y / this.scale - length / 2,
-        length,
-        length
-        );
-      // ctx.arc(
-      //   this.cursorPos.x / this.scale,
-      //   this.cursorPos.y / this.scale,
-      //   this.params.brushSize / 2 / this.scale,
-      //   0,
-      //   2 * Math.PI
-      // );
+      // ctx.rect(
+      //   this.cursorPos.x / this.scale - length / 2,
+      //   this.cursorPos.y / this.scale - length / 2,
+      //   length,
+      //   length
+      //   );
+      ctx.arc(
+        this.cursorPos.x / this.scale,
+        this.cursorPos.y / this.scale,
+        this.params.brushSize/ 2 /this.scale, // /2
+        0,
+        2 * Math.PI
+      );
       ctx.closePath();
 
       const editingCTX = this.editingCanvas.getContext('2d');
@@ -255,20 +265,40 @@ export default Vue.extend({
         throw new Error('Got null editing canvas context');
       }
       editingCTX.beginPath();
-      editingCTX.rect(
-        this.cursorPos.x / this.scale - length / 2,
-        this.cursorPos.y / this.scale - length / 2,
-        length,
-        length
-      );
-      // editingCTX.arc(
-      //   this.cursorPos.x / this.scale,
-      //   this.cursorPos.y / this.scale,
-      //   this.params.brushSize / 2 / this.scale,
-      //   0,
-      //   2 * Math.PI
+      // editingCTX.rect(
+      //   this.cursorPos.x / this.scale - length / 2,
+      //   this.cursorPos.y / this.scale - length / 2,
+      //   length,
+      //   length
       // );
+      editingCTX.arc(
+        this.cursorPos.x / this.scale,
+        this.cursorPos.y / this.scale,
+        this.params.brushSize / 2 / this.scale,
+        0,
+        2 * Math.PI
+      );
       editingCTX.closePath();
+      // Draw line bwtween two move points
+      if (this.oldPos.x) {
+        // *** console.log('In draw line--', this.oldPos.x, ' , ', this.oldPos.y);
+        
+        ctx.lineWidth =  this.params.brushSize / this.scale;
+        ctx.strokeStyle = this.artefact.color;
+        ctx.moveTo(this.oldPos.x / this.scale - length / 2, this.oldPos.y / this.scale - length / 2);
+        ctx.lineTo(this.cursorPos.x / this.scale - length / 2, this.cursorPos.y / this.scale - length / 2);
+
+        ctx.stroke();
+        // ctx.closePath();
+
+        editingCTX.lineWidth =  this.params.brushSize / this.scale;
+        editingCTX.strokeStyle = this.artefact.color;
+        editingCTX.moveTo(this.oldPos.x / this.scale - length / 2, this.oldPos.y / this.scale - length / 2);
+        editingCTX.lineTo(this.cursorPos.x / this.scale - length / 2, this.cursorPos.y / this.scale - length / 2);
+
+        editingCTX.stroke();
+        // editingCTX.closePath();
+      }
 
       if (this.params.drawingMode === DrawingMode.ERASE) {
         ctx.globalCompositeOperation = 'destination-out';
@@ -281,7 +311,7 @@ export default Vue.extend({
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = this.artefact.color;
         ctx.fill();
-
+  
         editingCTX.globalCompositeOperation = 'source-over';
         editingCTX.fillStyle = this.artefact.color;
         editingCTX.fill();
@@ -391,7 +421,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .artefactOverlay {
-  touch-action: pinch-zoom;
+  touch-action: pinch-zoom !important;
   &.editable {
     cursor: none;
   }
