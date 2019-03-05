@@ -16,11 +16,11 @@
         ref="maskCanvas"
         :width="width"
         :height="height"
-        @pointermove="trackMouse($event)"
         @mouseenter="mouseOver = editable"
         @mouseleave="mouseOver = false"
-        @pointerdown="processMouseDown"
-        @pointerup="processMouseUp"
+        @pointermove="pointerMove($event)"
+        @pointerdown="pointerDown($event)"
+        @pointerup="pointerUp"
         @wheel="onMouseWheel"
       > 
       </canvas>
@@ -37,15 +37,7 @@
         <svg
           :width="brushSize / scale" 
           :height="brushSize / scale">
-      <!--      <rect 
-            class="cursor-img" 
-            :width="brushSize / scale"
-            :height="brushSize / scale"
-            stroke="black"
-            stroke-width="1"
-            :fill="cursorColor">
-          </rect>
-             -->
+      
           <circle 
             class="cursor-img" 
             :cx="brushSize / scale / 2"
@@ -95,11 +87,9 @@ export default Vue.extend({
   },
   data() {
     return {
-      cursorPos: {
-        x: undefined,
-        y: undefined,
-      } as Position,
-      oldPos: {} as Position,
+      cursorPos: {} as Position,
+      lastCursorPos: { } as Position,
+      firstMoveOfDraw: false,
       mouseClientPosition: {} as Position,
       mouseOver: false,
       drawing: false,
@@ -107,7 +97,6 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
-      multiFinger: false,
     };
   },
   computed: {
@@ -137,30 +126,26 @@ export default Vue.extend({
     },
   },
   methods: {
-    trackMouse(event: PointerEvent) {
-      // console.log('tarck mouse', event)
-      if (!this.selected || this.multiFinger) {
+    async pointerUp() {
+      if (!this.selected) {
         return;
       }
-      this.zooming = event.ctrlKey;
-
-      this.mouseClientPosition.x = event.clientX;
-      this.mouseClientPosition.y = event.clientY;
-
-      /* if (!this.editable) {
+      if (event.button !== 0) {
         return;
-      } */
-      // Cursor position should
-      // *** console.log('oldPos = cursorPos');
-      // this.oldPos.x = this.cursorPos.x; //uncomment it - line between points
-      // this.oldPos.y = this.cursorPos.y;
-      this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
+      }
+
       if (this.drawing) {
-        this.drawOnCanvas();
+        this.drawPoint(this.lastCursorPos);
       }
+      this.drawing = false;
+      
+      if (!this.editable) {
+        return;
+      }
+
+      await this.recalculateMask();
     },
-    processMouseDown(event: PointerEvent) {
-      // clearTimeout(this.timeFlag);
+    pointerDown(event: PointerEvent) {
       if (!this.selected) {
         return;
       }
@@ -170,31 +155,57 @@ export default Vue.extend({
       if (event.ctrlKey || event.button !== 0) {
         return;
       }
+      this.lastCursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
+      this.firstMoveOfDraw = true;
       this.drawing = true;
-      this.drawOnCanvas();
     },
-    async processMouseUp(event: PointerEvent) {
-      console.log("mouse up")
-      // *** console.log('up, --oldPos=undefined')
-      this.oldPos.x = undefined;
-      this.oldPos.y = undefined;  
+    pointerMove(event: PointerEvent) {
       if (!this.selected) {
         return;
       }
-      if (event.button !== 0) {
+      this.zooming = event.ctrlKey;
+
+      if (!this.drawing) {
         return;
       }
 
-      this.drawing = false;
-
-      if (!this.editable) {
-        return;
+      if (this.firstMoveOfDraw) {
+        this.drawPoint(this.lastCursorPos);
+        this.firstMoveOfDraw = false;
       }
-
       
-      await this.recalculateMask();
-      // var self = this;
-      // this.timeFlag = setTimeout(async function() {await self.recalculateMask()}, 200);      
+      this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
+
+      this.drawLine(this.lastCursorPos, this.cursorPos);
+      this.lastCursorPos = this.cursorPos;
+    },
+    drawPoint(pos: Position) {
+      const ctx = this.maskCanvas.getContext('2d');
+      if (ctx===null) {
+        console.warn('Received a null context');
+        return;
+      }
+
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, this.brushSize / 2, 0, Math.PI * 2);
+      ctx.fillStyle = 'yellow';
+      ctx.fill();
+      ctx.closePath();
+    },
+    drawLine(start: Position, end: Position) {
+      const ctx = this.maskCanvas.getContext('2d');
+      if (ctx===null) {
+        console.warn('Received a null context');
+        return;
+      }
+
+      ctx.beginPath();
+      ctx.lineWidth = this.brushSize;
+      ctx.strokeStyle = 'yellow';
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      ctx.closePath();
     },
     zoomLocation(deltaY) {
       this.zooming = true;
@@ -214,112 +225,6 @@ export default Vue.extend({
         return;
       }
       this.zoomLocation(event.deltaY);
-    },
-    // onTouchStart(event: TouchEvent) {
-    //   event.preventDefault();
-    //   // console.log(event)
-    //   if (event.touches.length > 1) {
-    //     this.multiFinger = true;
-    //   } else {
-    //     this.multiFinger = false;
-    //   }
-    //   if (event.touches.length === 2) { // two fingers touch
-    //     console.log('two fingers event', event);
-    //     const deltaY = event.touches[0].pageY - event.touches[1].pageY;
-    //     this.zoomLocation(deltaY);
-    //   }
-    // },
-    // onTouchMove(event :TouchEvent) {
-    //   // event.preventDefault();
-    //   const touch = event.touches[0];
-    //   if (document.elementFromPoint(touch.pageX,touch.pageY).id === 'maskCanvas') {
-    //     this.touchleave();
-    //   }
-    // },
-    // touchleave() {
-    //   this.mouseOver = false;
-    // },
-   drawOnCanvas() {
-      if (!this.editable) {
-        return;
-      }
-      const ctx = this.maskCanvas.getContext('2d');
-      if (ctx === null) {
-        throw new Error('Got null canvas context');
-      }
-      const length = this.params.brushSize / this.scale;
-      ctx.beginPath();
-      // ctx.rect(
-      //   this.cursorPos.x / this.scale - length / 2,
-      //   this.cursorPos.y / this.scale - length / 2,
-      //   length,
-      //   length
-      //   );
-      ctx.arc(
-        this.cursorPos.x / this.scale,
-        this.cursorPos.y / this.scale,
-        this.params.brushSize/ 2 /this.scale, // /2
-        0,
-        2 * Math.PI
-      );
-      ctx.closePath();
-
-      const editingCTX = this.editingCanvas.getContext('2d');
-      if (editingCTX === null) {
-        throw new Error('Got null editing canvas context');
-      }
-      editingCTX.beginPath();
-      // editingCTX.rect(
-      //   this.cursorPos.x / this.scale - length / 2,
-      //   this.cursorPos.y / this.scale - length / 2,
-      //   length,
-      //   length
-      // );
-      editingCTX.arc(
-        this.cursorPos.x / this.scale,
-        this.cursorPos.y / this.scale,
-        this.params.brushSize / 2 / this.scale,
-        0,
-        2 * Math.PI
-      );
-      editingCTX.closePath();
-      // Draw line bwtween two move points
-      if (this.oldPos.x) {
-        // *** console.log('In draw line--', this.oldPos.x, ' , ', this.oldPos.y);
-        
-        ctx.lineWidth =  this.params.brushSize / this.scale;
-        ctx.strokeStyle = this.artefact.color;
-        ctx.moveTo(this.oldPos.x / this.scale - length / 2, this.oldPos.y / this.scale - length / 2);
-        ctx.lineTo(this.cursorPos.x / this.scale - length / 2, this.cursorPos.y / this.scale - length / 2);
-
-        ctx.stroke();
-        // ctx.closePath();
-
-        editingCTX.lineWidth =  this.params.brushSize / this.scale;
-        editingCTX.strokeStyle = this.artefact.color;
-        editingCTX.moveTo(this.oldPos.x / this.scale - length / 2, this.oldPos.y / this.scale - length / 2);
-        editingCTX.lineTo(this.cursorPos.x / this.scale - length / 2, this.cursorPos.y / this.scale - length / 2);
-
-        editingCTX.stroke();
-        // editingCTX.closePath();
-      }
-
-      if (this.params.drawingMode === DrawingMode.ERASE) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.fill();
-
-        editingCTX.globalCompositeOperation = 'source-over';
-        editingCTX.fillStyle = this.artefact.color;
-        editingCTX.fill();
-      } else {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = this.artefact.color;
-        ctx.fill();
-  
-        editingCTX.globalCompositeOperation = 'source-over';
-        editingCTX.fillStyle = this.artefact.color;
-        editingCTX.fill();
-      }
     },
     mousePositionInElement(event: PointerEvent, element: HTMLElement) {
       // The fragment editor only supports rotation by 90 degree increments.
@@ -425,7 +330,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .artefactOverlay {
-  // touch-action: none;
+  touch-action: none;
   &.editable {
     cursor: none;
   }
