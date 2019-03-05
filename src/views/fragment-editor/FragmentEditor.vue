@@ -40,7 +40,6 @@
     </div>
     <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
       <image-menu
-        class="aaa"
         :fragment="fragment"
         :artefact="artefact"
         :params="params"
@@ -228,7 +227,7 @@ export default Vue.extend({
     },
     onZoomRequest(event: ZoomRequestEventArgs) {
       const oldZoom = this.params.zoom;
-      const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.01), 1);
+      const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.05), 1);
       if (newZoom === oldZoom) {
         return;
       }
@@ -401,9 +400,5 @@ export default Vue.extend({
   overflow: scroll;
   margin-right: 15px;
   padding: 0;
-  // touch-action: none;
-}
-.aaa{
-  // position: fixed;
 }
 </style>

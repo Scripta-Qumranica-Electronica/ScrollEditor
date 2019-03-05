@@ -22,11 +22,9 @@ import { localizedTexts } from './i18n';
 // Toasted
 import Toasted from 'vue-toasted';
 
-// Touch events
-import Vue2TouchEvents from 'vue2-touch-events';
-import VueTouch from 'vue-touch';
-
 import VueShortcuts from 'vue-shortcuts';
+
+import { VueHammer } from 'vue2-hammer';
 
 Vue.config.productionTip = false;
 
@@ -54,9 +52,8 @@ const i18n = new VueI18n( {
 });
 
 Vue.use(Toasted);
-Vue.use(Vue2TouchEvents);
-Vue.use(VueTouch);
 Vue.use(VueShortcuts, { prevent: ['input'] });
+Vue.use(VueHammer);
 
 new Vue({
   router,

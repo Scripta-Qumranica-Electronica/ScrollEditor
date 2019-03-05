@@ -17,14 +17,12 @@
         :width="width"
         :height="height"
         @pointermove="trackMouse($event)"
-        @pointerenter="mouseOver = editable"
-        @pointerleave="mouseOver = false"
+        @mouseenter="mouseOver = editable"
+        @mouseleave="mouseOver = false"
         @pointerdown="processMouseDown"
         @pointerup="processMouseUp"
         @wheel="onMouseWheel"
-        @touchstart="onTouchStart"
-        @touchmove="onTouchMove"
-      >
+      > 
       </canvas>
         
       <div v-if="editable && !zooming"
@@ -48,7 +46,7 @@
             :fill="cursorColor">
           </rect>
              -->
-            <circle 
+          <circle 
             class="cursor-img" 
             :cx="brushSize / scale / 2"
             :cy="brushSize / scale / 2"
@@ -84,11 +82,6 @@ import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 
-// interface Position {
-//   x: number;
-//   y: number;
-// }
-
 export default Vue.extend({
   props: {
     params: EditorParams,
@@ -114,7 +107,7 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
-      // timeFlag: 0
+      multiFinger: false,
     };
   },
   computed: {
@@ -144,9 +137,9 @@ export default Vue.extend({
     },
   },
   methods: {
-    trackMouse(event: MouseEvent) {
+    trackMouse(event: PointerEvent) {
       // console.log('tarck mouse', event)
-      if (!this.selected) {
+      if (!this.selected || this.multiFinger) {
         return;
       }
       this.zooming = event.ctrlKey;
@@ -159,15 +152,14 @@ export default Vue.extend({
       } */
       // Cursor position should
       // *** console.log('oldPos = cursorPos');
-      // this.oldPos.x = this.cursorPos.x; //uncomment it
+      // this.oldPos.x = this.cursorPos.x; //uncomment it - line between points
       // this.oldPos.y = this.cursorPos.y;
       this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
       if (this.drawing) {
         this.drawOnCanvas();
       }
     },
-    processMouseDown(event: MouseEvent) {
-      console.log('down down down')
+    processMouseDown(event: PointerEvent) {
       // clearTimeout(this.timeFlag);
       if (!this.selected) {
         return;
@@ -181,7 +173,8 @@ export default Vue.extend({
       this.drawing = true;
       this.drawOnCanvas();
     },
-    async processMouseUp(event: MouseEvent) {
+    async processMouseUp(event: PointerEvent) {
+      console.log("mouse up")
       // *** console.log('up, --oldPos=undefined')
       this.oldPos.x = undefined;
       this.oldPos.y = undefined;  
@@ -203,6 +196,15 @@ export default Vue.extend({
       // var self = this;
       // this.timeFlag = setTimeout(async function() {await self.recalculateMask()}, 200);      
     },
+    zoomLocation(deltaY) {
+      this.zooming = true;
+      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
+      const amount = deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
+      this.$emit('zoomRequest', {
+        amount,
+        clientPosition: this.mouseClientPosition,
+      } as ZoomRequestEventArgs);
+    },
     onMouseWheel(event: WheelEvent) {
       if (!this.selected) {
         return;
@@ -211,30 +213,32 @@ export default Vue.extend({
       if (!event.ctrlKey) {
         return;
       }
-
-      this.zooming = true;
-      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
-      const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
-      this.$emit('zoomRequest', {
-        amount,
-        clientPosition: this.mouseClientPosition,
-      } as ZoomRequestEventArgs);
+      this.zoomLocation(event.deltaY);
     },
-    onTouchStart(event: TouchEvent) {
-      if (event.touches.length > 1) {
-        console.log('multi fingers event');
-      }
-    },
-    onTouchMove(event :TouchEvent) {
-      // event.preventDefault();
-      const touch = event.touches[0];
-      if (document.elementFromPoint(touch.pageX,touch.pageY).id === 'maskCanvas') {
-        this.touchleave();
-      }
-    },
-    touchleave() {
-      this.mouseOver = false;
-    },
+    // onTouchStart(event: TouchEvent) {
+    //   event.preventDefault();
+    //   // console.log(event)
+    //   if (event.touches.length > 1) {
+    //     this.multiFinger = true;
+    //   } else {
+    //     this.multiFinger = false;
+    //   }
+    //   if (event.touches.length === 2) { // two fingers touch
+    //     console.log('two fingers event', event);
+    //     const deltaY = event.touches[0].pageY - event.touches[1].pageY;
+    //     this.zoomLocation(deltaY);
+    //   }
+    // },
+    // onTouchMove(event :TouchEvent) {
+    //   // event.preventDefault();
+    //   const touch = event.touches[0];
+    //   if (document.elementFromPoint(touch.pageX,touch.pageY).id === 'maskCanvas') {
+    //     this.touchleave();
+    //   }
+    // },
+    // touchleave() {
+    //   this.mouseOver = false;
+    // },
    drawOnCanvas() {
       if (!this.editable) {
         return;
@@ -317,7 +321,7 @@ export default Vue.extend({
         editingCTX.fill();
       }
     },
-    mousePositionInElement(event: MouseEvent, element: HTMLElement) {
+    mousePositionInElement(event: PointerEvent, element: HTMLElement) {
       // The fragment editor only supports rotation by 90 degree increments.
 
       const initOffset = element.getBoundingClientRect();
@@ -421,7 +425,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .artefactOverlay {
-  touch-action: pinch-zoom !important;
+  // touch-action: none;
   &.editable {
     cursor: none;
   }

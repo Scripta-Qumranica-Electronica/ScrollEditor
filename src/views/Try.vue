@@ -84,7 +84,7 @@ export default Vue.extend({
     },
   }, 
   methods: {
-    trackMouse(event: MouseEvent) {
+    trackMouse(event: TouchEvent) {
     //   console.log('tarck mouse', event)
     //   this.zooming = event.ctrlKey;
 
@@ -186,6 +186,6 @@ export default Vue.extend({
 </script>
 <style lang="scss" scoped>
 .artefactOverlay {
-  touch-action: pinch-zoom;
+//   touch-action: pinch-zoom;
 }
 </style>

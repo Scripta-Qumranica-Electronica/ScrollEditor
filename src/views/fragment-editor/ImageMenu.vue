@@ -194,14 +194,14 @@ export default Vue.extend({
     },
   },
   mounted() {
-    window.addEventListener('scroll', this.handleScroll);
+    // window.addEventListener('scroll', this.handleScroll);
   },
   methods: {
-    handleScroll() {
-      console.log('888888888888888888888888');
-      this.scrolled = window.scrollY > 50;
-      this.scrolled = window.scrollX > 50;
-    },
+    // handleScroll() {
+    //   console.log('handleScroll handleScroll');
+    //   this.scrolled = window.scrollY > 50;
+    //   this.scrolled = window.scrollX > 50;
+    // },
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
       this.params.imageSettings[imageType] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
