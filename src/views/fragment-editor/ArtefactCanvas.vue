@@ -7,14 +7,14 @@
     :width="width"
     :height="height"
     style="top: 0px; left: 0px;"
-    :style="{transform: `scale(${scale} * ${performanceScaling})`}">
+    :style="{transform: `scale(${scale * maskShrinkFactor})`}">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         class="maskCanvas"
         :class="{hidden: clip, pulse: !drawing && selected}"
         ref="maskCanvas"
-        :width="width / performanceScaling"
-        :height="height / performanceScaling"
+        :width="width / maskShrinkFactor"
+        :height="height / maskShrinkFactor"
         @mousemove="trackMouse($event)"
         @mouseenter="mouseOver = editable"
         @mouseleave="mouseOver = false"
@@ -22,30 +22,6 @@
         @mouseup="processMouseUp"
         @wheel="onMouseWheel">
       </canvas>
-        
-      <div v-if="editable && !zooming"
-        class="cursor" 
-        v-show="mouseOver"
-        :style="{
-          top: `-${brushSize / 2 / scale}px`, 
-          left: `-${brushSize / 2 / scale}px`,
-          transform: `translate3d(${cursorPos.x / scale}px,${cursorPos.y / scale}px,0px)`
-        }">
-        
-        <svg
-          :width="brushSize / scale" 
-          :height="brushSize / scale">
-          <circle 
-            class="cursor-img" 
-            :cx="brushSize / scale / 2"
-            :cy="brushSize / scale / 2"
-            :r="brushSize / scale / 2"
-            stroke="black"
-            stroke-width="1"
-            :fill="cursorColor">
-          </circle>
-        </svg>
-      </div>
     </div>
   </div>
 </template>
@@ -99,7 +75,7 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
-      performanceScaling: 1,
+      maskShrinkFactor: 10,
     };
   },
   computed: {
@@ -142,7 +118,7 @@ export default Vue.extend({
         return;
       } */
       // Cursor position should
-      this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
+      this.cursorPos = this.mousePositionInElement(event);
       if (this.drawing) {
         this.drawOnCanvas();
       }
@@ -180,7 +156,7 @@ export default Vue.extend({
       if (!this.selected) {
         return;
       }
-      // Only catch control-mousewheel
+      // Only catch control-
       if (!event.ctrlKey) {
         return;
       }
@@ -203,9 +179,9 @@ export default Vue.extend({
       }
       ctx.beginPath();
       ctx.arc(
-        this.cursorPos.x / (this.scale * this.performanceScaling),
-        this.cursorPos.y / (this.scale * this.performanceScaling),
-        this.params.brushSize / 2 / (this.scale * this.performanceScaling),
+        this.cursorPos.x / this.scale / this.maskShrinkFactor,
+        this.cursorPos.y / this.scale / this.maskShrinkFactor,
+        this.params.brushSize / 2 / this.scale / this.maskShrinkFactor,
         0,
         2 * Math.PI
       );
@@ -242,15 +218,16 @@ export default Vue.extend({
         editingCTX.fill();
       }
     },
-    mousePositionInElement(event: MouseEvent, element: HTMLElement) {
+    mousePositionInElement(event: MouseEvent) {
       // The fragment editor only supports rotation by 90 degree increments.
-
+      const element = event.target as HTMLElement
       const initOffset = element.getBoundingClientRect();
       const rawPos = {
         x: event.clientX - initOffset.left + element.scrollLeft,
         y: event.clientY - initOffset.top + element.scrollTop,
       } as Position;
 
+      console.log(`client ${event.clientX},${event.clientY}, topleft ${initOffset.left},${initOffset.top}, scroll ${element.scrollLeft},${element.scrollTop} --> ${rawPos.x},${rawPos.y}`);
       const angle = ((this.rotationAngle % 360) + 360) % 360; // Handle negative numbers
       let rotatedPos = { ... rawPos };
       if (angle === 180) {
@@ -269,9 +246,6 @@ export default Vue.extend({
           y: rawPos.x,
         };
       }
-
-      rotatedPos.x *= this.performanceScaling;
-      rotatedPos.y *= this.performanceScaling;
 
       return rotatedPos;
     },
@@ -312,10 +286,8 @@ export default Vue.extend({
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
-        console.log('Scaling mask ', mask.svg);
-        const scaled = Polygon.scale(mask, 1.0 / this.performanceScaling);
-        console.log('Scaled ', scaled.svg);
-        clipCanvas(this.$refs.maskCanvas, scaled.svg, this.divisor, this.artefact.color);
+        const shrinked = Polygon.scale(mask, 1.0 / this.maskShrinkFactor)
+        clipCanvas(this.$refs.maskCanvas, shrinked.svg, this.divisor, this.artefact.color);
       } else {
         const ctx = this.maskCanvas.getContext('2d');
         if (ctx === null) {
@@ -352,12 +324,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .artefactOverlay {
-  &.editable {
-    cursor: none;
-  }
-  &.zoom {
-    cursor: crosshair !important;
-  }
+  cursor: crosshair;
 }
 
 .maskCanvas {
@@ -383,10 +350,5 @@ export default Vue.extend({
   100% {
     opacity: 0;
   }
-}
-.cursor {
-  position: absolute;
-  opacity: 0.3;
-  pointer-events: none;
 }
 </style>
