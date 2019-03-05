@@ -1,4 +1,4 @@
-<template>
+<template>Start working on a smaller canvas
     <div v-if="current">
         <div class="sidebar-header">
             <h5>{{ versionString(current) }} 
@@ -6,7 +6,11 @@
             </h5>
         </div>
 
-        <b-nav vertical>
+
+
+
+
+
             <b-nav-item>
                 <router-link :to="`/scroll/${current.versionId}/artefacts`" replace>
                     {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }} 

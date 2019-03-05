@@ -13,8 +13,8 @@
         class="maskCanvas"
         :class="{hidden: clip, pulse: !drawing && selected}"
         ref="maskCanvas"
-        :width="width"
-        :height="height"
+        :width="width / performanceScaling"
+        :height="height / performanceScaling"
         @mousemove="trackMouse($event)"
         @mouseenter="mouseOver = editable"
         @mouseleave="mouseOver = false"
@@ -99,6 +99,7 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
+      performanceScaling: 5,
     };
   },
   computed: {
@@ -202,9 +203,9 @@ export default Vue.extend({
       }
       ctx.beginPath();
       ctx.arc(
-        this.cursorPos.x / this.scale,
-        this.cursorPos.y / this.scale,
-        this.params.brushSize / 2 / this.scale,
+        this.cursorPos.x / (this.scale * this.performanceScaling),
+        this.cursorPos.y / (this.scale * this.performanceScaling),
+        this.params.brushSize / 2 / (this.scale * this.performanceScaling),
         0,
         2 * Math.PI
       );
@@ -269,6 +270,9 @@ export default Vue.extend({
         };
       }
 
+      rotatedPos.x *= this.performanceScaling;
+      rotatedPos.y *= this.performanceScaling;
+
       return rotatedPos;
     },
     async recalculateMask() {
@@ -308,6 +312,7 @@ export default Vue.extend({
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
+        console.log('Applying mask ', mask.svg);
         clipCanvas(this.$refs.maskCanvas, mask.svg, this.divisor, this.artefact.color);
       } else {
         const ctx = this.maskCanvas.getContext('2d');

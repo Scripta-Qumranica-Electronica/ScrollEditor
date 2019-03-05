@@ -78,6 +78,35 @@ export class Polygon {
         return result;
     }
 
+    // Scale the polygon by a factor
+    public static scale(a: Polygon, factor: number): Polygon {
+        if (a.empty) {
+            return new Polygon();
+        }
+
+        // Match all the numbers in the SVG using a regex, which is faster than scanning in Javascript
+        const re = /-{0,1}\d*.{0,1}\d+/g; // Adapted from here: https://stackoverflow.com/a/18085/871910
+        const source = a.svg;
+        let scaled = '';
+        let lastCopied = 0;
+
+        do {
+            const match = re.exec(source);
+            if (match !== null) {
+                // Copy everything up to match[1]
+                scaled += source.substr(lastCopied, match[1] - lastCopied);
+                const str = source.substr(match[1], match[2] - match[1]);
+                // Number is at source[match[1]:match[2]]
+            }
+        }
+
+        for(let i=0; i<source.length; i++) {
+            const c = source[i];
+            if
+        }
+        const idx = 0
+    }
+
     public static fromWkt(wkt: string, boundingRect?: any) {
         const svg = wktPolygonToSvg(wkt, boundingRect);
         return new Polygon(svg);
