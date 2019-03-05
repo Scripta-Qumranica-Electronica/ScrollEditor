@@ -1,4 +1,4 @@
-<template>Start working on a smaller canvas
+<template>
     <div v-if="current">
         <div class="sidebar-header">
             <h5>{{ versionString(current) }} 

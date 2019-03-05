@@ -85,26 +85,25 @@ export class Polygon {
         }
 
         // Match all the numbers in the SVG using a regex, which is faster than scanning in Javascript
-        const re = /-{0,1}\d*.{0,1}\d+/g; // Adapted from here: https://stackoverflow.com/a/18085/871910
+        const re = /\d+(\.\d*)?/g; // Adapted from here: https://stackoverflow.com/a/18085/871910
         const source = a.svg;
         let scaled = '';
         let lastCopied = 0;
 
-        do {
+        while(true) {
             const match = re.exec(source);
-            if (match !== null) {
-                // Copy everything up to match[1]
-                scaled += source.substr(lastCopied, match[1] - lastCopied);
-                const str = source.substr(match[1], match[2] - match[1]);
-                // Number is at source[match[1]:match[2]]
+            if (match === null) {
+                break;
             }
+            scaled += source.substr(lastCopied, match.index);
+            const num = parseFloat(match[0]);
+            const factored = Math.trunc(num * factor).toString();
+            scaled += factored.toString();
+            lastCopied = re.lastIndex;
         }
+        scaled += source.substr(lastCopied);
 
-        for(let i=0; i<source.length; i++) {
-            const c = source[i];
-            if
-        }
-        const idx = 0
+        return new Polygon(scaled);
     }
 
     public static fromWkt(wkt: string, boundingRect?: any) {

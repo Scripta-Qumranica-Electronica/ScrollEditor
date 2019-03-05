@@ -7,7 +7,7 @@
     :width="width"
     :height="height"
     style="top: 0px; left: 0px;"
-    :style="{transform: `scale(${scale})`}">
+    :style="{transform: `scale(${scale} * ${performanceScaling})`}">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         class="maskCanvas"
@@ -99,7 +99,7 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
-      performanceScaling: 5,
+      performanceScaling: 1,
     };
   },
   computed: {
@@ -312,8 +312,10 @@ export default Vue.extend({
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
-        console.log('Applying mask ', mask.svg);
-        clipCanvas(this.$refs.maskCanvas, mask.svg, this.divisor, this.artefact.color);
+        console.log('Scaling mask ', mask.svg);
+        const scaled = Polygon.scale(mask, 1.0 / this.performanceScaling);
+        console.log('Scaled ', scaled.svg);
+        clipCanvas(this.$refs.maskCanvas, scaled.svg, this.divisor, this.artefact.color);
       } else {
         const ctx = this.maskCanvas.getContext('2d');
         if (ctx === null) {
