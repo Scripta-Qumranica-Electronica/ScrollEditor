@@ -95,7 +95,7 @@ export class Polygon {
             if (match === null) {
                 break;
             }
-            scaled += source.substr(lastCopied, match.index);
+            scaled += source.substr(lastCopied, match.index - lastCopied);
             const num = parseFloat(match[0]);
             const factored = Math.trunc(num * factor).toString();
             scaled += factored.toString();
