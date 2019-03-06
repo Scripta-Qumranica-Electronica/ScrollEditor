@@ -32,7 +32,8 @@
                         :editable="canEdit"
                         :artefact="artefact"
                         @mask="onMaskChanged"
-                        @zoomRequest="onZoomRequest($event)">
+                        @zoomRequest="onZoomRequest($event)"
+                        @moveRequest="onMoveRequest($event)">
       </artefact-canvas>
     </div>
     <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
@@ -72,10 +73,10 @@ import {
     EditorParamsChangedArgs,
     MaskChangeOperation,
     DrawingMode,
-    Position,
     ZoomRequestEventArgs,
     ArtefactEditingData,
 } from './types';
+import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
@@ -251,6 +252,29 @@ export default Vue.extend({
       }, 0);
 
       this.params.zoom = newZoom;
+    },
+    onMoveRequest(event: MoveRequestEventArgs) {
+      debugger
+     
+      // We want to change the scrollbars to move the image.
+      const viewport = this.overlayDiv.getBoundingClientRect();
+      const oldPosition = {
+        x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
+        y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop,
+      };
+      const newPosition = {
+        x: oldPosition.x + event.newPoint.x,
+        y: oldPosition.y + event.newPoint.y
+      };
+      // const scrollDelta = {
+      //   x: newPosition.x - oldPosition.x,
+      //   y: newPosition.y - oldPosition.y,
+      // };
+
+      setTimeout(() => {
+        this.overlayDiv.scrollLeft += newPosition.x;
+        this.overlayDiv.scrollTop += newPosition.y;
+      }, 0);
     },
     onSave() {
       if (!this.artefact) {

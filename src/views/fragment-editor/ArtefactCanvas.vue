@@ -12,15 +12,15 @@
       <canvas
         id="maskCanvas"
         class="maskCanvas"
-        :class="{hidden: clip, pulse: !drawing && selected}"
+        :class="{hidden: clip, pulse: selected}"
         ref="maskCanvas"
         :width="width / maskShrinkFactor"
         :height="height / maskShrinkFactor"
         @pointermove="pointerMove($event)"
         @pointerdown="pointerDown($event)"
-        @pointerup="pointerUp"
+        @pointerup="pointerUp($event)"
         @wheel="onMouseWheel"
-      > 
+      >  <!-- old class: :class="{hidden: clip, pulse: !drawing && selected}" -->
       </canvas>
     </div>
   </div>
@@ -29,6 +29,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Matrix } from '@/utils/Matrices';
+
+enum EditMode {
+    DRAWING, ADJUSTING, NONE
+}
 
 // tslint:disable:no-var-requires
 const trace = require('@/utils/Potrace.js').trace;
@@ -41,10 +45,11 @@ import {
   svgPolygonToClipper,
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
-import { EditorParams, DrawingMode, MaskChangeOperation, Position, ZoomRequestEventArgs } from './types';
+import { EditorParams, DrawingMode, MaskChangeOperation, ZoomRequestEventArgs, MoveRequestEventArgs, AdjustmentData } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
+import { PointerTracker, ExtendedPointerEvent, Position } from '@/utils/PointerTracker';
 
 export default Vue.extend({
   props: {
@@ -62,7 +67,7 @@ export default Vue.extend({
       lastCursorPos: { } as Position,
       firstMoveOfDraw: false,
       mouseClientPosition: {} as Position,
-      drawing: false,
+      editMode: EditMode.NONE,
       editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
@@ -70,6 +75,9 @@ export default Vue.extend({
       maskShrinkFactor: 20,
       maskCanvasContext: { } as CanvasRenderingContext2D,
       editingCanvasContext: { } as CanvasRenderingContext2D,
+      pointerTracker: new PointerTracker(),
+      lastAdjData: {} as AdjustmentData,
+      curAdjData: {} as AdjustmentData,
     };
   },
   computed: {
@@ -100,26 +108,47 @@ export default Vue.extend({
   },
   methods: {
     pointerDown(event: PointerEvent) {
-      if (!this.selected) {
-        return;
-      }
-      if (!this.editable) {
+      // console.log('down', event);
+      if (!this.selected || !this.editable) {
         return;
       }
       if (event.ctrlKey || event.button !== 0) {
         return;
       }
-      this.lastCursorPos = this.mousePositionInElement(event);
 
-      // Initialize the canvases
-      this.drawing = true;
-      this.maskCanvasContext.globalCompositeOperation = this.params.drawingMode === DrawingMode.DRAW ? 'source-over' : 'destination-out';
-      this.maskCanvasContext.fillStyle = this.artefact.color;
-      this.maskCanvasContext.strokeStyle = this.artefact.color;
+      const exEvent = this.extendEvent(event);
+      this.pointerTracker.handleEvent(exEvent);
 
-      this.editingCanvasContext.globalCompositeOperation = 'source-over';
-      this.editingCanvasContext.fillStyle = this.artefact.color;
-      this.editingCanvasContext.strokeStyle = this.artefact.color;
+      const count = this.pointerTracker.count;
+      if (count === 2) {
+        this.maskCanvasContext.restore();
+        this.editingCanvasContext.restore();
+        this.editMode = EditMode.ADJUSTING;
+        console.log('Switching to adjustment mode')
+      } else if (count > 2) {
+        this.editMode = EditMode.NONE;
+        // console.log(`${count} fingers held down - ignoring everything`);
+      } else if (count === 1) {
+        // console.log('Switching to drawing mode');
+        this.maskCanvasContext.save();
+        this.editingCanvasContext.save();
+
+        this.lastCursorPos = exEvent.logicalPosition;
+
+        // Initialize the canvases
+        this.editMode = EditMode.DRAWING;
+        if (this.params.drawingMode === DrawingMode.DRAW) {
+          this.maskCanvasContext.globalCompositeOperation = 'source-over';
+        } else {
+          this.maskCanvasContext.globalCompositeOperation = 'destination-out';
+        }
+        this.maskCanvasContext.fillStyle = this.artefact.color;
+        this.maskCanvasContext.strokeStyle = this.artefact.color;
+
+        this.editingCanvasContext.globalCompositeOperation = 'source-over';
+        this.editingCanvasContext.fillStyle = this.artefact.color;
+        this.editingCanvasContext.strokeStyle = this.artefact.color;
+      }
     },
     pointerMove(event: PointerEvent) {
       if (!this.selected) {
@@ -127,33 +156,64 @@ export default Vue.extend({
       }
       this.zooming = event.ctrlKey;
 
-      if (!this.drawing) {
+      const exEvent = this.extendEvent(event);
+      this.pointerTracker.handleEvent(exEvent);
+
+      if (this.editMode === EditMode.DRAWING) {
+        this.drawing();
+      } else if (this.editMode === EditMode.ADJUSTING) {
+        this.curAdjData = new AdjustmentData(this.pointerTracker.evtArray[0], this.pointerTracker.evtArray[1]);
+        if (!this.lastAdjData) {
+          this.lastAdjData = this.curAdjData;
+        }
+        this.move();
+
+        this.lastAdjData = this.curAdjData; 
+      }
+    },
+    async pointerUp(event: PointerEvent) {
+      // console.log('up ', event);
+      if (!this.selected || !this.editable) {
         return;
       }
 
-      this.cursorPos = this.mousePositionInElement(event);
-      this.drawPoint(this.lastCursorPos);
-      this.drawLine(this.lastCursorPos, this.cursorPos);
-      this.lastCursorPos = this.cursorPos;
-    },
-    async pointerUp() {
-      if (!this.selected) {
-        return;
-      }
+      const exEvent = this.extendEvent(event);
+      this.pointerTracker.handleEvent(exEvent);
       // if (event.button !== 0) {
       //   return;
       // }
 
-      if (this.drawing) {
+      if (this.editMode === EditMode.DRAWING) {
         this.drawPoint(this.lastCursorPos);
+        await this.recalculateMask();
       }
-      this.drawing = false;
+      // console.log('Edit mode set to NONE');
+      this.editMode = EditMode.NONE;
 
-      if (!this.editable) {
-        return;
+      // set lastAdjData and curAdjData to undefined
+      this.lastAdjData = undefined;
+      this.curAdjData = undefined;
+    },
+    drawing() {
+      // DRAWING means there's only one activate pointer, and this is it, so we don't need to consult
+      // the pointerTracker to get the primary pointer.
+      this.cursorPos = this.pointerTracker.primary.logicalPosition;
+      this.drawPoint(this.lastCursorPos);
+      this.drawLine(this.lastCursorPos, this.cursorPos);
+      this.lastCursorPos = this.cursorPos;
+    },
+    move() {
+      if (this.lastAdjData.center) {
+        const newPoint = { 
+          x: this.curAdjData.center.x - this.lastAdjData.center.x,
+          y: this.curAdjData.center.y - this.lastAdjData.center.y 
+        } as Position;
+
+        this.$emit('moveRequest', { 
+          newPoint,
+          clientPosition: this.curAdjData.center,
+        } as MoveRequestEventArgs);
       }
-
-      await this.recalculateMask();
     },
     drawPoint(pos: Position) {
       this.maskCanvasContext.beginPath();
@@ -165,15 +225,20 @@ export default Vue.extend({
       this.maskCanvasContext.closePath();
 
       this.editingCanvasContext.beginPath();
-      this.editingCanvasContext.arc(pos.x / this.scale, pos.y / this.scale, this.brushSize / 2 / this.scale, 0, Math.PI * 2);
+      this.editingCanvasContext.arc(pos.x / this.scale,
+                                    pos.y / this.scale,
+                                    this.brushSize / 2 / this.scale,
+                                    0, Math.PI * 2);
       this.editingCanvasContext.fill();
       this.editingCanvasContext.closePath();
     },
     drawLine(start: Position, end: Position) {
       this.maskCanvasContext.beginPath();
       this.maskCanvasContext.lineWidth = this.brushSize / this.scale / this.maskShrinkFactor;
-      this.maskCanvasContext.moveTo(start.x / this.scale / this.maskShrinkFactor, start.y / this.scale / this.maskShrinkFactor);
-      this.maskCanvasContext.lineTo(end.x / this.scale / this.maskShrinkFactor, end.y / this.scale / this.maskShrinkFactor);
+      this.maskCanvasContext.moveTo(start.x / this.scale / this.maskShrinkFactor,
+                                    start.y / this.scale / this.maskShrinkFactor);
+      this.maskCanvasContext.lineTo(end.x / this.scale / this.maskShrinkFactor,
+                                    end.y / this.scale / this.maskShrinkFactor);
       this.maskCanvasContext.stroke();
       this.maskCanvasContext.closePath();
 
@@ -203,7 +268,7 @@ export default Vue.extend({
       event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
       this.zoomLocation(event.deltaY);
     },
-    mousePositionInElement(event: MouseEvent) {
+    extendEvent(event: PointerEvent) {
       // The fragment editor only supports rotation by 90 degree increments.
       const element = event.target as HTMLElement;
       const initOffset = element.getBoundingClientRect();
@@ -231,7 +296,13 @@ export default Vue.extend({
         };
       }
 
-      return rotatedPos;
+      const extended: ExtendedPointerEvent = {
+        event,
+        logicalPosition: rawPos,
+        pointerId: event.pointerId,
+      };
+
+      return extended;
     },
     async recalculateMask() {
       const canvas = this.editingCanvas;

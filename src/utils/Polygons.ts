@@ -93,7 +93,7 @@ export class Polygon {
         let scaled = '';
         let lastCopied = 0;
 
-        while(true) {
+        while (true) {
             const match = re.exec(source);
             if (match === null) {
                 break;
