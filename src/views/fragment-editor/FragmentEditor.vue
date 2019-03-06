@@ -162,7 +162,7 @@ export default Vue.extend({
       window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));
   },
   methods: {
-    confirmLeaving(e: BeforeUnloadEvent ) {
+    confirmLeaving(e: BeforeUnloadEvent) {
       this.artefactEditingDataList.forEach((art) => {
         if (art.dirty) {// check if there unsaved changes
           const confirmationMessage = 'It looks like you have been editing something. '
@@ -223,7 +223,7 @@ export default Vue.extend({
     },
     onZoomRequest(event: ZoomRequestEventArgs) {
       const oldZoom = this.params.zoom;
-      const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.01), 1);
+      const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.05), 1);
       if (newZoom === oldZoom) {
         return;
       }
@@ -259,9 +259,11 @@ export default Vue.extend({
 
       this.saving = true;
       try {
-        this.fragment!.artefacts!.forEach(async (art) => {
-          // TODO: save only changed artefacts (add dirty field)
-          await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
+        this.fragment!.artefacts!.forEach(async (art, index) => {
+          if (this.artefactEditingDataList[index].dirty) {
+            await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
+            this.artefactEditingDataList[index].dirty = false;
+          }
         });
         this.showMessage('Fragment Saved', false);
       } catch (err) {

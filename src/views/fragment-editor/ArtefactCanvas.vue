@@ -10,17 +10,17 @@
     :style="{transform: `scale(${scale * maskShrinkFactor})`}">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
+        id="maskCanvas"
         class="maskCanvas"
         :class="{hidden: clip, pulse: !drawing && selected}"
         ref="maskCanvas"
         :width="width / maskShrinkFactor"
         :height="height / maskShrinkFactor"
-        @mousemove="trackMouse($event)"
-        @mouseenter="mouseOver = editable"
-        @mouseleave="mouseOver = false"
-        @mousedown="processMouseDown"
-        @mouseup="processMouseUp"
-        @wheel="onMouseWheel">
+        @pointermove="pointerMove($event)"
+        @pointerdown="pointerDown($event)"
+        @pointerup="pointerUp"
+        @wheel="onMouseWheel"
+      > 
       </canvas>
     </div>
   </div>
@@ -46,11 +46,6 @@ import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 
-// interface Position {
-//   x: number;
-//   y: number;
-// }
-
 export default Vue.extend({
   props: {
     params: EditorParams,
@@ -63,18 +58,18 @@ export default Vue.extend({
   },
   data() {
     return {
-      cursorPos: {
-        x: 10,
-        y: 10,
-      } as Position,
+      cursorPos: {} as Position,
+      lastCursorPos: { } as Position,
+      firstMoveOfDraw: false,
       mouseClientPosition: {} as Position,
-      mouseOver: false,
       drawing: false,
       editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
       maskShrinkFactor: 20,
+      maskCanvasContext: { } as CanvasRenderingContext2D,
+      editingCanvasContext: { } as CanvasRenderingContext2D,
     };
   },
   computed: {
@@ -104,21 +99,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    trackMouse(event: MouseEvent) {
-      if (!this.selected) {
-        return;
-      }
-      this.zooming = event.ctrlKey;
-
-      this.mouseClientPosition.x = event.clientX;
-      this.mouseClientPosition.y = event.clientY;
-
-      this.cursorPos = this.mousePositionInElement(event);
-      if (this.drawing) {
-        this.drawOnCanvas();
-      }
-    },
-    processMouseDown(event: MouseEvent) {
+    pointerDown(event: PointerEvent) {
       if (!this.selected) {
         return;
       }
@@ -128,17 +109,44 @@ export default Vue.extend({
       if (event.ctrlKey || event.button !== 0) {
         return;
       }
+      this.lastCursorPos = this.mousePositionInElement(event);
+
+      // Initialize the canvases
       this.drawing = true;
-      this.drawOnCanvas();
+      this.maskCanvasContext.globalCompositeOperation = this.params.drawingMode === DrawingMode.DRAW ? 'source-over' : 'destination-out';
+      this.maskCanvasContext.fillStyle = this.artefact.color;
+      this.maskCanvasContext.strokeStyle = this.artefact.color;
+
+      this.editingCanvasContext.globalCompositeOperation = 'source-over';
+      this.editingCanvasContext.fillStyle = this.artefact.color;
+      this.editingCanvasContext.strokeStyle = this.artefact.color;
     },
-    async processMouseUp(event: MouseEvent) {
+    pointerMove(event: PointerEvent) {
       if (!this.selected) {
         return;
       }
-      if (event.button !== 0) {
+      this.zooming = event.ctrlKey;
+
+      if (!this.drawing) {
         return;
       }
 
+      this.cursorPos = this.mousePositionInElement(event);
+      this.drawPoint(this.lastCursorPos);
+      this.drawLine(this.lastCursorPos, this.cursorPos);
+      this.lastCursorPos = this.cursorPos;
+    },
+    async pointerUp() {
+      if (!this.selected) {
+        return;
+      }
+      // if (event.button !== 0) {
+      //   return;
+      // }
+
+      if (this.drawing) {
+        this.drawPoint(this.lastCursorPos);
+      }
       this.drawing = false;
 
       if (!this.editable) {
@@ -147,75 +155,57 @@ export default Vue.extend({
 
       await this.recalculateMask();
     },
-    onMouseWheel(event: WheelEvent) {
-      if (!this.selected) {
-        return;
-      }
-      // Only catch control-
-      if (!event.ctrlKey) {
-        return;
-      }
+    drawPoint(pos: Position) {
+      this.maskCanvasContext.beginPath();
+      this.maskCanvasContext.arc(pos.x / this.scale / this.maskShrinkFactor,
+                                 pos.y / this.scale / this.maskShrinkFactor,
+                                 this.brushSize / 2 / this.scale / this.maskShrinkFactor,
+                                 0, Math.PI * 2);
+      this.maskCanvasContext.fill();
+      this.maskCanvasContext.closePath();
 
+      this.editingCanvasContext.beginPath();
+      this.editingCanvasContext.arc(pos.x / this.scale, pos.y / this.scale, this.brushSize / 2 / this.scale, 0, Math.PI * 2);
+      this.editingCanvasContext.fill();
+      this.editingCanvasContext.closePath();
+    },
+    drawLine(start: Position, end: Position) {
+      this.maskCanvasContext.beginPath();
+      this.maskCanvasContext.lineWidth = this.brushSize / this.scale / this.maskShrinkFactor;
+      this.maskCanvasContext.moveTo(start.x / this.scale / this.maskShrinkFactor, start.y / this.scale / this.maskShrinkFactor);
+      this.maskCanvasContext.lineTo(end.x / this.scale / this.maskShrinkFactor, end.y / this.scale / this.maskShrinkFactor);
+      this.maskCanvasContext.stroke();
+      this.maskCanvasContext.closePath();
+
+      this.editingCanvasContext.beginPath();
+      this.editingCanvasContext.lineWidth = this.brushSize / this.scale;
+      this.editingCanvasContext.moveTo(start.x / this.scale, start.y / this.scale);
+      this.editingCanvasContext.lineTo(end.x / this.scale, end.y / this.scale);
+      this.editingCanvasContext.stroke();
+      this.editingCanvasContext.closePath();
+    },
+    zoomLocation(deltaY: number) {
       this.zooming = true;
-      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
-      const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
+      const amount = deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
       this.$emit('zoomRequest', {
         amount,
         clientPosition: this.mouseClientPosition,
       } as ZoomRequestEventArgs);
     },
-    drawOnCanvas() {
-      if (!this.editable) {
+    onMouseWheel(event: WheelEvent) {
+      if (!this.selected) {
         return;
       }
-      const ctx = this.maskCanvas.getContext('2d');
-      if (ctx === null) {
-        throw new Error('Got null canvas context');
+      // Only catch control-mousewheel
+      if (!event.ctrlKey) {
+        return;
       }
-      ctx.beginPath();
-      ctx.arc(
-        this.cursorPos.x / this.scale / this.maskShrinkFactor,
-        this.cursorPos.y / this.scale / this.maskShrinkFactor,
-        this.params.brushSize / 2 / this.scale / this.maskShrinkFactor,
-        0,
-        2 * Math.PI
-      );
-      ctx.closePath();
-
-      const editingCTX = this.editingCanvas.getContext('2d');
-      if (editingCTX === null) {
-        throw new Error('Got null editing canvas context');
-      }
-      editingCTX.beginPath();
-      editingCTX.arc(
-        this.cursorPos.x / this.scale,
-        this.cursorPos.y / this.scale,
-        this.params.brushSize / 2 / this.scale,
-        0,
-        2 * Math.PI
-      );
-      editingCTX.closePath();
-
-      if (this.params.drawingMode === DrawingMode.ERASE) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.fill();
-
-        editingCTX.globalCompositeOperation = 'source-over';
-        editingCTX.fillStyle = this.artefact.color;
-        editingCTX.fill();
-      } else {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = this.artefact.color;
-        ctx.fill();
-
-        editingCTX.globalCompositeOperation = 'source-over';
-        editingCTX.fillStyle = this.artefact.color;
-        editingCTX.fill();
-      }
+      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
+      this.zoomLocation(event.deltaY);
     },
     mousePositionInElement(event: MouseEvent) {
       // The fragment editor only supports rotation by 90 degree increments.
-      const element = event.target as HTMLElement
+      const element = event.target as HTMLElement;
       const initOffset = element.getBoundingClientRect();
       const rawPos = {
         x: event.clientX - initOffset.left + element.scrollLeft,
@@ -280,7 +270,7 @@ export default Vue.extend({
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
-        const shrinked = Polygon.scale(mask, 1.0 / this.maskShrinkFactor)
+        const shrinked = Polygon.scale(mask, 1.0 / this.maskShrinkFactor);
         clipCanvas(this.$refs.maskCanvas, shrinked.svg, this.artefact.color);
       } else {
         const ctx = this.maskCanvas.getContext('2d');
@@ -311,6 +301,18 @@ export default Vue.extend({
     this.editingCanvas.width = this.width;
     this.editingCanvas.height = this.height;
 
+    let ctx = this.maskCanvas.getContext('2d');
+    if (ctx === null) {
+      throw new Error("Can't get context for maskCanvas");
+    }
+    this.maskCanvasContext = ctx;
+
+    ctx = this.editingCanvas.getContext('2d');
+    if (ctx === null) {
+      throw new Error("Can't get context for editingCanvas");
+    }
+    this.editingCanvasContext = ctx;
+
     this.applyMaskToCanvas(this.clippingMask);
   }
 });
@@ -323,13 +325,16 @@ export default Vue.extend({
 
 .maskCanvas {
   opacity: 0.3;
+  touch-action: none;
 }
+
 .maskCanvas.pulse {
   visibility: visible;
   opacity: 0.3;
   animation: pulsate 3s ease-out;
   animation-iteration-count: infinite;
 }
+
 .maskCanvas.hidden {
   opacity: 0;
 }

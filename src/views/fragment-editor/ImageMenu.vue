@@ -1,5 +1,5 @@
 <template>
-  <div id="image-menu">
+  <div id="image-menu" :class="{ 'fixed-header': scrolled }">
     <section>
       <h5>Artefacts</h5>
       <table>
@@ -152,6 +152,7 @@ export default Vue.extend({
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
+      scrolled: ''
     };
   },
   computed: {
@@ -192,7 +193,15 @@ export default Vue.extend({
       return parseInt(this.$route.params.scrollVersionId);
     },
   },
+  mounted() {
+    // window.addEventListener('scroll', this.handleScroll);
+  },
   methods: {
+    // handleScroll() {
+    //   console.log('handleScroll handleScroll');
+    //   this.scrolled = window.scrollY > 50;
+    //   this.scrolled = window.scrollX > 50;
+    // },
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
       this.params.imageSettings[imageType] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
@@ -265,7 +274,9 @@ export default Vue.extend({
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
     },
-    undoModalShown() {},
+    undoModalShown() {
+      console.log('undo modal shown');
+    },
   },
 });
 </script>
@@ -283,6 +294,10 @@ section {
 #image-menu {
   height: 92vh;
   overflow: auto;
+  touch-action: pan-y;
+  // position: fixed;
+  top: 0;
+  right: 0;
 }
 button.disable {
   cursor: not-allowed;
