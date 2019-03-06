@@ -14,26 +14,23 @@
                   :artefact="artefact"
                   :editable="canEdit"
                   :side="fragment.recto"
-                  :divisor="imageShrink"
                   :clipping-mask="artefact.mask">
       </roi-canvas>
       <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
-                        :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
-                        :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
+                        :width="masterImage.manifest.width"
+                        :height="masterImage.manifest.height"
                         :params="params"
                         :selected="false"
-                        :artefact="artefact"
-                        :divisor="imageShrink">
+                        :artefact="artefact">
       </artefact-canvas>
       <artefact-canvas  class="overlay-canvas"
                         v-show="artefact !== undefined"
-                        :width="masterImage.manifest.width ? masterImage.manifest.width / imageShrink : 0"
-                        :height="masterImage.manifest.height ? masterImage.manifest.height / imageShrink : 0"
+                        :width="masterImage.manifest.width"
+                        :height="masterImage.manifest.height"
                         :params="params"
                         :selected="true"
                         :editable="canEdit"
                         :artefact="artefact"
-                        :divisor="imageShrink"
                         @mask="onMaskChanged"
                         @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
@@ -101,7 +98,6 @@ export default Vue.extend({
       artefact: undefined as Artefact | undefined,
       initialMask: new Polygon(),
       params: new EditorParams(),
-      imageShrink: 2,
       saving: false,
       renaming: false,
       renameInputActive: undefined as Artefact | undefined,

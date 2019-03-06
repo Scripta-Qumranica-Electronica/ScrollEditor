@@ -1,8 +1,8 @@
 <template>
     <svg    ref="roiSvg"
-            :width="width / divisor"
-            :height="height / divisor"
-            :viewbox="'0 0 ' + width / divisor + ' ' + height / divisor">
+            :width="width"
+            :height="height"
+            :viewbox="'0 0 ' + width + ' ' + height">
     <g :transform="`scale(${zoomLevel}) ${rotateTransform})`">
       <defs>
         <path id="Full-clip-path" :d="fullImageMask" :transform="`scale(${scale})`"></path>
@@ -19,9 +19,9 @@
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg" 
               draggable="false" 
-              :xlink:href="imageSetting.image.getFullUrl(100 / divisor)"
-              :width="width / divisor"
-              :height="height / divisor"
+              :xlink:href="imageSetting.image.getFullUrl(100)"
+              :width="width"
+              :height="height"
               :opacity="imageSetting.opacity"
               :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
       </g>
@@ -51,7 +51,6 @@ export default Vue.extend({
     side: {
       type: Object as () => ImageSet,
     },
-    divisor: Number,
     clippingMask: Polygon,
   },
   data() {
@@ -60,7 +59,7 @@ export default Vue.extend({
   },
   computed: {
     scale(): number {
-      return 1 / this.divisor;
+      return 1;
     },
     fullImageMask(): string {
       return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
@@ -70,7 +69,7 @@ export default Vue.extend({
       return this.params.zoom;
     },
     rotateTransform(): string {
-      return `rotate(${this.params.rotationAngle} ${this.width / this.divisor / 2} ${this.height / this.divisor / 2}`;
+      return `rotate(${this.params.rotationAngle} ${this.width / 2} ${this.height / 2}`;
     },
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);

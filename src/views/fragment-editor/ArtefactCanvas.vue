@@ -60,7 +60,6 @@ export default Vue.extend({
     editable: Boolean,
     width: Number,
     height: Number,
-    divisor: Number,
   },
   data() {
     return {
@@ -95,7 +94,7 @@ export default Vue.extend({
       return this.params.drawingMode === DrawingMode.DRAW ? 'yellow' : 'black';
     },
     rotateTransform(): string {
-      return `rotate(${this.rotationAngle} ${this.width / this.divisor / 2} ${this.height / this.divisor / 2}`;
+      return `rotate(${this.rotationAngle} ${this.width / 2} ${this.height / 2}`;
     },
     rotationAngle(): number {
       return this.params.rotationAngle;
@@ -227,7 +226,6 @@ export default Vue.extend({
         y: event.clientY - initOffset.top + element.scrollTop,
       } as Position;
 
-      console.log(`client ${event.clientX},${event.clientY}, topleft ${initOffset.left},${initOffset.top}, scroll ${element.scrollLeft},${element.scrollTop} --> ${rawPos.x},${rawPos.y}`);
       const angle = ((this.rotationAngle % 360) + 360) % 360; // Handle negative numbers
       let rotatedPos = { ... rawPos };
       if (angle === 180) {
@@ -251,7 +249,7 @@ export default Vue.extend({
     },
     async recalculateMask() {
       const canvas = this.editingCanvas;
-      const canvasSvg: any = await trace(this.editingCanvas, this.divisor);
+      const canvasSvg: any = await trace(this.editingCanvas);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
       let newMask: Polygon;
@@ -287,7 +285,7 @@ export default Vue.extend({
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
         const shrinked = Polygon.scale(mask, 1.0 / this.maskShrinkFactor)
-        clipCanvas(this.$refs.maskCanvas, shrinked.svg, this.divisor, this.artefact.color);
+        clipCanvas(this.$refs.maskCanvas, shrinked.svg, this.artefact.color);
       } else {
         const ctx = this.maskCanvas.getContext('2d');
         if (ctx === null) {

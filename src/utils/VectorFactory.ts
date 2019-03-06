@@ -365,12 +365,10 @@ export function matrix16To6(matrix: any) {
 
 /*
  * This function receives an HTML5 canvas
- * along with a svg path for the clipping
- * mask and a divisor for the canvas scaling.
+ * along with a svg path for the clipping mask
  * It then draws the svg path onto the canvas.
  */
-export function clipCanvas(canvas: any, svgClipPath: any, divisor: any, fillColor: string) {
-  divisor = divisor ? divisor : 1;
+export function clipCanvas(canvas: any, svgClipPath: any, fillColor: string) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.globalCompositeOperation = 'source-over';
@@ -381,9 +379,9 @@ export function clipCanvas(canvas: any, svgClipPath: any, divisor: any, fillColo
     const points = poly.split('L');
     for (let i = 0, length = points.length; i < length; i++) {
       if (i === 0) {
-        ctx.moveTo(points[i].split(' ')[0] / divisor, points[i].split(' ')[1] / divisor);
+        ctx.moveTo(points[i].split(' ')[0], points[i].split(' ')[1]);
       } else {
-        ctx.lineTo(points[i].split(' ')[0] / divisor, points[i].split(' ')[1] / divisor);
+        ctx.lineTo(points[i].split(' ')[0], points[i].split(' ')[1]);
       }
     }
     ctx.closePath();
