@@ -74,14 +74,14 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
-      maskShrinkFactor: 10,
+      maskShrinkFactor: 20,
     };
   },
   computed: {
     maskCanvas(): HTMLCanvasElement {
       return this.$refs.maskCanvas as HTMLCanvasElement;
     },
-    scale(): number {
+    scale(): number { // TODO: Rename scale to zoomFactor
       return this.params.zoom;
     },
     brushSize(): number {
@@ -113,10 +113,6 @@ export default Vue.extend({
       this.mouseClientPosition.x = event.clientX;
       this.mouseClientPosition.y = event.clientY;
 
-      /* if (!this.editable) {
-        return;
-      } */
-      // Cursor position should
       this.cursorPos = this.mousePositionInElement(event);
       if (this.drawing) {
         this.drawOnCanvas();

@@ -83,6 +83,9 @@ export class Polygon {
         if (a.empty) {
             return new Polygon();
         }
+        if (factor === 1) {
+            return a;
+        }
 
         // Match all the numbers in the SVG using a regex, which is faster than scanning in Javascript
         const re = /\d+(\.\d*)?/g; // Adapted from here: https://stackoverflow.com/a/18085/871910
