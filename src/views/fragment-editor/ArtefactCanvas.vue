@@ -130,15 +130,15 @@ export default Vue.extend({
       if (!this.selected) {
         return;
       }
-      if (event.button !== 0) {
-        return;
-      }
+      // if (event.button !== 0) {
+      //   return;
+      // }
 
       if (this.drawing) {
         this.drawPoint(this.lastCursorPos);
       }
       this.drawing = false;
-      
+
       if (!this.editable) {
         return;
       }
@@ -173,7 +173,7 @@ export default Vue.extend({
         this.drawPoint(this.lastCursorPos);
         this.firstMoveOfDraw = false;
       }
-      
+
       this.cursorPos = this.mousePositionInElement(event, event.target as HTMLElement);
 
       this.drawLine(this.lastCursorPos, this.cursorPos);
@@ -181,35 +181,58 @@ export default Vue.extend({
     },
     drawPoint(pos: Position) {
       const ctx = this.maskCanvas.getContext('2d');
-      if (ctx===null) {
+      if (ctx === null) {
         console.warn('Received a null context');
         return;
       }
 
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, this.brushSize / 2, 0, Math.PI * 2);
+      ctx.arc(pos.x / this.scale, pos.y / this.scale, this.brushSize / 2 / this.scale, 0, Math.PI * 2);
       ctx.fillStyle = 'yellow';
       ctx.fill();
       ctx.closePath();
+
+      const editingCTX = this.editingCanvas.getContext('2d');
+      if (editingCTX === null) {
+        throw new Error('Got null editing canvas context');
+      }
+
+      editingCTX.beginPath();
+      editingCTX.arc(pos.x / this.scale, pos.y / this.scale, this.brushSize / 2 / this.scale, 0, Math.PI * 2);
+      editingCTX.fillStyle = 'yellow';
+      editingCTX.fill();
+      editingCTX.closePath();
     },
     drawLine(start: Position, end: Position) {
       const ctx = this.maskCanvas.getContext('2d');
-      if (ctx===null) {
+      if (ctx === null) {
         console.warn('Received a null context');
         return;
       }
 
       ctx.beginPath();
-      ctx.lineWidth = this.brushSize;
+      ctx.lineWidth = this.brushSize / this.scale;
       ctx.strokeStyle = 'yellow';
-      ctx.moveTo(start.x, start.y);
-      ctx.lineTo(end.x, end.y);
+      ctx.moveTo(start.x / this.scale, start.y / this.scale);
+      ctx.lineTo(end.x / this.scale, end.y / this.scale);
       ctx.stroke();
       ctx.closePath();
+
+      const editingCTX = this.editingCanvas.getContext('2d');
+      if (editingCTX === null) {
+        throw new Error('Got null editing canvas context');
+      }
+
+      editingCTX.beginPath();
+      editingCTX.lineWidth = this.brushSize / this.scale;
+      editingCTX.strokeStyle = 'yellow';
+      editingCTX.moveTo(start.x / this.scale, start.y / this.scale);
+      editingCTX.lineTo(end.x / this.scale, end.y / this.scale);
+      editingCTX.stroke();
+      editingCTX.closePath();
     },
-    zoomLocation(deltaY) {
+    zoomLocation(deltaY: number) {
       this.zooming = true;
-      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
       const amount = deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
       this.$emit('zoomRequest', {
         amount,
@@ -224,6 +247,7 @@ export default Vue.extend({
       if (!event.ctrlKey) {
         return;
       }
+      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
       this.zoomLocation(event.deltaY);
     },
     mousePositionInElement(event: PointerEvent, element: HTMLElement) {

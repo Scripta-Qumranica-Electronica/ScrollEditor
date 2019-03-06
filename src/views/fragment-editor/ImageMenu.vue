@@ -274,7 +274,9 @@ export default Vue.extend({
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
     },
-    undoModalShown() {},
+    undoModalShown() {
+      console.log('undo modal shown');
+    },
   },
 });
 </script>

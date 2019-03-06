@@ -24,7 +24,7 @@ import Toasted from 'vue-toasted';
 
 import VueShortcuts from 'vue-shortcuts';
 
-import { VueHammer } from 'vue2-hammer';
+// import { VueHammer } from 'vue2-hammer';
 
 Vue.config.productionTip = false;
 
@@ -53,7 +53,7 @@ const i18n = new VueI18n( {
 
 Vue.use(Toasted);
 Vue.use(VueShortcuts, { prevent: ['input'] });
-Vue.use(VueHammer);
+// Vue.use(VueHammer);
 
 new Vue({
   router,
