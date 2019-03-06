@@ -75,6 +75,7 @@ import {
     DrawingMode,
     ZoomRequestEventArgs,
     ArtefactEditingData,
+    MoveRequestEventArgs,
 } from './types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
@@ -253,28 +254,12 @@ export default Vue.extend({
 
       this.params.zoom = newZoom;
     },
-    onMoveRequest(event: MoveRequestEventArgs) {
-      debugger
-     
-      // We want to change the scrollbars to move the image.
-      const viewport = this.overlayDiv.getBoundingClientRect();
-      const oldPosition = {
-        x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
-        y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop,
-      };
-      const newPosition = {
-        x: oldPosition.x + event.newPoint.x,
-        y: oldPosition.y + event.newPoint.y
-      };
-      // const scrollDelta = {
-      //   x: newPosition.x - oldPosition.x,
-      //   y: newPosition.y - oldPosition.y,
-      // };
-
-      setTimeout(() => {
-        this.overlayDiv.scrollLeft += newPosition.x;
-        this.overlayDiv.scrollTop += newPosition.y;
-      }, 0);
+    onMoveRequest(args: MoveRequestEventArgs) {
+      if (! args) {
+        console.warn('onMoveRequests accepted bad arguments: ', args);
+        return;
+      }
+      this.overlayDiv.scrollBy(args.delta.x, args.delta.y);
     },
     onSave() {
       if (!this.artefact) {

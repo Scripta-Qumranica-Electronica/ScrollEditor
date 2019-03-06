@@ -45,11 +45,16 @@ import {
   svgPolygonToClipper,
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
-import { EditorParams, DrawingMode, MaskChangeOperation, ZoomRequestEventArgs, MoveRequestEventArgs, AdjustmentData } from './types';
+import { EditorParams,
+         DrawingMode,
+         MaskChangeOperation,
+         ZoomRequestEventArgs,
+         MoveRequestEventArgs,
+         AdjustmentData } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
-import { PointerTracker, ExtendedPointerEvent, Position } from '@/utils/PointerTracker';
+import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';
 
 export default Vue.extend({
   props: {
@@ -76,8 +81,8 @@ export default Vue.extend({
       maskCanvasContext: { } as CanvasRenderingContext2D,
       editingCanvasContext: { } as CanvasRenderingContext2D,
       pointerTracker: new PointerTracker(),
-      lastAdjData: {} as AdjustmentData,
-      curAdjData: {} as AdjustmentData,
+      lastAdjData: { } as AdjustmentData,
+      curAdjData: { } as AdjustmentData,
     };
   },
   computed: {
@@ -124,7 +129,8 @@ export default Vue.extend({
         this.maskCanvasContext.restore();
         this.editingCanvasContext.restore();
         this.editMode = EditMode.ADJUSTING;
-        console.log('Switching to adjustment mode')
+        this.lastAdjData = new AdjustmentData(this.pointerTracker.primary, this.pointerTracker.secondary);
+        console.log('Switching to adjustment mode');
       } else if (count > 2) {
         this.editMode = EditMode.NONE;
         // console.log(`${count} fingers held down - ignoring everything`);
@@ -162,13 +168,8 @@ export default Vue.extend({
       if (this.editMode === EditMode.DRAWING) {
         this.drawing();
       } else if (this.editMode === EditMode.ADJUSTING) {
-        this.curAdjData = new AdjustmentData(this.pointerTracker.evtArray[0], this.pointerTracker.evtArray[1]);
-        if (!this.lastAdjData) {
-          this.lastAdjData = this.curAdjData;
-        }
+        // console.log(`Raw: (${event.clientX}, ${event.clientY}) Logical (${exEvent.logicalPosition.x}, ${exEvent.logicalPosition.y})`);
         this.move();
-
-        this.lastAdjData = this.curAdjData; 
       }
     },
     async pointerUp(event: PointerEvent) {
@@ -189,10 +190,6 @@ export default Vue.extend({
       }
       // console.log('Edit mode set to NONE');
       this.editMode = EditMode.NONE;
-
-      // set lastAdjData and curAdjData to undefined
-      this.lastAdjData = undefined;
-      this.curAdjData = undefined;
     },
     drawing() {
       // DRAWING means there's only one activate pointer, and this is it, so we don't need to consult
@@ -203,17 +200,32 @@ export default Vue.extend({
       this.lastCursorPos = this.cursorPos;
     },
     move() {
-      if (this.lastAdjData.center) {
-        const newPoint = { 
-          x: this.curAdjData.center.x - this.lastAdjData.center.x,
-          y: this.curAdjData.center.y - this.lastAdjData.center.y 
-        } as Position;
+      this.curAdjData = new AdjustmentData(this.pointerTracker.primary, this.pointerTracker.secondary);
+      // console.log(`Current points: ${this.pointerTracker.primary.logicalPosition.x}, ${this.pointerTracker.primary.logicalPosition.y} and ${this.pointerTracker.secondary.logicalPosition.x}, ${this.pointerTracker.secondary.logicalPosition.y}`);
+      // console.log(`Moving ${this.lastAdjData.center.x}, ${this.lastAdjData.center.y} @ ${this.lastAdjData.timeStamp} --> ${this.curAdjData.center.x}, ${this.curAdjData.center.y} @ ${this.curAdjData.timeStamp}`);
+      const delta = Position.substract(this.lastAdjData.center, this.curAdjData.center);
+      /* The following is logic to scroll at different speeds based on the swipe speed. It did not work properly.
+        We may try to send wheel events to have the browser handle the scrolling
+      const distance = delta.norm;
+      const time = this.curAdjData.timeStamp - this.lastAdjData.timeStamp;
 
-        this.$emit('moveRequest', { 
-          newPoint,
-          clientPosition: this.curAdjData.center,
-        } as MoveRequestEventArgs);
+      if (time < 1e-6 || distance > 100) {
+        console.log('Too quick, aborting');
+        // Too quick to actually move
+        return;
       }
+
+      // Scroll heuristics - anything up to one pixel per ms yields a factor of 1 (move exactly as your fingers)
+      // More than on pixel per ms - velocity is multiplied by the delta
+      const velocity = distance / time;  // In pixels per ms
+      const factor = 4;
+      delta = Position.multiply(delta, factor);
+      */
+
+      const args = { delta } as MoveRequestEventArgs;
+
+      this.lastAdjData = this.curAdjData;
+      this.$emit('moveRequest', args);
     },
     drawPoint(pos: Position) {
       this.maskCanvasContext.beginPath();
@@ -296,12 +308,7 @@ export default Vue.extend({
         };
       }
 
-      const extended: ExtendedPointerEvent = {
-        event,
-        logicalPosition: rawPos,
-        pointerId: event.pointerId,
-      };
-
+      const extended = new PointerTrackingEvent(event, rawPos);
       return extended;
     },
     async recalculateMask() {
