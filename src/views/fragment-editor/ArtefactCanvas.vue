@@ -83,6 +83,7 @@ export default Vue.extend({
       pointerTracker: new PointerTracker(),
       lastAdjData: { } as AdjustmentData,
       curAdjData: { } as AdjustmentData,
+      adjFingerCount: 0,
     };
   },
   computed: {
@@ -168,8 +169,11 @@ export default Vue.extend({
       if (this.editMode === EditMode.DRAWING) {
         this.drawing();
       } else if (this.editMode === EditMode.ADJUSTING) {
+        this.adjFingerCount++;
         // console.log(`Raw: (${event.clientX}, ${event.clientY}) Logical (${exEvent.logicalPosition.x}, ${exEvent.logicalPosition.y})`);
-        this.move();
+        if (this.adjFingerCount === 2) {
+          this.move();
+        }
       }
     },
     async pointerUp(event: PointerEvent) {
@@ -225,6 +229,7 @@ export default Vue.extend({
       const args = { delta } as MoveRequestEventArgs;
 
       this.lastAdjData = this.curAdjData;
+      this.adjFingerCount = 0;
       this.$emit('moveRequest', args);
     },
     drawPoint(pos: Position) {
