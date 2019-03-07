@@ -69,10 +69,6 @@ export interface ZoomRequestEventArgs {
     clientPosition: Position; // Position in client coordinates
 }
 
-export interface MoveRequestEventArgs {
-    delta: Position;
-}
-
 export class ArtefactEditingData {
     public undoList = [] as MaskChangeOperation[];
     public redoList = [] as MaskChangeOperation[];

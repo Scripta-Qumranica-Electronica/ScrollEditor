@@ -12,7 +12,7 @@
       <canvas
         id="maskCanvas"
         class="maskCanvas"
-        :class="{hidden: clip, pulse: selected}"
+        :class="{hidden: clip, pulse: editMode !== editModeDraw && selected}"
         ref="maskCanvas"
         :width="width / maskShrinkFactor"
         :height="height / maskShrinkFactor"
@@ -20,7 +20,7 @@
         @pointerdown="pointerDown($event)"
         @pointerup="pointerUp($event)"
         @wheel="onMouseWheel"
-      >  <!-- old class: :class="{hidden: clip, pulse: !drawing && selected}" -->
+      >
       </canvas>
     </div>
   </div>
@@ -49,7 +49,6 @@ import { EditorParams,
          DrawingMode,
          MaskChangeOperation,
          ZoomRequestEventArgs,
-         MoveRequestEventArgs,
          AdjustmentData } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
@@ -111,6 +110,9 @@ export default Vue.extend({
     clippingMask(): Polygon {
       return this.artefact.mask;
     },
+    editModeDraw() {
+      return EditMode.DRAWING;
+    }
   },
   methods: {
     pointerDown(event: PointerEvent) {
@@ -168,12 +170,6 @@ export default Vue.extend({
 
       if (this.editMode === EditMode.DRAWING) {
         this.drawing();
-      } else if (this.editMode === EditMode.ADJUSTING) {
-        this.adjFingerCount++;
-        // console.log(`Raw: (${event.clientX}, ${event.clientY}) Logical (${exEvent.logicalPosition.x}, ${exEvent.logicalPosition.y})`);
-        if (this.adjFingerCount === 2) {
-          this.move();
-        }
       }
     },
     async pointerUp(event: PointerEvent) {
@@ -202,35 +198,6 @@ export default Vue.extend({
       this.drawPoint(this.lastCursorPos);
       this.drawLine(this.lastCursorPos, this.cursorPos);
       this.lastCursorPos = this.cursorPos;
-    },
-    move() {
-      this.curAdjData = new AdjustmentData(this.pointerTracker.primary, this.pointerTracker.secondary);
-      // console.log(`Current points: ${this.pointerTracker.primary.logicalPosition.x}, ${this.pointerTracker.primary.logicalPosition.y} and ${this.pointerTracker.secondary.logicalPosition.x}, ${this.pointerTracker.secondary.logicalPosition.y}`);
-      // console.log(`Moving ${this.lastAdjData.center.x}, ${this.lastAdjData.center.y} @ ${this.lastAdjData.timeStamp} --> ${this.curAdjData.center.x}, ${this.curAdjData.center.y} @ ${this.curAdjData.timeStamp}`);
-      const delta = Position.substract(this.lastAdjData.center, this.curAdjData.center);
-      /* The following is logic to scroll at different speeds based on the swipe speed. It did not work properly.
-        We may try to send wheel events to have the browser handle the scrolling
-      const distance = delta.norm;
-      const time = this.curAdjData.timeStamp - this.lastAdjData.timeStamp;
-
-      if (time < 1e-6 || distance > 100) {
-        console.log('Too quick, aborting');
-        // Too quick to actually move
-        return;
-      }
-
-      // Scroll heuristics - anything up to one pixel per ms yields a factor of 1 (move exactly as your fingers)
-      // More than on pixel per ms - velocity is multiplied by the delta
-      const velocity = distance / time;  // In pixels per ms
-      const factor = 4;
-      delta = Position.multiply(delta, factor);
-      */
-
-      const args = { delta } as MoveRequestEventArgs;
-
-      this.lastAdjData = this.curAdjData;
-      this.adjFingerCount = 0;
-      this.$emit('moveRequest', args);
     },
     drawPoint(pos: Position) {
       this.maskCanvasContext.beginPath();
@@ -408,7 +375,7 @@ export default Vue.extend({
 
 .maskCanvas {
   opacity: 0.3;
-  touch-action: none;
+  touch-action: pinch-zoom;
 }
 
 .maskCanvas.pulse {

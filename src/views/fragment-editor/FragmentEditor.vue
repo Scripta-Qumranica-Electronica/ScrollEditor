@@ -32,8 +32,7 @@
                         :editable="canEdit"
                         :artefact="artefact"
                         @mask="onMaskChanged"
-                        @zoomRequest="onZoomRequest($event)"
-                        @moveRequest="onMoveRequest($event)">
+                        @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
     </div>
     <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
@@ -75,7 +74,6 @@ import {
     DrawingMode,
     ZoomRequestEventArgs,
     ArtefactEditingData,
-    MoveRequestEventArgs,
 } from './types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
@@ -253,13 +251,6 @@ export default Vue.extend({
       }, 0);
 
       this.params.zoom = newZoom;
-    },
-    onMoveRequest(args: MoveRequestEventArgs) {
-      if (! args) {
-        console.warn('onMoveRequests accepted bad arguments: ', args);
-        return;
-      }
-      this.overlayDiv.scrollBy(args.delta.x, args.delta.y);
     },
     onSave() {
       if (!this.artefact) {
