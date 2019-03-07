@@ -74,22 +74,3 @@ export class ArtefactEditingData {
     public redoList = [] as MaskChangeOperation[];
     public dirty = false;
 }
-
-// export class AdjustmentData {
-//     public center: Position;
-//     public distance: number;
-//     public timeStamp: number;
-
-//     public constructor(evt1: PointerTrackingEvent, evt2: PointerTrackingEvent) {
-//         this.center = {
-//             x: (evt1.logicalPosition.x + evt2.logicalPosition.x) / 2,
-//             y: (evt1.logicalPosition.y + evt2.logicalPosition.y) / 2,
-//         } as Position;
-
-//         const deltaX = evt1.logicalPosition.x - evt2.logicalPosition.x;
-//         const deltaY = evt1.logicalPosition.y - evt2.logicalPosition.y;
-//         this.distance = Math.sqrt(deltaX * deltaX + deltaY + deltaY);
-
-//         this.timeStamp = Math.max(evt1.timeStamp, evt2.timeStamp);
-//     }
-// }

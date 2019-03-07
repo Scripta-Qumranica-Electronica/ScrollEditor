@@ -19,6 +19,7 @@
         @pointermove="pointerMove($event)"
         @pointerdown="pointerDown($event)"
         @pointerup="pointerUp($event)"
+        @pointercancel="pointerCancel($event)"
         @wheel="onMouseWheel"
       >
       </canvas>
@@ -49,7 +50,6 @@ import { EditorParams,
          DrawingMode,
          MaskChangeOperation,
          ZoomRequestEventArgs,
-        //  AdjustmentData 
          } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
@@ -81,8 +81,6 @@ export default Vue.extend({
       maskCanvasContext: { } as CanvasRenderingContext2D,
       editingCanvasContext: { } as CanvasRenderingContext2D,
       pointerTracker: new PointerTracker(),
-      // lastAdjData: { } as AdjustmentData,
-      // curAdjData: { } as AdjustmentData,
       adjFingerCount: 0,
     };
   },
@@ -130,21 +128,15 @@ export default Vue.extend({
 
       const count = this.pointerTracker.count;
       if (count === 2) {
-        debugger
-        this.maskCanvasContext.restore();
-        this.editingCanvasContext.restore();
+        this.abortDrawing();
+
         this.editMode = EditMode.ADJUSTING;
-        // this.lastAdjData = new AdjustmentData(this.pointerTracker.primary, this.pointerTracker.secondary);
-        console.log('Switching to adjustment mode');
+        // console.log('Switching to adjustment mode');
       } else if (count > 2) {
         this.editMode = EditMode.NONE;
         // console.log(`${count} fingers held down - ignoring everything`);
       } else if (count === 1) {
-        debugger
         // console.log('Switching to drawing mode');
-        this.maskCanvasContext.save();
-        this.editingCanvasContext.save();
-
         this.lastCursorPos = exEvent.logicalPosition;
 
         // Initialize the canvases
@@ -192,6 +184,15 @@ export default Vue.extend({
         await this.recalculateMask();
       }
       // console.log('Edit mode set to NONE');
+      this.editMode = EditMode.NONE;
+    },
+    pointerCancel(event: PointerEvent) {
+      // Notify pointer tracker
+      // We recevie pointerup event before pointercancel, so we haven't send to abortDrawing function
+
+      const exEvent = this.extendEvent(event);
+      this.pointerTracker.handleEvent(exEvent);
+
       this.editMode = EditMode.NONE;
     },
     drawing() {
@@ -307,11 +308,7 @@ export default Vue.extend({
         deltaNeto = canvasPolygon;
       }
 
-      const ctx = this.editingCanvas.getContext('2d');
-      if (ctx === null) {
-        throw new Error('Received null editing canvas context');
-      }
-      ctx.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
+      this.clearEditingCanvas();
 
       const maskChangeOperation: MaskChangeOperation = {
         polygon: newMask,
@@ -321,16 +318,19 @@ export default Vue.extend({
 
       this.$emit('mask', maskChangeOperation);
     },
+    clearEditingCanvas() {
+      this.editingCanvasContext.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
+    },
+    abortDrawing() {
+        this.clearEditingCanvas();
+        this.applyMaskToCanvas(this.clippingMask);
+    },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
         const shrinked = Polygon.scale(mask, 1.0 / this.maskShrinkFactor);
         clipCanvas(this.$refs.maskCanvas, shrinked.svg, this.artefact.color);
       } else {
-        const ctx = this.maskCanvas.getContext('2d');
-        if (ctx === null) {
-          throw new Error('Received null mask canvas context');
-        }
-        ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+        this.maskCanvasContext.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       }
     },
   },
