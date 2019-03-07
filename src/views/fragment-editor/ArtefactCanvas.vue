@@ -49,7 +49,8 @@ import { EditorParams,
          DrawingMode,
          MaskChangeOperation,
          ZoomRequestEventArgs,
-         AdjustmentData } from './types';
+        //  AdjustmentData 
+         } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
@@ -80,8 +81,8 @@ export default Vue.extend({
       maskCanvasContext: { } as CanvasRenderingContext2D,
       editingCanvasContext: { } as CanvasRenderingContext2D,
       pointerTracker: new PointerTracker(),
-      lastAdjData: { } as AdjustmentData,
-      curAdjData: { } as AdjustmentData,
+      // lastAdjData: { } as AdjustmentData,
+      // curAdjData: { } as AdjustmentData,
       adjFingerCount: 0,
     };
   },
@@ -129,15 +130,17 @@ export default Vue.extend({
 
       const count = this.pointerTracker.count;
       if (count === 2) {
+        debugger
         this.maskCanvasContext.restore();
         this.editingCanvasContext.restore();
         this.editMode = EditMode.ADJUSTING;
-        this.lastAdjData = new AdjustmentData(this.pointerTracker.primary, this.pointerTracker.secondary);
+        // this.lastAdjData = new AdjustmentData(this.pointerTracker.primary, this.pointerTracker.secondary);
         console.log('Switching to adjustment mode');
       } else if (count > 2) {
         this.editMode = EditMode.NONE;
         // console.log(`${count} fingers held down - ignoring everything`);
       } else if (count === 1) {
+        debugger
         // console.log('Switching to drawing mode');
         this.maskCanvasContext.save();
         this.editingCanvasContext.save();
