@@ -368,20 +368,25 @@ export function matrix16To6(matrix: any) {
  * along with a svg path for the clipping mask
  * It then draws the svg path onto the canvas.
  */
-export function clipCanvas(canvas: any, svgClipPath: any, fillColor: string) {
+export function clipCanvas(canvas: HTMLCanvasElement, svgClipPath: string, fillColor: string, scaleFactor: number) {
   const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error(`Can't get context from canvas ${canvas}`);
+  }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = fillColor;
   const polygons = svgClipPath.split('M').slice(1);
   ctx.beginPath();
-  polygons.forEach((poly: any) => {
+  polygons.forEach((poly) => {
     const points = poly.split('L');
     for (let i = 0, length = points.length; i < length; i++) {
+      const coordsStr = points[i].split(' ');
+      const coords = coordsStr.map((s) => parseFloat(s) * scaleFactor);
       if (i === 0) {
-        ctx.moveTo(points[i].split(' ')[0], points[i].split(' ')[1]);
+        ctx.moveTo(coords[0], coords[1]);
       } else {
-        ctx.lineTo(points[i].split(' ')[0], points[i].split(' ')[1]);
+        ctx.lineTo(coords[0], coords[1]);
       }
     }
     ctx.closePath();

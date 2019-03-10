@@ -327,8 +327,7 @@ export default Vue.extend({
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
-        const shrinked = Polygon.scale(mask, 1.0 / this.maskShrinkFactor);
-        clipCanvas(this.$refs.maskCanvas, shrinked.svg, this.artefact.color);
+        clipCanvas(this.maskCanvas, mask.svg, this.artefact.color, 1.0 / this.maskShrinkFactor);
       } else {
         this.maskCanvasContext.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       }
