@@ -292,10 +292,7 @@ section {
   margin-bottom: 20px;
 }
 #image-menu {
-  height: 92vh;
-  overflow: auto;
   touch-action: pan-y;
-  // position: fixed;
   top: 0;
   right: 0;
 }

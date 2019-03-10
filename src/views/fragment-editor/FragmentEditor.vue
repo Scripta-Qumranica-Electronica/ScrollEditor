@@ -35,7 +35,7 @@
                         @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
     </div>
-    <div class="col-xl-2 col-lg-3 col-md-4" v-if="!waiting && fragment">
+    <div class="col-xl-2 col-lg-3 col-md-4" id="image-menu-div" v-if="!waiting && fragment">
       <image-menu
         :fragment="fragment"
         :artefact="artefact"
@@ -389,6 +389,7 @@ export default Vue.extend({
 }
 #fragment-editor {
   overflow: hidden;
+  height: calc(100vh - 56px);
 }
 #overlay-div {
   transform-origin: top left;
@@ -396,5 +397,10 @@ export default Vue.extend({
   overflow: scroll;
   margin-right: 15px;
   padding: 0;
+  height: calc(100vh - 56px);
+}
+#image-menu-div {
+  height: calc(100vh - 56px);
+  overflow: hidden;
 }
 </style>

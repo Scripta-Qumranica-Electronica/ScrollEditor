@@ -284,7 +284,7 @@ export default Vue.extend({
         };
       }
 
-      const extended = new PointerTrackingEvent(event, rawPos);
+      const extended = new PointerTrackingEvent(event, rotatedPos);
       return extended;
     },
     async recalculateMask() {
