@@ -34,7 +34,6 @@
 import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
 import { Fragment } from '@/models/fragment';
-import { Artefact } from '@/models/artefact';
 import { EditorParams, SingleImageSetting } from './types';
 import { ImageSet } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
@@ -45,7 +44,6 @@ export default Vue.extend({
     width: Number,
     height: Number,
     fragment: Fragment,
-    artefact: Artefact,
     params: EditorParams,
     editable: Boolean,
     side: {

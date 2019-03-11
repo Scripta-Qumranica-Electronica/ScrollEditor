@@ -7,15 +7,15 @@
     :width="width"
     :height="height"
     style="top: 0px; left: 0px;"
-    :style="{transform: `scale(${scale * maskShrinkFactor})`}">
+    :style="{transform: `scale(${scale * shrinkFactor})`}">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         id="maskCanvas"
         class="maskCanvas"
         :class="{hidden: clip, pulse: editMode !== editModeDraw && selected}"
         ref="maskCanvas"
-        :width="width / maskShrinkFactor"
-        :height="height / maskShrinkFactor"
+        :width="width / shrinkFactor"
+        :height="height / shrinkFactor"
         @pointermove="pointerMove($event)"
         @pointerdown="pointerDown($event)"
         @pointerup="pointerUp($event)"
@@ -50,6 +50,7 @@ import { EditorParams,
          DrawingMode,
          MaskChangeOperation,
          ZoomRequestEventArgs,
+         OptimizedArtefact,
          } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
@@ -60,11 +61,12 @@ export default Vue.extend({
   props: {
     params: EditorParams,
     fragment: Fragment,
-    artefact: Artefact,
+    artefact: OptimizedArtefact,
     selected: Boolean,
     editable: Boolean,
     width: Number,
     height: Number,
+    shrinkFactor: Number,
   },
   data() {
     return {
@@ -77,7 +79,6 @@ export default Vue.extend({
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
-      maskShrinkFactor: 20,
       maskCanvasContext: { } as CanvasRenderingContext2D,
       // editingCanvasContext: { } as CanvasRenderingContext2D,
       pointerTracker: new PointerTracker(),
@@ -107,7 +108,7 @@ export default Vue.extend({
       return this.params.rotationAngle;
     },
     clippingMask(): Polygon {
-      return this.artefact.mask;
+      return this.artefact.optimizedMask;
     },
     editModeDraw() {
       return EditMode.DRAWING;
@@ -205,9 +206,9 @@ export default Vue.extend({
     },
     drawPoint(pos: Position) {
       this.maskCanvasContext.beginPath();
-      this.maskCanvasContext.arc(pos.x / this.scale / this.maskShrinkFactor,
-                                 pos.y / this.scale / this.maskShrinkFactor,
-                                 this.brushSize / 2 / this.scale / this.maskShrinkFactor,
+      this.maskCanvasContext.arc(pos.x / this.scale / this.shrinkFactor,
+                                 pos.y / this.scale / this.shrinkFactor,
+                                 this.brushSize / 2 / this.scale / this.shrinkFactor,
                                  0, Math.PI * 2);
       this.maskCanvasContext.fill();
       this.maskCanvasContext.closePath();
@@ -222,11 +223,11 @@ export default Vue.extend({
     },
     drawLine(start: Position, end: Position) {
       this.maskCanvasContext.beginPath();
-      this.maskCanvasContext.lineWidth = this.brushSize / this.scale / this.maskShrinkFactor;
-      this.maskCanvasContext.moveTo(start.x / this.scale / this.maskShrinkFactor,
-                                    start.y / this.scale / this.maskShrinkFactor);
-      this.maskCanvasContext.lineTo(end.x / this.scale / this.maskShrinkFactor,
-                                    end.y / this.scale / this.maskShrinkFactor);
+      this.maskCanvasContext.lineWidth = this.brushSize / this.scale / this.shrinkFactor;
+      this.maskCanvasContext.moveTo(start.x / this.scale / this.shrinkFactor,
+                                    start.y / this.scale / this.shrinkFactor);
+      this.maskCanvasContext.lineTo(end.x / this.scale / this.shrinkFactor,
+                                    end.y / this.scale / this.shrinkFactor);
       this.maskCanvasContext.stroke();
       this.maskCanvasContext.closePath();
 
@@ -289,7 +290,7 @@ export default Vue.extend({
     },
     async recalculateMask() {
       const canvas = this.maskCanvas;
-      const canvasSvg: any = await trace(canvas, this.maskShrinkFactor);
+      const canvasSvg: any = await trace(canvas, 1);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
       const maskChangeOperation: MaskChangeOperation = {
@@ -338,7 +339,7 @@ export default Vue.extend({
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
       if (mask) {
-        clipCanvas(this.maskCanvas, mask.svg, this.artefact.color, 1.0 / this.maskShrinkFactor);
+        clipCanvas(this.maskCanvas, mask.svg, this.artefact.color, 1);
       } else {
         this.maskCanvasContext.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       }

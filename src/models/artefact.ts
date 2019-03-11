@@ -2,9 +2,6 @@ import { Polygon } from '@/utils/Polygons';
 import { Fragment } from './fragment';
 import { ScrollVersionInfo } from './scroll';
 
-const colors = ['purple', 'blue', 'orange', 'red', 'green', 'gray', 'magenta', 'olive', 'brown', 'cadetBlue'];
-let index = 0;
-
 export class Artefact {
     public static createNew(scrollVersionId: number, fragment: Fragment, name: string) {
          // scrollVersion: ScrollVersionInfo
@@ -29,19 +26,25 @@ export class Artefact {
         return artefact;
     }
 
-    public id: number;
-    public positionId: number;
-    public shapeId: number;
-    public scrollVersionId: number;
-    public name: string;
-    public mask: Polygon;
-    public transformMatrix: any; // TODO: Change to matrix type?
-    public rect: string;
-    public imageCatalogId: number; // Probably not needed
-    public sqeImageId: number;  // Probable not needed
-    public color: string;
+    // Default values specified to remove an error - we initialize them in the constructor or in copyFrom.
+    // Typescript does not approve of that and shows an error, because it doesn't analyze copyFrom.
+    public id = 0;
+    public positionId = 0;
+    public shapeId = 0;
+    public scrollVersionId = 0;
+    public name = '';
+    public mask = {} as Polygon;
+    public transformMatrix = undefined as any; // TODO: Change to matrix type?
+    public rect = '';
+    public imageCatalogId = 0;
+    public sqeImageId = 0;
 
     constructor(obj: any) {
+        if (obj instanceof Artefact) {
+            this.copyFrom(obj as Artefact);
+            return;
+        }
+
         if (obj.side && obj.side !== 0) {
         // if (obj.side !== 0) {
             console.error('Received a non-recto artefact ', obj);
@@ -66,7 +69,18 @@ export class Artefact {
         this.rect = obj.rect;
         this.imageCatalogId = obj.image_catalog_id;
         this.sqeImageId = obj.id_of_sqe_image;
-        this.color = obj.color ? obj.color : colors[index];
-        index += 1;
+    }
+
+    private copyFrom(other: Artefact) {
+        this.id = other.id;
+        this.positionId = other.positionId;
+        this.shapeId = other.shapeId;
+        this.scrollVersionId = other.scrollVersionId;
+        this.name = other.name;
+        this.mask = other.mask;
+        this.transformMatrix = other.transformMatrix;
+        this.rect = other.rect;
+        this.imageCatalogId = other.imageCatalogId;
+        this.sqeImageId = other.sqeImageId;
     }
 }
