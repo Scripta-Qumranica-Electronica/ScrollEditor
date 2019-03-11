@@ -5,7 +5,7 @@ export function trace(canvas, scale) {
   return new Promise((resolve, reject) => {
     var potrace = new Potrace(canvas, scale)
     potrace.process(() => {
-      let path = potrace.getPolyPath(scale)
+      let path = potrace.getPolyPath(1)
       if (path === '') {
         reject(new Error('Canvas is blank!'))
       }

@@ -288,7 +288,8 @@ export default Vue.extend({
       return extended;
     },
     async recalculateMask() {
-      const canvasSvg: any = await trace(this.clippingMask, this.maskShrinkFactor);
+      const canvas = this.maskCanvas;
+      const canvasSvg: any = await trace(canvas, this.maskShrinkFactor);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
       const maskChangeOperation: MaskChangeOperation = {
