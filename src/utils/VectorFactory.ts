@@ -389,8 +389,8 @@ export function clipCanvas(canvas: HTMLCanvasElement, svgClipPath: string, fillC
         ctx.lineTo(coords[0], coords[1]);
       }
     }
-    ctx.closePath();
   });
+  ctx.closePath();
   ctx.fill();
 }
 
