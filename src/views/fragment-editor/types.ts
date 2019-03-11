@@ -53,7 +53,7 @@ export class Operation {
 export class MaskChangeOperation { // extends Operation {
     public polygon = {} as Polygon;
     public drawingMode = DrawingMode.DRAW;
-    public delta = {} as Polygon;
+    // public delta = {} as Polygon;
 }
 
 export class RotationOperation extends Operation {

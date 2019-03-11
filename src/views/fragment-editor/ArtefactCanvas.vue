@@ -73,13 +73,13 @@ export default Vue.extend({
       firstMoveOfDraw: false,
       mouseClientPosition: {} as Position,
       editMode: EditMode.NONE,
-      editingCanvas: document.createElement('canvas'),
+      // editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
       maskShrinkFactor: 20,
       maskCanvasContext: { } as CanvasRenderingContext2D,
-      editingCanvasContext: { } as CanvasRenderingContext2D,
+      // editingCanvasContext: { } as CanvasRenderingContext2D,
       pointerTracker: new PointerTracker(),
       adjFingerCount: 0,
     };
@@ -149,9 +149,9 @@ export default Vue.extend({
         this.maskCanvasContext.fillStyle = this.artefact.color;
         this.maskCanvasContext.strokeStyle = this.artefact.color;
 
-        this.editingCanvasContext.globalCompositeOperation = 'source-over';
-        this.editingCanvasContext.fillStyle = this.artefact.color;
-        this.editingCanvasContext.strokeStyle = this.artefact.color;
+        // this.editingCanvasContext.globalCompositeOperation = 'source-over';
+        // this.editingCanvasContext.fillStyle = this.artefact.color;
+        // this.editingCanvasContext.strokeStyle = this.artefact.color;
       }
     },
     pointerMove(event: PointerEvent) {
@@ -212,13 +212,13 @@ export default Vue.extend({
       this.maskCanvasContext.fill();
       this.maskCanvasContext.closePath();
 
-      this.editingCanvasContext.beginPath();
-      this.editingCanvasContext.arc(pos.x / this.scale,
-                                    pos.y / this.scale,
-                                    this.brushSize / 2 / this.scale,
-                                    0, Math.PI * 2);
-      this.editingCanvasContext.fill();
-      this.editingCanvasContext.closePath();
+      // this.editingCanvasContext.beginPath();
+      // this.editingCanvasContext.arc(pos.x / this.scale,
+      //                               pos.y / this.scale,
+      //                               this.brushSize / 2 / this.scale,
+      //                               0, Math.PI * 2);
+      // this.editingCanvasContext.fill();
+      // this.editingCanvasContext.closePath();
     },
     drawLine(start: Position, end: Position) {
       this.maskCanvasContext.beginPath();
@@ -230,12 +230,12 @@ export default Vue.extend({
       this.maskCanvasContext.stroke();
       this.maskCanvasContext.closePath();
 
-      this.editingCanvasContext.beginPath();
-      this.editingCanvasContext.lineWidth = this.brushSize / this.scale;
-      this.editingCanvasContext.moveTo(start.x / this.scale, start.y / this.scale);
-      this.editingCanvasContext.lineTo(end.x / this.scale, end.y / this.scale);
-      this.editingCanvasContext.stroke();
-      this.editingCanvasContext.closePath();
+      // this.editingCanvasContext.beginPath();
+      // this.editingCanvasContext.lineWidth = this.brushSize / this.scale;
+      // this.editingCanvasContext.moveTo(start.x / this.scale, start.y / this.scale);
+      // this.editingCanvasContext.lineTo(end.x / this.scale, end.y / this.scale);
+      // this.editingCanvasContext.stroke();
+      // this.editingCanvasContext.closePath();
     },
     zoomLocation(deltaY: number) {
       this.zooming = true;
@@ -288,41 +288,51 @@ export default Vue.extend({
       return extended;
     },
     async recalculateMask() {
-      const canvas = this.editingCanvas;
-      const canvasSvg: any = await trace(this.editingCanvas);
+      const canvasSvg: any = await trace(this.clippingMask, this.maskShrinkFactor);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
-      let newMask: Polygon;
-      let deltaNeto: Polygon;
-      if (this.clippingMask) {
-        if (this.params.drawingMode === DrawingMode.DRAW) {
-          newMask = Polygon.add(this.clippingMask, canvasPolygon);
-          // canvasPolygon is the delteGross, we have to find the deltaNeto according to old mask and new mask.
-          deltaNeto = Polygon.subtract(newMask, this.clippingMask);
-        } else {
-          newMask = Polygon.subtract(this.clippingMask, canvasPolygon);
-          deltaNeto = Polygon.subtract(this.clippingMask, newMask);
-        }
-      } else {
-        newMask = canvasPolygon;
-        deltaNeto = canvasPolygon;
-      }
-
-      this.clearEditingCanvas();
-
       const maskChangeOperation: MaskChangeOperation = {
-        polygon: newMask,
+        polygon: canvasPolygon,
         drawingMode: this.params.drawingMode,
-        delta: deltaNeto,
       } as MaskChangeOperation;
 
       this.$emit('mask', maskChangeOperation);
+
+      // const canvas = this.editingCanvas;
+      // const canvasSvg: any = await trace(this.editingCanvas);
+      // const canvasPolygon = Polygon.fromSvg(canvasSvg);
+
+      // let newMask: Polygon;
+      // let deltaNeto: Polygon;
+      // if (this.clippingMask) {
+      //   if (this.params.drawingMode === DrawingMode.DRAW) {
+      //     newMask = Polygon.add(this.clippingMask, canvasPolygon);
+      //     // canvasPolygon is the delteGross, we have to find the deltaNeto according to old mask and new mask.
+      //     deltaNeto = Polygon.subtract(newMask, this.clippingMask);
+      //   } else {
+      //     newMask = Polygon.subtract(this.clippingMask, canvasPolygon);
+      //     deltaNeto = Polygon.subtract(this.clippingMask, newMask);
+      //   }
+      // } else {
+      //   newMask = canvasPolygon;
+      //   deltaNeto = canvasPolygon;
+      // }
+
+      // this.clearEditingCanvas();
+
+      // const maskChangeOperation: MaskChangeOperation = {
+      //   polygon: newMask,
+      //   drawingMode: this.params.drawingMode,
+      //   delta: deltaNeto,
+      // } as MaskChangeOperation;
+
+      // this.$emit('mask', maskChangeOperation);
     },
-    clearEditingCanvas() {
-      this.editingCanvasContext.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
-    },
+    // clearEditingCanvas() {
+    //   this.editingCanvasContext.clearRect(0, 0, this.editingCanvas.width, this.editingCanvas.height);
+    // },
     abortDrawing() {
-        this.clearEditingCanvas();
+        // this.clearEditingCanvas();
         this.applyMaskToCanvas(this.clippingMask);
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
@@ -334,36 +344,36 @@ export default Vue.extend({
     },
   },
   watch: {
-    width(to, from) {
-      if (to && from !== to) {
-        this.editingCanvas.width = to;
-      }
-    },
-    height(to, from) {
-      if (to && from !== to) {
-        this.editingCanvas.height = to;
-      }
-    },
+    // width(to, from) {
+    //   if (to && from !== to) {
+    //     this.editingCanvas.width = to;
+    //   }
+    // },
+    // height(to, from) {
+    //   if (to && from !== to) {
+    //     this.editingCanvas.height = to;
+    //   }
+    // },
     clippingMask(to: Polygon | undefined, from: Polygon | undefined) {
       this.applyMaskToCanvas(to);
     },
   },
   mounted() {
     // Set the initial size of the editingCanvas
-    this.editingCanvas.width = this.width;
-    this.editingCanvas.height = this.height;
+    // this.editingCanvas.width = this.width;
+    // this.editingCanvas.height = this.height;
 
-    let ctx = this.maskCanvas.getContext('2d');
+    const ctx = this.maskCanvas.getContext('2d');
     if (ctx === null) {
       throw new Error("Can't get context for maskCanvas");
     }
     this.maskCanvasContext = ctx;
 
-    ctx = this.editingCanvas.getContext('2d');
-    if (ctx === null) {
-      throw new Error("Can't get context for editingCanvas");
-    }
-    this.editingCanvasContext = ctx;
+    // ctx = this.editingCanvas.getContext('2d');
+    // if (ctx === null) {
+    //   throw new Error("Can't get context for editingCanvas");
+    // }
+    // this.editingCanvasContext = ctx;
 
     this.applyMaskToCanvas(this.clippingMask);
   }

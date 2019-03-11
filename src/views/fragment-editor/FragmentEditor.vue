@@ -218,6 +218,34 @@ export default Vue.extend({
       this.artefactEditingData.redoList = [];
       this.artefact.mask = eventArgs.polygon;
     },
+    /*
+    onMaskChanged(eventArgs: MaskChangeOperation) {
+      if (!this.artefact) {
+        throw new Error("Can't set mask if there is no artefact");
+      }
+      this.artefactEditingData.dirty = true;
+
+      // Check if the new mask intersects with a non selected artefact mask
+      const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
+      if (!intersection.empty) {
+        this.$toasted.show("Artefact can't overlap other artefacts", {
+          type: 'info',
+          position: 'top-center',
+          duration: 5000,
+        });
+
+        // Change current artefact's mask object so canvas is refreshed and edit is removed
+        this.artefact.mask = new Polygon(this.artefact.mask.svg);
+        return;
+      }
+      // Place current mask in undo buffer, clear redo buffer
+      if (this.artefactEditingData.undoList.length >= 50) {
+        this.artefactEditingData.undoList.slice(1);
+      }
+      this.artefactEditingData.undoList.push(eventArgs);
+      this.artefactEditingData.redoList = [];
+      this.artefact.mask = eventArgs.polygon;
+    },*/
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
@@ -281,12 +309,14 @@ export default Vue.extend({
         const toUndo: MaskChangeOperation = this. artefactEditingData.undoList.pop()!;
         this.artefactEditingData.redoList.push(toUndo);
 
-        // Undo the operation by applying the delta in the opposite direction
-        if (toUndo.drawingMode === DrawingMode.DRAW) {
-          this.artefact.mask = Polygon.subtract(this.artefact.mask, toUndo.delta);
-        } else {
-          this.artefact.mask = Polygon.add(this.artefact.mask, toUndo.delta);
-        }
+        this.artefact.mask = toUndo.polygon;
+
+        // // Undo the operation by applying the delta in the opposite direction
+        // if (toUndo.drawingMode === DrawingMode.DRAW) {
+        //   this.artefact.mask = Polygon.subtract(this.artefact.mask, toUndo.delta);
+        // } else {
+        //   this.artefact.mask = Polygon.add(this.artefact.mask, toUndo.delta);
+        // }
       }
     },
     onRedo() {
@@ -297,11 +327,13 @@ export default Vue.extend({
         const toRedo: MaskChangeOperation = this.artefactEditingData.redoList.pop()!;
         this.artefactEditingData.undoList.push(toRedo);
 
-        if (toRedo.drawingMode === DrawingMode.DRAW) {
-          this.artefact.mask = Polygon.add(this.artefact.mask, toRedo.delta);
-        } else {
-          this.artefact.mask = Polygon.subtract(this.artefact.mask, toRedo.delta);
-        }
+        this.artefact.mask = toRedo.polygon;
+
+        // if (toRedo.drawingMode === DrawingMode.DRAW) {
+        //   this.artefact.mask = Polygon.add(this.artefact.mask, toRedo.delta);
+        // } else {
+        //   this.artefact.mask = Polygon.subtract(this.artefact.mask, toRedo.delta);
+        // }
       }
     },
     async onNew(art: Artefact) {
