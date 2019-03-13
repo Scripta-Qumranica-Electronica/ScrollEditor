@@ -223,39 +223,13 @@ export default Vue.extend({
       if (this.artefactEditingData.undoList.length >= 50) {
         this.artefactEditingData.undoList.slice(1);
       }
-      this.artefactEditingData.undoList.push(eventArgs);
-      this.artefactEditingData.redoList = [];
       this.artefact.optimizedMask = eventArgs.polygon;
       this.artefact.unoptimizeMask();
-    },
-    /*
-    onMaskChanged(eventArgs: MaskChangeOperation) {
-      if (!this.artefact) {
-        throw new Error("Can't set mask if there is no artefact");
-      }
-      this.artefactEditingData.dirty = true;
 
-      // Check if the new mask intersects with a non selected artefact mask
-      const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
-      if (!intersection.empty) {
-        this.$toasted.show("Artefact can't overlap other artefacts", {
-          type: 'info',
-          position: 'top-center',
-          duration: 5000,
-        });
-
-        // Change current artefact's mask object so canvas is refreshed and edit is removed
-        this.artefact.mask = new Polygon(this.artefact.mask.svg);
-        return;
-      }
-      // Place current mask in undo buffer, clear redo buffer
-      if (this.artefactEditingData.undoList.length >= 50) {
-        this.artefactEditingData.undoList.slice(1);
-      }
+      eventArgs.polygon = this.artefact.mask; // Store the unoptimized mask in the event data for undoing
       this.artefactEditingData.undoList.push(eventArgs);
       this.artefactEditingData.redoList = [];
-      this.artefact.mask = eventArgs.polygon;
-    },*/
+    },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
@@ -419,7 +393,7 @@ export default Vue.extend({
       this.nonSelectedArtefacts = this.optimizedArtefacts.filter((artefact) => artefact !== this.artefact);
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
-        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
+        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.optimizedMask);
       }
     }
   }

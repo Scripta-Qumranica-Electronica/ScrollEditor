@@ -170,3 +170,14 @@ export class Polygon {
         return svg.replace(/ L /g, 'L');
     }
 }
+
+export function DrawPolygon(p: Polygon, width: number, height: number, color: string): ImageData {
+    // Create new canvas with width and height
+    // Draw polygon on canvas like we do in ArtefactCanvas (clipCanvas)
+    // Get imageData like we do in ArtefactCanvas
+    // Return image data
+}
+
+export function ExtractPolygon(img: ImageData, width: number, height: number): Polygon {
+    // Use Potrace like we do in ArtefactCanvas
+}

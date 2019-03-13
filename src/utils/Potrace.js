@@ -1,11 +1,11 @@
 /* This file was taken as is from the Scrollery-website.
  * It wasn't changed to Typescript yet, we might do so in the future.
  */
-export function trace(canvas, scale) {
+export function trace(imageData, width, height, scale) {
   return new Promise((resolve, reject) => {
-    var potrace = new Potrace(canvas, scale)
+    var potrace = new Potrace(imageData, width, height, scale)
     potrace.process(() => {
-      let path = potrace.getPolyPath(1)
+      let path = potrace.getPolyPath(scale)
       if (path === '') {
         reject(new Error('Canvas is blank!'))
       }
@@ -70,7 +70,7 @@ export function trace(canvas, scale) {
  * compatible list of polygon points.
  */
 
-function Potrace(canvas, multiplyFactor) {
+function Potrace(imageData, width, height, multiplyFactor) {
   function Point(x, y) {
     this.x = x
     this.y = y
@@ -139,9 +139,9 @@ function Potrace(canvas, multiplyFactor) {
     this.beta = new Array(n)
   }
 
-  var imgElement = canvas ? undefined : document.createElement('img'),
-    imgCanvas = canvas ? canvas : document.createElement('canvas'),
-    bm = null,
+  // var imgElement = canvas ? undefined : document.createElement('img'),
+  //  imgCanvas = canvas ? canvas : document.createElement('canvas'),
+  var bm = null,
     pathlist = [],
     callback,
     info = {
@@ -158,7 +158,7 @@ function Potrace(canvas, multiplyFactor) {
   //         loadBm();
   //       }
   // } else {
-  loadBm()
+  loadImageData()
   // }
 
   // function loadImageFromFile(file) {
@@ -199,7 +199,20 @@ function Potrace(canvas, multiplyFactor) {
   //   ctx.drawImage(imgElement, 0, 0);
   // }
 
-  function loadBm() {
+  function loadImageData() {
+    bm = new Bitmap(width, height);
+    var l = imageData.data.length,
+      i,
+      j,
+      color
+    for (i = 0, j = 0; i < l; i += 4, j++) {
+      color = imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]
+      bm.data[j] = color < 36 ? 0 : 1
+    }
+    info.isReady = true
+  }
+
+/*  function loadBm() {
     var ctx = imgCanvas.getContext('2d')
     bm = new Bitmap(imgCanvas.width, imgCanvas.height)
     var imgdataobj = ctx.getImageData(0, 0, bm.w, bm.h)
@@ -212,7 +225,7 @@ function Potrace(canvas, multiplyFactor) {
       bm.data[j] = color < 36 ? 0 : 1
     }
     info.isReady = true
-  }
+  } */
 
   function bmToPathlist() {
     var bm1 = bm.copy(),
@@ -1517,6 +1530,6 @@ function Potrace(canvas, multiplyFactor) {
     process: process,
     // getSVG: getSVG,
     getPolyPath: getPolyPath,
-    img: imgElement,
+    // img: imgElement,
   }
 }
