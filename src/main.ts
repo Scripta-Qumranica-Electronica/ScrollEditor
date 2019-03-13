@@ -15,16 +15,14 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faLanguage, faSpinner, faSearch, faRedo, faUndo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+// Other plugins
+import Toasted from 'vue-toasted';
+import VueShortcuts from 'vue-shortcuts';
+import RenderingOptimizationPlugin from './plugins/rendering-optimization';
+
 // i18n
 import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
-
-// Toasted
-import Toasted from 'vue-toasted';
-
-import VueShortcuts from 'vue-shortcuts';
-
-// import { VueHammer } from 'vue2-hammer';
 
 Vue.config.productionTip = false;
 
@@ -53,7 +51,8 @@ const i18n = new VueI18n( {
 
 Vue.use(Toasted);
 Vue.use(VueShortcuts, { prevent: ['input'] });
-// Vue.use(VueHammer);
+
+Vue.use(RenderingOptimizationPlugin);
 
 new Vue({
   router,

@@ -20,7 +20,6 @@
                         :height="masterImage.manifest.height"
                         :params="params"
                         :selected="false"
-                        :shrinkFactor="shrinkFactor"
                         :artefact="artefact">
       </artefact-canvas>
       <artefact-canvas  class="overlay-canvas"
@@ -31,7 +30,6 @@
                         :selected="true"
                         :editable="canEdit"
                         :artefact="artefact"
-                        :shrinkFactor="shrinkFactor"
                         @mask="onMaskChanged"
                         @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
@@ -109,7 +107,6 @@ export default Vue.extend({
       artefactEditingDataList: [] as ArtefactEditingData[],
       artefactEditingData: new ArtefactEditingData(),
       optimizedArtefacts: [] as OptimizedArtefact[],
-      shrinkFactor: 2,
     };
   },
   computed: {
@@ -202,7 +199,7 @@ export default Vue.extend({
         this.optimizedArtefacts = [];
       } else {
         this.optimizedArtefacts = this.fragment.artefacts.map(
-          (artefact, index) => new OptimizedArtefact(artefact, index, this.shrinkFactor)
+          (artefact, index) => new OptimizedArtefact(artefact, index, this.$render.scalingFactors.combined)
         );
       }
     },
@@ -303,7 +300,7 @@ export default Vue.extend({
         this.fragment!.artefacts!.forEach(async (art, index) => {
           if (this.artefactEditingDataList[index].dirty) {
             // Before saving, call unoptimize mask to create the larger mask again
-            const optomizedArtefact = new OptimizedArtefact(art, index, this.shrinkFactor);
+            const optomizedArtefact = new OptimizedArtefact(art, index, this.$render.scalingFactors.combined);
             const largeMask = optomizedArtefact.unoptimizeMask();
 
             await this.fragmentService.changeFragmentArtefactShape(
@@ -356,7 +353,7 @@ export default Vue.extend({
       }
     },
     async onNew(art: Artefact) {
-      const optimized = new OptimizedArtefact(art, this.optimizedArtefacts.length, this.shrinkFactor);
+      const optimized = new OptimizedArtefact(art, this.optimizedArtefacts.length, this.$render.scalingFactors.combined);
       this.optimizedArtefacts.push(optimized);
 
       this.artefact = optimized;

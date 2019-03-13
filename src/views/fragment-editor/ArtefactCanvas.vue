@@ -4,18 +4,18 @@
     class="artefactOverlay"
     id="artefactOverlay"
     :class="{ editable: editable, zoom: zooming }"
-    :width="width"
-    :height="height"
+    :width="width / $render.scalingFactors.combined"
+    :height="height / $render.scalingFactors.combined"
     style="top: 0px; left: 0px;"
-    :style="{transform: `scale(${scale * shrinkFactor})`}">
+    :style="{transform: `scale(${scale * $render.scalingFactors.canvas})`}">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         id="maskCanvas"
         class="maskCanvas"
         :class="{hidden: clip, pulse: editMode !== editModeDraw && selected}"
         ref="maskCanvas"
-        :width="width / shrinkFactor"
-        :height="height / shrinkFactor"
+        :width="width / $render.scalingFactors.combined"
+        :height="height / $render.scalingFactors.combined"
         @pointermove="pointerMove($event)"
         @pointerdown="pointerDown($event)"
         @pointerup="pointerUp($event)"
@@ -66,7 +66,6 @@ export default Vue.extend({
     editable: Boolean,
     width: Number,
     height: Number,
-    shrinkFactor: Number,
   },
   data() {
     return {
@@ -206,9 +205,9 @@ export default Vue.extend({
     },
     drawPoint(pos: Position) {
       this.maskCanvasContext.beginPath();
-      this.maskCanvasContext.arc(pos.x / this.scale / this.shrinkFactor,
-                                 pos.y / this.scale / this.shrinkFactor,
-                                 this.brushSize / 2 / this.scale / this.shrinkFactor,
+      this.maskCanvasContext.arc(pos.x / this.scale / this.$render.scalingFactors.canvas,
+                                 pos.y / this.scale / this.$render.scalingFactors.canvas,
+                                 this.brushSize / 2 / this.scale / this.$render.scalingFactors.combined,
                                  0, Math.PI * 2);
       this.maskCanvasContext.fill();
       this.maskCanvasContext.closePath();
@@ -223,11 +222,11 @@ export default Vue.extend({
     },
     drawLine(start: Position, end: Position) {
       this.maskCanvasContext.beginPath();
-      this.maskCanvasContext.lineWidth = this.brushSize / this.scale / this.shrinkFactor;
-      this.maskCanvasContext.moveTo(start.x / this.scale / this.shrinkFactor,
-                                    start.y / this.scale / this.shrinkFactor);
-      this.maskCanvasContext.lineTo(end.x / this.scale / this.shrinkFactor,
-                                    end.y / this.scale / this.shrinkFactor);
+      this.maskCanvasContext.lineWidth = this.brushSize / this.scale / this.$render.scalingFactors.combined;
+      this.maskCanvasContext.moveTo(start.x / this.scale / this.$render.scalingFactors.canvas,
+                                    start.y / this.scale / this.$render.scalingFactors.canvas);
+      this.maskCanvasContext.lineTo(end.x / this.scale / this.$render.scalingFactors.canvas,
+                                    end.y / this.scale / this.$render.scalingFactors.canvas);
       this.maskCanvasContext.stroke();
       this.maskCanvasContext.closePath();
 

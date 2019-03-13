@@ -1,15 +1,15 @@
 <template>
     <svg    ref="roiSvg"
-            :width="width"
-            :height="height"
-            :viewbox="'0 0 ' + width + ' ' + height">
+            :width="actualWidth * zoomLevel"
+            :height="actualHeight * zoomLevel"
+            :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
     <g :transform="`scale(${zoomLevel}) ${rotateTransform})`">
       <defs>
-        <path id="Full-clip-path" :d="fullImageMask" :transform="`scale(${scale})`"></path>
+        <path id="Full-clip-path" :d="fullImageMask"></path>  <!-- No scaling transform, since fullImageMask is already scaled -->
         <clipPath id="Full-clipping-outline">
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Full-clip-path"></use>
         </clipPath>
-        <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg" :transform="`scale(${scale})`"></path>
+        <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg" :transform="pathTransform"></path>
         <clipPath id="Clipping-outline">
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Clip-path"></use>
         </clipPath>
@@ -19,9 +19,9 @@
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg" 
               draggable="false" 
-              :xlink:href="imageSetting.image.getFullUrl(100)"
-              :width="width"
-              :height="height"
+              :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
+              :width="actualWidth"
+              :height="actualHeight"
               :opacity="imageSetting.opacity"
               :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
       </g>
@@ -60,14 +60,25 @@ export default Vue.extend({
       return 1;
     },
     fullImageMask(): string {
-      return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
+      return `M0 0L${this.actualWidth} 0L${this.actualWidth} ${this.actualHeight}L0 ${this.actualHeight}`;
     },
     zoomLevel(): number {
       // Lot of the old code uses zoomLevel
       return this.params.zoom;
     },
+    actualWidth(): number {
+      return this.width / this.$render.scalingFactors.image;
+    },
+    actualHeight(): number {
+      return this.height / this.$render.scalingFactors.image;
+    },
     rotateTransform(): string {
-      return `rotate(${this.params.rotationAngle} ${this.width / 2} ${this.height / 2}`;
+      return `rotate(${this.params.rotationAngle} ${this.actualWidth / 2} ${this.actualHeight / 2}`;
+    },
+    pathTransform(): string {
+      const transform = 'scale(0.5)'; // `scale(${this.scale / this.$render.scalingFactors.image})`;
+      console.log('pathTransform is ', transform);
+      return transform;
     },
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
