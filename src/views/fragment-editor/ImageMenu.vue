@@ -3,7 +3,7 @@
     <section>
       <h5>Artefacts</h5>
       <table>
-        <tr v-for="art in fragment.artefacts" :key="art.id">
+        <tr v-for="art in artefacts" :key="art.id">
           <td>
             <span v-if="renameInputActive!==art" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
           </td>
@@ -119,10 +119,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue, { PropOptions } from 'vue';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
-import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting } from './types';
+import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting, OptimizedArtefact } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
@@ -140,6 +140,10 @@ export default Vue.extend({
   },
   props: {
     fragment: Fragment,
+    artefacts: {
+      type: Array,
+      default: () => [],
+    } as PropOptions<OptimizedArtefact[]>,
     artefact: Artefact,
     editable: Boolean,
     params: EditorParams,
@@ -231,7 +235,7 @@ export default Vue.extend({
       return DrawingMode[val].toString() === this.params.drawingMode.toString();
     },
     save() {
-      this.$emit('save', this.artefact.mask);
+      this.$emit('save', this.artefact);
     },
     undoModal() {
       (this.$refs.undoRef as any).show();

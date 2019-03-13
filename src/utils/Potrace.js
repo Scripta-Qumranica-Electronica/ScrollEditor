@@ -1,9 +1,9 @@
 /* This file was taken as is from the Scrollery-website.
  * It wasn't changed to Typescript yet, we might do so in the future.
  */
-export function trace(canvas) {
+export function trace(canvas, scale) {
   return new Promise((resolve, reject) => {
-    var potrace = new Potrace(canvas, 1)
+    var potrace = new Potrace(canvas, scale)
     potrace.process(() => {
       let path = potrace.getPolyPath(1)
       if (path === '') {

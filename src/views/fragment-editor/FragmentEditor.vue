@@ -11,7 +11,6 @@
                   :height="masterImage.manifest.height || 0"
                   :params="params"
                   :fragment="fragment"
-                  :artefact="artefact"
                   :editable="canEdit"
                   :side="fragment.recto"
                   :clipping-mask="artefact.mask">
@@ -21,6 +20,7 @@
                         :height="masterImage.manifest.height"
                         :params="params"
                         :selected="false"
+                        :shrinkFactor="shrinkFactor"
                         :artefact="artefact">
       </artefact-canvas>
       <artefact-canvas  class="overlay-canvas"
@@ -31,6 +31,7 @@
                         :selected="true"
                         :editable="canEdit"
                         :artefact="artefact"
+                        :shrinkFactor="shrinkFactor"
                         @mask="onMaskChanged"
                         @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
@@ -38,6 +39,7 @@
     <div class="col-xl-2 col-lg-3 col-md-4" id="image-menu-div" v-if="!waiting && fragment">
       <image-menu
         :fragment="fragment"
+        :artefacts="optimizedArtefacts"
         :artefact="artefact"
         :params="params"
         :editable="canEdit"
@@ -74,6 +76,7 @@ import {
     DrawingMode,
     ZoomRequestEventArgs,
     ArtefactEditingData,
+    OptimizedArtefact,
 } from './types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
@@ -95,16 +98,18 @@ export default Vue.extend({
       scrollService: new ScrollService(this.$store),
       imageService: new ImageService(),
       waiting: false,
-      artefact: undefined as Artefact | undefined,
+      artefact: undefined as OptimizedArtefact | undefined,
       initialMask: new Polygon(),
       params: new EditorParams(),
       saving: false,
       renaming: false,
-      renameInputActive: undefined as Artefact | undefined,
-      nonSelectedArtefacts: [] as Artefact[],
+      renameInputActive: undefined as OptimizedArtefact | undefined,
+      nonSelectedArtefacts: [] as OptimizedArtefact[],
       nonSelectedMask: new Polygon(),
       artefactEditingDataList: [] as ArtefactEditingData[],
       artefactEditingData: new ArtefactEditingData(),
+      optimizedArtefacts: [] as OptimizedArtefact[],
+      shrinkFactor: 2,
     };
   },
   computed: {
@@ -140,12 +145,13 @@ export default Vue.extend({
       }
 
       if (this.fragment!.artefacts!.length) {
-        this.artefact = this.fragment!.artefacts![0];
-        this.fragment!.artefacts!.forEach((element) => {
+        this.optimizeArtefacts();
+        this.artefact = this.optimizedArtefacts[0];
+        this.optimizedArtefacts.forEach((element) => {
           this.artefactEditingDataList.push(new ArtefactEditingData());
         });
         this.artefactEditingData = this.getArtefactEditingData(0);
-        this.initialMask = this.artefact.mask;
+        this.initialMask = this.artefact.optimizedMask;
       } else {
         this.artefact = undefined;
         this.initialMask = new Polygon();
@@ -191,6 +197,41 @@ export default Vue.extend({
         }
       }
     },
+    optimizeArtefacts() {
+      if (!this.fragment || !this.fragment.artefacts) {
+        this.optimizedArtefacts = [];
+      } else {
+        this.optimizedArtefacts = this.fragment.artefacts.map(
+          (artefact, index) => new OptimizedArtefact(artefact, index, this.shrinkFactor)
+        );
+      }
+    },
+    onMaskChanged(eventArgs: MaskChangeOperation) {
+      if (!this.artefact) {
+        throw new Error("Can't set mask if there is no artefact");
+      }
+      this.artefactEditingData.dirty = true;
+
+      // Check if the new mask intersects with a non selected artefact mask
+      const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
+      if (!intersection.empty) {
+        this.$toasted.show("Artefact can't overlap other artefacts", {
+          type: 'info',
+          position: 'top-center',
+          duration: 5000,
+        });
+        return;
+      }
+      // Place current mask in undo buffer, clear redo buffer
+      if (this.artefactEditingData.undoList.length >= 50) {
+        this.artefactEditingData.undoList.slice(1);
+      }
+      this.artefactEditingData.undoList.push(eventArgs);
+      this.artefactEditingData.redoList = [];
+      this.artefact.optimizedMask = eventArgs.polygon;
+      this.artefact.unoptimizeMask();
+    },
+    /*
     onMaskChanged(eventArgs: MaskChangeOperation) {
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
@@ -217,7 +258,7 @@ export default Vue.extend({
       this.artefactEditingData.undoList.push(eventArgs);
       this.artefactEditingData.redoList = [];
       this.artefact.mask = eventArgs.polygon;
-    },
+    },*/
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
@@ -261,7 +302,13 @@ export default Vue.extend({
       try {
         this.fragment!.artefacts!.forEach(async (art, index) => {
           if (this.artefactEditingDataList[index].dirty) {
-            await this.fragmentService.changeFragmentArtefactShape(this.scrollVersionId, this.fragment, art);
+            // Before saving, call unoptimize mask to create the larger mask again
+            const optomizedArtefact = new OptimizedArtefact(art, index, this.shrinkFactor);
+            const largeMask = optomizedArtefact.unoptimizeMask();
+
+            await this.fragmentService.changeFragmentArtefactShape(
+              this.scrollVersionId, this.fragment, optomizedArtefact
+              );
             this.artefactEditingDataList[index].dirty = false;
           }
         });
@@ -281,12 +328,14 @@ export default Vue.extend({
         const toUndo: MaskChangeOperation = this. artefactEditingData.undoList.pop()!;
         this.artefactEditingData.redoList.push(toUndo);
 
-        // Undo the operation by applying the delta in the opposite direction
-        if (toUndo.drawingMode === DrawingMode.DRAW) {
-          this.artefact.mask = Polygon.subtract(this.artefact.mask, toUndo.delta);
-        } else {
-          this.artefact.mask = Polygon.add(this.artefact.mask, toUndo.delta);
-        }
+        this.artefact.mask = toUndo.polygon;
+
+        // // Undo the operation by applying the delta in the opposite direction
+        // if (toUndo.drawingMode === DrawingMode.DRAW) {
+        //   this.artefact.mask = Polygon.subtract(this.artefact.mask, toUndo.delta);
+        // } else {
+        //   this.artefact.mask = Polygon.add(this.artefact.mask, toUndo.delta);
+        // }
       }
     },
     onRedo() {
@@ -297,15 +346,20 @@ export default Vue.extend({
         const toRedo: MaskChangeOperation = this.artefactEditingData.redoList.pop()!;
         this.artefactEditingData.undoList.push(toRedo);
 
-        if (toRedo.drawingMode === DrawingMode.DRAW) {
-          this.artefact.mask = Polygon.add(this.artefact.mask, toRedo.delta);
-        } else {
-          this.artefact.mask = Polygon.subtract(this.artefact.mask, toRedo.delta);
-        }
+        this.artefact.mask = toRedo.polygon;
+
+        // if (toRedo.drawingMode === DrawingMode.DRAW) {
+        //   this.artefact.mask = Polygon.add(this.artefact.mask, toRedo.delta);
+        // } else {
+        //   this.artefact.mask = Polygon.subtract(this.artefact.mask, toRedo.delta);
+        // }
       }
     },
     async onNew(art: Artefact) {
-      this.artefact = art;
+      const optimized = new OptimizedArtefact(art, this.optimizedArtefacts.length, this.shrinkFactor);
+      this.optimizedArtefacts.push(optimized);
+
+      this.artefact = optimized;
       this.prepareNonSelectedArtefacts();
       if (!this.artefact) {
         throw new Error("Can't create if there is no artefact");
@@ -337,12 +391,12 @@ export default Vue.extend({
         this.renaming = false;
       }
     },
-    inputRenameChanged(art: Artefact| undefined) {
+    inputRenameChanged(art: OptimizedArtefact| undefined) {
       this.renameInputActive = art;
     },
-    onArtefactChanged(art: Artefact) {
+    onArtefactChanged(art: OptimizedArtefact) {
       this.artefact = art;
-      const index = this.fragment!.artefacts!.indexOf(art); // index artefact in artefact list.
+      const index = this.optimizedArtefacts.indexOf(art); // index artefact in artefact list.
       this.artefactEditingData = this.getArtefactEditingData(index);
       this.prepareNonSelectedArtefacts();
     },
@@ -365,7 +419,7 @@ export default Vue.extend({
       }
     },
     prepareNonSelectedArtefacts() {
-      this.nonSelectedArtefacts = this.fragment!.artefacts!.filter((artefact) => artefact !== this.artefact);
+      this.nonSelectedArtefacts = this.optimizedArtefacts.filter((artefact) => artefact !== this.artefact);
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
         this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
@@ -373,6 +427,16 @@ export default Vue.extend({
     }
   }
 });
+
+/*
+ * Todo:
+ *
+ * Add a shrinkFactor data element, initialize to 20.
+ * Pass shrinkFactor as a property to ArtefactCanvas, and not as a data entry of ArtefactCanvas
+ * Change ArtefactCanvas to use the optimizedMask instead of the mask
+ * Make sure ArtefactCanvas does not shrink the mask (in clipCanvas and trace)
+ * Before saving, call unoptimize mask to create the larger mask again
+ */
 </script>
 
 <style lang="scss" scoped>

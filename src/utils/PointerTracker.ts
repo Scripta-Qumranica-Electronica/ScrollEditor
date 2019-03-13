@@ -62,9 +62,9 @@ export class Position {
         this.y = y;
     }
 
-    public get norm(): number {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
-    }
+    // public get norm(): number {
+    //     return Math.sqrt(this.x * this.x + this.y * this.y);
+    // }
 }
 
 export class PointerTrackingEvent {

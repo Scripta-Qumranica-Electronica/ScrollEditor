@@ -53,7 +53,7 @@ export class Operation {
 export class MaskChangeOperation { // extends Operation {
     public polygon = {} as Polygon;
     public drawingMode = DrawingMode.DRAW;
-    public delta = {} as Polygon;
+    // public delta = {} as Polygon;
 }
 
 export class RotationOperation extends Operation {
@@ -73,4 +73,35 @@ export class ArtefactEditingData {
     public undoList = [] as MaskChangeOperation[];
     public redoList = [] as MaskChangeOperation[];
     public dirty = false;
+}
+
+export class OptimizedArtefact extends Artefact {
+    private static colors = [
+        'purple', 'blue', 'orange', 'red', 'green', 'gray', 'magenta', 'olive', 'brown', 'cadetBlue'
+    ];
+
+    public color: string;
+    public shrinkFactor: number;
+    public optimizedMask: Polygon;
+
+    public constructor(artefact: Artefact, fragmentIndex: number, shrinkFactor: number) {
+        super(artefact);
+
+        this.color = OptimizedArtefact.colors[fragmentIndex % OptimizedArtefact.colors.length];
+        this.shrinkFactor = shrinkFactor;
+
+        this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor);
+    }
+
+    public unoptimizeMask() {
+        this.mask = Polygon.scale(this.optimizedMask, this.shrinkFactor);
+    }
+
+    /*
+     * Add a shrinkFactor parameter to the constructor.
+     * Add an optimizedMask property of type polygon.
+     * Use this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor) to fill it (in the constructor);
+     *
+     * Add an unoptimize method: unoptimizeMask which will set this.mask to Polgyon.scale(optimizedMask,...)
+     */
 }
