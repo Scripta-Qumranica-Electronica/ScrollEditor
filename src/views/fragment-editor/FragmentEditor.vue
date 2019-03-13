@@ -15,8 +15,9 @@
                   :side="fragment.recto"
                   :clipping-mask="artefact.mask">
       </roi-canvas>
+      <!-- TODO: Pass bitmaps to the Artefact canvases -->
       <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
-                        :width="masterImage.manifest.width"
+                        :width="masterImage.manifest.width"  
                         :height="masterImage.manifest.height"
                         :params="params"
                         :selected="false"
