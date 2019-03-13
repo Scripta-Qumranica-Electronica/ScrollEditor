@@ -3,7 +3,7 @@
  */
 export function trace(imageData, width, height, scale) {
   return new Promise((resolve, reject) => {
-    var potrace = new Potrace(imageData, width, height, scale)
+    var potrace = new Potrace(imageData, width, height, 1)
     potrace.process(() => {
       let path = potrace.getPolyPath(scale)
       if (path === '') {
@@ -1482,14 +1482,14 @@ function Potrace(imageData, width, height, multiplyFactor) {
       function segment(i) {
         var s =
           'L ' +
-          (curve.c[i * 3 + 1].x * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 1].x * size).toFixed(5) * multiplyFactor +
           ' ' +
-          (curve.c[i * 3 + 1].y * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 1].y * size).toFixed(5) * multiplyFactor +
           ' '
         s +=
-          (curve.c[i * 3 + 2].x * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 2].x * size).toFixed(5) * multiplyFactor +
           ' ' +
-          (curve.c[i * 3 + 2].y * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 2].y * size).toFixed(5) * multiplyFactor +
           ' '
         return s
       }

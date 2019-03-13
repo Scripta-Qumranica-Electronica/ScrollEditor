@@ -1,5 +1,5 @@
 import { IIIFImage } from '@/models/image';
-import { Polygon } from '@/utils/Polygons';
+import { Polygon, DrawPolygon, ExtractPolygon } from '@/utils/Polygons';
 import { Artefact } from '@/models/artefact';
 import { Position, PointerTrackingEvent } from '@/utils/PointerTracker';
 
@@ -38,33 +38,15 @@ export interface EditorParamsChangedArgs {
     params: EditorParams;
 }
 
-export class Operation {
-    public artefact = {} as Artefact;
-
-    public undo() {
-        console.log('operation. undo');
-    }
-
-    public redo() {
-        console.log('operation. redo');
-    }
-}
-
 /* TODO: Report a bitmap and not a polygon */
-export class MaskChangeOperation { // extends Operation {
-    public polygon = {} as Polygon;
-    public drawingMode = DrawingMode.DRAW;
-    // public delta = {} as Polygon;
+export interface MaskChangedEventArgs {
+    bitmap: ImageData;
 }
 
-/* TODO: Add a new type for the undo poerations, which will contain a bitmap *and* a polygon */
-
-export class RotationOperation extends Operation {
-    public angle = 0;
-
-    public combine() {
-        console.log('combine angles');
-    }
+export interface MaskChangeOperation { // extends Operation {
+    polygon: Polygon;
+    bitmap: ImageData;
+    drawingMode: DrawingMode;
 }
 
 export interface ZoomRequestEventArgs {
@@ -87,26 +69,29 @@ export class OptimizedArtefact extends Artefact {
 
     public color: string;
     public shrinkFactor: number;
-    public optimizedMask: Polygon;
+    public bitmap: ImageData;
+    private bitmapWidth: number;
+    private bitmapHeight: number;
 
-    public constructor(artefact: Artefact, fragmentIndex: number, shrinkFactor: number) {
+    public constructor(artefact: Artefact, fragmentIndex: number, shrinkFactor: number, width: number, height: number) {
         super(artefact);
 
         this.color = OptimizedArtefact.colors[fragmentIndex % OptimizedArtefact.colors.length];
         this.shrinkFactor = shrinkFactor;
 
-        this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor);
+        this.bitmapWidth = width / shrinkFactor;
+        this.bitmapHeight = height / shrinkFactor;
+        this.bitmap = DrawPolygon(artefact.mask, this.bitmapWidth, this.bitmapHeight, this.color, 1 / shrinkFactor);
     }
 
-    public unoptimizeMask() {
-        this.mask = Polygon.scale(this.optimizedMask, this.shrinkFactor);
+    public async recalculateMask() {
+        this.mask = await ExtractPolygon(this.bitmap, this.bitmapWidth, this.bitmapHeight, this.shrinkFactor);
+/*        console.log('New mask ', this.mask);
+        this.mask = Polygon.scale(this.mask, this.shrinkFactor);
+        console.log('Scaled mask ', this.mask); */
     }
 
-    /*
-     * Add a shrinkFactor parameter to the constructor.
-     * Add an optimizedMask property of type polygon.
-     * Use this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor) to fill it (in the constructor);
-     *
-     * Add an unoptimize method: unoptimizeMask which will set this.mask to Polgyon.scale(optimizedMask,...)
-     */
+    public async calcOptimizedPolygon() {
+        return await ExtractPolygon(this.bitmap, this.bitmapWidth, this.bitmapHeight, 1);
+    }
 }

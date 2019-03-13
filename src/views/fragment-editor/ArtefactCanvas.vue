@@ -40,7 +40,7 @@ const trace = require('@/utils/Potrace.js').trace;
 // tslint:enable:no-var-requires
 
 import {
-  clipCanvas,
+  // clipCanvas,
   wktPolygonToSvg,
   svgPolygonToGeoJSON,
   svgPolygonToClipper,
@@ -51,13 +51,14 @@ import { EditorParams,
          MaskChangeOperation,
          ZoomRequestEventArgs,
          OptimizedArtefact,
+MaskChangedEventArgs,
          } from './types';
 import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
-import { Polygon } from '@/utils/Polygons';
+import { Polygon, DrawPolygon, ExtractPolygon } from '@/utils/Polygons';
 import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';
 
-/* TODO: Use artefact.bitmap instead of artefact.optimizedMask */
+/* TODO: Use artefact.bitmap instead of artefact.optimizedMask  - 3 times in fragment editor*/
 
 export default Vue.extend({
   props: {
@@ -103,9 +104,15 @@ export default Vue.extend({
     rotationAngle(): number {
       return this.params.rotationAngle;
     },
+    clip(): boolean {
+      return this.params.clipMask;
+    },
     /* TODO: Remove clippingMask */
-    clippingMask(): Polygon {
-      return this.artefact.optimizedMask;
+    // clippingMask(): Polygon {
+    //   return this.artefact.optimizedMask;
+    // },
+    bitmap(): ImageData {
+      return this.artefact.bitmap;
     },
     editModeDraw() {
       return EditMode.DRAWING;
@@ -179,7 +186,7 @@ export default Vue.extend({
 
       if (this.editMode === EditMode.DRAWING) {
         this.drawPoint(this.lastCursorPos);
-        await this.recalculateMask();
+        await this.notifyMaskChange();
       }
       // console.log('Edit mode set to NONE');
       this.editMode = EditMode.NONE;
@@ -285,27 +292,19 @@ export default Vue.extend({
       const extended = new PointerTrackingEvent(event, rotatedPos);
       return extended;
     },
-    async recalculateMask() {
-      /* TODO: Report bitmap to parent (no creation of polygons) */
-      const imgData = this.maskCanvasContext.getImageData(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-      const canvasSvg: string = await trace(imgData, this.maskCanvas.width, this.maskCanvas.height, 1);
-      const canvasPolygon = Polygon.fromSvg(canvasSvg);
-
-      const maskChangeOperation: MaskChangeOperation = {
-        polygon: canvasPolygon,
-        drawingMode: this.params.drawingMode,
-      } as MaskChangeOperation;
-
-      this.$emit('mask', maskChangeOperation);
+    async notifyMaskChange() {
+      const args = {
+        bitmap: this.bitmap,
+      } as MaskChangedEventArgs;
+      this.$emit('maskChanged', args);
     },
     abortDrawing() {
       /* TODO: Use a bitmap and not a polygon */
-        this.applyMaskToCanvas(this.clippingMask);
+      this.setCanvasImage(this.bitmap);
     },
-    applyMaskToCanvas(mask: Polygon | undefined) {
-      /* TODO: Use a bitmap and not a polygon */
-      if (mask) {
-        clipCanvas(this.maskCanvas, mask.svg, this.artefact.color, 1);
+    setCanvasImage(bm: ImageData | undefined) {
+      if (bm) {
+        this.maskCanvasContext.putImageData(bm, 0, 0);
       } else {
         this.maskCanvasContext.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       }
@@ -313,8 +312,11 @@ export default Vue.extend({
   },
   watch: {
     /* TODO: Watch bitmap and not a polygon */
-    clippingMask(to: Polygon | undefined, from: Polygon | undefined) {
-      this.applyMaskToCanvas(to);
+    // clippingMask(to: Polygon | undefined, from: Polygon | undefined) {
+    //   this.applyMaskToCanvas(to);
+    // },
+    bitmap(to: ImageData | undefined, from: ImageData | undefined) {
+      this.setCanvasImage(to);
     },
   },
   mounted() {
@@ -328,7 +330,7 @@ export default Vue.extend({
     }
     this.maskCanvasContext = ctx;
 
-    this.applyMaskToCanvas(this.clippingMask); /* TODO: Apply bitmap and not a polygon */
+    this.setCanvasImage(this.bitmap);
   }
 });
 </script>
