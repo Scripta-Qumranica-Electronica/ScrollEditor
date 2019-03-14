@@ -39,15 +39,18 @@ export interface EditorParamsChangedArgs {
 }
 
 export interface MaskChangedEventArgs {
-    optimizedPolygon: Polygon;
-    polygon: Polygon;
+    optimizedMask: Polygon;
     drawingMode: DrawingMode;
 }
 
-export class MaskChangeOperation {
-    public polygon = {} as Polygon;
-    public drawingMode = DrawingMode.DRAW;
-    // public delta = {} as Polygon;
+export interface MaskChangeOperation {
+    // Previous values for the undo
+    prevMask: Polygon;
+    prevOptimizedMask: Polygon;
+
+    // New values for the redo
+    newMask: Polygon;
+    newOptimizedMask: Polygon;
 }
 
 export interface ZoomRequestEventArgs {

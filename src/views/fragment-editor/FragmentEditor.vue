@@ -30,7 +30,7 @@
                         :selected="true"
                         :editable="canEdit"
                         :artefact="artefact"
-                        @mask="onMaskChanged"
+                        @maskChanged="onMaskChanged"
                         @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
     </div>
@@ -71,6 +71,7 @@ import {
     EditorParams,
     EditorParamsChangedArgs,
     MaskChangeOperation,
+    MaskChangedEventArgs,
     DrawingMode,
     ZoomRequestEventArgs,
     ArtefactEditingData,
@@ -203,14 +204,14 @@ export default Vue.extend({
         );
       }
     },
-    onMaskChanged(eventArgs: MaskChangeOperation) {
+    onMaskChanged(eventArgs: MaskChangedEventArgs) {
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
       this.artefactEditingData.dirty = true;
 
       // Check if the new mask intersects with a non selected artefact mask
-      const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
+      const intersection = Polygon.intersect(eventArgs.optimizedMask, this.nonSelectedMask);
       if (!intersection.empty) {
         this.$toasted.show("Artefact can't overlap other artefacts", {
           type: 'info',
@@ -219,14 +220,27 @@ export default Vue.extend({
         });
         return;
       }
-      // Place current mask in undo buffer, clear redo buffer
+
+      // Store the old masks for the undo buffer
+      const changeOperation = {
+        prevMask: this.artefact.mask,
+        prevOptimizedMask: this.artefact.optimizedMask,
+      } as MaskChangeOperation;
+
+
+      // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)
+      this.artefact.optimizedMask = eventArgs.optimizedMask;
+      this.artefact.unoptimizeMask();
+
+      changeOperation.newMask = this.artefact.mask;
+      changeOperation.newOptimizedMask = this.artefact.optimizedMask;
+
       if (this.artefactEditingData.undoList.length >= 50) {
         this.artefactEditingData.undoList.slice(1);
       }
-      this.artefactEditingData.undoList.push(eventArgs);
+
+      this.artefactEditingData.undoList.push(changeOperation);
       this.artefactEditingData.redoList = [];
-      this.artefact.optimizedMask = eventArgs.polygon;
-      this.artefact.unoptimizeMask();
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
@@ -294,17 +308,12 @@ export default Vue.extend({
       }
       if (this.artefactEditingData.undoList.length) {
         this.artefactEditingData.dirty = true;
+
         const toUndo: MaskChangeOperation = this. artefactEditingData.undoList.pop()!;
         this.artefactEditingData.redoList.push(toUndo);
 
-        this.artefact.mask = toUndo.polygon;
-
-        // // Undo the operation by applying the delta in the opposite direction
-        // if (toUndo.drawingMode === DrawingMode.DRAW) {
-        //   this.artefact.mask = Polygon.subtract(this.artefact.mask, toUndo.delta);
-        // } else {
-        //   this.artefact.mask = Polygon.add(this.artefact.mask, toUndo.delta);
-        // }
+        this.artefact.optimizedMask = toUndo.prevOptimizedMask;
+        this.artefact.mask = toUndo.prevMask;
       }
     },
     onRedo() {
@@ -315,13 +324,8 @@ export default Vue.extend({
         const toRedo: MaskChangeOperation = this.artefactEditingData.redoList.pop()!;
         this.artefactEditingData.undoList.push(toRedo);
 
-        this.artefact.mask = toRedo.polygon;
-
-        // if (toRedo.drawingMode === DrawingMode.DRAW) {
-        //   this.artefact.mask = Polygon.add(this.artefact.mask, toRedo.delta);
-        // } else {
-        //   this.artefact.mask = Polygon.subtract(this.artefact.mask, toRedo.delta);
-        // }
+        this.artefact.optimizedMask = toRedo.newOptimizedMask;
+        this.artefact.mask = toRedo.newMask;
       }
     },
     async onNew(art: Artefact) {

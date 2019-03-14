@@ -48,7 +48,7 @@ import {
 } from '@/utils/VectorFactory';
 import { EditorParams,
          DrawingMode,
-         MaskChangeOperation,
+         MaskChangedEventArgs,
          ZoomRequestEventArgs,
          OptimizedArtefact,
          } from './types';
@@ -272,13 +272,13 @@ export default Vue.extend({
       const canvasSvg: any = await trace(canvas, 1);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
-      const maskChangeOperation: MaskChangeOperation = {
-        polygon: canvasPolygon,
+      const eventArgs = {
+        optimizedMask: canvasPolygon,
         drawingMode: this.params.drawingMode,
-      } as MaskChangeOperation;
+      } as MaskChangedEventArgs;
 
       this.currentMask = canvasPolygon;
-      this.$emit('mask', maskChangeOperation);
+      this.$emit('maskChanged', eventArgs);
     },
     abortDrawing() {
       // TODO: Change this into a bitmap operation
@@ -296,7 +296,7 @@ export default Vue.extend({
   },
   watch: {
     optimizedMask(to: Polygon | undefined, from: Polygon | undefined) {
-      if (!to || to.svg != this.currentMask.svg) {
+      if (!to || to.svg !== this.currentMask.svg) {
         // Apply to canvas only if this is a new mask (or an empty one)
         this.applyMaskToCanvas();
       }
