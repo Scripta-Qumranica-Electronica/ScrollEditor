@@ -17,6 +17,6 @@ export interface RenderingOptimizationData {
 export default function RenderingOptimizationPlugin(Vue: typeof _Vue, options?: any): void {
     // TODO: Let a function calculate this based on the current browser abilities
     Vue.prototype.$render = {
-        scalingFactors: new RenderScalingData(2, 10),
+        scalingFactors: new RenderScalingData(2, 4),
     } as RenderingOptimizationData;
 }
