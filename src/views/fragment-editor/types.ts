@@ -85,10 +85,11 @@ export class OptimizedArtefact extends Artefact {
     }
 
     public async recalculateMask() {
-        this.mask = await ExtractPolygon(this.bitmap, this.bitmapWidth, this.bitmapHeight, this.shrinkFactor);
-/*        console.log('New mask ', this.mask);
+        debugger
+        this.mask = await ExtractPolygon(this.bitmap, this.bitmap.width, this.bitmap.height, 1);
+        // console.log('New mask ', this.mask);
         this.mask = Polygon.scale(this.mask, this.shrinkFactor);
-        console.log('Scaled mask ', this.mask); */
+        // console.log('Scaled mask ', this.mask);
     }
 
     public async calcOptimizedPolygon() {
