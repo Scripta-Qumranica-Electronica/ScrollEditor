@@ -4,7 +4,7 @@
     <div v-if="waiting">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting" class="container-fluid">
+    <div v-if="!waiting" class="container-fluid" id="main-container">
       <router-view></router-view>
     </div>
   </div>
@@ -44,4 +44,8 @@ export default {
 </script>
 
 <style>
+#main-container {
+  max-height: calc(100vh - 56px);   /* Navvar is 56 pixels high */
+  overflow: hidden;
+}
 </style>

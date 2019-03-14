@@ -38,30 +38,19 @@ export interface EditorParamsChangedArgs {
     params: EditorParams;
 }
 
-export class Operation {
-    public artefact = {} as Artefact;
-
-    public undo() {
-        console.log('operation. undo');
-    }
-
-    public redo() {
-        console.log('operation. redo');
-    }
+export interface MaskChangedEventArgs {
+    optimizedMask: Polygon;
+    drawingMode: DrawingMode;
 }
 
-export class MaskChangeOperation { // extends Operation {
-    public polygon = {} as Polygon;
-    public drawingMode = DrawingMode.DRAW;
-    public delta = {} as Polygon;
-}
+export interface MaskChangeOperation {
+    // Previous values for the undo
+    prevMask: Polygon;
+    prevOptimizedMask: Polygon;
 
-export class RotationOperation extends Operation {
-    public angle = 0;
-
-    public combine() {
-        console.log('combine angles');
-    }
+    // New values for the redo
+    newMask: Polygon;
+    newOptimizedMask: Polygon;
 }
 
 export interface ZoomRequestEventArgs {
@@ -73,4 +62,35 @@ export class ArtefactEditingData {
     public undoList = [] as MaskChangeOperation[];
     public redoList = [] as MaskChangeOperation[];
     public dirty = false;
+}
+
+export class OptimizedArtefact extends Artefact {
+    private static colors = [
+        'purple', 'blue', 'orange', 'red', 'green', 'gray', 'magenta', 'olive', 'brown', 'cadetBlue'
+    ];
+
+    public color: string;
+    public shrinkFactor: number;
+    public optimizedMask: Polygon;
+
+    public constructor(artefact: Artefact, fragmentIndex: number, shrinkFactor: number) {
+        super(artefact);
+
+        this.color = OptimizedArtefact.colors[fragmentIndex % OptimizedArtefact.colors.length];
+        this.shrinkFactor = shrinkFactor;
+
+        this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor);
+    }
+
+    public unoptimizeMask() {
+        this.mask = Polygon.scale(this.optimizedMask, this.shrinkFactor);
+    }
+
+    /*
+     * Add a shrinkFactor parameter to the constructor.
+     * Add an optimizedMask property of type polygon.
+     * Use this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor) to fill it (in the constructor);
+     *
+     * Add an unoptimize method: unoptimizeMask which will set this.mask to Polgyon.scale(optimizedMask,...)
+     */
 }
