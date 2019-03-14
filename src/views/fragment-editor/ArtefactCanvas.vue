@@ -57,8 +57,6 @@ import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';
 
-/* TODO: Use artefact.bitmap instead of artefact.optimizedMask */
-
 export default Vue.extend({
   props: {
     params: EditorParams,
@@ -76,10 +74,12 @@ export default Vue.extend({
       firstMoveOfDraw: false,
       mouseClientPosition: {} as Position,
       editMode: EditMode.NONE,
+      // editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
       maskCanvasContext: { } as CanvasRenderingContext2D,
+      // editingCanvasContext: { } as CanvasRenderingContext2D,
       pointerTracker: new PointerTracker(),
       adjFingerCount: 0,
     };
@@ -88,11 +88,14 @@ export default Vue.extend({
     maskCanvas(): HTMLCanvasElement {
       return this.$refs.maskCanvas as HTMLCanvasElement;
     },
-    scale(): number {
+    scale(): number { // TODO: Rename scale to zoomFactor
       return this.params.zoom;
     },
     brushSize(): number {
       return this.params.brushSize;
+    },
+    clip(): boolean {
+      return this.params.clipMask;
     },
     cursorColor(): string {
       return this.params.drawingMode === DrawingMode.DRAW ? 'yellow' : 'black';
@@ -103,7 +106,6 @@ export default Vue.extend({
     rotationAngle(): number {
       return this.params.rotationAngle;
     },
-    /* TODO: Remove clippingMask */
     clippingMask(): Polygon {
       return this.artefact.optimizedMask;
     },
@@ -286,7 +288,6 @@ export default Vue.extend({
       return extended;
     },
     async recalculateMask() {
-      /* TODO: Report bitmap to parent (no creation of polygons) */
       const imgData = this.maskCanvasContext.getImageData(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       const canvasSvg: string = await trace(imgData, this.maskCanvas.width, this.maskCanvas.height, 1);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
@@ -299,11 +300,9 @@ export default Vue.extend({
       this.$emit('mask', maskChangeOperation);
     },
     abortDrawing() {
-      /* TODO: Use a bitmap and not a polygon */
         this.applyMaskToCanvas(this.clippingMask);
     },
     applyMaskToCanvas(mask: Polygon | undefined) {
-      /* TODO: Use a bitmap and not a polygon */
       if (mask) {
         clipCanvas(this.maskCanvas, mask.svg, this.artefact.color, 1);
       } else {
@@ -312,9 +311,11 @@ export default Vue.extend({
     },
   },
   watch: {
-    /* TODO: Watch bitmap and not a polygon */
     clippingMask(to: Polygon | undefined, from: Polygon | undefined) {
       this.applyMaskToCanvas(to);
+    },
+    artefact(to: OptimizedArtefact, from: OptimizedArtefact) {
+      this.applyMaskToCanvas(to.mask);
     },
   },
   mounted() {
@@ -328,7 +329,7 @@ export default Vue.extend({
     }
     this.maskCanvasContext = ctx;
 
-    this.applyMaskToCanvas(this.clippingMask); /* TODO: Apply bitmap and not a polygon */
+    this.applyMaskToCanvas(this.clippingMask);
   }
 });
 </script>
@@ -365,5 +366,4 @@ export default Vue.extend({
     opacity: 0;
   }
 }
-
 </style>

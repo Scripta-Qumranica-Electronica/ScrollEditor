@@ -50,14 +50,11 @@ export class Operation {
     }
 }
 
-/* TODO: Report a bitmap and not a polygon */
 export class MaskChangeOperation { // extends Operation {
     public polygon = {} as Polygon;
     public drawingMode = DrawingMode.DRAW;
     // public delta = {} as Polygon;
 }
-
-/* TODO: Add a new type for the undo poerations, which will contain a bitmap *and* a polygon */
 
 export class RotationOperation extends Operation {
     public angle = 0;
@@ -79,8 +76,6 @@ export class ArtefactEditingData {
 }
 
 export class OptimizedArtefact extends Artefact {
-    /* TODO: Add a bitmap instead of the optimized mask, and initialize it in the constructor (call DrawPolygon) */
-
     private static colors = [
         'purple', 'blue', 'orange', 'red', 'green', 'gray', 'magenta', 'olive', 'brown', 'cadetBlue'
     ];
