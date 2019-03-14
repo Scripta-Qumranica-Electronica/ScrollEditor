@@ -283,15 +283,11 @@ export default Vue.extend({
 
       this.saving = true;
       try {
-        this.fragment!.artefacts!.forEach(async (art, index) => {
-          if (this.artefactEditingDataList[index].dirty) {
-            // Before saving, call unoptimize mask to create the larger mask again
-            const optomizedArtefact = new OptimizedArtefact(art, index, this.$render.scalingFactors.combined);
-            const largeMask = optomizedArtefact.unoptimizeMask();
-
+        this.optimizedArtefacts.forEach(async (art, index) => {
+          if(this.artefactEditingDataList[index].dirty) {
             await this.fragmentService.changeFragmentArtefactShape(
-              this.scrollVersionId, this.fragment, optomizedArtefact
-              );
+              this.scrollVersionId, this.fragment, art
+            );
             this.artefactEditingDataList[index].dirty = false;
           }
         });
