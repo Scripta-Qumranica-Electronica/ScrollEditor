@@ -1,16 +1,12 @@
 // tslint:disable-next-line:no-var-requires
 const ClipperLib = require('js-clipper/clipper');
-// tslint:disable:no-var-requires
-const trace = require('@/utils/Potrace.js').trace;
 
 import { svgPolygonToWKT,
     svgPolygonToGeoJSON,
     svgPolygonToClipper,
     wktPolygonToSvg,
     geoJSONPolygonToWKT,
-    clipperToSVGPolygon,
-    clipCanvas,
- } from './VectorFactory';
+    clipperToSVGPolygon } from './VectorFactory';
 
 // A class representing a polygon. The internal representation is SVG.
 // We have methods that translate the polygon to other formats, and static factory methods that import
@@ -175,27 +171,13 @@ export class Polygon {
     }
 }
 
-export function DrawPolygon(p: Polygon, width: number, height: number, color: string, scale: number): ImageData {
+export function DrawPolygon(p: Polygon, width: number, height: number, color: string): ImageData {
     // Create new canvas with width and height
     // Draw polygon on canvas like we do in ArtefactCanvas (clipCanvas)
     // Get imageData like we do in ArtefactCanvas
     // Return image data
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-
-    clipCanvas(canvas, p.svg, color, scale);
-    const canvasContext = canvas.getContext('2d');
-    if (!canvasContext) {
-        throw new Error("Can't get context for canvas");
-    }
-    const imgData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-    return imgData;
 }
 
-export async function ExtractPolygon(img: ImageData, width: number, height: number, scale: number): Promise<Polygon> {
+export function ExtractPolygon(img: ImageData, width: number, height: number): Polygon {
     // Use Potrace like we do in ArtefactCanvas
-    const canvasSvg: string = await trace(img, width, height, scale);
-    const canvasPolygon = Polygon.fromSvg(canvasSvg);
-    return canvasPolygon;
 }

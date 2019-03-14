@@ -15,6 +15,7 @@
                   :side="fragment.recto"
                   :clipping-mask="artefact.mask">
       </roi-canvas>
+      <!-- TODO: Pass bitmaps to the Artefact canvases -->
       <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
                         :width="masterImage.manifest.width"  
                         :height="masterImage.manifest.height"
@@ -30,7 +31,7 @@
                         :selected="true"
                         :editable="canEdit"
                         :artefact="artefact"
-                        @maskChanged="onMaskChanged"
+                        @mask="onMaskChanged"
                         @zoomRequest="onZoomRequest($event)">
       </artefact-canvas>
     </div>
@@ -75,13 +76,12 @@ import {
     ZoomRequestEventArgs,
     ArtefactEditingData,
     OptimizedArtefact,
-    MaskChangedEventArgs,
 } from './types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ArtefactCanvas from './ArtefactCanvas.vue';
-import { Polygon, ExtractPolygon } from '@/utils/Polygons';
+import { Polygon } from '@/utils/Polygons';
 
 export default Vue.extend({
   name: 'fragment-editor',
@@ -149,7 +149,7 @@ export default Vue.extend({
           this.artefactEditingDataList.push(new ArtefactEditingData());
         });
         this.artefactEditingData = this.getArtefactEditingData(0);
-        this.initialMask = this.artefact.mask;
+        this.initialMask = this.artefact.optimizedMask;
       } else {
         this.artefact = undefined;
         this.initialMask = new Polygon();
@@ -200,26 +200,18 @@ export default Vue.extend({
         this.optimizedArtefacts = [];
       } else {
         this.optimizedArtefacts = this.fragment.artefacts.map(
-          (artefact, index) => new OptimizedArtefact(artefact,
-          index,
-          this.$render.scalingFactors.combined,
-          this.masterImage!.manifest.width,
-          this.masterImage!.manifest.height
-          )
+          (artefact, index) => new OptimizedArtefact(artefact, index, this.$render.scalingFactors.combined)
         );
       }
     },
-    async onMaskChanged(eventArgs: MaskChangedEventArgs) {
+    onMaskChanged(eventArgs: MaskChangeOperation) {
       if (!this.artefact) {
         throw new Error("Can't set mask if there is no artefact");
       }
       this.artefactEditingData.dirty = true;
 
-      // Calculate polygon from new bitmap
-      const optimizedPolygon = await this.artefact.calcOptimizedPolygon();
-
       // Check if the new mask intersects with a non selected artefact mask
-      const intersection = Polygon.intersect(optimizedPolygon, this.nonSelectedMask);
+      const intersection = Polygon.intersect(eventArgs.polygon, this.nonSelectedMask);
       if (!intersection.empty) {
         this.$toasted.show("Artefact can't overlap other artefacts", {
           type: 'info',
@@ -228,20 +220,15 @@ export default Vue.extend({
         });
         return;
       }
-
-      await this.artefact.recalculateMask();
-      console.log('New artefact mask is', this.artefact.mask);
-
-      // Update the undo/redo buffers
+      // Place current mask in undo buffer, clear redo buffer
       if (this.artefactEditingData.undoList.length >= 50) {
         this.artefactEditingData.undoList.slice(1);
       }
-      const operation = {
-        polygon: this.artefact.mask,
-        bitmap: eventArgs.bitmap,
-        drawingMode: this.params.drawingMode,
-      } as MaskChangeOperation;
-      this.artefactEditingData.undoList.push(operation);
+      this.artefact.optimizedMask = eventArgs.polygon;
+      this.artefact.unoptimizeMask();
+
+      eventArgs.polygon = this.artefact.mask; // Store the unoptimized mask in the event data for undoing
+      this.artefactEditingData.undoList.push(eventArgs);
       this.artefactEditingData.redoList = [];
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
@@ -288,14 +275,8 @@ export default Vue.extend({
         this.fragment!.artefacts!.forEach(async (art, index) => {
           if (this.artefactEditingDataList[index].dirty) {
             // Before saving, call unoptimize mask to create the larger mask again
-            const optomizedArtefact = new OptimizedArtefact(
-              art,
-              index,
-              this.$render.scalingFactors.combined,
-              this.masterImage!.manifest.width,
-              this.masterImage!.manifest.height
-              );
-            // const largeMask = optomizedArtefact.unoptimizeMask();
+            const optomizedArtefact = new OptimizedArtefact(art, index, this.$render.scalingFactors.combined);
+            const largeMask = optomizedArtefact.unoptimizeMask();
 
             await this.fragmentService.changeFragmentArtefactShape(
               this.scrollVersionId, this.fragment, optomizedArtefact
@@ -347,13 +328,7 @@ export default Vue.extend({
       }
     },
     async onNew(art: Artefact) {
-      const optimized = new OptimizedArtefact(
-        art,
-        this.optimizedArtefacts.length,
-        this.$render.scalingFactors.combined,
-        this.masterImage!.manifest.width,
-        this.masterImage!.manifest.height
-        );
+      const optimized = new OptimizedArtefact(art, this.optimizedArtefacts.length, this.$render.scalingFactors.combined);
       this.optimizedArtefacts.push(optimized);
 
       this.artefact = optimized;
@@ -419,12 +394,21 @@ export default Vue.extend({
       this.nonSelectedArtefacts = this.optimizedArtefacts.filter((artefact) => artefact !== this.artefact);
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
-        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
+        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.optimizedMask);
       }
     }
   }
 });
 
+/*
+ * Todo:
+ *
+ * Add a shrinkFactor data element, initialize to 20.
+ * Pass shrinkFactor as a property to ArtefactCanvas, and not as a data entry of ArtefactCanvas
+ * Change ArtefactCanvas to use the optimizedMask instead of the mask
+ * Make sure ArtefactCanvas does not shrink the mask (in clipCanvas and trace)
+ * Before saving, call unoptimize mask to create the larger mask again
+ */
 </script>
 
 <style lang="scss" scoped>
