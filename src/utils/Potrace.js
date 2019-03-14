@@ -1469,14 +1469,14 @@ function Potrace(canvas, multiplyFactor) {
       function segment(i) {
         var s =
           'L ' +
-          (curve.c[i * 3 + 1].x * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 1].x * size).toFixed(5) * multiplyFactor +
           ' ' +
-          (curve.c[i * 3 + 1].y * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 1].y * size).toFixed(5) * multiplyFactor +
           ' '
         s +=
-          (curve.c[i * 3 + 2].x * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 2].x * size).toFixed(5) * multiplyFactor +
           ' ' +
-          (curve.c[i * 3 + 2].y * size).toFixed(3) * multiplyFactor +
+          (curve.c[i * 3 + 2].y * size).toFixed(5) * multiplyFactor +
           ' '
         return s
       }
@@ -1485,9 +1485,9 @@ function Potrace(canvas, multiplyFactor) {
         i
       var p =
         'M' +
-        (curve.c[(n - 1) * 3 + 2].x * size).toFixed(3) * multiplyFactor +
+        (curve.c[(n - 1) * 3 + 2].x * size).toFixed(5) * multiplyFactor +
         ' ' +
-        (curve.c[(n - 1) * 3 + 2].y * size).toFixed(3) * multiplyFactor +
+        (curve.c[(n - 1) * 3 + 2].y * size).toFixed(5) * multiplyFactor +
         ' '
       for (i = 0; i < n; i++) {
         p += segment(i)

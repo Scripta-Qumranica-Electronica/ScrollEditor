@@ -38,30 +38,16 @@ export interface EditorParamsChangedArgs {
     params: EditorParams;
 }
 
-export class Operation {
-    public artefact = {} as Artefact;
-
-    public undo() {
-        console.log('operation. undo');
-    }
-
-    public redo() {
-        console.log('operation. redo');
-    }
+export interface MaskChangedEventArgs {
+    optimizedPolygon: Polygon;
+    polygon: Polygon;
+    drawingMode: DrawingMode;
 }
 
-export class MaskChangeOperation { // extends Operation {
+export class MaskChangeOperation {
     public polygon = {} as Polygon;
     public drawingMode = DrawingMode.DRAW;
     // public delta = {} as Polygon;
-}
-
-export class RotationOperation extends Operation {
-    public angle = 0;
-
-    public combine() {
-        console.log('combine angles');
-    }
 }
 
 export interface ZoomRequestEventArgs {
