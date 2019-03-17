@@ -3,12 +3,14 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div ref="overlay-div" v-if="!waiting && fragment" 
+    <div ref="overlay-div" v-if="!waiting && fragment"
+         :style="{transform: `scale(${zoomLevel * $render.scalingFactors.combined}`}"
          id="overlay-div" 
          class="col"> 
       <roi-canvas class="overlay-image"
                   :width="masterImage.manifest.width || 0"
                   :height="masterImage.manifest.height || 0"
+                  :style="{transform: `scale(${zoomLevel})`}"
                   :params="params"
                   :fragment="fragment"
                   :editable="canEdit"
@@ -18,6 +20,7 @@
       <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
                         :width="masterImage.manifest.width"
                         :height="masterImage.manifest.height"
+                        :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
                         :params="params"
                         :selected="false"
                         :artefact="artefact">
@@ -26,6 +29,7 @@
                         v-show="artefact !== undefined"
                         :width="masterImage.manifest.width"
                         :height="masterImage.manifest.height"
+                        :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
                         :params="params"
                         :selected="true"
                         :editable="canEdit"
@@ -111,6 +115,9 @@ export default Vue.extend({
     };
   },
   computed: {
+     zoomLevel(): number {
+      return this.params.zoom;
+    },
     fragment(): Fragment {
       return this.$store.state.fragment.fragment;
     },
@@ -284,7 +291,7 @@ export default Vue.extend({
       this.saving = true;
       try {
         this.optimizedArtefacts.forEach(async (art, index) => {
-          if(this.artefactEditingDataList[index].dirty) {
+          if (this.artefactEditingDataList[index].dirty) {
             await this.fragmentService.changeFragmentArtefactShape(
               this.scrollVersionId, this.fragment, art
             );
@@ -432,7 +439,8 @@ export default Vue.extend({
   overflow: scroll;
   margin-right: 15px;
   padding: 0;
-  height: calc(100vh - 56px);
+  max-width: 100%;
+  max-height: calc(100vh - 56px);
 }
 #image-menu-div {
   height: calc(100vh - 56px);

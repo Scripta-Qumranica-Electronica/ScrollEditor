@@ -6,8 +6,7 @@
     :class="{ editable: editable, zoom: zooming }"
     :width="width / $render.scalingFactors.combined"
     :height="height / $render.scalingFactors.combined"
-    style="top: 0px; left: 0px;"
-    :style="{transform: `scale(${scale * $render.scalingFactors.canvas})`}">
+    style="top: 0px; left: 0px;">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         id="maskCanvas"
