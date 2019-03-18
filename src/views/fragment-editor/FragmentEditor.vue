@@ -4,11 +4,9 @@
       <Waiting></Waiting>
     </div>
     <div id="fragment-container">
-     <!-- :width="masterImage.manifest.width * zoomLevel || 0"
-      :height="masterImage.manifest.height * zoomLevel || 0">
-      -->
       <div ref="overlay-div" v-if="!waiting && fragment"
-          :style="{transform: `scale(${zoomLevel * $render.scalingFactors.combined}`}"
+          :width="masterImage.manifest.width * zoomLevel || 0"
+          :height="masterImage.manifest.height * zoomLevel || 0"
           id="overlay-div" 
           class="col"> 
         <roi-canvas class="overlay-image"
