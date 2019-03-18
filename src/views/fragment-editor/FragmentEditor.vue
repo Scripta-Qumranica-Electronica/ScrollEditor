@@ -3,40 +3,45 @@
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div ref="overlay-div" v-if="!waiting && fragment"
-         :style="{transform: `scale(${zoomLevel * $render.scalingFactors.combined}`}"
-         id="overlay-div" 
-         class="col"> 
-      <roi-canvas class="overlay-image"
-                  :width="masterImage.manifest.width || 0"
-                  :height="masterImage.manifest.height || 0"
-                  :style="{transform: `scale(${zoomLevel})`}"
-                  :params="params"
-                  :fragment="fragment"
-                  :editable="canEdit"
-                  :side="fragment.recto"
-                  :clipping-mask="artefact.mask">
-      </roi-canvas>
-      <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
-                        :width="masterImage.manifest.width"
-                        :height="masterImage.manifest.height"
-                        :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
-                        :params="params"
-                        :selected="false"
-                        :artefact="artefact">
-      </artefact-canvas>
-      <artefact-canvas  class="overlay-canvas"
-                        v-show="artefact !== undefined"
-                        :width="masterImage.manifest.width"
-                        :height="masterImage.manifest.height"
-                        :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
-                        :params="params"
-                        :selected="true"
-                        :editable="canEdit"
-                        :artefact="artefact"
-                        @maskChanged="onMaskChanged"
-                        @zoomRequest="onZoomRequest($event)">
-      </artefact-canvas>
+    <div id="fragment-container">
+     <!-- :width="masterImage.manifest.width * zoomLevel || 0"
+      :height="masterImage.manifest.height * zoomLevel || 0">
+      -->
+      <div ref="overlay-div" v-if="!waiting && fragment"
+          :style="{transform: `scale(${zoomLevel * $render.scalingFactors.combined}`}"
+          id="overlay-div" 
+          class="col"> 
+        <roi-canvas class="overlay-image"
+                    :width="masterImage.manifest.width || 0"
+                    :height="masterImage.manifest.height || 0"
+                    :style="{transform: `scale(${zoomLevel})`}"
+                    :params="params"
+                    :fragment="fragment"
+                    :editable="canEdit"
+                    :side="fragment.recto"
+                    :clipping-mask="artefact.mask">
+        </roi-canvas>
+        <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
+                          :width="masterImage.manifest.width"
+                          :height="masterImage.manifest.height"
+                          :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
+                          :params="params"
+                          :selected="false"
+                          :artefact="artefact">
+        </artefact-canvas>
+        <artefact-canvas  class="overlay-canvas"
+                          v-show="artefact !== undefined"
+                          :width="masterImage.manifest.width"
+                          :height="masterImage.manifest.height"
+                          :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
+                          :params="params"
+                          :selected="true"
+                          :editable="canEdit"
+                          :artefact="artefact"
+                          @maskChanged="onMaskChanged"
+                          @zoomRequest="onZoomRequest($event)">
+        </artefact-canvas>
+      </div>
     </div>
     <div class="col-xl-2 col-lg-3 col-md-4" id="image-menu-div" v-if="!waiting && fragment">
       <image-menu
@@ -433,14 +438,18 @@ export default Vue.extend({
   overflow: hidden;
   height: calc(100vh - 56px);
 }
+#fragment-container {
+  overflow: scroll;
+  position: relative;
+  width: 80%;
+}
 #overlay-div {
   transform-origin: top left;
-  position: relative;
-  overflow: scroll;
+  position: absolute;
+  overflow: hidden;
   margin-right: 15px;
   padding: 0;
-  max-width: 100%;
-  max-height: calc(100vh - 56px);
+  height: calc(100vh - 56px);
 }
 #image-menu-div {
   height: calc(100vh - 56px);
