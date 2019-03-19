@@ -47,5 +47,6 @@ export default {
 #main-container {
   max-height: calc(100vh - 56px);   /* Navvar is 56 pixels high */
   overflow: hidden;
+  padding: 0px !important;
 }
 </style>
