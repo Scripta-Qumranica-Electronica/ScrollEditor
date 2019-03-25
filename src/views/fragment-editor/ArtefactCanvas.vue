@@ -6,7 +6,7 @@
     :class="{ editable: editable, zoom: zooming }"
     :width="width / $render.scalingFactors.combined"
     :height="height / $render.scalingFactors.combined">
-    <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
+    <div>
       <canvas
         id="maskCanvas"
         class="maskCanvas"
@@ -99,9 +99,9 @@ export default Vue.extend({
     cursorColor(): string {
       return this.params.drawingMode === DrawingMode.DRAW ? 'yellow' : 'black';
     },
-    rotateTransform(): string {
-      return `rotate(${this.rotationAngle} ${this.width / 2} ${this.height / 2}`;
-    },
+    // rotateTransform(): string {
+    //   return `rotate(${this.rotationAngle} ${this.width / 2} ${this.height / 2}`;
+    // },
     rotationAngle(): number {
       return this.params.rotationAngle;
     },

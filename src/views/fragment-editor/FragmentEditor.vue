@@ -29,7 +29,8 @@
       ></image-menu>
     </div>
 
-    <div id="content" class=" container col-xl-12 col-lg-12 col-md-12">
+    <div id="content" class=" container col-xl-12 col-lg-12 col-md-12"
+      v-if="!waiting && fragment"> <!-- todo: add external div with the condition -->
       <div class="row">
         <div id="buttons-div">
           <button type="button" class="sidebarCollapse" @click="sidebarClicked()">
@@ -49,13 +50,13 @@
           <div
             ref="overlay-div"
             v-if="!waiting && fragment"
-            :width="masterImage.manifest.width * zoomLevel || 0"
-            :height="masterImage.manifest.height * zoomLevel || 0"
+            :width="width * zoomLevel || 0"
+            :height="height * zoomLevel || 0"
             id="overlay-div ">
             <roi-canvas
               class="overlay-image"
-              :width="masterImage.manifest.width || 0"
-              :height="masterImage.manifest.height || 0"
+              :width="width || 0"
+              :height="height || 0"
               :style="{transform: `scale(${zoomLevel})`}"
               :params="params"
               :fragment="fragment"
@@ -67,9 +68,9 @@
               v-for="artefact in nonSelectedArtefacts"
               :key="artefact.id"
               class="overlay-canvas"
-              :width="masterImage.manifest.width"
-              :height="masterImage.manifest.height"
-              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
+              :width="width"
+              :height="height"
+              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas}) rotate(${params.rotationAngle}deg`}"
               :params="params"
               :selected="false"
               :artefact="artefact"
@@ -77,9 +78,9 @@
             <artefact-canvas
               class="overlay-canvas"
               v-show="artefact !== undefined"
-              :width="masterImage.manifest.width"
-              :height="masterImage.manifest.height"
-              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
+              :width="width"
+              :height="height"
+              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas}) rotate(${params.rotationAngle}deg`}"
               :params="params"
               :selected="true"
               :editable="canEdit"
@@ -145,7 +146,8 @@ export default Vue.extend({
       artefactEditingDataList: [] as ArtefactEditingData[],
       artefactEditingData: new ArtefactEditingData(),
       optimizedArtefacts: [] as OptimizedArtefact[],
-      isActive: false
+      isActive: false,
+      masterImage: {} as IIIFImage | undefined,
     };
   },
   computed: {
@@ -161,14 +163,30 @@ export default Vue.extend({
     canEdit(): boolean {
       return this.$store.state.scroll.scrollVersion.permissions.canWrite;
     },
-    masterImage(): IIIFImage | undefined {
-      if (this.fragment && this.fragment.recto) {
-        return this.fragment.recto.master;
-      }
-      return undefined;
-    },
+    // masterImage(): IIIFImage | undefined {
+    //   if (this.fragment && this.fragment.recto) {
+    //     return this.fragment.recto.master;
+    //   }
+    //   return undefined;
+    // },
     overlayDiv(): HTMLDivElement {
       return this.$refs["overlay-div"] as HTMLDivElement;
+    },
+    width(): number {
+      const angle = ((this.params.rotationAngle % 360) + 360) % 360; // Handle negative numbers
+      if (angle === 90 || angle === 270) {
+        return this.masterImage!.manifest.height;
+      } else {
+        return this.masterImage!.manifest.width;        
+      }
+    },
+    height(): number {
+      const angle = ((this.params.rotationAngle % 360) + 360) % 360;
+      if (angle === 90 || angle === 270) {
+        return this.masterImage!.manifest.width;
+      } else {
+        return this.masterImage!.manifest.height;        
+      }
     }
   },
   async mounted() {
@@ -202,11 +220,18 @@ export default Vue.extend({
 
     this.fillImageSettings();
     this.prepareNonSelectedArtefacts();
+    this.masterImage = this.getMasterImg();
   },
   created() {
     window.addEventListener("beforeunload", e => this.confirmLeaving(e));
   },
   methods: {
+    getMasterImg() :IIIFImage | undefined {
+      if (this.fragment && this.fragment.recto) {
+        return this.fragment.recto.master;
+      }
+      return undefined;
+    },
     confirmLeaving(e: BeforeUnloadEvent) {
       this.artefactEditingDataList.forEach(art => {
         if (art.dirty) {
