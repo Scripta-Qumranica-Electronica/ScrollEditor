@@ -78,28 +78,23 @@
     <section v-if="artefact.mask">
       <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
     </section>
-    <section>
+    <section class="center-btn">
       <b-button @click="onRotateClick(-90)"><font-awesome-icon icon="undo"></font-awesome-icon></b-button>
       <b-button @click="onRotateClick(90)"><font-awesome-icon icon="redo"></font-awesome-icon></b-button>
     </section>
-    <section v-if="editable">
-      <b-button-group>
+    <section class="center-btn" v-if="editable">
         <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" 
         :key="mode.val" @click="onDrawChanged(mode.val)" 
         :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
-      </b-button-group>
     </section>
-    <section v-if="editable" v-shortcuts="[
+    <section class="center-btn" v-if="editable" v-shortcuts="[
       { shortcut: [ 'arrowright' ], callback: redoModal },
       { shortcut: [ 'arrowleft' ], callback: undoModal },
     ]">
-      <b-button v-if="!saving" @click="save()">Save</b-button>&nbsp;
-      <b-button v-if="saving" disabled class="disable">
-        Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
-      </b-button>
+     
       <b-button @click="undo()">Undo</b-button>
       <b-button @click="redo()">Redo</b-button>
-
+      
       <b-modal id="undoModal" 
                  ref="undoRef"
                  :title="$t('home.undo')"
@@ -113,7 +108,12 @@
               <label>....</label>
             </form>
         </b-modal>
-
+    </section>
+    <section class="center-btn">
+      <b-button  v-if="!saving" @click="save()">Save</b-button>
+      <b-button v-if="saving" disabled class="disable">
+        Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+      </b-button>
     </section>
 </div>
 </template>
@@ -201,11 +201,6 @@ export default Vue.extend({
     // window.addEventListener('scroll', this.handleScroll);
   },
   methods: {
-    // handleScroll() {
-    //   console.log('handleScroll handleScroll');
-    //   this.scrolled = window.scrollY > 50;
-    //   this.scrolled = window.scrollX > 50;
-    // },
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
       this.params.imageSettings[imageType] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
@@ -306,5 +301,8 @@ button.disable {
 button {
   margin-right: 10px;
   margin-left: 10px;
+}
+section.center-btn {
+  text-align: center;
 }
 </style>

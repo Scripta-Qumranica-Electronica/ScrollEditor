@@ -5,8 +5,7 @@
     id="artefactOverlay"
     :class="{ editable: editable, zoom: zooming }"
     :width="width / $render.scalingFactors.combined"
-    :height="height / $render.scalingFactors.combined"
-    style="top: 0px; left: 0px;">
+    :height="height / $render.scalingFactors.combined">
     <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
       <canvas
         id="maskCanvas"

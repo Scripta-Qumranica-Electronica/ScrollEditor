@@ -31,21 +31,27 @@
 
     <div id="content" class=" container col-xl-12 col-lg-12 col-md-12">
       <div class="row">
-        <div>
-          <button type="button" id="sidebarCollapse" @click="sidebarClicked()">
+        <div id="buttons-div">
+          <button type="button" class="sidebarCollapse" @click="sidebarClicked()">
             <span></span>
             <span></span>
             <span></span>
           </button>
+          <button type="button" class="sidebarCollapse" @click="editingModeChanged(0)">
+            <i class="fa fa-pencil"></i>
+          </button>
+          <button type="button" class="sidebarCollapse" @click="editingModeChanged(1)">
+            <i class="fa fa-trash"></i>
+          </button>
         </div>
-        <div class="fragment-container col-xl-11 col-lg-11 col-md-11">
+        <div class="fragment-container"
+          :class="{active: isActive}">
           <div
             ref="overlay-div"
             v-if="!waiting && fragment"
             :width="masterImage.manifest.width * zoomLevel || 0"
             :height="masterImage.manifest.height * zoomLevel || 0"
             id="overlay-div ">
-            <!--  :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas}`}"-->
             <roi-canvas
               class="overlay-image"
               :width="masterImage.manifest.width || 0"
@@ -288,6 +294,9 @@ export default Vue.extend({
       this.artefactEditingData.undoList.push(changeOperation);
       this.artefactEditingData.redoList = [];
     },
+    editingModeChanged(val: number) {
+      this.params.drawingMode = val;
+    },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
     },
@@ -461,16 +470,6 @@ export default Vue.extend({
     }
   }
 });
-
-/*
- * Todo:
- *
- * Add a shrinkFactor data element, initialize to 20.
- * Pass shrinkFactor as a property to ArtefactCanvas, and not as a data entry of ArtefactCanvas
- * Change ArtefactCanvas to use the optimizedMask instead of the mask
- * Make sure ArtefactCanvas does not shrink the mask (in clipCanvas and trace)
- * Before saving, call unoptimize mask to create the larger mask again
- */
 </script>
 
 <style lang="scss" scoped>
@@ -481,8 +480,6 @@ export default Vue.extend({
 }
 .overlay-canvas {
   position: absolute;
-  top: 0;
-  left: 0;
   transform-origin: top left;
 }
 #fragment-editor {
@@ -491,54 +488,52 @@ export default Vue.extend({
 }
 .fragment-container {
   overflow: scroll;
-  // position: relative;
+  position: relative;
   padding: 0;
+  height: calc(100vh - 56px);
+  width: calc(100vw - 290px);
+}
+.fragment-container.active {
+  overflow: scroll;
+  position: relative;
+  padding: 0;
+  height: calc(100vh - 56px);
+  width: calc(100vw - 40px);
 }
 #overlay-div {
   transform-origin: top left;
   position: absolute;
   overflow: hidden;
-  margin-right: 15px;
+  // margin-right: 15px;
   padding: 0;
   height: calc(100vh - 56px);
+  width: calc(100vw- 40px);
 }
 .image-menu-div {
   height: calc(100vh - 56px);
   overflow: hidden;
 }
 
-#sidebarCollapse {
-  width: 40px;
-  height: 40px;
+#buttons-div {
+  background-color: #eff1f4;
 }
 
-#sidebarCollapse span {
+.sidebarCollapse {
+  width: 40px;
+  height: 40px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.sidebarCollapse span {
   width: 80%;
   height: 2px;
-  margin: 0 auto;
+  margin: 4px;
   display: block;
   background: #555;
   transition: all 0.8s cubic-bezier(0.81, -0.33, 0.345, 1.375);
 }
-#sidebarCollapse span:first-of-type {
-  /* rotate first one */
-  transform: rotate(45deg) translate(2px, 2px);
-}
-#sidebarCollapse span:nth-of-type(2) {
-  /* second one is not visible */
-  opacity: 0;
-}
-#sidebarCollapse span:last-of-type {
-  /* rotate third one */
-  transform: rotate(-45deg) translate(1px, -1px);
-}
-#sidebarCollapse.active span {
-  /* no rotation */
-  transform: none;
-  /* all bars are visible */
-  opacity: 1;
-  margin: 5px auto;
-}
+
 .wrapper {
   display: flex;
   align-items: stretch;
@@ -557,7 +552,7 @@ export default Vue.extend({
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
-@media (max-width: 2768px) {
+@media (max-width: 1100px) {
   /* Reversing the behavior of the sidebar: 
        it'll be rotated vertically and off canvas by default, 
        collapsing in on toggle button click with removal of 
@@ -571,30 +566,20 @@ export default Vue.extend({
     transform: none;
   }
 
-  /* Reversing the behavior of the bars: 
-       Removing the rotation from the first,
-       last bars and reappear the second bar on default state, 
-       and giving them a vertical margin */
-  #sidebarCollapse span:first-of-type,
-  #sidebarCollapse span:nth-of-type(2),
-  #sidebarCollapse span:last-of-type {
-    transform: none;
-    opacity: 1;
-    margin: 5px auto;
+  .fragment-container {
+    overflow: scroll;
+    position: relative;
+    padding: 0;
+    height: calc(100vh - 56px);
+    width: calc(100vw - 40px);
   }
 
-  /* Removing the vertical margin and make the first and last bars rotate again when the sidebar is open, hiding the second bar */
-  #sidebarCollapse.active span {
-    margin: 0 auto;
-  }
-  #sidebarCollapse.active span:first-of-type {
-    transform: rotate(45deg) translate(2px, 2px);
-  }
-  #sidebarCollapse.active span:nth-of-type(2) {
-    opacity: 0;
-  }
-  #sidebarCollapse.active span:last-of-type {
-    transform: rotate(-45deg) translate(1px, -1px);
+  .fragment-container.active {
+    overflow: scroll;
+    position: relative;
+    padding: 0;
+    height: calc(100vh - 56px);
+    width: calc(100vw - 40px);
   }
 }
 </style>
