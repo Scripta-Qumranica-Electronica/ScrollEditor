@@ -7,7 +7,7 @@
           <td>
             <span v-if="renameInputActive!==art" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
           </td>
-          <td>
+          <td v-if="editable">
             <b-button v-if="renameInputActive!==art" class="btn btn-sm" @click="openRename(art)">Rename</b-button>
             <input v-if="renameInputActive===art" v-model="art.name" />
             <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art)">Rename</b-button>
@@ -17,7 +17,7 @@
           </td>
         </tr>
       </table>
-      <b-btn v-b-modal.modal="'newModal'" class="btn btn-sm btn-outline">{{ $t('misc.new') }}</b-btn>
+      <b-btn v-if="editable" v-b-modal.modal="'newModal'" class="btn btn-sm btn-outline">{{ $t('misc.new') }}</b-btn>
 
       <b-modal id="newModal" 
                  ref="newArtRef"

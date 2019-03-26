@@ -10,7 +10,7 @@
       <canvas
         id="maskCanvas"
         class="maskCanvas"
-        :class="{hidden: clip, pulse: editMode !== editModeDraw && selected}"
+        :class="{hidden: clip, pulse: editMode !== editModeDraw && selected && !clip}"
         ref="maskCanvas"
         :width="width / $render.scalingFactors.combined"
         :height="height / $render.scalingFactors.combined"

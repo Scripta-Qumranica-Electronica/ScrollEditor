@@ -33,17 +33,15 @@
       v-if="!waiting && fragment"> <!-- todo: add external div with the condition -->
       <div class="row">
         <div id="buttons-div">
-          <button type="button" class="sidebarCollapse" @click="sidebarClicked()">
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          <button type="button" class="sidebarCollapse" @click="editingModeChanged(0)">
-            <i class="fa fa-pencil"></i>
-          </button>
-          <button type="button" class="sidebarCollapse" @click="editingModeChanged(1)">
-            <i class="fa fa-trash"></i>
-          </button>
+          <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
+            <i class="fa fa-align-justify"></i>
+          </b-button>
+
+          <b-button v-for="mode in [{icon: 'fa fa-pencil', val:'DRAW'}, {icon: 'fa fa-trash', val: 'ERASE'}]" 
+            :key="mode.val" @click="editingModeChanged(mode.val)" 
+            :pressed="modeChosen(mode.val)" class="sidebarCollapse">
+            <i :class="mode.icon"></i>
+          </b-button>
         </div>
         <div class="fragment-container"
           :class="{active: isActive}">
@@ -187,7 +185,7 @@ export default Vue.extend({
       } else {
         return this.masterImage!.manifest.height;        
       }
-    }
+    } 
   },
   async mounted() {
     try {
@@ -319,8 +317,8 @@ export default Vue.extend({
       this.artefactEditingData.undoList.push(changeOperation);
       this.artefactEditingData.redoList = [];
     },
-    editingModeChanged(val: number) {
-      this.params.drawingMode = val;
+    editingModeChanged(val: any) {
+      (this as any).params.drawingMode = DrawingMode[val];
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
@@ -492,8 +490,11 @@ export default Vue.extend({
     },
     sidebarClicked() {
       this.isActive = !this.isActive;
-    }
-  }
+    },
+    modeChosen(val: DrawingMode): boolean {
+      return DrawingMode[val].toString() === this.params.drawingMode.toString();
+    },
+  },
 });
 </script>
 
@@ -548,15 +549,6 @@ export default Vue.extend({
   height: 40px;
   display: block;
   margin-bottom: 5px;
-}
-
-.sidebarCollapse span {
-  width: 80%;
-  height: 2px;
-  margin: 4px;
-  display: block;
-  background: #555;
-  transition: all 0.8s cubic-bezier(0.81, -0.33, 0.345, 1.375);
 }
 
 .wrapper {
