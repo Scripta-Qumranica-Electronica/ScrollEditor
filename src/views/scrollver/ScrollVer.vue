@@ -1,13 +1,17 @@
 <template>
-    <div>
-        <div v-if="waiting" class="row"><div class="col"><waiting></waiting></div></div>
-        <div v-if="!waiting" class="row">
-            <div class="col" v-if="waiting"><waiting></waiting></div>
-            <div class="col" v-if="!waiting">
-                <router-view></router-view>
-            </div>
-            <div class="col-xl-2 col-lg-3 col-md-4">
-                <scroll-ver-sidebar/>
+    <div class="wrapper">
+        <div class="col-xl-2 col-lg-3 col-md-4" id="sidebar">
+           <scroll-ver-sidebar/>
+        </div>
+        <div v-if="waiting" class="row">
+            <div class="col"><waiting></waiting></div>
+        </div>
+        <div class="col-xl-10 col-lg-9 col-md-8" id="fragments">
+            <div v-if="!waiting" class="row">
+                <div class="col" v-if="waiting"><waiting></waiting></div>
+                <div class="col" v-if="!waiting">
+                    <router-view></router-view>
+                </div>
             </div>
         </div>
     </div>
@@ -58,4 +62,13 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  float: left;
+}
+
+#fragments {
+  float: right;
+}
 </style>

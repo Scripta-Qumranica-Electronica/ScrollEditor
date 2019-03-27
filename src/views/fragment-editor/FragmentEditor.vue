@@ -29,7 +29,7 @@
       ></image-menu>
     </div>
 
-    <div id="content" class=" container col-xl-12 col-lg-12 col-md-12"
+    <div id="content" class="container col-xl-12 col-lg-12 col-md-12"
       v-if="!waiting && fragment"> <!-- todo: add external div with the condition -->
       <div class="row">
         <div id="buttons-div">
