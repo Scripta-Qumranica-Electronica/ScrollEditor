@@ -258,7 +258,7 @@ export default Vue.extend({
         y: rawPos.y / this.zoom / this.$render.scalingFactors.canvas,
       };
 
-      console.log(`raw ${rawPos.x}, ${rawPos.y}, scales: ${scaledPos.x}, ${scaledPos.y}`);
+      // console.log(`raw ${rawPos.x}, ${rawPos.y}, scales: ${scaledPos.x}, ${scaledPos.y}`);
       return scaledPos;
     },
     applyRotation(unrotated: Position) {
