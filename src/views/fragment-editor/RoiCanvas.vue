@@ -3,7 +3,7 @@
             :width="actualWidth"
             :height="actualHeight"
             :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
-    <g :transform="`${rotateTransform})`">
+    <g><!-- :transform="`${rotateTransform})`"-->
       <defs>
         <path id="Full-clip-path" :d="fullImageMask"></path>  <!-- No scaling transform, since fullImageMask is already scaled -->
         <clipPath id="Full-clipping-outline">

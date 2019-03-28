@@ -68,7 +68,7 @@
               class="overlay-canvas"
               :width="width"
               :height="height"
-              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas}) rotate(${params.rotationAngle}deg`}"
+              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
               :params="params"
               :selected="false"
               :artefact="artefact"
@@ -78,7 +78,7 @@
               v-show="artefact !== undefined"
               :width="width"
               :height="height"
-              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas}) rotate(${params.rotationAngle}deg`}"
+              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
               :params="params"
               :selected="true"
               :editable="canEdit"
@@ -171,20 +171,22 @@ export default Vue.extend({
       return this.$refs["overlay-div"] as HTMLDivElement;
     },
     width(): number {
-      const angle = ((this.params.rotationAngle % 360) + 360) % 360; // Handle negative numbers
-      if (angle === 90 || angle === 270) {
-        return this.masterImage!.manifest.height;
-      } else {
-        return this.masterImage!.manifest.width;        
-      }
+      // const angle = ((this.params.rotationAngle % 360) + 360) % 360; // Handle negative numbers
+      // if (angle === 90 || angle === 270) {
+      //   return this.masterImage!.manifest.height;
+      // } else {
+      //   return this.masterImage!.manifest.width;
+      // }
+      return this.masterImage!.manifest.width
     },
     height(): number {
-      const angle = ((this.params.rotationAngle % 360) + 360) % 360;
-      if (angle === 90 || angle === 270) {
-        return this.masterImage!.manifest.width;
-      } else {
-        return this.masterImage!.manifest.height;        
-      }
+      // const angle = ((this.params.rotationAngle % 360) + 360) % 360;
+      // if (angle === 90 || angle === 270) {
+      //   return this.masterImage!.manifest.width;
+      // } else {
+      //   return this.masterImage!.manifest.height;        
+      // }
+      return this.masterImage!.manifest.height;
     } 
   },
   async mounted() {
