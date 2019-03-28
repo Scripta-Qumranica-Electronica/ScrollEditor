@@ -18,7 +18,7 @@
         <image v-for="imageSetting in imageSettings" 
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg" 
-              draggable="false" 
+              draggable="false"
               :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
               :width="actualWidth"
               :height="actualHeight"
@@ -41,8 +41,8 @@ import { Polygon } from '@/utils/Polygons';
 export default Vue.extend({
   name: 'roi-canvas',
   props: {
-    width: Number,
-    height: Number,
+    originalImageWidth: Number,
+    originalImageHeight: Number,
     fragment: Fragment,
     params: EditorParams,
     editable: Boolean,
@@ -67,10 +67,10 @@ export default Vue.extend({
     //   return this.params.zoom;
     // },
     actualWidth(): number {
-      return this.width / this.$render.scalingFactors.image;
+      return this.originalImageWidth / this.$render.scalingFactors.image;
     },
     actualHeight(): number {
-      return this.height / this.$render.scalingFactors.image;
+      return this.originalImageHeight / this.$render.scalingFactors.image;
     },
     rotateTransform(): string {
       return `rotate(${this.params.rotationAngle} ${this.actualWidth / 2} ${this.actualHeight / 2}`;

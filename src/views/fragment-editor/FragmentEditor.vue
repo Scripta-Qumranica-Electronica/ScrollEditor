@@ -48,44 +48,45 @@
           <div
             ref="overlay-div"
             v-if="!waiting && fragment"
-            :width="width * zoomLevel || 0"
-            :height="height * zoomLevel || 0"
+            :width="actualWidth"
+            :height="actualHeight"
             id="overlay-div ">
-            <roi-canvas
-              class="overlay-image"
-              :width="width || 0"
-              :height="height || 0"
+            <div id="zoom-div"
               :style="{transform: `scale(${zoomLevel})`}"
-              :params="params"
-              :fragment="fragment"
-              :editable="canEdit"
-              :side="fragment.recto"
-              :clipping-mask="artefact.mask"
-            ></roi-canvas>
-            <artefact-canvas
-              v-for="artefact in nonSelectedArtefacts"
-              :key="artefact.id"
-              class="overlay-canvas"
-              :width="width"
-              :height="height"
-              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
-              :params="params"
-              :selected="false"
-              :artefact="artefact"
-            ></artefact-canvas>
-            <artefact-canvas
-              class="overlay-canvas"
-              v-show="artefact !== undefined"
-              :width="width"
-              :height="height"
-              :style="{transform: `scale(${zoomLevel * $render.scalingFactors.canvas})`}"
-              :params="params"
-              :selected="true"
-              :editable="canEdit"
-              :artefact="artefact"
-              @maskChanged="onMaskChanged"
-              @zoomRequest="onZoomRequest($event)"
-            ></artefact-canvas>
+              >
+              <roi-canvas
+                class="overlay-image"
+                :originalImageWidth="originalImageWidth"
+                :originalImageHeight="originalImageHeight"
+                :params="params"
+                :fragment="fragment"
+                :editable="canEdit"
+                :side="fragment.recto"
+                :clipping-mask="artefact.mask"
+              ></roi-canvas>
+              <artefact-canvas
+                v-for="artefact in nonSelectedArtefacts"
+                :key="artefact.id"
+                class="overlay-canvas"
+                :originalImageWidth="originalImageWidth"
+                :originalImageHeight="originalImageHeight"
+                :params="params"
+                :selected="false"
+                :artefact="artefact"
+              ></artefact-canvas>
+              <artefact-canvas
+                class="overlay-canvas"
+                v-show="artefact !== undefined"
+                :originalImageWidth="originalImageWidth"
+                :originalImageHeight="originalImageHeight"
+                :params="params"
+                :selected="true"
+                :editable="canEdit"
+                :artefact="artefact"
+                @maskChanged="onMaskChanged"
+                @zoomRequest="onZoomRequest($event)"
+              ></artefact-canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -161,6 +162,12 @@ export default Vue.extend({
     canEdit(): boolean {
       return this.$store.state.scroll.scrollVersion.permissions.canWrite;
     },
+    actualWidth(): number {
+      return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
+    },
+    actualHeight(): number {
+      return this.originalImageHeight * this.zoomLevel * this.$render.scalingFactors.image;
+    },
     // masterImage(): IIIFImage | undefined {
     //   if (this.fragment && this.fragment.recto) {
     //     return this.fragment.recto.master;
@@ -170,7 +177,7 @@ export default Vue.extend({
     overlayDiv(): HTMLDivElement {
       return this.$refs["overlay-div"] as HTMLDivElement;
     },
-    width(): number {
+    originalImageWidth(): number {
       // const angle = ((this.params.rotationAngle % 360) + 360) % 360; // Handle negative numbers
       // if (angle === 90 || angle === 270) {
       //   return this.masterImage!.manifest.height;
@@ -179,7 +186,7 @@ export default Vue.extend({
       // }
       return this.masterImage!.manifest.width
     },
-    height(): number {
+    originalImageHeight(): number {
       // const angle = ((this.params.rotationAngle % 360) + 360) % 360;
       // if (angle === 90 || angle === 270) {
       //   return this.masterImage!.manifest.width;
@@ -540,6 +547,9 @@ export default Vue.extend({
 .image-menu-div {
   height: calc(100vh - 56px);
   overflow: hidden;
+}
+#zoom-div {
+  position: absolute;
 }
 
 #buttons-div {

@@ -4,24 +4,24 @@
     class="artefactOverlay"
     id="artefactOverlay"
     :class="{ editable: editable, zoom: zooming }"
-    :width="width / $render.scalingFactors.combined"
-    :height="height / $render.scalingFactors.combined">
-    <div>
-      <canvas
-        id="maskCanvas"
-        class="maskCanvas"
-        :class="{hidden: clip, pulse: editMode !== editModeDraw && selected && !clip}"
-        ref="maskCanvas"
-        :width="width / $render.scalingFactors.combined"
-        :height="height / $render.scalingFactors.combined"
-        @pointermove="pointerMove($event)"
-        @pointerdown="pointerDown($event)"
-        @pointerup="pointerUp($event)"
-        @pointercancel="pointerCancel($event)"
-        @wheel="onMouseWheel"
-      >
-      </canvas>
-    </div>
+    :width="actualWidth"
+    :height="actualHeight"
+    :style="{transform: `scale(${$render.scalingFactors.canvas})`}"
+    >
+    <canvas
+      id="maskCanvas"
+      class="maskCanvas"
+      :width="actualWidth"
+      :height="actualHeight"
+      :class="{hidden: clip, pulse: editMode !== editModeDraw && selected && !clip}"
+      ref="maskCanvas"
+      @pointermove="pointerMove($event)"
+      @pointerdown="pointerDown($event)"
+      @pointerup="pointerUp($event)"
+      @pointercancel="pointerCancel($event)"
+      @wheel="onMouseWheel"
+    >
+    </canvas>
   </div>
 </template>
 
@@ -62,8 +62,8 @@ export default Vue.extend({
     artefact: OptimizedArtefact,
     selected: Boolean,
     editable: Boolean,
-    width: Number,
-    height: Number,
+    originalImageWidth: Number,
+    originalImageHeight: Number,
   },
   data() {
     return {
@@ -84,6 +84,12 @@ export default Vue.extend({
     };
   },
   computed: {
+    actualWidth(): number {
+      return this.originalImageWidth / this.$render.scalingFactors.combined;
+    },
+    actualHeight(): number {
+      return this.originalImageHeight / this.$render.scalingFactors.combined;
+    },
     maskCanvas(): HTMLCanvasElement {
       return this.$refs.maskCanvas as HTMLCanvasElement;
     },
@@ -247,17 +253,17 @@ export default Vue.extend({
       let rotatedPos = { ... rawPos };
       if (angle === 180) {
         rotatedPos = {
-          x: this.width * this.scale - rawPos.x,
-          y: this.height * this.scale - rawPos.y,
+          x: this.originalImageWidth * this.scale - rawPos.x,
+          y: this.originalImageHeight * this.scale - rawPos.y,
         };
       } else if (angle === 90) {
         rotatedPos = {
           x: rawPos.y,
-          y: this.width * this.scale - rawPos.x,
+          y: this.originalImageWidth * this.scale - rawPos.x,
         };
       } else if (angle === 270) {
         rotatedPos = {
-          x: this.height * this.scale - rawPos.y,
+          x: this.originalImageHeight * this.scale - rawPos.y,
           y: rawPos.x,
         };
       }
