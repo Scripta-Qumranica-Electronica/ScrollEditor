@@ -1,40 +1,14 @@
 <template>
-  <div class="row" id="fragment-editor">
+  <div class="wrapper" id="fragment-editor">
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
-    <div ref="overlay-div" v-if="!waiting && fragment" 
-         id="overlay-div" 
-         class="col"> 
-      <roi-canvas class="overlay-image"
-                  :width="masterImage.manifest.width || 0"
-                  :height="masterImage.manifest.height || 0"
-                  :params="params"
-                  :fragment="fragment"
-                  :editable="canEdit"
-                  :side="fragment.recto"
-                  :clipping-mask="artefact.mask">
-      </roi-canvas>
-      <artefact-canvas v-for="artefact in nonSelectedArtefacts" :key="artefact.id" class="overlay-canvas"
-                        :width="masterImage.manifest.width"
-                        :height="masterImage.manifest.height"
-                        :params="params"
-                        :selected="false"
-                        :artefact="artefact">
-      </artefact-canvas>
-      <artefact-canvas  class="overlay-canvas"
-                        v-show="artefact !== undefined"
-                        :width="masterImage.manifest.width"
-                        :height="masterImage.manifest.height"
-                        :params="params"
-                        :selected="true"
-                        :editable="canEdit"
-                        :artefact="artefact"
-                        @maskChanged="onMaskChanged"
-                        @zoomRequest="onZoomRequest($event)">
-      </artefact-canvas>
-    </div>
-    <div class="col-xl-2 col-lg-3 col-md-4" id="image-menu-div" v-if="!waiting && fragment">
+    <div
+      id="sidebar"
+      class="image-menu-div col-xl-2 col-lg-3 col-md-4"
+      v-if="!waiting && fragment"
+      :class="{ active : isActive }"
+    >
       <image-menu
         :fragment="fragment"
         :artefacts="optimizedArtefacts"
@@ -51,8 +25,77 @@
         @artefactChanged="onArtefactChanged($event)"
         :saving="saving"
         :renaming="renaming"
-        :renameInputActive="renameInputActive">
-      </image-menu>
+        :renameInputActive="renameInputActive"
+      ></image-menu>
+    </div>
+
+    <div id="content" class="container col-xl-12 col-lg-12 col-md-12"
+      v-if="!waiting && fragment"> <!-- todo: add external div with the condition -->
+      <div class="row">
+        <div id="buttons-div">
+          <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
+            <i class="fa fa-align-justify"></i>
+          </b-button>
+
+          <b-button v-for="mode in [{icon: 'fa fa-pencil', val:'DRAW'}, {icon: 'fa fa-trash', val: 'ERASE'}]" 
+            :key="mode.val" @click="editingModeChanged(mode.val)" 
+            :pressed="modeChosen(mode.val)" class="sidebarCollapse">
+            <i :class="mode.icon"></i>
+          </b-button>
+        </div>
+        <div class="fragment-container"
+          :class="{active: isActive}">
+          <div
+            ref="overlay-div"
+            v-if="!waiting && fragment"
+            :width="actualWidth"
+            :height="actualHeight"
+            id="overlay-div ">
+            <div id="zoom-div"
+              :style="{transform: `scale(${zoomLevel})`}"
+              >
+              <div id="rotate-div"
+                :width="rotateDivWidth"
+                :height="rotateDivHeight"
+                :style="{transform: `translate${translatePosition} rotate(${rotationAngle}deg)`}"
+              >
+                <roi-canvas
+                  class="overlay-image"
+                  :originalImageWidth="originalImageWidth"
+                  :originalImageHeight="originalImageHeight"
+                  :params="params"
+                  :fragment="fragment"
+                  :editable="canEdit"
+                  :side="fragment.recto"
+                  :clipping-mask="artefact.mask"
+                ></roi-canvas>
+                <artefact-canvas
+                  v-for="artefact in nonSelectedArtefacts"
+                  :key="artefact.id"
+                  class="overlay-canvas"
+                  :originalImageWidth="originalImageWidth"
+                  :originalImageHeight="originalImageHeight"
+                  :params="params"
+                  :selected="false"
+                  :artefact="artefact"
+                ></artefact-canvas>
+                <artefact-canvas
+                  class="overlay-canvas"
+                  v-show="artefact !== undefined"
+                  :originalImageWidth="originalImageWidth"
+                  :originalImageHeight="originalImageHeight"
+                  :params="params"
+                  :selected="true"
+                  :editable="canEdit"
+                  :artefact="artefact"
+                  @maskChanged="onMaskChanged"
+                  @zoomRequest="onZoomRequest($event)"
+                ></artefact-canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -68,14 +111,14 @@ import { Fragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 import {
-    EditorParams,
-    EditorParamsChangedArgs,
-    MaskChangeOperation,
-    MaskChangedEventArgs,
-    DrawingMode,
-    ZoomRequestEventArgs,
-    ArtefactEditingData,
-    OptimizedArtefact,
+  EditorParams,
+  EditorParamsChangedArgs,
+  MaskChangeOperation,
+  MaskChangedEventArgs,
+  DrawingMode,
+  ZoomRequestEventArgs,
+  ArtefactEditingData,
+  OptimizedArtefact
 } from './types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
@@ -89,7 +132,7 @@ export default Vue.extend({
     Waiting,
     'image-menu': ImageMenu,
     'roi-canvas': ROICanvas,
-    'artefact-canvas': ArtefactCanvas,
+    'artefact-canvas': ArtefactCanvas
   },
   data() {
     return {
@@ -108,9 +151,14 @@ export default Vue.extend({
       artefactEditingDataList: [] as ArtefactEditingData[],
       artefactEditingData: new ArtefactEditingData(),
       optimizedArtefacts: [] as OptimizedArtefact[],
+      isActive: false,
+      masterImage: {} as IIIFImage | undefined,
     };
   },
   computed: {
+    zoomLevel(): number {
+      return this.params.zoom;
+    },
     fragment(): Fragment {
       return this.$store.state.fragment.fragment;
     },
@@ -120,15 +168,43 @@ export default Vue.extend({
     canEdit(): boolean {
       return this.$store.state.scroll.scrollVersion.permissions.canWrite;
     },
-    masterImage(): IIIFImage  | undefined {
-      if (this.fragment && this.fragment.recto) {
-        return this.fragment.recto.master;
+    actualWidth(): number {
+      return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
+    },
+    actualHeight(): number {
+      return this.originalImageHeight * this.zoomLevel * this.$render.scalingFactors.image;
+    },
+    rotateDivWidth(): number {
+      return this.originalImageWidth / this.$render.scalingFactors.image;
+    },
+    rotateDivHeight(): number {
+      return this.originalImageHeight / this.$render.scalingFactors.image;
+    },
+    rotationAngle(): number {
+      return ((this.params.rotationAngle % 360) + 360) % 360;
+    },
+    translatePosition(): string {
+      switch (this.rotationAngle) {
+        case 90: {
+          return `(${this.rotateDivHeight}px, 0px)`;
+        } case 180: {
+          return `(${this.rotateDivWidth}px, ${this.rotateDivHeight}px)`;
+        } case 270: {
+          return `(0px, ${this.rotateDivWidth}px)`;
+        } default: {
+          return '(0, 0)';
+        }
       }
-      return undefined;
     },
     overlayDiv(): HTMLDivElement {
       return this.$refs['overlay-div'] as HTMLDivElement;
     },
+    originalImageWidth(): number {
+      return this.masterImage!.manifest.width;
+    },
+    originalImageHeight(): number {
+      return this.masterImage!.manifest.height;
+    }
   },
   async mounted() {
     try {
@@ -136,7 +212,8 @@ export default Vue.extend({
       await this.scrollService.fetchScrollVersion(this.scrollVersionId);
       await this.fragmentService.fetchFragmentInfo(
         parseInt(this.$route.params.scrollVersionId),
-        this.$route.params.fragmentId);
+        this.$route.params.fragmentId
+      );
 
       if (this.fragment && this.fragment.recto && this.fragment.recto.master) {
         await this.imageService.fetchImageManifest(this.fragment.recto.master);
@@ -154,23 +231,31 @@ export default Vue.extend({
         this.artefact = undefined;
         this.initialMask = new Polygon();
       }
-
     } finally {
       this.waiting = false;
     }
 
     this.fillImageSettings();
     this.prepareNonSelectedArtefacts();
+    this.masterImage = this.getMasterImg();
   },
   created() {
-      window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));
+    window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));
   },
   methods: {
+    getMasterImg(): IIIFImage | undefined {
+      if (this.fragment && this.fragment.recto) {
+        return this.fragment.recto.master;
+      }
+      return undefined;
+    },
     confirmLeaving(e: BeforeUnloadEvent) {
       this.artefactEditingDataList.forEach((art) => {
-        if (art.dirty) {// check if there unsaved changes
-          const confirmationMessage = 'It looks like you have been editing something. '
-                                + 'If you leave before saving, your changes will be lost.';
+        if (art.dirty) {
+          // check if there unsaved changes
+          const confirmationMessage =
+            'It looks like you have been editing something. ' +
+            'If you leave before saving, your changes will be lost.';
 
           (e || window.event).returnValue = confirmationMessage;
           return confirmationMessage;
@@ -183,7 +268,9 @@ export default Vue.extend({
         for (const imageType of this.fragment.recto.availableImageTypes) {
           const image = this.fragment.recto.getImage(imageType);
           if (image) {
-            const master = this.fragment.recto.master === this.fragment.recto.getImage(imageType);
+            const master =
+              this.fragment.recto.master ===
+              this.fragment.recto.getImage(imageType);
             const imageSetting = {
               image,
               type: imageType,
@@ -200,7 +287,12 @@ export default Vue.extend({
         this.optimizedArtefacts = [];
       } else {
         this.optimizedArtefacts = this.fragment.artefacts.map(
-          (artefact, index) => new OptimizedArtefact(artefact, index, this.$render.scalingFactors.combined)
+          (artefact, index) =>
+            new OptimizedArtefact(
+              artefact,
+              index,
+              this.$render.scalingFactors.combined
+            )
         );
       }
     },
@@ -211,12 +303,15 @@ export default Vue.extend({
       this.artefactEditingData.dirty = true;
 
       // Check if the new mask intersects with a non selected artefact mask
-      const intersection = Polygon.intersect(eventArgs.optimizedMask, this.nonSelectedMask);
+      const intersection = Polygon.intersect(
+        eventArgs.optimizedMask,
+        this.nonSelectedMask
+      );
       if (!intersection.empty) {
         this.$toasted.show("Artefact can't overlap other artefacts", {
           type: 'info',
           position: 'top-center',
-          duration: 5000,
+          duration: 5000
         });
         return;
       }
@@ -224,9 +319,8 @@ export default Vue.extend({
       // Store the old masks for the undo buffer
       const changeOperation = {
         prevMask: this.artefact.mask,
-        prevOptimizedMask: this.artefact.optimizedMask,
+        prevOptimizedMask: this.artefact.optimizedMask
       } as MaskChangeOperation;
-
 
       // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)
       this.artefact.optimizedMask = eventArgs.optimizedMask;
@@ -241,6 +335,9 @@ export default Vue.extend({
 
       this.artefactEditingData.undoList.push(changeOperation);
       this.artefactEditingData.redoList = [];
+    },
+    editingModeChanged(val: any) {
+      (this as any).params.drawingMode = DrawingMode[val];
     },
     onParamsChanged(evt: EditorParamsChangedArgs) {
       this.params = evt.params; // This makes sure a change is triggered in child components
@@ -258,15 +355,15 @@ export default Vue.extend({
       const viewport = this.overlayDiv.getBoundingClientRect();
       const oldMousePosition = {
         x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
-        y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop,
+        y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop
       };
       const newMousePosition = {
-        x: oldMousePosition.x * newZoom / oldZoom,
-        y: oldMousePosition.y * newZoom / oldZoom,
+        x: (oldMousePosition.x * newZoom) / oldZoom,
+        y: (oldMousePosition.y * newZoom) / oldZoom
       };
       const scrollDelta = {
         x: newMousePosition.x - oldMousePosition.x,
-        y: newMousePosition.y - oldMousePosition.y,
+        y: newMousePosition.y - oldMousePosition.y
       };
 
       setTimeout(() => {
@@ -284,9 +381,11 @@ export default Vue.extend({
       this.saving = true;
       try {
         this.optimizedArtefacts.forEach(async (art, index) => {
-          if(this.artefactEditingDataList[index].dirty) {
+          if (this.artefactEditingDataList[index].dirty) {
             await this.fragmentService.changeFragmentArtefactShape(
-              this.scrollVersionId, this.fragment, art
+              this.scrollVersionId,
+              this.fragment,
+              art
             );
             this.artefactEditingDataList[index].dirty = false;
           }
@@ -305,7 +404,7 @@ export default Vue.extend({
       if (this.artefactEditingData.undoList.length) {
         this.artefactEditingData.dirty = true;
 
-        const toUndo: MaskChangeOperation = this. artefactEditingData.undoList.pop()!;
+        const toUndo: MaskChangeOperation = this.artefactEditingData.undoList.pop()!;
         this.artefactEditingData.redoList.push(toUndo);
 
         this.artefact.optimizedMask = toUndo.prevOptimizedMask;
@@ -325,9 +424,11 @@ export default Vue.extend({
       }
     },
     async onNew(art: Artefact) {
-      const optimized = new OptimizedArtefact(art,
-            this.optimizedArtefacts.length,
-            this.$render.scalingFactors.combined);
+      const optimized = new OptimizedArtefact(
+        art,
+        this.optimizedArtefacts.length,
+        this.$render.scalingFactors.combined
+      );
       this.optimizedArtefacts.push(optimized);
 
       this.artefact = optimized;
@@ -337,7 +438,11 @@ export default Vue.extend({
       }
       this.saving = true;
       try {
-        await this.fragmentService.createFragmentArtefact(this.scrollVersionId, this.fragment, this.artefact);
+        await this.fragmentService.createFragmentArtefact(
+          this.scrollVersionId,
+          this.fragment,
+          this.artefact
+        );
         this.artefactEditingDataList.push(new ArtefactEditingData());
         this.showMessage('Artefact Created', false);
       } catch (err) {
@@ -352,7 +457,11 @@ export default Vue.extend({
       }
       this.renaming = true;
       try {
-        await this.fragmentService.changeFragmentArtefactName(this.scrollVersionId, this.fragment, this.artefact);
+        await this.fragmentService.changeFragmentArtefactName(
+          this.scrollVersionId,
+          this.fragment,
+          this.artefact
+        );
         this.showMessage('Artefact renamed', false);
         // this.renameInputActive = {};
         this.inputRenameChanged(undefined);
@@ -362,7 +471,7 @@ export default Vue.extend({
         this.renaming = false;
       }
     },
-    inputRenameChanged(art: OptimizedArtefact| undefined) {
+    inputRenameChanged(art: OptimizedArtefact | undefined) {
       this.renameInputActive = art;
     },
     onArtefactChanged(art: OptimizedArtefact) {
@@ -379,24 +488,32 @@ export default Vue.extend({
         this.$toasted.show(msg, {
           type: 'error',
           position: 'top-right',
-          duration : 7000
+          duration: 7000
         });
       } else {
         this.$toasted.show(msg, {
-        type: 'success',
-        position: 'top-right',
-        duration : 7000
-      });
+          type: 'success',
+          position: 'top-right',
+          duration: 7000
+        });
       }
     },
     prepareNonSelectedArtefacts() {
-      this.nonSelectedArtefacts = this.optimizedArtefacts.filter((artefact) => artefact !== this.artefact);
+      this.nonSelectedArtefacts = this.optimizedArtefacts.filter(
+        (artefact) => artefact !== this.artefact
+      );
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
         this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
       }
-    }
-  }
+    },
+    sidebarClicked() {
+      this.isActive = !this.isActive;
+    },
+    modeChosen(val: DrawingMode): boolean {
+      return DrawingMode[val].toString() === this.params.drawingMode.toString();
+    },
+  },
 });
 
 /*
@@ -413,29 +530,107 @@ export default Vue.extend({
 <style lang="scss" scoped>
 // @import '~sass-vars';
 .overlay-image {
-  position: absolute; 
+  position: absolute;
   transform-origin: top left;
 }
 .overlay-canvas {
   position: absolute;
-  top: 0;
-  left: 0;
   transform-origin: top left;
 }
 #fragment-editor {
   overflow: hidden;
   height: calc(100vh - 56px);
 }
-#overlay-div {
-  transform-origin: top left;
-  position: relative;
+.fragment-container {
   overflow: scroll;
-  margin-right: 15px;
+  position: relative;
   padding: 0;
   height: calc(100vh - 56px);
+  width: calc(100vw - 290px);
 }
-#image-menu-div {
+.fragment-container.active {
+  overflow: scroll;
+  position: relative;
+  padding: 0;
+  height: calc(100vh - 56px);
+  width: calc(100vw - 40px);
+}
+#overlay-div {
+  transform-origin: top left;
+  position: absolute;
+  overflow: hidden;
+  // margin-right: 15px;
+  padding: 0;
+  height: calc(100vh - 56px);
+  width: calc(100vw- 40px);
+}
+.image-menu-div {
   height: calc(100vh - 56px);
   overflow: hidden;
+}
+#zoom-div {
+  position: absolute;
+}
+#rotate-dev {
+  transform-origin: top left;
+}
+#buttons-div {
+  background-color: #eff1f4;
+}
+
+.sidebarCollapse {
+  width: 40px;
+  height: 40px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.wrapper {
+  display: flex;
+  align-items: stretch;
+  perspective: 1500px;
+}
+
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
+  transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
+}
+
+#sidebar.active {
+  margin-left: -250px;
+  transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+@media (max-width: 1100px) {
+  /* Reversing the behavior of the sidebar: 
+       it'll be rotated vertically and off canvas by default, 
+       collapsing in on toggle button click with removal of 
+       the vertical rotation.   */
+  #sidebar {
+    margin-left: -250px;
+    transform: rotateY(100deg);
+  }
+  #sidebar.active {
+    margin-left: 0;
+    transform: none;
+  }
+
+  .fragment-container {
+    overflow: scroll;
+    position: relative;
+    padding: 0;
+    height: calc(100vh - 56px);
+    width: calc(100vw - 40px);
+  }
+
+  .fragment-container.active {
+    overflow: scroll;
+    position: relative;
+    padding: 0;
+    height: calc(100vh - 56px);
+    width: calc(100vw - 40px);
+  }
 }
 </style>

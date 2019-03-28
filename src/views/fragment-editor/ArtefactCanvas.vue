@@ -4,26 +4,24 @@
     class="artefactOverlay"
     id="artefactOverlay"
     :class="{ editable: editable, zoom: zooming }"
-    :width="width / $render.scalingFactors.combined"
-    :height="height / $render.scalingFactors.combined"
-    style="top: 0px; left: 0px;"
-    :style="{transform: `scale(${scale * $render.scalingFactors.canvas})`}">
-    <div :style="{transform: `rotate(${params.rotationAngle}deg`}">
-      <canvas
-        id="maskCanvas"
-        class="maskCanvas"
-        :class="{hidden: clip, pulse: editMode !== editModeDraw && selected}"
-        ref="maskCanvas"
-        :width="width / $render.scalingFactors.combined"
-        :height="height / $render.scalingFactors.combined"
-        @pointermove="pointerMove($event)"
-        @pointerdown="pointerDown($event)"
-        @pointerup="pointerUp($event)"
-        @pointercancel="pointerCancel($event)"
-        @wheel="onMouseWheel"
-      >
-      </canvas>
-    </div>
+    :width="actualWidth"
+    :height="actualHeight"
+    :style="{transform: `scale(${$render.scalingFactors.canvas})`}"
+    >
+    <canvas
+      id="maskCanvas"
+      class="maskCanvas"
+      :width="actualWidth"
+      :height="actualHeight"
+      :class="{hidden: clip, pulse: editMode !== editModeDraw && selected && !clip}"
+      ref="maskCanvas"
+      @pointermove="pointerMove($event)"
+      @pointerdown="pointerDown($event)"
+      @pointerup="pointerUp($event)"
+      @pointercancel="pointerCancel($event)"
+      @wheel="onMouseWheel"
+    >
+    </canvas>
   </div>
 </template>
 
@@ -64,8 +62,8 @@ export default Vue.extend({
     artefact: OptimizedArtefact,
     selected: Boolean,
     editable: Boolean,
-    width: Number,
-    height: Number,
+    originalImageWidth: Number,
+    originalImageHeight: Number,
   },
   data() {
     return {
@@ -74,22 +72,26 @@ export default Vue.extend({
       firstMoveOfDraw: false,
       mouseClientPosition: {} as Position,
       editMode: EditMode.NONE,
-      // editingCanvas: document.createElement('canvas'),
       currentClipperPolygon: [[]],
       cursorTransform: Matrix.unit(),
       zooming: false,
       maskCanvasContext: { } as CanvasRenderingContext2D,
-      // editingCanvasContext: { } as CanvasRenderingContext2D,
       pointerTracker: new PointerTracker(),
       adjFingerCount: 0,
       currentMask: new Polygon(),
     };
   },
   computed: {
+    actualWidth(): number {
+      return this.originalImageWidth / this.$render.scalingFactors.combined;
+    },
+    actualHeight(): number {
+      return this.originalImageHeight / this.$render.scalingFactors.combined;
+    },
     maskCanvas(): HTMLCanvasElement {
       return this.$refs.maskCanvas as HTMLCanvasElement;
     },
-    scale(): number { // TODO: Rename scale to zoomFactor
+    zoom(): number {
       return this.params.zoom;
     },
     brushSize(): number {
@@ -100,9 +102,6 @@ export default Vue.extend({
     },
     cursorColor(): string {
       return this.params.drawingMode === DrawingMode.DRAW ? 'yellow' : 'black';
-    },
-    rotateTransform(): string {
-      return `rotate(${this.rotationAngle} ${this.width / 2} ${this.height / 2}`;
     },
     rotationAngle(): number {
       return this.params.rotationAngle;
@@ -148,8 +147,6 @@ export default Vue.extend({
         }
         this.maskCanvasContext.fillStyle = this.artefact.color;
         this.maskCanvasContext.strokeStyle = this.artefact.color;
-
-        // TODO: Save the current canvas bitmap
       }
     },
     pointerMove(event: PointerEvent) {
@@ -199,9 +196,9 @@ export default Vue.extend({
     },
     drawPoint(pos: Position) {
       this.maskCanvasContext.beginPath();
-      this.maskCanvasContext.arc(pos.x / this.scale / this.$render.scalingFactors.canvas,
-                                 pos.y / this.scale / this.$render.scalingFactors.canvas,
-                                 this.brushSize / 2 / this.scale / this.$render.scalingFactors.combined,
+      this.maskCanvasContext.arc(pos.x,
+                                 pos.y,
+                                 this.brushSize / 2 / this.zoom / this.$render.scalingFactors.combined,
                                  0, Math.PI * 2);
       this.maskCanvasContext.fill();
       this.maskCanvasContext.closePath();
@@ -209,11 +206,9 @@ export default Vue.extend({
     },
     drawLine(start: Position, end: Position) {
       this.maskCanvasContext.beginPath();
-      this.maskCanvasContext.lineWidth = this.brushSize / this.scale / this.$render.scalingFactors.combined;
-      this.maskCanvasContext.moveTo(start.x / this.scale / this.$render.scalingFactors.canvas,
-                                    start.y / this.scale / this.$render.scalingFactors.canvas);
-      this.maskCanvasContext.lineTo(end.x / this.scale / this.$render.scalingFactors.canvas,
-                                    end.y / this.scale / this.$render.scalingFactors.canvas);
+      this.maskCanvasContext.lineWidth = this.brushSize / this.zoom / this.$render.scalingFactors.combined;
+      this.maskCanvasContext.moveTo(start.x, start.y);
+      this.maskCanvasContext.lineTo(end.x, end.y);
       this.maskCanvasContext.stroke();
       this.maskCanvasContext.closePath();
     },
@@ -237,35 +232,70 @@ export default Vue.extend({
       this.zoomLocation(event.deltaY);
     },
     extendEvent(event: PointerEvent) {
-      // The fragment editor only supports rotation by 90 degree increments.
+      const normalized = this.normalizePosition(event);
+      const rotated = this.applyRotation(normalized);
+
+      const extended = new PointerTrackingEvent(event, rotated);
+      return extended;
+    },
+    normalizePosition(event: PointerEvent) {
+      // Take the pointer event and return the position inside the image, in canvas coordinates units
+      // (right, bottom) is (actualWidth, actualHeight)
+
       const element = event.target as HTMLElement;
       const initOffset = element.getBoundingClientRect();
+
+      // Position in pixels, compared to top left corner of the canvas
+      // Note: element.scrollLeft and scrollTop are probably always 0, but it doesn't hurt to add them
       const rawPos = {
         x: event.clientX - initOffset.left + element.scrollLeft,
         y: event.clientY - initOffset.top + element.scrollTop,
       } as Position;
 
+      // Take into account scaling to get to the canvas coordiantes
+      const scaledPos = {
+        x: rawPos.x / this.zoom / this.$render.scalingFactors.canvas,
+        y: rawPos.y / this.zoom / this.$render.scalingFactors.canvas,
+      };
+
+      console.log(`raw ${rawPos.x}, ${rawPos.y}, scales: ${scaledPos.x}, ${scaledPos.y}`);
+      return scaledPos;
+    },
+    applyRotation(unrotated: Position) {
+      // When applying rotation, unrotated (0,0) is the top left of the screen, not the
+      // top left of the image. We need to apply rotation
+      //
+      // This code only supports rotation in 90 degrees increments
       const angle = ((this.rotationAngle % 360) + 360) % 360; // Handle negative numbers
-      let rotatedPos = { ... rawPos };
-      if (angle === 180) {
-        rotatedPos = {
-          x: this.width * this.scale - rawPos.x,
-          y: this.height * this.scale - rawPos.y,
-        };
-      } else if (angle === 90) {
-        rotatedPos = {
-          x: rawPos.y,
-          y: this.width * this.scale - rawPos.x,
-        };
-      } else if (angle === 270) {
-        rotatedPos = {
-          x: this.height * this.scale - rawPos.y,
-          y: rawPos.x,
-        };
+      let rotated: Position;
+
+      switch (angle) {
+        case 0:
+          rotated = unrotated;
+          break;
+        case 90:
+          rotated = {
+            x: unrotated.y,
+            y: this.actualHeight - unrotated.x,
+          };
+          break;
+        case 180:
+          rotated = {
+            x: this.actualWidth - unrotated.x,
+            y: this.actualHeight - unrotated.y,
+          };
+          break;
+        case 270:
+          rotated = {
+            x: this.actualWidth - unrotated.y,
+            y: unrotated.x,
+          };
+          break;
+        default:
+          throw new Error(`Unsupported rotation angle ${angle}`);
       }
 
-      const extended = new PointerTrackingEvent(event, rotatedPos);
-      return extended;
+      return rotated;
     },
     async recalculateMask() {
       const canvas = this.maskCanvas;
@@ -281,7 +311,6 @@ export default Vue.extend({
       this.$emit('maskChanged', eventArgs);
     },
     abortDrawing() {
-      // TODO: Change this into a bitmap operation
       this.applyMaskToCanvas();
     },
     applyMaskToCanvas() {

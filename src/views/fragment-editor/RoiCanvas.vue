@@ -1,9 +1,9 @@
 <template>
     <svg    ref="roiSvg"
-            :width="actualWidth * zoomLevel"
-            :height="actualHeight * zoomLevel"
+            :width="actualWidth"
+            :height="actualHeight"
             :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
-    <g :transform="`scale(${zoomLevel}) ${rotateTransform})`">
+    <g>
       <defs>
         <path id="Full-clip-path" :d="fullImageMask"></path>  <!-- No scaling transform, since fullImageMask is already scaled -->
         <clipPath id="Full-clipping-outline">
@@ -18,7 +18,7 @@
         <image v-for="imageSetting in imageSettings" 
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg" 
-              draggable="false" 
+              draggable="false"
               :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
               :width="actualWidth"
               :height="actualHeight"
@@ -41,8 +41,8 @@ import { Polygon } from '@/utils/Polygons';
 export default Vue.extend({
   name: 'roi-canvas',
   props: {
-    width: Number,
-    height: Number,
+    originalImageWidth: Number,
+    originalImageHeight: Number,
     fragment: Fragment,
     params: EditorParams,
     editable: Boolean,
@@ -62,15 +62,11 @@ export default Vue.extend({
     fullImageMask(): string {
       return `M0 0L${this.actualWidth} 0L${this.actualWidth} ${this.actualHeight}L0 ${this.actualHeight}`;
     },
-    zoomLevel(): number {
-      // Lot of the old code uses zoomLevel
-      return this.params.zoom;
-    },
     actualWidth(): number {
-      return this.width / this.$render.scalingFactors.image;
+      return this.originalImageWidth / this.$render.scalingFactors.image;
     },
     actualHeight(): number {
-      return this.height / this.$render.scalingFactors.image;
+      return this.originalImageHeight / this.$render.scalingFactors.image;
     },
     rotateTransform(): string {
       return `rotate(${this.params.rotationAngle} ${this.actualWidth / 2} ${this.actualHeight / 2}`;
