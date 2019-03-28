@@ -54,38 +54,44 @@
             <div id="zoom-div"
               :style="{transform: `scale(${zoomLevel})`}"
               >
-              <roi-canvas
-                class="overlay-image"
-                :originalImageWidth="originalImageWidth"
-                :originalImageHeight="originalImageHeight"
-                :params="params"
-                :fragment="fragment"
-                :editable="canEdit"
-                :side="fragment.recto"
-                :clipping-mask="artefact.mask"
-              ></roi-canvas>
-              <artefact-canvas
-                v-for="artefact in nonSelectedArtefacts"
-                :key="artefact.id"
-                class="overlay-canvas"
-                :originalImageWidth="originalImageWidth"
-                :originalImageHeight="originalImageHeight"
-                :params="params"
-                :selected="false"
-                :artefact="artefact"
-              ></artefact-canvas>
-              <artefact-canvas
-                class="overlay-canvas"
-                v-show="artefact !== undefined"
-                :originalImageWidth="originalImageWidth"
-                :originalImageHeight="originalImageHeight"
-                :params="params"
-                :selected="true"
-                :editable="canEdit"
-                :artefact="artefact"
-                @maskChanged="onMaskChanged"
-                @zoomRequest="onZoomRequest($event)"
-              ></artefact-canvas>
+              <div id="rotate-div"
+                :width="rotateDivWidth"
+                :height="rotateDivHeight"
+                :style="{transform: `translate${translatePosition} rotate(${rotationAngle}deg)`}"
+              >
+                <roi-canvas
+                  class="overlay-image"
+                  :originalImageWidth="originalImageWidth"
+                  :originalImageHeight="originalImageHeight"
+                  :params="params"
+                  :fragment="fragment"
+                  :editable="canEdit"
+                  :side="fragment.recto"
+                  :clipping-mask="artefact.mask"
+                ></roi-canvas>
+                <artefact-canvas
+                  v-for="artefact in nonSelectedArtefacts"
+                  :key="artefact.id"
+                  class="overlay-canvas"
+                  :originalImageWidth="originalImageWidth"
+                  :originalImageHeight="originalImageHeight"
+                  :params="params"
+                  :selected="false"
+                  :artefact="artefact"
+                ></artefact-canvas>
+                <artefact-canvas
+                  class="overlay-canvas"
+                  v-show="artefact !== undefined"
+                  :originalImageWidth="originalImageWidth"
+                  :originalImageHeight="originalImageHeight"
+                  :params="params"
+                  :selected="true"
+                  :editable="canEdit"
+                  :artefact="artefact"
+                  @maskChanged="onMaskChanged"
+                  @zoomRequest="onZoomRequest($event)"
+                ></artefact-canvas>
+              </div>
             </div>
           </div>
         </div>
@@ -96,14 +102,14 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import Vue from "vue";
-import Waiting from "@/components/misc/Waiting.vue";
-import FragmentService from "@/services/fragment";
-import ScrollService from "@/services/scroll";
-import ImageService from "@/services/image";
-import { Fragment } from "@/models/fragment";
-import { Artefact } from "@/models/artefact";
-import ImageMenu from "./ImageMenu.vue";
+import Vue from 'vue';
+import Waiting from '@/components/misc/Waiting.vue';
+import FragmentService from '@/services/fragment';
+import ScrollService from '@/services/scroll';
+import ImageService from '@/services/image';
+import { Fragment } from '@/models/fragment';
+import { Artefact } from '@/models/artefact';
+import ImageMenu from './ImageMenu.vue';
 import {
   EditorParams,
   EditorParamsChangedArgs,
@@ -113,20 +119,20 @@ import {
   ZoomRequestEventArgs,
   ArtefactEditingData,
   OptimizedArtefact
-} from "./types";
-import { Position } from "@/utils/PointerTracker";
-import { IIIFImage } from "@/models/image";
-import ROICanvas from "./RoiCanvas.vue";
-import ArtefactCanvas from "./ArtefactCanvas.vue";
-import { Polygon } from "@/utils/Polygons";
+} from './types';
+import { Position } from '@/utils/PointerTracker';
+import { IIIFImage } from '@/models/image';
+import ROICanvas from './RoiCanvas.vue';
+import ArtefactCanvas from './ArtefactCanvas.vue';
+import { Polygon } from '@/utils/Polygons';
 
 export default Vue.extend({
-  name: "fragment-editor",
+  name: 'fragment-editor',
   components: {
     Waiting,
-    "image-menu": ImageMenu,
-    "roi-canvas": ROICanvas,
-    "artefact-canvas": ArtefactCanvas
+    'image-menu': ImageMenu,
+    'roi-canvas': ROICanvas,
+    'artefact-canvas': ArtefactCanvas
   },
   data() {
     return {
@@ -168,33 +174,37 @@ export default Vue.extend({
     actualHeight(): number {
       return this.originalImageHeight * this.zoomLevel * this.$render.scalingFactors.image;
     },
-    // masterImage(): IIIFImage | undefined {
-    //   if (this.fragment && this.fragment.recto) {
-    //     return this.fragment.recto.master;
-    //   }
-    //   return undefined;
-    // },
+    rotateDivWidth(): number {
+      return this.originalImageWidth / this.$render.scalingFactors.image;
+    },
+    rotateDivHeight(): number {
+      return this.originalImageHeight / this.$render.scalingFactors.image;
+    },
+    rotationAngle(): number {
+      return ((this.params.rotationAngle % 360) + 360) % 360;
+    },
+    translatePosition(): string {
+      switch (this.rotationAngle) {
+        case 90: {
+          return `(${this.rotateDivHeight}px, 0px)`;
+        } case 180: {
+          return `(${this.rotateDivWidth}px, ${this.rotateDivHeight}px)`;
+        } case 270: {
+          return `(0px, ${this.rotateDivWidth}px)`;
+        } default: {
+          return '(0, 0)';
+        }
+      }
+    },
     overlayDiv(): HTMLDivElement {
-      return this.$refs["overlay-div"] as HTMLDivElement;
+      return this.$refs['overlay-div'] as HTMLDivElement;
     },
     originalImageWidth(): number {
-      // const angle = ((this.params.rotationAngle % 360) + 360) % 360; // Handle negative numbers
-      // if (angle === 90 || angle === 270) {
-      //   return this.masterImage!.manifest.height;
-      // } else {
-      //   return this.masterImage!.manifest.width;
-      // }
-      return this.masterImage!.manifest.width
+      return this.masterImage!.manifest.width;
     },
     originalImageHeight(): number {
-      // const angle = ((this.params.rotationAngle % 360) + 360) % 360;
-      // if (angle === 90 || angle === 270) {
-      //   return this.masterImage!.manifest.width;
-      // } else {
-      //   return this.masterImage!.manifest.height;        
-      // }
       return this.masterImage!.manifest.height;
-    } 
+    }
   },
   async mounted() {
     try {
@@ -212,7 +222,7 @@ export default Vue.extend({
       if (this.fragment!.artefacts!.length) {
         this.optimizeArtefacts();
         this.artefact = this.optimizedArtefacts[0];
-        this.optimizedArtefacts.forEach(element => {
+        this.optimizedArtefacts.forEach((element) => {
           this.artefactEditingDataList.push(new ArtefactEditingData());
         });
         this.artefactEditingData = this.getArtefactEditingData(0);
@@ -230,22 +240,22 @@ export default Vue.extend({
     this.masterImage = this.getMasterImg();
   },
   created() {
-    window.addEventListener("beforeunload", e => this.confirmLeaving(e));
+    window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));
   },
   methods: {
-    getMasterImg() :IIIFImage | undefined {
+    getMasterImg(): IIIFImage | undefined {
       if (this.fragment && this.fragment.recto) {
         return this.fragment.recto.master;
       }
       return undefined;
     },
     confirmLeaving(e: BeforeUnloadEvent) {
-      this.artefactEditingDataList.forEach(art => {
+      this.artefactEditingDataList.forEach((art) => {
         if (art.dirty) {
           // check if there unsaved changes
           const confirmationMessage =
-            "It looks like you have been editing something. " +
-            "If you leave before saving, your changes will be lost.";
+            'It looks like you have been editing something. ' +
+            'If you leave before saving, your changes will be lost.';
 
           (e || window.event).returnValue = confirmationMessage;
           return confirmationMessage;
@@ -299,8 +309,8 @@ export default Vue.extend({
       );
       if (!intersection.empty) {
         this.$toasted.show("Artefact can't overlap other artefacts", {
-          type: "info",
-          position: "top-center",
+          type: 'info',
+          position: 'top-center',
           duration: 5000
         });
         return;
@@ -380,9 +390,9 @@ export default Vue.extend({
             this.artefactEditingDataList[index].dirty = false;
           }
         });
-        this.showMessage("Fragment Saved", false);
+        this.showMessage('Fragment Saved', false);
       } catch (err) {
-        this.showMessage("Fragment save failed", true);
+        this.showMessage('Fragment save failed', true);
       } finally {
         this.saving = false;
       }
@@ -434,9 +444,9 @@ export default Vue.extend({
           this.artefact
         );
         this.artefactEditingDataList.push(new ArtefactEditingData());
-        this.showMessage("Artefact Created", false);
+        this.showMessage('Artefact Created', false);
       } catch (err) {
-        this.showMessage("Artefact creation failed", true);
+        this.showMessage('Artefact creation failed', true);
       } finally {
         this.saving = false;
       }
@@ -452,11 +462,11 @@ export default Vue.extend({
           this.fragment,
           this.artefact
         );
-        this.showMessage("Artefact renamed", false);
+        this.showMessage('Artefact renamed', false);
         // this.renameInputActive = {};
         this.inputRenameChanged(undefined);
       } catch (err) {
-        this.showMessage("Artefact rename failed", true);
+        this.showMessage('Artefact rename failed', true);
       } finally {
         this.renaming = false;
       }
@@ -476,21 +486,21 @@ export default Vue.extend({
     showMessage(msg: string, error: boolean) {
       if (error) {
         this.$toasted.show(msg, {
-          type: "error",
-          position: "top-right",
+          type: 'error',
+          position: 'top-right',
           duration: 7000
         });
       } else {
         this.$toasted.show(msg, {
-          type: "success",
-          position: "top-right",
+          type: 'success',
+          position: 'top-right',
           duration: 7000
         });
       }
     },
     prepareNonSelectedArtefacts() {
       this.nonSelectedArtefacts = this.optimizedArtefacts.filter(
-        artefact => artefact !== this.artefact
+        (artefact) => artefact !== this.artefact
       );
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
@@ -551,7 +561,9 @@ export default Vue.extend({
 #zoom-div {
   position: absolute;
 }
-
+#rotate-dev {
+  transform-origin: top left;
+}
 #buttons-div {
   background-color: #eff1f4;
 }

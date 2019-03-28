@@ -3,7 +3,7 @@
             :width="actualWidth"
             :height="actualHeight"
             :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
-    <g><!-- :transform="`${rotateTransform})`"-->
+    <g>
       <defs>
         <path id="Full-clip-path" :d="fullImageMask"></path>  <!-- No scaling transform, since fullImageMask is already scaled -->
         <clipPath id="Full-clipping-outline">
@@ -62,10 +62,6 @@ export default Vue.extend({
     fullImageMask(): string {
       return `M0 0L${this.actualWidth} 0L${this.actualWidth} ${this.actualHeight}L0 ${this.actualHeight}`;
     },
-    // zoomLevel(): number {
-    //   // Lot of the old code uses zoomLevel
-    //   return this.params.zoom;
-    // },
     actualWidth(): number {
       return this.originalImageWidth / this.$render.scalingFactors.image;
     },
