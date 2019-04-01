@@ -36,7 +36,7 @@ export default {
   methods: {
     async initializeApp() {
       const session = new SessionService(this.$store);
-      await session.isSessionValid();
+      await session.isTokenValid();
       this.waiting = false;
     },
   }

@@ -12,6 +12,7 @@ export interface SessionState {
 
     userName?: string;
     fullName?: string;
+    token?: string;
 }
 
 export interface ScrollState {
