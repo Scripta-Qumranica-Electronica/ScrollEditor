@@ -56,7 +56,7 @@ export default Vue.extend({
   data() {
     return {
       scrollService: new ScrollService(this.$store),
-      allScrolls: [] as ScrollInfo[],
+      allScrolls: [] as ScrollVersionInfo[],
       myScrolls: [] as ScrollVersionInfo[],
       filter: '',
     };
@@ -71,16 +71,17 @@ export default Vue.extend({
   },
   mounted() {
     // We do not use async/await here because we want both requests to go out simultaneously.
-    this.scrollService.listScrolls().then((allScrolls) => {
-      this.allScrolls = allScrolls;
+    this.scrollService.listScrolls().then((scrolls) => {
+      this.allScrolls = scrolls.scrollList;
+      this.myScrolls = scrolls.myScrollList;
     }, (error) => {
       throw error;
     });
-    this.scrollService.getMyScrollVersions().then((myScrolls) => {
-      this.myScrolls = myScrolls;
-    }, (error) => {
-      throw error;
-    });
+    // this.scrollService.getMyScrollVersions().then((myScrolls) => {
+    //   this.myScrolls = myScrolls;
+    // }, (error) => {
+    //   throw error;
+    // });
   },
   methods: {
       nameMatch(name: string): boolean {

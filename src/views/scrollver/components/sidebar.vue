@@ -87,7 +87,7 @@ export default Vue.extend({
             return this.$store.state.scroll.scrollVersion;
         },
         isNew(): boolean {
-            return this.current.versionId === this.$store.state.scroll.newScrollVersionId;
+            return this.current.id === this.$store.state.scroll.newScrollVersionId;
         }
     },
     methods: {
@@ -105,7 +105,7 @@ export default Vue.extend({
             this.waiting = true;
             this.errorMessage = '';
             try {
-                const newScrollVersionId = await this.scrollService.copyScrollVersion(this.current.versionId);
+                const newScrollVersionId = await this.scrollService.copyScrollVersion(this.current.id);
 
                 if (this.current.name !== this.newCopyName) {
                     await this.scrollService.renameScrollVersion(newScrollVersionId, this.newCopyName);

@@ -22,19 +22,20 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { ScrollInfo } from '@/models/scroll';
+import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
 
 export default Vue.extend({
   name: 'scroll-card',
   props: {
-    scroll: ScrollInfo,
+    scroll: ScrollVersionInfo,
   },
   computed: {
     thumbnailSource(): string | undefined {
-      return this.scroll.thumbnails.length ? this.scroll.thumbnails[0].thumbnailUrl : undefined;
+      return this.scroll.thumbnailUrl.length ? this.scroll.thumbnailUrl[0].thumbnailUrl : undefined;
     },
     publicVersionCount(): number {
-      return this.scroll.scrollVersionIds.length;
+      return 100; // TODO!!!!!!!!!!!!!
+      // return this.scroll.scrollVersionIds.length;
     },
     personalVersionCount(): number {
       return 0;

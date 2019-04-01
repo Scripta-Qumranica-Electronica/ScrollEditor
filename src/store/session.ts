@@ -68,7 +68,7 @@ const actions: ActionTree<SessionState, RootState> = {
 
 export function authHeader() {
     if (userState.loggedIn) {
-        return { 'Authorization': 'Bearer ' + userState.token };
+        return {Authorization: 'Bearer ' + userState.token };
     } else {
         return {};
     }

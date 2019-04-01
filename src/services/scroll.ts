@@ -9,11 +9,21 @@ class ScrollService {
         this.communicator = new Communicator(this.store);
     }
 
-    public async listScrolls(): Promise<ScrollInfo[]> {
-        const response = await this.communicator.listRequest('listScrolls');
-
-        const list = response.results.map((obj) => new ScrollInfo(obj));
-        return list;
+    public async listScrolls(): Promise<any> { // Promise<ScrollVersionInfo[]>
+        const response = await this.communicator.getScrollsList('api/v1/scroll-version/list');
+        const scrollList = [] as ScrollVersionInfo[];
+        const myScrollList = [] as ScrollVersionInfo[];
+        const self = this;
+        response.scrollVersions.map((obj) => {
+            obj.forEach((element: any) => {
+                if (element.owner.userId === self.store.state.session.userId) {
+                    myScrollList.push(new ScrollVersionInfo(element));
+                } else {
+                    scrollList.push(new ScrollVersionInfo(element));
+                }
+            });
+        });
+        return {scrollList, myScrollList};
     }
 
     public async fetchScrollVersion(versionId: number, ignoreCache = false): Promise<ScrollVersionInfo> {
@@ -34,12 +44,12 @@ class ScrollService {
         // Convert the server response into a single ScrollVersionInfo entity, putting all the other versions
         // in its otherVersions array
 
-        const primary = list.find((sv) => sv.versionId === versionId);
+        const primary = list.find((sv) => sv.id === versionId);
         if (!primary) {
             throw new ServerError( { error: 'Server did not return the version we asked for' } );
         }
-        const others = list.filter((sv) => sv.versionId !== versionId);
-        primary.otherVersions = others;
+        const others = list.filter((sv) => sv.id !== versionId);
+        // primary.otherVersions = others; // TODO!!!!!!!!!!!!!!!!!
 
         this.store.dispatch('scroll/setScrollVersion', primary);
         return primary;
@@ -58,7 +68,7 @@ class ScrollService {
 
     public async copyScrollVersion(versionId: number): Promise<number> {
         const response = await this.communicator.request<CopyCombinationResponse>('copyCombination',
-                        { scroll_version_id: versionId });
+            { scroll_version_id: versionId });
         return response.data.new_scroll_id;
     }
 
@@ -78,7 +88,7 @@ class ScrollService {
 
     public async getScrollVersionFragments(scrollVersionId: number): Promise<Fragment[]> {
         const response = await this.communicator.listRequest('getScrollVersionFragments',
-                                    { scroll_version_id: scrollVersionId });
+            { scroll_version_id: scrollVersionId });
 
         const fragments = response.results.map((obj) => new Fragment(obj));
 

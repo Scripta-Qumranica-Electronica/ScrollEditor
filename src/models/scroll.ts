@@ -24,18 +24,18 @@ class UserInfo {
     public userId: number;
 
     constructor(serverObj: any) {
-        this.userName = serverObj.name;
-        this.userId = serverObj.id;
+        this.userName = serverObj.userName;
+        this.userId = serverObj.userId;
     }
 }
 
 class Permissions {
     public canWrite: boolean;
-    public canLock: boolean;
+    public canAdmin: boolean;
 
     constructor(serverObj: any) {
-        this.canWrite = serverObj.can_write === 1;
-        this.canLock = serverObj.can_lock === 1;
+        this.canWrite = serverObj.canWrite || false;
+        this.canAdmin = serverObj.canAdmin || false;
     }
 }
 
@@ -50,40 +50,32 @@ class ShareInfo {
 }
 
 class ScrollVersionInfo {
+    public id: number;
     public name: string;
-    public versionId: number;
+    public permission: Permissions;
     public owner: UserInfo;
-    public permissions: Permissions;
-    public thumbnails: IIIFImage[];
-
+    public thumbnailUrl: IIIFImage[];
     public shares: ShareInfo[];
-
-    public numOfArtefacts: number;
-    public numOfColumns: number;
-    public numOfFragments: number;
-
     public locked: boolean;
+    public isPublic: boolean;
     public lastEdit: Date | null;
 
-    public otherVersions: ScrollVersionInfo[] = [];
+    // public numOfArtefacts: number;
+    // public numOfColumns: number;
+    // public numOfFragments: number;
+    // public otherVersions: ScrollVersionInfo[] = [];
 
     constructor(serverObj: any) {
+        this.id = serverObj.id;
         this.name = serverObj.name;
-        this.versionId = serverObj.scroll_version_id;
-        this.owner = new UserInfo(JSON.parse(serverObj.owner));
-        this.permissions = new Permissions(serverObj);
-
+        this.permission = new Permissions(serverObj.permission); // isAdmin, canWrite
+        this.owner = new UserInfo(serverObj.owner);
         const thumbnailUrls: string[] = JSON.parse(serverObj.thumbnails || '[]');
-        this.thumbnails = thumbnailUrls.map((url) => new IIIFImage(url));
-
+        this.thumbnailUrl = thumbnailUrls.map((url) => new IIIFImage(url));
         const sharedObj: any[] = JSON.parse(serverObj.shared || '[]');
         this.shares = sharedObj.map((obj) => new ShareInfo(obj));
-
-        this.numOfArtefacts = serverObj.numOfArtefacts;
-        this.numOfColumns = serverObj.numOfColsFrags / 2;  // TODO: Replace with actual count from server
-        this.numOfFragments = serverObj.numOfColsFrags / 2;
-
-        this.locked = serverObj.locked === 1;
+        this.locked = serverObj.locked || false;
+        this.isPublic = serverObj.isPublic || false;
         this.lastEdit = serverObj.lastEdit ? new Date(Date.parse(serverObj.lastEdit)) : null;
     }
 }

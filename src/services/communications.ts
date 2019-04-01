@@ -1,9 +1,28 @@
 import { Store } from 'vuex';
 import axios, { AxiosResponse } from 'axios';
+import { authHeader } from '../store/session';
 
-export interface ValidateSessionResponse {
-    SESSION_ID: string;
+// export interface ValidateSessionResponse {
+//     SESSION_ID: string;
+//     USER_ID: number;
+// }
+
+export interface ValidateTokenResponse {
+    TOKEN: string;
     USER_ID: number;
+}
+
+export interface Login {
+    userName: string;
+    password: string;
+    userId: number;
+    token: string;
+}
+
+export interface LoginResponse {
+    userId: number;
+    userName: string;
+    token: string;
 }
 
 export interface CopyCombinationResponse {
@@ -12,6 +31,10 @@ export interface CopyCombinationResponse {
 
 export interface ListResults<T> {
     results: T[];
+}
+
+export interface ScrollVersions<T> {
+    scrollVersions: T[];
 }
 
 export interface DictionaryListResults<T> {
@@ -40,6 +63,9 @@ export class NotFoundError extends Error {
 // Server communications
 export class Communicator {
     private url = '/resources/cgi-bin/scrollery-cgi.pl';
+    private requestOptions = {
+        headers: authHeader()
+    };
 
     constructor(private store: Store<any>) { }
 
@@ -67,11 +93,39 @@ export class Communicator {
         return response;
     }
 
+    public async postRequest<T>(transactionType: string, url: string, payload?: any): Promise<AxiosResponse<T>> {
+        // const postRequestOptions = {
+        //     headers: authHeader(),
+        //     body: payload
+        // };
+        // TODO: add token to post request
+        const response = await axios.post<T>(url, payload); // postRequestOptions
+        const data = response.data as any;
+        if (data.TYPE === 'ERROR' || data.error) {
+            throw new ServerError(response.data);
+        }
+        return response;
+    }
+
+    public async getRequest<T>(url: string): Promise<AxiosResponse<T>> {
+        // const requestOptions = {
+        //     headers: authHeader()
+        // };
+
+        const response = await axios.get<T>(url, this.requestOptions);
+        const data = response.data as any;
+        if (data.TYPE === 'ERROR' || data.error) {
+            throw new ServerError(response.data);
+        }
+        return response;
+    }
+
     // Helper method that returns a list, converting a server error saying there are no items into an empty
     // response.
     // We do not return a generic type because we usually don't bother providing an interface for the server
     // response, and need to convert it to your type. This conversion can't be done inside a generic function
     // in typescript (no way to call new T()), so it has to be done outside.
+    // TODO - rermove this function
     public async listRequest(transactionType: string, payload?: any): Promise<ListResults<any>> {
         try {
             const response = await this.request<ListResults<any>>(transactionType, payload);
@@ -86,6 +140,21 @@ export class Communicator {
             }
             throw err;
         }
+    }
 
+    public async getScrollsList(url: string, payload?: any): Promise<ScrollVersions<any>> {
+        try {
+            const response = await axios.get<any>(url, this.requestOptions);
+            return response.data;
+        } catch (err) {
+            const serverError = err as ServerError;
+            if (err && err.errorText === 'No results found.') {
+                const empty: ScrollVersions<string> = {
+                    scrollVersions: []
+                };
+                return empty;
+            }
+            throw err;
+        }
     }
 }
