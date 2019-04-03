@@ -1,12 +1,12 @@
 <template>
   <div class="card">
-    <router-link tag="a" :to="{ path:`/scroll/${scroll.defaultScrollVersionId}` }">
+    <router-link tag="a" :to="{ path:`/scroll/${scroll.id}` }">
       <!--TODO do not hardcode the image proxy server-->
       <img class="card-img-top" v-if="thumbnailSource" v-lazy="thumbnailSource" :alt="scroll.name">
       <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scroll.name">
     </router-link>
     <div class="card-body">
-      <router-link tag="div" :to="{ path:`/scroll/${scroll.defaultScrollVersionId}` }">
+      <router-link tag="div" :to="{ path:`/scroll/${scroll.id}` }">
         <h5 class="cart-title"> {{ scroll.name }}</h5>
         <p>
           <span class="badge badge-info mr-1">{{ publicVersionCount }}</span>{{ $tc('home.publicVersionCount', publicVersionCount)}}
@@ -34,7 +34,7 @@ export default Vue.extend({
       return this.scroll.thumbnailUrl.length ? this.scroll.thumbnailUrl[0].thumbnailUrl : undefined;
     },
     publicVersionCount(): number {
-      return 100; // TODO!!!!!!!!!!!!!
+      return this.scroll.publicCopies;
       // return this.scroll.scrollVersionIds.length;
     },
     personalVersionCount(): number {

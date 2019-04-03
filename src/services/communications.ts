@@ -30,11 +30,12 @@ export interface CopyCombinationResponse {
 }
 
 export interface ListResults<T> {
-    results: T[];
+    result: T[];
 }
 
 export interface ScrollVersions<T> {
-    scrollVersions: T[];
+    others: T[];
+    primary: T;
 }
 
 export interface DictionaryListResults<T> {
@@ -134,7 +135,7 @@ export class Communicator {
             const serverError = err as ServerError;
             if (err && err.errorText === 'No results found.') {
                 const empty: ListResults<string> = {
-                    results: []
+                    result: []
                 };
                 return empty;
             }
@@ -142,7 +143,25 @@ export class Communicator {
         }
     }
 
-    public async getScrollsList(url: string, payload?: any): Promise<ScrollVersions<any>> {
+    public async getScrollsList(url: string, payload?: any): Promise<ListResults<any>> {
+        // todo: add Promise<ScrollVersions<any> to get scroll version:primary and other
+        try {
+            // debugger
+            const response = await axios.get<any>(url, this.requestOptions);
+            return response.data;
+        } catch (err) {
+            const serverError = err as ServerError;
+            if (err && err.errorText === 'No results found.') {
+                const empty: ListResults<string> = {
+                    result: []
+                };
+                return empty;
+            }
+            throw err;
+        }
+    }
+
+    public async getScrollVersion(url: string): Promise<ScrollVersions<any>> {
         try {
             const response = await axios.get<any>(url, this.requestOptions);
             return response.data;
@@ -150,7 +169,8 @@ export class Communicator {
             const serverError = err as ServerError;
             if (err && err.errorText === 'No results found.') {
                 const empty: ScrollVersions<string> = {
-                    scrollVersions: []
+                    primary: '',
+                    others: [],
                 };
                 return empty;
             }

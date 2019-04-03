@@ -36,7 +36,7 @@ export class IIIFImage {
 export abstract class ImageSet {
     public imageCatalogId: number;
     public sqeImageId: number;
-    public abstract get master(): IIIFImage | undefined;
+    public abstract get masterIndex(): IIIFImage | undefined;
     public abstract get availableImageTypes(): string[];
 
     constructor(imageCatalogId: number, sqeImageId: number) {
@@ -89,7 +89,7 @@ export class IIAImageSet extends ImageSet {
         return IIAImageSet.availableImages;
     }
 
-    public get master(): IIIFImage | undefined {
+    public get masterIndex(): IIIFImage | undefined {
         return this.color;
     }
 }

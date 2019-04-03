@@ -53,7 +53,7 @@ class FragmentService {
             image_catalog_id: fragment.recto.imageCatalogId,
         });
 
-        const artefacts = response.results.map((obj) => new Artefact(obj));
+        const artefacts = response.result.map((obj: any) => new Artefact(obj));
         fragment.artefacts = artefacts;
 
         return artefacts;

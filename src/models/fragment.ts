@@ -11,6 +11,21 @@ export class ArtefactRef {
     }
 }
 
+export class ImagedFragment {
+    public id: number;
+    public recto: ImageSet;
+    public verso: ImageSet;
+    public artefacts: Artefact[];
+
+    constructor(obj: any) {
+        this.id = obj.id;
+        this.recto = obj.recto;
+        this.verso = obj.verso;
+        const arts: any[] = JSON.parse(obj.artefacts || '[]');
+        this.artefacts = arts.map((a: any) => new Artefact(a));
+    }
+}
+
 export class Fragment {
     public number: number;
     public institution: string;

@@ -59,6 +59,8 @@ class ScrollVersionInfo {
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit: Date | null;
+    public publicCopies: number; // Updated by the ScrollService
+    public otherVersions: ScrollVersionInfo[];
 
     // public numOfArtefacts: number;
     // public numOfColumns: number;
@@ -77,7 +79,14 @@ class ScrollVersionInfo {
         this.locked = serverObj.locked || false;
         this.isPublic = serverObj.isPublic || false;
         this.lastEdit = serverObj.lastEdit ? new Date(Date.parse(serverObj.lastEdit)) : null;
+        this.publicCopies = serverObj.publicCopies || 0;
+        this.otherVersions = serverObj.otherVersions || [];
     }
 }
 
-export { ScrollInfo, ScrollVersionInfo, ShareInfo };
+interface AllScrollVersion {
+    scrollList: ScrollInfo[] | [];
+    myScrollList: ScrollInfo[] | [];
+}
+
+export { ScrollInfo, ScrollVersionInfo, ShareInfo, AllScrollVersion };

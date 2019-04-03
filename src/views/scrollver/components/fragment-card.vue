@@ -9,17 +9,18 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Fragment } from '@/models/fragment';
+import { Fragment, ImagedFragment } from '@/models/fragment';
 
 export default Vue.extend({
     name: 'scroll-ver-fragments',
     props: {
-        fragment: Fragment,
+        fragment: ImagedFragment,
     },
     computed: {
         imageUrl(): string | undefined {
-            if (this.fragment && this.fragment.recto && this.fragment.recto.master) {
-                return this.fragment.recto.master.getThumbnailUrl(600);
+            // TODO
+            if (this.fragment && this.fragment.recto && this.fragment.recto.masterIndex) {
+                return this.fragment.recto.masterIndex.getThumbnailUrl(600);
             }
             return undefined;
         },
@@ -27,7 +28,9 @@ export default Vue.extend({
             return this.$store.state.scroll.scrollVersion.versionId;
         },
         artefactsNames(): string {
-            const names = this.fragment.artefactRefs.map((a) => a.name);
+            // TODO
+            const names = this.fragment.artefacts.map((a) => a.name);
+            // const names = this.fragment.artefactRefs.map((a) => a.name);
             const unique = [...new Set(names)]; // Taken from here: https://stackoverflow.com/a/42123984/871910
             return unique.join(', ');
         }

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="row" v-if="!fragments"><div class="col ml-auto"><Waiting></Waiting></div></div>
-        <div v-if="fragments">
+       <div v-if="fragments">
             <div class="row"><div class="col">
                 <small>{{ $t('home.fragments') }}: {{ fragments.length }}</small>
             </div></div>
@@ -20,7 +20,7 @@
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import FragmentCard from './fragment-card.vue';
-import { Fragment } from '@/models/fragment';
+import { Fragment, ImagedFragment } from '@/models/fragment';
 import ScrollService from '@/services/scroll';
 
 export default Vue.extend({
@@ -35,7 +35,7 @@ export default Vue.extend({
         Waiting,
     },
     computed: {
-        fragments(): Fragment[] | null {
+        fragments(): ImagedFragment[] | null {
             return this.$store.state.scroll.fragments;
         }
     },

@@ -6,11 +6,8 @@
             </h5>
         </div>
 
-
-
-
-
-
+        <b-nav vertical>
+            <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
                 <router-link :to="`/scroll/${current.versionId}/artefacts`" replace>
                     {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }} 
@@ -18,12 +15,12 @@
             </b-nav-item>
             <b-nav-item>
                 <router-link :to="`/scroll/${current.versionId}/fragments`" replace>
-                    {{ $t('home.fragments') }}: {{ current.numOfFragments }}
+                    {{ $t('home.fragments') }}: {{ current.otherVersions.length + 1 }}
                 </router-link>
-            </b-nav-item>
+            </b-nav-item><!-- {{ current.numOfFragments }}-->
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
-                <b-dropdown-item v-for="version in current.otherVersions" :key="version.versionId"
-                                 :to="`/scroll/${version.versionId}`">
+                <b-dropdown-item v-for="version in current.otherVersions" :key="version.id"
+                                 :to="`/scroll/${version.id}`">
                     {{ versionString(version) }}
                 </b-dropdown-item>
             </b-nav-item-dropdown>

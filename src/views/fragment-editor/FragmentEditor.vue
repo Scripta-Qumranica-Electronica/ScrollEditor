@@ -209,14 +209,14 @@ export default Vue.extend({
   async mounted() {
     try {
       this.waiting = true;
-      await this.scrollService.fetchScrollVersion(this.scrollVersionId);
+      // await this.scrollService.fetchScrollVersion(this.scrollVersionId);
       await this.fragmentService.fetchFragmentInfo(
         parseInt(this.$route.params.scrollVersionId),
         this.$route.params.fragmentId
       );
 
-      if (this.fragment && this.fragment.recto && this.fragment.recto.master) {
-        await this.imageService.fetchImageManifest(this.fragment.recto.master);
+      if (this.fragment && this.fragment.recto && this.fragment.recto.masterIndex) {
+        await this.imageService.fetchImageManifest(this.fragment.recto.masterIndex);
       }
 
       if (this.fragment!.artefacts!.length) {
@@ -245,7 +245,7 @@ export default Vue.extend({
   methods: {
     getMasterImg(): IIIFImage | undefined {
       if (this.fragment && this.fragment.recto) {
-        return this.fragment.recto.master;
+        return this.fragment.recto.masterIndex;
       }
       return undefined;
     },
@@ -269,7 +269,7 @@ export default Vue.extend({
           const image = this.fragment.recto.getImage(imageType);
           if (image) {
             const master =
-              this.fragment.recto.master ===
+              this.fragment.recto.masterIndex ===
               this.fragment.recto.getImage(imageType);
             const imageSetting = {
               image,

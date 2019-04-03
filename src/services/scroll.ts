@@ -1,7 +1,7 @@
 import { Store } from 'vuex';
-import { Communicator, CopyCombinationResponse, ServerError } from './communications';
-import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
-import { Fragment } from '@/models/fragment';
+import { Communicator, CopyCombinationResponse, ServerError, ScrollVersions } from './communications';
+import { ScrollInfo, ScrollVersionInfo, AllScrollVersion } from '@/models/scroll';
+import { Fragment, ImagedFragment } from '@/models/fragment';
 
 class ScrollService {
     private communicator: Communicator;
@@ -9,21 +9,29 @@ class ScrollService {
         this.communicator = new Communicator(this.store);
     }
 
-    public async listScrolls(): Promise<any> { // Promise<ScrollVersionInfo[]>
+    public async listScrolls(): Promise<AllScrollVersion> {
         const response = await this.communicator.getScrollsList('api/v1/scroll-version/list');
         const scrollList = [] as ScrollVersionInfo[];
         const myScrollList = [] as ScrollVersionInfo[];
         const self = this;
-        response.scrollVersions.map((obj) => {
-            obj.forEach((element: any) => {
-                if (element.owner.userId === self.store.state.session.userId) {
-                    myScrollList.push(new ScrollVersionInfo(element));
-                } else {
-                    scrollList.push(new ScrollVersionInfo(element));
-                }
-            });
+        response.result.map((obj) => { // group
+            const publicCount = obj.filter((element: any) => element.isPublic);
+            const myCount = obj.filter((element: any) =>
+                element.owner.userId.toString() === self.store.state.session.userId);
+
+            if (myCount.length) {
+                myScrollList.push(new ScrollVersionInfo(myCount[0]));
+                // TODO: add myCount.length or shares length ?
+            }
+            if (publicCount.length) {
+                const scrollVersionInfo = new ScrollVersionInfo(publicCount[0]);
+                scrollVersionInfo.publicCopies = publicCount.length; // update number of public scrolls
+                scrollList.push(scrollVersionInfo);
+            }
         });
-        return {scrollList, myScrollList};
+
+        const allScrollVersion = {scrollList, myScrollList} as AllScrollVersion;
+        return allScrollVersion;
     }
 
     public async fetchScrollVersion(versionId: number, ignoreCache = false): Promise<ScrollVersionInfo> {
@@ -36,34 +44,19 @@ class ScrollService {
         }
 
         this.store.dispatch('scroll/setScrollVersion', null); // Trigget a spinner on all views
-
-        const response = await this.communicator.listRequest('getScrollVersions', { scroll_version_id: versionId});
-
-        const list = response.results.map((obj) => new ScrollVersionInfo(obj));
+        const response = await this.communicator.getScrollVersion(`/api/v1/scroll-version/${versionId}`);
 
         // Convert the server response into a single ScrollVersionInfo entity, putting all the other versions
         // in its otherVersions array
-
-        const primary = list.find((sv) => sv.id === versionId);
+        const primary = new ScrollVersionInfo(response.primary);
         if (!primary) {
             throw new ServerError( { error: 'Server did not return the version we asked for' } );
         }
-        const others = list.filter((sv) => sv.id !== versionId);
-        // primary.otherVersions = others; // TODO!!!!!!!!!!!!!!!!!
+        const others = response.others.map((obj) => new ScrollVersionInfo(obj));
+        primary.otherVersions = others;
 
         this.store.dispatch('scroll/setScrollVersion', primary);
         return primary;
-    }
-
-    public async getMyScrollVersions(): Promise<ScrollVersionInfo[]> {
-        const response = await this.communicator.listRequest('getMyScrollVersions');
-        const list = response.results.map((obj) => new ScrollVersionInfo(obj));
-        // for (var i = 0 ; i < list.length; i++) {
-        //     list[i].shares.push(new ShareInfo({name: 'Talya', id: 133, can_write: true}));
-        //     list[i].shares.push(new ShareInfo({name: 'Avi', id: 134, can_write: true}));
-        //     list[i].shares.push(new ShareInfo({name: 'Benni', id: 135, can_Write: true}));
-        // }
-        return list;
     }
 
     public async copyScrollVersion(versionId: number): Promise<number> {
@@ -76,22 +69,21 @@ class ScrollService {
         await this.communicator.request<any>('changeCombinationName', { scroll_version_id: versionId, name: newName });
     }
 
-    public async fetchScrollVersionFragments(ignoreCache = false): Promise<Fragment[]> {
+    public async fetchScrollVersionFragments(ignoreCache = false): Promise<ImagedFragment[]> {
         if (!ignoreCache && this.store.state.scroll.fragments !== null) {
             return this.store.state.scroll.fragments;
         }
 
-        const fragments = await this.getScrollVersionFragments(this.store.state.scroll.scrollVersion.versionId);
+        const fragments = await this.getScrollVersionFragments(this.store.state.scroll.scrollVersion.id);
         this.store.dispatch('scroll/setFragments', fragments);
         return fragments;
     }
 
-    public async getScrollVersionFragments(scrollVersionId: number): Promise<Fragment[]> {
-        const response = await this.communicator.listRequest('getScrollVersionFragments',
-            { scroll_version_id: scrollVersionId });
+    public async getScrollVersionFragments(scrollVersionId: number): Promise<ImagedFragment[]> {
+        const response = await this.communicator.getScrollsList
+        (`/api/v1/scroll-version/${scrollVersionId}/imaged-fragments`);
 
-        const fragments = response.results.map((obj) => new Fragment(obj));
-
+        const fragments = response.result.map((obj) => new ImagedFragment(obj));
         return fragments;
     }
 }
