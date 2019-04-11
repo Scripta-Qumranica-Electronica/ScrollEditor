@@ -10,8 +10,7 @@ class ScrollInfo {
     constructor(serverObj: any) {
         this.name = serverObj.name;
 
-        const thumbnailUrls: string[] = JSON.parse(serverObj.thumbnails || '[]');
-        this.thumbnails = thumbnailUrls.map((url) => new IIIFImage(url));
+        this.thumbnails = [new IIIFImage(serverObj.thumbnailUrl)];
 
         this.scrollVersionIds = JSON.parse(serverObj.scroll_version_ids);
         this.defaultScrollVersionId = serverObj.scroll_version_id;
@@ -72,8 +71,7 @@ class ScrollVersionInfo {
         this.name = serverObj.name;
         this.permission = new Permissions(serverObj.permission); // isAdmin, canWrite
         this.owner = new UserInfo(serverObj.owner);
-        const thumbnailUrls: string[] = JSON.parse(serverObj.thumbnails || '[]');
-        this.thumbnailUrl = thumbnailUrls.map((url) => new IIIFImage(url));
+        this.thumbnailUrl = serverObj.thumbnailUrl !== null ? [new IIIFImage(serverObj.thumbnailUrl)] : [];
         const sharedObj: any[] = JSON.parse(serverObj.shared || '[]');
         this.shares = sharedObj.map((obj) => new ShareInfo(obj));
         this.locked = serverObj.locked || false;

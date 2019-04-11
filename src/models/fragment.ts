@@ -19,8 +19,8 @@ export class ImagedFragment {
 
     constructor(obj: any) {
         this.id = obj.id;
-        this.recto = obj.recto;
-        this.verso = obj.verso;
+        this.recto = obj.recto && new IIAImageSet(obj.recto);
+        this.verso = obj.verso && new IIAImageSet(obj.verso);
         const arts: any[] = JSON.parse(obj.artefacts || '[]');
         this.artefacts = arts.map((a: any) => new Artefact(a));
     }
