@@ -12,7 +12,7 @@ export class ArtefactRef {
 }
 
 export class ImagedFragment {
-    public id: number;
+    public id: string;
     public recto: ImageSet;
     public verso: ImageSet;
     public artefacts: Artefact[];

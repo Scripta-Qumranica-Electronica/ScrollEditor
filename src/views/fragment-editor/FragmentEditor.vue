@@ -166,7 +166,7 @@ export default Vue.extend({
       return parseInt(this.$route.params.scrollVersionId);
     },
     canEdit(): boolean {
-      return this.$store.state.scroll.scrollVersion.permissions.canWrite;
+      return this.$store.state.scroll.scrollVersion.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;

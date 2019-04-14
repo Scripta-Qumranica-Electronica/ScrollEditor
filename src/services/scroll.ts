@@ -1,7 +1,8 @@
 import { Store } from 'vuex';
 import { Communicator, CopyCombinationResponse, ServerError, ScrollVersions } from './communications';
 import { ScrollInfo, ScrollVersionInfo, AllScrollVersion } from '@/models/scroll';
-import { Fragment, ImagedFragment } from '@/models/fragment';
+import { ImagedFragment } from '@/models/fragment';
+import { Artefact } from '@/models/artefact';
 
 class ScrollService {
     private communicator: Communicator;
@@ -10,7 +11,7 @@ class ScrollService {
     }
 
     public async listScrolls(): Promise<AllScrollVersion> {
-        const response = await this.communicator.getScrollsList('api/v1/scroll/list');
+        const response = await this.communicator.getList('/v1/scroll/list');
         const scrollList = [] as ScrollVersionInfo[];
         const myScrollList = [] as ScrollVersionInfo[];
         const self = this;
@@ -44,7 +45,7 @@ class ScrollService {
         }
 
         this.store.dispatch('scroll/setScrollVersion', null); // Trigget a spinner on all views
-        const response = await this.communicator.getScrollVersion(`/api/v1/scroll/${versionId}`);
+        const response = await this.communicator.getScrollVersion(`/v1/scroll/${versionId}`);
 
         // Convert the server response into a single ScrollVersionInfo entity, putting all the other versions
         // in its otherVersions array
@@ -80,8 +81,8 @@ class ScrollService {
     }
 
     public async getScrollVersionFragments(scrollVersionId: number): Promise<ImagedFragment[]> {
-        const response = await this.communicator.getScrollsList
-        (`/api/v1/scroll/${scrollVersionId}/imaged-fragments`);
+        const response = await this.communicator.getList
+        (`/v1/Scroll/${scrollVersionId}/imaged-fragments`);
 
         const fragments = response.result.map((obj) => new ImagedFragment(obj));
         return fragments;
