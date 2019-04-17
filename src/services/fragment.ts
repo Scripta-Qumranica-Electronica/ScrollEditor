@@ -65,7 +65,7 @@ class FragmentService {
         const mask = artefact.mask ? artefact.mask.wkt : '';
         const createResponse = await this.communicator.request<ArtefactCreateResult>('addArtefact', {
             scroll_version_id: scrollVersionId,
-            id_of_sqe_image: artefact.sqeImageId,
+            // id_of_sqe_image: artefact.sqeImageId, // TODO
             region_in_master_image: ''
         });
 
@@ -83,8 +83,8 @@ class FragmentService {
             scroll_version_id: scrollVersionId,
             artefact_id: artefact.id,
             region_in_master_image: mask,
-            image_catalog_id: artefact.imageCatalogId,
-            id_of_sqe_image: artefact.sqeImageId,
+            // image_catalog_id: artefact.imageCatalogId, // TODO
+            // id_of_sqe_image: artefact.sqeImageId,
         });
         return response.data;
     }

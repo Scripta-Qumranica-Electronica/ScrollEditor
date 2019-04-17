@@ -107,7 +107,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import FragmentService from '@/services/fragment';
 import ScrollService from '@/services/scroll';
 import ImageService from '@/services/image';
-import { Fragment } from '@/models/fragment';
+import { ImagedFragment } from '@/models/fragment';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 import {
@@ -139,7 +139,7 @@ export default Vue.extend({
       fragmentService: new FragmentService(this.$store),
       scrollService: new ScrollService(this.$store),
       imageService: new ImageService(),
-      waiting: false,
+      waiting: true,
       artefact: undefined as OptimizedArtefact | undefined,
       initialMask: new Polygon(),
       params: new EditorParams(),
@@ -159,7 +159,7 @@ export default Vue.extend({
     zoomLevel(): number {
       return this.params.zoom;
     },
-    fragment(): Fragment {
+    fragment(): ImagedFragment {
       return this.$store.state.fragment.fragment;
     },
     scrollVersionId(): number {
@@ -209,7 +209,7 @@ export default Vue.extend({
   async mounted() {
     try {
       this.waiting = true;
-      // await this.scrollService.fetchScrollVersion(this.scrollVersionId);
+      await this.scrollService.fetchScrollVersion(this.scrollVersionId);
       await this.fragmentService.fetchFragmentInfo(
         parseInt(this.$route.params.scrollVersionId),
         this.$route.params.fragmentId
@@ -217,6 +217,7 @@ export default Vue.extend({
 
       if (this.fragment && this.fragment.recto && this.fragment.recto.masterIndex) {
         await this.imageService.fetchImageManifest(this.fragment.recto.masterIndex);
+        this.masterImage = this.getMasterImg();
       }
 
       if (this.fragment!.artefacts!.length) {
@@ -237,7 +238,6 @@ export default Vue.extend({
 
     this.fillImageSettings();
     this.prepareNonSelectedArtefacts();
-    this.masterImage = this.getMasterImg();
   },
   created() {
     window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));

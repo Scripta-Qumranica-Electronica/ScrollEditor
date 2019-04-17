@@ -72,7 +72,6 @@ export default Vue.extend({
   mounted() {
     // We do not use async/await here because we want both requests to go out simultaneously.
     this.scrollService.listScrolls().then((scrolls) => {
-        console.log(scrolls)
       this.allScrolls = scrolls.scrollList;
       this.myScrolls = scrolls.myScrollList;
     }, (error) => {
