@@ -70,23 +70,25 @@ export class IIAImageSet extends ImageSet {
 
     constructor(serverObj: any) {
         super(serverObj.id);
-        for (let image of serverObj.images) {
-            let type;
-            switch (image.type) {
-                case 'color':
-                    type = 'color'
-                    break
-                case 'infrared':
-                    type = 'infrared'
-                    break
-                case 'rakingLeft':
-                    type = 'rakingLeft'
-                    break
-                case 'rakingRight':
-                    type = 'rakingRight'
-                    break
+        if (serverObj.images) {
+            for (let image of serverObj.images) {
+                let type;
+                switch (image.type) {
+                    case 'color':
+                        type = 'color'
+                        break
+                    case 'infrared':
+                        type = 'infrared'
+                        break
+                    case 'rakingLeft':
+                        type = 'rakingLeft'
+                        break
+                    case 'rakingRight':
+                        type = 'rakingRight'
+                        break
+                }
+                if (type) this[type] = this.createIIIF(image.url);
             }
-            if (type) this[type] = this.createIIIF(image.url);
         }
     }
 
