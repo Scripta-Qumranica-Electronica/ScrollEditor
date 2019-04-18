@@ -1,6 +1,7 @@
 import { Store } from 'vuex';
 import axios, { AxiosResponse } from 'axios';
 import { authHeader } from '../store/session';
+import { ImagedFragment } from '@/models/fragment';
 
 // export interface ValidateSessionResponse {
 //     SESSION_ID: string;
@@ -143,7 +144,7 @@ export class Communicator {
         }
     }
 
-    public async getScrollsList(url: string, payload?: any): Promise<ListResults<any>> {
+    public async getList(url: string, payload?: any): Promise<ListResults<any>> {
         // todo: add Promise<ScrollVersions<any> to get scroll version:primary and other
         try {
             // debugger
@@ -172,6 +173,20 @@ export class Communicator {
                     primary: '',
                     others: [],
                 };
+                return empty;
+            }
+            throw err;
+        }
+    }
+
+    public async getFragment(url: string): Promise<ImagedFragment> {
+        try {
+            const response = await axios.get<any>(url, this.requestOptions);
+            return response.data;
+        } catch (err) {
+            const serverError = err as ServerError;
+            if (err && err.errorText === 'No results found.') {
+                const empty: ImagedFragment = {} as ImagedFragment;
                 return empty;
             }
             throw err;

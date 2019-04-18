@@ -9,15 +9,15 @@
         <b-nav vertical>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
-                <router-link :to="`/scroll/${current.versionId}/artefacts`" replace>
-                    {{ $t('home.artefacts') }}: {{ current.numOfArtefacts }} 
+                <router-link :to="`/scroll/${current.id}/artefacts`" replace>
+                    {{ $t('home.artefacts') }}: {{ artefacts }} 
                 </router-link>
             </b-nav-item>
             <b-nav-item>
-                <router-link :to="`/scroll/${current.versionId}/fragments`" replace>
-                    {{ $t('home.fragments') }}: {{ current.otherVersions.length + 1 }}
+                <router-link :to="`/scroll/${current.id}/fragments`" replace>
+                    {{ $t('home.fragments') }}: {{ fragments }}
                 </router-link>
-            </b-nav-item><!-- {{ current.numOfFragments }}-->
+            </b-nav-item><!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item v-for="version in current.otherVersions" :key="version.id"
                                  :to="`/scroll/${version.id}`">
@@ -65,6 +65,7 @@
 import Vue, { PropOptions } from 'vue';
 import { ScrollVersionInfo } from '@/models/scroll';
 import ScrollService from '@/services/scroll';
+import { ImagedFragment } from '../../../models/fragment';
 
 export default Vue.extend({
     name: 'scroll-ver-sidebar',
@@ -85,6 +86,22 @@ export default Vue.extend({
         },
         isNew(): boolean {
             return this.current.id === this.$store.state.scroll.newScrollVersionId;
+        },
+        fragments(): number {
+            if (this.$store.state.scroll.fragments) {
+                return this.$store.state.scroll.fragments.length;
+            }
+            return 100;
+        },
+        artefacts(): number {
+            if (this.$store.state.scroll.fragments) {
+                let artLen = 0;
+                this.$store.state.scroll.fragments.forEach((element: ImagedFragment) => {
+                    artLen += element.artefacts.length;
+                });
+                return artLen;
+            }
+            return 110;
         }
     },
     methods: {

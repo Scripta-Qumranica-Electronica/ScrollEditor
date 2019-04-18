@@ -83,8 +83,8 @@ class ScrollVersionInfo {
 }
 
 interface AllScrollVersion {
-    scrollList: ScrollInfo[] | [];
-    myScrollList: ScrollInfo[] | [];
+    scrollList: ScrollVersionInfo[] | [];
+    myScrollList: ScrollVersionInfo[] | [];
 }
 
 export { ScrollInfo, ScrollVersionInfo, ShareInfo, AllScrollVersion };

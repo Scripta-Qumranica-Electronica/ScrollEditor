@@ -25,7 +25,7 @@ class SessionService {
     // }
 
     public async login(userName: string, password: string) {
-        const response = await this.communicator.postRequest<Login>('', 'api/v1/user/login', {
+        const response = await this.communicator.postRequest<Login>('', '/v1/user/login', {
             userName,
             password,
         });
@@ -47,7 +47,7 @@ class SessionService {
         }
 
         try {
-            const response = await this.communicator.getRequest<ValidateTokenResponse>('api/v1/user');
+            const response = await this.communicator.getRequest<ValidateTokenResponse>('/v1/user');
             return true;
         } catch (error) {
             this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out

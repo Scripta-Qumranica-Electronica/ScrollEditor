@@ -2,6 +2,10 @@ import { Polygon } from '@/utils/Polygons';
 import { Fragment } from './fragment';
 import { ScrollVersionInfo } from './scroll';
 
+enum artSide {
+    RECTO, VERSO
+}
+
 export class Artefact {
     public static createNew(scrollVersionId: number, fragment: Fragment, name: string) {
          // scrollVersion: ScrollVersionInfo
@@ -29,15 +33,20 @@ export class Artefact {
     // Default values specified to remove an error - we initialize them in the constructor or in copyFrom.
     // Typescript does not approve of that and shows an error, because it doesn't analyze copyFrom.
     public id = 0;
-    public positionId = 0;
-    public shapeId = 0;
     public scrollVersionId = 0;
+    public imageFragmentId = 0;
     public name = '';
     public mask = {} as Polygon;
     public transformMatrix = undefined as any; // TODO: Change to matrix type?
-    public rect = '';
-    public imageCatalogId = 0;
-    public sqeImageId = 0;
+    public zOrder = '';
+    public side = artSide.RECTO;
+
+
+    // public positionId = 0;
+    // public shapeId = 0;
+    // public rect = '';
+    // public imageCatalogId = 0;
+    // public sqeImageId = 0;
 
     constructor(obj: any) {
         if (obj instanceof Artefact) {
@@ -50,12 +59,18 @@ export class Artefact {
             console.error('Received a non-recto artefact ', obj);
             throw new Error('Non-recto artefacts are not supported');
         }
-        this.id = obj.artefact_id;
-        this.positionId = obj.artefact_position_id;
-        this.shapeId = obj.artefact_shape_id;
-        this.scrollVersionId = obj.scroll_version_id;
+        this.id = obj.id;
+        this.scrollVersionId = obj.scrollVersionId;
+        this.imageFragmentId = obj.imageFragmentId;
         this.name = obj.name;
-        this.mask = Polygon.fromWkt(obj.mask);
+        this.mask = Polygon.fromWkt(obj.mask.svg); // obj.mask
+        this.transformMatrix = obj.transform_matrix;
+        this.zOrder = obj.zOrder;
+        this.side = obj.side;
+
+        // this.positionId = obj.artefact_position_id;
+        // this.shapeId = obj.artefact_shape_id;
+
         /* TODO: This should be a getter
         this.svgInCombination =
             obj.mask &&
@@ -65,22 +80,20 @@ export class Artefact {
             .matrix(dbMatrixToSVG(obj.transform_matrix))
             .round()
             .toString() */
-        this.transformMatrix = obj.transform_matrix;
-        this.rect = obj.rect;
-        this.imageCatalogId = obj.image_catalog_id;
-        this.sqeImageId = obj.id_of_sqe_image;
+        // this.rect = obj.rect;
+        // this.imageCatalogId = obj.image_catalog_id;
+        // this.sqeImageId = obj.id_of_sqe_image;
     }
 
     private copyFrom(other: Artefact) {
         this.id = other.id;
-        this.positionId = other.positionId;
-        this.shapeId = other.shapeId;
+        this.scrollVersionId = other.scrollVersionId;
+        this.imageFragmentId = other.imageFragmentId;
         this.scrollVersionId = other.scrollVersionId;
         this.name = other.name;
         this.mask = other.mask;
         this.transformMatrix = other.transformMatrix;
-        this.rect = other.rect;
-        this.imageCatalogId = other.imageCatalogId;
-        this.sqeImageId = other.sqeImageId;
+        this.zOrder = other.zOrder;
+        this.side = other.side;
     }
 }

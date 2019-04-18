@@ -1,7 +1,8 @@
 import { Store } from 'vuex';
 import { Communicator, CopyCombinationResponse, ServerError, ScrollVersions } from './communications';
 import { ScrollInfo, ScrollVersionInfo, AllScrollVersion } from '@/models/scroll';
-import { Fragment, ImagedFragment } from '@/models/fragment';
+import { ImagedFragment } from '@/models/fragment';
+import { Artefact } from '@/models/artefact';
 
 class ScrollService {
     private communicator: Communicator;
@@ -10,7 +11,7 @@ class ScrollService {
     }
 
     public async listScrolls(): Promise<AllScrollVersion> {
-        const response = await this.communicator.getScrollsList('api/v1/scroll-version/list');
+        const response = await this.communicator.getList('api/v1/scroll-version/list');
         const scrollList = [] as ScrollVersionInfo[];
         const myScrollList = [] as ScrollVersionInfo[];
         const self = this;
@@ -80,7 +81,7 @@ class ScrollService {
     }
 
     public async getScrollVersionFragments(scrollVersionId: number): Promise<ImagedFragment[]> {
-        const response = await this.communicator.getScrollsList
+        const response = await this.communicator.getList
         (`/api/v1/scroll-version/${scrollVersionId}/imaged-fragments`);
 
         const fragments = response.result.map((obj) => new ImagedFragment(obj));
