@@ -70,7 +70,6 @@ export class IIAImageSet extends ImageSet {
 
     constructor(serverObj: any) {
         super(serverObj.id);
-<<<<<<< HEAD
         if (serverObj.images) {
             for (let image of serverObj.images) {
                 let type;
@@ -89,22 +88,6 @@ export class IIAImageSet extends ImageSet {
                         break
                 }
                 if (type) this[type] = this.createIIIF(image.url);
-=======
-        for (const image of serverObj.images) {
-            switch (image.type) {
-                case 'color':
-                    this.color = this.createIIIF(image.url);
-                    break;
-                case 'infrared':
-                    this.infrared = this.createIIIF(image.url);
-                    break;
-                case 'raking-left':
-                    this.rakingLeft = this.createIIIF(image.url);
-                    break;
-                case 'raking-right':
-                    this.rakingRight = this.createIIIF(image.url);
-                    break;
->>>>>>> dcef568eb19d32cbd4e657a3833388d57ddea266
             }
         }
     }
