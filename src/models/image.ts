@@ -60,7 +60,7 @@ export abstract class ImageSet {
     }
 }
 
-export class IIAImageSet extends ImageSet {
+export class IAAImageSet extends ImageSet {
     private static availableImages = ['color', 'infrared', 'rakingLeft', 'rakingRight'];
 
     public color?: IIIFImage;
@@ -71,28 +71,27 @@ export class IIAImageSet extends ImageSet {
     constructor(serverObj: any) {
         super(serverObj.id);
         if (serverObj.images) {
-            for (let image of serverObj.images) {
-                let type;
+            for (const image of serverObj.images) {
+                const type = this.createIIIF(image.url);
                 switch (image.type) {
                     case 'color':
-                        type = 'color'
-                        break
+                        this.color = type;
+                        break;
                     case 'infrared':
-                        type = 'infrared'
-                        break
+                        this.infrared = type;
+                        break;
                     case 'rakingLeft':
-                        type = 'rakingLeft'
-                        break
+                        this.rakingLeft = type;
+                        break;
                     case 'rakingRight':
-                        type = 'rakingRight'
-                        break
+                        this.rakingRight = type;
+                        break;
                 }
-                if (type) this[type] = this.createIIIF(image.url);
             }
         }
     }
 
-    private createIIIF(url: string | undefined) {
+    private createIIIF(url: string | undefined): IIIFImage | undefined {
         if (url) {
             return new IIIFImage(url);
         }
@@ -101,7 +100,7 @@ export class IIAImageSet extends ImageSet {
     }
 
     public get availableImageTypes() {
-        return IIAImageSet.availableImages;
+        return IAAImageSet.availableImages;
     }
 
     public get masterIndex(): IIIFImage | undefined {

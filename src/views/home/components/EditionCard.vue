@@ -1,13 +1,13 @@
 <template>
   <div class="card">
-    <router-link tag="a" :to="{  path:`/scroll/${scrollVer.id}` }">
+    <router-link tag="a" :to="{  path:`/edition/${edition.id}` }">
       <!--TODO do not hardcode the image proxy server-->
-      <img class="card-img-top" v-if="thumbnailSource" v-lazy="thumbnailSource" :alt="scrollVer.name">
-      <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="scrollVer.name">
+      <img class="card-img-top" v-if="thumbnailSource" v-lazy="thumbnailSource" :alt="edition.name">
+      <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="edition.name">
     </router-link>
     <div class="card-body">
-      <router-link tag="div" :to="{  path:`/scroll/${scrollVer.id}` }">
-        <h5 class="cart-title"> {{ scrollVer.name }}</h5>
+      <router-link tag="div" :to="{  path:`/edition/${edition.id}` }">
+        <h5 class="cart-title"> {{ edition.name }}</h5>
       <!--  <p v-if="shareCount">
           <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
             <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
@@ -20,22 +20,22 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { ScrollVersionInfo } from '@/models/scroll';
+import { EditionInfo } from '@/models/edition';
 
 export default Vue.extend({
-  name: 'scroll-version-card',
+  name: 'edition-version-card',
   props: {
-    scrollVer: ScrollVersionInfo,
+    edition: EditionInfo,
   },
   computed: {
     thumbnailSource(): string | undefined {
-      return this.scrollVer.thumbnailUrl.length ? this.scrollVer.thumbnailUrl[0].thumbnailUrl : undefined;
+      return this.edition.thumbnailUrl.length ? this.edition.thumbnailUrl[0].thumbnailUrl : undefined;
     },
     shareCount(): number {
-      return this.scrollVer.shares.length - 1; // One is the current user
+      return this.edition.shares.length - 1; // One is the current user
     },
     shareNames(): string {
-      const names = this.scrollVer.shares.map((share) => share.user.userName);
+      const names = this.edition.shares.map((share) => share.user.userName);
       return names.join(', ');
     }
   },

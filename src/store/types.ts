@@ -1,5 +1,5 @@
-import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
-import { Fragment } from '@/models/fragment';
+import { EditionGroupInfo, EditionInfo } from '@/models/edition';
+import { ImagedObjectDetailed } from '@/models/imagedObject';
 
 export interface LanguageState {
     language: string;
@@ -15,14 +15,14 @@ export interface SessionState {
     token?: string;
 }
 
-export interface ScrollState {
-    scrollVersion: ScrollVersionInfo | null;
-    newScrollVersionId: number | null;
-    fragments: Fragment[] | null;
+export interface EditionState {
+    editionId: EditionInfo | null;
+    newEditionId: number | null;
+    imagedObjects: ImagedObjectDetailed[] | null;
 }
 
 export interface FragmentState {
-    fragment: Fragment | null;
+    fragment: ImagedObjectDetailed | null;
     // artefacts: Artefact[] | null;
 
 }

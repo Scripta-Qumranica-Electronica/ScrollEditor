@@ -1,7 +1,7 @@
 <template>
     <div class="card">
-        <router-link :to="{ path: `/fragment/${scrollVersionId}/${fragment.id}` }">
-            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Fragment Image">
+        <router-link :to="{ path: `/fragment/${editionId}/${fragment.id}` }">
+            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="ImagedObjectDetailed Image">
         </router-link>
         <label>{{artefactsNames}}</label>
     </div>
@@ -9,12 +9,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { ImagedFragment } from '@/models/fragment';
+import { ImagedObjectSimple } from '@/models/imagedObject';
 
 export default Vue.extend({
-    name: 'scroll-ver-fragments',
+    name: 'edition-ver-imagedObjects',
     props: {
-        fragment: ImagedFragment,
+        fragment: ImagedObjectSimple,
     },
     computed: {
         imageUrl(): string | undefined {
@@ -23,8 +23,8 @@ export default Vue.extend({
             }
             return undefined;
         },
-        scrollVersionId(): number {
-            return this.$store.state.scroll.scrollVersion.id;
+        editionId(): number {
+            return this.$store.state.edition.editionId.id;
         },
         artefactsNames(): string {
             // TODO

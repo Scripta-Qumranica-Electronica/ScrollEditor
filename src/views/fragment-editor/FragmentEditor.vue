@@ -104,10 +104,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import FragmentService from '@/services/fragment';
-import ScrollService from '@/services/scroll';
+import ImagedObjectService from '@/services/imagedObject';
+import EditionService from '@/services/edition';
 import ImageService from '@/services/image';
-import { ImagedFragment } from '@/models/fragment';
+import { ImagedObjectSimple } from '@/models/imagedObject';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 import {
@@ -136,8 +136,8 @@ export default Vue.extend({
   },
   data() {
     return {
-      fragmentService: new FragmentService(this.$store),
-      scrollService: new ScrollService(this.$store),
+      fragmentService: new ImagedObjectService(this.$store),
+      editionService: new EditionService(this.$store),
       imageService: new ImageService(),
       waiting: true,
       artefact: undefined as OptimizedArtefact | undefined,
@@ -159,14 +159,14 @@ export default Vue.extend({
     zoomLevel(): number {
       return this.params.zoom;
     },
-    fragment(): ImagedFragment {
+    fragment(): ImagedObjectSimple {
       return this.$store.state.fragment.fragment;
     },
-    scrollVersionId(): number {
-      return parseInt(this.$route.params.scrollVersionId);
+    editionId(): number {
+      return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
-      return this.$store.state.scroll.scrollVersion.permission.canWrite;
+      return this.$store.state.edition.editionId.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
@@ -209,9 +209,9 @@ export default Vue.extend({
   async mounted() {
     try {
       this.waiting = true;
-      await this.scrollService.fetchScrollVersion(this.scrollVersionId);
+      await this.editionService.fetchEdition(this.editionId);
       await this.fragmentService.fetchFragmentInfo(
-        parseInt(this.$route.params.scrollVersionId),
+        parseInt(this.$route.params.editionId),
         this.$route.params.fragmentId
       );
 
@@ -383,16 +383,16 @@ export default Vue.extend({
         this.optimizedArtefacts.forEach(async (art, index) => {
           if (this.artefactEditingDataList[index].dirty) {
             await this.fragmentService.changeFragmentArtefactShape(
-              this.scrollVersionId,
+              this.editionId,
               this.fragment,
               art
             );
             this.artefactEditingDataList[index].dirty = false;
           }
         });
-        this.showMessage('Fragment Saved', false);
+        this.showMessage('ImagedObjectDetailed Saved', false);
       } catch (err) {
-        this.showMessage('Fragment save failed', true);
+        this.showMessage('ImagedObjectDetailed save failed', true);
       } finally {
         this.saving = false;
       }
@@ -439,7 +439,7 @@ export default Vue.extend({
       this.saving = true;
       try {
         await this.fragmentService.createFragmentArtefact(
-          this.scrollVersionId,
+          this.editionId,
           this.fragment,
           this.artefact
         );
@@ -458,7 +458,7 @@ export default Vue.extend({
       this.renaming = true;
       try {
         await this.fragmentService.changeFragmentArtefactName(
-          this.scrollVersionId,
+          this.editionId,
           this.fragment,
           this.artefact
         );

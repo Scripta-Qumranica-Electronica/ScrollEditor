@@ -120,7 +120,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { ImagedFragment } from '@/models/fragment';
+import { ImagedObjectSimple } from '@/models/imagedObject';
 import { Artefact } from '@/models/artefact';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting, OptimizedArtefact } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
@@ -139,7 +139,7 @@ export default Vue.extend({
     'single-image-setting': SingleImageSettingComponent,
   },
   props: {
-    fragment: ImagedFragment,
+    fragment: ImagedObjectSimple,
     artefacts: {
       type: Array,
       default: () => [],
@@ -193,12 +193,12 @@ export default Vue.extend({
     canUndo() {
       return true;
     },
-    scrollVersionId(): number {
-      return parseInt(this.$route.params.scrollVersionId);
+    editionId(): number {
+      return parseInt(this.$route.params.editionId);
     },
   },
   mounted() {
-    // window.addEventListener('scroll', this.handleScroll);
+    // window.addEventListener('edition', this.handleScroll);
   },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
@@ -256,7 +256,7 @@ export default Vue.extend({
     },
     newArtefact() {
       // TODO--
-      // const newArtefact = Artefact.createNew(this.scrollVersionId, this.fragment, this.newArtefactName);
+      // const newArtefact = Artefact.createNew(this.editionId, this.fragment, this.newArtefactName);
       // newArtefact.sqeImageId = this.fragment.recto!.sqeImageId;
       // if (!newArtefact.sqeImageId) {
       //   console.error('There is no sqeImageId in the fragment');

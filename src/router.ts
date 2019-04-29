@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
-import ScrollVer from './views/scrollver/ScrollVer.vue';
-import ScrollVerFragments from './views/scrollver/components/fragments.vue';
-import ScrollVerArtefacts from './views/scrollver/components/artefacts.vue';
+import Edition from './views/edition/Edition.vue';
+import EditionFragments from './views/edition/components/fragments.vue';
+import EditionArtefacts from './views/edition/components/artefacts.vue';
 import FragmentEditor from './views/fragment-editor/FragmentEditor.vue';
 
 Vue.use(Router);
@@ -18,23 +18,23 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/scroll/:id',
-      component: ScrollVer,
+      path: '/edition/:id',
+      component: Edition,
       children: [{
         path: 'artefacts',
-        component: ScrollVerArtefacts,
+        component: EditionArtefacts,
       },
       {
-        path: 'fragments',
-        component: ScrollVerFragments,
+        path: 'imagedObjects',
+        component: EditionFragments,
       },
       {
         path: '',
-        redirect: '/scroll/:id/fragments',
+        redirect: '/edition/:id/imagedObjects',
       }]
     },
     {
-      path: '/fragment/:scrollVersionId/:fragmentId',
+      path: '/fragment/:editionId/:fragmentId',
       component: FragmentEditor,
     },
   ],

@@ -1,10 +1,10 @@
 import { IIIFImage } from './image';
 
-class ScrollInfo {
+class EditionGroupInfo {
     public name: string;
     public thumbnails: IIIFImage[];
-    public scrollVersionIds: number[];
-    public defaultScrollVersionId: number;
+    public editionIds: number[];
+    public defaultEditionId: number;
     public numImageFragments: number;
 
     constructor(serverObj: any) {
@@ -12,8 +12,8 @@ class ScrollInfo {
 
         this.thumbnails = [new IIIFImage(serverObj.thumbnailUrl)];
 
-        this.scrollVersionIds = JSON.parse(serverObj.scroll_version_ids);
-        this.defaultScrollVersionId = serverObj.scroll_version_id;
+        this.editionIds = JSON.parse(serverObj.scroll_version_ids);
+        this.defaultEditionId = serverObj.scroll_version_id;
         this.numImageFragments = serverObj.image_fragments;
     }
 }
@@ -48,7 +48,7 @@ class ShareInfo {
     }
 }
 
-class ScrollVersionInfo {
+class EditionInfo {
     public id: number;
     public name: string;
     public permission: Permissions;
@@ -58,13 +58,13 @@ class ScrollVersionInfo {
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit: Date | null;
-    public publicCopies: number; // Updated by the ScrollService
-    public otherVersions: ScrollVersionInfo[];
+    public publicCopies: number; // Updated by the EditionService
+    public otherVersions: EditionInfo[];
 
     // public numOfArtefacts: number;
     // public numOfColumns: number;
     // public numOfFragments: number;
-    // public otherVersions: ScrollVersionInfo[] = [];
+    // public otherVersions: EditionInfo[] = [];
 
     constructor(serverObj: any) {
         this.id = serverObj.id;
@@ -82,9 +82,9 @@ class ScrollVersionInfo {
     }
 }
 
-interface AllScrollVersion {
-    scrollList: ScrollVersionInfo[] | [];
-    myScrollList: ScrollVersionInfo[] | [];
+interface AllEditions {
+    editionList: EditionInfo[] | [];
+    myEditionList: EditionInfo[] | [];
 }
 
-export { ScrollInfo, ScrollVersionInfo, ShareInfo, AllScrollVersion };
+export { EditionGroupInfo, EditionInfo, ShareInfo, AllEditions };

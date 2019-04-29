@@ -3,6 +3,6 @@ export default {
     server2: 'שם משתמש או סיסמה לא נכונים',
     notFound: {
         fragment: 'מקטע {id} לא נמצא',
-        scroll: 'מגילה {id} לא נמצאה',
+        edition: 'מגילה {id} לא נמצאה',
     }
 };

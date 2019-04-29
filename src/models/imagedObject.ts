@@ -1,4 +1,4 @@
-import { IIAImageSet, ImageSet } from './image';
+import { IAAImageSet, ImageSet } from './image';
 import { Artefact } from './artefact';
 
 export class ArtefactRef {
@@ -11,7 +11,7 @@ export class ArtefactRef {
     }
 }
 
-export class ImagedFragment {
+export class ImagedObjectSimple {
     public id: string;
     public recto: ImageSet;
     public verso: ImageSet;
@@ -19,14 +19,14 @@ export class ImagedFragment {
 
     constructor(obj: any) {
         this.id = obj.id;
-        this.recto = obj.recto && new IIAImageSet(obj.recto);
-        this.verso = obj.verso && new IIAImageSet(obj.verso);
-        const arts: any[] = JSON.parse(obj.artefacts || '[]');
+        this.recto = obj.recto && new IAAImageSet(obj.recto);
+        this.verso = obj.verso && new IAAImageSet(obj.verso);
+        const arts: any[] = obj.artefacts.filter ((x: any) => x.side == 0) || '[]';
         this.artefacts = arts.map((a: any) => new Artefact(a));
     }
 }
 
-export class Fragment {
+export class ImagedObjectDetailed {
     public number: number;
     public institution: string;
     public artefactRefs: ArtefactRef[];
@@ -54,13 +54,13 @@ export class Fragment {
         this.plate = obj.plate;
 
         const sides = JSON.parse(obj.sides);
-        if (sides) { // Some fragments do not have sides (Why?)
+        if (sides) { // Some imagedObjects do not have sides (Why?)
             if (sides.recto) {
-                this.recto = new IIAImageSet(sides.recto);
+                this.recto = new IAAImageSet(sides.recto);
             }
 
             if (sides.verso) {
-                this.verso = new IIAImageSet(sides.verso);
+                this.verso = new IAAImageSet(sides.verso);
             }
         }
 

@@ -18,7 +18,7 @@ const actions: ActionTree<FragmentState, RootState> = {
     setFragment(context, fragment, reset = false) {
         context.commit('SET_FRAGMENT', fragment);
         if (reset) {
-            context.commit('scroll/RESET_DATA');
+            context.commit('edition/RESET_DATA');
         }
     },
 };

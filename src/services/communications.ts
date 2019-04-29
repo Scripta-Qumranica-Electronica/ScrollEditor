@@ -1,7 +1,7 @@
 import { Store } from 'vuex';
 import axios, { AxiosResponse } from 'axios';
 import { authHeader } from '../store/session';
-import { ImagedFragment } from '@/models/fragment';
+import { ImagedObjectSimple } from '@/models/imagedObject';
 
 // export interface ValidateSessionResponse {
 //     SESSION_ID: string;
@@ -34,7 +34,7 @@ export interface ListResults<T> {
     result: T[];
 }
 
-export interface ScrollVersions<T> {
+export interface Editions<T> {
     others: T[];
     primary: T;
 }
@@ -145,7 +145,7 @@ export class Communicator {
     }
 
     public async getList(url: string, payload?: any): Promise<ListResults<any>> {
-        // todo: add Promise<ScrollVersions<any> to get scroll version:primary and other
+        // todo: add Promise<Editions<any> to get edition version:primary and other
         try {
             // debugger
             const response = await axios.get<any>(url, this.requestOptions);
@@ -162,14 +162,14 @@ export class Communicator {
         }
     }
 
-    public async getScrollVersion(url: string): Promise<ScrollVersions<any>> {
+    public async getEdition(url: string): Promise<Editions<any>> {
         try {
             const response = await axios.get<any>(url, this.requestOptions);
             return response.data;
         } catch (err) {
             const serverError = err as ServerError;
             if (err && err.errorText === 'No results found.') {
-                const empty: ScrollVersions<string> = {
+                const empty: Editions<string> = {
                     primary: '',
                     others: [],
                 };
@@ -179,14 +179,48 @@ export class Communicator {
         }
     }
 
-    public async getFragment(url: string): Promise<ImagedFragment> {
+    public async copyEdition(url: string, name: string | undefined): Promise<any> {
+        try {
+            const response = await axios.post<any>(url, name ? {name} : {},  this.requestOptions);
+            return response.data;
+        } catch (err) {
+            const serverError = err as ServerError;
+            if (err && err.errorText === 'No results found.') {
+                const empty: Editions<string> = {
+                    primary: '',
+                    others: [],
+                };
+                return empty;
+            }
+            throw err;
+        }
+    }
+
+    public async renameEdition(url: string, name: string): Promise<any> {
+        try {
+            const response = await axios.put<any>(url, {name},  this.requestOptions);
+            return response.data;
+        } catch (err) {
+            const serverError = err as ServerError;
+            if (err && err.errorText === 'No results found.') {
+                const empty: Editions<string> = {
+                    primary: '',
+                    others: [],
+                };
+                return empty;
+            }
+            throw err;
+        }
+    }
+
+    public async getFragment(url: string): Promise<ImagedObjectSimple> {
         try {
             const response = await axios.get<any>(url, this.requestOptions);
             return response.data;
         } catch (err) {
             const serverError = err as ServerError;
             if (err && err.errorText === 'No results found.') {
-                const empty: ImagedFragment = {} as ImagedFragment;
+                const empty: ImagedObjectSimple = {} as ImagedObjectSimple;
                 return empty;
             }
             throw err;

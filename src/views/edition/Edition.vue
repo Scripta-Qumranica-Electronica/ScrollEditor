@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         <div class="col-xl-2 col-lg-3 col-md-4" id="sidebar">
-           <scroll-ver-sidebar/>
+           <edition-sidebar/>
         </div>
         <div v-if="waiting" class="row">
             <div class="col"><waiting></waiting></div>
@@ -19,26 +19,26 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ScrollVerSidebar from './components/sidebar.vue';
-import ScrollService from '@/services/scroll';
-import { ScrollVersionInfo } from '@/models/scroll.ts';
+import EditionSidebar from './components/sidebar.vue';
+import EditionService from '@/services/edition';
+import { EditionInfo } from '@/models/edition.js';
 import Waiting from '@/components/misc/Waiting.vue';
 
 export default Vue.extend({
-    name: 'scroll-version',
+    name: 'edition-version',
     components: {
-        ScrollVerSidebar,
+        EditionSidebar,
         Waiting,
     },
     data() {
         return {
-            scrollService: new ScrollService(this.$store),
+            editionService: new EditionService(this.$store),
             currentVersionId: 0,
         };
     },
     computed: {
-        currentVersion(): ScrollVersionInfo {
-            return this.$store.state.scroll.scrollVersion;
+        currentVersion(): EditionInfo {
+            return this.$store.state.edition.editionId;
         },
         waiting(): boolean {
             return !this.currentVersion;
@@ -55,7 +55,7 @@ export default Vue.extend({
     },
     methods: {
         async loadInfo() {
-            await this.scrollService.fetchScrollVersion(this.currentVersionId);
+            await this.editionService.fetchEdition(this.currentVersionId);
         }
     },
 });

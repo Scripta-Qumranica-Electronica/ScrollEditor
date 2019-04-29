@@ -6,6 +6,6 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-    name: 'scroll-ver-artefacts',
+    name: 'edition-ver-artefacts',
 });
 </script>

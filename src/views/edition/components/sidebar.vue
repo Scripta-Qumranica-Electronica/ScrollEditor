@@ -9,18 +9,18 @@
         <b-nav vertical>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
-                <router-link :to="`/scroll/${current.id}/artefacts`" replace>
+                <router-link :to="`/edition/${current.id}/artefacts`" replace>
                     {{ $t('home.artefacts') }}: {{ artefacts }} 
                 </router-link>
             </b-nav-item>
             <b-nav-item>
-                <router-link :to="`/scroll/${current.id}/fragments`" replace>
-                    {{ $t('home.fragments') }}: {{ fragments }}
+                <router-link :to="`/edition/${current.id}/imagedObjects`" replace>
+                    {{ $t('home.imagedObjects') }}: {{ imagedObjects }}
                 </router-link>
             </b-nav-item><!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item v-for="version in current.otherVersions" :key="version.id"
-                                 :to="`/scroll/${version.id}`">
+                                 :to="`/edition/${version.id}`">
                     {{ versionString(version) }}
                 </b-dropdown-item>
             </b-nav-item-dropdown>
@@ -63,15 +63,15 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { ScrollVersionInfo } from '@/models/scroll';
-import ScrollService from '@/services/scroll';
-import { ImagedFragment } from '../../../models/fragment';
+import { EditionInfo } from '@/models/edition';
+import EditionService from '@/services/edition';
+import { ImagedObjectSimple } from '../../../models/imagedObject';
 
 export default Vue.extend({
-    name: 'scroll-ver-sidebar',
+    name: 'edition-ver-sidebar',
     data() {
         return {
-            scrollService: new ScrollService(this.$store),
+            editionService: new EditionService(this.$store),
             newCopyName: '',
             waiting: false,
             errorMessage: '',
@@ -81,22 +81,22 @@ export default Vue.extend({
         canCopy(): boolean {
             return this.newCopyName.trim().length > 0;
         },
-        current(): ScrollVersionInfo {
-            return this.$store.state.scroll.scrollVersion;
+        current(): EditionInfo {
+            return this.$store.state.edition.editionId;
         },
         isNew(): boolean {
-            return this.current.id === this.$store.state.scroll.newScrollVersionId;
+            return this.current.id === this.$store.state.edition.newEditionId;
         },
-        fragments(): number {
-            if (this.$store.state.scroll.fragments) {
-                return this.$store.state.scroll.fragments.length;
+        imagedObjects(): number {
+            if (this.$store.state.edition.imagedObjects) {
+                return this.$store.state.edition.imagedObjects.length;
             }
             return 100;
         },
         artefacts(): number {
-            if (this.$store.state.scroll.fragments) {
+            if (this.$store.state.edition.imagedObjects) {
                 let artLen = 0;
-                this.$store.state.scroll.fragments.forEach((element: ImagedFragment) => {
+                this.$store.state.edition.imagedObjects.forEach((element: ImagedObjectSimple) => {
                     artLen += element.artefacts.length;
                 });
                 return artLen;
@@ -105,7 +105,7 @@ export default Vue.extend({
         }
     },
     methods: {
-        versionString(ver: ScrollVersionInfo) {
+        versionString(ver: EditionInfo) {
             return `${ver.name} - ${ver.owner.userName}`;
         },
         async copyScroll(evt: Event) {
@@ -119,17 +119,14 @@ export default Vue.extend({
             this.waiting = true;
             this.errorMessage = '';
             try {
-                const newScrollVersionId = await this.scrollService.copyScrollVersion(this.current.id);
+                const name = this.current.name !== this.newCopyName ? this.newCopyName : undefined;
+                const newEditionId = await this.editionService.copyEdition(this.current.id, name);
 
-                if (this.current.name !== this.newCopyName) {
-                    await this.scrollService.renameScrollVersion(newScrollVersionId, this.newCopyName);
-                }
-
-                this.$store.dispatch('scroll/setNewScrollVersionId',
-                                     newScrollVersionId,
-                                     { root: true }) ;
+                this.$store.dispatch('edition/setNewEditionId',
+                    newEditionId,
+                    {root: true});
                 this.$router.push({
-                    path: `/scroll/${newScrollVersionId}`,
+                    path: `/edition/${newEditionId}`,
                 });
             } catch (err) {
                 this.errorMessage = err;

@@ -1,31 +1,31 @@
 import { Polygon } from '@/utils/Polygons';
-import { Fragment } from './fragment';
-import { ScrollVersionInfo } from './scroll';
+import { ImagedObjectDetailed } from './imagedObject';
+import { EditionInfo } from './edition';
 
 enum artSide {
     RECTO, VERSO
 }
 
 export class Artefact {
-    public static createNew(scrollVersionId: number, fragment: Fragment, name: string) {
-         // scrollVersion: ScrollVersionInfo
+    public static createNew(editionId: number, imagedObjectDetailed: ImagedObjectDetailed, name: string, id: number) {
+         // editionId: EditionInfo
         const artefact = new Artefact({
-            id: -1,
+            id: id,
             positionId: -1,
             shapeId: -1,
-            scrollVersionId, // scrollVersion.versionId,
+            editionId, // editionId.versionId,
             name,
             mask: new Polygon(''),
             transformMatrix: '',
             rect: '',
-            imageCatalogId: fragment.recto!.imageCatalogId,
-            sqeImageId: fragment.recto!.sqeImageId
+            imageCatalogId: imagedObjectDetailed.recto!.imageCatalogId,
+            sqeImageId: imagedObjectDetailed.recto!.sqeImageId
         });
 
-        if (!fragment.artefacts) {
-            fragment.artefacts = [];
+        if (!imagedObjectDetailed.artefacts) {
+            imagedObjectDetailed.artefacts = [];
         }
-        fragment.artefacts.push(artefact);
+        imagedObjectDetailed.artefacts.push(artefact);
 
         return artefact;
     }
@@ -33,7 +33,7 @@ export class Artefact {
     // Default values specified to remove an error - we initialize them in the constructor or in copyFrom.
     // Typescript does not approve of that and shows an error, because it doesn't analyze copyFrom.
     public id = 0;
-    public scrollVersionId = 0;
+    public editionId = 0;
     public imageFragmentId = 0;
     public name = '';
     public mask = {} as Polygon;
@@ -60,10 +60,10 @@ export class Artefact {
             throw new Error('Non-recto artefacts are not supported');
         }
         this.id = obj.id;
-        this.scrollVersionId = obj.scrollVersionId;
+        this.editionId = obj.editionId;
         this.imageFragmentId = obj.imageFragmentId;
         this.name = obj.name;
-        this.mask = Polygon.fromWkt(obj.mask.svg); // obj.mask
+        this.mask = obj.mask ? Polygon.fromWkt(obj.mask.svg) : {} as Polygon; // obj.mask
         this.transformMatrix = obj.transform_matrix;
         this.zOrder = obj.zOrder;
         this.side = obj.side;
@@ -87,9 +87,9 @@ export class Artefact {
 
     private copyFrom(other: Artefact) {
         this.id = other.id;
-        this.scrollVersionId = other.scrollVersionId;
+        this.editionId = other.editionId;
         this.imageFragmentId = other.imageFragmentId;
-        this.scrollVersionId = other.scrollVersionId;
+        this.editionId = other.editionId;
         this.name = other.name;
         this.mask = other.mask;
         this.transformMatrix = other.transformMatrix;
