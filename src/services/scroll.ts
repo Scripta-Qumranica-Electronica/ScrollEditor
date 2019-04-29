@@ -11,7 +11,7 @@ class ScrollService {
     }
 
     public async listScrolls(): Promise<AllScrollVersion> {
-        const response = await this.communicator.getList('api/v1/scroll-version/list');
+        const response = await this.communicator.getList('api/v1/edition/list');
         const scrollList = [] as ScrollVersionInfo[];
         const myScrollList = [] as ScrollVersionInfo[];
         const self = this;
@@ -45,7 +45,7 @@ class ScrollService {
         }
 
         this.store.dispatch('scroll/setScrollVersion', null); // Trigget a spinner on all views
-        const response = await this.communicator.getScrollVersion(`/api/v1/scroll-version/${versionId}`);
+        const response = await this.communicator.getScrollVersion(`/api/v1/edition/${versionId}`);
 
         // Convert the server response into a single ScrollVersionInfo entity, putting all the other versions
         // in its otherVersions array
@@ -82,7 +82,7 @@ class ScrollService {
 
     public async getScrollVersionFragments(scrollVersionId: number): Promise<ImagedFragment[]> {
         const response = await this.communicator.getList
-        (`/api/v1/scroll-version/${scrollVersionId}/imaged-fragments`);
+        (`/api/v1/edition/${scrollVersionId}/imaged-objects`);
 
         const fragments = response.result.map((obj) => new ImagedFragment(obj));
         return fragments;

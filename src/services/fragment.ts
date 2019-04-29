@@ -53,7 +53,7 @@ class FragmentService {
         //     image_catalog_id: fragment.recto.imageCatalogId,
         // });
 
-        const response = await this.communicator.getFragment(`/v1/ImagedFragments/${scrollVersionId}/${fragment.id}`);
+        const response = await this.communicator.getFragment(`/v1/edition/${scrollVersionId}/${fragment.id}`);
         const artefacts = response.artefacts.map((obj: any) => new Artefact(obj));
         fragment.artefacts = artefacts;
 
