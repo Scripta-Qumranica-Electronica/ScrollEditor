@@ -11,7 +11,7 @@ class EditionService {
     }
 
     public async listScrolls(): Promise<AllEditions> {
-        const response = await this.communicator.getList('api/v1/edition/list');
+        const response = await this.communicator.getList('/v1/editions');
         const editionList = [] as EditionInfo[];
         const myEditionList = [] as EditionInfo[];
         const self = this;
@@ -44,7 +44,7 @@ class EditionService {
         }
 
         this.store.dispatch('edition/setEditionId', null); // Trigger a spinner on all views
-        const response = await this.communicator.getEdition(`/api/v1/edition/${editionId}`);
+        const response = await this.communicator.getEdition(`/v1/editions/${editionId}`);
 
         // Convert the server response into a single EditionInfo entity, putting all the other versions
         // in its otherVersions array
@@ -60,12 +60,12 @@ class EditionService {
     }
 
     public async copyEdition(editionId: number, name: string | undefined): Promise<number> {
-        const response = await this.communicator.copyEdition(`/api/v1/edition/${editionId}`, name);
+        const response = await this.communicator.copyEdition(`/v1/editions/${editionId}`, name);
         return response.id;
     }
 
     public async renameEdition(editionId: number, newName: string): Promise<void> {
-        await this.communicator.renameEdition(`/api/v1/edition/${editionId}`, newName);
+        await this.communicator.renameEdition(`/v1/editions/${editionId}`, newName);
     }
 
     public async fetchEditionFragments(ignoreCache = false): Promise<ImagedObjectSimple[]> {
@@ -80,7 +80,7 @@ class EditionService {
 
     public async getEditionFragments(editionId: number): Promise<ImagedObjectSimple[]> {
         const response = await this.communicator.getList
-        (`/api/v1/edition/${editionId}/imaged-object/list/with-artefacts`);
+        (`/v1/editions/${editionId}/imaged-objects?optional=artefacts`);
 
         return response.result.map((obj) => new ImagedObjectSimple(obj));
     }

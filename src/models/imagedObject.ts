@@ -21,7 +21,7 @@ export class ImagedObjectSimple {
         this.id = obj.id;
         this.recto = obj.recto && new IAAImageSet(obj.recto);
         this.verso = obj.verso && new IAAImageSet(obj.verso);
-        const arts: any[] = obj.artefacts.filter ((x: any) => x.side == 0) || '[]';
+        const arts: any[] = obj.artefacts || [];
         this.artefacts = arts.map((a: any) => new Artefact(a));
     }
 }

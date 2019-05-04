@@ -53,7 +53,9 @@ class ImagedObjectService {
         //     image_catalog_id: fragment.recto.imageCatalogId,
         // });
 
-        const response = await this.communicator.getFragment(`/v1/edition/${editionId}/${fragment.id}`);
+        const response = await this.communicator.getFragment(
+            `/v1/edition/${editionId}/imaged-objects/${fragment.id}?optional=artefacts&optional=masks`
+        );
         const artefacts = response.artefacts.map((obj: any) => new Artefact(obj));
         fragment.artefacts = artefacts;
 
