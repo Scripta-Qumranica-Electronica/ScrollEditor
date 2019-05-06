@@ -74,7 +74,7 @@ class EditionService {
         }
 
         const fragments = await this.getEditionFragments(this.store.state.edition.editionId.id);
-        this.store.dispatch('edition/setFragments', fragments);
+        this.store.dispatch('edition/setImagedObject', fragments);
         return fragments;
     }
 

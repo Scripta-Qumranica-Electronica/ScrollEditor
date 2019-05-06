@@ -39,7 +39,7 @@ const actions: ActionTree<EditionState, RootState> = {
         context.commit('SET_NEW_EDITION_ID', newEditionId);
     },
 
-    setFragments(context, imagedObjects) {
+    setImagedObject(context, imagedObjects) {
         context.commit('SET_IMAGED_OBJECTS', imagedObjects);
     },
 

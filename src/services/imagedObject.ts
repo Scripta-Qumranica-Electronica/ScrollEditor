@@ -32,7 +32,7 @@ class ImagedObjectService {
         }
         await this.fetchImagedObjectArtefacts(editionId, imagedObject);
 
-        this.store.dispatch('fragment/setFragment', imagedObject);
+        this.store.dispatch('fragment/setImagedObject', imagedObject);
 
         return imagedObject;
     }

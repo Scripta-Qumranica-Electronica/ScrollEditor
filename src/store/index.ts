@@ -4,7 +4,7 @@ import Vuex, { StoreOptions } from 'vuex';
 import language from './language';
 import session from './session';
 import edition from './edition';
-import fragment from './fragment';
+import fragment from './imaged-object';
 import { RootState } from './types';
 
 Vue.use(Vuex);

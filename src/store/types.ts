@@ -21,8 +21,8 @@ export interface EditionState {
     imagedObjects: ImagedObjectDetailed[] | null;
 }
 
-export interface FragmentState {
-    fragment: ImagedObjectDetailed | null;
+export interface ImagedObjectState {
+    imagedObject: ImagedObjectDetailed | null;
     // artefacts: Artefact[] | null;
 
 }
