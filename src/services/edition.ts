@@ -4,7 +4,7 @@ import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObjectSimple } from '@/models/imagedObject';
 import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
-import { EditionListDTO } from '@/dtos/editions';
+import { EditionListDTO, EditionGroupDTO } from '@/dtos/editions';
 
 class EditionService {
     private communicator: Communicator;
@@ -47,15 +47,15 @@ class EditionService {
         }
 
         this.store.dispatch('edition/setEditionId', null); // Trigger a spinner on all views
-        const response = await this.communicator.getEdition(`/v1/editions/${editionId}`);
+        const response = await CommHelper.get<EditionGroupDTO>(`/v1/editions/${editionId}`);
 
         // Convert the server response into a single EditionInfo entity, putting all the other versions
         // in its otherVersions array
-        const primary = new EditionInfo(response.primary);
+        const primary = new EditionInfo(response.data.primary);
         if (!primary) {
             throw new ServerError( { error: 'Server did not return the version we asked for' } );
         }
-        const others = response.others.map((obj) => new EditionInfo(obj));
+        const others = response.data.others.map((obj) => new EditionInfo(obj));
         primary.otherVersions = others;
 
         this.store.dispatch('edition/setEditionId', primary);
@@ -65,10 +65,6 @@ class EditionService {
     public async copyEdition(editionId: number, name: string | undefined): Promise<number> {
         const response = await this.communicator.copyEdition(`/v1/editions/${editionId}`, name);
         return response.id;
-    }
-
-    public async renameEdition(editionId: number, newName: string): Promise<void> {
-        await this.communicator.renameEdition(`/v1/editions/${editionId}`, newName);
     }
 
     public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObjectSimple[]> {
