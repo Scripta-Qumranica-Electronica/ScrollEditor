@@ -21,7 +21,7 @@ export class CommHelper {
         if (useCredentials) {
             return {
                 headers: authHeader()
-            }
+            };
         } else {
             return undefined;
         }

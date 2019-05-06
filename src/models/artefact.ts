@@ -10,7 +10,7 @@ export class Artefact {
     public static createNew(editionId: number, imagedObjectDetailed: ImagedObjectDetailed, name: string, id: number) {
          // editionId: EditionInfo
         const artefact = new Artefact({
-            id: id,
+            id,
             positionId: -1,
             shapeId: -1,
             editionId, // editionId.versionId,

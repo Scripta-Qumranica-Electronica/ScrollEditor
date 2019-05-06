@@ -18,7 +18,7 @@ export interface EditionGroupDTO {
 }
 
 export interface EditionListDTO {
-    editions: EditionDTO[][]
+    editions: EditionDTO[][];
 }
 
 export interface PermissionDTO {
