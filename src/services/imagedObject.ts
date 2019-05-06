@@ -28,7 +28,7 @@ class ImagedObjectService {
         }
 
         if (!fragment) {
-            throw new NotFoundError('fragment', fragmentId);
+            throw new NotFoundError('imagedObject', fragmentId);
         }
         await this.fetchFragmentArtefacts(editionId, fragment);
 
