@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { EditionGroupInfo, EditionInfo } from '@/models/edition';
+import { EditionInfo } from '@/models/edition';
 
 export default Vue.extend({
   name: 'edition-card',

@@ -1,6 +1,6 @@
 import { Store } from 'vuex';
 import { Communicator, CopyCombinationResponse, ServerError, Editions } from './communications';
-import { EditionGroupInfo, EditionInfo, AllEditions } from '@/models/edition';
+import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObjectSimple } from '@/models/imagedObject';
 import { Artefact } from '@/models/artefact';
 

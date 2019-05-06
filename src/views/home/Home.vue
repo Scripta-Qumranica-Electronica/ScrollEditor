@@ -43,7 +43,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import EditionService from '@/services/edition';
 import EditionGroupCard from './components/EditionGroupCard.vue';
 import EditionCard from './components/EditionCard.vue';
-import { EditionGroupInfo, EditionInfo } from '@/models/edition';
+import { EditionInfo } from '@/models/edition';
 import { countIf } from '@/utils/helpers';
 
 export default Vue.extend({

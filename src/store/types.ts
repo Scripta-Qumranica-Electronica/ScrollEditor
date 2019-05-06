@@ -1,4 +1,4 @@
-import { EditionGroupInfo, EditionInfo } from '@/models/edition';
+import { EditionInfo } from '@/models/edition';
 import { ImagedObjectDetailed } from '@/models/imagedObject';
 
 export interface LanguageState {

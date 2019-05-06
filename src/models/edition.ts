@@ -1,23 +1,5 @@
 import { IIIFImage } from './image';
 
-class EditionGroupInfo {
-    public name: string;
-    public thumbnails: IIIFImage[];
-    public editionIds: number[];
-    public defaultEditionId: number;
-    public numImageFragments: number;
-
-    constructor(serverObj: any) {
-        this.name = serverObj.name;
-
-        this.thumbnails = [new IIIFImage(serverObj.thumbnailUrl)];
-
-        this.editionIds = JSON.parse(serverObj.scroll_version_ids);
-        this.defaultEditionId = serverObj.scroll_version_id;
-        this.numImageFragments = serverObj.image_fragments;
-    }
-}
-
 class UserInfo {
     public userName: string;
     public userId: number;
@@ -87,4 +69,4 @@ interface AllEditions {
     myEditionList: EditionInfo[] | [];
 }
 
-export { EditionGroupInfo, EditionInfo, ShareInfo, AllEditions };
+export { EditionInfo, ShareInfo, AllEditions };
