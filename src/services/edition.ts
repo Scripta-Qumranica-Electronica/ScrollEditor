@@ -10,7 +10,7 @@ class EditionService {
         this.communicator = new Communicator(this.store);
     }
 
-    public async listScrolls(): Promise<AllEditions> {
+    public async listEditions(): Promise<AllEditions> {
         const response = await this.communicator.getList('/v1/editions');
         const editionList = [] as EditionInfo[];
         const myEditionList = [] as EditionInfo[];

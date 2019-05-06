@@ -33,12 +33,12 @@
         <b-modal id="copyModal" 
                  :title="$t('home.copyTitle', { name: current.name, owner: current.owner.userName })"
                  @shown="copyModalShown"
-                 @ok="copyScroll"
+                 @ok="copyEdition"
                  :ok-title="$t('misc.copy')"
                  :cancel-title="$t('misc.cancel')"
                  :ok-disabled="waiting || !canCopy"
                  :cancel-disabled="waiting">
-            <form @submit.stop.prevent="copyScroll">
+            <form @submit.stop.prevent="copyEdition">
                 <b-form-group :label="$t('home.newEditionName')"
                               label-for="newCopyName"
                               :description="$t('home.newEditionDesc')">
@@ -46,7 +46,7 @@
                                   id="newName" 
                                   v-model="newCopyName" 
                                   type="text"
-                                  @keyup.enter="copyScroll" 
+                                  @keyup.enter="copyEdition" 
                                   required 
                                   :placeholder="$t('home.newEditionName')">
                     </b-form-input>
@@ -108,7 +108,7 @@ export default Vue.extend({
         versionString(ver: EditionInfo) {
             return `${ver.name} - ${ver.owner.userName}`;
         },
-        async copyScroll(evt: Event) {
+        async copyEdition(evt: Event) {
             evt.preventDefault();
 
             if (!this.canCopy) {
