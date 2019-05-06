@@ -37,7 +37,7 @@ class EditionInfo {
     public name: string;
     public permission: Permissions;
     public owner: UserInfo;
-    public thumbnailUrl?: IIIFImage;
+    public thumbnail?: IIIFImage;
     public shares: ShareInfo[];
     public locked: boolean;
     public isPublic: boolean;
@@ -57,9 +57,9 @@ class EditionInfo {
         this.permission = new Permissions(dto.permission); // isAdmin, canWrite
         this.owner = new UserInfo(dto.owner);
         if (dto.thumbnailUrl) {
-            this.thumbnailUrl = new IIIFImage(dto.thumbnailUrl);
+            this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares.map((s) => new ShareInfo(s));
+        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
         if (dto.lastEdit) {
@@ -69,8 +69,8 @@ class EditionInfo {
 }
 
 interface AllEditions {
-    editionList: EditionInfo[] | [];
-    myEditionList: EditionInfo[] | [];
+    editionList: EditionInfo[];
+    myEditionList: EditionInfo[];
 }
 
 export { EditionInfo, ShareInfo, AllEditions };

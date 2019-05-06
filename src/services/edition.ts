@@ -3,6 +3,8 @@ import { Communicator, CopyCombinationResponse, ServerError, Editions } from './
 import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObjectSimple } from '@/models/imagedObject';
 import { Artefact } from '@/models/artefact';
+import { CommHelper } from './comm-helper';
+import { EditionListDTO } from '@/dtos/editions';
 
 class EditionService {
     private communicator: Communicator;
@@ -11,22 +13,23 @@ class EditionService {
     }
 
     public async listEditions(): Promise<AllEditions> {
-        const response = await this.communicator.getList('/v1/editions');
+        const response = await CommHelper.get<EditionListDTO>('/v1/editions');
         const editionList = [] as EditionInfo[];
         const myEditionList = [] as EditionInfo[];
         const self = this;
-        response.result.map((obj) => { // group
-            const publicCount = obj.filter((element: any) => element.isPublic);
-            const myCount = obj.filter((element: any) =>
+
+        response.data.editions.map((obj) => { // group
+            const publicEditions = obj.filter((element: any) => element.isPublic);
+            const myEditions = obj.filter((element: any) =>
                 element.owner.userId.toString() === self.store.state.session.userId);
 
-            if (myCount.length) {
-                myEditionList.push(new EditionInfo(myCount[0]));
+            if (myEditions.length) {
+                myEditionList.push(new EditionInfo(myEditions[0]));
                 // TODO: add myCount.length or shares length ?
             }
-            if (publicCount.length) {
-                const editionInfo = new EditionInfo(publicCount[0]);
-                editionInfo.publicCopies = publicCount.length; // update number of public scrolls
+            if (publicEditions.length) {
+                const editionInfo = new EditionInfo(publicEditions[0]);
+                editionInfo.publicCopies = publicEditions.length; // update number of public scrolls
                 editionList.push(editionInfo);
             }
         });

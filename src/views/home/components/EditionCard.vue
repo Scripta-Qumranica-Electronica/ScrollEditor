@@ -29,7 +29,7 @@ export default Vue.extend({
   },
   computed: {
     thumbnailSource(): string | undefined {
-      return this.edition.thumbnailUrl ? this.edition.thumbnailUrl.url : undefined;
+      return this.edition.thumbnail ? this.edition.thumbnail.thumbnailUrl : undefined;
     },
     shareCount(): number {
       return this.edition.shares.length - 1; // One is the current user
