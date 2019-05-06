@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
 import Edition from './views/edition/Edition.vue';
-import EditionFragments from './views/edition/components/fragments.vue';
+import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
 import FragmentEditor from './views/fragment-editor/FragmentEditor.vue';
 
@@ -26,7 +26,7 @@ export default new Router({
       },
       {
         path: 'imaged-objects',
-        component: EditionFragments,
+        component: EditionImagedObjects,
       },
       {
         path: '',
