@@ -1,6 +1,6 @@
 <template>
     <div class="card">
-        <router-link :to="{ path: `/fragment/${editionId}/${fragment.id}` }">
+        <router-link :to="{ path: `/imaged-object/${editionId}/${fragment.id}` }">
             <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="ImagedObjectDetailed Image">
         </router-link>
         <label>{{artefactsNames}}</label>

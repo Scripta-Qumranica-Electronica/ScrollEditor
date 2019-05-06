@@ -30,11 +30,11 @@ export default new Router({
       },
       {
         path: '',
-        redirect: '/edition/:id/imagedObjects',
+        redirect: '/edition/:id/imaged-objects',
       }]
     },
     {
-      path: '/fragment/:editionId/:fragmentId',
+      path: '/imaged-boject/:editionId/:fragmentId',
       component: FragmentEditor,
     },
   ],
