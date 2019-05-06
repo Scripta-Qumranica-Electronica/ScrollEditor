@@ -213,7 +213,7 @@ export class Communicator {
         }
     }
 
-    public async getFragment(url: string): Promise<ImagedObjectSimple> {
+    public async getImagedObject(url: string): Promise<ImagedObjectSimple> {
         try {
             const response = await axios.get<any>(url, this.requestOptions);
             return response.data;
