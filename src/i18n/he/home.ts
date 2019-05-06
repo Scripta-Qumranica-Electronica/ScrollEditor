@@ -10,9 +10,9 @@ export default {
     columns: 'טורים',
     imagedObjects: 'מקטעים',
     copyTitle: 'העתקת {name} מאת {owner}',
-    newScrollName: 'שם המגילה החדש',
-    newScrollDesc: 'יש למלא את השם החדש של המגילה',
-    copyingScroll: 'מעתיק מגילה',
+    newEditionName: 'שם המגילה החדש',
+    newEditionDesc: 'יש למלא את השם החדש של המגילה',
+    copyingEdition: 'מעתיק מגילה',
     noVersions: 'אין גרסאות נוספות',
 
     newArtefactName: 'שם הממצא החדש',

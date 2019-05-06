@@ -3,6 +3,6 @@ export default {
     server2: 'Invalid Username or Password',
     notFound: {
         fragment: 'ImagedObjectDetailed {id} not found',
-        edition: 'Scroll {id} not found',
+        edition: 'Edition {id} not found',
     }
 };

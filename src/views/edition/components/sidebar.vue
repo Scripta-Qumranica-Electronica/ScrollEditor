@@ -39,20 +39,20 @@
                  :ok-disabled="waiting || !canCopy"
                  :cancel-disabled="waiting">
             <form @submit.stop.prevent="copyScroll">
-                <b-form-group :label="$t('home.newScrollName')"
+                <b-form-group :label="$t('home.newEditionName')"
                               label-for="newCopyName"
-                              :description="$t('home.newScrollDesc')">
+                              :description="$t('home.newEditionDesc')">
                     <b-form-input ref="newCopyName"
                                   id="newName" 
                                   v-model="newCopyName" 
                                   type="text"
                                   @keyup.enter="copyScroll" 
                                   required 
-                                  :placeholder="$t('home.newScrollName')">
+                                  :placeholder="$t('home.newEditionName')">
                     </b-form-input>
                 </b-form-group>
                 <p v-if="waiting">
-                    {{ $t('home.copyingScroll') }}...
+                    {{ $t('home.copyingEdition') }}...
                     <font-awesome-icon icon="spinner" spin></font-awesome-icon>
                 </p>
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
