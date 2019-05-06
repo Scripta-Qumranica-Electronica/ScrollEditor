@@ -1,12 +1,14 @@
 import { IIIFImage } from './image';
+import { UserDTO } from '@/dtos/user';
+import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/editions';
 
 class UserInfo {
     public userName: string;
     public userId: number;
 
-    constructor(serverObj: any) {
-        this.userName = serverObj.userName;
-        this.userId = serverObj.userId;
+    constructor(dto: UserDTO) {
+        this.userName = dto.userName;
+        this.userId = dto.userId;
     }
 }
 
@@ -14,9 +16,9 @@ class Permissions {
     public canWrite: boolean;
     public canAdmin: boolean;
 
-    constructor(serverObj: any) {
-        this.canWrite = serverObj.canWrite || false;
-        this.canAdmin = serverObj.canAdmin || false;
+    constructor(dto: PermissionDTO) {
+        this.canWrite = dto.canWrite;
+        this.canAdmin = dto.canAdmin;
     }
 }
 
@@ -24,9 +26,9 @@ class ShareInfo {
     public user: UserInfo;
     public permissions: Permissions;
 
-    constructor(serverObj: any) {
-        this.user = new UserInfo(serverObj);
-        this.permissions = new Permissions(serverObj);
+    constructor(dto: ShareDTO) {
+        this.user = new UserInfo(dto.user);
+        this.permissions = new Permissions(dto.permission);
     }
 }
 
@@ -35,32 +37,34 @@ class EditionInfo {
     public name: string;
     public permission: Permissions;
     public owner: UserInfo;
-    public thumbnailUrl: IIIFImage[];
+    public thumbnailUrl?: IIIFImage;
     public shares: ShareInfo[];
     public locked: boolean;
     public isPublic: boolean;
-    public lastEdit: Date | null;
-    public publicCopies: number; // Updated by the EditionService
-    public otherVersions: EditionInfo[];
+    public lastEdit?: Date;
+
+    public publicCopies: number = 1; // Updated by the EditionService
+    public otherVersions: EditionInfo[] = [];
 
     // public numOfArtefacts: number;
     // public numOfColumns: number;
     // public numOfFragments: number;
     // public otherVersions: EditionInfo[] = [];
 
-    constructor(serverObj: any) {
-        this.id = serverObj.id;
-        this.name = serverObj.name;
-        this.permission = new Permissions(serverObj.permission); // isAdmin, canWrite
-        this.owner = new UserInfo(serverObj.owner);
-        this.thumbnailUrl = serverObj.thumbnailUrl !== null ? [new IIIFImage(serverObj.thumbnailUrl)] : [];
-        const sharedObj: any[] = JSON.parse(serverObj.shared || '[]');
-        this.shares = sharedObj.map((obj) => new ShareInfo(obj));
-        this.locked = serverObj.locked || false;
-        this.isPublic = serverObj.isPublic || false;
-        this.lastEdit = serverObj.lastEdit ? new Date(Date.parse(serverObj.lastEdit)) : null;
-        this.publicCopies = serverObj.publicCopies || 0;
-        this.otherVersions = serverObj.otherVersions || [];
+    constructor(dto: EditionDTO) {
+        this.id = dto.id;
+        this.name = dto.name;
+        this.permission = new Permissions(dto.permission); // isAdmin, canWrite
+        this.owner = new UserInfo(dto.owner);
+        if (dto.thumbnailUrl) {
+            this.thumbnailUrl = new IIIFImage(dto.thumbnailUrl);
+        }
+        this.shares = dto.shares.map((s) => new ShareInfo(s));
+        this.locked = dto.locked;
+        this.isPublic = dto.isPublic;
+        if (dto.lastEdit) {
+            this.lastEdit = new Date(Date.parse(dto.lastEdit));
+        }
     }
 }
 

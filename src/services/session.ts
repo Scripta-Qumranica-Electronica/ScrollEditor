@@ -1,6 +1,7 @@
 import { Store } from 'vuex';
 import { Communicator, ValidateTokenResponse, Login } from './communications';
-import axios, { AxiosResponse } from 'axios';
+import { LoginRequestDTO, LoginResponseDTO, UserDTO } from '@/dtos/user';
+import { CommHelper } from './comm-helper';
 
 
 class SessionService {
@@ -25,10 +26,12 @@ class SessionService {
     // }
 
     public async login(userName: string, password: string) {
-        const response = await this.communicator.postRequest<Login>('', '/v1/user/login', {
+        const requestDto = {
             userName,
-            password,
-        });
+            password
+        } as LoginRequestDTO;
+        const response = await CommHelper.post<LoginResponseDTO>('/v1/user/login', requestDto, false);
+
         this.store.dispatch('session/logIn', {
             userId: response.data.userId,
             userName: response.data.userName,
@@ -47,7 +50,8 @@ class SessionService {
         }
 
         try {
-            const response = await this.communicator.getRequest<ValidateTokenResponse>('/v1/user');
+            await CommHelper.get<UserDTO>('/v1/user');  // The server returns a 401 error if the user is not logged in
+            // await this.communicator.getRequest<ValidateTokenResponse>('/v1/user');
             return true;
         } catch (error) {
             this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out
