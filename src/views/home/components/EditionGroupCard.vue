@@ -32,7 +32,7 @@ export default Vue.extend({
   },
   computed: {
     thumbnailSource(): string | undefined {
-      return this.edition.thumbnailUrl.length ? this.edition.thumbnailUrl[0].thumbnailUrl : undefined;
+      return this.edition.thumbnailUrl ? this.edition.thumbnailUrl.url : undefined;
     },
     publicEditionCount(): number {
       return this.edition.publicCopies;
