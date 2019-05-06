@@ -9,18 +9,18 @@
         <b-nav vertical>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
-                <router-link :to="`/edition/${current.id}/artefacts`" replace>
+                <router-link :to="`/editions/${current.id}/artefacts`" replace>
                     {{ $t('home.artefacts') }}: {{ artefacts }} 
                 </router-link>
             </b-nav-item>
             <b-nav-item>
-                <router-link :to="`/edition/${current.id}/imaged-objects`" replace>
+                <router-link :to="`/editions/${current.id}/imaged-objects`" replace>
                     {{ $t('home.imagedObjects') }}: {{ imagedObjects }}
                 </router-link>
             </b-nav-item><!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item v-for="version in current.otherVersions" :key="version.id"
-                                 :to="`/edition/${version.id}`">
+                                 :to="`/editions/${version.id}`">
                     {{ versionString(version) }}
                 </b-dropdown-item>
             </b-nav-item-dropdown>

@@ -18,23 +18,23 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/edition/:id',
+      path: '/editions/:id',
       component: Edition,
       children: [{
         path: 'artefacts',
         component: EditionArtefacts,
       },
       {
-        path: 'imagedObjects',
+        path: 'imaged-objects',
         component: EditionFragments,
       },
       {
         path: '',
-        redirect: '/edition/:id/imaged-objects',
+        redirect: '/editions/:id/imaged-objects',
       }]
     },
     {
-      path: '/imaged-boject/:editionId/:fragmentId',
+      path: '/editions/:editionId/imaged-objects/:fragmentId',
       component: FragmentEditor,
     },
   ],
