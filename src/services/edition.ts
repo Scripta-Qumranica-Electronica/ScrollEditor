@@ -68,7 +68,7 @@ class EditionService {
         await this.communicator.renameEdition(`/v1/editions/${editionId}`, newName);
     }
 
-    public async fetchEditionFragments(ignoreCache = false): Promise<ImagedObjectSimple[]> {
+    public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObjectSimple[]> {
         if (!ignoreCache && this.store.state.edition.imagedObjects !== null) {
             return this.store.state.edition.imagedObjects;
         }

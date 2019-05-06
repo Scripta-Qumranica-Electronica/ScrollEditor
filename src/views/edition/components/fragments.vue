@@ -40,7 +40,7 @@ export default Vue.extend({
         }
     },
     mounted() {
-        this.editionService.fetchEditionFragments();
+        this.editionService.fetchEditionImagedObjects();
     }
 });
 </script>

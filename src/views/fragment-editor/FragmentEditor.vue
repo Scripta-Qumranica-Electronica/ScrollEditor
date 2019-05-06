@@ -210,7 +210,7 @@ export default Vue.extend({
     try {
       this.waiting = true;
       await this.editionService.fetchEdition(this.editionId);
-      await this.fragmentService.fetchFragmentInfo(
+      await this.fragmentService.fetchImagedObjectInfo(
         parseInt(this.$route.params.editionId),
         this.$route.params.fragmentId
       );
@@ -382,7 +382,7 @@ export default Vue.extend({
       try {
         this.optimizedArtefacts.forEach(async (art, index) => {
           if (this.artefactEditingDataList[index].dirty) {
-            await this.fragmentService.changeFragmentArtefactShape(
+            await this.fragmentService.changeArtefactShape(
               this.editionId,
               this.fragment,
               art
@@ -438,7 +438,7 @@ export default Vue.extend({
       }
       this.saving = true;
       try {
-        await this.fragmentService.createFragmentArtefact(
+        await this.fragmentService.createArtefact(
           this.editionId,
           this.fragment,
           this.artefact
@@ -457,7 +457,7 @@ export default Vue.extend({
       }
       this.renaming = true;
       try {
-        await this.fragmentService.changeFragmentArtefactName(
+        await this.fragmentService.changeArtefactName(
           this.editionId,
           this.fragment,
           this.artefact

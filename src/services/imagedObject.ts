@@ -21,28 +21,28 @@ class ImagedObjectService {
         this.communicator = new Communicator(store);
     }
 
-    public async fetchFragmentInfo(editionId: number, fragmentId: string) {
-        let fragment = this._getCachedFragment(editionId, fragmentId);
-        if (!fragment) {
-            fragment = await this._getFragment(editionId, fragmentId);
+    public async fetchImagedObjectInfo(editionId: number, imagedObjectId: string) {
+        let imagedObject = this._getCachedImagedObject(editionId, imagedObjectId);
+        if (!imagedObject) {
+            imagedObject = await this._getImagedObject(editionId, imagedObjectId);
         }
 
-        if (!fragment) {
-            throw new NotFoundError('imagedObject', fragmentId);
+        if (!imagedObject) {
+            throw new NotFoundError('imagedObject', imagedObjectId);
         }
-        await this.fetchFragmentArtefacts(editionId, fragment);
+        await this.fetchImagedObjectArtefacts(editionId, imagedObject);
 
-        this.store.dispatch('fragment/setFragment', fragment);
+        this.store.dispatch('fragment/setFragment', imagedObject);
 
-        return fragment;
+        return imagedObject;
     }
 
-    public async fetchFragmentArtefacts(editionId: number, fragment: ImagedObjectSimple): Promise<Artefact[]> {
+    public async fetchImagedObjectArtefacts(editionId: number, imagedObject: ImagedObjectSimple): Promise<Artefact[]> {
         // The server does not have an endpoint that returns artefacts based on IDs,
         // so we need to use the getArtOfImage endpoint, passing the recto color image
 
-        if (!fragment.recto) {
-            console.error('ImagedObjectDetailed ', fragment, ' has no recto information');
+        if (!imagedObject.recto) {
+            console.error('ImagedObjectDetailed ', imagedObject, ' has no recto information');
             throw new Error('ImagedObjectDetailed has no recto information');
         }
 
@@ -54,15 +54,15 @@ class ImagedObjectService {
         // });
 
         const response = await this.communicator.getFragment(
-            `/v1/edition/${editionId}/imaged-objects/${fragment.id}?optional=artefacts&optional=masks`
+            `/v1/edition/${editionId}/imaged-objects/${imagedObject.id}?optional=artefacts&optional=masks`
         );
         const artefacts = response.artefacts.map((obj: any) => new Artefact(obj));
-        fragment.artefacts = artefacts;
+        imagedObject.artefacts = artefacts;
 
         return artefacts;
     }
 
-    public async createFragmentArtefact(editionId: number, fragment: ImagedObjectSimple, artefact: Artefact):
+    public async createArtefact(editionId: number, imagedObject: ImagedObjectSimple, artefact: Artefact):
         Promise<ArtefactCreateResult> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
         const createResponse = await this.communicator.request<ArtefactCreateResult>('addArtefact', {
@@ -72,13 +72,13 @@ class ImagedObjectService {
         });
 
         artefact.id = createResponse.data.returned_info;
-        const nameResponse = await this.changeFragmentArtefactName(editionId, fragment, artefact);
-        const postResponse = await this.changeFragmentArtefactPosition(editionId, artefact);
+        const nameResponse = await this.changeArtefactName(editionId, imagedObject, artefact);
+        const postResponse = await this.changeArtefactPosition(editionId, artefact);
 
         return Object.assign(createResponse.data, nameResponse, postResponse);
     }
 
-    public async changeFragmentArtefactShape(editionId: number, fragment: ImagedObjectSimple, artefact: Artefact):
+    public async changeArtefactShape(editionId: number, imagedObject: ImagedObjectSimple, artefact: Artefact):
         Promise<ArtefactShapeChangedResult> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
         const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactShape', {
@@ -91,7 +91,7 @@ class ImagedObjectService {
         return response.data;
     }
 
-    public async changeFragmentArtefactPosition(editionId: number, artefact: Artefact):
+    public async changeArtefactPosition(editionId: number, artefact: Artefact):
         Promise<ArtefactPositionChangedResult> {
         const transformMatrix = artefact.transformMatrix ?
             artefact.transformMatrix :
@@ -105,7 +105,7 @@ class ImagedObjectService {
         return response.data;
     }
 
-    public async changeFragmentArtefactName(editionId: number, fragment: ImagedObjectSimple, artefact: Artefact):
+    public async changeArtefactName(editionId: number, fragment: ImagedObjectSimple, artefact: Artefact):
         Promise<ArtefactNameChangedResult> {
         const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
             scroll_version_id: editionId,
@@ -116,7 +116,7 @@ class ImagedObjectService {
         return response.data;
     }
 
-    private _getCachedFragment(editionId: number, fragmentId: string): ImagedObjectSimple | undefined {
+    private _getCachedImagedObject(editionId: number, fragmentId: string): ImagedObjectSimple | undefined {
         // debugger // TODO: check this.store.state.edition.editionId after refresh
         if (!this.store.state.edition.editionId ||
             editionId !== this.store.state.edition.editionId.versionId) {
@@ -129,7 +129,7 @@ class ImagedObjectService {
         return this.store.state.edition.imagedObjects.find((f: ImagedObjectSimple) => f.id === fragmentId);
     }
 
-    private async _getFragment(editionId: number, fragmentId: string) {
+    private async _getImagedObject(editionId: number, fragmentId: string) {
         const editionService = new EditionService(this.store);
         const fragments = await editionService.getEditionFragments(editionId);
 
