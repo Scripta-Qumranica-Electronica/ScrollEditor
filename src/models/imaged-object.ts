@@ -1,6 +1,8 @@
-import { IAAImageSet, ImageSet } from './image';
+import { ImageStack } from './image';
 import { Artefact } from './artefact';
+import { ImagedObjectDTO } from '@/dtos/imaged-object';
 
+/*
 export class ArtefactRef {
     public name: string;
     public id: number;
@@ -11,6 +13,7 @@ export class ArtefactRef {
     }
 }
 
+// This class is a mistake, and should be removed soon
 export class ImagedObjectSimple {
     public id: string;
     public recto: ImageSet;
@@ -26,6 +29,7 @@ export class ImagedObjectSimple {
     }
 }
 
+// This class is a mistake, and should be removed soon
 export class ImagedObjectDetailed {
     public number: number;
     public institution: string;
@@ -65,5 +69,31 @@ export class ImagedObjectDetailed {
         }
 
         // artefacts are filled with another server call, from somewhere else
+    }
+}
+*/
+
+export class ImagedObject {
+    public id: string;
+    public recto?: ImageStack;
+    public verso?: ImageStack;
+
+    public artefacts: Artefact[];
+
+    constructor(obj: ImagedObjectDTO) {
+        this.id = obj.id;
+
+        if (obj.artefacts) {
+            this.artefacts = obj.artefacts.map((dto) => new Artefact(dto));
+        } else {
+            this.artefacts = [];
+        }
+
+        if (obj.recto && obj.recto.id) { // For now the backend returns id=null if the side is missing
+            this.recto = new ImageStack(obj.recto);
+        }
+        if (obj.verso && obj.verso.id) {
+            this.verso = new ImageStack(obj.verso);
+        }
     }
 }

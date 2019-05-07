@@ -1,7 +1,7 @@
 import { Store } from 'vuex';
 import axios, { AxiosResponse } from 'axios';
 import { authHeader } from '../store/session';
-import { ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 
 // export interface ValidateSessionResponse {
 //     SESSION_ID: string;
@@ -213,14 +213,14 @@ export class Communicator {
         }
     }
 
-    public async getImagedObject(url: string): Promise<ImagedObjectSimple> {
+    public async getImagedObject(url: string): Promise<ImagedObject> {
         try {
             const response = await axios.get<any>(url, this.requestOptions);
             return response.data;
         } catch (err) {
             const serverError = err as ServerError;
             if (err && err.errorText === 'No results found.') {
-                const empty: ImagedObjectSimple = {} as ImagedObjectSimple;
+                const empty: ImagedObject = {} as ImagedObject;
                 return empty;
             }
             throw err;

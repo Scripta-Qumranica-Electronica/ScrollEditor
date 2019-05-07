@@ -1,5 +1,5 @@
 import { EditionInfo } from '@/models/edition';
-import { ImagedObjectDetailed } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 
 export interface LanguageState {
     language: string;
@@ -18,11 +18,11 @@ export interface SessionState {
 export interface EditionState {
     editionId: EditionInfo | null;
     newEditionId: number | null;
-    imagedObjects: ImagedObjectDetailed[] | null;
+    imagedObjects: ImagedObject[] | null;
 }
 
 export interface ImagedObjectState {
-    imagedObject: ImagedObjectDetailed | null;
+    imagedObject: ImagedObject | null;
     // artefacts: Artefact[] | null;
 
 }

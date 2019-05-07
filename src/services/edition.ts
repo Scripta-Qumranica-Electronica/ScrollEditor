@@ -1,10 +1,11 @@
 import { Store } from 'vuex';
 import { Communicator, CopyCombinationResponse, ServerError, Editions } from './communications';
 import { EditionInfo, AllEditions } from '@/models/edition';
-import { ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
 import { EditionListDTO, EditionGroupDTO } from '@/dtos/editions';
+import { ImagedObjectListDTO } from '@/dtos/imaged-object';
 
 class EditionService {
     private communicator: Communicator;
@@ -67,21 +68,22 @@ class EditionService {
         return response.id;
     }
 
-    public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObjectSimple[]> {
+    public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
         if (!ignoreCache && this.store.state.edition.imagedObjects !== null) {
             return this.store.state.edition.imagedObjects;
         }
 
-        const fragments = await this.getEditionFragments(this.store.state.edition.editionId.id);
-        this.store.dispatch('edition/setImagedObject', fragments);
-        return fragments;
+        const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.editionId.id);
+        this.store.dispatch('edition/setImagedObject', imagedObjects);
+        return imagedObjects;
     }
 
-    public async getEditionFragments(editionId: number): Promise<ImagedObjectSimple[]> {
-        const response = await this.communicator.getList
-        (`/v1/editions/${editionId}/imaged-objects?optional=artefacts`);
+    public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
+        const response = await CommHelper.get<ImagedObjectListDTO>(
+            `/v1/editions/${editionId}/imaged-objects?optional=artefacts&optional=masks`
+        );
 
-        return response.result.map((obj) => new ImagedObjectSimple(obj));
+        return response.data.imagedObjects.map((d) => new ImagedObject(d));
     }
 }
 

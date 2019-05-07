@@ -1,6 +1,6 @@
 import { Store } from 'vuex';
 import { Communicator, NotFoundError, DictionaryListResults } from './communications';
-import { ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
 
@@ -37,13 +37,13 @@ class ImagedObjectService {
         return imagedObject;
     }
 
-    public async fetchImagedObjectArtefacts(editionId: number, imagedObject: ImagedObjectSimple): Promise<Artefact[]> {
+    public async fetchImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
         // The server does not have an endpoint that returns artefacts based on IDs,
         // so we need to use the getArtOfImage endpoint, passing the recto color image
 
         if (!imagedObject.recto) {
-            console.error('ImagedObjectDetailed ', imagedObject, ' has no recto information');
-            throw new Error('ImagedObjectDetailed has no recto information');
+            console.error('ImagedObject ', imagedObject, ' has no recto information');
+            throw new Error('ImagedObject has no recto information');
         }
 
         // getArtOfImage returns a list of dictionaries which is rather unclear.
@@ -62,7 +62,7 @@ class ImagedObjectService {
         return artefacts;
     }
 
-    public async createArtefact(editionId: number, imagedObject: ImagedObjectSimple, artefact: Artefact):
+    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefact: Artefact):
         Promise<ArtefactCreateResult> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
         const createResponse = await this.communicator.request<ArtefactCreateResult>('addArtefact', {
@@ -78,7 +78,7 @@ class ImagedObjectService {
         return Object.assign(createResponse.data, nameResponse, postResponse);
     }
 
-    public async changeArtefactShape(editionId: number, imagedObject: ImagedObjectSimple, artefact: Artefact):
+    public async changeArtefactShape(editionId: number, imagedObject: ImagedObject, artefact: Artefact):
         Promise<ArtefactShapeChangedResult> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
         const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactShape', {
@@ -105,7 +105,7 @@ class ImagedObjectService {
         return response.data;
     }
 
-    public async changeArtefactName(editionId: number, fragment: ImagedObjectSimple, artefact: Artefact):
+    public async changeArtefactName(editionId: number, fragment: ImagedObject, artefact: Artefact):
         Promise<ArtefactNameChangedResult> {
         const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
             scroll_version_id: editionId,
@@ -116,7 +116,7 @@ class ImagedObjectService {
         return response.data;
     }
 
-    private _getCachedImagedObject(editionId: number, fragmentId: string): ImagedObjectSimple | undefined {
+    private _getCachedImagedObject(editionId: number, fragmentId: string): ImagedObject | undefined {
         // debugger // TODO: check this.store.state.edition.editionId after refresh
         if (!this.store.state.edition.editionId ||
             editionId !== this.store.state.edition.editionId.versionId) {
@@ -126,14 +126,14 @@ class ImagedObjectService {
             return undefined;
         }
 
-        return this.store.state.edition.imagedObjects.find((f: ImagedObjectSimple) => f.id === fragmentId);
+        return this.store.state.edition.imagedObjects.find((f: ImagedObject) => f.id === fragmentId);
     }
 
-    private async _getImagedObject(editionId: number, fragmentId: string) {
+    private async _getImagedObject(editionId: number, imagedObjectId: string) {
         const editionService = new EditionService(this.store);
-        const fragments = await editionService.getEditionFragments(editionId);
+        const imagedObjects = await editionService.getEditionImagedObjects(editionId);
 
-        return fragments.find((f: ImagedObjectSimple) => f.id === fragmentId);
+        return imagedObjects.find((io: ImagedObject) => io.id === imagedObjectId);
     }
 }
 

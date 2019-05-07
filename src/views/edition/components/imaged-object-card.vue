@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imagedObject.id}` }">
-            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="ImagedObjectDetailed Image">
+            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
         </router-link>
         <label>{{artefactsNames}}</label>
     </div>
@@ -9,16 +9,16 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 
 export default Vue.extend({
     props: {
-        imagedObject: ImagedObjectSimple,
+        imagedObject: ImagedObject,
     },
     computed: {
         imageUrl(): string | undefined {
             if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.masterIndex) {
-                return this.imagedObject.recto.masterIndex.getThumbnailUrl(600);
+                return this.imagedObject.recto.master.getThumbnailUrl(600);
             }
             return undefined;
         },

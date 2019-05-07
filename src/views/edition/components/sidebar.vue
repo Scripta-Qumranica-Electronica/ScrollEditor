@@ -65,7 +65,7 @@
 import Vue, { PropOptions } from 'vue';
 import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
-import { ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 
 export default Vue.extend({
     name: 'edition-ver-sidebar',
@@ -96,7 +96,7 @@ export default Vue.extend({
         artefacts(): number {
             if (this.$store.state.edition.imagedObjects) {
                 let artLen = 0;
-                this.$store.state.edition.imagedObjects.forEach((element: ImagedObjectSimple) => {
+                this.$store.state.edition.imagedObjects.forEach((element: ImagedObject) => {
                     artLen += element.artefacts.length;
                 });
                 return artLen;

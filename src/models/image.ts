@@ -1,4 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
+import { ImageStackDTO } from '@/dtos/imaged-object';
+import { ImageDTO } from '@/dtos/image';
+import { Polygon } from '@/utils/Polygons';
 
 export class IIIFImage {
     public url: string;
@@ -33,77 +36,65 @@ export class IIIFImage {
     }
 }
 
-export abstract class ImageSet {
-    public imageCatalogId: number;
-    public sqeImageId: number = 0;
-    public abstract get masterIndex(): IIIFImage | undefined;
-    public abstract get availableImageTypes(): string[];
+export class Image extends IIIFImage {
+    public type: string;
+    public side: string;
+    public waveLength: string[];
+    public regionInMaster: Polygon;
+    public regionOfMaster: Polygon;
+    public transformToMaster: string;
+    public master: boolean;
+    public catalogNumber: number;
 
-    constructor(imageCatalogId: number) {
-        this.imageCatalogId = imageCatalogId;
-    }
-
-    public getImage(type: string) {
-        const candidate: any = (this as any)[type];
-        if (candidate && candidate instanceof IIIFImage) {
-            return candidate;
-        }
-
-        return undefined;
-    }
-
-    public get images(): IIIFImage[] {
-        let images = this.availableImageTypes.map((t) => this.getImage(t));
-        images = images.filter((image) => image !== undefined);
-
-        return images as IIIFImage[];
+    constructor(dto: ImageDTO) {
+        super(dto.url);
+        this.type = dto.type;
+        this.side = dto.side;
+        this.waveLength = dto.waveLength;
+        this.regionInMaster = new Polygon(dto.regionInMaster.mask);
+        this.regionOfMaster = new Polygon(dto.regionOfMaster.mask);
+        this.transformToMaster = dto.transformToMaster;
+        this.master = dto.master;
+        this.catalogNumber = dto.catalogNumber;
     }
 }
 
-export class IAAImageSet extends ImageSet {
-    private static availableImages = ['color', 'infrared', 'rakingLeft', 'rakingRight'];
+export class ImageStack {
+    public id: number;
+    public masterIndex: number;
+    public images: Image[];
+    public availableImageTypes: string[];
+    private imageMap: Map<string, Image>;
 
-    public color?: IIIFImage;
-    public infrared?: IIIFImage;
-    public rakingLeft?: IIIFImage;
-    public rakingRight?: IIIFImage;
+    constructor(dto: ImageStackDTO) {
+        if (!dto.id || ! dto.masterIndex) {
+            // This is just a temporary measure, the DTO will change so that undefined is not allowed
+            throw new Error('ImageStack expects it and masterIndex to be set in the dto');
+        }
+        this.id = dto.id;
+        this.masterIndex = dto.masterIndex;
+        this.images = dto.images.map((d) => new Image(d));
 
-    constructor(serverObj: any) {
-        super(serverObj.id);
-        if (serverObj.images) {
-            for (const image of serverObj.images) {
-                const type = this.createIIIF(image.url);
-                switch (image.type) {
-                    case 'color':
-                        this.color = type;
-                        break;
-                    case 'infrared':
-                        this.infrared = type;
-                        break;
-                    case 'rakingLeft':
-                        this.rakingLeft = type;
-                        break;
-                    case 'rakingRight':
-                        this.rakingRight = type;
-                        break;
-                }
+        if (!this.images[this.masterIndex].master) {
+            console.warn('ImageDTO conflict of master images: ', dto);
+        }
+
+        this.imageMap = new Map<string, Image>();
+        this.availableImageTypes = [];
+        for (const image of this.images) {
+            if (this.imageMap.has(image.type)) {
+                console.warn('ImageDTO has type ', image.type, ' multiple times', dto);
             }
+            this.imageMap.set(image.type, image);
+            this.availableImageTypes.push(image.type);
         }
     }
 
-    private createIIIF(url: string | undefined): IIIFImage | undefined {
-        if (url) {
-            return new IIIFImage(url);
-        }
-
-        return undefined;
+    public getImage(type: string) {
+        return this.imageMap.get(type);
     }
 
-    public get availableImageTypes() {
-        return IAAImageSet.availableImages;
-    }
-
-    public get masterIndex(): IIIFImage | undefined {
-        return this.color;
+    public get master(): Image {
+        return this.images[this.masterIndex];
     }
 }

@@ -20,7 +20,7 @@
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectCard from './imaged-object-card.vue';
-import { ImagedObjectDetailed, ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 import EditionService from '@/services/edition';
 
 export default Vue.extend({
@@ -34,7 +34,7 @@ export default Vue.extend({
         Waiting,
     },
     computed: {
-        imagedObjects(): ImagedObjectSimple[] | null {
+        imagedObjects(): ImagedObject[] | null {
             return this.$store.state.edition.imagedObjects;
         }
     },

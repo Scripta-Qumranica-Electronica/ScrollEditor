@@ -50,7 +50,6 @@ import { EditorParams,
          ZoomRequestEventArgs,
          OptimizedArtefact,
          } from './types';
-import { ImagedObjectDetailed } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';

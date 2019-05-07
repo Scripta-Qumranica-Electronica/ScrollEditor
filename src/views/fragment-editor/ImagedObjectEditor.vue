@@ -106,7 +106,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import EditionService from '@/services/edition';
 import ImageService from '@/services/image';
-import { ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 import {
@@ -158,7 +158,7 @@ export default Vue.extend({
     zoomLevel(): number {
       return this.params.zoom;
     },
-    imagedObject(): ImagedObjectSimple {
+    imagedObject(): ImagedObject {
       return this.$store.state.imagedObject.imagedObject;
     },
     editionId(): number {
@@ -214,8 +214,8 @@ export default Vue.extend({
         this.$route.params.imagedObjectId
       );
 
-      if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.masterIndex) {
-        await this.imageService.fetchImageManifest(this.imagedObject.recto.masterIndex);
+      if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
+        await this.imageService.fetchImageManifest(this.imagedObject.recto.master);
         this.masterImage = this.getMasterImg();
       }
 
@@ -244,7 +244,7 @@ export default Vue.extend({
   methods: {
     getMasterImg(): IIIFImage | undefined {
       if (this.imagedObject && this.imagedObject.recto) {
-        return this.imagedObject.recto.masterIndex;
+        return this.imagedObject.recto.master;
       }
       return undefined;
     },
@@ -268,8 +268,7 @@ export default Vue.extend({
           const image = this.imagedObject.recto.getImage(imageType);
           if (image) {
             const master =
-              this.imagedObject.recto.masterIndex ===
-              this.imagedObject.recto.getImage(imageType);
+              this.imagedObject.recto.master.type === imageType;
             const imageSetting = {
               image,
               type: imageType,
@@ -389,9 +388,9 @@ export default Vue.extend({
             this.artefactEditingDataList[index].dirty = false;
           }
         });
-        this.showMessage('ImagedObjectDetailed Saved', false);
+        this.showMessage('Imaged Object Saved', false);
       } catch (err) {
-        this.showMessage('ImagedObjectDetailed save failed', true);
+        this.showMessage('Imaged Object Save Failed', true);
       } finally {
         this.saving = false;
       }

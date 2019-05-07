@@ -120,7 +120,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { ImagedObjectSimple } from '@/models/imaged-object';
+import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting, OptimizedArtefact } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
@@ -139,7 +139,7 @@ export default Vue.extend({
     'single-image-setting': SingleImageSettingComponent,
   },
   props: {
-    imagedObject: ImagedObjectSimple,
+    imagedObject: ImagedObject,
     artefacts: {
       type: Array,
       default: () => [],
