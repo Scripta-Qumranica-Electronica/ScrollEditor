@@ -1,16 +1,16 @@
 <template>
-  <div class="wrapper" id="fragment-editor">
+  <div class="wrapper" id="imaged-object-editor">
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
     <div
       id="sidebar"
       class="image-menu-div col-xl-2 col-lg-3 col-md-4"
-      v-if="!waiting && fragment"
+      v-if="!waiting && imagedObject"
       :class="{ active : isActive }"
     >
       <image-menu
-        :imagedObject="fragment"
+        :imagedObject="imagedObject"
         :artefacts="optimizedArtefacts"
         :artefact="artefact"
         :params="params"
@@ -30,7 +30,7 @@
     </div>
 
     <div id="content" class="container col-xl-12 col-lg-12 col-md-12"
-      v-if="!waiting && fragment"> <!-- todo: add external div with the condition -->
+      v-if="!waiting && imagedObject"> <!-- todo: add external div with the condition -->
       <div class="row">
         <div id="buttons-div">
           <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
@@ -43,11 +43,11 @@
             <i :class="mode.icon"></i>
           </b-button>
         </div>
-        <div class="fragment-container"
+        <div class="imaged-object-container"
           :class="{active: isActive}">
           <div
             ref="overlay-div"
-            v-if="!waiting && fragment"
+            v-if="!waiting && imagedObject"
             :width="actualWidth"
             :height="actualHeight"
             id="overlay-div ">
@@ -65,7 +65,7 @@
                   :originalImageHeight="originalImageHeight"
                   :params="params"
                   :editable="canEdit"
-                  :side="fragment.recto"
+                  :side="imagedObject.recto"
                   :clipping-mask="artefact.mask"
                 ></roi-canvas>
                 <artefact-canvas
@@ -126,7 +126,7 @@ import ArtefactCanvas from './ArtefactCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
 
 export default Vue.extend({
-  name: 'fragment-editor',
+  name: 'imaged-object-editor',
   components: {
     Waiting,
     'image-menu': ImageMenu,
@@ -158,7 +158,7 @@ export default Vue.extend({
     zoomLevel(): number {
       return this.params.zoom;
     },
-    fragment(): ImagedObjectSimple {
+    imagedObject(): ImagedObjectSimple {
       return this.$store.state.imagedObject.imagedObject;
     },
     editionId(): number {
@@ -211,15 +211,15 @@ export default Vue.extend({
       await this.editionService.fetchEdition(this.editionId);
       await this.imagedObjectService.fetchImagedObjectInfo(
         parseInt(this.$route.params.editionId),
-        this.$route.params.fragmentId
+        this.$route.params.imagedObjectId
       );
 
-      if (this.fragment && this.fragment.recto && this.fragment.recto.masterIndex) {
-        await this.imageService.fetchImageManifest(this.fragment.recto.masterIndex);
+      if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.masterIndex) {
+        await this.imageService.fetchImageManifest(this.imagedObject.recto.masterIndex);
         this.masterImage = this.getMasterImg();
       }
 
-      if (this.fragment!.artefacts!.length) {
+      if (this.imagedObject!.artefacts!.length) {
         this.optimizeArtefacts();
         this.artefact = this.optimizedArtefacts[0];
         this.optimizedArtefacts.forEach((element) => {
@@ -243,8 +243,8 @@ export default Vue.extend({
   },
   methods: {
     getMasterImg(): IIIFImage | undefined {
-      if (this.fragment && this.fragment.recto) {
-        return this.fragment.recto.masterIndex;
+      if (this.imagedObject && this.imagedObject.recto) {
+        return this.imagedObject.recto.masterIndex;
       }
       return undefined;
     },
@@ -263,13 +263,13 @@ export default Vue.extend({
     },
     fillImageSettings() {
       this.params.imageSettings = {};
-      if (this.fragment.recto && this.fragment.recto) {
-        for (const imageType of this.fragment.recto.availableImageTypes) {
-          const image = this.fragment.recto.getImage(imageType);
+      if (this.imagedObject.recto && this.imagedObject.recto) {
+        for (const imageType of this.imagedObject.recto.availableImageTypes) {
+          const image = this.imagedObject.recto.getImage(imageType);
           if (image) {
             const master =
-              this.fragment.recto.masterIndex ===
-              this.fragment.recto.getImage(imageType);
+              this.imagedObject.recto.masterIndex ===
+              this.imagedObject.recto.getImage(imageType);
             const imageSetting = {
               image,
               type: imageType,
@@ -282,10 +282,10 @@ export default Vue.extend({
       }
     },
     optimizeArtefacts() {
-      if (!this.fragment || !this.fragment.artefacts) {
+      if (!this.imagedObject || !this.imagedObject.artefacts) {
         this.optimizedArtefacts = [];
       } else {
-        this.optimizedArtefacts = this.fragment.artefacts.map(
+        this.optimizedArtefacts = this.imagedObject.artefacts.map(
           (artefact, index) =>
             new OptimizedArtefact(
               artefact,
@@ -383,7 +383,7 @@ export default Vue.extend({
           if (this.artefactEditingDataList[index].dirty) {
             await this.imagedObjectService.changeArtefactShape(
               this.editionId,
-              this.fragment,
+              this.imagedObject,
               art
             );
             this.artefactEditingDataList[index].dirty = false;
@@ -439,7 +439,7 @@ export default Vue.extend({
       try {
         await this.imagedObjectService.createArtefact(
           this.editionId,
-          this.fragment,
+          this.imagedObject,
           this.artefact
         );
         this.artefactEditingDataList.push(new ArtefactEditingData());
@@ -458,7 +458,7 @@ export default Vue.extend({
       try {
         await this.imagedObjectService.changeArtefactName(
           this.editionId,
-          this.fragment,
+          this.imagedObject,
           this.artefact
         );
         this.showMessage('Artefact renamed', false);
@@ -536,18 +536,19 @@ export default Vue.extend({
   position: absolute;
   transform-origin: top left;
 }
-#fragment-editor {
+#imaged-object-editor {
   overflow: hidden;
   height: calc(100vh - 56px);
 }
-.fragment-container {
+
+.imaged-object-container {
   overflow: scroll;
   position: relative;
   padding: 0;
   height: calc(100vh - 56px);
   width: calc(100vw - 290px);
 }
-.fragment-container.active {
+.imaged-object-container.active {
   overflow: scroll;
   position: relative;
   padding: 0;
@@ -616,7 +617,7 @@ export default Vue.extend({
     transform: none;
   }
 
-  .fragment-container {
+  .imaged-object-container {
     overflow: scroll;
     position: relative;
     padding: 0;
@@ -624,7 +625,7 @@ export default Vue.extend({
     width: calc(100vw - 40px);
   }
 
-  .fragment-container.active {
+  .imaged-object-container.active {
     overflow: scroll;
     position: relative;
     padding: 0;
