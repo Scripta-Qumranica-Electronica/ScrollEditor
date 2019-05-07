@@ -1,7 +1,7 @@
 import { Store } from 'vuex';
 import { Communicator, CopyCombinationResponse, ServerError, Editions } from './communications';
 import { EditionInfo, AllEditions } from '@/models/edition';
-import { ImagedObjectSimple } from '@/models/imagedObject';
+import { ImagedObjectSimple } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
 import { EditionListDTO, EditionGroupDTO } from '@/dtos/editions';

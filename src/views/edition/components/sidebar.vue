@@ -65,7 +65,7 @@
 import Vue, { PropOptions } from 'vue';
 import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
-import { ImagedObjectSimple } from '../../../models/imagedObject';
+import { ImagedObjectSimple } from '@/models/imaged-object';
 
 export default Vue.extend({
     name: 'edition-ver-sidebar',

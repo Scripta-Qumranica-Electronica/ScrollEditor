@@ -1,5 +1,5 @@
 import { EditionInfo } from '@/models/edition';
-import { ImagedObjectDetailed } from '@/models/imagedObject';
+import { ImagedObjectDetailed } from '@/models/imaged-object';
 
 export interface LanguageState {
     language: string;

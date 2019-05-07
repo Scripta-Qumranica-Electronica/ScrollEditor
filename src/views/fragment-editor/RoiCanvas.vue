@@ -33,7 +33,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
-import { ImagedObjectSimple } from '@/models/imagedObject';
+import { ImagedObjectSimple } from '@/models/imaged-object';
 import { EditorParams, SingleImageSetting } from './types';
 import { ImageSet } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';

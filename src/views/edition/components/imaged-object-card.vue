@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { ImagedObjectSimple } from '@/models/imagedObject';
+import { ImagedObjectSimple } from '@/models/imaged-object';
 
 export default Vue.extend({
     props: {

@@ -1,5 +1,5 @@
 import { Polygon } from '@/utils/Polygons';
-import { ImagedObjectDetailed } from './imagedObject';
+import { ImagedObjectDetailed } from './imaged-object';
 import { EditionInfo } from './edition';
 
 enum artSide {

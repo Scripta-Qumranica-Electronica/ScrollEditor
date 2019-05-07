@@ -1,6 +1,6 @@
 import { Store } from 'vuex';
 import { Communicator, NotFoundError, DictionaryListResults } from './communications';
-import { ImagedObjectSimple } from '@/models/imagedObject';
+import { ImagedObjectSimple } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
 

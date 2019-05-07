@@ -104,10 +104,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import ImagedObjectService from '@/services/imagedObject';
+import ImagedObjectService from '@/services/imaged-object';
 import EditionService from '@/services/edition';
 import ImageService from '@/services/image';
-import { ImagedObjectSimple } from '@/models/imagedObject';
+import { ImagedObjectSimple } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 import {

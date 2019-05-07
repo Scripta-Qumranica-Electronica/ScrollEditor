@@ -1,7 +1,7 @@
 import { Store } from 'vuex';
 import axios, { AxiosResponse } from 'axios';
 import { authHeader } from '../store/session';
-import { ImagedObjectSimple } from '@/models/imagedObject';
+import { ImagedObjectSimple } from '@/models/imaged-object';
 
 // export interface ValidateSessionResponse {
 //     SESSION_ID: string;
