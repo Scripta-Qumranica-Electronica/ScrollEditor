@@ -43,7 +43,6 @@ export default Vue.extend({
   props: {
     originalImageWidth: Number,
     originalImageHeight: Number,
-    fragment: ImagedObjectSimple,
     params: EditorParams,
     editable: Boolean,
     side: {

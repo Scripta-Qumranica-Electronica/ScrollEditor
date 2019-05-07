@@ -64,7 +64,6 @@
                   :originalImageWidth="originalImageWidth"
                   :originalImageHeight="originalImageHeight"
                   :params="params"
-                  :fragment="fragment"
                   :editable="canEdit"
                   :side="fragment.recto"
                   :clipping-mask="artefact.mask"

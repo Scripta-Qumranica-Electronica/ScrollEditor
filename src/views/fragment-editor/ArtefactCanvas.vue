@@ -58,7 +58,6 @@ import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerT
 export default Vue.extend({
   props: {
     params: EditorParams,
-    fragment: ImagedObjectDetailed,
     artefact: OptimizedArtefact,
     selected: Boolean,
     editable: Boolean,
