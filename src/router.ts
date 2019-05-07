@@ -5,6 +5,9 @@ import Edition from './views/edition/Edition.vue';
 import EditionFragments from './views/edition/components/fragments.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
 import FragmentEditor from './views/fragment-editor/FragmentEditor.vue';
+import Registration from './views/user/Registration.vue';
+import ChangePassword from './views/user/ChangePassword.vue';
+import ChangeForgottenPassword from './views/user/ChangeForgottenPassword.vue';
 
 Vue.use(Router);
 
@@ -36,6 +39,18 @@ export default new Router({
     {
       path: '/fragment/:editionId/:fragmentId',
       component: FragmentEditor,
+    },
+    {
+      path: '/registration',
+      component: Registration,
+    },
+    {
+      path: '/changePassword',
+      component: ChangePassword,
+    },
+    {
+      path: '/changeForgottenPassword',
+      component: ChangeForgottenPassword,
     },
   ],
 });

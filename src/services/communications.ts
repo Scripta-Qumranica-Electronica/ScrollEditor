@@ -95,7 +95,7 @@ export class Communicator {
         return response;
     }
 
-    public async postRequest<T>(transactionType: string, url: string, payload?: any): Promise<AxiosResponse<T>> {
+    public async postRequest<T>(url: string, payload?: any): Promise<AxiosResponse<T>> {
         // const postRequestOptions = {
         //     headers: authHeader(),
         //     body: payload

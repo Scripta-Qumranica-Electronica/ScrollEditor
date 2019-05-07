@@ -13,6 +13,11 @@
                 </b-col>
             </b-row>
             <b-row>
+                <button @click="forgotPassword" class="btn btn-link">
+                    {{ $t('navbar.forgotPassword') }}
+                </button>
+            </b-row>
+            <b-row>
                 <b-col class="text-danger">{{ errorMessage }}</b-col>
             </b-row>
         </b-container>
@@ -27,6 +32,7 @@
             </b-button>
         </div>
     </b-modal>
+    <forgot-password></forgot-password>
   </div>
  </template>
 
@@ -37,9 +43,13 @@ import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
+import ForgotPassword from '@/views/user/ForgotPassword.vue';
 
 export default Vue.extend({
     name: 'login',
+    components: {
+        ForgotPassword,
+    },
     data() {
         return {
             username: this.$store.state.session.userName,
@@ -86,8 +96,14 @@ export default Vue.extend({
             this.errorMessage = '';
             this.waiting = false;
             (this.$refs.username as any).focus();
+        },
+        forgotPassword() {
+            this.$root.$emit('bv::show::modal', 'passwordModal');
         }
     }
 });
 </script>
- 
+
+<style scoped>
+
+</style>
