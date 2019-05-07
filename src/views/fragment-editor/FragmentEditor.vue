@@ -10,7 +10,7 @@
       :class="{ active : isActive }"
     >
       <image-menu
-        :fragment="fragment"
+        :imagedObject="fragment"
         :artefacts="optimizedArtefacts"
         :artefact="artefact"
         :params="params"
@@ -159,7 +159,7 @@ export default Vue.extend({
       return this.params.zoom;
     },
     fragment(): ImagedObjectSimple {
-      return this.$store.state.fragment.fragment;
+      return this.$store.state.imagedObject.imagedObject;
     },
     editionId(): number {
       return parseInt(this.$route.params.editionId);

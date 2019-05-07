@@ -50,7 +50,7 @@
     </section>
     <section>
       <h5>Images</h5>
-      <single-image-setting v-for="imageType in fragment.recto.availableImageTypes" :key="imageType" 
+      <single-image-setting v-for="imageType in imagedObject.recto.availableImageTypes" :key="imageType" 
                             :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged(imageType, $event)">
       </single-image-setting>
     </section>
@@ -139,7 +139,7 @@ export default Vue.extend({
     'single-image-setting': SingleImageSettingComponent,
   },
   props: {
-    fragment: ImagedObjectSimple,
+    imagedObject: ImagedObjectSimple,
     artefacts: {
       type: Array,
       default: () => [],
@@ -256,10 +256,10 @@ export default Vue.extend({
     },
     newArtefact() {
       // TODO--
-      // const newArtefact = Artefact.createNew(this.editionId, this.fragment, this.newArtefactName);
-      // newArtefact.sqeImageId = this.fragment.recto!.sqeImageId;
+      // const newArtefact = Artefact.createNew(this.editionId, this.imagedObject, this.newArtefactName);
+      // newArtefact.sqeImageId = this.imagedObject.recto!.sqeImageId;
       // if (!newArtefact.sqeImageId) {
-      //   console.error('There is no sqeImageId in the fragment');
+      //   console.error('There is no sqeImageId in the imagedObject');
       //   newArtefact.sqeImageId = this.artefact.sqeImageId;
       // }
       // this.$emit('create', newArtefact);
