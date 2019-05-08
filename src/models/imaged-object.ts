@@ -84,12 +84,16 @@ export class ImagedObject {
         this.id = obj.id;
 
         if (obj.artefacts) {
-            this.artefacts = obj.artefacts.map((dto) => new Artefact(dto));
+            const all = obj.artefacts.map((dto) => new Artefact(dto));
+
+            // For now we do not support verso artefacts in the frontend
+            const recto = all.filter((a) => a.side === 'recto');
+            this.artefacts = recto;
         } else {
             this.artefacts = [];
         }
 
-        if (obj.recto && obj.recto.id) { // For now the backend returns id=null if the side is missing
+        if (obj.recto && obj.recto.id !== undefined) { // For now the backend returns id=null if the side is missing
             this.recto = new ImageStack(obj.recto);
         }
         if (obj.verso && obj.verso.id) {

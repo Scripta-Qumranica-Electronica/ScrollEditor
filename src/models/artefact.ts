@@ -1,11 +1,8 @@
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from './imaged-object';
-import { EditionInfo } from './edition';
 import { ArtefactDTO } from '@/dtos/artefact';
+import { Side } from './misc';
 
-enum artSide {
-    RECTO, VERSO
-}
 
 export class Artefact {
     public static createNew(editionId: number, imagedObject: ImagedObject, name: string, id: number) {
@@ -18,7 +15,7 @@ export class Artefact {
             mask: new Polygon(''),
             transformMatrix: '',
             zOrder: 1,
-            side: artSide.RECTO,
+            side: 'recto',
         } as Artefact);
 
         if (!imagedObject.artefacts) {
@@ -38,7 +35,7 @@ export class Artefact {
     public mask = {} as Polygon;
     public transformMatrix = undefined as any; // TODO: Change to matrix type?
     public zOrder = 0;
-    public side = artSide.RECTO;
+    public side: Side = 'recto';
 
 
     constructor(obj: Artefact | ArtefactDTO) {
@@ -47,10 +44,6 @@ export class Artefact {
             return;
         }
 
-        if (obj.side && obj.side !== 'recto') {
-            console.error('Received a non-recto artefact ', obj);
-            throw new Error('Non-recto artefacts are not supported');
-        }
         this.id = obj.id;
         this.editionId = obj.editionId;
         this.imagedObjectId = obj.imagedObjectId;
@@ -58,7 +51,7 @@ export class Artefact {
         this.mask = obj.mask ? Polygon.fromWkt(obj.mask.mask) : {} as Polygon;
         this.transformMatrix = obj.transformMatrix;
         this.zOrder = obj.zOrder;
-        this.side = obj.side === 'recto' ? artSide.RECTO : artSide.VERSO;
+        this.side = (obj.side === 'recto' || obj.side === '0') ? 'recto' : 'verso';
     }
 
     private copyFrom(other: Artefact) {

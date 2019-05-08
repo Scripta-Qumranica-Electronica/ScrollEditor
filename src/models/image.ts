@@ -40,8 +40,8 @@ export class Image extends IIIFImage {
     public type: string;
     public side: string;
     public waveLength: string[];
-    public regionInMaster: Polygon;
-    public regionOfMaster: Polygon;
+    public regionInMaster?: Polygon;
+    public regionOfMaster?: Polygon;
     public transformToMaster: string;
     public master: boolean;
     public catalogNumber: number;
@@ -51,8 +51,8 @@ export class Image extends IIIFImage {
         this.type = dto.type;
         this.side = dto.side;
         this.waveLength = dto.waveLength;
-        this.regionInMaster = new Polygon(dto.regionInMaster.mask);
-        this.regionOfMaster = new Polygon(dto.regionOfMaster.mask);
+        this.regionInMaster = dto.regionInMaster ? new Polygon(dto.regionInMaster.mask) : undefined;
+        this.regionOfMaster = dto.regionOfMaster ? new Polygon(dto.regionOfMaster.mask) : undefined;
         this.transformToMaster = dto.transformToMaster;
         this.master = dto.master;
         this.catalogNumber = dto.catalogNumber;
@@ -67,7 +67,7 @@ export class ImageStack {
     private imageMap: Map<string, Image>;
 
     constructor(dto: ImageStackDTO) {
-        if (!dto.id || ! dto.masterIndex) {
+        if (dto.id === undefined || dto.masterIndex === undefined) {
             // This is just a temporary measure, the DTO will change so that undefined is not allowed
             throw new Error('ImageStack expects it and masterIndex to be set in the dto');
         }
