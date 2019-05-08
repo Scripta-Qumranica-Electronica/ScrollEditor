@@ -1,5 +1,5 @@
 import { Store } from 'vuex';
-import { Communicator, NotFoundError, DictionaryListResults } from './communications';
+import { Communicator, NotFoundError } from './communications';
 import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
@@ -30,34 +30,28 @@ class ImagedObjectService {
         if (!imagedObject) {
             throw new NotFoundError('imagedObject', imagedObjectId);
         }
-        await this.fetchImagedObjectArtefacts(editionId, imagedObject);
+        const artefacts = await this.getImagedObjectArtefacts(editionId, imagedObject);
+        imagedObject.artefacts = artefacts;
 
-        this.store.dispatch('fragment/setImagedObject', imagedObject);
+        this.store.dispatch('imagedObject/setImagedObject', imagedObject);
 
         return imagedObject;
     }
 
-    public async fetchImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
-        // The server does not have an endpoint that returns artefacts based on IDs,
-        // so we need to use the getArtOfImage endpoint, passing the recto color image
-
+    public async getImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
         if (!imagedObject.recto) {
             console.error('ImagedObject ', imagedObject, ' has no recto information');
             throw new Error('ImagedObject has no recto information');
         }
 
-        // getArtOfImage returns a list of dictionaries which is rather unclear.
-        // So we don't bother adding a type to it, we just use what we see is returned
-        // const response = await this.communicator.listRequest('getArtOfImage', {
-        //     scroll_version_id: editionId,
-        //     image_catalog_id: fragment.recto.imageCatalogId,
-        // });
-
         const response = await this.communicator.getImagedObject(
-            `/v1/edition/${editionId}/imaged-objects/${imagedObject.id}?optional=artefacts&optional=masks`
+            `/v1/editions/${editionId}/imaged-objects/${imagedObject.id}?optional=artefacts&optional=masks`
         );
-        const artefacts = response.artefacts.map((obj: any) => new Artefact(obj));
-        imagedObject.artefacts = artefacts;
+
+        let artefacts: Artefact[] = [];
+        if (response.artefacts) {
+            artefacts = response.artefacts.map((obj: any) => new Artefact(obj)).filter((a) => a.side === 'recto');
+        };
 
         return artefacts;
     }

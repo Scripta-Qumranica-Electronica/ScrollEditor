@@ -210,7 +210,7 @@ export default Vue.extend({
       this.waiting = true;
       await this.editionService.fetchEdition(this.editionId);
       await this.imagedObjectService.fetchImagedObjectInfo(
-        parseInt(this.$route.params.editionId),
+        this.editionId,
         this.$route.params.imagedObjectId
       );
 

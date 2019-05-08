@@ -68,7 +68,7 @@ class EditionService {
         }
 
         const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.editionId.id);
-        this.store.dispatch('edition/setImagedObject', imagedObjects);
+        this.store.dispatch('edition/setImagedObjects', imagedObjects);
         return imagedObjects;
     }
 
