@@ -17,7 +17,7 @@ export default Vue.extend({
     },
     computed: {
         imageUrl(): string | undefined {
-            if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.masterIndex) {
+            if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
                 return this.imagedObject.recto.master.getThumbnailUrl(600);
             }
             return undefined;
@@ -26,9 +26,7 @@ export default Vue.extend({
             return this.$store.state.edition.editionId.id;
         },
         artefactsNames(): string {
-            // TODO
             const names = this.imagedObject.artefacts.map((a) => a.name);
-            // const names = this.fragment.artefactRefs.map((a) => a.name);
             const unique = [...new Set(names)]; // Taken from here: https://stackoverflow.com/a/42123984/871910
             return unique.join(', ');
         }
