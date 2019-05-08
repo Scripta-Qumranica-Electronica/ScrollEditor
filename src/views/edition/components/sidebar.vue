@@ -82,7 +82,7 @@ export default Vue.extend({
             return this.newCopyName.trim().length > 0;
         },
         current(): EditionInfo {
-            return this.$store.state.edition.editionId;
+            return this.$store.state.edition.edition;
         },
         isNew(): boolean {
             return this.current.id === this.$store.state.edition.newEditionId;

@@ -36,7 +36,6 @@ export default Vue.extend({
     },
     publicEditionCount(): number {
       return this.edition.publicCopies;
-      // return this.edition.editionIds.length;
     },
     personalVersionCount(): number {
       return 0;

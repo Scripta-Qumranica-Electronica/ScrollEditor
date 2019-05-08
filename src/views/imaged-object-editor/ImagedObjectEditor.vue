@@ -165,7 +165,7 @@ export default Vue.extend({
       return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
-      return this.$store.state.edition.editionId.permission.canWrite;
+      return this.$store.state.edition.edition.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;

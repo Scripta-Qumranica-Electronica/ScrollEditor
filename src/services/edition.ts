@@ -41,12 +41,12 @@ class EditionService {
         // Fetches a edition version from the server and puts it in the store.
         // Returns immediately if the requested edition version is already in the store
         if (!ignoreCache &&
-            this.store.state.edition.editionId &&
-            this.store.state.edition.editionId.versionId === editionId) {
-            return this.store.state.edition.editionId;
+            this.store.state.edition &&
+            this.store.state.edition.id === editionId) {
+            return this.store.state.edition;
         }
 
-        this.store.dispatch('edition/setEditionId', null); // Trigger a spinner on all views
+        this.store.dispatch('edition/setEdition', null); // Trigger a spinner on all views
         const response = await CommHelper.get<EditionGroupDTO>(`/v1/editions/${editionId}`);
 
         // Convert the server response into a single EditionInfo entity, putting all the other versions
@@ -58,17 +58,21 @@ class EditionService {
         const others = response.data.others.map((obj) => new EditionInfo(obj));
         primary.otherVersions = others;
 
-        this.store.dispatch('edition/setEditionId', primary);
+        this.store.dispatch('edition/setEdition', primary, { root: true });
         return primary;
     }
 
     public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
+        console.log('fetchEditionImagedObject called');
         if (!ignoreCache && this.store.state.edition.imagedObjects !== null) {
+            console.log('Returning cached list ', this.store.state.edition.imagedObjects);
             return this.store.state.edition.imagedObjects;
         }
 
-        const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.editionId.id);
-        this.store.dispatch('edition/setImagedObjects', imagedObjects);
+        console.log('Loading imaged objects from server');
+        const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.edition.id);
+        console.log('Imaged objects are: ', imagedObjects);
+        this.store.dispatch('edition/setImagedObjects', imagedObjects, { root: true });
         return imagedObjects;
     }
 
@@ -77,6 +81,7 @@ class EditionService {
             `/v1/editions/${editionId}/imaged-objects?optional=artefacts&optional=masks`
         );
 
+        console.log('Imaged objects DTOs are ', response.data);
         return response.data.imagedObjects.map((d) => new ImagedObject(d));
     }
 

@@ -51,7 +51,7 @@ class ImagedObjectService {
         let artefacts: Artefact[] = [];
         if (response.artefacts) {
             artefacts = response.artefacts.map((obj: any) => new Artefact(obj)).filter((a) => a.side === 'recto');
-        };
+        }
 
         return artefacts;
     }
@@ -110,17 +110,15 @@ class ImagedObjectService {
         return response.data;
     }
 
-    private _getCachedImagedObject(editionId: number, fragmentId: string): ImagedObject | undefined {
-        // debugger // TODO: check this.store.state.edition.editionId after refresh
-        if (!this.store.state.edition.editionId ||
-            editionId !== this.store.state.edition.editionId.versionId) {
+    private _getCachedImagedObject(editionId: number, imagedObjectId: string): ImagedObject | undefined {
+        if (!this.store.state.edition || editionId !== this.store.state.edition.id) {
             return undefined;
         }
         if (!this.store.state.edition.imagedObjects) {
             return undefined;
         }
 
-        return this.store.state.edition.imagedObjects.find((f: ImagedObject) => f.id === fragmentId);
+        return this.store.state.edition.imagedObjects.find((io: ImagedObject) => io.id === imagedObjectId);
     }
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {
