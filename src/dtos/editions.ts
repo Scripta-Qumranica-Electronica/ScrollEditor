@@ -34,3 +34,7 @@ export interface ShareDTO {
 export interface EditionUpdateRequestDTO {
     name: string;
 }
+
+export interface EditionCopyRequestDTO {
+    name: string;
+}

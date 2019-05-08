@@ -2,9 +2,8 @@ import { Store } from 'vuex';
 import { Communicator, CopyCombinationResponse, ServerError, Editions } from './communications';
 import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
-import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
-import { EditionListDTO, EditionGroupDTO } from '@/dtos/editions';
+import { EditionListDTO, EditionGroupDTO, EditionCopyRequestDTO, EditionDTO } from '@/dtos/editions';
 import { ImagedObjectListDTO } from '@/dtos/imaged-object';
 
 class EditionService {
@@ -63,11 +62,6 @@ class EditionService {
         return primary;
     }
 
-    public async copyEdition(editionId: number, name: string | undefined): Promise<number> {
-        const response = await this.communicator.copyEdition(`/v1/editions/${editionId}`, name);
-        return response.id;
-    }
-
     public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
         if (!ignoreCache && this.store.state.edition.imagedObjects !== null) {
             return this.store.state.edition.imagedObjects;
@@ -85,6 +79,17 @@ class EditionService {
 
         return response.data.imagedObjects.map((d) => new ImagedObject(d));
     }
+
+    public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {
+        const dto = {
+            name
+        } as EditionCopyRequestDTO;
+        const response = await CommHelper.post<EditionDTO>(`/v1/editions/${editionId}`, dto);
+
+        const newEdition = new EditionInfo(response.data);
+        return newEdition;
+    }
+
 }
 
 export default EditionService;

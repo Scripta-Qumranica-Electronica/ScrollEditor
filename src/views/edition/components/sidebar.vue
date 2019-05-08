@@ -119,14 +119,12 @@ export default Vue.extend({
             this.waiting = true;
             this.errorMessage = '';
             try {
-                const name = this.current.name !== this.newCopyName ? this.newCopyName : undefined;
-                const newEditionId = await this.editionService.copyEdition(this.current.id, name);
+                const newEdition = await this.editionService.copyEdition(this.current.id, this.newCopyName);
 
-                this.$store.dispatch('edition/setNewEditionId',
-                    newEditionId,
-                    {root: true});
+                this.$store.dispatch('edition/setNewEditionId', newEdition.id, {root: true});
+
                 this.$router.push({
-                    path: `/edition/${newEditionId}`,
+                    path: `/editions/${newEdition.id}`,
                 });
             } catch (err) {
                 this.errorMessage = err;
