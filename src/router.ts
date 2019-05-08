@@ -4,7 +4,7 @@ import Home from './views/home/Home.vue';
 import Edition from './views/edition/Edition.vue';
 import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
-import ImagedObjectEditor from './views/fragment-editor/ImagedObjectEditor.vue';
+import ImagedObjectEditor from './views/imaged-object-editor/ImagedObjectEditor.vue';
 
 Vue.use(Router);
 
@@ -34,7 +34,7 @@ export default new Router({
       }]
     },
     {
-      path: '/editions/:editionId/imaged-objects/:fragmentId',
+      path: '/editions/:editionId/imaged-objects/:imagedObjectId',
       component: ImagedObjectEditor,
     },
   ],
