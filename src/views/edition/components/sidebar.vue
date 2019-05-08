@@ -91,7 +91,7 @@ export default Vue.extend({
             if (this.$store.state.edition.imagedObjects) {
                 return this.$store.state.edition.imagedObjects.length;
             }
-            return 100;
+            return 0;
         },
         artefacts(): number {
             if (this.$store.state.edition.imagedObjects) {
@@ -101,7 +101,7 @@ export default Vue.extend({
                 });
                 return artLen;
             }
-            return 110;
+            return 0;
         }
     },
     methods: {

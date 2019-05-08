@@ -51,7 +51,7 @@ export class Artefact {
         this.mask = obj.mask ? Polygon.fromWkt(obj.mask.mask) : {} as Polygon;
         this.transformMatrix = obj.transformMatrix;
         this.zOrder = obj.zOrder;
-        this.side = (obj.side === 'recto' || obj.side === '0') ? 'recto' : 'verso';
+        this.side = (obj.side === 'recto' || obj.side === 0) ? 'recto' : 'verso';
     }
 
     private copyFrom(other: Artefact) {
