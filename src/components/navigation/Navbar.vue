@@ -86,6 +86,7 @@ export default Vue.extend({
 
 <style scoped>
 .white-link {
-    color: white
+    color: white;
+    text-decoration: none;
  }
 </style>
