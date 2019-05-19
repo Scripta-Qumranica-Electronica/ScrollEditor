@@ -436,11 +436,6 @@ export default Vue.extend({
       }
       this.saving = true;
       try {
-        await this.imagedObjectService.createArtefact(
-          this.editionId,
-          this.imagedObject,
-          this.artefact
-        );
         this.artefactEditingDataList.push(new ArtefactEditingData());
         this.showMessage('Artefact Created', false);
       } catch (err) {

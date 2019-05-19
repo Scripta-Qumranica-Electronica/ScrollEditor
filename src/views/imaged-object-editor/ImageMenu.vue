@@ -2,7 +2,7 @@
   <div id="image-menu" :class="{ 'fixed-header': scrolled }">
     <section>
       <h5>Artefacts</h5>
-      <table>
+      <table>  
         <tr v-for="art in artefacts" :key="art.id">
           <td>
             <span v-if="renameInputActive!==art" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
@@ -124,6 +124,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting, OptimizedArtefact } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
+import ImagedObjectService from '../../services/imaged-object';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
  * to create a modular container that holds this menu and the possible
@@ -153,6 +154,7 @@ export default Vue.extend({
   },
   data() {
     return {
+      imagedObjectService: new ImagedObjectService(this.$store),
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
@@ -254,21 +256,36 @@ export default Vue.extend({
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);
     },
-    newArtefact() {
-      // TODO--
+    async newArtefact() {
+      this.newArtefactName = this.newArtefactName.trim();
+
+      var newArtefact = {} as Artefact;
+      this.waiting = true;
+      this.errorMessage = '';
+      try {
+          newArtefact = await this.imagedObjectService.createArtefact(this.editionId, this.newArtefactName);
+          
+      } catch (err) {
+          this.errorMessage = err;
+      } finally {
+          this.waiting = false;
+      }
+
+
       // const newArtefact = Artefact.createNew(this.editionId, this.imagedObject, this.newArtefactName);
       // newArtefact.sqeImageId = this.imagedObject.recto!.sqeImageId;
       // if (!newArtefact.sqeImageId) {
       //   console.error('There is no sqeImageId in the imagedObject');
       //   newArtefact.sqeImageId = this.artefact.sqeImageId;
       // }
-      // this.$emit('create', newArtefact);
-      // // waiting = false after artefact added
-      // this.newArtefactName = '';
-      // (this.$refs.newArtRef as any).hide();
-      // this.chooseArtefact(newArtefact);
+      debugger
+      this.$emit('create', newArtefact);
+      // waiting = false after artefact added
+      this.newArtefactName = '';
+      (this.$refs.newArtRef as any).hide();
+      this.chooseArtefact(newArtefact);
 
-      // this.onDrawChanged('DRAW');
+      this.onDrawChanged('DRAW');
     },
     newModalShown() {
       // this.waiting = true;

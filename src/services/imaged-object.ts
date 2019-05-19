@@ -3,6 +3,9 @@ import { Communicator, NotFoundError } from './communications';
 import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
+import { CommHelper } from './comm-helper';
+import { ImagedObjectDTO } from '@/dtos/imaged-object';
+import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/artefact';
 
 export interface ArtefactCreateResult {
     returned_info: number;
@@ -56,32 +59,32 @@ class ImagedObjectService {
         return artefacts;
     }
 
-    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefact: Artefact):
-        Promise<ArtefactCreateResult> {
-        const mask = artefact.mask ? artefact.mask.wkt : '';
-        const createResponse = await this.communicator.request<ArtefactCreateResult>('addArtefact', {
-            scroll_version_id: editionId,
-            // id_of_sqe_image: artefact.sqeImageId, // TODO
-            region_in_master_image: ''
-        });
+    public async createArtefact(editionId: number, artefactName: string):
+        Promise<Artefact> {
+        // const mask = artefact.mask ? artefact.mask.wkt : '';
+        const body = {
+            masterImageId: 1,
+            mask: '',
+            name: artefactName,
+            position: '1'
 
-        artefact.id = createResponse.data.returned_info;
-        const nameResponse = await this.changeArtefactName(editionId, imagedObject, artefact);
-        const postResponse = await this.changeArtefactPosition(editionId, artefact);
+        } as CreateArtefactDTO;
+        const response = await CommHelper.post<ArtefactDTO>(`/v1/editions/${editionId}/artefacts`, body);
 
-        return Object.assign(createResponse.data, nameResponse, postResponse);
+        const artefact = new Artefact(response.data);
+        return artefact;
     }
 
     public async changeArtefactShape(editionId: number, imagedObject: ImagedObject, artefact: Artefact):
         Promise<ArtefactShapeChangedResult> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
-        const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactShape', {
-            scroll_version_id: editionId,
-            artefact_id: artefact.id,
-            region_in_master_image: mask,
-            // image_catalog_id: artefact.imageCatalogId, // TODO
-            // id_of_sqe_image: artefact.sqeImageId,
-        });
+        const body = {
+            mask,
+            name: artefact.name,
+            position: '1', // TODO: what is position?
+        } as UpdateArtefactDTO;
+
+        const response = await CommHelper.put<ArtefactDTO>(`/v1/editions/${editionId}/artefacts/${artefact.id}`, body);
         return response.data;
     }
 
