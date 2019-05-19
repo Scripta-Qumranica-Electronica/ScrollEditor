@@ -75,8 +75,8 @@ class ImagedObjectService {
         return artefact;
     }
 
-    public async changeArtefactShape(editionId: number, imagedObject: ImagedObject, artefact: Artefact):
-        Promise<ArtefactShapeChangedResult> {
+    public async changeArtefact(editionId: number, artefact: Artefact):
+        Promise<ArtefactDTO> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
         const body = {
             mask,
@@ -102,16 +102,16 @@ class ImagedObjectService {
         return response.data;
     }
 
-    public async changeArtefactName(editionId: number, fragment: ImagedObject, artefact: Artefact):
-        Promise<ArtefactNameChangedResult> {
-        const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
-            scroll_version_id: editionId,
-            artefact_id: artefact.id,
-            name: artefact.name
-        });
+    //     public async changeArtefactName(editionId: number, fragment: ImagedObject, artefact: Artefact):
+    //     Promise<ArtefactNameChangedResult> {
+    //     const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
+    //         scroll_version_id: editionId,
+    //         artefact_id: artefact.id,
+    //         name: artefact.name
+    //     });
 
-        return response.data;
-    }
+    //     return response.data;
+    // }
 
     private _getCachedImagedObject(editionId: number, imagedObjectId: string): ImagedObject | undefined {
         if (!this.store.state.edition || editionId !== this.store.state.edition.id) {

@@ -109,7 +109,7 @@
             </form>
         </b-modal>
     </section>
-    <section class="center-btn">
+    <section class="center-btn" v-if="editable">
       <b-button  v-if="!saving" @click="save()">Save</b-button>
       <b-button v-if="saving" disabled class="disable">
         Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
@@ -259,12 +259,11 @@ export default Vue.extend({
     async newArtefact() {
       this.newArtefactName = this.newArtefactName.trim();
 
-      var newArtefact = {} as Artefact;
+      let newArtefact = {} as Artefact;
       this.waiting = true;
       this.errorMessage = '';
       try {
           newArtefact = await this.imagedObjectService.createArtefact(this.editionId, this.newArtefactName);
-          
       } catch (err) {
           this.errorMessage = err;
       } finally {
@@ -278,7 +277,6 @@ export default Vue.extend({
       //   console.error('There is no sqeImageId in the imagedObject');
       //   newArtefact.sqeImageId = this.artefact.sqeImageId;
       // }
-      debugger
       this.$emit('create', newArtefact);
       // waiting = false after artefact added
       this.newArtefactName = '';

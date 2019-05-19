@@ -377,23 +377,27 @@ export default Vue.extend({
       }
 
       this.saving = true;
-      try {
-        this.optimizedArtefacts.forEach(async (art, index) => {
-          if (this.artefactEditingDataList[index].dirty) {
-            await this.imagedObjectService.changeArtefactShape(
+
+      this.optimizedArtefacts.forEach(async (art, index) => {
+        if (this.artefactEditingDataList[index].dirty) {
+          try {
+            await this.imagedObjectService.changeArtefact(
               this.editionId,
-              this.imagedObject,
               art
             );
+          
             this.artefactEditingDataList[index].dirty = false;
+            if (index === this.optimizedArtefacts.length-1) {
+              this.showMessage('Imaged Object Saved', false);
+            }
+          } catch (err) {
+            this.showMessage('Imaged Object Save Failed', true);
+            return;
+          } finally {
+            this.saving = false;
           }
-        });
-        this.showMessage('Imaged Object Saved', false);
-      } catch (err) {
-        this.showMessage('Imaged Object Save Failed', true);
-      } finally {
-        this.saving = false;
-      }
+        }
+      });
     },
     onUndo() {
       if (!this.artefact) {
@@ -450,9 +454,8 @@ export default Vue.extend({
       }
       this.renaming = true;
       try {
-        await this.imagedObjectService.changeArtefactName(
+        await this.imagedObjectService.changeArtefact(
           this.editionId,
-          this.imagedObject,
           this.artefact
         );
         this.showMessage('Artefact renamed', false);
