@@ -385,9 +385,8 @@ export default Vue.extend({
               this.editionId,
               art
             );
-          
             this.artefactEditingDataList[index].dirty = false;
-            if (index === this.optimizedArtefacts.length-1) {
+            if (index === this.optimizedArtefacts.length - 1) {
               this.showMessage('Imaged Object Saved', false);
             }
           } catch (err) {
