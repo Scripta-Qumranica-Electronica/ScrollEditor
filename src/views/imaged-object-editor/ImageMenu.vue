@@ -290,7 +290,8 @@ export default Vue.extend({
       this.waiting = true;
       this.errorMessage = '';
       try {
-          newArtefact = await this.imagedObjectService.createArtefact(this.editionId, this.newArtefactName);
+        newArtefact = await this.imagedObjectService.createArtefact
+        (this.editionId, this.imagedObject, this.newArtefactName);
       } catch (err) {
           this.errorMessage = err;
       } finally {

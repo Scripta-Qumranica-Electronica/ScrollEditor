@@ -5,26 +5,26 @@ import { Side } from './misc';
 
 
 export class Artefact {
-    public static createNew(editionId: number, imagedObject: ImagedObject, name: string, id: number) {
-         // editionId: EditionInfo
-        const artefact = new Artefact({
-            id,
-            editionId, // editionId.versionId,
-            imagedObjectId: imagedObject.id,
-            name,
-            mask: new Polygon(''),
-            transformMatrix: '',
-            zOrder: 1,
-            side: 'recto',
-        } as Artefact);
+    // public static createNew(editionId: number, imagedObject: ImagedObject, name: string, id: number) {
+    //      // editionId: EditionInfo
+    //     const artefact = new Artefact({
+    //         id,
+    //         editionId, // editionId.versionId,
+    //         imagedObjectId: imagedObject.id,
+    //         name,
+    //         mask: new Polygon(''),
+    //         transformMatrix: '',
+    //         zOrder: 1,
+    //         side: 'recto',
+    //     } as Artefact);
 
-        if (!imagedObject.artefacts) {
-            imagedObject.artefacts = [];
-        }
-        imagedObject.artefacts.push(artefact);
+    //     if (!imagedObject.artefacts) {
+    //         imagedObject.artefacts = [];
+    //     }
+    //     imagedObject.artefacts.push(artefact);
 
-        return artefact;
-    }
+    //     return artefact;
+    // }
 
     // Default values specified to remove an error - we initialize them in the constructor or in copyFrom.
     // Typescript does not approve of that and shows an error, because it doesn't analyze copyFrom.

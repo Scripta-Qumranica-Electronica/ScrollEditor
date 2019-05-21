@@ -47,23 +47,29 @@ class ImagedObjectService {
             throw new Error('ImagedObject has no recto information');
         }
 
-        const response = await this.communicator.getImagedObject(
+        const response = await CommHelper.get<ImagedObjectDTO>(
             `/v1/editions/${editionId}/imaged-objects/${imagedObject.id}?optional=artefacts&optional=masks`
         );
 
         let artefacts: Artefact[] = [];
-        if (response.artefacts) {
-            artefacts = response.artefacts.map((obj: any) => new Artefact(obj)).filter((a) => a.side === 'recto');
+        if (response.data.artefacts) {
+            artefacts = response.data.artefacts.map((obj: any) => new Artefact(obj)).filter((a) => a.side === 'recto');
         }
 
         return artefacts;
     }
 
-    public async createArtefact(editionId: number, artefactName: string):
+    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string):
         Promise<Artefact> {
         // const mask = artefact.mask ? artefact.mask.wkt : '';
+        let masterImageId = 0;
+        imagedObject.recto!.images.forEach((element) => {
+            if (element.master) {
+                masterImageId = element.id;
+            }
+        });
         const body = {
-            masterImageId: 1,
+            masterImageId,
             mask: '',
             name: artefactName,
             position: '1'
