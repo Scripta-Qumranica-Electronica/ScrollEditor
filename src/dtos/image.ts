@@ -12,6 +12,7 @@ export interface ImageDTO {
     transformToMaster: string;
     master: boolean;
     catalogNumber: number;
+    id: number;
 }
 
 export interface ImageListDTO {

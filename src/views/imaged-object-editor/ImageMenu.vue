@@ -1,25 +1,34 @@
 <template>
-  <div id="image-menu" :class="{ 'fixed-header': scrolled }">
+  <div id="image-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
     <section>
-      <h5>Artefacts</h5>
-      <table>
-        <tr v-for="art in artefacts" :key="art.id">
-          <td>
-            <span v-if="renameInputActive!==art" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
-          </td>
-          <td v-if="editable">
-            <b-button v-if="renameInputActive!==art" class="btn btn-sm" @click="openRename(art)">Rename</b-button>
-            <input v-if="renameInputActive===art" v-model="art.name" />
-            <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art)">Rename</b-button>
-            <b-button v-if="renameInputActive===art && renaming" disabled class="disable btn btn-sm">
-            Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
-            </b-button>
-          </td>
-        </tr>
-      </table>
-      <b-btn v-if="editable" v-b-modal.modal="'newModal'" class="btn btn-sm btn-outline">{{ $t('misc.new') }}</b-btn>
+      <b-card no-body class="mb-1">
+        <b-card-header header-tag="header" class="p-1" role="tab">
+          <b-button block href="#" v-b-toggle.accordion-artefacts variant="info">Artefacts</b-button>
+        </b-card-header>
+        <b-collapse id="accordion-artefacts" visible accordion="my-accordion" role="tabpanel">
+          <b-card-body>
+            <table>  
+              <tr v-for="art in artefacts" :key="art.id">
+                <td>
+                  <span v-if="renameInputActive!==art" :class="{ selected: art===artefact }" @click="chooseArtefact(art)" :style="{'color': art.color}">{{ art.name }}</span>
+                </td>
+                <td v-if="editable">
+                  <b-button v-if="renameInputActive!==art" class="btn btn-sm" id="rename" @click="openRename(art)">Rename</b-button>
+                  <input v-if="renameInputActive===art" v-model="art.name" />
+                  <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art)">Rename</b-button>
+                  <b-button v-if="renameInputActive===art && renaming" disabled class="disable btn btn-sm">
+                  Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+                  </b-button>
+                </td>
+              </tr>
+            </table>
+            <b-btn v-if="editable" v-b-modal.modal="'newModal'" class="btn btn-sm btn-outline">{{ $t('misc.new') }}</b-btn>
+          </b-card-body>
+        </b-collapse>
+      </b-card>
+    </section>
 
-      <b-modal id="newModal" 
+    <b-modal id="newModal" 
                  ref="newArtRef"
                  :title="$t('home.newArtefact')"
                  @shown="newModalShown"
@@ -46,74 +55,92 @@
                 </p>
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
             </form>
-        </b-modal>
-    </section>
+      </b-modal>
+
     <section>
-      <h5>Images</h5>
-      <single-image-setting v-for="imageType in imagedObject.recto.availableImageTypes" :key="imageType" 
-                            :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged(imageType, $event)">
-      </single-image-setting>
+      <b-card no-body class="mb-1">
+        <b-card-header header-tag="header" class="p-1" role="tab">
+          <b-button block href="#" v-b-toggle.accordion-images variant="info">Images</b-button>
+        </b-card-header>
+        <b-collapse id="accordion-images" accordion="my-accordion" role="tabpanel">
+          <b-card-body>
+            <single-image-setting v-for="imageType in imagedObject.recto.availableImageTypes" :key="imageType" 
+                              :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged(imageType, $event)">
+            </single-image-setting>
+          </b-card-body>
+        </b-collapse>
+      </b-card>
     </section>
+
     <section>
-      <!-- zoom -->
-      <div class="row">
-        <div class="col-5">
-          Zoom: {{formatTooltip()}}
-        </div>
-        <div class="col">          
-          <b-form-input ref="zoomRef" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input> <!-- v-b-tooltip.hover :title="formatTooltip()"-->
-        </div>
-      </div>
+      <b-card no-body class="mb-1">
+        <b-card-header header-tag="header" class="p-1" role="tab">
+          <b-button block href="#" v-b-toggle.accordion-params variant="info">Editor parametes</b-button>
+        </b-card-header>
+        <b-collapse id="accordion-params" accordion="my-accordion" role="tabpanel">
+          <b-card-body>
+            <section>
+              <!-- zoom -->
+              <div class="row">
+                <div class="col-5">
+                  Zoom: {{formatTooltip()}}
+                </div>
+                <div class="col">          
+                  <b-form-input ref="zoomRef" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input> <!-- v-b-tooltip.hover :title="formatTooltip()"-->
+                </div>
+              </div>
+            </section>
+            <section>
+              <div class="row">
+                <div class="col-5">
+                  Brush Size: {{brushSize}}
+                </div>
+                <div class="col">          
+                  <b-form-input type="range" min="2" max="40" step="1"  v-model="brushSize"></b-form-input>
+                </div>
+              </div>
+            </section>
+            <section v-if="artefact.mask">
+              <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
+            </section>
+          </b-card-body>
+        </b-collapse>
+      </b-card>
     </section>
+
     <section>
-      <div class="row">
-        <div class="col-5">
-          Brush Size: {{brushSize}}
-        </div>
-        <div class="col">          
-          <b-form-input type="range" min="2" max="40" step="1"  v-model="brushSize"></b-form-input>
-        </div>
-      </div>
-    </section>
-    <section v-if="artefact.mask">
-      <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
-    </section>
-    <section class="center-btn">
-      <b-button @click="onRotateClick(-90)"><font-awesome-icon icon="undo"></font-awesome-icon></b-button>
-      <b-button @click="onRotateClick(90)"><font-awesome-icon icon="redo"></font-awesome-icon></b-button>
-    </section>
-    <section class="center-btn" v-if="editable">
-        <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" 
-        :key="mode.val" @click="onDrawChanged(mode.val)" 
-        :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
-    </section>
-    <section class="center-btn" v-if="editable" v-shortcuts="[
-      { shortcut: [ 'arrowright' ], callback: redoModal },
-      { shortcut: [ 'arrowleft' ], callback: undoModal },
-    ]">
-     
-      <b-button @click="undo()">Undo</b-button>
-      <b-button @click="redo()">Redo</b-button>
-      
-      <b-modal id="undoModal" 
-                 ref="undoRef"
-                 :title="$t('home.undo')"
-                 @shown="undoModalShown"
-                 @ok="undo"
-                 :ok-title="$t('misc.undo')"
-                 :cancel-title="$t('misc.cancel')"
-                 :ok-disabled="waiting || !canUndo"
-                 :cancel-disabled="waiting">
-            <form @submit.stop.prevent="undo">
-              <label>....</label>
-            </form>
-        </b-modal>
-    </section>
-    <section class="center-btn">
-      <b-button  v-if="!saving" @click="save()">Save</b-button>
-      <b-button v-if="saving" disabled class="disable">
-        Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
-      </b-button>
+      <b-card no-body class="mb-1">
+        <b-card-header header-tag="header" class="p-1" role="tab">
+          <b-button block href="#" v-b-toggle.accordion-actions variant="info">Actions</b-button>
+        </b-card-header>
+        <b-collapse id="accordion-actions" accordion="my-accordion" role="tabpanel">
+          <b-card-body>
+            <section class="center-btn">
+              <b-button @click="onRotateClick(-90)"><font-awesome-icon icon="undo"></font-awesome-icon></b-button>
+              <b-button @click="onRotateClick(90)"><font-awesome-icon icon="redo"></font-awesome-icon></b-button>
+            </section>
+            <section class="center-btn" v-if="editable">
+                <b-button v-for="mode in [{name: 'Draw', val:'DRAW'}, {name: 'Erase', val: 'ERASE'}]" 
+                :key="mode.val" @click="onDrawChanged(mode.val)" 
+                :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
+            </section>
+            <section class="center-btn" v-if="editable" v-shortcuts="[
+              { shortcut: [ 'arrowright' ], callback: redoModal },
+              { shortcut: [ 'arrowleft' ], callback: undoModal },
+            ]">
+            
+              <b-button @click="undo()">Undo</b-button>
+              <b-button @click="redo()">Redo</b-button>
+            </section>
+            <section class="center-btn" v-if="editable">
+              <b-button  v-if="!saving" @click="save()">Save</b-button>
+              <b-button v-if="saving" disabled class="disable">
+                Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+              </b-button>
+            </section>
+          </b-card-body>
+        </b-collapse>
+      </b-card>
     </section>
 </div>
 </template>
@@ -124,6 +151,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting, OptimizedArtefact } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
+import ImagedObjectService from '../../services/imaged-object';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
  * to create a modular container that holds this menu and the possible
@@ -153,6 +181,7 @@ export default Vue.extend({
   },
   data() {
     return {
+      imagedObjectService: new ImagedObjectService(this.$store),
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
@@ -254,21 +283,35 @@ export default Vue.extend({
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);
     },
-    newArtefact() {
-      // TODO--
+    async newArtefact() {
+      this.newArtefactName = this.newArtefactName.trim();
+
+      let newArtefact = {} as Artefact;
+      this.waiting = true;
+      this.errorMessage = '';
+      try {
+        newArtefact = await this.imagedObjectService.createArtefact
+        (this.editionId, this.imagedObject, this.newArtefactName);
+      } catch (err) {
+          this.errorMessage = err;
+      } finally {
+          this.waiting = false;
+      }
+
+
       // const newArtefact = Artefact.createNew(this.editionId, this.imagedObject, this.newArtefactName);
       // newArtefact.sqeImageId = this.imagedObject.recto!.sqeImageId;
       // if (!newArtefact.sqeImageId) {
       //   console.error('There is no sqeImageId in the imagedObject');
       //   newArtefact.sqeImageId = this.artefact.sqeImageId;
       // }
-      // this.$emit('create', newArtefact);
-      // // waiting = false after artefact added
-      // this.newArtefactName = '';
-      // (this.$refs.newArtRef as any).hide();
-      // this.chooseArtefact(newArtefact);
+      this.$emit('create', newArtefact);
+      // waiting = false after artefact added
+      this.newArtefactName = '';
+      (this.$refs.newArtRef as any).hide();
+      this.chooseArtefact(newArtefact);
 
-      // this.onDrawChanged('DRAW');
+      this.onDrawChanged('DRAW');
     },
     newModalShown() {
       // this.waiting = true;
@@ -301,9 +344,16 @@ button.disable {
 }
 button {
   margin-right: 10px;
-  margin-left: 10px;
 }
 section.center-btn {
   text-align: center;
+}
+.btn-info {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+#rename {
+  margin-left: 20px;
+  margin-right: -20px;
 }
 </style>

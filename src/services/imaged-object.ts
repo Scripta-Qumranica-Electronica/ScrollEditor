@@ -3,6 +3,9 @@ import { Communicator, NotFoundError } from './communications';
 import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
+import { CommHelper } from './comm-helper';
+import { ImagedObjectDTO } from '@/dtos/imaged-object';
+import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/artefact';
 
 export interface ArtefactCreateResult {
     returned_info: number;
@@ -44,44 +47,50 @@ class ImagedObjectService {
             throw new Error('ImagedObject has no recto information');
         }
 
-        const response = await this.communicator.getImagedObject(
+        const response = await CommHelper.get<ImagedObjectDTO>(
             `/v1/editions/${editionId}/imaged-objects/${imagedObject.id}?optional=artefacts&optional=masks`
         );
 
         let artefacts: Artefact[] = [];
-        if (response.artefacts) {
-            artefacts = response.artefacts.map((obj: any) => new Artefact(obj)).filter((a) => a.side === 'recto');
+        if (response.data.artefacts) {
+            artefacts = response.data.artefacts.map((obj: any) => new Artefact(obj)).filter((a) => a.side === 'recto');
         }
 
         return artefacts;
     }
 
-    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefact: Artefact):
-        Promise<ArtefactCreateResult> {
-        const mask = artefact.mask ? artefact.mask.wkt : '';
-        const createResponse = await this.communicator.request<ArtefactCreateResult>('addArtefact', {
-            scroll_version_id: editionId,
-            // id_of_sqe_image: artefact.sqeImageId, // TODO
-            region_in_master_image: ''
+    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string):
+        Promise<Artefact> {
+        // const mask = artefact.mask ? artefact.mask.wkt : '';
+        let masterImageId = 0;
+        imagedObject.recto!.images.forEach((element) => {
+            if (element.master) {
+                masterImageId = element.id;
+            }
         });
+        const body = {
+            masterImageId,
+            mask: '',
+            name: artefactName,
+            position: '1'
 
-        artefact.id = createResponse.data.returned_info;
-        const nameResponse = await this.changeArtefactName(editionId, imagedObject, artefact);
-        const postResponse = await this.changeArtefactPosition(editionId, artefact);
+        } as CreateArtefactDTO;
+        const response = await CommHelper.post<ArtefactDTO>(`/v1/editions/${editionId}/artefacts`, body);
 
-        return Object.assign(createResponse.data, nameResponse, postResponse);
+        const artefact = new Artefact(response.data);
+        return artefact;
     }
 
-    public async changeArtefactShape(editionId: number, imagedObject: ImagedObject, artefact: Artefact):
-        Promise<ArtefactShapeChangedResult> {
+    public async changeArtefact(editionId: number, artefact: Artefact):
+        Promise<ArtefactDTO> {
         const mask = artefact.mask ? artefact.mask.wkt : '';
-        const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactShape', {
-            scroll_version_id: editionId,
-            artefact_id: artefact.id,
-            region_in_master_image: mask,
-            // image_catalog_id: artefact.imageCatalogId, // TODO
-            // id_of_sqe_image: artefact.sqeImageId,
-        });
+        const body = {
+            mask,
+            name: artefact.name,
+            position: '1', // TODO: what is position?
+        } as UpdateArtefactDTO;
+
+        const response = await CommHelper.put<ArtefactDTO>(`/v1/editions/${editionId}/artefacts/${artefact.id}`, body);
         return response.data;
     }
 
@@ -99,16 +108,16 @@ class ImagedObjectService {
         return response.data;
     }
 
-    public async changeArtefactName(editionId: number, fragment: ImagedObject, artefact: Artefact):
-        Promise<ArtefactNameChangedResult> {
-        const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
-            scroll_version_id: editionId,
-            artefact_id: artefact.id,
-            name: artefact.name
-        });
+    //     public async changeArtefactName(editionId: number, fragment: ImagedObject, artefact: Artefact):
+    //     Promise<ArtefactNameChangedResult> {
+    //     const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
+    //         scroll_version_id: editionId,
+    //         artefact_id: artefact.id,
+    //         name: artefact.name
+    //     });
 
-        return response.data;
-    }
+    //     return response.data;
+    // }
 
     private _getCachedImagedObject(editionId: number, imagedObjectId: string): ImagedObject | undefined {
         if (!this.store.state.edition || editionId !== this.store.state.edition.id) {

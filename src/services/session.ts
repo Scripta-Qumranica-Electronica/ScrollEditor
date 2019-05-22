@@ -30,7 +30,7 @@ class SessionService {
             userName,
             password
         } as LoginRequestDTO;
-        const response = await CommHelper.post<LoginResponseDTO>('/v1/user/login', requestDto, false);
+        const response = await CommHelper.post<LoginResponseDTO>('/v1/users/login', requestDto, false);
 
         this.store.dispatch('session/logIn', {
             userId: response.data.userId,
@@ -50,7 +50,7 @@ class SessionService {
         }
 
         try {
-            await CommHelper.get<UserDTO>('/v1/user');  // The server returns a 401 error if the user is not logged in
+            await CommHelper.get<UserDTO>('/v1/users');  // The server returns a 401 error if the user is not logged in
             // await this.communicator.getRequest<ValidateTokenResponse>('/v1/user');
             return true;
         } catch (error) {

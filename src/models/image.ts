@@ -45,6 +45,7 @@ export class Image extends IIIFImage {
     public transformToMaster: string;
     public master: boolean;
     public catalogNumber: number;
+    public id: number;
 
     constructor(dto: ImageDTO) {
         super(dto.url);
@@ -56,6 +57,7 @@ export class Image extends IIIFImage {
         this.transformToMaster = dto.transformToMaster;
         this.master = dto.master;
         this.catalogNumber = dto.catalogNumber;
+        this.id = dto.id;
     }
 }
 

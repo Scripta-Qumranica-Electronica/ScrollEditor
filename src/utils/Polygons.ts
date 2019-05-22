@@ -167,6 +167,9 @@ export class Polygon {
     private normalizeSvg(svg: string): string {
         // Sometimes SVGs have spaces between commands and numbers, which breaks some canvases (on Chrome, at least)
         // So we normalize them. Our problem is with spaces around Ls, so that's the only thing we fix
+        if (!svg) {
+            return '';
+        }
         return svg.replace(/ L /g, 'L');
     }
 }

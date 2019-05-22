@@ -25,3 +25,16 @@ export interface ArtefactListDTO {
 export interface ArtefactDesignationListDTO {
     artefactDesignations: ArtefactDesignationDTO[];
 }
+
+export interface UpdateArtefactDTO {
+    mask: string;
+    name: string;
+    position: string;
+}
+
+export interface CreateArtefactDTO {
+    masterImageId: number;
+    mask: string;
+    name: string;
+    position: string;
+}
