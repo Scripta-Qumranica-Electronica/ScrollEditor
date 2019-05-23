@@ -96,13 +96,12 @@ class ImagedObjectService {
 
     public async changeArtefactPosition(editionId: number, artefact: Artefact):
         Promise<ArtefactPositionChangedResult> {
-        const transformMatrix = artefact.transformMatrix ?
-            artefact.transformMatrix :
-            '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
+        // const transformMatrix = artefact.transformMatrix ?
+        //     artefact.transformMatrix :
+        //     '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
         const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactPosition', {
             scroll_version_id: editionId,
             artefact_id: artefact.id,
-            transform_matrix: transformMatrix,
             z_index: null // I think z-index will be removed
         });
         return response.data;

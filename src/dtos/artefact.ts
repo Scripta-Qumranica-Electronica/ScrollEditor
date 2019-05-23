@@ -6,7 +6,6 @@ export interface ArtefactDTO {
     imagedObjectId: string;
     name: string;
     mask: PolygonDTO;
-    transformMatrix: string;
     zOrder: number;
     side: 'recto' | 'verso' | number;  // The server returns 0 and 1, which will be fixed in the future
 }
