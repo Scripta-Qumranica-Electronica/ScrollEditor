@@ -26,7 +26,7 @@ export interface LoginResponse {
     token: string;
 }
 
-export interface CopyCombinationResponse {
+export interface CopyEditionResponse {
     new_scroll_id: number;
 }
 

@@ -83,7 +83,7 @@ class ImagedObjectService {
 
     public async changeArtefact(editionId: number, artefact: Artefact):
         Promise<ArtefactDTO> {
-        const mask = artefact.mask ? artefact.mask.wkt : '';
+        const mask = artefact.mask ? artefact.mask.polygon.wkt : '';
         const body = {
             mask,
             name: artefact.name,

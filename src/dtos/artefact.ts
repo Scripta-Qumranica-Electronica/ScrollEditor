@@ -7,7 +7,7 @@ export interface ArtefactDTO {
     name: string;
     mask: PolygonDTO;
     zOrder: number;
-    side: 'recto' | 'verso' | number;  // The server returns 0 and 1, which will be fixed in the future
+    side: 'recto' | 'verso';
 }
 
 export interface ArtefactDesignationDTO {

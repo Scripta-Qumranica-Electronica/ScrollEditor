@@ -1,5 +1,5 @@
 import { Store } from 'vuex';
-import { Communicator, CopyCombinationResponse, ServerError, Editions } from './communications';
+import { Communicator, ServerError } from './communications';
 import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { CommHelper } from './comm-helper';
@@ -70,7 +70,7 @@ class EditionService {
         }
 
         console.log('Loading imaged objects from server');
-        const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.edition.id);
+        const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.current.id);
         console.log('Imaged objects are: ', imagedObjects);
         this.store.dispatch('edition/setImagedObjects', imagedObjects, { root: true });
         return imagedObjects;

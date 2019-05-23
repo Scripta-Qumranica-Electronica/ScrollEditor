@@ -2,6 +2,7 @@ import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from './imaged-object';
 import { ArtefactDTO } from '@/dtos/artefact';
 import { Side } from './misc';
+import { Mask } from '@/utils/Mask';
 
 
 export class Artefact {
@@ -11,7 +12,9 @@ export class Artefact {
     public editionId = 0;
     public imagedObjectId = '';
     public name = '';
-    public mask = {} as Polygon;
+    public mask: Mask = {} as Mask;
+    // public mask = {} as Polygon;
+    // public transformMatrix = undefined as any; // TODO: Change to matrix type?
     public zOrder = 0;
     public side: Side = 'recto';
 
@@ -26,9 +29,11 @@ export class Artefact {
         this.editionId = obj.editionId;
         this.imagedObjectId = obj.imagedObjectId;
         this.name = obj.name;
-        this.mask = obj.mask ? Polygon.fromWkt(obj.mask.mask) : {} as Polygon;
+        // this.mask = obj.mask ? Polygon.fromWkt(obj.mask.mask) : {} as Polygon;
+        this.mask = new Mask(obj.mask);
+        // this.transformMatrix = obj instanceof Artefact ? obj.transformMatrix : obj.mask.transformMatrix;
         this.zOrder = obj.zOrder;
-        this.side = (obj.side === 'recto' || obj.side === 0) ? 'recto' : 'verso';
+        this.side = (obj.side === 'recto') ? 'recto' : 'verso';
     }
 
     private copyFrom(other: Artefact) {
@@ -37,6 +42,7 @@ export class Artefact {
         this.imagedObjectId = other.imagedObjectId;
         this.name = other.name;
         this.mask = other.mask;
+        // this.transformMatrix = other.transformMatrix;
         this.zOrder = other.zOrder;
         this.side = other.side;
     }

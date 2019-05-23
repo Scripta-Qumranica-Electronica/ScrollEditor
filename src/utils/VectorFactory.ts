@@ -114,7 +114,7 @@ export function wktParseRect(wkt: any) {
  * This function receives an SVG path and
  * converts it to a WKT Polygon.
  */
-export function svgPolygonToWKT(svg: any) {
+export function svgPolygonToWKT(svg: string) {
   if (!svg || svg === '') {
     return '';
   }
@@ -161,7 +161,7 @@ export function svgPolygonToWKT(svg: any) {
  * This function receives an SVG path and
  * converts it to a GeoJSON Polygon.
  */
-export function svgPolygonToGeoJSON(svg: any) {
+export function svgPolygonToGeoJSON(svg: string) {
   if (!svg || svg === '') {
     return '';
   }
