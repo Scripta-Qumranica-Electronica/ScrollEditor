@@ -3,15 +3,16 @@ import { EditionState, RootState } from './types';
 
 
 const editionState: EditionState = {
-    editionId: null,
+    current: null,
     newEditionId: null,
     imagedObjects: null,
 };
 
 
 const mutations: MutationTree<EditionState> = {
-    SET_EDITION_ID(state, editionId) {
-        state.editionId = editionId;
+    SET_EDITION(state, edition) {
+        console.log('Mutation SET_EDITION called with ', edition);
+        state.current = edition;
     },
 
     SET_NEW_EDITION_ID(state, newEditionId) {
@@ -19,19 +20,21 @@ const mutations: MutationTree<EditionState> = {
     },
 
     SET_IMAGED_OBJECTS(state, imagedObjects) {
+        console.debug('Mutation SET_IMAGED_OBJECTS called with ', imagedObjects);
         state.imagedObjects = imagedObjects;
     },
 
     RESET_DATA(state) {
-        state.editionId = null;
+        state.current = null;
         state.newEditionId = null;
         state.imagedObjects = null;
     }
 };
 
 const actions: ActionTree<EditionState, RootState> = {
-    setEditionId(context, editionId) {
-        context.commit('SET_EDITION_ID', editionId);
+    setEdition(context, edition) {
+        console.debug('Action edition/SET_EDITION called with ', edition);
+        context.commit('SET_EDITION', edition);
         context.commit('SET_IMAGED_OBJECTS', null);
     },
 
@@ -39,7 +42,8 @@ const actions: ActionTree<EditionState, RootState> = {
         context.commit('SET_NEW_EDITION_ID', newEditionId);
     },
 
-    setFragments(context, imagedObjects) {
+    setImagedObjects(context, imagedObjects) {
+        console.debug('Action edition/setImagedObject called with ', imagedObjects);
         context.commit('SET_IMAGED_OBJECTS', imagedObjects);
     },
 

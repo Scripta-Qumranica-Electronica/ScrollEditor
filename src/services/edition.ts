@@ -1,8 +1,10 @@
 import { Store } from 'vuex';
-import { Communicator, CopyCombinationResponse, ServerError, Editions } from './communications';
-import { EditionGroupInfo, EditionInfo, AllEditions } from '@/models/edition';
-import { ImagedObjectSimple } from '@/models/imagedObject';
-import { Artefact } from '@/models/artefact';
+import { Communicator, ServerError } from './communications';
+import { EditionInfo, AllEditions } from '@/models/edition';
+import { ImagedObject } from '@/models/imaged-object';
+import { CommHelper } from './comm-helper';
+import { EditionListDTO, EditionGroupDTO, EditionCopyRequestDTO, EditionDTO } from '@/dtos/editions';
+import { ImagedObjectListDTO } from '@/dtos/imaged-object';
 
 class EditionService {
     private communicator: Communicator;
@@ -10,23 +12,24 @@ class EditionService {
         this.communicator = new Communicator(this.store);
     }
 
-    public async listScrolls(): Promise<AllEditions> {
-        const response = await this.communicator.getList('/v1/editions');
+    public async listEditions(): Promise<AllEditions> {
+        const response = await CommHelper.get<EditionListDTO>('/v1/editions');
         const editionList = [] as EditionInfo[];
         const myEditionList = [] as EditionInfo[];
         const self = this;
-        response.result.map((obj) => { // group
-            const publicCount = obj.filter((element: any) => element.isPublic);
-            const myCount = obj.filter((element: any) =>
+
+        response.data.editions.map((obj) => { // group
+            const publicEditions = obj.filter((element: any) => element.isPublic);
+            const myEditions = obj.filter((element: any) =>
                 element.owner.userId.toString() === self.store.state.session.userId);
 
-            if (myCount.length) {
-                myEditionList.push(new EditionInfo(myCount[0]));
+            if (myEditions.length) {
+                myEditionList.push(new EditionInfo(myEditions[0]));
                 // TODO: add myCount.length or shares length ?
             }
-            if (publicCount.length) {
-                const editionInfo = new EditionInfo(publicCount[0]);
-                editionInfo.publicCopies = publicCount.length; // update number of public scrolls
+            if (publicEditions.length) {
+                const editionInfo = new EditionInfo(publicEditions[0]);
+                editionInfo.publicCopies = publicEditions.length; // update number of public scrolls
                 editionList.push(editionInfo);
             }
         });
@@ -38,52 +41,60 @@ class EditionService {
         // Fetches a edition version from the server and puts it in the store.
         // Returns immediately if the requested edition version is already in the store
         if (!ignoreCache &&
-            this.store.state.edition.editionId &&
-            this.store.state.edition.editionId.versionId === editionId) {
-            return this.store.state.edition.editionId;
+            this.store.state.edition &&
+            this.store.state.edition.id === editionId) {
+            return this.store.state.edition;
         }
 
-        this.store.dispatch('edition/setEditionId', null); // Trigger a spinner on all views
-        const response = await this.communicator.getEdition(`/v1/editions/${editionId}`);
+        this.store.dispatch('edition/setEdition', null); // Trigger a spinner on all views
+        const response = await CommHelper.get<EditionGroupDTO>(`/v1/editions/${editionId}`);
 
         // Convert the server response into a single EditionInfo entity, putting all the other versions
         // in its otherVersions array
-        const primary = new EditionInfo(response.primary);
+        const primary = new EditionInfo(response.data.primary);
         if (!primary) {
             throw new ServerError( { error: 'Server did not return the version we asked for' } );
         }
-        const others = response.others.map((obj) => new EditionInfo(obj));
+        const others = response.data.others.map((obj) => new EditionInfo(obj));
         primary.otherVersions = others;
 
-        this.store.dispatch('edition/setEditionId', primary);
+        this.store.dispatch('edition/setEdition', primary, { root: true });
         return primary;
     }
 
-    public async copyEdition(editionId: number, name: string | undefined): Promise<number> {
-        const response = await this.communicator.copyEdition(`/v1/editions/${editionId}`, name);
-        return response.id;
-    }
-
-    public async renameEdition(editionId: number, newName: string): Promise<void> {
-        await this.communicator.renameEdition(`/v1/editions/${editionId}`, newName);
-    }
-
-    public async fetchEditionFragments(ignoreCache = false): Promise<ImagedObjectSimple[]> {
+    public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
+        console.log('fetchEditionImagedObject called');
         if (!ignoreCache && this.store.state.edition.imagedObjects !== null) {
+            console.log('Returning cached list ', this.store.state.edition.imagedObjects);
             return this.store.state.edition.imagedObjects;
         }
 
-        const fragments = await this.getEditionFragments(this.store.state.edition.editionId.id);
-        this.store.dispatch('edition/setFragments', fragments);
-        return fragments;
+        console.log('Loading imaged objects from server');
+        const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.current.id);
+        console.log('Imaged objects are: ', imagedObjects);
+        this.store.dispatch('edition/setImagedObjects', imagedObjects, { root: true });
+        return imagedObjects;
     }
 
-    public async getEditionFragments(editionId: number): Promise<ImagedObjectSimple[]> {
-        const response = await this.communicator.getList
-        (`/v1/editions/${editionId}/imaged-objects?optional=artefacts`);
+    public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
+        const response = await CommHelper.get<ImagedObjectListDTO>(
+            `/v1/editions/${editionId}/imaged-objects?optional=artefacts&optional=masks`
+        );
 
-        return response.result.map((obj) => new ImagedObjectSimple(obj));
+        console.log('Imaged objects DTOs are ', response.data);
+        return response.data.imagedObjects.map((d) => new ImagedObject(d));
     }
+
+    public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {
+        const dto = {
+            name
+        } as EditionCopyRequestDTO;
+        const response = await CommHelper.post<EditionDTO>(`/v1/editions/${editionId}`, dto);
+
+        const newEdition = new EditionInfo(response.data);
+        return newEdition;
+    }
+
 }
 
 export default EditionService;

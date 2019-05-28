@@ -7,9 +7,9 @@
             </div></div>
             <ul class="list-unstyled row mt-2"  v-if="imagedObjects.length">
                 <li class="col-sm-12 col-md-6 col-xl-4 list-item"
-                    v-for="fragment in imagedObjects"
-                    :key="fragment.id">
-                    <fragment-card :fragment="fragment"></fragment-card>
+                    v-for="imagedObject in imagedObjects"
+                    :key="imagedObject.id">
+                    <imaged-object-card :imaged-object="imagedObject"></imaged-object-card>
                 </li>
             </ul>
         </div>
@@ -19,28 +19,27 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import FragmentCard from './fragment-card.vue';
-import { ImagedObjectDetailed, ImagedObjectSimple } from '@/models/imagedObject';
+import ImagedObjectCard from './imaged-object-card.vue';
+import { ImagedObject } from '@/models/imaged-object';
 import EditionService from '@/services/edition';
 
 export default Vue.extend({
-    name: 'edition-ver-imagedObjects',
     data() {
         return {
             editionService: new EditionService(this.$store),
         };
     },
     components: {
-        FragmentCard,
+        ImagedObjectCard,
         Waiting,
     },
     computed: {
-        imagedObjects(): ImagedObjectSimple[] | null {
+        imagedObjects(): ImagedObject[] | null {
             return this.$store.state.edition.imagedObjects;
         }
     },
     mounted() {
-        this.editionService.fetchEditionFragments();
+        this.editionService.fetchEditionImagedObjects();
     }
 });
 </script>

@@ -73,17 +73,17 @@ export class OptimizedArtefact extends Artefact {
     public shrinkFactor: number;
     public optimizedMask: Polygon;
 
-    public constructor(artefact: Artefact, fragmentIndex: number, shrinkFactor: number) {
+    public constructor(artefact: Artefact, imagedObjectIndex: number, shrinkFactor: number) {
         super(artefact);
 
-        this.color = OptimizedArtefact.colors[fragmentIndex % OptimizedArtefact.colors.length];
+        this.color = OptimizedArtefact.colors[imagedObjectIndex % OptimizedArtefact.colors.length];
         this.shrinkFactor = shrinkFactor;
 
-        this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor);
+        this.optimizedMask = Polygon.scale(artefact.mask.polygon, 1 / this.shrinkFactor);
     }
 
     public unoptimizeMask() {
-        this.mask = Polygon.scale(this.optimizedMask, this.shrinkFactor);
+        this.mask.polygon = Polygon.scale(this.optimizedMask, this.shrinkFactor);
     }
 
     /*

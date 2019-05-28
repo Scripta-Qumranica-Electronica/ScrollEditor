@@ -1,16 +1,16 @@
 <template>
-  <div class="wrapper" id="fragment-editor">
+  <div class="wrapper" id="imaged-object-editor">
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
     </div>
     <div
       id="sidebar"
       class="image-menu-div col-xl-2 col-lg-3 col-md-4"
-      v-if="!waiting && fragment"
+      v-if="!waiting && imagedObject"
       :class="{ active : isActive }"
     >
       <image-menu
-        :fragment="fragment"
+        :imagedObject="imagedObject"
         :artefacts="optimizedArtefacts"
         :artefact="artefact"
         :params="params"
@@ -30,7 +30,7 @@
     </div>
 
     <div id="content" class="container col-xl-12 col-lg-12 col-md-12"
-      v-if="!waiting && fragment"> <!-- todo: add external div with the condition -->
+      v-if="!waiting && imagedObject"> <!-- todo: add external div with the condition -->
       <div class="row">
         <div id="buttons-div">
           <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
@@ -43,11 +43,11 @@
             <i :class="mode.icon"></i>
           </b-button>
         </div>
-        <div class="fragment-container"
+        <div class="imaged-object-container"
           :class="{active: isActive}">
           <div
             ref="overlay-div"
-            v-if="!waiting && fragment"
+            v-if="!waiting && imagedObject"
             :width="actualWidth"
             :height="actualHeight"
             id="overlay-div ">
@@ -64,10 +64,9 @@
                   :originalImageWidth="originalImageWidth"
                   :originalImageHeight="originalImageHeight"
                   :params="params"
-                  :fragment="fragment"
                   :editable="canEdit"
-                  :side="fragment.recto"
-                  :clipping-mask="artefact.mask"
+                  :side="imagedObject.recto"
+                  :clipping-mask="artefact.mask.polygon"
                 ></roi-canvas>
                 <artefact-canvas
                   v-for="artefact in nonSelectedArtefacts"
@@ -104,10 +103,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import ImagedObjectService from '@/services/imagedObject';
+import ImagedObjectService from '@/services/imaged-object';
 import EditionService from '@/services/edition';
 import ImageService from '@/services/image';
-import { ImagedObjectSimple } from '@/models/imagedObject';
+import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import ImageMenu from './ImageMenu.vue';
 import {
@@ -127,7 +126,7 @@ import ArtefactCanvas from './ArtefactCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
 
 export default Vue.extend({
-  name: 'fragment-editor',
+  name: 'imaged-object-editor',
   components: {
     Waiting,
     'image-menu': ImageMenu,
@@ -136,7 +135,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      fragmentService: new ImagedObjectService(this.$store),
+      imagedObjectService: new ImagedObjectService(this.$store),
       editionService: new EditionService(this.$store),
       imageService: new ImageService(),
       waiting: true,
@@ -159,14 +158,14 @@ export default Vue.extend({
     zoomLevel(): number {
       return this.params.zoom;
     },
-    fragment(): ImagedObjectSimple {
-      return this.$store.state.fragment.fragment;
+    imagedObject(): ImagedObject {
+      return this.$store.state.imagedObject.imagedObject;
     },
     editionId(): number {
       return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
-      return this.$store.state.edition.editionId.permission.canWrite;
+      return this.$store.state.edition.current.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
@@ -210,17 +209,17 @@ export default Vue.extend({
     try {
       this.waiting = true;
       await this.editionService.fetchEdition(this.editionId);
-      await this.fragmentService.fetchFragmentInfo(
-        parseInt(this.$route.params.editionId),
-        this.$route.params.fragmentId
+      await this.imagedObjectService.fetchImagedObjectInfo(
+        this.editionId,
+        this.$route.params.imagedObjectId
       );
 
-      if (this.fragment && this.fragment.recto && this.fragment.recto.masterIndex) {
-        await this.imageService.fetchImageManifest(this.fragment.recto.masterIndex);
+      if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
+        await this.imageService.fetchImageManifest(this.imagedObject.recto.master);
         this.masterImage = this.getMasterImg();
       }
 
-      if (this.fragment!.artefacts!.length) {
+      if (this.imagedObject!.artefacts!.length) {
         this.optimizeArtefacts();
         this.artefact = this.optimizedArtefacts[0];
         this.optimizedArtefacts.forEach((element) => {
@@ -244,8 +243,8 @@ export default Vue.extend({
   },
   methods: {
     getMasterImg(): IIIFImage | undefined {
-      if (this.fragment && this.fragment.recto) {
-        return this.fragment.recto.masterIndex;
+      if (this.imagedObject && this.imagedObject.recto) {
+        return this.imagedObject.recto.master;
       }
       return undefined;
     },
@@ -264,13 +263,12 @@ export default Vue.extend({
     },
     fillImageSettings() {
       this.params.imageSettings = {};
-      if (this.fragment.recto && this.fragment.recto) {
-        for (const imageType of this.fragment.recto.availableImageTypes) {
-          const image = this.fragment.recto.getImage(imageType);
+      if (this.imagedObject.recto && this.imagedObject.recto) {
+        for (const imageType of this.imagedObject.recto.availableImageTypes) {
+          const image = this.imagedObject.recto.getImage(imageType);
           if (image) {
             const master =
-              this.fragment.recto.masterIndex ===
-              this.fragment.recto.getImage(imageType);
+              this.imagedObject.recto.master.type === imageType;
             const imageSetting = {
               image,
               type: imageType,
@@ -283,10 +281,10 @@ export default Vue.extend({
       }
     },
     optimizeArtefacts() {
-      if (!this.fragment || !this.fragment.artefacts) {
+      if (!this.imagedObject || !this.imagedObject.artefacts) {
         this.optimizedArtefacts = [];
       } else {
-        this.optimizedArtefacts = this.fragment.artefacts.map(
+        this.optimizedArtefacts = this.imagedObject.artefacts.map(
           (artefact, index) =>
             new OptimizedArtefact(
               artefact,
@@ -318,7 +316,7 @@ export default Vue.extend({
 
       // Store the old masks for the undo buffer
       const changeOperation = {
-        prevMask: this.artefact.mask,
+        prevMask: this.artefact.mask.polygon,
         prevOptimizedMask: this.artefact.optimizedMask
       } as MaskChangeOperation;
 
@@ -326,7 +324,7 @@ export default Vue.extend({
       this.artefact.optimizedMask = eventArgs.optimizedMask;
       this.artefact.unoptimizeMask();
 
-      changeOperation.newMask = this.artefact.mask;
+      changeOperation.newMask = this.artefact.mask.polygon;
       changeOperation.newOptimizedMask = this.artefact.optimizedMask;
 
       if (this.artefactEditingData.undoList.length >= 50) {
@@ -373,29 +371,49 @@ export default Vue.extend({
 
       this.params.zoom = newZoom;
     },
+    showSaveMsg(savedFlag: boolean, errorFlag: boolean) {
+      this.saving = false;
+
+      if (!savedFlag) {
+         this.showMessage('No changed detected');
+      } else if (errorFlag) {
+        this.showMessage('Imaged Object Save Failed', 'error');
+      } else {
+        this.showMessage('Imaged Object Saved', 'success');
+      }
+    },
     onSave() {
       if (!this.artefact) {
         throw new Error("Can't save if there is no artefact");
       }
-
       this.saving = true;
-      try {
-        this.optimizedArtefacts.forEach(async (art, index) => {
-          if (this.artefactEditingDataList[index].dirty) {
-            await this.fragmentService.changeFragmentArtefactShape(
-              this.editionId,
-              this.fragment,
-              art
-            );
-            this.artefactEditingDataList[index].dirty = false;
-          }
-        });
-        this.showMessage('ImagedObjectDetailed Saved', false);
-      } catch (err) {
-        this.showMessage('ImagedObjectDetailed save failed', true);
-      } finally {
-        this.saving = false;
-      }
+      let savedFlag = false;
+      let errorFlag = false;
+
+      this.optimizedArtefacts.forEach(async (art, index) => {
+        if (this.artefactEditingDataList[index].dirty) {
+          savedFlag = true;
+
+          await this.imagedObjectService.changeArtefact(
+            this.editionId,
+            art
+          ).catch (() => {
+            errorFlag = true;
+          })
+          .finally (() => {
+              if (index === this.optimizedArtefacts.length - 1) {
+                this.showSaveMsg(savedFlag, errorFlag);
+              }
+          });
+          this.artefactEditingDataList[index].dirty = false;
+        } else {
+          setTimeout(() => {
+            if (index === this.optimizedArtefacts.length - 1) {
+              this.showSaveMsg(savedFlag, errorFlag);
+            }
+          }, 1000);
+        }
+      });
     },
     onUndo() {
       if (!this.artefact) {
@@ -408,7 +426,7 @@ export default Vue.extend({
         this.artefactEditingData.redoList.push(toUndo);
 
         this.artefact.optimizedMask = toUndo.prevOptimizedMask;
-        this.artefact.mask = toUndo.prevMask;
+        this.artefact.mask.polygon = toUndo.prevMask;
       }
     },
     onRedo() {
@@ -420,7 +438,7 @@ export default Vue.extend({
         this.artefactEditingData.undoList.push(toRedo);
 
         this.artefact.optimizedMask = toRedo.newOptimizedMask;
-        this.artefact.mask = toRedo.newMask;
+        this.artefact.mask.polygon = toRedo.newMask;
       }
     },
     async onNew(art: Artefact) {
@@ -438,15 +456,10 @@ export default Vue.extend({
       }
       this.saving = true;
       try {
-        await this.fragmentService.createFragmentArtefact(
-          this.editionId,
-          this.fragment,
-          this.artefact
-        );
         this.artefactEditingDataList.push(new ArtefactEditingData());
-        this.showMessage('Artefact Created', false);
+        this.showMessage('Artefact Created', 'success');
       } catch (err) {
-        this.showMessage('Artefact creation failed', true);
+        this.showMessage('Artefact creation failed', 'error');
       } finally {
         this.saving = false;
       }
@@ -457,16 +470,15 @@ export default Vue.extend({
       }
       this.renaming = true;
       try {
-        await this.fragmentService.changeFragmentArtefactName(
+        await this.imagedObjectService.changeArtefact(
           this.editionId,
-          this.fragment,
           this.artefact
         );
-        this.showMessage('Artefact renamed', false);
+        this.showMessage('Artefact renamed', 'success');
         // this.renameInputActive = {};
         this.inputRenameChanged(undefined);
       } catch (err) {
-        this.showMessage('Artefact rename failed', true);
+        this.showMessage('Artefact rename failed', 'error');
       } finally {
         this.renaming = false;
       }
@@ -483,20 +495,12 @@ export default Vue.extend({
     getArtefactEditingData(index: number) {
       return this.artefactEditingDataList[index];
     },
-    showMessage(msg: string, error: boolean) {
-      if (error) {
-        this.$toasted.show(msg, {
-          type: 'error',
-          position: 'top-right',
-          duration: 7000
-        });
-      } else {
-        this.$toasted.show(msg, {
-          type: 'success',
-          position: 'top-right',
-          duration: 7000
-        });
-      }
+    showMessage(msg: string, type: string = 'info') {
+      this.$toasted.show(msg, {
+        type,
+        position: 'top-right',
+        duration: 7000
+      });
     },
     prepareNonSelectedArtefacts() {
       this.nonSelectedArtefacts = this.optimizedArtefacts.filter(
@@ -504,7 +508,7 @@ export default Vue.extend({
       );
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
-        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
+        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask.polygon);
       }
     },
     sidebarClicked() {
@@ -537,18 +541,19 @@ export default Vue.extend({
   position: absolute;
   transform-origin: top left;
 }
-#fragment-editor {
+#imaged-object-editor {
   overflow: hidden;
   height: calc(100vh - 56px);
 }
-.fragment-container {
+
+.imaged-object-container {
   overflow: scroll;
   position: relative;
   padding: 0;
   height: calc(100vh - 56px);
   width: calc(100vw - 290px);
 }
-.fragment-container.active {
+.imaged-object-container.active {
   overflow: scroll;
   position: relative;
   padding: 0;
@@ -617,7 +622,7 @@ export default Vue.extend({
     transform: none;
   }
 
-  .fragment-container {
+  .imaged-object-container {
     overflow: scroll;
     position: relative;
     padding: 0;
@@ -625,7 +630,7 @@ export default Vue.extend({
     width: calc(100vw - 40px);
   }
 
-  .fragment-container.active {
+  .imaged-object-container.active {
     overflow: scroll;
     position: relative;
     padding: 0;

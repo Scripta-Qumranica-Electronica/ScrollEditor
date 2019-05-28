@@ -2,12 +2,12 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
 import Edition from './views/edition/Edition.vue';
-import EditionFragments from './views/edition/components/fragments.vue';
+import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
-import FragmentEditor from './views/fragment-editor/FragmentEditor.vue';
 import Registration from './views/user/Registration.vue';
 import ChangePassword from './views/user/ChangePassword.vue';
 import ChangeForgottenPassword from './views/user/ChangeForgottenPassword.vue';
+import ImagedObjectEditor from './views/imaged-object-editor/ImagedObjectEditor.vue';
 
 Vue.use(Router);
 
@@ -21,24 +21,24 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/edition/:id',
+      path: '/editions/:id',
       component: Edition,
       children: [{
         path: 'artefacts',
         component: EditionArtefacts,
       },
       {
-        path: 'imagedObjects',
-        component: EditionFragments,
+        path: 'imaged-objects',
+        component: EditionImagedObjects,
       },
       {
         path: '',
-        redirect: '/edition/:id/imagedObjects',
+        redirect: '/editions/:id/imaged-objects',
       }]
     },
     {
-      path: '/fragment/:editionId/:fragmentId',
-      component: FragmentEditor,
+      path: '/editions/:editionId/imaged-objects/:imagedObjectId',
+      component: ImagedObjectEditor,
     },
     {
       path: '/registration',

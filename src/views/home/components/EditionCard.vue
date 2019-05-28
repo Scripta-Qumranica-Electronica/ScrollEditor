@@ -1,12 +1,12 @@
 <template>
   <div class="card">
-    <router-link tag="a" :to="{  path:`/edition/${edition.id}` }">
+    <router-link tag="a" :to="{  path:`/editions/${edition.id}` }">
       <!--TODO do not hardcode the image proxy server-->
       <img class="card-img-top" v-if="thumbnailSource" v-lazy="thumbnailSource" :alt="edition.name">
       <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="edition.name">
     </router-link>
     <div class="card-body">
-      <router-link tag="div" :to="{  path:`/edition/${edition.id}` }">
+      <router-link tag="div" :to="{  path:`/editions/${edition.id}` }">
         <h5 class="cart-title"> {{ edition.name }}</h5>
       <!--  <p v-if="shareCount">
           <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
@@ -29,7 +29,7 @@ export default Vue.extend({
   },
   computed: {
     thumbnailSource(): string | undefined {
-      return this.edition.thumbnailUrl.length ? this.edition.thumbnailUrl[0].thumbnailUrl : undefined;
+      return this.edition.thumbnail ? this.edition.thumbnail.thumbnailUrl : undefined;
     },
     shareCount(): number {
       return this.edition.shares.length - 1; // One is the current user

@@ -50,7 +50,6 @@ import { EditorParams,
          ZoomRequestEventArgs,
          OptimizedArtefact,
          } from './types';
-import { ImagedObjectDetailed } from '@/models/imagedObject';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';
@@ -58,7 +57,6 @@ import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerT
 export default Vue.extend({
   props: {
     params: EditorParams,
-    fragment: ImagedObjectDetailed,
     artefact: OptimizedArtefact,
     selected: Boolean,
     editable: Boolean,

@@ -8,7 +8,7 @@
     </b-col></b-row>
     <div class="row">
       <div class="col">
-        <small>{{ $tc('home.personalEditionGroupCount', numberOfMyScrolls)}}</small>
+        <small>{{ $tc('home.personalEditionGroupCount', numberOfMyEditions)}}</small>
       </div>
     </div>
     <ul class="list-unstyled row mt-2" id="my-search-results" v-if="myEditions.length">
@@ -22,7 +22,7 @@
     </ul>
     <div class="row">
       <div class="col">
-        <small>{{ $tc('home.publicEditionGroupCount', numberOfScrolls)}}</small>
+        <small>{{ $tc('home.publicEditionGroupCount', numberOfEditions)}}</small>
       </div>
     </div>
     <ul class="list-unstyled row mt-2" id="all-search-results" v-if="allEditions.length">
@@ -43,7 +43,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import EditionService from '@/services/edition';
 import EditionGroupCard from './components/EditionGroupCard.vue';
 import EditionCard from './components/EditionCard.vue';
-import { EditionGroupInfo, EditionInfo } from '@/models/edition';
+import { EditionInfo } from '@/models/edition';
 import { countIf } from '@/utils/helpers';
 
 export default Vue.extend({
@@ -62,26 +62,20 @@ export default Vue.extend({
     };
   },
   computed: {
-    numberOfScrolls(): number {
+    numberOfEditions(): number {
       return countIf(this.allEditions, (edition) => this.nameMatch(edition.name));
     },
-    numberOfMyScrolls(): number {
+    numberOfMyEditions(): number {
       return countIf(this.myEditions, (edition) => this.nameMatch(edition.name));
     }
   },
   mounted() {
-    // We do not use async/await here because we want both requests to go out simultaneously.
-    this.editionService.listScrolls().then((editions) => {
+    this.editionService.listEditions().then((editions) => {
       this.allEditions = editions.editionList;
       this.myEditions = editions.myEditionList;
     }, (error) => {
       throw error;
     });
-    // this.editionService.getMyEditions().then((myEditions) => {
-    //   this.myEditions = myEditions;
-    // }, (error) => {
-    //   throw error;
-    // });
   },
   methods: {
       nameMatch(name: string): boolean {
