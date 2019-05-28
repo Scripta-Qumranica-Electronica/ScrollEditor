@@ -14,7 +14,7 @@ export class Mask {
     public polygon: Polygon;
 
     constructor(obj: any) {
-        this.matrix = obj.matrix;
-        this.polygon = obj.polygon ? Polygon.fromWkt(obj.polygon.mask) : {} as Polygon;
+        this.matrix = obj.transformMatrix;
+        this.polygon = obj.mask ? Polygon.fromWkt(obj.mask) : {} as Polygon;
     }
 }

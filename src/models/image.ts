@@ -68,9 +68,9 @@ export class ImageStack {
     private imageMap: Map<string, Image>;
 
     constructor(dto: ImageStackDTO) {
-        if (!dto.id || !dto.masterIndex) {
+        if (dto.id === undefined || dto.masterIndex === undefined) {
             // This is just a temporary measure, the DTO will change so that undefined is not allowed
-            throw new Error('ImageStack expects it and masterIndex to be set in the dto');
+            throw new Error('ImageStack expects id and masterIndex to be set in the dto');
         }
         this.id = dto.id;
         this.masterIndex = dto.masterIndex;

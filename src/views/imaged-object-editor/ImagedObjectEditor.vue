@@ -66,7 +66,7 @@
                   :params="params"
                   :editable="canEdit"
                   :side="imagedObject.recto"
-                  :clipping-mask="artefact.mask"
+                  :clipping-mask="artefact.mask.polygon"
                 ></roi-canvas>
                 <artefact-canvas
                   v-for="artefact in nonSelectedArtefacts"

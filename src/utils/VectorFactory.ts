@@ -200,7 +200,7 @@ export function svgPolygonToGeoJSON(svg: string) {
  * This function receives an SVG path and
  * converts it to a Clipper Polygon.
  */
-export function svgPolygonToClipper(svg: any) {
+export function svgPolygonToClipper(svg: string) {
   if (!svg || svg === '') {
     return '';
   }
