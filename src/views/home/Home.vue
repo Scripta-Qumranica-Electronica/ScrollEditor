@@ -70,18 +70,12 @@ export default Vue.extend({
     }
   },
   mounted() {
-    // We do not use async/await here because we want both requests to go out simultaneously.
     this.editionService.listEditions().then((editions) => {
       this.allEditions = editions.editionList;
       this.myEditions = editions.myEditionList;
     }, (error) => {
       throw error;
     });
-    // this.editionService.getMyEditions().then((myEditions) => {
-    //   this.myEditions = myEditions;
-    // }, (error) => {
-    //   throw error;
-    // });
   },
   methods: {
       nameMatch(name: string): boolean {

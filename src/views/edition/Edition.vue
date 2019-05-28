@@ -38,7 +38,7 @@ export default Vue.extend({
     },
     computed: {
         currentVersion(): EditionInfo {
-            return this.$store.state.edition.edition;
+            return this.$store.state.edition.current;
         },
         waiting(): boolean {
             return !this.currentVersion;

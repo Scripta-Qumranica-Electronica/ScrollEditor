@@ -23,7 +23,7 @@ export default Vue.extend({
             return undefined;
         },
         editionId(): number {
-            return this.$store.state.edition.edition.id;
+            return this.$store.state.edition.current.id;
         },
         artefactsNames(): string {
             const names = this.imagedObject.artefacts.map((a) => a.name);

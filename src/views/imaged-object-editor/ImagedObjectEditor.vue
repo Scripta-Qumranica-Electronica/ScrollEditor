@@ -66,7 +66,7 @@
                   :params="params"
                   :editable="canEdit"
                   :side="imagedObject.recto"
-                  :clipping-mask="artefact.mask"
+                  :clipping-mask="artefact.mask.polygon"
                 ></roi-canvas>
                 <artefact-canvas
                   v-for="artefact in nonSelectedArtefacts"
@@ -165,7 +165,7 @@ export default Vue.extend({
       return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
-      return this.$store.state.edition.edition.permission.canWrite;
+      return this.$store.state.edition.current.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
@@ -316,7 +316,7 @@ export default Vue.extend({
 
       // Store the old masks for the undo buffer
       const changeOperation = {
-        prevMask: this.artefact.mask,
+        prevMask: this.artefact.mask.polygon,
         prevOptimizedMask: this.artefact.optimizedMask
       } as MaskChangeOperation;
 
@@ -324,7 +324,7 @@ export default Vue.extend({
       this.artefact.optimizedMask = eventArgs.optimizedMask;
       this.artefact.unoptimizeMask();
 
-      changeOperation.newMask = this.artefact.mask;
+      changeOperation.newMask = this.artefact.mask.polygon;
       changeOperation.newOptimizedMask = this.artefact.optimizedMask;
 
       if (this.artefactEditingData.undoList.length >= 50) {
@@ -426,7 +426,7 @@ export default Vue.extend({
         this.artefactEditingData.redoList.push(toUndo);
 
         this.artefact.optimizedMask = toUndo.prevOptimizedMask;
-        this.artefact.mask = toUndo.prevMask;
+        this.artefact.mask.polygon = toUndo.prevMask;
       }
     },
     onRedo() {
@@ -438,7 +438,7 @@ export default Vue.extend({
         this.artefactEditingData.undoList.push(toRedo);
 
         this.artefact.optimizedMask = toRedo.newOptimizedMask;
-        this.artefact.mask = toRedo.newMask;
+        this.artefact.mask.polygon = toRedo.newMask;
       }
     },
     async onNew(art: Artefact) {
@@ -508,7 +508,7 @@ export default Vue.extend({
       );
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
-        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
+        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask.polygon);
       }
     },
     sidebarClicked() {

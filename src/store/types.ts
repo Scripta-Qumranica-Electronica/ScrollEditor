@@ -16,7 +16,7 @@ export interface SessionState {
 }
 
 export interface EditionState {
-    edition: EditionInfo | null;
+    current: EditionInfo | null;
     newEditionId: number | null;
     imagedObjects: ImagedObject[] | null;
 }

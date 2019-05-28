@@ -7,14 +7,9 @@ import { CommHelper } from './comm-helper';
 import { ImagedObjectDTO } from '@/dtos/imaged-object';
 import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/artefact';
 
-export interface ArtefactCreateResult {
-    returned_info: number;
-}
 export interface ArtefactShapeChangedResult {
 }
 export interface ArtefactPositionChangedResult {
-}
-export interface ArtefactNameChangedResult {
 }
 
 class ImagedObjectService {
@@ -83,7 +78,7 @@ class ImagedObjectService {
 
     public async changeArtefact(editionId: number, artefact: Artefact):
         Promise<ArtefactDTO> {
-        const mask = artefact.mask ? artefact.mask.wkt : '';
+        const mask = artefact.mask ? artefact.mask.polygon.wkt : '';
         const body = {
             mask,
             name: artefact.name,
@@ -96,28 +91,16 @@ class ImagedObjectService {
 
     public async changeArtefactPosition(editionId: number, artefact: Artefact):
         Promise<ArtefactPositionChangedResult> {
-        const transformMatrix = artefact.transformMatrix ?
-            artefact.transformMatrix :
-            '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
+        // const transformMatrix = artefact.transformMatrix ?
+        //     artefact.transformMatrix :
+        //     '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
         const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactPosition', {
             scroll_version_id: editionId,
             artefact_id: artefact.id,
-            transform_matrix: transformMatrix,
             z_index: null // I think z-index will be removed
         });
         return response.data;
     }
-
-    //     public async changeArtefactName(editionId: number, fragment: ImagedObject, artefact: Artefact):
-    //     Promise<ArtefactNameChangedResult> {
-    //     const response = await this.communicator.request<ArtefactNameChangedResult>('changeArtefactData', {
-    //         scroll_version_id: editionId,
-    //         artefact_id: artefact.id,
-    //         name: artefact.name
-    //     });
-
-    //     return response.data;
-    // }
 
     private _getCachedImagedObject(editionId: number, imagedObjectId: string): ImagedObject | undefined {
         if (!this.store.state.edition || editionId !== this.store.state.edition.id) {

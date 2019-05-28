@@ -1,4 +1,3 @@
-import axios, { AxiosResponse } from 'axios';
 import { ImageStackDTO } from '@/dtos/imaged-object';
 import { ImageDTO } from '@/dtos/image';
 import { Polygon } from '@/utils/Polygons';
@@ -71,7 +70,7 @@ export class ImageStack {
     constructor(dto: ImageStackDTO) {
         if (dto.id === undefined || dto.masterIndex === undefined) {
             // This is just a temporary measure, the DTO will change so that undefined is not allowed
-            throw new Error('ImageStack expects it and masterIndex to be set in the dto');
+            throw new Error('ImageStack expects id and masterIndex to be set in the dto');
         }
         this.id = dto.id;
         this.masterIndex = dto.masterIndex;
