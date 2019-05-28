@@ -16,6 +16,9 @@
  */
 export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
   let svg: any;
+  if (!wkt || wkt.wkt === '') {
+    return '';
+  }
   if (wkt.substring(0, 9) === 'POLYGON((') {
     const polygonInitRegex = /POLYGON/g;
     const parenInitRegex = /\(/g;
@@ -111,7 +114,10 @@ export function wktParseRect(wkt: any) {
  * This function receives an SVG path and
  * converts it to a WKT Polygon.
  */
-export function svgPolygonToWKT(svg: any) {
+export function svgPolygonToWKT(svg: string) {
+  if (!svg || svg === '') {
+    return '';
+  }
   let wkt: any;
   svg = svg.trim();
   if (svg.startsWith('M')) {
@@ -155,7 +161,10 @@ export function svgPolygonToWKT(svg: any) {
  * This function receives an SVG path and
  * converts it to a GeoJSON Polygon.
  */
-export function svgPolygonToGeoJSON(svg: any) {
+export function svgPolygonToGeoJSON(svg: string) {
+  if (!svg || svg === '') {
+    return '';
+  }
   let json: any;
   svg = svg.trim();
   if (svg.startsWith('M')) {
@@ -191,7 +200,10 @@ export function svgPolygonToGeoJSON(svg: any) {
  * This function receives an SVG path and
  * converts it to a Clipper Polygon.
  */
-export function svgPolygonToClipper(svg: any) {
+export function svgPolygonToClipper(svg: string) {
+  if (!svg || svg === '') {
+    return '';
+  }
   let clipper: any;
   svg = svg.trim();
   if (svg.startsWith('M')) {
@@ -353,29 +365,32 @@ export function matrix16To6(matrix: any) {
 
 /*
  * This function receives an HTML5 canvas
- * along with a svg path for the clipping
- * mask and a divisor for the canvas scaling.
+ * along with a svg path for the clipping mask
  * It then draws the svg path onto the canvas.
  */
-export function clipCanvas(canvas: any, svgClipPath: any, divisor: any) {
-  divisor = divisor ? divisor : 1;
+export function clipCanvas(canvas: HTMLCanvasElement, svgClipPath: string, fillColor: string, scaleFactor: number) {
   const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error(`Can't get context from canvas ${canvas}`);
+  }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'purple';
+  ctx.fillStyle = fillColor;
   const polygons = svgClipPath.split('M').slice(1);
   ctx.beginPath();
-  polygons.forEach((poly: any) => {
+  polygons.forEach((poly) => {
     const points = poly.split('L');
     for (let i = 0, length = points.length; i < length; i++) {
+      const coordsStr = points[i].split(' ');
+      const coords = coordsStr.map((s) => parseFloat(s) * scaleFactor);
       if (i === 0) {
-        ctx.moveTo(points[i].split(' ')[0] / divisor, points[i].split(' ')[1] / divisor);
+        ctx.moveTo(coords[0], coords[1]);
       } else {
-        ctx.lineTo(points[i].split(' ')[0] / divisor, points[i].split(' ')[1] / divisor);
+        ctx.lineTo(coords[0], coords[1]);
       }
     }
-    ctx.closePath();
   });
+  ctx.closePath();
   ctx.fill();
 }
 

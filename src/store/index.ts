@@ -3,8 +3,8 @@ import Vuex, { StoreOptions } from 'vuex';
 
 import language from './language';
 import session from './session';
-import scroll from './scroll';
-import fragment from './fragment';
+import edition from './edition';
+import imagedObject from './imaged-object';
 import { RootState } from './types';
 
 Vue.use(Vuex);
@@ -13,8 +13,8 @@ const store: StoreOptions<RootState> = {
     modules: {
         language,
         session,
-        scroll,
-        fragment,
+        edition,
+        imagedObject,
     }
 };
 

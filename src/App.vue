@@ -4,7 +4,7 @@
     <div v-if="waiting">
       <Waiting></Waiting>
     </div>
-    <div v-if="!waiting" class="container-fluid">
+    <div v-if="!waiting" class="container-fluid" id="main-container">
       <router-view></router-view>
     </div>
   </div>
@@ -36,7 +36,7 @@ export default {
   methods: {
     async initializeApp() {
       const session = new SessionService(this.$store);
-      await session.isSessionValid();
+      await session.isTokenValid();
       this.waiting = false;
     },
   }
@@ -44,4 +44,9 @@ export default {
 </script>
 
 <style>
+#main-container {
+  max-height: calc(100vh - 56px);   /* Navbar is 56 pixels high */
+  padding: 0px;
+}
+
 </style>

@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
-import ScrollVer from './views/scrollver/ScrollVer.vue';
-import ScrollVerFragments from './views/scrollver/components/fragments.vue';
-import ScrollVerArtefacts from './views/scrollver/components/artefacts.vue';
-import FragmentEditor from './views/fragment-editor/FragmentEditor.vue';
+import Edition from './views/edition/Edition.vue';
+import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
+import EditionArtefacts from './views/edition/components/artefacts.vue';
+import ImagedObjectEditor from './views/imaged-object-editor/ImagedObjectEditor.vue';
 
 Vue.use(Router);
 
@@ -18,24 +18,24 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/scroll/:id',
-      component: ScrollVer,
+      path: '/editions/:id',
+      component: Edition,
       children: [{
         path: 'artefacts',
-        component: ScrollVerArtefacts,
+        component: EditionArtefacts,
       },
       {
-        path: 'fragments',
-        component: ScrollVerFragments,
+        path: 'imaged-objects',
+        component: EditionImagedObjects,
       },
       {
         path: '',
-        redirect: '/scroll/:id/fragments',
+        redirect: '/editions/:id/imaged-objects',
       }]
     },
     {
-      path: '/fragment/:scrollVersionId/:fragmentId',
-      component: FragmentEditor,
+      path: '/editions/:editionId/imaged-objects/:imagedObjectId',
+      component: ImagedObjectEditor,
     },
   ],
 });

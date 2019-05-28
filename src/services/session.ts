@@ -1,5 +1,7 @@
 import { Store } from 'vuex';
-import { Communicator, ValidateSessionResponse } from './communications';
+import { Communicator } from './communications';
+import { LoginRequestDTO, LoginResponseDTO, UserDTO } from '@/dtos/user';
+import { CommHelper } from './comm-helper';
 
 
 class SessionService {
@@ -9,18 +11,17 @@ class SessionService {
     }
 
     public async login(userName: string, password: string) {
-        const response = await this.communicator.request<ValidateSessionResponse>('validateSession', {
-            USER_NAME: userName,
-            PASSWORD: password,
-            SCROLLVERSION: 1,
-        });
+        const requestDto = {
+            userName,
+            password
+        } as LoginRequestDTO;
+        const response = await CommHelper.post<LoginResponseDTO>('/v1/users/login', requestDto, false);
 
         this.store.dispatch('session/logIn', {
-            sessionId: response.data.SESSION_ID,
-            userId: response.data.USER_ID,
-            userName,
-            fullName: userName,
-        }, { root: true });
+            userId: response.data.userId,
+            userName: response.data.userName,
+            token: response.data.token,
+        }, {root: true});
     }
 
     public logout() {
@@ -28,15 +29,13 @@ class SessionService {
         this.store.dispatch('session/logOut', {}, { root: true });
     }
 
-    public async isSessionValid() {
-        if (!this.store.state.session.sessionId) {
+    public async isTokenValid() {
+        if (!this.store.state.session.token) {
             return false;
         }
 
         try {
-            const response = await this.communicator.request<ValidateSessionResponse>('validateSession', {
-                SCROLLVERSION: 1,
-            });
+            await CommHelper.get<UserDTO>('/v1/users');  // The server returns a 401 error if the user is not logged in
             return true;
         } catch (error) {
             this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out

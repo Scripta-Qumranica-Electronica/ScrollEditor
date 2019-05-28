@@ -1,85 +1,78 @@
 <template>
-  <div class="row">
-    <div class="col-sm-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
-      <b-row><b-col>
-        <b-form inline class="mt-2" @submit.prevent="">
-            <label for="filter">{{ $t('home.filter') }}:</label>
-            <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
-        </b-form>
-      </b-col></b-row>
-      <div class="row">
-        <div class="col">
-          <small>{{ $tc('home.personalScrollCount', numberOfMyScrolls)}}</small>
-        </div>
+  <div class="col-sm-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
+    <b-row><b-col>
+      <b-form inline class="mt-2" @submit.prevent="">
+          <label for="filter">{{ $t('home.filter') }}:</label>
+          <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
+      </b-form>
+    </b-col></b-row>
+    <div class="row">
+      <div class="col">
+        <small>{{ $tc('home.personalEditionGroupCount', numberOfMyEditions)}}</small>
       </div>
-      <ul class="list-unstyled row mt-2" id="search-results" v-if="myScrolls.length">
-        <li 
-            class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item" 
-            v-for="scrollVer in myScrolls" 
-            v-show="filter === '' || scrollVer.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1" 
-            :key="scrollVer.versionId">
-          <scroll-version-card :scrollVer="scrollVer"></scroll-version-card>
-        </li>
-      </ul>
-      <div class="row">
-        <div class="col">
-          <small>{{ $tc('home.publicScrollCount', numberOfScrolls)}}</small>
-        </div>
-      </div>
-      <ul class="list-unstyled row mt-2" id="search-results" v-if="allScrolls.length">
-        <li 
-            class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item" 
-            v-for="scroll in allScrolls" 
-            v-show="filter === '' || scroll.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1" 
-            :key="scroll.id">
-          <scroll-card :scroll="scroll"></scroll-card>
-        </li>
-      </ul>
     </div>
+    <ul class="list-unstyled row mt-2" id="my-search-results" v-if="myEditions.length">
+      <li
+          class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
+          v-for="edition in myEditions"
+          v-show="filter === '' || edition.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1"
+          :key="edition.versionId">
+        <edition-card :edition="edition"></edition-card>
+      </li>
+    </ul>
+    <div class="row">
+      <div class="col">
+        <small>{{ $tc('home.publicEditionGroupCount', numberOfEditions)}}</small>
+      </div>
+    </div>
+    <ul class="list-unstyled row mt-2" id="all-search-results" v-if="allEditions.length">
+      <li
+          class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
+          v-for="edition in allEditions"
+          v-show="filter === '' || edition.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1"
+          :key="edition.id">
+        <edition-group-card :edition="edition"></edition-group-card>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import ScrollService from '@/services/scroll';
-import ScrollCard from './components/ScrollCard.vue';
-import ScrollVersionCard from './components/ScrollVersionCard.vue';
-import { ScrollInfo, ScrollVersionInfo } from '@/models/scroll';
+import EditionService from '@/services/edition';
+import EditionGroupCard from './components/EditionGroupCard.vue';
+import EditionCard from './components/EditionCard.vue';
+import { EditionInfo } from '@/models/edition';
 import { countIf } from '@/utils/helpers';
 
 export default Vue.extend({
   name: 'home',
   components: {
     Waiting,
-    ScrollCard,
-    ScrollVersionCard,
+    EditionGroupCard,
+    EditionCard,
   },
   data() {
     return {
-      scrollService: new ScrollService(this.$store),
-      allScrolls: [] as ScrollInfo[],
-      myScrolls: [] as ScrollVersionInfo[],
+      editionService: new EditionService(this.$store),
+      allEditions: [] as EditionInfo[],
+      myEditions: [] as EditionInfo[],
       filter: '',
     };
   },
   computed: {
-    numberOfScrolls(): number {
-      return countIf(this.allScrolls, (scroll) => this.nameMatch(scroll.name));
+    numberOfEditions(): number {
+      return countIf(this.allEditions, (edition) => this.nameMatch(edition.name));
     },
-    numberOfMyScrolls(): number {
-      return countIf(this.myScrolls, (scrollVer) => this.nameMatch(scrollVer.name));
+    numberOfMyEditions(): number {
+      return countIf(this.myEditions, (edition) => this.nameMatch(edition.name));
     }
   },
   mounted() {
-    // We do not use async/await here because we want both requests to go out simultaneously.
-    this.scrollService.listScrolls().then((allScrolls) => {
-      this.allScrolls = allScrolls;
-    }, (error) => {
-      throw error;
-    });
-    this.scrollService.getMyScrollVersions().then((myScrolls) => {
-      this.myScrolls = myScrolls;
+    this.editionService.listEditions().then((editions) => {
+      this.allEditions = editions.editionList;
+      this.myEditions = editions.myEditionList;
     }, (error) => {
       throw error;
     });

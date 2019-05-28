@@ -12,8 +12,13 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faLanguage, faSpinner, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faLanguage, faSpinner, faSearch, faRedo, faUndo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+// Other plugins
+import Toasted from 'vue-toasted';
+import VueShortcuts from 'vue-shortcuts';
+import RenderingOptimizationPlugin from './plugins/rendering-optimization';
 
 // i18n
 import VueI18n from 'vue-i18n';
@@ -35,7 +40,7 @@ Vue.use(VueLazyload, {
 
 Vue.use(BootstrapVue);
 
-library.add(faLanguage, faSpinner, faSearch);
+library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);
@@ -43,6 +48,11 @@ const i18n = new VueI18n( {
   locale: 'en',
   messages: localizedTexts,
 });
+
+Vue.use(Toasted);
+Vue.use(VueShortcuts, { prevent: ['input'] });
+
+Vue.use(RenderingOptimizationPlugin);
 
 new Vue({
   router,

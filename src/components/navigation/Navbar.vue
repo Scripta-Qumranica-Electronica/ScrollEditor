@@ -53,7 +53,7 @@ export default Vue.extend({
       return current;
     },
     userName(): string | undefined {
-      return this.$store.state.session.loggedIn ? this.$store.state.session.fullName : undefined;
+      return this.$store.state.session.loggedIn ? this.$store.state.session.userName : undefined;
     }
   },
   methods: {

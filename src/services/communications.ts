@@ -1,22 +1,6 @@
 import { Store } from 'vuex';
 import axios, { AxiosResponse } from 'axios';
-
-export interface ValidateSessionResponse {
-    SESSION_ID: string;
-    USER_ID: number;
-}
-
-export interface CopyCombinationResponse {
-    new_scroll_id: number;
-}
-
-export interface ListResults<T> {
-    results: T[];
-}
-
-export interface DictionaryListResults<T> {
-    results: { [key: string]: T };
-}
+import { authHeader } from '../store/session';
 
 export class ServerError extends Error {
     public type: string;
@@ -40,9 +24,13 @@ export class NotFoundError extends Error {
 // Server communications
 export class Communicator {
     private url = '/resources/cgi-bin/scrollery-cgi.pl';
+    private requestOptions = {
+        headers: authHeader()
+    };
 
     constructor(private store: Store<any>) { }
 
+    // TODO: Remove it
     public async request<T>(transactionType: string, payload?: any): Promise<AxiosResponse<T>> {
         const body = {
             transaction: transactionType,
@@ -65,27 +53,5 @@ export class Communicator {
         }
 
         return response;
-    }
-
-    // Helper method that returns a list, converting a server error saying there are no items into an empty
-    // response.
-    // We do not return a generic type because we usually don't bother providing an interface for the server
-    // response, and need to convert it to your type. This conversion can't be done inside a generic function
-    // in typescript (no way to call new T()), so it has to be done outside.
-    public async listRequest(transactionType: string, payload?: any): Promise<ListResults<any>> {
-        try {
-            const response = await this.request<ListResults<any>>(transactionType, payload);
-            return response.data;
-        } catch (err) {
-            const serverError = err as ServerError;
-            if (err && err.errorText === 'No results found.') {
-                const empty: ListResults<string> = {
-                    results: []
-                };
-                return empty;
-            }
-            throw err;
-        }
-
     }
 }
