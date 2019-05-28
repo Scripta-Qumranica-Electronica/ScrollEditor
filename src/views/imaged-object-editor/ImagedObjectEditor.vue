@@ -66,7 +66,7 @@
                   :params="params"
                   :editable="canEdit"
                   :side="imagedObject.recto"
-                  :clipping-mask="artefact.mask"
+                  :clipping-mask="artefact.mask.polygon"
                 ></roi-canvas>
                 <artefact-canvas
                   v-for="artefact in nonSelectedArtefacts"
@@ -165,7 +165,7 @@ export default Vue.extend({
       return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
-      return this.$store.state.edition.edition.permission.canWrite;
+      return this.$store.state.edition.current.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
@@ -316,7 +316,7 @@ export default Vue.extend({
 
       // Store the old masks for the undo buffer
       const changeOperation = {
-        prevMask: this.artefact.mask,
+        prevMask: this.artefact.mask.polygon,
         prevOptimizedMask: this.artefact.optimizedMask
       } as MaskChangeOperation;
 
@@ -324,7 +324,7 @@ export default Vue.extend({
       this.artefact.optimizedMask = eventArgs.optimizedMask;
       this.artefact.unoptimizeMask();
 
-      changeOperation.newMask = this.artefact.mask;
+      changeOperation.newMask = this.artefact.mask.polygon;
       changeOperation.newOptimizedMask = this.artefact.optimizedMask;
 
       if (this.artefactEditingData.undoList.length >= 50) {
@@ -371,29 +371,49 @@ export default Vue.extend({
 
       this.params.zoom = newZoom;
     },
+    showSaveMsg(savedFlag: boolean, errorFlag: boolean) {
+      this.saving = false;
+
+      if (!savedFlag) {
+         this.showMessage('No changed detected');
+      } else if (errorFlag) {
+        this.showMessage('Imaged Object Save Failed', 'error');
+      } else {
+        this.showMessage('Imaged Object Saved', 'success');
+      }
+    },
     onSave() {
       if (!this.artefact) {
         throw new Error("Can't save if there is no artefact");
       }
-
       this.saving = true;
-      try {
-        this.optimizedArtefacts.forEach(async (art, index) => {
-          if (this.artefactEditingDataList[index].dirty) {
-            await this.imagedObjectService.changeArtefactShape(
-              this.editionId,
-              this.imagedObject,
-              art
-            );
-            this.artefactEditingDataList[index].dirty = false;
-          }
-        });
-        this.showMessage('Imaged Object Saved', false);
-      } catch (err) {
-        this.showMessage('Imaged Object Save Failed', true);
-      } finally {
-        this.saving = false;
-      }
+      let savedFlag = false;
+      let errorFlag = false;
+
+      this.optimizedArtefacts.forEach(async (art, index) => {
+        if (this.artefactEditingDataList[index].dirty) {
+          savedFlag = true;
+
+          await this.imagedObjectService.changeArtefact(
+            this.editionId,
+            art
+          ).catch (() => {
+            errorFlag = true;
+          })
+          .finally (() => {
+              if (index === this.optimizedArtefacts.length - 1) {
+                this.showSaveMsg(savedFlag, errorFlag);
+              }
+          });
+          this.artefactEditingDataList[index].dirty = false;
+        } else {
+          setTimeout(() => {
+            if (index === this.optimizedArtefacts.length - 1) {
+              this.showSaveMsg(savedFlag, errorFlag);
+            }
+          }, 1000);
+        }
+      });
     },
     onUndo() {
       if (!this.artefact) {
@@ -406,7 +426,7 @@ export default Vue.extend({
         this.artefactEditingData.redoList.push(toUndo);
 
         this.artefact.optimizedMask = toUndo.prevOptimizedMask;
-        this.artefact.mask = toUndo.prevMask;
+        this.artefact.mask.polygon = toUndo.prevMask;
       }
     },
     onRedo() {
@@ -418,7 +438,7 @@ export default Vue.extend({
         this.artefactEditingData.undoList.push(toRedo);
 
         this.artefact.optimizedMask = toRedo.newOptimizedMask;
-        this.artefact.mask = toRedo.newMask;
+        this.artefact.mask.polygon = toRedo.newMask;
       }
     },
     async onNew(art: Artefact) {
@@ -436,15 +456,10 @@ export default Vue.extend({
       }
       this.saving = true;
       try {
-        await this.imagedObjectService.createArtefact(
-          this.editionId,
-          this.imagedObject,
-          this.artefact
-        );
         this.artefactEditingDataList.push(new ArtefactEditingData());
-        this.showMessage('Artefact Created', false);
+        this.showMessage('Artefact Created', 'success');
       } catch (err) {
-        this.showMessage('Artefact creation failed', true);
+        this.showMessage('Artefact creation failed', 'error');
       } finally {
         this.saving = false;
       }
@@ -455,16 +470,15 @@ export default Vue.extend({
       }
       this.renaming = true;
       try {
-        await this.imagedObjectService.changeArtefactName(
+        await this.imagedObjectService.changeArtefact(
           this.editionId,
-          this.imagedObject,
           this.artefact
         );
-        this.showMessage('Artefact renamed', false);
+        this.showMessage('Artefact renamed', 'success');
         // this.renameInputActive = {};
         this.inputRenameChanged(undefined);
       } catch (err) {
-        this.showMessage('Artefact rename failed', true);
+        this.showMessage('Artefact rename failed', 'error');
       } finally {
         this.renaming = false;
       }
@@ -481,20 +495,12 @@ export default Vue.extend({
     getArtefactEditingData(index: number) {
       return this.artefactEditingDataList[index];
     },
-    showMessage(msg: string, error: boolean) {
-      if (error) {
-        this.$toasted.show(msg, {
-          type: 'error',
-          position: 'top-right',
-          duration: 7000
-        });
-      } else {
-        this.$toasted.show(msg, {
-          type: 'success',
-          position: 'top-right',
-          duration: 7000
-        });
-      }
+    showMessage(msg: string, type: string = 'info') {
+      this.$toasted.show(msg, {
+        type,
+        position: 'top-right',
+        duration: 7000
+      });
     },
     prepareNonSelectedArtefacts() {
       this.nonSelectedArtefacts = this.optimizedArtefacts.filter(
@@ -502,7 +508,7 @@ export default Vue.extend({
       );
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
-        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask);
+        this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask.polygon);
       }
     },
     sidebarClicked() {

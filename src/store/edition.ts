@@ -3,7 +3,7 @@ import { EditionState, RootState } from './types';
 
 
 const editionState: EditionState = {
-    edition: null,
+    current: null,
     newEditionId: null,
     imagedObjects: null,
 };
@@ -12,7 +12,7 @@ const editionState: EditionState = {
 const mutations: MutationTree<EditionState> = {
     SET_EDITION(state, edition) {
         console.log('Mutation SET_EDITION called with ', edition);
-        state.edition = edition;
+        state.current = edition;
     },
 
     SET_NEW_EDITION_ID(state, newEditionId) {
@@ -25,7 +25,7 @@ const mutations: MutationTree<EditionState> = {
     },
 
     RESET_DATA(state) {
-        state.edition = null;
+        state.current = null;
         state.newEditionId = null;
         state.imagedObjects = null;
     }
