@@ -2,13 +2,16 @@ import { IIIFImage } from './image';
 import { UserDTO } from '@/dtos/user';
 import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/editions';
 
-class UserInfo {
-    public userName: string;
+class UserInfo { // TODO: add fields like UserDTO ?
+    public email: string;
     public userId: number;
+    public forename: string;
+
 
     constructor(dto: UserDTO) {
-        this.userName = dto.userName;
+        this.email = dto.email;
         this.userId = dto.userId;
+        this.forename = dto.forename;
     }
 }
 
@@ -73,4 +76,4 @@ interface AllEditions {
     myEditionList: EditionInfo[];
 }
 
-export { EditionInfo, ShareInfo, AllEditions };
+export { UserInfo, EditionInfo, ShareInfo, AllEditions };

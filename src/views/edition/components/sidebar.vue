@@ -31,7 +31,7 @@
         </b-nav>
 
         <b-modal id="copyModal" 
-                 :title="$t('home.copyTitle', { name: current.name, owner: current.owner.userName })"
+                 :title="$t('home.copyTitle', { name: current.name, owner: current.owner.forename })"
                  @shown="copyModalShown"
                  @ok="copyEdition"
                  :ok-title="$t('misc.copy')"
@@ -106,7 +106,7 @@ export default Vue.extend({
     },
     methods: {
         versionString(ver: EditionInfo) {
-            return `${ver.name} - ${ver.owner.userName}`;
+            return `${ver.name} - ${ver.owner.forename}`;
         },
         async copyEdition(evt: Event) {
             evt.preventDefault();

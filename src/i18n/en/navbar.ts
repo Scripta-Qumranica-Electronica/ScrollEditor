@@ -4,8 +4,8 @@ export default {
     login: 'Login',
     logout: 'Logout',
 
-    username: 'Username',
-    fullName: 'Full Name',
+    forename: 'Forename',
+    surname: 'Surname',
     email: 'Email',
     password: 'Password',
     repassword: 'Repeat Password',

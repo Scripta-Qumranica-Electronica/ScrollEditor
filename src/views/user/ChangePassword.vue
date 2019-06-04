@@ -34,6 +34,7 @@ import Vue from 'vue';
 import SessionService from '@/services/session';
 import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
+import { ResetLoggedInUserPasswordRequestDTO } from '../../dtos/user';
 
 export default Vue.extend({
   name: 'change-password',
@@ -55,12 +56,17 @@ export default Vue.extend({
     },
   },
   methods: {
-    change() {
+    async change() {
         const data = {
-            currentPassword: this.currentPassword,
+            oldPassword: this.currentPassword,
             newPassword: this.newPassword,
-        };
-        this.sessionService.changePassword(data);
+        } as ResetLoggedInUserPasswordRequestDTO;
+
+        try {
+          var a = await this.sessionService.changePassword(data);
+        } catch (err) {
+          console.error(err);
+        }
     }
   }
 });

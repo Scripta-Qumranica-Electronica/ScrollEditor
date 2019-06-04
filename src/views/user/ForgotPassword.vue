@@ -6,10 +6,6 @@
                 <b-col cols="3">{{ $t('navbar.email') }}</b-col>
                 <b-col><b-form-input v-model="email" type="email" ref="emailRef"></b-form-input></b-col>
             </b-row>
-
-            <b-row>
-                <b-col class="text">{{ message }}</b-col>
-            </b-row>
         </b-container>
 
         <div slot="modal-footer">
@@ -38,7 +34,6 @@ export default Vue.extend({
     data() {
         return {
             email: '',
-            message: '',
             errorMessage: '',
             sessionService: new SessionService(this.$store),
             errorService: new ErrorService(this),
@@ -59,14 +54,14 @@ export default Vue.extend({
 
             try {
                 this.waiting = true;
-
-                this.message = 'A new password has been sent to your email';
                 this.sessionService.forgotPassword(this.email);
-                const self = this;
-                setTimeout (function after() {
-                    self.close();
-                    location.reload();
-                }, 4000);
+                this.close();
+
+                this.$toasted.show('A new password has been sent to your email', {
+                    type: 'info',
+                    position: 'top-right',
+                    duration: 7000
+                });
             } catch (err) {
                 this.errorMessage = this.errorService.getErrorMsg(err);
                 // const serverError = (err as ServerError);
@@ -76,7 +71,6 @@ export default Vue.extend({
                 //     this.errorMessage = this.$t('error.server').toString();
                 // }
             } finally {
-                this.message = '';
                 this.waiting = false;
             }
         },

@@ -6,13 +6,13 @@
       </b-row>
 
       <b-row class="mb-3">
-        <b-col cols="2">{{ $t('navbar.username') }}</b-col>
-        <b-col cols="2"><b-form-input v-model="username"></b-form-input></b-col>
+        <b-col cols="2">{{ $t('navbar.forename') }}</b-col>
+        <b-col cols="2"><b-form-input v-model="forename"></b-form-input></b-col>
       </b-row>
 
       <b-row class="mb-3">
-          <b-col cols="2">{{ $t('navbar.fullName') }}</b-col>
-          <b-col cols="2"><b-form-input v-model="fullName"></b-form-input></b-col>
+          <b-col cols="2">{{ $t('navbar.surname') }}</b-col>
+          <b-col cols="2"><b-form-input v-model="surname"></b-form-input></b-col>
       </b-row>
       
       <b-row class="mb-3">
@@ -50,13 +50,14 @@ import Vue from 'vue';
 import SessionService from '@/services/session';
 import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
+import { NewUserRequestDTO } from '../../dtos/user';
 
 export default Vue.extend({
   name: 'registration',
   data() {
     return {
-      username: '',
-      fullName: '',
+      forename: '',
+      surname: '',
       email: '',
       password: '',
       repassword: '',
@@ -71,20 +72,30 @@ export default Vue.extend({
   },
   computed: {
     disabledReg(): boolean {
-      return this.password !== this.repassword || !this.username || !this.fullName
+      return this.password !== this.repassword || !this.forename || !this.surname
       || !this.email || !this.password || !this.repassword || !this.organization || this.waiting;
     },
   },
   methods: {
-    register() {
+    async register() {
       const data = {
-        userName: this.username,
-        fullName: this.fullName,
+        forename: this.forename,
+        surname: this.surname,
         email: this.email,
         organization: this.organization,
         password: this.password
-      };
-      this.sessionService.register(data);
+      } as NewUserRequestDTO;
+
+      try {
+        const user = await this.sessionService.register(data);
+        setTimeout (function after() {
+            debugger
+        }, 4000);
+      } catch (err) {
+        this.errorMessage = this.errorService.getErrorMsg(err);
+        console.error(err);
+      }
+
       // todo: login this user
     }
   }

@@ -1,7 +1,11 @@
 import { Store } from 'vuex';
 import { Communicator } from './communications';
-import { LoginRequestDTO, LoginResponseDTO, UserDTO } from '@/dtos/user';
+import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
+    ResendUserAccountActivationRequestDTO,
+    NewUserRequestDTO,
+    ResetForgottenUserPasswordRequestDTO} from '@/dtos/user';
 import { CommHelper } from './comm-helper';
+import { UserInfo } from '@/models/edition';
 
 
 class SessionService {
@@ -10,16 +14,16 @@ class SessionService {
         this.communicator = new Communicator(this.store);
     }
 
-    public async login(userName: string, password: string) {
+    public async login(email: string, password: string) {
         const requestDto = {
-            userName,
+            email,
             password
         } as LoginRequestDTO;
         const response = await CommHelper.post<LoginResponseDTO>('/v1/users/login', requestDto, false);
 
         this.store.dispatch('session/logIn', {
             userId: response.data.userId,
-            userName: response.data.userName,
+            userName: response.data.email, // forename
             token: response.data.token,
         }, {root: true});
     }
@@ -44,25 +48,42 @@ class SessionService {
     }
 
     public async forgotPassword(email: string) {
+        const body = {email} as ResendUserAccountActivationRequestDTO;
         try {
-            const response = await this.communicator.getRequest<ValidateTokenResponse>('/v1/user');
-            return true;
+            await CommHelper.post<any>
+            ('/v1/users/resend-activation-email', body);
         } catch (error) {
-            this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out
-            return false;
+            console.error(error);
         }
-        return true;
     }
 
-    public register(data: any) {
-        return true;
+    public async register(data: NewUserRequestDTO): Promise<UserInfo> {
+        // debugger
+        const response = await CommHelper.post<UserDTO>('/v1/users', data, false);
+        debugger
+        return new UserInfo(response.data);
+        // .then((a: any) => {
+        //     debugger
+        // }).catch((error) => {
+        //     debugger;
+        // })
+        // return true;
     }
 
-    public changePassword(data: any) {
-        return true;
+    public async changePassword(data: ResetLoggedInUserPasswordRequestDTO) { // problem in backend
+        // await CommHelper.post<any>('/v1/users/change-password', data);
+        // debugger
+            // .then((a: any) => {
+            //     return a;
+            // }).catch((error) => {
+            //     console.error(error);
+            // });
     }
 
-    public changeForgottenPassword(data: any) {
+    public async changeForgottenPassword(data: ResetForgottenUserPasswordRequestDTO) {
+        debugger
+        await CommHelper.post<any>('/v1/users/change-forgotten-password', data);
+        this.logout();
         return true;
     }
 }
