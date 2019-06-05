@@ -35,12 +35,16 @@
           <b-col cols="2"><b-form-input v-model="organization"></b-form-input></b-col>
       </b-row>
     
-      <b-button @click="register" variant="primary" type="submit" :disabled="disabledReg">
+      <b-button @click="register" variant="primary" :disabled="disabledReg">
         {{ $t('navbar.register') }}
         <span v-if="waiting">
           <font-awesome-icon icon="spinner" spin></font-awesome-icon>
         </span>
-      </b-button>     
+      </b-button>  
+
+      <b-row>
+        <b-col class="text-danger">{{errorMessage}}</b-col>
+      </b-row>   
     </form>
   </div>
 </template>
@@ -51,6 +55,7 @@ import SessionService from '@/services/session';
 import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 import { NewUserRequestDTO } from '../../dtos/user';
+import router from '../../router';
 
 export default Vue.extend({
   name: 'registration',
@@ -88,11 +93,9 @@ export default Vue.extend({
 
       try {
         const user = await this.sessionService.register(data);
-        setTimeout (function after() {
-            debugger
-        }, 4000);
+        router.push('/');
       } catch (err) {
-        this.errorMessage = this.errorService.getErrorMsg(err);
+        this.errorMessage = err + '. ' + this.errorService.getErrorMsg(err);
         console.error(err);
       }
 

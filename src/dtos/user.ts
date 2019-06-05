@@ -34,6 +34,10 @@ export interface NewUserRequestDTO {
     surname: string;
 }
 
-export interface ResetForgottenUserPasswordRequestDTO {
+export interface AccountActivationRequestDTO {
+    token: string;
+}
+
+export interface ResetForgottenUserPasswordRequestDTO extends AccountActivationRequestDTO {
     password: string;
 }

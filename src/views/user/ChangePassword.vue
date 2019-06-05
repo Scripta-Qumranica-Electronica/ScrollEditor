@@ -19,7 +19,7 @@
             <b-col cols="2"><b-form-input v-model="rePassword" type="password"></b-form-input></b-col>
         </b-row>
     
-        <b-button @click="change" variant="primary" type="submit" :disabled="disableChange">
+        <b-button @click="change" variant="primary" :disabled="disableChange">
             {{ $t('navbar.change') }}
             <span v-if="waiting">
                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>

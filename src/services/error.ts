@@ -11,7 +11,7 @@ class ErrorService {
         const notFoundError = (error as NotFoundError);
 
         if (serverError) {
-            return this.vue.$t( `error.server${serverError.errorCode}`).toString();
+            return this.vue.$t( `error.server ${serverError.errorCode}`).toString();
         }
         if (notFoundError) {
             return this.vue.$t(`notFound.${notFoundError.entityType}`, { id: notFoundError.entityId }).toString();

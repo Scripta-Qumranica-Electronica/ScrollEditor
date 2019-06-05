@@ -3,7 +3,8 @@ import { Communicator } from './communications';
 import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
     ResendUserAccountActivationRequestDTO,
     NewUserRequestDTO,
-    ResetForgottenUserPasswordRequestDTO} from '@/dtos/user';
+    ResetForgottenUserPasswordRequestDTO,
+    AccountActivationRequestDTO} from '@/dtos/user';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 
@@ -50,41 +51,30 @@ class SessionService {
     public async forgotPassword(email: string) {
         const body = {email} as ResendUserAccountActivationRequestDTO;
         try {
-            await CommHelper.post<any>
-            ('/v1/users/resend-activation-email', body);
+            await CommHelper.post<any>('/v1/users/forgot-password', body);
         } catch (error) {
             console.error(error);
         }
     }
 
     public async register(data: NewUserRequestDTO): Promise<UserInfo> {
-        // debugger
         const response = await CommHelper.post<UserDTO>('/v1/users', data, false);
-        debugger
         return new UserInfo(response.data);
-        // .then((a: any) => {
-        //     debugger
-        // }).catch((error) => {
-        //     debugger;
-        // })
-        // return true;
     }
 
-    public async changePassword(data: ResetLoggedInUserPasswordRequestDTO) { // problem in backend
-        // await CommHelper.post<any>('/v1/users/change-password', data);
-        // debugger
-            // .then((a: any) => {
-            //     return a;
-            // }).catch((error) => {
-            //     console.error(error);
-            // });
+    public async changePassword(data: ResetLoggedInUserPasswordRequestDTO) {
+        await CommHelper.post<any>('/v1/users/change-password', data);
     }
 
     public async changeForgottenPassword(data: ResetForgottenUserPasswordRequestDTO) {
-        debugger
-        await CommHelper.post<any>('/v1/users/change-forgotten-password', data);
-        this.logout();
-        return true;
+        await CommHelper.post<any>('/v1/users/change-forgotten-password', data, false);
+
+        // TODO: Figure out if we catch an exception are rethrow a different exception, or leave
+        // the Axios exception as is
+    }
+
+    public async activateUser(data: AccountActivationRequestDTO) {
+        await CommHelper.post<any>('/v1/users/confirm-registration', data, false);
     }
 }
 

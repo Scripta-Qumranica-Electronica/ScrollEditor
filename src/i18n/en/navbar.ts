@@ -21,4 +21,7 @@ export default {
 
     forgotPassword: 'Forgot Password',
     changeForgottenPassword: 'Change Forgotten Password',
+
+    activateUser: 'Activate User',
+    activate: 'Activate'
 };

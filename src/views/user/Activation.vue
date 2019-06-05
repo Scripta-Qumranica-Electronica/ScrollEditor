@@ -2,33 +2,15 @@
   <div>
     <form>
         <b-row class="mb-3">
-            <h4>{{ $t('navbar.changeForgottenPassword') }}</h4>
+            <h4>{{ $t('navbar.activateUser') }}</h4>
         </b-row>
     
-        <b-row class="mb-3">
-            <b-col cols="2">{{ $t('navbar.newPassword') }}</b-col>
-            <b-col cols="2"><b-form-input v-model="newPassword" type="password"></b-form-input></b-col>
-        </b-row>
-        
-        <b-row class="mb-3">
-            <b-col cols="2">{{ $t('navbar.repassword') }}</b-col>
-            <b-col cols="2"><b-form-input v-model="rePassword" type="password"></b-form-input></b-col>
-        </b-row>
-    
-        <b-button @click="change" variant="primary" :disabled="disableChange">
-            {{ $t('navbar.change') }}
+        <b-button @click="change" variant="primary">
+            {{ $t('navbar.activate') }}
             <span v-if="waiting">
                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
             </span>
-        </b-button>
-
-        <b-row>
-            <b-col class="text-danger">{{ errorMessage }}</b-col>
-        </b-row>
-
-        <!--<div class="alert alert-danger" role="alert" :v-if="errorMessage.length>
-          {{errorMessage}}
-        </div>-->
+        </b-button>     
     </form>
   </div>
 </template>
@@ -42,7 +24,7 @@ import router from '../../router';
 import { ResetForgottenUserPasswordRequestDTO } from '../../dtos/user';
 
 export default Vue.extend({
-  name: 'change-forgotten-password',
+  name: 'activation',
   data() {
     return {
       newPassword: '',
@@ -66,8 +48,7 @@ export default Vue.extend({
     const url  = window.location.href;
     this.token = url.split('token/')[1];
     if (this.token === '') {
-      this.errorMessage = 'There is no token in url';
-      console.error(this.errorMessage);
+      console.error('There is no token in url');
     }
   },
   methods: {
@@ -77,11 +58,11 @@ export default Vue.extend({
         password: this.newPassword,
       } as ResetForgottenUserPasswordRequestDTO;
       try {
-        await this.sessionService.changeForgottenPassword(data);
+        await this.sessionService.activateUser(data);
         router.push('/');
         this.$root.$emit('bv::show::modal', 'loginModal');
-      } catch (e) {
-        this.errorMessage = e + '. ' + this.errorService.getErrorMsg(e);
+      } catch {
+        console.error('changeForgottenPassword failed');
       }
     }
   }

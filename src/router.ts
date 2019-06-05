@@ -7,6 +7,7 @@ import EditionArtefacts from './views/edition/components/artefacts.vue';
 import Registration from './views/user/Registration.vue';
 import ChangePassword from './views/user/ChangePassword.vue';
 import ChangeForgottenPassword from './views/user/ChangeForgottenPassword.vue';
+import Activation from './views/user/Activation.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/ImagedObjectEditor.vue';
 
 Vue.use(Router);
@@ -49,8 +50,12 @@ export default new Router({
       component: ChangePassword,
     },
     {
-      path: '/changeForgottenPassword',
+      path: '/changeForgottenPassword/token/:token',
       component: ChangeForgottenPassword,
+    },
+    {
+      path: '/activateUser/token/:token',
+      component: Activation,
     },
   ],
 });
