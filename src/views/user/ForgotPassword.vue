@@ -57,7 +57,7 @@ export default Vue.extend({
                 this.sessionService.forgotPassword(this.email);
                 this.close();
 
-                this.$toasted.show('A new password has been sent to your email', {
+                this.$toasted.show('A new link has been sent to your email', {
                     type: 'info',
                     position: 'top-right',
                     duration: 7000

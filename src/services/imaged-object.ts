@@ -82,25 +82,18 @@ class ImagedObjectService {
         const body = {
             mask,
             name: artefact.name,
-            position: '1', // TODO: what is position?
         } as UpdateArtefactDTO;
 
         const response = await CommHelper.put<ArtefactDTO>(`/v1/editions/${editionId}/artefacts/${artefact.id}`, body);
         return response.data;
     }
 
-    public async changeArtefactPosition(editionId: number, artefact: Artefact):
-        Promise<ArtefactPositionChangedResult> {
-        // const transformMatrix = artefact.transformMatrix ?
-        //     artefact.transformMatrix :
-        //     '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
-        const response = await this.communicator.request<ArtefactShapeChangedResult>('changeArtefactPosition', {
-            scroll_version_id: editionId,
-            artefact_id: artefact.id,
-            z_index: null // I think z-index will be removed
-        });
-        return response.data;
-    }
+    // The position is a transform matrix for positioning the
+    // artifact properly in the coordinate system of the virtual scroll.
+    // todo: changeArtefact position: add position to the body
+    // const transformMatrix = artefact.transformMatrix ?
+    //     artefact.transformMatrix :
+    //     '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
 
     private _getCachedImagedObject(editionId: number, imagedObjectId: string): ImagedObject | undefined {
         if (!this.store.state.edition || editionId !== this.store.state.edition.id) {

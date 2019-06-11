@@ -35,6 +35,7 @@ import SessionService from '@/services/session';
 import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 import { ResetLoggedInUserPasswordRequestDTO } from '../../dtos/user';
+import router from '../../router';
 
 export default Vue.extend({
   name: 'change-password',
@@ -63,8 +64,15 @@ export default Vue.extend({
         } as ResetLoggedInUserPasswordRequestDTO;
 
         try {
-          var a = await this.sessionService.changePassword(data);
+          await this.sessionService.changePassword(data);
+          router.push('/');
+          this.$toasted.show('Your password changed', {
+              type: 'info',
+              position: 'top-right',
+              duration: 7000
+          });
         } catch (err) {
+          this.errorMessage = err + '. ' + this.errorService.getErrorMsg(err);
           console.error(err);
         }
     }

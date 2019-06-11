@@ -98,8 +98,6 @@ export default Vue.extend({
         this.errorMessage = err + '. ' + this.errorService.getErrorMsg(err);
         console.error(err);
       }
-
-      // todo: login this user
     }
   }
 });
