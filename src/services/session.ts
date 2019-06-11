@@ -12,6 +12,7 @@ import { UserInfo } from '@/models/edition';
 class SessionService {
     private communicator: Communicator;
     constructor(private store: Store<any>) {
+        console.log('process.env=', process.env);
         this.communicator = new Communicator(this.store);
     }
 

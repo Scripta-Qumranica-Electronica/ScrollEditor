@@ -4,13 +4,13 @@ module.exports = {
       config.devtool = 'eval-source-map'
     }
   },
-    devServer: {
-      proxy: {
-        '/v1': {
-          target: 'http://localhost:5000',
-          ws: true,
-          changeOrigin: true
-        }
+  devServer: {
+    proxy: {
+      '/v1': {
+        target: 'http://localhost:5000',
+        ws: true,
+        changeOrigin: true
       }
     }
   }
+}
