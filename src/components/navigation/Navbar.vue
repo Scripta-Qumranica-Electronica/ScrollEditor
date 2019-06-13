@@ -81,7 +81,7 @@ export default Vue.extend({
       location.reload();
     },
     changePassword() {
-      router.push('changePassword');
+      router.push('/changePassword');
     },
   }
 });

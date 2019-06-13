@@ -94,6 +94,11 @@ export default Vue.extend({
       try {
         const user = await this.sessionService.register(data);
         router.push('/');
+        this.$toasted.show('An activation link has been sent to your email', {
+            type: 'info',
+            position: 'top-right',
+            duration: 7000
+        });
       } catch (err) {
         this.errorMessage = this.errorService.getErrorMessage(err.response.data);
       }

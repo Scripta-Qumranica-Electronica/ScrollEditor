@@ -61,7 +61,7 @@ export default Vue.extend({
                 this.sessionService.forgotPassword(this.email);
                 this.close();
 
-                this.$toasted.show('An activation link has been sent to your email', {
+                this.$toasted.show('A reset link has been sent to your email', {
                     type: 'info',
                     position: 'top-right',
                     duration: 7000
