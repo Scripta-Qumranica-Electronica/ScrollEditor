@@ -48,6 +48,7 @@ export default new Router({
     {
       path: '/changePassword',
       component: ChangePassword,
+      meta: {activeUserRoute: true}
     },
     {
       path: '/changeForgottenPassword/token/:token',

@@ -11,6 +11,7 @@ export interface UserDTO {
     forename: string;
     surname: string;
     organization: string;
+    activated: boolean;
 }
 
 export interface LoginResponseDTO extends UserDTO {

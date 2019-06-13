@@ -54,6 +54,21 @@ Vue.use(VueShortcuts, { prevent: ['input'] });
 
 Vue.use(RenderingOptimizationPlugin);
 
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.activeUserRoute)) {
+    // this route requires activated user
+    // if not, redirect to home page.
+    if ((store.state as any).session.activated) {
+      // We know it's ugly but we do not have a vue instance, and that's how we can know what the value is.
+      next();
+    } else {
+      next({ path: '/'});
+    }
+  } else {
+    next(); // make sure to always call next()!
+  }
+});
+
 new Vue({
   router,
   store,

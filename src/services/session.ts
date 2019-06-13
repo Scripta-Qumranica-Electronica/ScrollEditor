@@ -27,6 +27,7 @@ class SessionService {
             userId: response.data.userId,
             userName: response.data.email, // forename
             token: response.data.token,
+            activated: response.data.activated,
         }, {root: true});
     }
 

@@ -13,6 +13,7 @@ export interface SessionState {
     userName?: string;
     fullName?: string;
     token?: string;
+    activated?: boolean;
 }
 
 export interface EditionState {
