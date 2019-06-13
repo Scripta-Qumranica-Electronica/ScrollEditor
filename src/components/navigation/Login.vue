@@ -78,7 +78,7 @@ export default Vue.extend({
                 this.close();
                 location.reload();
             } catch (err) {
-                this.errorMessage = this.errorService.getErrorMsg(err);
+                this.errorMessage = this.errorService.getErrorMessage(err.response.data);
                 // const serverError = (err as ServerError);
                 // if (serverError) {
                 //     this.errorMessage = this.$t( `error.server${serverError.errorCode}`).toString();

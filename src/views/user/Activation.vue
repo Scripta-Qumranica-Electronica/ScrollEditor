@@ -4,13 +4,17 @@
         <b-row class="mb-3">
             <h4>{{ $t('navbar.activateUser') }}</h4>
         </b-row>
-    
+        
         <b-button @click="change" variant="primary">
             {{ $t('navbar.activate') }}
             <span v-if="waiting">
                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
             </span>
-        </b-button>     
+        </b-button>   
+        
+        <b-row>
+          <b-col class="text-danger">{{errorMessage}}</b-col>
+        </b-row>   
     </form>
   </div>
 </template>
@@ -61,8 +65,8 @@ export default Vue.extend({
         await this.sessionService.activateUser(data);
         router.push('/');
         this.$root.$emit('bv::show::modal', 'loginModal');
-      } catch {
-        console.error('changeForgottenPassword failed');
+      } catch (e) {
+        this.errorMessage = this.errorService.getErrorMessage(e.response.data);
       }
     }
   }

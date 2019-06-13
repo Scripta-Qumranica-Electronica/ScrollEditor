@@ -95,8 +95,7 @@ export default Vue.extend({
         const user = await this.sessionService.register(data);
         router.push('/');
       } catch (err) {
-        this.errorMessage = err + '. ' + this.errorService.getErrorMsg(err);
-        console.error(err);
+        this.errorMessage = this.errorService.getErrorMessage(err.response.data);
       }
     }
   }

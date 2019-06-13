@@ -81,7 +81,7 @@ export default Vue.extend({
         router.push('/');
         this.$root.$emit('bv::show::modal', 'loginModal');
       } catch (e) {
-        this.errorMessage = e + '. ' + this.errorService.getErrorMsg(e);
+        this.errorMessage = this.errorService.getErrorMessage(e.response.data);
       }
     }
   }

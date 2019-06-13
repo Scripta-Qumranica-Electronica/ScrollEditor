@@ -24,7 +24,11 @@
             <span v-if="waiting">
                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
             </span>
-        </b-button>     
+        </b-button>
+
+        <b-row>
+            <b-col class="text-danger">{{ errorMessage }}</b-col>
+        </b-row>  
     </form>
   </div>
 </template>
@@ -72,8 +76,7 @@ export default Vue.extend({
               duration: 7000
           });
         } catch (err) {
-          this.errorMessage = err + '. ' + this.errorService.getErrorMsg(err);
-          console.error(err);
+          this.errorMessage = this.errorService.getErrorMessage(err.response.data);
         }
     }
   }

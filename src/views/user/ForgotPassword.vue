@@ -6,11 +6,15 @@
                 <b-col cols="3">{{ $t('navbar.email') }}</b-col>
                 <b-col><b-form-input v-model="email" type="email" ref="emailRef"></b-form-input></b-col>
             </b-row>
+
+            <b-row>
+                <b-col class="text-danger">{{errorMessage}}</b-col>
+            </b-row> 
         </b-container>
 
         <div slot="modal-footer">
             <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
-            <b-button @click="submit1" variant="primary" type="submit" :disabled="disabledSubmit">
+            <b-button @click="submit" variant="primary" type="submit" :disabled="disabledSubmit">
                 {{ $t('navbar.forgotPassword') }}
                 <span v-if="waiting">
                     <font-awesome-icon icon="spinner" spin></font-awesome-icon>
@@ -46,7 +50,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        submit1() {
+        submit() {
             if (this.disabledSubmit) {
                 // Can be called due to ENTER key
                 return;
@@ -57,19 +61,13 @@ export default Vue.extend({
                 this.sessionService.forgotPassword(this.email);
                 this.close();
 
-                this.$toasted.show('A new link has been sent to your email', {
+                this.$toasted.show('An activation link has been sent to your email', {
                     type: 'info',
                     position: 'top-right',
                     duration: 7000
                 });
             } catch (err) {
-                this.errorMessage = this.errorService.getErrorMsg(err);
-                // const serverError = (err as ServerError);
-                // if (serverError) {
-                //     this.errorMessage = this.$t( `error.server${serverError.errorCode}`).toString();
-                // } else {
-                //     this.errorMessage = this.$t('error.server').toString();
-                // }
+                this.errorMessage = this.errorService.getErrorMessage(err.response.data);
             } finally {
                 this.waiting = false;
             }
