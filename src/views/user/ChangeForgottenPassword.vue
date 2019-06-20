@@ -77,7 +77,6 @@ export default Vue.extend({
         password: this.newPassword,
       } as ResetForgottenUserPasswordRequestDTO;
       this.waiting = true;
-      
       try {
         await this.sessionService.changeForgottenPassword(data);
         router.push('/');
