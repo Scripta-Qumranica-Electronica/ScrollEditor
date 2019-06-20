@@ -31,22 +31,12 @@ export default Vue.extend({
   name: 'activation',
   data() {
     return {
-      newPassword: '',
-      rePassword: '',
       token: '',
       errorMessage: '',
       sessionService: new SessionService(this.$store),
       errorService: new ErrorService(this),
       waiting: false,
     };
-  },
-  components: {
-  },
-  computed: {
-    disableChange(): boolean {
-        return this.newPassword !== this.rePassword
-        || !this.newPassword || !this.rePassword || this.waiting;
-    },
   },
   mounted() {
     const url  = window.location.href;
@@ -58,8 +48,7 @@ export default Vue.extend({
   methods: {
     async change() {
       const data = {
-        token: this.token,
-        password: this.newPassword,
+        token: this.token
       } as ResetForgottenUserPasswordRequestDTO;
       this.waiting = true;
       try {

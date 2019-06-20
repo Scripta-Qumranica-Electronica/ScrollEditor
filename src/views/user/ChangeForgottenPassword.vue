@@ -14,6 +14,10 @@
             <b-col cols="2">{{ $t('navbar.repassword') }}</b-col>
             <b-col cols="2"><b-form-input v-model="rePassword" type="password"></b-form-input></b-col>
         </b-row>
+
+        <b-row>
+          <b-col class="text-danger">{{identicalError}}</b-col>
+        </b-row>  
     
         <b-button @click="change" variant="primary" :disabled="disableChange">
             {{ $t('navbar.change') }}
@@ -61,6 +65,12 @@ export default Vue.extend({
         return this.newPassword !== this.rePassword
         || !this.newPassword || !this.rePassword || this.waiting;
     },
+    identicalError(): string {
+      if (this.newPassword && this.rePassword && this.newPassword !== this.rePassword) {
+        return 'Passwords must be identical';
+      }
+      return '';
+    }
   },
   mounted() {
     const url  = window.location.href;
