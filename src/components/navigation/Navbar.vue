@@ -7,8 +7,16 @@
         <b-nav-item right v-if="!userName">
           <b-btn @click="login" size="sm">{{ $t('navbar.login') }}</b-btn>
         </b-nav-item>
+        <b-nav-item right v-if="!userName">
+          <b-btn size="sm">
+          <router-link :to="{path: `/registration`}" class="white-link">
+              {{ $t('navbar.register') }}
+          </router-link>
+          </b-btn>
+        </b-nav-item>
         <b-nav-item-dropdown v-if="userName" right :text="userName">
           <b-dropdown-item-button @click="logout()">{{ $t('navbar.logout') }}</b-dropdown-item-button>
+          <b-dropdown-item-button v-if="activated" @click="changePassword()">{{ $t('navbar.changePassword') }}</b-dropdown-item-button>
         </b-nav-item-dropdown>
   
         <b-nav-item-dropdown right> <!-- Change language -->
@@ -34,6 +42,7 @@ import { mapState } from 'vuex';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
+import router from '../../router';
 
 
 export default Vue.extend({
@@ -54,6 +63,9 @@ export default Vue.extend({
     },
     userName(): string | undefined {
       return this.$store.state.session.loggedIn ? this.$store.state.session.userName : undefined;
+    },
+    activated(): boolean {
+      return this.$store.state.session.activated;
     }
   },
   methods: {
@@ -68,6 +80,16 @@ export default Vue.extend({
       this.sessionService.logout();
       location.reload();
     },
+    changePassword() {
+      router.push('/changePassword');
+    },
   }
 });
 </script>
+
+<style scoped>
+.white-link {
+    color: white;
+    text-decoration: none;
+ }
+</style>

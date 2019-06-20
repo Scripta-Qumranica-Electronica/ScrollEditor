@@ -82,7 +82,7 @@ class EditionService {
         );
 
         console.log('Imaged objects DTOs are ', response.data);
-        return response.data.imagedObjects.map((d) => new ImagedObject(d));
+        return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
     }
 
     public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {

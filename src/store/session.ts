@@ -3,12 +3,11 @@ import { MutationTree, ActionTree, Module } from 'vuex';
 
 function getLocalStorageSession(): SessionState {
     const sessionState: SessionState = {
-        // sessionId: localStorage.getItem('sessionId') || undefined,
         userId: localStorage.getItem('userId') as (number | null) || undefined,
         loggedIn: localStorage.getItem('loggedIn') === 'true',
         userName: localStorage.getItem('userName') || undefined,
         token: localStorage.getItem('token') || undefined,
-        // fullName: localStorage.getItem('fullName') || undefined,
+        activated: localStorage.getItem('activated') === 'true'
     };
 
     return sessionState;
@@ -23,40 +22,37 @@ function setLocalStorageSession(state: SessionState) {
         }
     }
 
-    // setEntry('sessionId', state.sessionId);
     setEntry('userId', String(state.userId));
     setEntry('loggedIn', state.loggedIn ? 'true' : 'false');
     setEntry('userName', state.userName);
-    // setEntry('fullName', state.fullName);
     setEntry('token', state.token);
+    setEntry('activated', state.activated ? 'true' : 'false');
 }
 
 const userState = getLocalStorageSession();
 
 const mutations: MutationTree<SessionState> = {
-    SET_LOGGED_IN(state, { sessionId, userId, userName, fullName, token }) {
+    SET_LOGGED_IN(state, { userId, userName, token, activated }) {
         state.loggedIn = true;
-        // state.sessionId = sessionId;
         state.userId = userId;
         state.userName = userName;
-        // state.fullName = fullName;
         state.token = token;
+        state.activated = activated;
     },
 
     SET_LOGGED_OUT(state) {
         state.loggedIn = false;
-        // state.sessionId = undefined;
         state.userId = undefined;
         state.userName = undefined;
-        // state.fullName = undefined;
         state.token = undefined;
+        state.activated = undefined;
     }
 };
 
 
 const actions: ActionTree<SessionState, RootState> = {
-    logIn({ commit, state }, { userId, userName, token }) {
-        commit('SET_LOGGED_IN', { userId, userName, token });
+    logIn({ commit, state }, { userId, userName, token, activated }) {
+        commit('SET_LOGGED_IN', { userId, userName, token, activated });
         setLocalStorageSession(state);
     },
 

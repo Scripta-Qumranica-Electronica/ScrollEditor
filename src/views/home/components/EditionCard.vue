@@ -35,7 +35,7 @@ export default Vue.extend({
       return this.edition.shares.length - 1; // One is the current user
     },
     shareNames(): string {
-      const names = this.edition.shares.map((share) => share.user.userName);
+      const names = this.edition.shares.map((share) => share.user.forename);
       return names.join(', ');
     }
   },
