@@ -66,9 +66,7 @@ class ImagedObjectService {
         const body = {
             masterImageId,
             mask: '',
-            name: artefactName,
-            position: '1'
-
+            name: artefactName
         } as CreateArtefactDTO;
         const response = await CommHelper.post<ArtefactDTO>(`/v1/editions/${editionId}/artefacts`, body);
 

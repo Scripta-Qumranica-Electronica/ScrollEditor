@@ -18,6 +18,10 @@
             <b-col cols="2">{{ $t('navbar.repassword') }}</b-col>
             <b-col cols="2"><b-form-input v-model="rePassword" type="password"></b-form-input></b-col>
         </b-row>
+
+        <b-row>
+          <b-col class="text-danger">{{identicalError}}</b-col>
+        </b-row>  
     
         <b-button @click="change" variant="primary" :disabled="disableChange">
             {{ $t('navbar.change') }}
@@ -59,6 +63,12 @@ export default Vue.extend({
         return this.newPassword !== this.rePassword || !this.currentPassword
         || !this.newPassword || !this.rePassword || this.waiting;
     },
+    identicalError(): string {
+      if (this.newPassword && this.rePassword && this.newPassword !== this.rePassword) {
+        return 'Passwords must be identical';
+      }
+      return '';
+    }
   },
   methods: {
     async change() {
@@ -66,6 +76,7 @@ export default Vue.extend({
             oldPassword: this.currentPassword,
             newPassword: this.newPassword,
         } as ResetLoggedInUserPasswordRequestDTO;
+        this.waiting = true;
 
         try {
           await this.sessionService.changePassword(data);
@@ -77,6 +88,8 @@ export default Vue.extend({
           });
         } catch (err) {
           this.errorMessage = this.errorService.getErrorMessage(err.response.data);
+        } finally {
+          this.waiting = false;
         }
     }
   }

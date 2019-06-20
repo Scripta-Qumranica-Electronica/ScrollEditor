@@ -34,6 +34,10 @@
           <b-col cols="2">{{ $t('navbar.organization') }}</b-col>
           <b-col cols="2"><b-form-input v-model="organization"></b-form-input></b-col>
       </b-row>
+
+      <b-row>
+          <b-col class="text-danger">{{identicalError}}</b-col>
+        </b-row>  
     
       <b-button @click="register" variant="primary" :disabled="disabledReg">
         {{ $t('navbar.register') }}
@@ -78,8 +82,14 @@ export default Vue.extend({
   computed: {
     disabledReg(): boolean {
       return this.password !== this.repassword || !this.forename || !this.surname
-      || !this.email || !this.password || !this.repassword || !this.organization || this.waiting;
+      || !this.email || !this.password || !this.repassword || this.waiting;
     },
+    identicalError(): string {
+      if (this.password && this.repassword && this.password !== this.repassword) {
+        return 'Passwords must be identical';
+      }
+      return '';
+    }
   },
   methods: {
     async register() {
@@ -90,6 +100,7 @@ export default Vue.extend({
         organization: this.organization,
         password: this.password
       } as NewUserRequestDTO;
+      this.waiting = true;
 
       try {
         const user = await this.sessionService.register(data);
@@ -101,6 +112,8 @@ export default Vue.extend({
         });
       } catch (err) {
         this.errorMessage = this.errorService.getErrorMessage(err.response.data);
+      } finally {
+        this.waiting = false;
       }
     }
   }

@@ -76,12 +76,16 @@ export default Vue.extend({
         token: this.token,
         password: this.newPassword,
       } as ResetForgottenUserPasswordRequestDTO;
+      this.waiting = true;
+      
       try {
         await this.sessionService.changeForgottenPassword(data);
         router.push('/');
         this.$root.$emit('bv::show::modal', 'loginModal');
       } catch (e) {
         this.errorMessage = this.errorService.getErrorMessage(e.response.data);
+      } finally {
+        this.waiting = false;
       }
     }
   }
