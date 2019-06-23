@@ -23,6 +23,7 @@ import RenderingOptimizationPlugin from './plugins/rendering-optimization';
 // i18n
 import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
+import { StateManager } from './state';
 
 Vue.config.productionTip = false;
 
@@ -37,6 +38,8 @@ Vue.use(VueLazyload, {
     threshold: 0.5
   }
 });
+
+Vue.prototype.$state = StateManager.instance;
 
 Vue.use(BootstrapVue);
 

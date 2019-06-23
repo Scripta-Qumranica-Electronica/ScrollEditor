@@ -7,11 +7,13 @@ import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRe
     AccountActivationRequestDTO} from '@/dtos/user';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
+import { StateManager } from '@/state';
 
 
 class SessionService {
     private communicator: Communicator;
     constructor(private store: Store<any>) {
+        // To access the StateManager use StateManager.instance
         console.log('process.env=', process.env);
         this.communicator = new Communicator(this.store);
     }
@@ -33,7 +35,7 @@ class SessionService {
 
     public logout() {
         // No need to contact the server, we just forget the session
-        this.store.dispatch('session/logOut', {}, { root: true });
+          this.store.dispatch('session/logOut', {}, { root: true });
     }
 
     public async isTokenValid() {
