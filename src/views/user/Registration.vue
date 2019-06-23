@@ -56,7 +56,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import SessionService from '@/services/session';
-import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 import { NewUserRequestDTO } from '../../dtos/user';
 import router from '../../router';

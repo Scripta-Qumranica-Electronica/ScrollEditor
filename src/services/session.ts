@@ -1,5 +1,4 @@
 import { Store } from 'vuex';
-import { Communicator } from './communications';
 import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
     ResendUserAccountActivationRequestDTO,
     NewUserRequestDTO,
@@ -11,11 +10,7 @@ import { StateManager } from '@/state';
 
 
 class SessionService {
-    private communicator: Communicator;
     constructor(private store: Store<any>) {
-        // To access the StateManager use StateManager.instance
-        console.log('process.env=', process.env);
-        this.communicator = new Communicator(this.store);
     }
 
     public async login(email: string, password: string) {

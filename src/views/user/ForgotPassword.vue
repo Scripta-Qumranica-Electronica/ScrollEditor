@@ -30,7 +30,6 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
-import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 
 export default Vue.extend({

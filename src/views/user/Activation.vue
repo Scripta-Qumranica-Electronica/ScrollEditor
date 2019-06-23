@@ -22,7 +22,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import SessionService from '@/services/session';
-import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 import router from '../../router';
 import { ResetForgottenUserPasswordRequestDTO } from '../../dtos/user';

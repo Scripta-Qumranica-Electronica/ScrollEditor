@@ -1,5 +1,4 @@
 import { Store } from 'vuex';
-import { Communicator, ServerError } from './communications';
 import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { CommHelper } from './comm-helper';
@@ -7,9 +6,7 @@ import { EditionListDTO, EditionGroupDTO, EditionCopyRequestDTO, EditionDTO } fr
 import { ImagedObjectListDTO } from '@/dtos/imaged-object';
 
 class EditionService {
-    private communicator: Communicator;
     constructor(private store: Store<any>) {
-        this.communicator = new Communicator(this.store);
     }
 
     public async listEditions(): Promise<AllEditions> {
@@ -53,7 +50,7 @@ class EditionService {
         // in its otherVersions array
         const primary = new EditionInfo(response.data.primary);
         if (!primary) {
-            throw new ServerError( { error: 'Server did not return the version we asked for' } );
+            throw new Error('Server did not return the version we asked for');
         }
         const others = response.data.others.map((obj) => new EditionInfo(obj));
         primary.otherVersions = others;

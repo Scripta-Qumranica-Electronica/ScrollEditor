@@ -41,7 +41,6 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
-import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
 
@@ -79,12 +78,6 @@ export default Vue.extend({
                 location.reload();
             } catch (err) {
                 this.errorMessage = this.errorService.getErrorMessage(err.response.data);
-                // const serverError = (err as ServerError);
-                // if (serverError) {
-                //     this.errorMessage = this.$t( `error.server${serverError.errorCode}`).toString();
-                // } else {
-                //     this.errorMessage = this.$t('error.server').toString();
-                // }
             } finally {
                 this.waiting = false;
             }

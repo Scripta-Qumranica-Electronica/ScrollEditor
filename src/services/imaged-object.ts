@@ -1,5 +1,4 @@
 import { Store } from 'vuex';
-import { Communicator, NotFoundError } from './communications';
 import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
@@ -13,10 +12,7 @@ export interface ArtefactPositionChangedResult {
 }
 
 class ImagedObjectService {
-    private communicator: Communicator;
-
     constructor(private store: Store<any>) {
-        this.communicator = new Communicator(store);
     }
 
     public async fetchImagedObjectInfo(editionId: number, imagedObjectId: string) {
@@ -26,7 +22,7 @@ class ImagedObjectService {
         }
 
         if (!imagedObject) {
-            throw new NotFoundError('imagedObject', imagedObjectId);
+            throw new Error(`Can't find imagedObject with id ${imagedObjectId}`);
         }
         const artefacts = await this.getImagedObjectArtefacts(editionId, imagedObject);
         imagedObject.artefacts = artefacts;
