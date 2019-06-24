@@ -32,7 +32,7 @@ export default Vue.extend({
     return {
       token: '',
       errorMessage: '',
-      sessionService: new SessionService(this.$store),
+      sessionService: new SessionService(),
       errorService: new ErrorService(this),
       waiting: false,
     };

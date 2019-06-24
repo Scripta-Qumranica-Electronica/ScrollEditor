@@ -38,7 +38,7 @@ export default Vue.extend({
         return {
             email: '',
             errorMessage: '',
-            sessionService: new SessionService(this.$store),
+            sessionService: new SessionService(),
             errorService: new ErrorService(this),
             waiting: false,
         };

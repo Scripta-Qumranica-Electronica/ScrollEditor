@@ -4,6 +4,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { CommHelper } from './comm-helper';
 import { EditionListDTO, EditionGroupDTO, EditionCopyRequestDTO, EditionDTO } from '@/dtos/editions';
 import { ImagedObjectListDTO } from '@/dtos/imaged-object';
+import { StateManager } from '@/state';
 
 class EditionService {
     constructor(private store: Store<any>) {
@@ -17,12 +18,16 @@ class EditionService {
 
         response.data.editions.map((obj) => { // group
             const publicEditions = obj.filter((element: any) => element.isPublic);
-            const myEditions = obj.filter((element: any) =>
-                element.owner.userId.toString() === self.store.state.session.userId);
 
-            if (myEditions.length) {
-                myEditionList.push(new EditionInfo(myEditions[0]));
-                // TODO: add myCount.length or shares length ?
+            if (StateManager.instance.session.user) {
+                const myEditions = obj.filter((element: any) =>
+                    element.owner.userId.toString() === StateManager.instance.session.user!.userId);
+                    // element.owner.userId.toString() === self.store.state.session.userId);
+
+                if (myEditions.length) {
+                    myEditionList.push(new EditionInfo(myEditions[0]));
+                    // TODO: add myCount.length or shares length ?
+                }
             }
             if (publicEditions.length) {
                 const editionInfo = new EditionInfo(publicEditions[0]);

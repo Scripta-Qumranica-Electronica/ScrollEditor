@@ -10,7 +10,10 @@ import { StateManager } from '@/state';
 
 
 class SessionService {
-    constructor(private store: Store<any>) {
+    public stateManager: StateManager;
+
+    constructor() {
+        this.stateManager = StateManager.instance;
     }
 
     public async login(email: string, password: string) {
@@ -20,29 +23,36 @@ class SessionService {
         } as LoginRequestDTO;
         const response = await CommHelper.post<LoginResponseDTO>('/v1/users/login', requestDto, false);
 
-        this.store.dispatch('session/logIn', {
-            userId: response.data.userId,
-            userName: response.data.email, // forename
-            token: response.data.token,
-            activated: response.data.activated,
-        }, {root: true});
+        this.stateManager.session.user = response.data;
+        this.stateManager.session.token = response.data.token;
     }
 
     public logout() {
         // No need to contact the server, we just forget the session
-          this.store.dispatch('session/logOut', {}, { root: true });
+          this.stateManager.session.user = undefined;
+          this.stateManager.session.token = undefined;
     }
 
     public async isTokenValid() {
-        if (!this.store.state.session.token) {
+        if (!this.stateManager.session.token) {
             return false;
         }
 
         try {
-            await CommHelper.get<UserDTO>('/v1/users');  // The server returns a 401 error if the user is not logged in
+            const response = await CommHelper.get<UserDTO>('/v1/users')
+            // The server returns a 401 error if the user is not logged in
+            this.stateManager.session.user = response.data;
+            /* TODO-- remove it*/
+            this.stateManager.session.user.activated = true;
+            this.stateManager.session.user.forename = 'forename';
+            this.stateManager.session.user.surname = 'surname';
+            this.stateManager.session.user.organization = 'organization';
+            /* */
             return true;
         } catch (error) {
-            this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out
+            this.stateManager.session.user = undefined;
+            this.stateManager.session.token = undefined;
+            localStorage.removeItem('token');
             return false;
         }
     }

@@ -61,7 +61,7 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {
     // this route requires activated user
     // if not, redirect to home page.
-    if ((store.state as any).session.activated) {
+    if (StateManager.instance.session.user ? StateManager.instance.session.user.activated : false) {
       // We know it's ugly but we do not have a vue instance, and that's how we can know what the value is.
       next();
     } else {

@@ -52,7 +52,7 @@ export default Vue.extend({
       newPassword: '',
       rePassword: '',
       errorMessage: '',
-      sessionService: new SessionService(this.$store),
+      sessionService: new SessionService(),
       errorService: new ErrorService(this),
       waiting: false,
     };

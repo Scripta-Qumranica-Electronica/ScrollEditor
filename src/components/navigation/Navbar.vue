@@ -43,6 +43,7 @@ import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
 import router from '../../router';
+import { StateManager } from '../../state';
 
 
 export default Vue.extend({
@@ -53,25 +54,28 @@ export default Vue.extend({
   data() {
     return {
       localizedTexts,
-      sessionService: new SessionService(this.$store),
+      sessionService: new SessionService(),
     };
   },
   computed: {
     currentLanguage(): string {
-      const current = this.$store.state.language.language;
+      const current = StateManager.instance.session.language;
       return current;
     },
     userName(): string | undefined {
-      return this.$store.state.session.loggedIn ? this.$store.state.session.userName : undefined;
+      if (StateManager.instance.session.user) {
+        return StateManager.instance.session.user.forename + ' ' + StateManager.instance.session.user.surname;
+      }
+      return undefined;
     },
     activated(): boolean {
-      return this.$store.state.session.activated;
+      return StateManager.instance.session.user ? StateManager.instance.session.user.activated : false;
     }
   },
   methods: {
     changeLanguage(language: string) {
       this.$i18n.locale = language;
-      this.$store.dispatch('language/setLanguage', language, { root: true });
+      StateManager.instance.session.language = language;
     },
     login() {
       this.$root.$emit('bv::show::modal', 'loginModal');

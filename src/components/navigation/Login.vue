@@ -43,6 +43,7 @@ import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
+import { StateManager } from '@/state';
 
 export default Vue.extend({
     name: 'login',
@@ -51,10 +52,11 @@ export default Vue.extend({
     },
     data() {
         return {
-            email: this.$store.state.session.email,
+            email: '',
+            // email: StateManager.instance.session ? StateManager.instance.session.user!.email : '',
             password: '',
             errorMessage: '',
-            sessionService: new SessionService(this.$store),
+            sessionService: new SessionService(),
             errorService: new ErrorService(this),
             waiting: false,
         };
