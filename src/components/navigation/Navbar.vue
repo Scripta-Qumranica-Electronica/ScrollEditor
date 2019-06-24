@@ -59,23 +59,23 @@ export default Vue.extend({
   },
   computed: {
     currentLanguage(): string {
-      const current = StateManager.instance.session.language;
+      const current = this.$state.session.language;
       return current;
     },
     userName(): string | undefined {
-      if (StateManager.instance.session.user) {
-        return StateManager.instance.session.user.forename + ' ' + StateManager.instance.session.user.surname;
+      if (this.$state.session.user) {
+        return this.$state.session.user.forename + ' ' + this.$state.session.user.surname;
       }
       return undefined;
     },
     activated(): boolean {
-      return StateManager.instance.session.user ? StateManager.instance.session.user.activated : false;
+      return this.$state.session.user ? this.$state.session.user.activated : false;
     }
   },
   methods: {
     changeLanguage(language: string) {
       this.$i18n.locale = language;
-      StateManager.instance.session.language = language;
+      this.$state.session.language = language;
     },
     login() {
       this.$root.$emit('bv::show::modal', 'loginModal');

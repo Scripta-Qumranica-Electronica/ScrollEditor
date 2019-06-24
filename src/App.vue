@@ -31,7 +31,7 @@ export default {
   },
   created() {
     // Set the language
-    this.$i18n.locale = StateManager.instance.session.language;
+    this.$i18n.locale = this.$state.session.language;
     this.initializeApp();
   },
   methods: {

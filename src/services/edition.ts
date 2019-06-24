@@ -7,7 +7,10 @@ import { ImagedObjectListDTO } from '@/dtos/imaged-object';
 import { StateManager } from '@/state';
 
 class EditionService {
-    constructor(private store: Store<any>) {
+    public stateManager: StateManager;
+
+    constructor(private store: Store<any>) { // Remove store
+        this.stateManager = StateManager.instance;
     }
 
     public async listEditions(): Promise<AllEditions> {
@@ -21,7 +24,7 @@ class EditionService {
 
             if (StateManager.instance.session.user) {
                 const myEditions = obj.filter((element: any) =>
-                    element.owner.userId.toString() === StateManager.instance.session.user!.userId);
+                    element.owner.userId.toString() === this.stateManager.session.user!.userId);
                     // element.owner.userId.toString() === self.store.state.session.userId);
 
                 if (myEditions.length) {

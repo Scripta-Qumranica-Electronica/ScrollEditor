@@ -53,7 +53,7 @@ export default Vue.extend({
     data() {
         return {
             email: '',
-            // email: StateManager.instance.session ? StateManager.instance.session.user!.email : '',
+            // email: this.$state.session ? this.$state.session.user!.email : '',
             password: '',
             errorMessage: '',
             sessionService: new SessionService(),
