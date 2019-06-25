@@ -48,3 +48,7 @@ abstract class StateCollection<T extends ItemWithId> {
 export class EditionCollection extends StateCollection<EditionInfo> { }
 
 export class ImagedObjectCollection extends StateCollection<ImagedObject> { }
+
+export class MiscState {
+    public newEditionId: number | undefined;
+}

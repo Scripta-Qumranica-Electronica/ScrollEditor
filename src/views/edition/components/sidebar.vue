@@ -71,7 +71,7 @@ export default Vue.extend({
     name: 'edition-ver-sidebar',
     data() {
         return {
-            editionService: new EditionService(this.$store),
+            editionService: new EditionService(),
             newCopyName: '',
             waiting: false,
             errorMessage: '',
@@ -81,26 +81,41 @@ export default Vue.extend({
         canCopy(): boolean {
             return this.newCopyName.trim().length > 0;
         },
-        current(): EditionInfo {
-            return this.$store.state.edition.current;
+        current(): EditionInfo | undefined {
+            return this.$state.editions.current;
+            // return this.$store.state.edition.current;
         },
         isNew(): boolean {
-            return this.current.id === this.$store.state.edition.newEditionId;
+            if (this.current) {
+                return this.current.id === this.$state.misc.newEditionId;
+                // return this.current.id === this.$store.state.edition.newEditionId;
+            }
+            return false;
         },
         imagedObjects(): number {
-            if (this.$store.state.edition.imagedObjects) {
-                return this.$store.state.edition.imagedObjects.length;
+            if (this.$state.imagedObjects.items) {
+                return this.$state.imagedObjects.items.length;
             }
+            // if (this.$store.state.edition.imagedObjects) {
+            //     return this.$store.state.edition.imagedObjects.length;
+            // }
             return 0;
         },
         artefacts(): number {
-            if (this.$store.state.edition.imagedObjects) {
+            if (this.$state.imagedObjects.items) {
                 let artLen = 0;
-                this.$store.state.edition.imagedObjects.forEach((element: ImagedObject) => {
+                this.$state.imagedObjects.items.forEach((element: ImagedObject) => {
                     artLen += element.artefacts.length;
                 });
                 return artLen;
             }
+            // if (this.$store.state.edition.imagedObjects) {
+            //     let artLen = 0;
+            //     this.$store.state.edition.imagedObjects.forEach((element: ImagedObject) => {
+            //         artLen += element.artefacts.length;
+            //     });
+            //     return artLen;
+            // }
             return 0;
         }
     },
@@ -119,9 +134,10 @@ export default Vue.extend({
             this.waiting = true;
             this.errorMessage = '';
             try {
-                const newEdition = await this.editionService.copyEdition(this.current.id, this.newCopyName);
+                const newEdition = await this.editionService.copyEdition(this.current!.id, this.newCopyName);
 
-                this.$store.dispatch('edition/setNewEditionId', newEdition.id, {root: true});
+                this.$state.misc.newEditionId = newEdition.id;
+                // this.$store.dispatch('edition/setNewEditionId', newEdition.id, {root: true});
 
                 this.$router.push({
                     path: `/editions/${newEdition.id}`,
@@ -133,7 +149,7 @@ export default Vue.extend({
             }
         },
         copyModalShown() {
-            this.newCopyName = this.current.name;
+            this.newCopyName = this.current!.name;
             (this.$refs.newCopyName as any).focus();
         },
     },

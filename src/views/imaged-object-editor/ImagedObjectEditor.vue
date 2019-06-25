@@ -135,8 +135,8 @@ export default Vue.extend({
   },
   data() {
     return {
-      imagedObjectService: new ImagedObjectService(this.$store),
-      editionService: new EditionService(this.$store),
+      imagedObjectService: new ImagedObjectService(),
+      editionService: new EditionService(),
       imageService: new ImageService(),
       waiting: true,
       artefact: undefined as OptimizedArtefact | undefined,
@@ -158,14 +158,16 @@ export default Vue.extend({
     zoomLevel(): number {
       return this.params.zoom;
     },
-    imagedObject(): ImagedObject {
-      return this.$store.state.imagedObject.imagedObject;
+    imagedObject(): ImagedObject | undefined {
+      return this.$state.imagedObjects.current;
+      // return this.$store.state.imagedObject.imagedObject;
     },
     editionId(): number {
       return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
-      return this.$store.state.edition.current.permission.canWrite;
+      return this.$state.editions.current ? this.$state.editions.current.permission.canWrite : false;
+      // return this.$store.state.edition.current.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
@@ -263,19 +265,21 @@ export default Vue.extend({
     },
     fillImageSettings() {
       this.params.imageSettings = {};
-      if (this.imagedObject.recto && this.imagedObject.recto) {
-        for (const imageType of this.imagedObject.recto.availableImageTypes) {
-          const image = this.imagedObject.recto.getImage(imageType);
-          if (image) {
-            const master =
-              this.imagedObject.recto.master.type === imageType;
-            const imageSetting = {
-              image,
-              type: imageType,
-              visible: master,
-              opacity: 1
-            };
-            this.$set(this.params.imageSettings, imageType, imageSetting); // Make sure this object is tracked by Vue
+      if (this.imagedObject) {
+        if (this.imagedObject.recto && this.imagedObject.recto) {
+          for (const imageType of this.imagedObject.recto.availableImageTypes) {
+            const image = this.imagedObject.recto.getImage(imageType);
+            if (image) {
+              const master =
+                this.imagedObject.recto.master.type === imageType;
+              const imageSetting = {
+                image,
+                type: imageType,
+                visible: master,
+                opacity: 1
+              };
+              this.$set(this.params.imageSettings, imageType, imageSetting); // Make sure this object is tracked by Vue
+            }
           }
         }
       }

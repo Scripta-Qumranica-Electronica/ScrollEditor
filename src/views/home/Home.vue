@@ -55,7 +55,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      editionService: new EditionService(this.$store),
+      editionService: new EditionService(),
       allEditions: [] as EditionInfo[],
       myEditions: [] as EditionInfo[],
       filter: '',

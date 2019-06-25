@@ -42,12 +42,6 @@ class SessionService {
             const response = await CommHelper.get<UserDTO>('/v1/users');
             // The server returns a 401 error if the user is not logged in
             this.stateManager.session.user = response.data;
-            /* TODO-- remove it*/
-            this.stateManager.session.user.activated = true;
-            this.stateManager.session.user.forename = 'forename';
-            this.stateManager.session.user.surname = 'surname';
-            this.stateManager.session.user.organization = 'organization';
-            /* */
             return true;
         } catch (error) {
             this.stateManager.session.user = undefined;

@@ -26,7 +26,7 @@ import EditionService from '@/services/edition';
 export default Vue.extend({
     data() {
         return {
-            editionService: new EditionService(this.$store),
+            editionService: new EditionService(),
         };
     },
     components: {
@@ -34,8 +34,9 @@ export default Vue.extend({
         Waiting,
     },
     computed: {
-        imagedObjects(): ImagedObject[] | null {
-            return this.$store.state.edition.imagedObjects;
+        imagedObjects(): ImagedObject[] | undefined {
+            return this.$state.imagedObjects.items;
+            // return this.$store.state.edition.imagedObjects;
         }
     },
     mounted() {
