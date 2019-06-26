@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="row" v-if="!imagedObjects"><div class="col ml-auto"><Waiting></Waiting></div></div>
-       <div v-if="imagedObjects">
+        <div v-if="imagedObjects">
             <div class="row"><div class="col">
                 <small>{{ $t('home.imagedObjects') }}: {{ imagedObjects.length }}</small>
             </div></div>

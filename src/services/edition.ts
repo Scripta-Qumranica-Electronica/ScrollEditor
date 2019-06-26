@@ -24,7 +24,7 @@ class EditionService {
 
             if (StateManager.instance.session.user) {
                 const myEditions = obj.filter((element: any) =>
-                    element.owner.userId.toString() === self.stateManager.session.user!.userId);
+                    element.owner.userId === self.stateManager.session.user!.userId);
 
                 if (myEditions.length) {
                     myEditionList.push(new EditionInfo(myEditions[0]));

@@ -27,7 +27,7 @@
             <b-nav-text v-if="!current.otherVersions.length">
                 <small>{{ $t("home.noVersions") }}</small>
             </b-nav-text>
-            <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
+            <b-btn v-if="user" v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
         </b-nav>
 
         <b-modal id="copyModal" 
@@ -78,6 +78,9 @@ export default Vue.extend({
         };
     },
     computed: {
+        user(): boolean {
+            return this.$state.session.user ? true : false;
+        },
         canCopy(): boolean {
             return this.newCopyName.trim().length > 0;
         },
@@ -109,7 +112,7 @@ export default Vue.extend({
     },
     methods: {
         versionString(ver: EditionInfo) {
-            return `${ver.name} - ${ver.owner.forename}`;
+            return ver.name;
         },
         async copyEdition(evt: Event) {
             evt.preventDefault();
