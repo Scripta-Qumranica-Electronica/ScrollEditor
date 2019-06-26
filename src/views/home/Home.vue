@@ -73,6 +73,7 @@ export default Vue.extend({
     this.editionService.listEditions().then((editions) => {
       this.allEditions = editions.editionList;
       this.myEditions = editions.myEditionList;
+      this.$state.editions.items = this.allEditions;
     }, (error) => {
       throw error;
     });

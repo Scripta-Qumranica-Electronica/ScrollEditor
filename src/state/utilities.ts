@@ -28,17 +28,15 @@ abstract class StateCollection<T extends ItemWithId> {
     }
 
     public set current(item: T | undefined) {
-        if (!this._items) {
-            throw new Error("Can't set the current item of an undefined collection");
-        }
-
         if (item) {
-            const existing = this._items.find((a) => a.id === item.id);
-            if (!existing) {
-                console.error(`Can't set current of ${this} to item ${item} since it is not in the collection`);
-                throw new Error("Can't set current to an item that isn't in the collection");
+            if (this._items) {
+                const existing = this._items.find((a) => a.id === item.id);
+                if (!existing) {
+                    this._items = undefined;
+                    // reset items, so it will load the list from the server when the list will be needed
+                }
             }
-            this._current = existing;
+            this._current = item;
         } else {
             this._current = undefined;
         }

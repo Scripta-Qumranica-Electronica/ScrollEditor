@@ -25,7 +25,6 @@ class EditionService {
             if (StateManager.instance.session.user) {
                 const myEditions = obj.filter((element: any) =>
                     element.owner.userId.toString() === self.stateManager.session.user!.userId);
-                    // element.owner.userId.toString() === self.store.state.session.userId);
 
                 if (myEditions.length) {
                     myEditionList.push(new EditionInfo(myEditions[0]));
@@ -50,14 +49,8 @@ class EditionService {
             this.stateManager.editions.current.id === editionId) {
             return this.stateManager.editions.current;
         }
-        // if (!ignoreCache &&
-        //     this.store.state.edition &&
-        //     this.store.state.edition.id === editionId) {
-        //     return this.store.state.edition;
-        // }
 
-        // this.stateManager.editions.current = undefined; // Trigger a spinner on all views
-        // this.store.dispatch('edition/setEdition', null); // Trigger a spinner on all views
+        this.stateManager.editions.current = undefined; // Trigger a spinner on all views
         const response = await CommHelper.get<EditionGroupDTO>(`/v1/editions/${editionId}`);
 
         // Convert the server response into a single EditionInfo entity, putting all the other versions
@@ -69,17 +62,12 @@ class EditionService {
         const others = response.data.others.map((obj) => new EditionInfo(obj));
         primary.otherVersions = others;
 
-        // this.stateManager.editions.items = others;
-        debugger
-        this.stateManager.editions.items = [primary];
-        this.stateManager.editions.current = primary; // TODO: current have to be one from items list
-        // this.store.dispatch('edition/setEdition', primary, { root: true });
+        this.stateManager.editions.current = primary;
         return primary;
     }
 
     public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
         console.log('fetchEditionImagedObject called');
-        debugger
         if (!ignoreCache && this.stateManager.imagedObjects.items !== undefined) {
             console.log('Returning cached list ', this.stateManager.imagedObjects.items);
             return this.stateManager.imagedObjects.items;
@@ -90,17 +78,6 @@ class EditionService {
         console.log('Imaged objects are: ', imagedObjects);
         this.stateManager.imagedObjects.items = imagedObjects;
         return imagedObjects;
-
-        // if (!ignoreCache && this.store.state.edition.imagedObjects !== null) {
-        //     console.log('Returning cached list ', this.store.state.edition.imagedObjects);
-        //     return this.store.state.edition.imagedObjects;
-        // }
-
-        // console.log('Loading imaged objects from server');
-        // const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.current.id);
-        // console.log('Imaged objects are: ', imagedObjects);
-        // this.store.dispatch('edition/setImagedObjects', imagedObjects, { root: true });
-        // return imagedObjects;
     }
 
     public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {

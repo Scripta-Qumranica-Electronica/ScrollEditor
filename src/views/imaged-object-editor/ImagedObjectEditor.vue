@@ -160,14 +160,12 @@ export default Vue.extend({
     },
     imagedObject(): ImagedObject | undefined {
       return this.$state.imagedObjects.current;
-      // return this.$store.state.imagedObject.imagedObject;
     },
     editionId(): number {
       return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
       return this.$state.editions.current ? this.$state.editions.current.permission.canWrite : false;
-      // return this.$store.state.edition.current.permission.canWrite;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;

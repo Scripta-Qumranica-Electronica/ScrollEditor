@@ -19,7 +19,6 @@ class ImagedObjectService {
     }
 
     public async fetchImagedObjectInfo(editionId: number, imagedObjectId: string) {
-        debugger
         let imagedObject = this._getCachedImagedObject(editionId, imagedObjectId);
         if (!imagedObject) {
             imagedObject = await this._getImagedObject(editionId, imagedObjectId);
@@ -31,9 +30,7 @@ class ImagedObjectService {
         const artefacts = await this.getImagedObjectArtefacts(editionId, imagedObject);
         imagedObject.artefacts = artefacts;
 
-        debugger // TODO-- when refareshing the page, imagedObjects.items=undefined, so we can't set current element.
         this.stateManager.imagedObjects.current = imagedObject;
-        // this.store.dispatch('imagedObject/setImagedObject', imagedObject);
 
         return imagedObject;
     }
@@ -96,7 +93,6 @@ class ImagedObjectService {
     //     '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
 
     private _getCachedImagedObject(editionId: number, imagedObjectId: string): ImagedObject | undefined {
-        debugger
         if (!this.stateManager.editions.current || editionId !== this.stateManager.editions.current.id) {
             return undefined;
         }
@@ -105,15 +101,6 @@ class ImagedObjectService {
         }
 
         return this.stateManager.imagedObjects.items.find((io: ImagedObject) => io.id === imagedObjectId);
-
-        // if (!this.store.state.edition || editionId !== this.store.state.edition.id) {
-        //     return undefined;
-        // }
-        // if (!this.store.state.edition.imagedObjects) {
-        //     return undefined;
-        // }
-
-        // return this.store.state.edition.imagedObjects.find((io: ImagedObject) => io.id === imagedObjectId);
     }
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {

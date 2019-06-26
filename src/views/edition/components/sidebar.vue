@@ -83,12 +83,10 @@ export default Vue.extend({
         },
         current(): EditionInfo | undefined {
             return this.$state.editions.current;
-            // return this.$store.state.edition.current;
         },
         isNew(): boolean {
             if (this.current) {
                 return this.current.id === this.$state.misc.newEditionId;
-                // return this.current.id === this.$store.state.edition.newEditionId;
             }
             return false;
         },
@@ -96,9 +94,6 @@ export default Vue.extend({
             if (this.$state.imagedObjects.items) {
                 return this.$state.imagedObjects.items.length;
             }
-            // if (this.$store.state.edition.imagedObjects) {
-            //     return this.$store.state.edition.imagedObjects.length;
-            // }
             return 0;
         },
         artefacts(): number {
@@ -109,13 +104,6 @@ export default Vue.extend({
                 });
                 return artLen;
             }
-            // if (this.$store.state.edition.imagedObjects) {
-            //     let artLen = 0;
-            //     this.$store.state.edition.imagedObjects.forEach((element: ImagedObject) => {
-            //         artLen += element.artefacts.length;
-            //     });
-            //     return artLen;
-            // }
             return 0;
         }
     },
@@ -137,7 +125,6 @@ export default Vue.extend({
                 const newEdition = await this.editionService.copyEdition(this.current!.id, this.newCopyName);
 
                 this.$state.misc.newEditionId = newEdition.id;
-                // this.$store.dispatch('edition/setNewEditionId', newEdition.id, {root: true});
 
                 this.$router.push({
                     path: `/editions/${newEdition.id}`,

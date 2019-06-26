@@ -36,7 +36,6 @@ export default Vue.extend({
     computed: {
         imagedObjects(): ImagedObject[] | undefined {
             return this.$state.imagedObjects.items;
-            // return this.$store.state.edition.imagedObjects;
         }
     },
     mounted() {
