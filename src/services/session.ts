@@ -1,4 +1,3 @@
-import { Store } from 'vuex';
 import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
     ResendUserAccountActivationRequestDTO,
     NewUserRequestDTO,

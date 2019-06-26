@@ -19,6 +19,9 @@
     "trailing-comma": true,
     "no-empty-interface": false,
     "max-classes-per-file": false,
-    "radix": false
+    "radix": false,
+    "variable-name": {
+      "options": ["check-format", "allow-leading-underscore"]
+    }
   }
 }

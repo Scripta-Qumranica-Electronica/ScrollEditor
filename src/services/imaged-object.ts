@@ -1,4 +1,3 @@
-import { Store } from 'vuex';
 import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';

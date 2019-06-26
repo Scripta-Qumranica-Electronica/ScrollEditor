@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
-// import store from './store';
 // TODO can we add or find a .d.ts file for this?
 import VueLazyload from 'vue-lazyload';
 

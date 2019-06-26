@@ -1,4 +1,3 @@
-import { Store } from 'vuex';
 import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { CommHelper } from './comm-helper';
