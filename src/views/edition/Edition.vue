@@ -32,13 +32,13 @@ export default Vue.extend({
     },
     data() {
         return {
-            editionService: new EditionService(this.$store),
+            editionService: new EditionService(),
             currentVersionId: 0,
         };
     },
     computed: {
-        currentVersion(): EditionInfo {
-            return this.$store.state.edition.current;
+        currentVersion(): EditionInfo | undefined {
+            return this.$state.editions.current;
         },
         waiting(): boolean {
             return !this.currentVersion;

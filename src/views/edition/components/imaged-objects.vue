@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="row" v-if="!imagedObjects"><div class="col ml-auto"><Waiting></Waiting></div></div>
-       <div v-if="imagedObjects">
+        <div v-if="imagedObjects">
             <div class="row"><div class="col">
                 <small>{{ $t('home.imagedObjects') }}: {{ imagedObjects.length }}</small>
             </div></div>
@@ -26,7 +26,7 @@ import EditionService from '@/services/edition';
 export default Vue.extend({
     data() {
         return {
-            editionService: new EditionService(this.$store),
+            editionService: new EditionService(),
         };
     },
     components: {
@@ -34,8 +34,8 @@ export default Vue.extend({
         Waiting,
     },
     computed: {
-        imagedObjects(): ImagedObject[] | null {
-            return this.$store.state.edition.imagedObjects;
+        imagedObjects(): ImagedObject[] | undefined {
+            return this.$state.imagedObjects.items;
         }
     },
     mounted() {

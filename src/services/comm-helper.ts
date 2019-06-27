@@ -1,8 +1,17 @@
-import { authHeader } from '@/store/session';
+// import { authHeader } from '@/store/session';
 import axios from 'axios';
+import { StateManager } from '@/state';
 /*
  * This file provides handy utility functions for Axios transactions.
  */
+
+function authHeader() {
+    if (StateManager.instance.session.token) {
+        return {Authorization: 'Bearer ' + StateManager.instance.session.token };
+    } else {
+        return {};
+    }
+}
 
 export class CommHelper {
     public static get<T>(url: string, useCredentials: boolean = true) {

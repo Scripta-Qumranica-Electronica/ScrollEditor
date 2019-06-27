@@ -38,12 +38,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
-import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
+import { StateManager } from '@/state';
 
 export default Vue.extend({
     name: 'login',
@@ -52,10 +51,11 @@ export default Vue.extend({
     },
     data() {
         return {
-            email: this.$store.state.session.email,
+            email: '',
+            // email: this.$state.session ? this.$state.session.user!.email : '',
             password: '',
             errorMessage: '',
-            sessionService: new SessionService(this.$store),
+            sessionService: new SessionService(),
             errorService: new ErrorService(this),
             waiting: false,
         };
@@ -79,12 +79,6 @@ export default Vue.extend({
                 location.reload();
             } catch (err) {
                 this.errorMessage = this.errorService.getErrorMessage(err.response.data);
-                // const serverError = (err as ServerError);
-                // if (serverError) {
-                //     this.errorMessage = this.$t( `error.server${serverError.errorCode}`).toString();
-                // } else {
-                //     this.errorMessage = this.$t('error.server').toString();
-                // }
             } finally {
                 this.waiting = false;
             }

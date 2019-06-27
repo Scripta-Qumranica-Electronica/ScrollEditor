@@ -181,7 +181,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      imagedObjectService: new ImagedObjectService(this.$store),
+      imagedObjectService: new ImagedObjectService(),
       errorMessage: '',
       waiting: false,
       newArtefactName: '',

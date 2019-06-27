@@ -38,11 +38,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState } from 'vuex';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
 import router from '../../router';
+import { StateManager } from '../../state';
 
 
 export default Vue.extend({
@@ -53,25 +53,28 @@ export default Vue.extend({
   data() {
     return {
       localizedTexts,
-      sessionService: new SessionService(this.$store),
+      sessionService: new SessionService(),
     };
   },
   computed: {
     currentLanguage(): string {
-      const current = this.$store.state.language.language;
+      const current = this.$state.session.language;
       return current;
     },
     userName(): string | undefined {
-      return this.$store.state.session.loggedIn ? this.$store.state.session.userName : undefined;
+      if (this.$state.session.user) {
+        return this.$state.session.user.forename + ' ' + this.$state.session.user.surname;
+      }
+      return undefined;
     },
     activated(): boolean {
-      return this.$store.state.session.activated;
+      return this.$state.session.user ? this.$state.session.user.activated : false;
     }
   },
   methods: {
     changeLanguage(language: string) {
       this.$i18n.locale = language;
-      this.$store.dispatch('language/setLanguage', language, { root: true });
+      this.$state.session.language = language;
     },
     login() {
       this.$root.$emit('bv::show::modal', 'loginModal');

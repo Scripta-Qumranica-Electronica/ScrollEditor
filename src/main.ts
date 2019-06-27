@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
-import store from './store';
 // TODO can we add or find a .d.ts file for this?
 import VueLazyload from 'vue-lazyload';
 
@@ -23,6 +22,7 @@ import RenderingOptimizationPlugin from './plugins/rendering-optimization';
 // i18n
 import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
+import { StateManager } from './state';
 
 Vue.config.productionTip = false;
 
@@ -37,6 +37,8 @@ Vue.use(VueLazyload, {
     threshold: 0.5
   }
 });
+
+Vue.prototype.$state = StateManager.instance;
 
 Vue.use(BootstrapVue);
 
@@ -58,7 +60,7 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {
     // this route requires activated user
     // if not, redirect to home page.
-    if ((store.state as any).session.activated) {
+    if (StateManager.instance.session.user ? StateManager.instance.session.user.activated : false) {
       // We know it's ugly but we do not have a vue instance, and that's how we can know what the value is.
       next();
     } else {
@@ -71,7 +73,6 @@ router.beforeEach((to, from, next) => {
 
 new Vue({
   router,
-  store,
   i18n,
   render: (h) => h(App),
 }).$mount('#app');

@@ -27,7 +27,7 @@
             <b-nav-text v-if="!current.otherVersions.length">
                 <small>{{ $t("home.noVersions") }}</small>
             </b-nav-text>
-            <b-btn v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
+            <b-btn v-if="user" v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
         </b-nav>
 
         <b-modal id="copyModal" 
@@ -71,32 +71,38 @@ export default Vue.extend({
     name: 'edition-ver-sidebar',
     data() {
         return {
-            editionService: new EditionService(this.$store),
+            editionService: new EditionService(),
             newCopyName: '',
             waiting: false,
             errorMessage: '',
         };
     },
     computed: {
+        user(): boolean {
+            return this.$state.session.user ? true : false;
+        },
         canCopy(): boolean {
             return this.newCopyName.trim().length > 0;
         },
-        current(): EditionInfo {
-            return this.$store.state.edition.current;
+        current(): EditionInfo | undefined {
+            return this.$state.editions.current;
         },
         isNew(): boolean {
-            return this.current.id === this.$store.state.edition.newEditionId;
+            if (this.current) {
+                return this.current.id === this.$state.misc.newEditionId;
+            }
+            return false;
         },
         imagedObjects(): number {
-            if (this.$store.state.edition.imagedObjects) {
-                return this.$store.state.edition.imagedObjects.length;
+            if (this.$state.imagedObjects.items) {
+                return this.$state.imagedObjects.items.length;
             }
             return 0;
         },
         artefacts(): number {
-            if (this.$store.state.edition.imagedObjects) {
+            if (this.$state.imagedObjects.items) {
                 let artLen = 0;
-                this.$store.state.edition.imagedObjects.forEach((element: ImagedObject) => {
+                this.$state.imagedObjects.items.forEach((element: ImagedObject) => {
                     artLen += element.artefacts.length;
                 });
                 return artLen;
@@ -106,7 +112,7 @@ export default Vue.extend({
     },
     methods: {
         versionString(ver: EditionInfo) {
-            return `${ver.name} - ${ver.owner.forename}`;
+            return ver.name;
         },
         async copyEdition(evt: Event) {
             evt.preventDefault();
@@ -119,9 +125,9 @@ export default Vue.extend({
             this.waiting = true;
             this.errorMessage = '';
             try {
-                const newEdition = await this.editionService.copyEdition(this.current.id, this.newCopyName);
+                const newEdition = await this.editionService.copyEdition(this.current!.id, this.newCopyName);
 
-                this.$store.dispatch('edition/setNewEditionId', newEdition.id, {root: true});
+                this.$state.misc.newEditionId = newEdition.id;
 
                 this.$router.push({
                     path: `/editions/${newEdition.id}`,
@@ -133,7 +139,7 @@ export default Vue.extend({
             }
         },
         copyModalShown() {
-            this.newCopyName = this.current.name;
+            this.newCopyName = this.current!.name;
             (this.$refs.newCopyName as any).focus();
         },
     },

@@ -40,7 +40,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import SessionService from '@/services/session';
-import { ServerError } from '@/services/communications';
 import ErrorService from '@/services/error';
 import router from '../../router';
 import { ResetForgottenUserPasswordRequestDTO } from '../../dtos/user';
@@ -53,7 +52,7 @@ export default Vue.extend({
       rePassword: '',
       token: '',
       errorMessage: '',
-      sessionService: new SessionService(this.$store),
+      sessionService: new SessionService(),
       errorService: new ErrorService(this),
       waiting: false,
     };

@@ -1,11 +1,10 @@
-import { Store } from 'vuex';
-import { Communicator, NotFoundError } from './communications';
 import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
 import { ImagedObjectDTO } from '@/dtos/imaged-object';
 import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/artefact';
+import { StateManager } from '@/state';
 
 export interface ArtefactShapeChangedResult {
 }
@@ -13,10 +12,9 @@ export interface ArtefactPositionChangedResult {
 }
 
 class ImagedObjectService {
-    private communicator: Communicator;
-
-    constructor(private store: Store<any>) {
-        this.communicator = new Communicator(store);
+    public stateManager: StateManager;
+    constructor() {
+        this.stateManager = StateManager.instance;
     }
 
     public async fetchImagedObjectInfo(editionId: number, imagedObjectId: string) {
@@ -26,12 +24,12 @@ class ImagedObjectService {
         }
 
         if (!imagedObject) {
-            throw new NotFoundError('imagedObject', imagedObjectId);
+            throw new Error(`Can't find imagedObject with id ${imagedObjectId}`);
         }
         const artefacts = await this.getImagedObjectArtefacts(editionId, imagedObject);
         imagedObject.artefacts = artefacts;
 
-        this.store.dispatch('imagedObject/setImagedObject', imagedObject);
+        this.stateManager.imagedObjects.current = imagedObject;
 
         return imagedObject;
     }
@@ -94,18 +92,18 @@ class ImagedObjectService {
     //     '{"matrix": [[1, 0, 0], [0, 1, 0]]}';
 
     private _getCachedImagedObject(editionId: number, imagedObjectId: string): ImagedObject | undefined {
-        if (!this.store.state.edition || editionId !== this.store.state.edition.id) {
+        if (!this.stateManager.editions.current || editionId !== this.stateManager.editions.current.id) {
             return undefined;
         }
-        if (!this.store.state.edition.imagedObjects) {
+        if (!this.stateManager.imagedObjects.items) {
             return undefined;
         }
 
-        return this.store.state.edition.imagedObjects.find((io: ImagedObject) => io.id === imagedObjectId);
+        return this.stateManager.imagedObjects.items.find((io: ImagedObject) => io.id === imagedObjectId);
     }
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {
-        const editionService = new EditionService(this.store);
+        const editionService = new EditionService();
         const imagedObjects = await editionService.getEditionImagedObjects(editionId);
 
         return imagedObjects.find((io: ImagedObject) => io.id === imagedObjectId);

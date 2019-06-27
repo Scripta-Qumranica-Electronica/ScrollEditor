@@ -1,5 +1,3 @@
-import { Store } from 'vuex';
-import { Communicator } from './communications';
 import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
     ResendUserAccountActivationRequestDTO,
     NewUserRequestDTO,
@@ -7,13 +5,14 @@ import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRe
     AccountActivationRequestDTO} from '@/dtos/user';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
+import { StateManager } from '@/state';
 
 
 class SessionService {
-    private communicator: Communicator;
-    constructor(private store: Store<any>) {
-        console.log('process.env=', process.env);
-        this.communicator = new Communicator(this.store);
+    public stateManager: StateManager;
+
+    constructor() {
+        this.stateManager = StateManager.instance;
     }
 
     public async login(email: string, password: string) {
@@ -23,29 +22,30 @@ class SessionService {
         } as LoginRequestDTO;
         const response = await CommHelper.post<LoginResponseDTO>('/v1/users/login', requestDto, false);
 
-        this.store.dispatch('session/logIn', {
-            userId: response.data.userId,
-            userName: response.data.email, // forename
-            token: response.data.token,
-            activated: response.data.activated,
-        }, {root: true});
+        this.stateManager.session.user = response.data;
+        this.stateManager.session.token = response.data.token;
     }
 
     public logout() {
         // No need to contact the server, we just forget the session
-        this.store.dispatch('session/logOut', {}, { root: true });
+          this.stateManager.session.user = undefined;
+          this.stateManager.session.token = undefined;
     }
 
     public async isTokenValid() {
-        if (!this.store.state.session.token) {
+        if (!this.stateManager.session.token) {
             return false;
         }
 
         try {
-            await CommHelper.get<UserDTO>('/v1/users');  // The server returns a 401 error if the user is not logged in
+            const response = await CommHelper.get<UserDTO>('/v1/users');
+            // The server returns a 401 error if the user is not logged in
+            this.stateManager.session.user = response.data;
             return true;
         } catch (error) {
-            this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out
+            this.stateManager.session.user = undefined;
+            this.stateManager.session.token = undefined;
+            localStorage.removeItem('token');
             return false;
         }
     }
