@@ -4,6 +4,8 @@ import { CommHelper } from './comm-helper';
 import { EditionListDTO, EditionGroupDTO, EditionCopyRequestDTO, EditionDTO } from '@/dtos/editions';
 import { ImagedObjectListDTO } from '@/dtos/imaged-object';
 import { StateManager } from '@/state';
+import { Artefact } from '@/models/artefact';
+import { ArtefactListDTO } from '@/dtos/artefact';
 
 class EditionService {
     public stateManager: StateManager;
@@ -79,6 +81,16 @@ class EditionService {
         return imagedObjects;
     }
 
+    public async fetchArtefacts(ignoreCache = false): Promise<Artefact[]> {
+        if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
+            return this.stateManager.artefacts.items;
+        }
+
+        const artefacts = await this.getEditionArtefacts(this.stateManager.editions.current!.id);
+        this.stateManager.artefacts.items = artefacts;
+        return artefacts;
+    }
+
     public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
         const response = await CommHelper.get<ImagedObjectListDTO>(
             `/v1/editions/${editionId}/imaged-objects?optional=artefacts&optional=masks`
@@ -86,6 +98,14 @@ class EditionService {
 
         console.log('Imaged objects DTOs are ', response.data);
         return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
+    }
+
+    public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
+        const response = await CommHelper.get<ArtefactListDTO>(
+            `/v1/editions/${editionId}/artefacts`
+        );
+
+        return response.data.artefacts.map((d: any) => new Artefact(d));
     }
 
     public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {

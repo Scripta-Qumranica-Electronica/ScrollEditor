@@ -1,5 +1,6 @@
 import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
+import { Artefact } from '@/models/artefact';
 
 interface ItemWithId {
     id: any;
@@ -46,6 +47,8 @@ abstract class StateCollection<T extends ItemWithId> {
 export class EditionCollection extends StateCollection<EditionInfo> { }
 
 export class ImagedObjectCollection extends StateCollection<ImagedObject> { }
+
+export class ArtefactCollection extends StateCollection<Artefact> { }
 
 export class MiscState {
     public newEditionId: number | undefined;

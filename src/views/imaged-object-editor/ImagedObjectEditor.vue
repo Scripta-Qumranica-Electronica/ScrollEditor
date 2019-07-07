@@ -68,7 +68,7 @@
                   :side="imagedObject.recto"
                   :clipping-mask="artefact.mask.polygon"
                 ></roi-canvas>
-                <artefact-canvas
+                <imaged-object-canvas
                   v-for="artefact in nonSelectedArtefacts"
                   :key="artefact.id"
                   class="overlay-canvas"
@@ -77,8 +77,8 @@
                   :params="params"
                   :selected="false"
                   :artefact="artefact"
-                ></artefact-canvas>
-                <artefact-canvas
+                ></imaged-object-canvas>
+                <imaged-object-canvas
                   class="overlay-canvas"
                   v-show="artefact !== undefined"
                   :originalImageWidth="originalImageWidth"
@@ -89,7 +89,7 @@
                   :artefact="artefact"
                   @maskChanged="onMaskChanged"
                   @zoomRequest="onZoomRequest($event)"
-                ></artefact-canvas>
+                ></imaged-object-canvas>
               </div>
             </div>
           </div>
@@ -122,7 +122,7 @@ import {
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
-import ArtefactCanvas from './ArtefactCanvas.vue';
+import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
 
 export default Vue.extend({
@@ -131,7 +131,7 @@ export default Vue.extend({
     Waiting,
     'image-menu': ImageMenu,
     'roi-canvas': ROICanvas,
-    'artefact-canvas': ArtefactCanvas
+    'imaged-object-canvas': ImagedObjectCanvas
   },
   data() {
     return {
@@ -526,9 +526,9 @@ export default Vue.extend({
  * Todo:
  *
  * Add a shrinkFactor data element, initialize to 20.
- * Pass shrinkFactor as a property to ArtefactCanvas, and not as a data entry of ArtefactCanvas
- * Change ArtefactCanvas to use the optimizedMask instead of the mask
- * Make sure ArtefactCanvas does not shrink the mask (in clipCanvas and trace)
+ * Pass shrinkFactor as a property to ImagedObjectCanvas, and not as a data entry of ImagedObjectCanvas
+ * Change ImagedObjectCanvas to use the optimizedMask instead of the mask
+ * Make sure ImagedObjectCanvas does not shrink the mask (in clipCanvas and trace)
  * Before saving, call unoptimize mask to create the larger mask again
  */
 </script>

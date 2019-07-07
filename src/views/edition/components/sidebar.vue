@@ -9,12 +9,12 @@
         <b-nav vertical>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
-                <router-link :to="`/editions/${current.id}/artefacts`" replace>
+                <router-link :class="{ bold: artefactsPage }" :to="`/editions/${current.id}/artefacts`" replace>
                     {{ $t('home.artefacts') }}: {{ artefacts }} 
                 </router-link>
             </b-nav-item>
             <b-nav-item>
-                <router-link :to="`/editions/${current.id}/imaged-objects`" replace>
+                <router-link :class="{ bold: !artefactsPage }" :to="`/editions/${current.id}/imaged-objects`" replace>
                     {{ $t('home.imagedObjects') }}: {{ imagedObjects }}
                 </router-link>
             </b-nav-item><!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
@@ -108,6 +108,9 @@ export default Vue.extend({
                 return artLen;
             }
             return 0;
+        },
+        artefactsPage(): boolean {
+            return window.location.href.endsWith('artefacts');
         }
     },
     methods: {
@@ -161,5 +164,9 @@ ul#links {
 
 ul#version-list li {
     cursor: pointer;
+}
+
+.bold {
+    font-weight: bold;
 }
 </style>

@@ -34,7 +34,7 @@ export default new Router({
       },
       {
         path: '',
-        redirect: '/editions/:id/imaged-objects',
+        redirect: '/editions/:id/artefacts',
       }]
     },
     {

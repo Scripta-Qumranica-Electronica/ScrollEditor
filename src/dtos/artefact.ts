@@ -37,3 +37,7 @@ export interface CreateArtefactDTO {
     name: string;
     position: string;
 }
+
+export interface ArtefactListDTO {
+    artefacts: ArtefactDTO[];
+}
