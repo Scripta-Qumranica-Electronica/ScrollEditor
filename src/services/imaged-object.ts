@@ -6,11 +6,6 @@ import { ImagedObjectDTO } from '@/dtos/imaged-object';
 import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/artefact';
 import { StateManager } from '@/state';
 
-export interface ArtefactShapeChangedResult {
-}
-export interface ArtefactPositionChangedResult {
-}
-
 class ImagedObjectService {
     public stateManager: StateManager;
     constructor() {

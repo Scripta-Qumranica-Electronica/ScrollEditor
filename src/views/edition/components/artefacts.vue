@@ -6,11 +6,10 @@
                 <small>{{ $t('home.artefacts') }}: {{ artefacts.length }}</small>
             </div></div>
             <ul class="list-unstyled row mt-2"  v-if="artefacts.length">
-                <li class="col-sm-12 col-md-6 col-xl-4 list-item"
+                <li class="col-sm-6 col-md-4 col-xl-2 list-item"
                     v-for="art in artefacts"
                     :key="art.id">
-                    {{art.id}}
-                    <!-- <imaged-object-card :imaged-object="imagedObject"></imaged-object-card> -->
+                    <artefact-canvas :artefact="art"></artefact-canvas>
                 </li>
             </ul>
         </div>
@@ -22,6 +21,7 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import EditionService from '@/services/edition';
 import { Artefact } from '../../../models/artefact';
+import ArtefactCanvas from '../../artefactEditor/ArtefactCanvas.vue';
 
 export default Vue.extend({
     data() {
@@ -30,7 +30,7 @@ export default Vue.extend({
         };
     },
     components: {
-        // ImagedObjectCard,
+        ArtefactCanvas,
         Waiting,
     },
     computed: {

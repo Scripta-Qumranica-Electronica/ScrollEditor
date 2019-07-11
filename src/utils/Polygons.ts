@@ -1,5 +1,5 @@
 // tslint:disable-next-line:no-var-requires
-const ClipperLib = require('js-clipper/clipper');
+const clipperLib = require('js-clipper/clipper');
 
 import { svgPolygonToWKT,
     svgPolygonToGeoJSON,
@@ -21,16 +21,16 @@ export class Polygon {
         if (b.empty) {
             return a;
         }
-        const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
-        const solutionPaths = new ClipperLib.Paths();
+        const cpr = new clipperLib.Clipper();
+        cpr.AddPaths(a.clipper, clipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, clipperLib.PolyType.ptClip, true);
+        const solutionPaths = new clipperLib.Paths();
 
         cpr.Execute(
-            ClipperLib.ClipType.ctUnion,
+            clipperLib.ClipType.ctUnion,
             solutionPaths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
+            clipperLib.PolyFillType.pftNonZero,
+            clipperLib.PolyFillType.pftNonZero
         );
 
         const result = Polygon.fromClipper(solutionPaths);
@@ -41,16 +41,16 @@ export class Polygon {
         if (a.empty || b.empty) {
             return a;
         }
-        const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
-        const solutionPaths = new ClipperLib.Paths();
+        const cpr = new clipperLib.Clipper();
+        cpr.AddPaths(a.clipper, clipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, clipperLib.PolyType.ptClip, true);
+        const solutionPaths = new clipperLib.Paths();
 
         cpr.Execute(
-            ClipperLib.ClipType.ctDifference,
+            clipperLib.ClipType.ctDifference,
             solutionPaths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
+            clipperLib.PolyFillType.pftNonZero,
+            clipperLib.PolyFillType.pftNonZero
           );
 
         const result = Polygon.fromClipper(solutionPaths);
@@ -62,16 +62,16 @@ export class Polygon {
             return new Polygon();
         }
 
-        const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
-        const solutionPaths = new ClipperLib.Paths();
+        const cpr = new clipperLib.Clipper();
+        cpr.AddPaths(a.clipper, clipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, clipperLib.PolyType.ptClip, true);
+        const solutionPaths = new clipperLib.Paths();
 
         cpr.Execute(
-            ClipperLib.ClipType.ctIntersection,
+            clipperLib.ClipType.ctIntersection,
             solutionPaths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
+            clipperLib.PolyFillType.pftNonZero,
+            clipperLib.PolyFillType.pftNonZero
           );
 
         const result = Polygon.fromClipper(solutionPaths);
