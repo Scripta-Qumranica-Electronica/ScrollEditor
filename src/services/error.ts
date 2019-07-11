@@ -7,7 +7,7 @@ class ErrorService {
     }
 
     public getErrorMessage(error: ErrorDTO): string {
-        return 'Error: ' + error.message;
+        return 'Error: ' + error.msg;
     }
 }
 
