@@ -6,6 +6,7 @@ import EditionImagedObjects from './views/edition/components/imaged-objects.vue'
 import EditionArtefacts from './views/edition/components/artefacts.vue';
 import Registration from './views/user/Registration.vue';
 import ChangePassword from './views/user/ChangePassword.vue';
+import UpdateUser from './views/user/UpdateUser.vue';
 import ChangeForgottenPassword from './views/user/ChangeForgottenPassword.vue';
 import Activation from './views/user/Activation.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/ImagedObjectEditor.vue';
@@ -48,6 +49,11 @@ export default new Router({
     {
       path: '/changePassword',
       component: ChangePassword,
+      meta: {activeUserRoute: true}
+    },
+    {
+      path: '/updateUserDetails',
+      component: UpdateUser,
       meta: {activeUserRoute: true}
     },
     {

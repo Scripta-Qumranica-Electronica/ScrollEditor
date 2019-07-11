@@ -2,7 +2,8 @@ import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRe
     ResendUserAccountActivationRequestDTO,
     NewUserRequestDTO,
     ResetForgottenUserPasswordRequestDTO,
-    AccountActivationRequestDTO} from '@/dtos/user';
+    AccountActivationRequestDTO,
+    UserUpdateRequestDTO} from '@/dtos/user';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
@@ -77,6 +78,11 @@ class SessionService {
 
     public async activateUser(data: AccountActivationRequestDTO) {
         await CommHelper.post<any>('/v1/users/confirm-registration', data, false);
+    }
+
+
+    public async updateUser(data: UserUpdateRequestDTO) {
+        await CommHelper.put<any>('/v1/users', data);
     }
 }
 

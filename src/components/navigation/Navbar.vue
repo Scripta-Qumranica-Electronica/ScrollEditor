@@ -17,6 +17,7 @@
         <b-nav-item-dropdown v-if="userName" right :text="userName">
           <b-dropdown-item-button @click="logout()">{{ $t('navbar.logout') }}</b-dropdown-item-button>
           <b-dropdown-item-button v-if="activated" @click="changePassword()">{{ $t('navbar.changePassword') }}</b-dropdown-item-button>
+          <b-dropdown-item-button v-if="activated" @click="updateUserDetails()">{{ $t('navbar.updateUserDetails') }}</b-dropdown-item-button>
         </b-nav-item-dropdown>
   
         <b-nav-item-dropdown right> <!-- Change language -->
@@ -86,6 +87,9 @@ export default Vue.extend({
     changePassword() {
       router.push('/changePassword');
     },
+    updateUserDetails() {
+      router.push('/updateUserDetails');
+    }
   }
 });
 </script>

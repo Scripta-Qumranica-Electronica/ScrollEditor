@@ -42,3 +42,11 @@ export interface AccountActivationRequestDTO {
 export interface ResetForgottenUserPasswordRequestDTO extends AccountActivationRequestDTO {
     password: string;
 }
+
+export interface UserUpdateRequestDTO {
+    forename: string;
+    surname: string;
+    email: string;
+    organization: string;
+    password: string;
+}
