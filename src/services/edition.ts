@@ -102,7 +102,7 @@ class EditionService {
 
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
         const response = await CommHelper.get<ArtefactListDTO>(
-            `/v1/editions/${editionId}/artefacts`
+            `/v1/editions/${editionId}/artefacts?optional=artefacts&optional=masks`
         );
 
         return response.data.artefacts.map((d: any) => new Artefact(d));
