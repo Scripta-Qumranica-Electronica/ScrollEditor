@@ -29,6 +29,11 @@ export class CommHelper {
                              body, CommHelper.getRequestOptions(useCredentials));
     }
 
+    public static delete(url: string, useCredentials: boolean = true) {
+        return axios.delete(CommHelper.getFullUrl(url),
+                            CommHelper.getRequestOptions(useCredentials));
+    }
+
     private static getRequestOptions(useCredentials: boolean) {
         if (useCredentials) {
             return {

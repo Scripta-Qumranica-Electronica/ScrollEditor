@@ -21,6 +21,7 @@
         @redo="onRedo($event)"
         @create="onNew($event)"
         @rename="onRename($event)"
+        @deleteArtefact="onDeleteArtefact($event)"
         @inputRenameChanged="inputRenameChanged($event)"
         @artefactChanged="onArtefactChanged($event)"
         :saving="saving"
@@ -483,6 +484,26 @@ export default Vue.extend({
         this.showMessage('Artefact rename failed', 'error');
       } finally {
         this.renaming = false;
+      }
+    },
+    async onDeleteArtefact(art: OptimizedArtefact) {
+      try {
+        await this.imagedObjectService.deleteArtefact(art);
+        this.showMessage('Artefact deleted', 'success');
+        const index = this.optimizedArtefacts.indexOf(art);
+        this.optimizedArtefacts.splice(index, 1);
+        this.artefactEditingDataList.slice(index, 1);
+
+        if (this.optimizedArtefacts[0]) {
+          this.artefact = this.optimizedArtefacts[0];
+        } else {
+          this.artefact = undefined;
+          this.initialMask = new Polygon();
+        }
+        this.prepareNonSelectedArtefacts();
+      } catch (err) {
+        console.error(err);
+        this.showMessage('Delete artefact failed', 'error');
       }
     },
     inputRenameChanged(art: OptimizedArtefact | undefined) {

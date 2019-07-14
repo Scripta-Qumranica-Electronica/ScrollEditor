@@ -19,6 +19,7 @@
                   <b-button v-if="renameInputActive===art && renaming" disabled class="disable btn btn-sm">
                   Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
                   </b-button>
+                  <b-button class="btn btn-sm" @click="deleteArtefact(art)">Delete</b-button>
                 </td>
               </tr>
             </table>
@@ -279,6 +280,10 @@ export default Vue.extend({
     openRename(art: Artefact) {
       this.chooseArtefact(art);
       this.$emit('inputRenameChanged', art);
+    },
+    deleteArtefact(art: Artefact) {
+      this.chooseArtefact(art);
+      this.$emit('deleteArtefact', art);
     },
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);

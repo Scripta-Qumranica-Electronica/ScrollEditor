@@ -5,6 +5,7 @@ import { CommHelper } from './comm-helper';
 import { ImagedObjectDTO } from '@/dtos/imaged-object';
 import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/artefact';
 import { StateManager } from '@/state';
+import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 
 class ImagedObjectService {
     public stateManager: StateManager;
@@ -65,6 +66,10 @@ class ImagedObjectService {
 
         const artefact = new Artefact(response.data);
         return artefact;
+    }
+
+    public async deleteArtefact(art: OptimizedArtefact) {
+        await CommHelper.delete(`/v1/editions/${art.editionId}/artefacts/${art.id}`);
     }
 
     public async changeArtefact(editionId: number, artefact: Artefact):
