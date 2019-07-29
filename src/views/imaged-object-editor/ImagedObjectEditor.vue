@@ -459,7 +459,8 @@ export default Vue.extend({
       }
       this.saving = true;
       try {
-        this.artefactEditingDataList.push(new ArtefactEditingData());
+        this.artefactEditingData = new ArtefactEditingData();
+        this.artefactEditingDataList.push(this.artefactEditingData);
         this.showMessage('Artefact Created', 'success');
       } catch (err) {
         this.showMessage('Artefact creation failed', 'error');
@@ -492,10 +493,11 @@ export default Vue.extend({
         this.showMessage('Artefact deleted', 'success');
         const index = this.optimizedArtefacts.indexOf(art);
         this.optimizedArtefacts.splice(index, 1);
-        this.artefactEditingDataList.slice(index, 1);
+        this.artefactEditingDataList.splice(index, 1);
 
         if (this.optimizedArtefacts[0]) {
           this.artefact = this.optimizedArtefacts[0];
+          this.artefactEditingData = this.artefactEditingDataList[0];
         } else {
           this.artefact = undefined;
           this.initialMask = new Polygon();

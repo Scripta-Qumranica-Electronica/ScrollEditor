@@ -17,7 +17,7 @@
                   <input v-if="renameInputActive===art" v-model="art.name" />
                   <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art)">Rename</b-button>
                   <b-button v-if="renameInputActive===art && renaming" disabled class="disable btn btn-sm">
-                  Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+                  Renaming...<font-awesome-icon icon="spinner" spin></font-awesome-icon>
                   </b-button>
                   <b-button class="btn btn-sm" @click="deleteArtefact(art)">Delete</b-button>
                 </td>
@@ -136,7 +136,7 @@
             <section class="center-btn" v-if="editable">
               <b-button  v-if="!saving" @click="save()">Save</b-button>
               <b-button v-if="saving" disabled class="disable">
-                Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+                Saving...<font-awesome-icon icon="spinner" spin></font-awesome-icon>
               </b-button>
             </section>
           </b-card-body>
@@ -282,7 +282,7 @@ export default Vue.extend({
       this.$emit('inputRenameChanged', art);
     },
     deleteArtefact(art: Artefact) {
-      this.chooseArtefact(art);
+      // this.chooseArtefact(art);
       this.$emit('deleteArtefact', art);
     },
     chooseArtefact(art: Artefact) {
@@ -310,13 +310,13 @@ export default Vue.extend({
       //   console.error('There is no sqeImageId in the imagedObject');
       //   newArtefact.sqeImageId = this.artefact.sqeImageId;
       // }
-      this.$emit('create', newArtefact);
-      // waiting = false after artefact added
+
       this.newArtefactName = '';
       (this.$refs.newArtRef as any).hide();
       this.chooseArtefact(newArtefact);
 
       this.onDrawChanged('DRAW');
+      this.$emit('create', newArtefact);
     },
     newModalShown() {
       // this.waiting = true;
