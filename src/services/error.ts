@@ -1,5 +1,8 @@
 import Vue from 'vue';
-import { ErrorDTO } from '@/dtos/error';
+
+interface ErrorDTO {
+    msg: string;
+}
 
 class ErrorService {
 

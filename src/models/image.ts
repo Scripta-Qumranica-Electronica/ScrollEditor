@@ -1,5 +1,5 @@
-import { ImageStackDTO } from '@/dtos/imaged-object';
-import { ImageDTO } from '@/dtos/image';
+import { ImageStackDTO } from '@/dtos/sqe-dtos';
+import { ImageDTO } from '@/dtos/sqe-dtos';
 import { Polygon } from '@/utils/Polygons';
 
 export class IIIFImage {
@@ -44,7 +44,7 @@ export class Image extends IIIFImage {
     public transformToMaster: string;
     public master: boolean;
     public catalogNumber: number;
-    public id: number;
+    public id: string;
 
     constructor(dto: ImageDTO) {
         super(dto.url);

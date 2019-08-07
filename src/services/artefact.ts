@@ -1,7 +1,7 @@
 import { CommHelper } from './comm-helper';
 import { StateManager } from '@/state';
 import { ImagedObject } from '@/models/imaged-object';
-import { ImagedObjectDTO } from '@/dtos/imaged-object';
+import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
 
 
 class ArtefactService {

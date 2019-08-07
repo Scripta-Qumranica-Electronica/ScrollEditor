@@ -2,8 +2,8 @@ import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
-import { ImagedObjectDTO } from '@/dtos/imaged-object';
-import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/artefact';
+import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
+import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 
@@ -51,7 +51,7 @@ class ImagedObjectService {
     public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string):
         Promise<Artefact> {
         // const mask = artefact.mask ? artefact.mask.wkt : '';
-        let masterImageId = 0;
+        let masterImageId = '';
         imagedObject.recto!.images.forEach((element) => {
             if (element.master) {
                 masterImageId = element.id;
@@ -60,7 +60,7 @@ class ImagedObjectService {
         const body = {
             masterImageId,
             mask: '',
-            name: artefactName
+            name: artefactName,
         } as CreateArtefactDTO;
         const response = await CommHelper.post<ArtefactDTO>(`/v1/editions/${editionId}/artefacts`, body);
 

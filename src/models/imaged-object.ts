@@ -1,6 +1,6 @@
 import { ImageStack } from './image';
 import { Artefact } from './artefact';
-import { ImagedObjectDTO } from '@/dtos/imaged-object';
+import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
 
 /*
 export class ArtefactRef {

@@ -1,6 +1,6 @@
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from './imaged-object';
-import { ArtefactDTO } from '@/dtos/artefact';
+import { ArtefactDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
 import { Mask } from '@/utils/Mask';
 

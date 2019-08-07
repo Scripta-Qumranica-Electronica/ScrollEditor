@@ -1,11 +1,11 @@
 import { EditionInfo, AllEditions } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { CommHelper } from './comm-helper';
-import { EditionListDTO, EditionGroupDTO, EditionCopyRequestDTO, EditionDTO } from '@/dtos/editions';
-import { ImagedObjectListDTO } from '@/dtos/imaged-object';
+import { EditionListDTO, EditionGroupDTO, EditionUpdateRequestDTO, EditionDTO } from '@/dtos/sqe-dtos';
+import { ImagedObjectListDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { Artefact } from '@/models/artefact';
-import { ArtefactListDTO } from '@/dtos/artefact';
+import { ArtefactListDTO } from '@/dtos/sqe-dtos';
 
 class EditionService {
     public stateManager: StateManager;
@@ -111,7 +111,7 @@ class EditionService {
     public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {
         const dto = {
             name
-        } as EditionCopyRequestDTO;
+        } as EditionUpdateRequestDTO;
         const response = await CommHelper.post<EditionDTO>(`/v1/editions/${editionId}`, dto);
 
         const newEdition = new EditionInfo(response.data);
