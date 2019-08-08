@@ -58,7 +58,7 @@ class ImagedObjectService {
             }
         });
         const body = {
-            masterImageId,
+            masterImageId: 0, // Change this back to the right image ID once Bronson fixes the problem with ImageDTO
             mask: '',
             name: artefactName,
         } as CreateArtefactDTO;
