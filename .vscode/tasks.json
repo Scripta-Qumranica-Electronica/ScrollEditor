@@ -30,13 +30,6 @@
                     }
                 ]
             }
-        },
-        {
-            "type": "npm",
-            "script": "lint",
-            "problemMatcher": [
-                "$tsc"
-            ]
         }
     ]
 }
