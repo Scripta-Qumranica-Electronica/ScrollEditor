@@ -7,12 +7,12 @@
 
             <g>
                 <defs>
-                    <path id="clip-path" v-if="scaledMask" :d="scaledMask.svg"></path>
-                    <clipPath id="clipping-outline">
-                        <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#clip-path"></use>
+                    <path :id="`path-${artefact.id}`" v-if="scaledMask" :d="scaledMask.svg"></path>
+                    <clipPath :id="`clip-path-${artefact.id}`">
+                        <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`"></use>
                     </clipPath> -->
                 </defs>
-                <g pointer-events="none" clip-path="url(#clipping-outline)">
+                <g pointer-events="none" :clip-path="`url(#clip-path-${artefact.id}`">
                     <image 
                         class="clippedImg" 
                         draggable="false"
@@ -120,6 +120,8 @@ export default Vue.extend({
 
         this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;
+
+        console.log('Artefact mask of ', this.artefact.name, ': ', this.artefact.mask.polygon.svg.substr(0, 40));
     },
 });
 </script>

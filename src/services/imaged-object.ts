@@ -38,7 +38,6 @@ class ImagedObjectService {
         let artefacts: Artefact[] = [];
         if (response.data.artefacts) {
             artefacts = response.data.artefacts.map((obj: any) => new Artefact(obj));
-            console.log(`Added ${artefacts.length} artefacts`);
         }
 
         return artefacts;

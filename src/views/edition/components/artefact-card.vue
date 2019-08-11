@@ -4,7 +4,7 @@
             <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
         </router-link> -->
         <artefact-image class="card-img-top" v-if="artefact" :artefact="artefact" :scale="0.05"></artefact-image>
-        <label>{{artefact.name}}</label>
+        <label>{{artefact.name}} - {{artefact.side}}</label>
     </div>
 </template>
 
