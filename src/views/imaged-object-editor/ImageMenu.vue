@@ -126,7 +126,6 @@
                 :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
             </section>
             <section class="center-btn" v-if="editable" v-shortcuts="[
-              { shortcut: [ 'arrowright' ], callback: redoModal },
               { shortcut: [ 'arrowleft' ], callback: undoModal },
             ]">
             
@@ -264,8 +263,6 @@ export default Vue.extend({
     },
     undoModal() {
       (this.$refs.undoRef as any).show();
-    },
-    redoModal() {
     },
     undo() {
       this.$emit('undo');
