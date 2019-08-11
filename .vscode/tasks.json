@@ -7,11 +7,9 @@
             "type": "npm",
             "script": "serve",
             "isBackground": true,
-            "problemMatcher": {
-                "owner": "Webpack (Dev, Continuous)",
+            "problemMatcher": [{
                 "severity": "error",
                 "fileLocation": "absolute",
-                "source": "webpack-typescript",
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "Compiled",
@@ -29,7 +27,27 @@
                         "message": 3,
                     }
                 ]
-            }
+            }, {
+                "severity": "warning",
+                "fileLocation": "absolute",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Compiled",
+                    "endsPattern": "Time: (\\d+)ms"
+                },
+                "pattern": [
+                    {
+                        "regexp": "WARNING in (.*)",
+                        "file": 1,
+                    },
+                    {
+                        "regexp": "(\\d+):(\\d+) (.*)",
+                        "line": 1,
+                        "column": 2,
+                        "message": 3,
+                    }
+                ]
+            }]
         }
     ]
 }

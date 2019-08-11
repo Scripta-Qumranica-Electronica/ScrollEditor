@@ -30,11 +30,12 @@
  *
  * It has several coordinate systems that all need to work together.
  *
- * We display the Artefact's ImagedObject master image. This image has its width and height (which are received from the server)
- * We don't load the full image size, instead our component as a scale property. We ask the IIIF server for a scaled down version of the image.
+ * We display the Artefact's ImagedObject master image. This image has its width and height
+ * (which are received from the server). We don't load the full image size, instead our component
+ * has a scale property. We ask the IIIF server for a scaled down version of the image.
  *
- * We want the image to fit inside our <div>. The div's dimensions are decided by its parent. We use a CSS scale transform to further scale
- * the image so that it fits inside the div.
+ * We want the image to fit inside our <div>. The div's dimensions are decided by its parent.
+ * We use a CSS scale transform to further scale the image so that it fits inside the div.
  *
  * Here are the various sizes we have:
  *
@@ -52,9 +53,9 @@
 import Vue from 'vue';
 // import AsyncComputed from 'vue-async-computed';
 
-import { Artefact } from '../../models/artefact';
-import ArtefactService from '../../services/artefact';
-import { ImagedObject } from '../../models/imaged-object';
+import { Artefact } from '@/models/artefact';
+import ArtefactService from '@/services/artefact';
+import { ImagedObject } from '@/models/imaged-object';
 import { ImageSetting } from '../imaged-object-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
 import ImageService from '@/services/image';
@@ -110,10 +111,12 @@ export default Vue.extend({
     async mounted() {
         this.elementWidth = this.$el.clientWidth;
 
-        const imagedObject = await this.artefactService.getArtefactImagedObject(this.artefact.editionId!, this.artefact.imagedObjectId);
+        const imagedObject = await this.artefactService.getArtefactImagedObject(
+            this.artefact.editionId!, this.artefact.imagedObjectId);
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
-        if(!this.imageStack) {
-            throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ${this.artefact.side} side even though artefact ${this.artefact.id} references it`);  
+        if (!this.imageStack) {
+            throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
+                            `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
         }
         await this.imageService.fetchImageManifest(this.imageStack.master);
 
