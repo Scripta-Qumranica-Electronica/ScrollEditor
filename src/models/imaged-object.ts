@@ -13,11 +13,8 @@ export class ImagedObject {
         this.id = obj.id;
 
         if (obj.artefacts) {
-            const all = obj.artefacts.map((dto) => new Artefact(dto));
-
-            // For now we do not support verso artefacts in the frontend
-            const recto = all.filter((a) => a.side === 'recto');
-            this.artefacts = recto;
+            const artefacts = obj.artefacts.map((dto) => new Artefact(dto));
+            this.artefacts = artefacts;
         } else {
             this.artefacts = [];
         }

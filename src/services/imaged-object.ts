@@ -31,18 +31,14 @@ class ImagedObjectService {
     }
 
     public async getImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
-        if (!imagedObject.recto) {
-            console.error('ImagedObject ', imagedObject, ' has no recto information');
-            throw new Error('ImagedObject has no recto information');
-        }
-
         const response = await CommHelper.get<ImagedObjectDTO>(
             `/v1/editions/${editionId}/imaged-objects/${imagedObject.id}?optional=artefacts&optional=masks`
         );
 
         let artefacts: Artefact[] = [];
         if (response.data.artefacts) {
-            artefacts = response.data.artefacts.map((obj: any) => new Artefact(obj)).filter((a) => a.side === 'recto');
+            artefacts = response.data.artefacts.map((obj: any) => new Artefact(obj));
+            console.log(`Added ${artefacts.length} artefacts`);
         }
 
         return artefacts;
