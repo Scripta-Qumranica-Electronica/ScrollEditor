@@ -21,9 +21,7 @@ export class PointerTracker {
         }
 
         if (event.type === 'pointerup' || event.type === 'pointercancel') {
-            // console.log('Removing event ', event, this.count, ' in array before removal');
             this.evtArray.splice(idx, 1);
-            // console.log(`pointerup, left with ${this.count} elements`);
         }
     }
 

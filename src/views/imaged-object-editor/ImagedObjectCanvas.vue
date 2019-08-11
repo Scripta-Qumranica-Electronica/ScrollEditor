@@ -113,7 +113,6 @@ export default Vue.extend({
   },
   methods: {
     pointerDown(event: PointerEvent) {
-      // console.log('down', event);
       if (!this.selected || !this.editable) {
         return;
       }
@@ -129,10 +128,8 @@ export default Vue.extend({
         this.abortDrawing();
 
         this.editMode = EditMode.ADJUSTING;
-        // console.log('Switching to adjustment mode');
       } else if (count > 2) {
         this.editMode = EditMode.NONE;
-        // console.log(`${count} fingers held down - ignoring everything`);
       } else if (count === 1) {
         this.lastCursorPos = exEvent.logicalPosition;
 
@@ -256,7 +253,6 @@ export default Vue.extend({
         y: rawPos.y / this.zoom / this.$render.scalingFactors.canvas,
       };
 
-      // console.log(`raw ${rawPos.x}, ${rawPos.y}, scales: ${scaledPos.x}, ${scaledPos.y}`);
       return scaledPos;
     },
     applyRotation(unrotated: Position) {

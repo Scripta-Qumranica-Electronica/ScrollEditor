@@ -68,15 +68,11 @@ class EditionService {
     }
 
     public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
-        console.log('fetchEditionImagedObject called');
         if (!ignoreCache && this.stateManager.imagedObjects.items !== undefined) {
-            console.log('Returning cached list ', this.stateManager.imagedObjects.items);
             return this.stateManager.imagedObjects.items;
         }
 
-        console.log('Loading imaged objects from server');
         const imagedObjects = await this.getEditionImagedObjects(this.stateManager.editions.current!.id);
-        console.log('Imaged objects are: ', imagedObjects);
         this.stateManager.imagedObjects.items = imagedObjects;
         return imagedObjects;
     }
@@ -96,7 +92,6 @@ class EditionService {
             `/v1/editions/${editionId}/imaged-objects?optional=artefacts&optional=masks`
         );
 
-        console.log('Imaged objects DTOs are ', response.data);
         return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
     }
 

@@ -71,7 +71,6 @@ export default Vue.extend({
     },
     pathTransform(): string {
       const transform = 'scale(0.5)'; // `scale(${this.scale / this.$render.scalingFactors.image})`;
-      console.log('pathTransform is ', transform);
       return transform;
     },
     imageSettings(): SingleImageSetting[] {

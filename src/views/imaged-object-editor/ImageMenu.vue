@@ -266,7 +266,6 @@ export default Vue.extend({
       (this.$refs.undoRef as any).show();
     },
     redoModal() {
-      console.log('redo modal');
     },
     undo() {
       this.$emit('undo');
@@ -321,9 +320,6 @@ export default Vue.extend({
     newModalShown() {
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
-    },
-    undoModalShown() {
-      console.log('undo modal shown');
     },
   },
 });

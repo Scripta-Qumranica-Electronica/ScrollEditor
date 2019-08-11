@@ -95,7 +95,6 @@ export default Vue.extend({
 
         secondaryScale(): number {
             const scale = this.elementWidth / this.imageWidth;
-            console.log(`Calculating secondary scale based on ${this.elementWidth} and ${this.imageWidth}: ${scale}`);
             return scale;
         },
 
@@ -103,7 +102,6 @@ export default Vue.extend({
             if (!this.imageStack) {
                 return undefined;
             }
-            console.log('this.imageStack: ', this.imageStack, ' master: ', this.imageStack.master);
 
             return this.imageStack.master.getFullUrl(this.scale * 100);
         }
