@@ -9,7 +9,7 @@
                 <li class="col-sm-6 col-md-4 col-xl-2 list-item"
                     v-for="art in artefacts"
                     :key="art.id">
-                    <artefact-canvas :artefact="art"></artefact-canvas>
+                    <artefact-card :artefact="art"></artefact-card>
                 </li>
             </ul>
         </div>
@@ -21,7 +21,7 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import EditionService from '@/services/edition';
 import { Artefact } from '../../../models/artefact';
-import ArtefactCanvas from '../../artefactEditor/ArtefactCanvas.vue';
+import ArtefactCard from './artefact-card.vue';
 
 export default Vue.extend({
     data() {
@@ -30,7 +30,7 @@ export default Vue.extend({
         };
     },
     components: {
-        ArtefactCanvas,
+        ArtefactCard,
         Waiting,
     },
     computed: {

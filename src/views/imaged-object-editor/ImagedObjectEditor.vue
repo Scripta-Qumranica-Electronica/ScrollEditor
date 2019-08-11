@@ -200,9 +200,11 @@ export default Vue.extend({
       return this.$refs['overlay-div'] as HTMLDivElement;
     },
     originalImageWidth(): number {
+      console.log(`Original width: ${this.masterImage!.manifest.width}`);
       return this.masterImage!.manifest.width;
     },
     originalImageHeight(): number {
+      console.log(`Original height: ${this.masterImage!.manifest.width}`);
       return this.masterImage!.manifest.height;
     }
   },
