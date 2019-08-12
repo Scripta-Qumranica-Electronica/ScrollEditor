@@ -1,22 +1,21 @@
 <template>
 <div>
     <div id="svg-scale" :style="{transform: `scale(${secondaryScale})`}">
-        <svg :viewbox="`0 0 ${imageWidth} ${imageHeight}`"
-            :width="imageWidth"
-            :height="imageHeight">
+        <svg :viewbox="`0 0 ${scaledImageWidth} ${scaledImageHeight}`"
+            :width="scaledImageWidth"
+            :height="scaledImageHeight">
 
             <g>
                 <defs>
                     <path :id="`path-${artefact.id}`" v-if="scaledMask" :d="scaledMask.svg"></path>
                     <clipPath :id="`clip-path-${artefact.id}`">
                         <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`"></use>
-                    </clipPath> -->
+                    </clipPath>
                 </defs>
                 <g pointer-events="none" :clip-path="`url(#clip-path-${artefact.id}`">
                     <image 
-                        class="clippedImg" 
                         draggable="false"
-                        :xlink:href="masterImageUrl"></image>
+                        :href="masterImageUrl"></image>
                 </g>
             </g>
         </svg>
@@ -40,8 +39,8 @@
  * Here are the various sizes we have:
  *
  * masterImageManifest.width, masterImageManifest.height : dimensions of the full resolution image on the server
- * imageWidth, imageHeight: dimension of the <svg> image (original image scaled down by the scale property)
- * elementWidth: width of the HTML element we can fill
+ * scaledImageWidth, scaledImageHeight: dimension of the <svg> image (original image scaled down by the scale property)
+ * divWidth: width of the HTML element we can fill
  * secondaryScale: Second scale factor so the image fits in the HTML element.
  *
  * artefact.mask: The artefact's mask in the original image's coordinates
@@ -72,12 +71,12 @@ export default Vue.extend({
             imageService: new ImageService(),
             imageStack: undefined as ImageStack | undefined,
             masterImageManifest: undefined as any,
-            elementWidth: 1 as any,  // Needs to be set in mount(), since this.$el is not reactive
+            divWidth: 1 as any,  // Needs to be set in mount(), since this.$el is not reactive
             scaledMask: {} as Polygon,
         };
     },
     computed: {
-        imageWidth(): number {
+        scaledImageWidth(): number {
             if (this.masterImageManifest) {
                 return this.masterImageManifest.width * this.scale;
             }
@@ -85,7 +84,7 @@ export default Vue.extend({
             return 200;
         },
 
-        imageHeight(): number {
+        scaledImageHeight(): number {
             if (this.masterImageManifest) {
                 return this.masterImageManifest.height * this.scale;
             }
@@ -94,7 +93,7 @@ export default Vue.extend({
         },
 
         secondaryScale(): number {
-            const scale = this.elementWidth / this.imageWidth;
+            const scale = this.divWidth / this.scaledImageWidth;
             return scale;
         },
 
@@ -107,7 +106,7 @@ export default Vue.extend({
         }
     },
     async mounted() {
-        this.elementWidth = this.$el.clientWidth;
+        this.divWidth = this.$el.clientWidth;
 
         const imagedObject = await this.artefactService.getArtefactImagedObject(
             this.artefact.editionId!, this.artefact.imagedObjectId);
@@ -120,8 +119,6 @@ export default Vue.extend({
 
         this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;
-
-        console.log('Artefact mask of ', this.artefact.name, ': ', this.artefact.mask.polygon.svg.substr(0, 40));
     },
 });
 </script>
