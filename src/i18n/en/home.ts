@@ -20,4 +20,5 @@ export default {
     creatingNewArtefact: 'Creating New Artefact',
     undo: 'Undo',
     redo: 'Redo',
+    filterArtefacts: 'Filter Artefacts'
 };
