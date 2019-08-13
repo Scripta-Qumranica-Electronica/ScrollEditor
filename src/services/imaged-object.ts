@@ -6,6 +6,7 @@ import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
 import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
+import { Side } from '@/models/misc';
 
 class ImagedObjectService {
     public stateManager: StateManager;
@@ -43,17 +44,20 @@ class ImagedObjectService {
         return artefacts;
     }
 
-    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string):
+    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string, side: Side):
         Promise<Artefact> {
-        // const mask = artefact.mask ? artefact.mask.wkt : '';
-        let masterImageId = '';
-        imagedObject.recto!.images.forEach((element) => {
-            if (element.master) {
-                masterImageId = element.id;
-            }
-        });
+        const imageStack = side === 'recto' ? imagedObject.recto : imagedObject.verso;
+
+        if (!imageStack) {
+            throw Error(`ImagedObject ${imagedObject.id} does not have the ${side} side`);
+        }
+
+        const masterImage = imageStack.images.find((im) => im.master);
+        if (!masterImage) {
+            throw Error(`ImagedObject ${imagedObject.id}, side ${side} has no master image`);
+        }
         const body = {
-            masterImageId: 0, // Change this back to the right image ID once Bronson fixes the problem with ImageDTO
+            masterImageId: masterImage.id,
             mask: '',
             name: artefactName,
         } as CreateArtefactDTO;
