@@ -119,6 +119,10 @@ export default Vue.extend({
 
         this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;
+
+        window.addEventListener('resize', () => {
+            this.divWidth = this.$el.clientWidth;
+        });
     },
 });
 </script>
