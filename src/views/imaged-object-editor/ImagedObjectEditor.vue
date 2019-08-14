@@ -537,7 +537,7 @@ export default Vue.extend({
     sideArtefactChanged(side: SideOption) {
       this.side = side;
       if (this.artefact!.side !== side.name) {
-        this.onArtefactChanged(this.visibleArtefacts[0])
+        this.onArtefactChanged(this.visibleArtefacts[0]);
       }
     },
     getArtefactEditingData(index: number) {
