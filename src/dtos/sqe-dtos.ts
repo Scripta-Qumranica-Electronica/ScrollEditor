@@ -5,6 +5,8 @@ export interface ArtefactDTO {
     id: number;
     editionId: number;
     imagedObjectId: string;
+    imageId: number;
+    artefactDataEditorId: number;
     name: string;
     mask: PolygonDTO;
     zOrder: number;
@@ -29,6 +31,7 @@ export interface CreateArtefactDTO {
 export interface EditionDTO {
     id: number;
     name: string;
+    editionDataEditorId: number;
     permission: PermissionDTO;
     owner: UserDTO;
     thumbnailUrl: string;
@@ -86,15 +89,16 @@ export interface EditionCopyDTO extends EditionUpdateRequestDTO {
 }
 
 export interface ImageDTO {
-    id: string;
+    id: number;
     url: string;
+    imageToImageMapEditorId?: number;
     lightingType: Lighting;
     lightingDirection: Direction;
     waveLength: string[];
     type: string;
     side: string;
-    regionInMaster: PolygonDTO;
-    regionOfMaster: PolygonDTO;
+    regionInMasterImage: string;
+    regionInImage: string;
     transformToMaster: string;
     master: boolean;
     catalogNumber: number;
@@ -125,7 +129,9 @@ export interface ImagedObjectListDTO {
 }
 export interface PolygonDTO {
     mask: string;
+    maskEditorId: number;
     transformMatrix: string;
+    transformMatrixEditorId: number;
 }
 
 export interface SignDTO {
@@ -162,6 +168,7 @@ export interface InterpretationRoiDTO {
 export interface TextFragmentDataDTO {
     id: number;
     name: string;
+    editorId: number;
 }
 
 export interface TextFragmentDataListDTO {

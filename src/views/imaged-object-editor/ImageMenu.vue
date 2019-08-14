@@ -302,7 +302,7 @@ export default Vue.extend({
       this.errorMessage = '';
       try {
         newArtefact = await this.imagedObjectService.createArtefact
-        (this.editionId, this.imagedObject, this.newArtefactName);
+                (this.editionId, this.imagedObject, this.newArtefactName, 'recto'); // TODO: Pass the actual side
       } catch (err) {
           this.errorMessage = err;
       } finally {

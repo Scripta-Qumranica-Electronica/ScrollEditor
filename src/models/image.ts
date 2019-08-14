@@ -44,15 +44,15 @@ export class Image extends IIIFImage {
     public transformToMaster: string;
     public master: boolean;
     public catalogNumber: number;
-    public id: string;
+    public id: number;
 
     constructor(dto: ImageDTO) {
         super(dto.url);
         this.type = dto.type;
         this.side = dto.side;
         this.waveLength = dto.waveLength;
-        this.regionInMaster = dto.regionInMaster ? new Polygon(dto.regionInMaster.mask) : undefined;
-        this.regionOfMaster = dto.regionOfMaster ? new Polygon(dto.regionOfMaster.mask) : undefined;
+        this.regionInMaster = dto.regionInMasterImage ? new Polygon(dto.regionInMasterImage) : undefined;
+        this.regionOfMaster = dto.regionInMasterImage ? new Polygon(dto.regionInMasterImage) : undefined;
         this.transformToMaster = dto.transformToMaster;
         this.master = dto.master;
         this.catalogNumber = dto.catalogNumber;
