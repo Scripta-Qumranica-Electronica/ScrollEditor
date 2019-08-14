@@ -7,6 +7,12 @@
         </b-card-header>
         <b-collapse id="accordion-artefacts" visible accordion="my-accordion" role="tabpanel">
           <b-card-body>
+            <b-dropdown :text="sideFilter.displayName">
+                <b-dropdown-item 
+                v-for="filter in sideOptions" 
+                :key="filter.displayName"
+                @click="sideFilterChanged(filter)">{{filter.displayName}}</b-dropdown-item>
+            </b-dropdown>
             <table>  
               <tr v-for="art in artefacts" :key="art.id">
                 <td>
@@ -149,7 +155,8 @@
 import Vue, { PropOptions } from 'vue';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
-import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting, OptimizedArtefact } from './types';
+import { EditorParams, DrawingMode, EditorParamsChangedArgs,
+SingleImageSetting, OptimizedArtefact, SideOption } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
 import ImagedObjectService from '../../services/imaged-object';
 /**
@@ -178,6 +185,7 @@ export default Vue.extend({
     saving: Boolean,
     renaming: Boolean,
     renameInputActive: Artefact,
+    side: Object, // SideOption
   },
   data() {
     return {
@@ -185,7 +193,9 @@ export default Vue.extend({
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
-      scrolled: ''
+      scrolled: '',
+      sideOptions: SideOption.getSideOptions(),
+      sideFilter: this.side,
     };
   },
   computed: {
@@ -317,6 +327,10 @@ export default Vue.extend({
     newModalShown() {
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
+    },
+    sideFilterChanged(filter: SideOption) {
+      this.sideFilter = filter;
+      this.$emit('onSideArtefactChanged', filter);
     },
   },
 });

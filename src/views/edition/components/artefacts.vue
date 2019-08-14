@@ -35,11 +35,7 @@ import EditionService from '@/services/edition';
 import { Artefact } from '../../../models/artefact';
 import ArtefactCard from './artefact-card.vue';
 import { countIf } from '../../../utils/helpers';
-
-interface SideOption {
-    displayName: string;
-    name: string;
-}
+import { SideOption } from '../../imaged-object-editor/types';
 
 export default Vue.extend({
     data() {
