@@ -185,7 +185,7 @@ export default Vue.extend({
     saving: Boolean,
     renaming: Boolean,
     renameInputActive: Artefact,
-    side: Object, // SideOption
+    side: String, // Side is not allowed here for some reason
   },
   data() {
     return {
@@ -195,7 +195,7 @@ export default Vue.extend({
       newArtefactName: '',
       scrolled: '',
       sideOptions: SideOption.getSideOptions(),
-      sideFilter: this.side,
+      sideFilter: {} as SideOption,
     };
   },
   computed: {
@@ -238,6 +238,11 @@ export default Vue.extend({
   },
   mounted() {
     // window.addEventListener('edition', this.handleScroll);
+    const index = this.sideOptions.findIndex((a) => a.name === this.side);
+    if (index < 0) {
+      throw new Error ('Side is no in the correct format');
+    }
+    this.sideFilter = this.sideOptions[index];
   },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {

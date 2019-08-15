@@ -68,7 +68,6 @@
                   :originalImageHeight="originalImageHeight"
                   :params="params"
                   :editable="canEdit"
-                  :side="imagedObject.recto"
                   :clipping-mask="artefact.mask.polygon"
                 ></roi-canvas>
                 <imaged-object-canvas
@@ -128,6 +127,7 @@ import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
+import { Side } from '../../models/misc';
 
 export default Vue.extend({
   name: 'imaged-object-editor',
@@ -157,7 +157,7 @@ export default Vue.extend({
       isActive: false,
       masterImage: {} as IIIFImage | undefined,
       sideOptions: SideOption.getSideOptions(),
-      side: {} as SideOption,
+      side: {} as Side,
     };
   },
   computed: {
@@ -211,7 +211,7 @@ export default Vue.extend({
       return this.masterImage!.manifest.height;
     },
     visibleArtefacts(): OptimizedArtefact[] {
-      return this.optimizedArtefacts.filter((item: OptimizedArtefact) => item.side === this.side.name);
+      return this.optimizedArtefacts.filter((item: OptimizedArtefact) => item.side === this.side);
     }
   },
   async mounted() {
@@ -223,8 +223,9 @@ export default Vue.extend({
         this.$route.params.imagedObjectId
       );
 
-      if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
-        await this.imageService.fetchImageManifest(this.imagedObject.recto.master);
+      if (this.imagedObject && this.imagedObject.getImageStack(this.side)
+          && this.imagedObject.getImageStack(this.side)!.master) {
+        await this.imageService.fetchImageManifest(this.imagedObject.getImageStack(this.side)!.master);
         this.masterImage = this.getMasterImg();
       }
 
@@ -255,8 +256,8 @@ export default Vue.extend({
   },
   methods: {
     getMasterImg(): IIIFImage | undefined {
-      if (this.imagedObject && this.imagedObject.recto) {
-        return this.imagedObject.recto.master;
+      if (this.imagedObject && this.imagedObject.getImageStack(this.side)) {
+        return this.imagedObject.getImageStack(this.side)!.master;
       }
       return undefined;
     },
@@ -276,12 +277,12 @@ export default Vue.extend({
     fillImageSettings() {
       this.params.imageSettings = {};
       if (this.imagedObject) {
-        if (this.imagedObject.recto && this.imagedObject.recto) {
-          for (const imageType of this.imagedObject.recto.availableImageTypes) {
-            const image = this.imagedObject.recto.getImage(imageType);
+        if (this.imagedObject && this.imagedObject.getImageStack(this.side)) {
+          for (const imageType of this.imagedObject.getImageStack(this.side)!.availableImageTypes) {
+            const image = this.imagedObject.getImageStack(this.side)!.getImage(imageType);
             if (image) {
               const master =
-                this.imagedObject.recto.master.type === imageType;
+                this.imagedObject.getImageStack(this.side)!.master.type === imageType;
               const imageSetting = {
                 image,
                 type: imageType,
@@ -308,9 +309,9 @@ export default Vue.extend({
         );
         // If the ImagedObject has both sides, Recto should be selected by default when the editor is open.
         if (this.optimizedArtefacts[0].side === this.sideOptions[0].name) {
-          this.side = this.sideOptions[0];
+          this.side = this.sideOptions[0].name as Side;
         } else {
-          this.side = this.sideOptions[1];
+          this.side = this.sideOptions[1].name as Side;
         }
       }
     },
@@ -535,10 +536,11 @@ export default Vue.extend({
       this.prepareNonSelectedArtefacts();
     },
     sideArtefactChanged(side: SideOption) {
-      this.side = side;
+      this.side = side.name as Side;
       if (this.artefact!.side !== side.name) {
         this.onArtefactChanged(this.visibleArtefacts[0]);
       }
+      this.fillImageSettings();
     },
     getArtefactEditingData(index: number) {
       return this.artefactEditingDataList[index];

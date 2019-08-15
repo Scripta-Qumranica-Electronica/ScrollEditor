@@ -44,9 +44,6 @@ export default Vue.extend({
     originalImageHeight: Number,
     params: EditorParams,
     editable: Boolean,
-    side: {
-      type: Object as () => ImageStack,
-    },
     clippingMask: Polygon,
   },
   data() {

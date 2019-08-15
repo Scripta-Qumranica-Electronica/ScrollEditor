@@ -1,6 +1,7 @@
 import { ImageStack } from './image';
 import { Artefact } from './artefact';
 import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
+import { Side } from './misc';
 
 export class ImagedObject {
     public id: string;
@@ -25,5 +26,12 @@ export class ImagedObject {
         if (obj.verso && obj.verso.id) {
             this.verso = new ImageStack(obj.verso);
         }
+    }
+
+    public getImageStack(side: Side) {
+        if (side === 'recto') {
+            return this.recto;
+        }
+        return this.verso;
     }
 }
