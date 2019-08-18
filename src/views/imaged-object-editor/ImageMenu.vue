@@ -7,6 +7,12 @@
         </b-card-header>
         <b-collapse id="accordion-artefacts" visible accordion="my-accordion" role="tabpanel">
           <b-card-body>
+            <b-dropdown :text="sideFilter.displayName">
+                <b-dropdown-item 
+                v-for="filter in sideOptions" 
+                :key="filter.displayName"
+                @click="sideFilterChanged(filter)">{{filter.displayName}}</b-dropdown-item>
+            </b-dropdown>
             <table>  
               <tr v-for="art in artefacts" :key="art.id">
                 <td>
@@ -17,8 +23,9 @@
                   <input v-if="renameInputActive===art" v-model="art.name" />
                   <b-button v-if="!renaming && renameInputActive===art" class="btn btn-sm" :disabled="!art.name" @click="rename(art)">Rename</b-button>
                   <b-button v-if="renameInputActive===art && renaming" disabled class="disable btn btn-sm">
-                  Renaming...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+                  Renaming...<font-awesome-icon icon="spinner" spin></font-awesome-icon>
                   </b-button>
+                  <b-button class="btn btn-sm" @click="deleteArtefact(art)">Delete</b-button>
                 </td>
               </tr>
             </table>
@@ -75,7 +82,7 @@
     <section>
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
-          <b-button block href="#" v-b-toggle.accordion-params variant="info">Editor parametes</b-button>
+          <b-button block href="#" v-b-toggle.accordion-params variant="info">Editor parameters</b-button>
         </b-card-header>
         <b-collapse id="accordion-params" accordion="my-accordion" role="tabpanel">
           <b-card-body>
@@ -125,7 +132,6 @@
                 :pressed="modeChosen(mode.val)">{{ mode.name }}</b-button>
             </section>
             <section class="center-btn" v-if="editable" v-shortcuts="[
-              { shortcut: [ 'arrowright' ], callback: redoModal },
               { shortcut: [ 'arrowleft' ], callback: undoModal },
             ]">
             
@@ -135,7 +141,7 @@
             <section class="center-btn" v-if="editable">
               <b-button  v-if="!saving" @click="save()">Save</b-button>
               <b-button v-if="saving" disabled class="disable">
-                Saving...<font-awesome-icon icon="spinner" size="1.5x" spin></font-awesome-icon>
+                Saving...<font-awesome-icon icon="spinner" spin></font-awesome-icon>
               </b-button>
             </section>
           </b-card-body>
@@ -149,7 +155,8 @@
 import Vue, { PropOptions } from 'vue';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
-import { EditorParams, DrawingMode, EditorParamsChangedArgs, SingleImageSetting, OptimizedArtefact } from './types';
+import { EditorParams, DrawingMode, EditorParamsChangedArgs,
+SingleImageSetting, OptimizedArtefact, SideOption } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
 import ImagedObjectService from '../../services/imaged-object';
 /**
@@ -178,6 +185,7 @@ export default Vue.extend({
     saving: Boolean,
     renaming: Boolean,
     renameInputActive: Artefact,
+    side: String, // Side is not allowed here for some reason
   },
   data() {
     return {
@@ -185,7 +193,9 @@ export default Vue.extend({
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
-      scrolled: ''
+      scrolled: '',
+      sideOptions: SideOption.getSideOptions(),
+      sideFilter: {} as SideOption,
     };
   },
   computed: {
@@ -228,6 +238,11 @@ export default Vue.extend({
   },
   mounted() {
     // window.addEventListener('edition', this.handleScroll);
+    const index = this.sideOptions.findIndex((a) => a.name === this.side);
+    if (index < 0) {
+      throw new Error ('Side is no in the correct format');
+    }
+    this.sideFilter = this.sideOptions[index];
   },
   methods: {
     onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
@@ -264,9 +279,6 @@ export default Vue.extend({
     undoModal() {
       (this.$refs.undoRef as any).show();
     },
-    redoModal() {
-      console.log('redo modal');
-    },
     undo() {
       this.$emit('undo');
     },
@@ -280,6 +292,10 @@ export default Vue.extend({
       this.chooseArtefact(art);
       this.$emit('inputRenameChanged', art);
     },
+    deleteArtefact(art: Artefact) {
+      // this.chooseArtefact(art);
+      this.$emit('deleteArtefact', art);
+    },
     chooseArtefact(art: Artefact) {
       this.$emit('artefactChanged', art);
     },
@@ -291,7 +307,7 @@ export default Vue.extend({
       this.errorMessage = '';
       try {
         newArtefact = await this.imagedObjectService.createArtefact
-        (this.editionId, this.imagedObject, this.newArtefactName);
+                (this.editionId, this.imagedObject, this.newArtefactName, 'recto'); // TODO: Pass the actual side
       } catch (err) {
           this.errorMessage = err;
       } finally {
@@ -305,20 +321,21 @@ export default Vue.extend({
       //   console.error('There is no sqeImageId in the imagedObject');
       //   newArtefact.sqeImageId = this.artefact.sqeImageId;
       // }
-      this.$emit('create', newArtefact);
-      // waiting = false after artefact added
+
       this.newArtefactName = '';
       (this.$refs.newArtRef as any).hide();
       this.chooseArtefact(newArtefact);
 
       this.onDrawChanged('DRAW');
+      this.$emit('create', newArtefact);
     },
     newModalShown() {
       // this.waiting = true;
       (this.$refs.newArtefactName as any).focus();
     },
-    undoModalShown() {
-      console.log('undo modal shown');
+    sideFilterChanged(filter: SideOption) {
+      this.sideFilter = filter;
+      this.$emit('onSideArtefactChanged', filter);
     },
   },
 });

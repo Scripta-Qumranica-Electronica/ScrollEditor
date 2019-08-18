@@ -44,9 +44,6 @@ export default Vue.extend({
     originalImageHeight: Number,
     params: EditorParams,
     editable: Boolean,
-    side: {
-      type: Object as () => ImageStack,
-    },
     clippingMask: Polygon,
   },
   data() {
@@ -71,7 +68,6 @@ export default Vue.extend({
     },
     pathTransform(): string {
       const transform = 'scale(0.5)'; // `scale(${this.scale / this.$render.scalingFactors.image})`;
-      console.log('pathTransform is ', transform);
       return transform;
     },
     imageSettings(): SingleImageSetting[] {

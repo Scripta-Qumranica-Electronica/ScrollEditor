@@ -94,3 +94,15 @@ export class OptimizedArtefact extends Artefact {
      * Add an unoptimize method: unoptimizeMask which will set this.mask to Polgyon.scale(optimizedMask,...)
      */
 }
+
+export class SideOption {
+    public static getSideOptions(): SideOption[] {
+        return [
+            {displayName: 'Recto', name: 'recto'} as SideOption,
+            {displayName: 'Verso', name: 'verso'} as SideOption
+        ];
+    }
+
+    public displayName = '';
+    public name = '';
+}

@@ -1,5 +1,5 @@
 import { SessionState } from './session';
-import { EditionCollection, ImagedObjectCollection, MiscState } from './utilities';
+import { EditionCollection, ImagedObjectCollection, MiscState, ArtefactCollection } from './utilities';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -7,12 +7,14 @@ export class StateManager {
     public session: SessionState;
     public editions: EditionCollection;
     public imagedObjects: ImagedObjectCollection;
+    public artefacts: ArtefactCollection;
     public misc: MiscState;
 
     private constructor() {
         this.session = new SessionState();
         this.editions = new EditionCollection();
         this.imagedObjects = new ImagedObjectCollection();
+        this.artefacts = new ArtefactCollection();
         this.misc = new MiscState();
     }
 

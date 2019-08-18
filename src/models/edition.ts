@@ -1,6 +1,6 @@
 import { IIIFImage } from './image';
-import { UserDTO } from '@/dtos/user';
-import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/editions';
+import { UserDTO } from '@/dtos/sqe-dtos';
+import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
 
 class UserInfo { // TODO: add fields like UserDTO ?
     public email: string;
@@ -11,17 +11,17 @@ class UserInfo { // TODO: add fields like UserDTO ?
     constructor(dto: UserDTO) {
         this.email = dto.email;
         this.userId = dto.userId;
-        this.forename = dto.forename;
+        this.forename = ''; // TODO - do we even need this? dto.forename;
     }
 }
 
 class Permissions {
-    public canWrite: boolean;
-    public canAdmin: boolean;
+    public mayWrite: boolean;
+    public isAdmin: boolean;
 
     constructor(dto: PermissionDTO) {
-        this.canWrite = dto.canWrite;
-        this.canAdmin = dto.canAdmin;
+        this.mayWrite = dto.mayWrite;
+        this.isAdmin = dto.isAdmin;
     }
 }
 
@@ -57,7 +57,7 @@ class EditionInfo {
     constructor(dto: EditionDTO) {
         this.id = dto.id;
         this.name = dto.name;
-        this.permission = new Permissions(dto.permission); // isAdmin, canWrite
+        this.permission = new Permissions(dto.permission); // isAdmin, mayWrite
         this.owner = new UserInfo(dto.owner);
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);

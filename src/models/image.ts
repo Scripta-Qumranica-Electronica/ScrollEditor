@@ -1,5 +1,5 @@
-import { ImageStackDTO } from '@/dtos/imaged-object';
-import { ImageDTO } from '@/dtos/image';
+import { ImageStackDTO } from '@/dtos/sqe-dtos';
+import { ImageDTO } from '@/dtos/sqe-dtos';
 import { Polygon } from '@/utils/Polygons';
 
 export class IIIFImage {
@@ -51,8 +51,8 @@ export class Image extends IIIFImage {
         this.type = dto.type;
         this.side = dto.side;
         this.waveLength = dto.waveLength;
-        this.regionInMaster = dto.regionInMaster ? new Polygon(dto.regionInMaster.mask) : undefined;
-        this.regionOfMaster = dto.regionOfMaster ? new Polygon(dto.regionOfMaster.mask) : undefined;
+        this.regionInMaster = dto.regionInMasterImage ? new Polygon(dto.regionInMasterImage) : undefined;
+        this.regionOfMaster = dto.regionInMasterImage ? new Polygon(dto.regionInMasterImage) : undefined;
         this.transformToMaster = dto.transformToMaster;
         this.master = dto.master;
         this.catalogNumber = dto.catalogNumber;

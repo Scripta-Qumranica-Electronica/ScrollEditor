@@ -2,7 +2,7 @@
   <div class="wrapper" id="imaged-object-editor">
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
-    </div>
+    </div> 
     <div
       id="sidebar"
       class="image-menu-div col-xl-2 col-lg-3 col-md-4"
@@ -11,18 +11,21 @@
     >
       <image-menu
         :imagedObject="imagedObject"
-        :artefacts="optimizedArtefacts"
+        :artefacts="visibleArtefacts"
         :artefact="artefact"
         :params="params"
         :editable="canEdit"
+        :side="side"
         @paramsChanged="onParamsChanged($event)"
         @save="onSave($event)"
         @undo="onUndo($event)"
         @redo="onRedo($event)"
         @create="onNew($event)"
         @rename="onRename($event)"
+        @deleteArtefact="onDeleteArtefact($event)"
         @inputRenameChanged="inputRenameChanged($event)"
         @artefactChanged="onArtefactChanged($event)"
+        @onSideArtefactChanged="sideArtefactChanged($event)"
         :saving="saving"
         :renaming="renaming"
         :renameInputActive="renameInputActive"
@@ -65,10 +68,9 @@
                   :originalImageHeight="originalImageHeight"
                   :params="params"
                   :editable="canEdit"
-                  :side="imagedObject.recto"
                   :clipping-mask="artefact.mask.polygon"
                 ></roi-canvas>
-                <artefact-canvas
+                <imaged-object-canvas
                   v-for="artefact in nonSelectedArtefacts"
                   :key="artefact.id"
                   class="overlay-canvas"
@@ -77,8 +79,8 @@
                   :params="params"
                   :selected="false"
                   :artefact="artefact"
-                ></artefact-canvas>
-                <artefact-canvas
+                ></imaged-object-canvas>
+                <imaged-object-canvas
                   class="overlay-canvas"
                   v-show="artefact !== undefined"
                   :originalImageWidth="originalImageWidth"
@@ -89,7 +91,7 @@
                   :artefact="artefact"
                   @maskChanged="onMaskChanged"
                   @zoomRequest="onZoomRequest($event)"
-                ></artefact-canvas>
+                ></imaged-object-canvas>
               </div>
             </div>
           </div>
@@ -117,13 +119,15 @@ import {
   DrawingMode,
   ZoomRequestEventArgs,
   ArtefactEditingData,
-  OptimizedArtefact
+  OptimizedArtefact,
+  SideOption
 } from './types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
-import ArtefactCanvas from './ArtefactCanvas.vue';
+import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
+import { Side } from '../../models/misc';
 
 export default Vue.extend({
   name: 'imaged-object-editor',
@@ -131,7 +135,7 @@ export default Vue.extend({
     Waiting,
     'image-menu': ImageMenu,
     'roi-canvas': ROICanvas,
-    'artefact-canvas': ArtefactCanvas
+    'imaged-object-canvas': ImagedObjectCanvas
   },
   data() {
     return {
@@ -152,6 +156,8 @@ export default Vue.extend({
       optimizedArtefacts: [] as OptimizedArtefact[],
       isActive: false,
       masterImage: {} as IIIFImage | undefined,
+      sideOptions: SideOption.getSideOptions(),
+      side: {} as Side,
     };
   },
   computed: {
@@ -165,7 +171,7 @@ export default Vue.extend({
       return parseInt(this.$route.params.editionId);
     },
     canEdit(): boolean {
-      return this.$state.editions.current ? this.$state.editions.current.permission.canWrite : false;
+      return this.$state.editions.current ? this.$state.editions.current.permission.mayWrite : false;
     },
     actualWidth(): number {
       return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
@@ -203,6 +209,9 @@ export default Vue.extend({
     },
     originalImageHeight(): number {
       return this.masterImage!.manifest.height;
+    },
+    visibleArtefacts(): OptimizedArtefact[] {
+      return this.optimizedArtefacts.filter((item: OptimizedArtefact) => item.side === this.side);
     }
   },
   async mounted() {
@@ -214,19 +223,22 @@ export default Vue.extend({
         this.$route.params.imagedObjectId
       );
 
-      if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
-        await this.imageService.fetchImageManifest(this.imagedObject.recto.master);
+      if (this.imagedObject && this.imagedObject.getImageStack(this.side)
+          && this.imagedObject.getImageStack(this.side)!.master) {
+        await this.imageService.fetchImageManifest(this.imagedObject.getImageStack(this.side)!.master);
         this.masterImage = this.getMasterImg();
       }
 
       if (this.imagedObject!.artefacts!.length) {
         this.optimizeArtefacts();
-        this.artefact = this.optimizedArtefacts[0];
+        // Set this.artefact to visibleArtefacts[0]
+        this.onArtefactChanged(this.visibleArtefacts[0]);
         this.optimizedArtefacts.forEach((element) => {
           this.artefactEditingDataList.push(new ArtefactEditingData());
         });
-        this.artefactEditingData = this.getArtefactEditingData(0);
-        this.initialMask = this.artefact.optimizedMask;
+        // Remove this because it will happen in onArtefactChanged function.
+        // this.artefactEditingData = this.getArtefactEditingData(0);
+        this.initialMask = this.artefact!.optimizedMask;
       } else {
         this.artefact = undefined;
         this.initialMask = new Polygon();
@@ -236,15 +248,16 @@ export default Vue.extend({
     }
 
     this.fillImageSettings();
-    this.prepareNonSelectedArtefacts();
+    // Remove this because it will happen in onArtefactChanged function.
+    // this.prepareNonSelectedArtefacts();
   },
   created() {
     window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));
   },
   methods: {
     getMasterImg(): IIIFImage | undefined {
-      if (this.imagedObject && this.imagedObject.recto) {
-        return this.imagedObject.recto.master;
+      if (this.imagedObject && this.imagedObject.getImageStack(this.side)) {
+        return this.imagedObject.getImageStack(this.side)!.master;
       }
       return undefined;
     },
@@ -264,12 +277,12 @@ export default Vue.extend({
     fillImageSettings() {
       this.params.imageSettings = {};
       if (this.imagedObject) {
-        if (this.imagedObject.recto && this.imagedObject.recto) {
-          for (const imageType of this.imagedObject.recto.availableImageTypes) {
-            const image = this.imagedObject.recto.getImage(imageType);
+        if (this.imagedObject && this.imagedObject.getImageStack(this.side)) {
+          for (const imageType of this.imagedObject.getImageStack(this.side)!.availableImageTypes) {
+            const image = this.imagedObject.getImageStack(this.side)!.getImage(imageType);
             if (image) {
               const master =
-                this.imagedObject.recto.master.type === imageType;
+                this.imagedObject.getImageStack(this.side)!.master.type === imageType;
               const imageSetting = {
                 image,
                 type: imageType,
@@ -294,6 +307,12 @@ export default Vue.extend({
               this.$render.scalingFactors.combined
             )
         );
+        // If the ImagedObject has both sides, Recto should be selected by default when the editor is open.
+        if (this.optimizedArtefacts[0].side === this.sideOptions[0].name) {
+          this.side = this.sideOptions[0].name as Side;
+        } else {
+          this.side = this.sideOptions[1].name as Side;
+        }
       }
     },
     onMaskChanged(eventArgs: MaskChangedEventArgs) {
@@ -458,7 +477,8 @@ export default Vue.extend({
       }
       this.saving = true;
       try {
-        this.artefactEditingDataList.push(new ArtefactEditingData());
+        this.artefactEditingData = new ArtefactEditingData();
+        this.artefactEditingDataList.push(this.artefactEditingData);
         this.showMessage('Artefact Created', 'success');
       } catch (err) {
         this.showMessage('Artefact creation failed', 'error');
@@ -485,6 +505,27 @@ export default Vue.extend({
         this.renaming = false;
       }
     },
+    async onDeleteArtefact(art: OptimizedArtefact) {
+      try {
+        await this.imagedObjectService.deleteArtefact(art);
+        this.showMessage('Artefact deleted', 'success');
+        const index = this.optimizedArtefacts.indexOf(art);
+        this.optimizedArtefacts.splice(index, 1);
+        this.artefactEditingDataList.splice(index, 1);
+
+        if (this.optimizedArtefacts[0]) {
+          this.artefact = this.optimizedArtefacts[0];
+          this.artefactEditingData = this.artefactEditingDataList[0];
+        } else {
+          this.artefact = undefined;
+          this.initialMask = new Polygon();
+        }
+        this.prepareNonSelectedArtefacts();
+      } catch (err) {
+        console.error(err);
+        this.showMessage('Delete artefact failed', 'error');
+      }
+    },
     inputRenameChanged(art: OptimizedArtefact | undefined) {
       this.renameInputActive = art;
     },
@@ -493,6 +534,13 @@ export default Vue.extend({
       const index = this.optimizedArtefacts.indexOf(art); // index artefact in artefact list.
       this.artefactEditingData = this.getArtefactEditingData(index);
       this.prepareNonSelectedArtefacts();
+    },
+    sideArtefactChanged(side: SideOption) {
+      this.side = side.name as Side;
+      if (this.artefact!.side !== side.name) {
+        this.onArtefactChanged(this.visibleArtefacts[0]);
+      }
+      this.fillImageSettings();
     },
     getArtefactEditingData(index: number) {
       return this.artefactEditingDataList[index];
@@ -505,8 +553,8 @@ export default Vue.extend({
       });
     },
     prepareNonSelectedArtefacts() {
-      this.nonSelectedArtefacts = this.optimizedArtefacts.filter(
-        (artefact) => artefact !== this.artefact
+      this.nonSelectedArtefacts = this.visibleArtefacts.filter(
+        (artefact: OptimizedArtefact) => artefact !== this.artefact
       );
       this.nonSelectedMask = new Polygon();
       for (const artefact of this.nonSelectedArtefacts) {
@@ -526,9 +574,9 @@ export default Vue.extend({
  * Todo:
  *
  * Add a shrinkFactor data element, initialize to 20.
- * Pass shrinkFactor as a property to ArtefactCanvas, and not as a data entry of ArtefactCanvas
- * Change ArtefactCanvas to use the optimizedMask instead of the mask
- * Make sure ArtefactCanvas does not shrink the mask (in clipCanvas and trace)
+ * Pass shrinkFactor as a property to ImagedObjectCanvas, and not as a data entry of ImagedObjectCanvas
+ * Change ImagedObjectCanvas to use the optimizedMask instead of the mask
+ * Make sure ImagedObjectCanvas does not shrink the mask (in clipCanvas and trace)
  * Before saving, call unoptimize mask to create the larger mask again
  */
 </script>

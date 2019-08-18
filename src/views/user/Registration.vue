@@ -57,7 +57,7 @@
 import Vue from 'vue';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
-import { NewUserRequestDTO } from '../../dtos/user';
+import { NewUserRequestDTO } from '../../dtos/sqe-dtos';
 import router from '../../router';
 
 export default Vue.extend({

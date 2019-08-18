@@ -1,8 +1,10 @@
-import { LoginRequestDTO, LoginResponseDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
+import { LoginRequestDTO, DetailedUserDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
     ResendUserAccountActivationRequestDTO,
     NewUserRequestDTO,
     ResetForgottenUserPasswordRequestDTO,
-    AccountActivationRequestDTO} from '@/dtos/user';
+    AccountActivationRequestDTO,
+    UserUpdateRequestDTO,
+    DetailedUserTokenDTO} from '@/dtos/sqe-dtos';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
@@ -20,7 +22,7 @@ class SessionService {
             email,
             password
         } as LoginRequestDTO;
-        const response = await CommHelper.post<LoginResponseDTO>('/v1/users/login', requestDto, false);
+        const response = await CommHelper.post<DetailedUserTokenDTO>('/v1/users/login', requestDto, false);
 
         this.stateManager.session.user = response.data;
         this.stateManager.session.token = response.data.token;
@@ -38,7 +40,7 @@ class SessionService {
         }
 
         try {
-            const response = await CommHelper.get<UserDTO>('/v1/users');
+            const response = await CommHelper.get<DetailedUserDTO>('/v1/users');
             // The server returns a 401 error if the user is not logged in
             this.stateManager.session.user = response.data;
             return true;
@@ -77,6 +79,11 @@ class SessionService {
 
     public async activateUser(data: AccountActivationRequestDTO) {
         await CommHelper.post<any>('/v1/users/confirm-registration', data, false);
+    }
+
+
+    public async updateUser(data: UserUpdateRequestDTO) {
+        await CommHelper.put<any>('/v1/users', data);
     }
 }
 

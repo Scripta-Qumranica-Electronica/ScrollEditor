@@ -24,6 +24,8 @@ import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
 import { StateManager } from './state';
 
+// import AsyncComputed from 'vue-async-computed';
+
 Vue.config.productionTip = false;
 
 // TODO use a real loading image and add an error image
@@ -55,6 +57,8 @@ Vue.use(Toasted);
 Vue.use(VueShortcuts, { prevent: ['input'] });
 
 Vue.use(RenderingOptimizationPlugin);
+
+// Vue.use(AsyncComputed);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {
