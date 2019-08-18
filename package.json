@@ -30,8 +30,8 @@
     "vue2-hammer": "^2.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.0.5",
-    "@vue/cli-plugin-typescript": "^3.0.5",
+    "@vue/cli-plugin-babel": "^3.10.0",
+    "@vue/cli-plugin-typescript": "^3.10.0",
     "@vue/cli-service": "^3.10.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
