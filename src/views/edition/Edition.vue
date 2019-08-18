@@ -46,12 +46,12 @@ export default Vue.extend({
         }
     },
     mounted() {
-        this.currentVersionId = parseInt(this.$route.params.id, 10);
+        this.currentVersionId = parseInt(this.$route.params.editionId, 10);
         this.loadInfo();
         this.getPage(window.location.href);
     },
     beforeRouteUpdate(to, from, next) {
-        this.currentVersionId = parseInt(to.params.id, 10);
+        this.currentVersionId = parseInt(to.params.editionId, 10);
         this.loadInfo();
         this.getPage(to.path);
         next();

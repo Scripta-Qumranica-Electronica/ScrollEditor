@@ -5,11 +5,11 @@
     </div> 
     <div
       id="sidebar"
-      class="image-menu-div col-xl-2 col-lg-3 col-md-4"
+      class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
       v-if="!waiting && imagedObject"
       :class="{ active : isActive }"
     >
-      <image-menu
+      <imaged-object-menu
         :imagedObject="imagedObject"
         :artefacts="visibleArtefacts"
         :artefact="artefact"
@@ -29,7 +29,7 @@
         :saving="saving"
         :renaming="renaming"
         :renameInputActive="renameInputActive"
-      ></image-menu>
+      ></imaged-object-menu>
     </div>
 
     <div id="content" class="container col-xl-12 col-lg-12 col-md-12"
@@ -110,7 +110,7 @@ import EditionService from '@/services/edition';
 import ImageService from '@/services/image';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
-import ImageMenu from './ImageMenu.vue';
+import ImagedObjectMenu from './ImagedObjectMenu.vue';
 import {
   EditorParams,
   EditorParamsChangedArgs,
@@ -133,7 +133,7 @@ export default Vue.extend({
   name: 'imaged-object-editor',
   components: {
     Waiting,
-    'image-menu': ImageMenu,
+    'imaged-object-menu': ImagedObjectMenu,
     'roi-canvas': ROICanvas,
     'imaged-object-canvas': ImagedObjectCanvas
   },
@@ -619,7 +619,7 @@ export default Vue.extend({
   height: calc(100vh - 56px);
   width: calc(100vw- 40px);
 }
-.image-menu-div {
+.imaged-object-menu-div {
   height: calc(100vh - 56px);
   overflow: hidden;
 }

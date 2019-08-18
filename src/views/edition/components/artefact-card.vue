@@ -1,9 +1,8 @@
 <template>
     <div class="card">
-        <!-- <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imagedObject.id}` }">
-            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
-        </router-link> -->
-        <artefact-image class="card-img-top" v-if="artefact" :artefact="artefact" :scale="0.05"></artefact-image>
+        <router-link :to="{ path: `/editions/${editionId}/artefacts/${artefact.id}` }">
+            <artefact-image class="card-img-top" v-if="artefact" :artefact="artefact" :scale="0.05"></artefact-image>
+        </router-link>
         <label>{{artefact.name}} - {{artefact.side}}</label>
     </div>
 </template>
@@ -21,6 +20,11 @@ export default Vue.extend({
     props: {
         artefact: Artefact,
     },
+    computed: {
+        editionId(): number {
+            return parseInt(this.$route.params.editionId);
+        },
+    }
 });
 </script>
 

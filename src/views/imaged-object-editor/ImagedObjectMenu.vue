@@ -1,5 +1,5 @@
 <template>
-  <div id="image-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
+  <div id="imaged-object-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
     <section>
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
@@ -170,7 +170,7 @@ import { SingleImageSetting } from '../../components/image-settings/types';
  * the parent component to turn on/off certain menu functionality.
  */
 export default Vue.extend({
-  name: 'image-menu',
+  name: 'imaged-object-menu',
   components: {
     'single-image-setting': SingleImageSettingComponent,
   },
@@ -352,7 +352,7 @@ span.selected {
 section {
   margin-bottom: 20px;
 }
-#image-menu {
+#imaged-object-menu {
   touch-action: pan-y;
   top: 0;
   right: 0;

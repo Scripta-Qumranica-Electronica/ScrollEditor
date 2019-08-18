@@ -15,7 +15,7 @@
         </clipPath>
       </defs>
       <g pointer-events="none" :clip-path="params.clipMask ? 'url(#Clipping-outline)' : 'url(#Full-clipping-outline)'">
-        <image v-for="imageSetting in imageSettings" 
+        <image v-for="imageSetting in visibleImageSettings"
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg" 
               draggable="false"
@@ -23,8 +23,7 @@
               :width="actualWidth"
               :height="actualHeight"
               :opacity="imageSetting.opacity"
-              :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
-
+              ></image>
       </g>
       <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use> 
     </g>
@@ -75,6 +74,9 @@ export default Vue.extend({
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
       return values;
+    },
+    visibleImageSettings(): SingleImageSetting[] {
+      return this.imageSettings.filter((image) => image.visible);
     }
   },
   methods: {
