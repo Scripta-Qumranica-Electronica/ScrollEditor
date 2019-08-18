@@ -42,8 +42,8 @@ import Vue from 'vue';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
-import router from '../../router';
-import { StateManager } from '../../state';
+import router from '@/router';
+import { StateManager } from '@/state';
 
 
 export default Vue.extend({

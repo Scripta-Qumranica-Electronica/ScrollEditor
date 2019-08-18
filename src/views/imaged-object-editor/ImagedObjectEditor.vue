@@ -127,7 +127,7 @@ import { IIIFImage } from '@/models/image';
 import ROICanvas from './RoiCanvas.vue';
 import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
-import { Side } from '../../models/misc';
+import { Side } from '@/models/misc';
 
 export default Vue.extend({
   name: 'imaged-object-editor',

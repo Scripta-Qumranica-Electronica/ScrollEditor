@@ -23,8 +23,8 @@
 import Vue from 'vue';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
-import router from '../../router';
-import { ResetForgottenUserPasswordRequestDTO } from '../../dtos/sqe-dtos';
+import router from '@/router';
+import { ResetForgottenUserPasswordRequestDTO } from '@/dtos/sqe-dtos';
 
 export default Vue.extend({
   name: 'activation',
