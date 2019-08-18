@@ -24,6 +24,7 @@
               :height="actualHeight"
               :opacity="imageSetting.opacity"
               :visibility="imageSetting.visible ? 'visible' : 'hidden'"></image>
+
       </g>
       <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use> 
     </g>
@@ -33,9 +34,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
-import { EditorParams, SingleImageSetting } from './types';
+import { EditorParams } from './types';
 import { ImageStack } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
+import { SingleImageSetting } from '../../components/image-settings/types';
 
 export default Vue.extend({
   name: 'roi-canvas',

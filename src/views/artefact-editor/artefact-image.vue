@@ -55,7 +55,6 @@ import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
 import ArtefactService from '@/services/artefact';
 import { ImagedObject } from '@/models/imaged-object';
-import { ImageSetting } from '../imaged-object-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
 import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';

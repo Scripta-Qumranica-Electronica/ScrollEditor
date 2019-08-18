@@ -156,9 +156,10 @@ import Vue, { PropOptions } from 'vue';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs,
-SingleImageSetting, OptimizedArtefact, SideOption } from './types';
+OptimizedArtefact, SideOption } from './types';
 import SingleImageSettingComponent from './SingleImageSetting.vue';
 import ImagedObjectService from '../../services/imaged-object';
+import { SingleImageSetting } from '../../components/image-settings/types';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
  * to create a modular container that holds this menu and the possible

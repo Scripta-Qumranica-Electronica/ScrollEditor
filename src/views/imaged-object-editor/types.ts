@@ -1,7 +1,7 @@
-import { IIIFImage } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { Artefact } from '@/models/artefact';
 import { Position, PointerTrackingEvent } from '@/utils/PointerTracker';
+import { ImageSetting } from '@/components/image-settings/types';
 
 export enum DrawingMode {
     DRAW, ERASE
@@ -10,18 +10,6 @@ export enum DrawingMode {
 // export enum EditMode {
 //     DRAWING, ADJUSTING, NONE
 // }
-
-export interface SingleImageSetting {
-    // Keep information about the image itself, to make rendering based on the setting simpler
-    image: IIIFImage;
-    type: string;
-    visible: boolean;
-    opacity: number; // Between 0 and 1
-}
-
-export interface ImageSetting {
-    [image: string]: SingleImageSetting;
-}
 
 export class EditorParams {
     public imageSettings = {} as ImageSetting;
