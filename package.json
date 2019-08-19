@@ -1,6 +1,6 @@
 {
-  "name": "vue",
-  "version": "0.1.0",
+  "name": "sqe-scroll-editor",
+  "version": "0.3.9",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode development",
@@ -21,7 +21,7 @@
     "element-ui": "^2.4.9",
     "js-clipper": "^1.0.1",
     "mathjs": "^5.4.1",
-    "vue": "^2.5.17",
+    "vue": "^2.6.10",
     "vue-i18n": "^8.3.0",
     "vue-lazyload": "^1.2.6",
     "vue-router": "^3.0.1",
@@ -30,12 +30,12 @@
     "vue2-hammer": "^2.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.0.5",
-    "@vue/cli-plugin-typescript": "^3.0.5",
-    "@vue/cli-service": "^3.0.5",
+    "@vue/cli-plugin-babel": "^3.10.0",
+    "@vue/cli-plugin-typescript": "^3.10.0",
+    "@vue/cli-service": "^3.10.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
-    "typescript": "^3.0.0",
-    "vue-template-compiler": "^2.5.17"
+    "typescript": "~3.1.0",
+    "vue-template-compiler": "^2.6.10"
   }
 }
