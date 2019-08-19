@@ -1,7 +1,5 @@
 <template>
   <div>
-      <!-- <pre>{{imageStack.availableImageTypes}}</pre> -->
-      <!-- <pre>{{params}}</pre> -->
       <single-image-setting v-for="imageType in imageStack.availableImageTypes" :key="imageType" 
                 :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged($event)">
     </single-image-setting>
@@ -24,7 +22,7 @@ export default Vue.extend({
   },
   props: {
     imageStack: ImageStack,
-    params: ArtefactEditorParams // TODO_ change type of params EditorParams,
+    params: Object // EditorParams or ArtefactEditorParams,
   },
   data() {
     return {

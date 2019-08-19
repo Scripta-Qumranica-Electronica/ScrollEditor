@@ -1,18 +1,5 @@
 <template>
-  <div id="imaged-object-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
-    <section>
-      <b-card no-body class="mb-1">
-        <b-card-header header-tag="header" class="p-1" role="tab">
-          <b-button block href="#" v-b-toggle.accordion-artefacts variant="info">Artefacts</b-button>
-        </b-card-header>
-        <b-collapse id="accordion-artefacts" visible accordion="my-accordion" role="tabpanel">
-          <b-card-body>
-            <label>AAAA</label>
-          </b-card-body>
-        </b-collapse>
-      </b-card>
-    </section>
-<!--
+<div id="artefact-side-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
     <section>
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
@@ -20,9 +7,7 @@
         </b-card-header>
         <b-collapse id="accordion-images" accordion="my-accordion" role="tabpanel">
           <b-card-body>
-            <single-image-setting v-for="imageType in imagedObject.recto.availableImageTypes" :key="imageType" 
-                              :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged(imageType, $event)">
-            </single-image-setting>
+            <image-settings :imageStack="imageStack" :params="params" @imageSettingChanged="onImageSettingChanged($event)" />
           </b-card-body>
         </b-collapse>
       </b-card>
@@ -36,53 +21,47 @@
         <b-collapse id="accordion-params" accordion="my-accordion" role="tabpanel">
           <b-card-body>
             <section>
-              <!-- zoom -->
-           <!--   <div class="row">
+              <div class="row">
                 <div class="col-5">
                   Zoom: {{formatTooltip()}}
                 </div>
                 <div class="col">          
                   <b-form-input ref="zoomRef" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input> <!-- v-b-tooltip.hover :title="formatTooltip()"-->
-    <!--        </div>
-              </div>
-            </section>
-            <section>
-              <div class="row">
-                <div class="col-5">
-                  Brush Size: {{brushSize}}
-                </div>
-                <div class="col">          
-                  <b-form-input type="range" min="2" max="40" step="1"  v-model="brushSize"></b-form-input>
                 </div>
               </div>
-            </section>
-            <section v-if="artefact.mask">
-              <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
             </section>
           </b-card-body>
         </b-collapse>
       </b-card>
-    </section>-->
-</div>
+    </section>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
-
-// import SingleImageSettingComponent from './SingleImageSetting.vue';
+import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
+import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '../../services/imaged-object';
+import ArtefactService from '../../services/artefact';
+import { ImageStack } from '../../models/image';
 
 export default Vue.extend({
   name: 'artefcat-side-menu',
   components: {
-    // 'single-image-setting': SingleImageSettingComponent,
+    'image-settings': ImageSettingsComponent,
   },
   data() {
     return {
       errorMessage: '',
+      artefactService: new ArtefactService(),
+      imageStack: {} as ImageStack | undefined,
     };
+  },
+  props: {
+    artefact: Artefact,
+    params: ArtefactEditorParams,
   },
   computed: {
     editionId(): number {
@@ -90,16 +69,55 @@ export default Vue.extend({
     },
     scrolled(): boolean {
         return true;
-    }
+    },
+    zoom: {
+      get(): number {
+          return this.params.zoom;
+      },
+      set(val: any) {
+          this.params.zoom = parseFloat(val);
+          this.notifyChange('zoom', val);
+      }
+    },
+  },
+  async mounted() {
+    const imagedObject = await this.artefactService.getArtefactImagedObject(
+        this.artefact.editionId!, this.artefact.imagedObjectId);
+    this.imageStack = imagedObject.getImageStack(this.artefact.side);
   },
   methods: {
-    aaa() {
-       console.log("aaa")
+    formatTooltip(): string {
+      return (this.zoom * 100).toFixed(0) + '%';
     },
-
+    notifyChange(paramName: string, paramValue: any) {
+      const args = {
+        property: paramName,
+        value: paramValue,
+        params: this.params,
+      } as ArtefactEditorParamsChangedArgs;
+      this.$emit('paramsChanged', args);
+    },
   }
 });
 </script>
 
 <style lang="scss" scoped>
+#artefact-side-menu {
+  touch-action: pan-y;
+  top: 0;
+  right: 0;
+}
+span.selected {
+  font-weight: bold;
+}
+section {
+  margin-bottom: 20px;
+}
+button {
+  margin-right: 10px;
+}
+.btn-info {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
 </style>

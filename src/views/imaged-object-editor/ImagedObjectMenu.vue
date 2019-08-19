@@ -71,9 +71,7 @@
         </b-card-header>
         <b-collapse id="accordion-images" accordion="my-accordion" role="tabpanel">
           <b-card-body>
-            <single-image-setting v-for="imageType in imagedObject.recto.availableImageTypes" :key="imageType" 
-                              :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged(imageType, $event)">
-            </single-image-setting>
+            <image-settings :imageStack="imagedObject.getImageStack(this.artefact.side)" :params="params" @imageSettingChanged="onImageSettingChanged($event)" />
           </b-card-body>
         </b-collapse>
       </b-card>
@@ -157,9 +155,11 @@ import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { EditorParams, DrawingMode, EditorParamsChangedArgs,
 OptimizedArtefact, SideOption } from './types';
-import SingleImageSettingComponent from './SingleImageSetting.vue';
+import SingleImageSettingComponent from '@/components/editors/SingleImageSetting.vue';
 import ImagedObjectService from '../../services/imaged-object';
 import { SingleImageSetting } from '../../components/image-settings/types';
+import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
+import { Side } from '../../models/misc';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
  * to create a modular container that holds this menu and the possible
@@ -173,6 +173,7 @@ export default Vue.extend({
   name: 'imaged-object-menu',
   components: {
     'single-image-setting': SingleImageSettingComponent,
+    'image-settings': ImageSettingsComponent,
   },
   props: {
     imagedObject: ImagedObject,
@@ -246,8 +247,8 @@ export default Vue.extend({
     this.sideFilter = this.sideOptions[index];
   },
   methods: {
-    onImageSettingChanged(imageType: string, settings: SingleImageSetting) {
-      this.params.imageSettings[imageType] = settings;
+    onImageSettingChanged(settings: SingleImageSetting) {
+      this.params.imageSettings[settings.type] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
     },
     onDrawChanged(val: any) { // DrawingMode
@@ -308,20 +309,12 @@ export default Vue.extend({
       this.errorMessage = '';
       try {
         newArtefact = await this.imagedObjectService.createArtefact
-                (this.editionId, this.imagedObject, this.newArtefactName, 'recto'); // TODO: Pass the actual side
+                (this.editionId, this.imagedObject, this.newArtefactName, this.side as Side);
       } catch (err) {
           this.errorMessage = err;
       } finally {
           this.waiting = false;
       }
-
-
-      // const newArtefact = Artefact.createNew(this.editionId, this.imagedObject, this.newArtefactName);
-      // newArtefact.sqeImageId = this.imagedObject.recto!.sqeImageId;
-      // if (!newArtefact.sqeImageId) {
-      //   console.error('There is no sqeImageId in the imagedObject');
-      //   newArtefact.sqeImageId = this.artefact.sqeImageId;
-      // }
 
       this.newArtefactName = '';
       (this.$refs.newArtRef as any).hide();
