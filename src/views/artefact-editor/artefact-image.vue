@@ -102,8 +102,8 @@ export default Vue.extend({
         },
 
         secondaryScale(): number {
-            // return 3; // TODO- what is div width in artefact editor?
-            const scale = this.divWidth;// / this.scaledImageWidth;
+            return 3; // TODO- what about div width in artefact editor?
+            const scale = this.divWidth / this.scaledImageWidth;
             return scale;
         },
 
