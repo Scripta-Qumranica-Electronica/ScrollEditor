@@ -117,7 +117,6 @@ import {
   MaskChangeOperation,
   MaskChangedEventArgs,
   DrawingMode,
-  ZoomRequestEventArgs,
   ArtefactEditingData,
   OptimizedArtefact,
   SideOption
@@ -128,6 +127,7 @@ import ROICanvas from './RoiCanvas.vue';
 import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
 import { Side } from '../../models/misc';
+import { ZoomRequestEventArgs } from '@/components/editors/types';
 
 export default Vue.extend({
   name: 'imaged-object-editor',

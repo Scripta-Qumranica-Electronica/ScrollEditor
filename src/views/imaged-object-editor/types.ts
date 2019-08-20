@@ -42,11 +42,6 @@ export interface MaskChangeOperation {
     newOptimizedMask: Polygon;
 }
 
-export interface ZoomRequestEventArgs {
-    amount: number;
-    clientPosition: Position; // Position in client coordinates
-}
-
 export class ArtefactEditingData {
     public undoList = [] as MaskChangeOperation[];
     public redoList = [] as MaskChangeOperation[];

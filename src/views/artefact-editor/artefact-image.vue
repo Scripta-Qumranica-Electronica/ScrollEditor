@@ -1,6 +1,6 @@
 <template>
 <div>
-    <div id="svg-scale" :style="{transform: `scale(${secondaryScale})`}">
+    <div id="svg-scale" :style="{transform: `scale(${secondaryScale})`}" @wheel="onMouseWheel">
         <svg :viewbox="`0 0 ${scaledImageWidth} ${scaledImageHeight}`"
             :width="scaledImageWidth"
             :height="scaledImageHeight">
@@ -58,6 +58,8 @@ import { ImagedObject } from '@/models/imaged-object';
 import { IIIFImage, ImageStack } from '@/models/image';
 import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
+import { ZoomRequestEventArgs } from '../../components/editors/types';
+import { Position } from '../../utils/PointerTracker';
 
 export default Vue.extend({
     props: {
@@ -72,6 +74,8 @@ export default Vue.extend({
             masterImageManifest: undefined as any,
             divWidth: 1 as any,  // Needs to be set in mount(), since this.$el is not reactive
             scaledMask: {} as Polygon,
+            zooming: false,
+            mouseClientPosition: {} as Position,
         };
     },
     computed: {
@@ -92,6 +96,7 @@ export default Vue.extend({
         },
 
         secondaryScale(): number {
+            return 3; // TODO- what is div width in artefact editor?
             const scale = this.divWidth / this.scaledImageWidth;
             return scale;
         },
@@ -123,6 +128,28 @@ export default Vue.extend({
             this.divWidth = this.$el.clientWidth;
         });
     },
+    methods: {
+        zoomLocation(deltaY: number) {
+            this.zooming = true;
+            const amount = deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
+            this.mouseClientPosition = {x: 0, y: 0} as Position; // TODO- What is mouseClientPosition ??
+            this.$emit('zoomRequest', {
+                amount,
+                clientPosition: this.mouseClientPosition,
+            } as ZoomRequestEventArgs);
+        },
+        onMouseWheel(event: WheelEvent) {
+            // if (!this.selected) {
+            //     return;
+            // }
+            // Only catch control-mousewheel
+            if (!event.ctrlKey) {
+                return;
+            }
+            event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
+            this.zoomLocation(event.deltaY);
+        },
+    }
 });
 </script>
 

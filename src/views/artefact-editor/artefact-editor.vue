@@ -29,18 +29,25 @@
           <div
             ref="overlay-div"
             v-if="!waiting && artefact"
-            :width="actualWidth"
-            :height="actualHeight"
             id="overlay-div ">
+            <!-- :width="actualWidth"
+            :height="actualHeight"> -->
+
             <div id="zoom-div"
               :style="{transform: `scale(${zoomLevel})`}"
               >
-              <div id="rotate-div"
+              <div id="rotate-div">
+                <!--
                 :width="rotateDivWidth"
                 :height="rotateDivHeight"
                 :style="{transform: `translate${translatePosition} rotate(${rotationAngle}deg)`}"
-              >
-                <artefact-image class="card-img-top" v-if="artefact" :artefact="artefact" :scale="0.5"></artefact-image><!--overlay-canvas-->
+              >-->
+                <artefact-image
+                  class="card-img-top"
+                  v-if="artefact"
+                  :artefact="artefact"
+                  :scale="0.5"
+                  @zoomRequest="onZoomRequest($event)"></artefact-image><!--overlay-canvas-->
               </div>
             </div>
           </div>
@@ -59,6 +66,8 @@ import EditionService from '../../services/edition';
 import ArtefactService from '../../services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
 import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
+import { ZoomRequestEventArgs } from '../../components/editors/types';
+import { IIIFImage } from '../../models/image';
 
 export default Vue.extend({
     name: 'artefact-editor',
@@ -77,6 +86,7 @@ export default Vue.extend({
             artefactService: new ArtefactService(),
             isActive: false,
             params: new ArtefactEditorParams(),
+            masterImage: {} as IIIFImage | undefined,
         };
     },
     computed: {
@@ -89,6 +99,21 @@ export default Vue.extend({
         overlayDiv(): HTMLDivElement {
             return this.$refs['overlay-div'] as HTMLDivElement;
         },
+        zoomLevel(): number {
+          return this.params.zoom;
+        },
+        // actualWidth(): number {
+        //   return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
+        // },
+        // actualHeight(): number {
+        //   return this.originalImageHeight * this.zoomLevel * this.$render.scalingFactors.image;
+        // },
+        // originalImageWidth(): number {
+        //   return this.masterImage!.manifest.width;
+        // },
+        // originalImageHeight(): number {
+        //   return this.masterImage!.manifest.height;
+        // },
     },
     async mounted() {
         try {
@@ -112,6 +137,37 @@ export default Vue.extend({
         onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
             this.params = evt.params; // This makes sure a change is triggered in child components
         },
+        onZoomRequest(event: ZoomRequestEventArgs) {
+          const oldZoom = this.params.zoom;
+          const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.05), 1);
+          if (newZoom === oldZoom) {
+            return;
+          }
+
+          // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
+          // on the same place in the image. First we need to know the exact coordinates before the zoom
+          // We get screen cordinates, we need to translate them to client coordinates
+          const viewport = this.overlayDiv.getBoundingClientRect();
+          const oldMousePosition = {
+            x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
+            y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop
+          };
+          const newMousePosition = {
+            x: (oldMousePosition.x * newZoom) / oldZoom,
+            y: (oldMousePosition.y * newZoom) / oldZoom
+          };
+          const scrollDelta = {
+            x: newMousePosition.x - oldMousePosition.x,
+            y: newMousePosition.y - oldMousePosition.y
+          };
+
+          setTimeout(() => {
+            this.overlayDiv.scrollLeft += scrollDelta.x;
+            this.overlayDiv.scrollTop += scrollDelta.y;
+          }, 0);
+
+          this.params.zoom = newZoom;
+        },
         async fillImageSettings() {
             if (!this.artefact) {
                 return;
@@ -120,22 +176,24 @@ export default Vue.extend({
             const imagedObject = await this.artefactService.getArtefactImagedObject(
                 this.artefact.editionId!, this.artefact.imagedObjectId);
             if (imagedObject) {
-                if (imagedObject && imagedObject.getImageStack(this.artefact.side)) {
-                    for (const imageType of imagedObject.getImageStack(this.artefact.side)!.availableImageTypes) {
-                        const image = imagedObject.getImageStack(this.artefact.side)!.getImage(imageType);
-                        if (image) {
-                            const master =
-                                imagedObject.getImageStack(this.artefact.side)!.master.type === imageType;
-                            const imageSetting = {
-                                image,
-                                type: imageType,
-                                visible: master,
-                                opacity: 1
-                            };
-                            this.$set(this.params.imageSettings, imageType, imageSetting);
-                        }
-                    }
-                }
+              const imageStack = imagedObject.getImageStack(this.artefact.side);
+              if (imagedObject && imageStack) {
+                  for (const imageType of imageStack.availableImageTypes) {
+                      const image = imageStack.getImage(imageType);
+                      if (image) {
+                          const master =
+                              imageStack.master.type === imageType;
+                          const imageSetting = {
+                              image,
+                              type: imageType,
+                              visible: master,
+                              opacity: 1
+                          };
+                          this.$set(this.params.imageSettings, imageType, imageSetting);
+                      }
+                  }
+                  this.masterImage = imageStack.master;
+              }
             }
         },
     },

@@ -56,7 +56,7 @@ export default Vue.extend({
     return {
       errorMessage: '',
       artefactService: new ArtefactService(),
-      imageStack: {} as ImageStack | undefined,
+      imageStack: {} as ImageStack,
     };
   },
   props: {
@@ -83,7 +83,7 @@ export default Vue.extend({
   async mounted() {
     const imagedObject = await this.artefactService.getArtefactImagedObject(
         this.artefact.editionId!, this.artefact.imagedObjectId);
-    this.imageStack = imagedObject.getImageStack(this.artefact.side);
+    this.imageStack = imagedObject.getImageStack(this.artefact.side) as ImageStack;
   },
   methods: {
     formatTooltip(): string {

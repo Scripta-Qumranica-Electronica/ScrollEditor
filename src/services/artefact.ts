@@ -12,7 +12,7 @@ class ArtefactService {
         this.stateManager = StateManager.instance;
     }
 
-    public async getArtefactImagedObject(editionId: number, imagedObjectId: string): Promise<ImagedObject> {
+    public async getArtefactImagedObject(editionId: number, imagedObjectId: string) {
         const response = await CommHelper.get<ImagedObjectDTO>
         (`/v1/editions/${editionId}/imaged-objects/${imagedObjectId}`);
         // if (response.data) {

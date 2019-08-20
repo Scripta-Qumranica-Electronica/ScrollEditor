@@ -47,12 +47,12 @@ import {
 import { EditorParams,
          DrawingMode,
          MaskChangedEventArgs,
-         ZoomRequestEventArgs,
          OptimizedArtefact,
          } from './types';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';
+import { ZoomRequestEventArgs } from '@/components/editors/types';
 
 export default Vue.extend({
   props: {
