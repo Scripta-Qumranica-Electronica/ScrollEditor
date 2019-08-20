@@ -14,8 +14,11 @@
                 </defs>
                 <g pointer-events="none" :clip-path="`url(#clip-path-${artefact.id}`">
                     <image 
+                        v-for="imageSetting in visibleImageSettings"
+                        :key="imageSetting.image.url"
                         draggable="false"
-                        :href="masterImageUrl"></image>
+                        :xlink:href="getImageUrl(imageSetting)"
+                        :opacity="imageSetting.opacity"></image>
                 </g>
             </g>
         </svg>
@@ -60,11 +63,14 @@ import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
 import { ZoomRequestEventArgs } from '../../components/editors/types';
 import { Position } from '../../utils/PointerTracker';
+import { ArtefactEditorParams } from './types';
+import { SingleImageSetting } from '../../components/image-settings/types';
 
 export default Vue.extend({
     props: {
         artefact: Artefact,
         scale: Number,
+        params: ArtefactEditorParams,
     },
     data() {
         return {
@@ -96,17 +102,26 @@ export default Vue.extend({
         },
 
         secondaryScale(): number {
-            return 3; // TODO- what is div width in artefact editor?
-            const scale = this.divWidth / this.scaledImageWidth;
+            // return 3; // TODO- what is div width in artefact editor?
+            const scale = this.divWidth;// / this.scaledImageWidth;
             return scale;
         },
 
-        masterImageUrl(): string | undefined {
-            if (!this.imageStack) {
-                return undefined;
-            }
+        // masterImageUrl(): string | undefined {
+        //     if (!this.imageStack) {
+        //         return undefined;
+        //     }
 
-            return this.imageStack.master.getFullUrl(this.scale * 100);
+        //     return this.imageStack.master.getFullUrl(this.scale * 100);
+        // },
+
+        imageSettings(): SingleImageSetting[] {
+            const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
+            return values;
+        },
+
+        visibleImageSettings(): SingleImageSetting[] {
+            return this.imageSettings.filter((image) => image.visible);
         }
     },
     async mounted() {
@@ -149,6 +164,9 @@ export default Vue.extend({
             event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
             this.zoomLocation(event.deltaY);
         },
+        getImageUrl(imageSetting: SingleImageSetting) {
+            return imageSetting.image.getFullUrl(this.scale * 100);
+        }
     }
 });
 </script>

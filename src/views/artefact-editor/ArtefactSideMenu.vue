@@ -46,6 +46,7 @@ import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vu
 import ImagedObjectService from '../../services/imaged-object';
 import ArtefactService from '../../services/artefact';
 import { ImageStack } from '../../models/image';
+import { SingleImageSetting } from '../../components/image-settings/types';
 
 export default Vue.extend({
   name: 'artefcat-side-menu',
@@ -96,6 +97,10 @@ export default Vue.extend({
         params: this.params,
       } as ArtefactEditorParamsChangedArgs;
       this.$emit('paramsChanged', args);
+    },
+    onImageSettingChanged(settings: SingleImageSetting) {
+      this.params.imageSettings[settings.type] = settings;
+      this.notifyChange('imageSettings', this.params.imageSettings);
     },
   }
 });
