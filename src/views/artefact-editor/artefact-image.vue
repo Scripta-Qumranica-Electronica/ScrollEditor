@@ -19,6 +19,10 @@
                         draggable="false"
                         :xlink:href="getImageUrl(imageSetting)"
                         :opacity="imageSetting.opacity"></image>
+                    <image
+                        v-if="!visibleImageSettings.length"
+                        draggable="false"
+                        :href="masterImageUrl"></image>
                 </g>
             </g>
         </svg>
@@ -61,16 +65,16 @@ import { ImagedObject } from '@/models/imaged-object';
 import { IIIFImage, ImageStack } from '@/models/image';
 import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
-import { ZoomRequestEventArgs } from '../../components/editors/types';
-import { Position } from '../../utils/PointerTracker';
+import { ZoomRequestEventArgs } from '@/components/editors/types';
+import { Position } from '@/utils/PointerTracker';
 import { ArtefactEditorParams } from './types';
-import { SingleImageSetting } from '../../components/image-settings/types';
+import { SingleImageSetting, ImageSetting } from '@/components/image-settings/types';
 
 export default Vue.extend({
     props: {
         artefact: Artefact,
         scale: Number,
-        params: ArtefactEditorParams,
+        imageSettingsParams: Object // ImageSetting Side is not allowed here for some reason
     },
     data() {
         return {
@@ -80,7 +84,6 @@ export default Vue.extend({
             masterImageManifest: undefined as any,
             divWidth: 1 as any,  // Needs to be set in mount(), since this.$el is not reactive
             scaledMask: {} as Polygon,
-            zooming: false,
             mouseClientPosition: {} as Position,
         };
     },
@@ -102,21 +105,26 @@ export default Vue.extend({
         },
 
         secondaryScale(): number {
-            return 3; // TODO- what about div width in artefact editor?
+            if (this.imageSettingsParams) { // TODO- what about div width in artefact editor?
+                return 2;
+            }
             const scale = this.divWidth / this.scaledImageWidth;
             return scale;
         },
 
-        // masterImageUrl(): string | undefined {
-        //     if (!this.imageStack) {
-        //         return undefined;
-        //     }
+        masterImageUrl(): string | undefined {
+            if (!this.imageStack) {
+                return undefined;
+            }
 
-        //     return this.imageStack.master.getFullUrl(this.scale * 100);
-        // },
+            return this.imageStack.master.getFullUrl(this.scale * 100);
+        },
 
         imageSettings(): SingleImageSetting[] {
-            const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
+            if (!this.imageSettingsParams) {
+                return [];
+            }
+            const values = Object.keys(this.imageSettingsParams).map((key) => this.imageSettingsParams[key]);
             return values;
         },
 
@@ -145,7 +153,6 @@ export default Vue.extend({
     },
     methods: {
         zoomLocation(deltaY: number) {
-            this.zooming = true;
             const amount = deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
             this.mouseClientPosition = {x: 0, y: 0} as Position; // TODO- What is mouseClientPosition ??
             this.$emit('zoomRequest', {

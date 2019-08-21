@@ -47,7 +47,7 @@
                   v-if="artefact"
                   :artefact="artefact"
                   :scale="0.5"
-                  :params="params"
+                  :imageSettingsParams="params.imageSettings"
                   @zoomRequest="onZoomRequest($event)"></artefact-image><!--overlay-canvas-->
               </div>
             </div>
