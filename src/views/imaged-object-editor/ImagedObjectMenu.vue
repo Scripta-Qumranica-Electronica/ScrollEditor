@@ -187,7 +187,9 @@ export default Vue.extend({
     saving: Boolean,
     renaming: Boolean,
     renameInputActive: Artefact,
-    side: String, // Side is not allowed here for some reason
+    side: {
+      type: String as () => Side,
+    },
   },
   data() {
     return {
@@ -242,7 +244,7 @@ export default Vue.extend({
     // window.addEventListener('edition', this.handleScroll);
     const index = this.sideOptions.findIndex((a) => a.name === this.side);
     if (index < 0) {
-      throw new Error ('Side is no in the correct format');
+      throw new Error("Side has to be either 'recto' or 'verso'");
     }
     this.sideFilter = this.sideOptions[index];
   },
