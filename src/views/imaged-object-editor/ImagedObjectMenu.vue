@@ -153,7 +153,7 @@
 import Vue, { PropOptions } from 'vue';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
-import { EditorParams, DrawingMode, EditorParamsChangedArgs,
+import { ImagedObjectEditorParams, DrawingMode, EditorParamsChangedArgs,
 OptimizedArtefact, SideOption } from './types';
 import SingleImageSettingComponent from '@/components/editors/SingleImageSetting.vue';
 import ImagedObjectService from '../../services/imaged-object';
@@ -183,7 +183,7 @@ export default Vue.extend({
     } as PropOptions<OptimizedArtefact[]>,
     artefact: Artefact,
     editable: Boolean,
-    params: EditorParams,
+    params: ImagedObjectEditorParams,
     saving: Boolean,
     renaming: Boolean,
     renameInputActive: Artefact,

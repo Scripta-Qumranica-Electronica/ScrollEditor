@@ -112,7 +112,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import ImagedObjectMenu from './ImagedObjectMenu.vue';
 import {
-  EditorParams,
+  ImagedObjectEditorParams,
   EditorParamsChangedArgs,
   MaskChangeOperation,
   MaskChangedEventArgs,
@@ -145,7 +145,7 @@ export default Vue.extend({
       waiting: true,
       artefact: undefined as OptimizedArtefact | undefined,
       initialMask: new Polygon(),
-      params: new EditorParams(),
+      params: new ImagedObjectEditorParams(),
       saving: false,
       renaming: false,
       renameInputActive: undefined as OptimizedArtefact | undefined,

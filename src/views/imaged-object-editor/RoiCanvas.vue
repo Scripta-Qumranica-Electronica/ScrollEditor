@@ -33,7 +33,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
-import { EditorParams } from './types';
+import { ImagedObjectEditorParams } from './types';
 import { ImageStack } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
@@ -43,7 +43,7 @@ export default Vue.extend({
   props: {
     originalImageWidth: Number,
     originalImageHeight: Number,
-    params: EditorParams,
+    params: ImagedObjectEditorParams,
     editable: Boolean,
     clippingMask: Polygon,
   },

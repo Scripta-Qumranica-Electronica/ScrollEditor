@@ -44,7 +44,7 @@ import {
   svgPolygonToClipper,
   clipperToSVGPolygon,
 } from '@/utils/VectorFactory';
-import { EditorParams,
+import { ImagedObjectEditorParams,
          DrawingMode,
          MaskChangedEventArgs,
          OptimizedArtefact,
@@ -56,7 +56,7 @@ import { ZoomRequestEventArgs } from '@/components/editors/types';
 
 export default Vue.extend({
   props: {
-    params: EditorParams,
+    params: ImagedObjectEditorParams,
     artefact: OptimizedArtefact,
     selected: Boolean,
     editable: Boolean,

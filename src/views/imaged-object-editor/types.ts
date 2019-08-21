@@ -3,6 +3,7 @@ import { Artefact } from '@/models/artefact';
 import { Position, PointerTrackingEvent } from '@/utils/PointerTracker';
 import { ImageSetting } from '@/components/image-settings/types';
 import { ArtefactEditorParams } from '../artefact-editor/types';
+import { BaseEditorParams } from '@/components/editors/types';
 
 export enum DrawingMode {
     DRAW, ERASE
@@ -12,7 +13,7 @@ export enum DrawingMode {
 //     DRAWING, ADJUSTING, NONE
 // }
 
-export class EditorParams {
+export class ImagedObjectEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;
     public zoom: number = 0.1;  // Zoom between 0 and 1
     public brushSize = 20;
@@ -24,7 +25,7 @@ export class EditorParams {
 export interface EditorParamsChangedArgs {
     property: string;
     value: any;
-    params: EditorParams;
+    params: ImagedObjectEditorParams;
 }
 
 export interface MaskChangedEventArgs {

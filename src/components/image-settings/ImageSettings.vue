@@ -11,9 +11,10 @@ import Vue from 'vue';
 import SingleImageSettingComponent from '@/components/editors/SingleImageSetting.vue';
 import { ImagedObject } from '@/models/imaged-object';
 import { ImageStack } from '@/models/image';
-import { EditorParams } from '@/views/imaged-object-editor/types';
+import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { SingleImageSetting } from './types';
 import { ArtefactEditorParams } from '@/views/artefact-editor/types';
+import { BaseEditorParams } from '../editors/types';
 
 export default Vue.extend({
   name: 'image-settings',
@@ -24,7 +25,9 @@ export default Vue.extend({
     imageStack: {
       type: Object as () => ImageStack,
     },
-    params: Object // EditorParams or ArtefactEditorParams,
+    params: {
+      type: Object as () => BaseEditorParams,
+    },
   },
   data() {
     return {
