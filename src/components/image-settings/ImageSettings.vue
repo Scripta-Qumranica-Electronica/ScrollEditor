@@ -21,7 +21,9 @@ export default Vue.extend({
     'single-image-setting': SingleImageSettingComponent,
   },
   props: {
-    imageStack: ImageStack,
+    imageStack: {
+      type: Object as () => ImageStack,
+    },
     params: Object // EditorParams or ArtefactEditorParams,
   },
   data() {

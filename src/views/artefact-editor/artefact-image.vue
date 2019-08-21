@@ -73,8 +73,9 @@ export default Vue.extend({
     props: {
         artefact: Artefact,
         scale: Number,
-        imageSettingsParams: ImageSetting // TODO -
-        // Invalid prop: type check failed for prop "imageSettingsParams". Expected ImageSetting, got Object
+        imageSettingsParams: {
+            type: Object as () => ImageSetting,
+        },
     },
     data() {
         return {
