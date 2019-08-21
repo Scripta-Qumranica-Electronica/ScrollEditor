@@ -9,11 +9,11 @@
 <script lang="ts">
 import Vue from 'vue';
 import SingleImageSettingComponent from '@/components/editors/SingleImageSetting.vue';
-import { ImagedObject } from '../../models/imaged-object';
-import { ImageStack } from '../../models/image';
-import { EditorParams } from '../../views/imaged-object-editor/types';
+import { ImagedObject } from '@/models/imaged-object';
+import { ImageStack } from '@/models/image';
+import { EditorParams } from '@/views/imaged-object-editor/types';
 import { SingleImageSetting } from './types';
-import { ArtefactEditorParams } from '../../views/artefact-editor/types';
+import { ArtefactEditorParams } from '@/views/artefact-editor/types';
 
 export default Vue.extend({
   name: 'image-settings',

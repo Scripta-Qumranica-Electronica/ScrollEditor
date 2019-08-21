@@ -1,11 +1,11 @@
 <template>
-<div id="artefact-side-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
+  <div id="artefact-side-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
     <section>
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
           <b-button block href="#" v-b-toggle.accordion-images variant="info">Images</b-button>
         </b-card-header>
-        <b-collapse id="accordion-images" accordion="my-accordion" role="tabpanel">
+        <b-collapse id="accordion-images" visible accordion="my-accordion" role="tabpanel">
           <b-card-body>
             <image-settings :imageStack="imageStack" :params="params" @imageSettingChanged="onImageSettingChanged($event)" />
           </b-card-body>

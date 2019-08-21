@@ -1,6 +1,6 @@
 <template>
 <div>
-    <div id="svg-scale" :style="{transform: `scale(${secondaryScale})`}" @wheel="onMouseWheel">
+    <div id="svg-scale" :style="{transform: `scale(${secondaryScale})`}">
         <svg :viewbox="`0 0 ${scaledImageWidth} ${scaledImageHeight}`"
             :width="scaledImageWidth"
             :height="scaledImageHeight">
@@ -65,7 +65,6 @@ import { ImagedObject } from '@/models/imaged-object';
 import { IIIFImage, ImageStack } from '@/models/image';
 import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
-import { ZoomRequestEventArgs } from '@/components/editors/types';
 import { Position } from '@/utils/PointerTracker';
 import { ArtefactEditorParams } from './types';
 import { SingleImageSetting, ImageSetting } from '@/components/image-settings/types';
@@ -74,7 +73,8 @@ export default Vue.extend({
     props: {
         artefact: Artefact,
         scale: Number,
-        imageSettingsParams: Object // ImageSetting Side is not allowed here for some reason
+        imageSettingsParams: ImageSetting // TODO -
+        // Invalid prop: type check failed for prop "imageSettingsParams". Expected ImageSetting, got Object
     },
     data() {
         return {
@@ -152,25 +152,6 @@ export default Vue.extend({
         });
     },
     methods: {
-        zoomLocation(deltaY: number) {
-            const amount = deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
-            this.mouseClientPosition = {x: 0, y: 0} as Position; // TODO- What is mouseClientPosition ??
-            this.$emit('zoomRequest', {
-                amount,
-                clientPosition: this.mouseClientPosition,
-            } as ZoomRequestEventArgs);
-        },
-        onMouseWheel(event: WheelEvent) {
-            // if (!this.selected) {
-            //     return;
-            // }
-            // Only catch control-mousewheel
-            if (!event.ctrlKey) {
-                return;
-            }
-            event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
-            this.zoomLocation(event.deltaY);
-        },
         getImageUrl(imageSetting: SingleImageSetting) {
             return imageSetting.image.getFullUrl(this.scale * 100);
         }

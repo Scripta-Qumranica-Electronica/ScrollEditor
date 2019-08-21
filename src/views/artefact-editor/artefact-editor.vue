@@ -42,13 +42,15 @@
                 :height="rotateDivHeight"
                 :style="{transform: `translate${translatePosition} rotate(${rotationAngle}deg)`}"
               >-->
-                <artefact-image
-                  class="card-img-top"
-                  v-if="artefact"
-                  :artefact="artefact"
-                  :scale="0.5"
-                  :imageSettingsParams="params.imageSettings"
-                  @zoomRequest="onZoomRequest($event)"></artefact-image><!--overlay-canvas-->
+                <div @wheel="onMouseWheel">
+                  <artefact-image
+                    class="overlay-canvas"
+                    v-if="artefact"
+                    :artefact="artefact"
+                    :scale="0.5"
+                    :imageSettingsParams="params.imageSettings"
+                  ></artefact-image>
+                </div>
               </div>
             </div>
           </div>
@@ -69,6 +71,8 @@ import ArtefactSideMenu from './ArtefactSideMenu.vue';
 import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
 import { ZoomRequestEventArgs } from '../../components/editors/types';
 import { IIIFImage } from '../../models/image';
+import { Position } from '@/utils/PointerTracker';
+import { ImageSetting, SingleImageSetting } from '../../components/image-settings/types';
 
 export default Vue.extend({
     name: 'artefact-editor',
@@ -138,6 +142,25 @@ export default Vue.extend({
         onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
             this.params = evt.params; // This makes sure a change is triggered in child components
         },
+
+        onMouseWheel(event: WheelEvent) {
+            // if (!this.selected) {
+            //     return;
+            // }
+            // Only catch control-mousewheel
+            if (!event.ctrlKey) {
+                return;
+            }
+            event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
+            const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
+            // TODO- What is mouseClientPosition ??
+            const mouseClientPosition = {x: event.clientX, y: event.clientY} as Position;
+            this.onZoomRequest({
+                amount,
+                clientPosition: mouseClientPosition,
+            } as ZoomRequestEventArgs);
+        },
+
         onZoomRequest(event: ZoomRequestEventArgs) {
           const oldZoom = this.params.zoom;
           const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.05), 1);
@@ -173,7 +196,7 @@ export default Vue.extend({
             if (!this.artefact) {
                 return;
             }
-            this.params.imageSettings = {};
+            this.params.imageSettings = {}; // as ImageSetting;
             const imagedObject = await this.artefactService.getArtefactImagedObject(
                 this.artefact.editionId!, this.artefact.imagedObjectId);
             if (imagedObject) {
