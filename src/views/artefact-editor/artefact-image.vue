@@ -1,6 +1,6 @@
 <template>
 <div>
-    <div id="svg-scale" :style="{transform: `scale(${secondaryScale})`}">
+    <div id="svg-scale">
         <svg :viewbox="`0 0 ${scaledImageWidth} ${scaledImageHeight}`"
             :width="scaledImageWidth"
             :height="scaledImageHeight">
@@ -19,10 +19,6 @@
                         draggable="false"
                         :xlink:href="getImageUrl(imageSetting)"
                         :opacity="imageSetting.opacity"></image>
-                    <image
-                        v-if="!visibleImageSettings.length"
-                        draggable="false"
-                        :href="masterImageUrl"></image>
                 </g>
             </g>
         </svg>
@@ -83,9 +79,7 @@ export default Vue.extend({
             imageService: new ImageService(),
             imageStack: undefined as ImageStack | undefined,
             masterImageManifest: undefined as any,
-            divWidth: 1 as any,  // Needs to be set in mount(), since this.$el is not reactive
             scaledMask: {} as Polygon,
-            mouseClientPosition: {} as Position,
         };
     },
     computed: {
@@ -105,22 +99,6 @@ export default Vue.extend({
             return 150;
         },
 
-        secondaryScale(): number {
-            if (this.imageSettingsParams) { // TODO- what about div width in artefact editor?
-                return 2;
-            }
-            const scale = this.divWidth / this.scaledImageWidth;
-            return scale;
-        },
-
-        masterImageUrl(): string | undefined {
-            if (!this.imageStack) {
-                return undefined;
-            }
-
-            return this.imageStack.master.getFullUrl(this.scale * 100);
-        },
-
         imageSettings(): SingleImageSetting[] {
             if (!this.imageSettingsParams) {
                 return [];
@@ -134,8 +112,6 @@ export default Vue.extend({
         }
     },
     async mounted() {
-        this.divWidth = this.$el.clientWidth;
-
         const imagedObject = await this.artefactService.getArtefactImagedObject(
             this.artefact.editionId!, this.artefact.imagedObjectId);
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
@@ -147,10 +123,6 @@ export default Vue.extend({
 
         this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;
-
-        window.addEventListener('resize', () => {
-            this.divWidth = this.$el.clientWidth;
-        });
     },
     methods: {
         getImageUrl(imageSetting: SingleImageSetting) {

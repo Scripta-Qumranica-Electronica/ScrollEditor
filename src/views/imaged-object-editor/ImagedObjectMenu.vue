@@ -95,7 +95,7 @@
                 </div>
               </div>
             </section>
-            <section>
+            <section v-if="editable">
               <div class="row">
                 <div class="col-5">
                   Brush Size: {{brushSize}}

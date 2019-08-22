@@ -3,18 +3,18 @@
         <div class="row" v-if="!artefacts"><div class="col ml-auto"><Waiting></Waiting></div></div>
         <div v-if="artefacts">
             <div class="row">
-                <b-form inline class="mt-2" @submit.prevent="">
+                <b-form inline class="mt-2 filtering" @submit.prevent="">
                     <label for="filter">{{ $t('home.filterArtefacts') }}:</label>
                     <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
                 </b-form>
                     
-                <b-dropdown :text="sideFilter.displayName" class="filtering">
+                <b-dropdown :text="sideFilter.displayName" size="sm" class="ml-2 filtering">
                     <b-dropdown-item 
                     v-for="filter in sideOptions" 
                     :key="filter.displayName"
                     @click="sideFilterChanged(filter)">{{filter.displayName}}</b-dropdown-item>
                 </b-dropdown>
-                <label class="mt-3">{{ $t('home.artefacts') }}: {{ numberOfArtefacts }}</label>
+                <small class="mt-3">{{ $t('home.artefacts') }}: {{ numberOfArtefacts }}</small>
             </div>
             <ul class="list-unstyled row mt-2"  v-if="artefacts.length">
                 <li class="col-sm-6 col-md-4 col-xl-2 list-item"
@@ -91,6 +91,6 @@ export default Vue.extend({
 
 <style scoped>
 .filtering {
-    margin: 8px 30px 0px 30px;
+    margin: 10px
 }
 </style>
