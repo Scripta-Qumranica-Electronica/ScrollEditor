@@ -16,6 +16,17 @@
       ></artefact-side-menu>
     </div>
 
+    <div
+      id="sidebar"
+      class="artefact-menu-div col-xl-2 col-lg-3 col-md-4"
+      v-if="!waiting && artefact"
+      :class="{ active : isActive }"
+    >
+      <text-side
+        :artefact="artefact"
+      ></text-side>
+    </div>
+
     <div id="content" class="container col-xl-12 col-lg-12 col-md-12"
       v-if="!waiting && artefact">
       <div class="row">
@@ -68,6 +79,7 @@ import { Artefact } from '../../models/artefact';
 import EditionService from '../../services/edition';
 import ArtefactService from '../../services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
+import TextSide from './TextSide.vue';
 import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
 import { ZoomRequestEventArgs } from '../../components/editors/types';
 import { IIIFImage } from '../../models/image';
@@ -80,6 +92,7 @@ export default Vue.extend({
         Waiting,
         ArtefactImage,
         ArtefactSideMenu,
+        TextSide,
     },
     props: {
     },
