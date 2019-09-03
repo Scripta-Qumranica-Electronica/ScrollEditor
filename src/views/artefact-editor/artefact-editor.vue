@@ -7,7 +7,7 @@
       id="sidebar"
       class="artefact-menu-div col-xl-2 col-lg-3 col-md-4"
       v-if="!waiting && artefact"
-      :class="{ active : isActive }"
+      :class="{ active : isActiveSidebar }"
     >
       <artefact-side-menu
         :artefact="artefact"
@@ -16,27 +16,18 @@
       ></artefact-side-menu>
     </div>
 
-    <div
-      id="sidebar"
-      class="artefact-menu-div col-xl-2 col-lg-3 col-md-4"
-      v-if="!waiting && artefact"
-      :class="{ active : isActive }"
-    >
-      <text-side
-        :artefact="artefact"
-      ></text-side>
-    </div>
+    
 
-    <div id="content" class="container col-xl-12 col-lg-12 col-md-12"
+    <div id="content" class="container col-xl-9 col-lg-9 col-md-9"
       v-if="!waiting && artefact">
       <div class="row">
-        <div id="buttons-div">
+        <div id="buttons-div col-md-1">
           <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
             <i class="fa fa-align-justify"></i>
           </b-button>
         </div>
-        <div class="artefact-container"
-          :class="{active: isActive}">
+        <div class="artefact-container col-md-10"
+          :class="{active: isActiveSidebar}">
           <div
             ref="overlay-div"
             v-if="!waiting && artefact"
@@ -66,7 +57,23 @@
             </div>
           </div>
         </div>
+        <div id="buttons-div col-md-1">
+          <b-button type="button" class="sidebarCollapse" @click="textClicked()">
+            <i class="fa fa-align-justify"></i>
+          </b-button>
+        </div>
       </div>
+    </div>
+
+    <div
+      id="text-right-sidebar"
+      class="col-xl-4 col-lg-5 col-md-6"
+      v-if="!waiting && artefact"
+      :class="{ active : isActiveText }"
+    >
+      <text-side
+        :artefact="artefact"
+      ></text-side>
     </div>
   </div>
 </template>
@@ -102,7 +109,8 @@ export default Vue.extend({
             waiting: true,
             editionService: new EditionService(),
             artefactService: new ArtefactService(),
-            isActive: false,
+            isActiveSidebar: false,
+            isActiveText: false,
             params: new ArtefactEditorParams(),
             masterImage: {} as IIIFImage | undefined,
         };
@@ -150,7 +158,10 @@ export default Vue.extend({
     },
     methods: {
         sidebarClicked() {
-            this.isActive = !this.isActive;
+            this.isActiveSidebar = !this.isActiveSidebar;
+        },
+        textClicked() {
+            this.isActiveText = !this.isActiveText;
         },
         onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
             this.params = evt.params; // This makes sure a change is triggered in child components
@@ -304,8 +315,19 @@ export default Vue.extend({
   transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
 }
 
+#text-right-sidebar {
+  width: 50%;
+  transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
+  transform-origin: center right; /* Set the transformed position of sidebar to center left side. */
+}
+
 #sidebar.active {
   margin-left: -250px;
+  transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#text-right-sidebar.active {
+  margin-right: -50%;
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 

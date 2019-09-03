@@ -2,10 +2,18 @@
   <div id="text-side" :class="{ 'fixed-header': scrolled }">
       <input list="my-list-id" v-model="query" />
        <datalist id="my-list-id">
-           <option :key="text" v-for="text in textList">{{ text.name }}</option>
+           <option :key="index" v-for="(text, index) in textList">{{ text.name }}</option>
        </datalist>
        <button @click.prevent="search(query)" name="Search">Search</button>
-       <pre v-if="textFragment.textFragments && textFragment.textFragments.lines">{{textFragment.textFragments.lines}}</pre>
+       
+       <div
+        v-if="textEdition.textFragments"
+        v-for="(fragment, index) in textEdition.textFragments"
+        :key="index">
+        <text-fragment
+            :textFragment="fragment">
+        </text-fragment>
+       </div>
   </div>
 </template>
 
@@ -13,10 +21,14 @@
 import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
 import TextService from '@/services/text';
-import { TextFragmentData } from '../../models/text';
+import { TextFragmentData } from '@/models/text';
+import TextFragment from '@/components/text/TextFragment.vue';
 
 export default Vue.extend({
   name: 'text-side',
+  components: {
+    TextFragment
+  },
   data() {
     return {
       errorMessage: '',
@@ -24,7 +36,7 @@ export default Vue.extend({
       textList: [] as TextFragmentData[],
       query: '',
       textFragmentId: 0,
-      textFragment : {},
+      textEdition : {},
     };
   },
   props: {
@@ -46,7 +58,6 @@ export default Vue.extend({
   },
   methods: {
       search() {
-          console.log(this.query);
           this.textFragmentId = this.textList.find((obj) => obj.name === this.query)!.id;
           this.getFragmentText();
 
@@ -54,8 +65,7 @@ export default Vue.extend({
       getFragmentText() {
            this.textService.getTextFragmentId(this.editionId, this.textFragmentId)
             .then((data) => {
-                this.textFragment = data;
-                console.log('textfragment=', this.textFragment);
+                this.textEdition = data;
             });
       }
   }

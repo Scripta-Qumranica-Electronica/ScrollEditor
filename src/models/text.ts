@@ -1,7 +1,7 @@
 import {  TextFragmentDataDTO,
     TextEditionDTO,
     TextFragmentDTO,
-    LineDTO, 
+    LineDTO,
     SignDTO,
     SignInterpretationDTO} from '@/dtos/sqe-dtos';
 
@@ -18,16 +18,32 @@ class TextFragmentData {
 }
 
 class Line {
-    public lineId: number;
-    public lineName: string;
-    public editorId: number;
-    public signs: Sign[];
+    public lineId: number = 0;
+    public lineName: string = '';
+    public editorId: number = 0;
+    public signs: Sign[] = [];
 
     constructor(obj: Line | LineDTO) {
+        if (obj instanceof Line) {
+            this.copyFrom(obj as Line);
+            return;
+        }
+
         this.lineId = obj.lineId;
         this.lineName = obj.lineName;
         this.editorId = obj.editorId;
-        this.signs = obj.signs; // TODO
+        if (obj.signs) {
+            this.signs = obj.signs.map((s) => new Sign(s));
+        } else {
+            obj.signs = [];
+        }
+    }
+
+    private copyFrom(other: Line) {
+        this.lineId = other.lineId;
+        this.lineName = other.lineName;
+        this.editorId = other.editorId;
+        this.signs = other.signs;
     }
 }
 
@@ -62,25 +78,38 @@ class TextFragment {
 }
 
 class TextEdition {
-    public manuscriptId: number;
-    public editionName: string;
-    public editorId: number;
-    public licence: string;
-   // public editors = {}; // TODO  editors: { [key: number] : EditorDTO };
-    public textFragments: TextFragment[];
+    public manuscriptId: number = 0;
+    public editionName: string = '';
+    public editorId: number = 0;
+    public licence: string = '';
+    public editors = {}; // TODO  editors: { [key: number] : EditorDTO };
+    public textFragments: TextFragment[] = [];
 
     constructor(obj: TextEdition | TextEditionDTO) {
-        debugger
+        if (obj instanceof TextEdition) {
+            this.copyFrom(obj as TextEdition);
+            return;
+        }
+
         this.manuscriptId = obj.manuscriptId;
         this.editionName = obj.editionName;
         this.editorId = obj.editorId;
         this.licence = obj.licence;
       //  this.editors = obj.editors;
         if (obj.textFragments) {
-          this.textFragments = obj.textFragments.map((t: TextFragmentDTO) => new TextFragment(t));
+          this.textFragments = obj.textFragments.map((t) => new TextFragment(t));
         } else {
           this.textFragments = [];
         }
+    }
+
+    private copyFrom(other: TextEdition) {
+        this.manuscriptId = other.manuscriptId;
+        this.editionName = other.editionName;
+        this.editorId = other.editorId;
+        this.licence = other.licence;
+        this.editors = other.editors;
+        this.textFragments = other.textFragments;
     }
 }
 
@@ -88,11 +117,20 @@ class Sign {
     public signInterpretations: SignInterpretation[] = [];
 
     constructor(obj: Sign | SignDTO) {
+        if (obj instanceof Sign) {
+            this.copyFrom(obj as Sign);
+            return;
+        }
+
         if (obj.signInterpretations) {
             this.signInterpretations = obj.signInterpretations.map((s) => new SignInterpretation(s));
         } else {
             this.signInterpretations = [];
         }
+    }
+
+    private copyFrom(other: SignDTO) {
+        this.signInterpretations = other.signInterpretations;
     }
 }
 
