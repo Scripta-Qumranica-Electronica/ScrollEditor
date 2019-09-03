@@ -5,10 +5,11 @@
     </div> 
     <div
       id="sidebar"
-      class="artefact-menu-div col-xl-2 col-lg-3 col-md-4"
+      class="artefact-menu-div"
       v-if="!waiting && artefact"
-      :class="{ active : isActiveSidebar }"
+      :class="{ sidebarActive : isActiveSidebar }"
     >
+    <!--  col-xl-2 col-lg-3 col-md-4-->
       <artefact-side-menu
         :artefact="artefact"
         :params="params"
@@ -16,18 +17,22 @@
       ></artefact-side-menu>
     </div>
 
-    
-
-    <div id="content" class="container col-xl-9 col-lg-9 col-md-9"
-      v-if="!waiting && artefact">
+    <div id="content" class="container" 
+      v-if="!waiting && artefact"> <!--col-xl-12 col-lg-12 col-md-12-->
       <div class="row">
-        <div id="buttons-div col-md-1">
+        <div id="buttons-div"> <!-- col-md-1-->
           <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
             <i class="fa fa-align-justify"></i>
           </b-button>
         </div>
-        <div class="artefact-container col-md-10"
-          :class="{active: isActiveSidebar}">
+        <div class="artefact-container"
+          :class="{sidebarClosedAndTextClosed: sidebarClosedAndTextClosed,
+                   sidebarOpenedAndTextClosed: sidebarOpenedAndTextClosed,
+                   sidebarClosedAndTextOpened: sidebarClosedAndTextOpened,
+                   sidebarOpenedAndTextOpened: sidebarOpenedAndTextOpened
+                   }">
+                   <!--  col-md-10 -->
+          <!-- :class="{sidebarActive: isActiveSidebar, textActive: isActiveText}"> -->
           <div
             ref="overlay-div"
             v-if="!waiting && artefact"
@@ -57,7 +62,7 @@
             </div>
           </div>
         </div>
-        <div id="buttons-div col-md-1">
+        <div id="buttons-div"><!--col-md-1-->
           <b-button type="button" class="sidebarCollapse" @click="textClicked()">
             <i class="fa fa-align-justify"></i>
           </b-button>
@@ -67,10 +72,13 @@
 
     <div
       id="text-right-sidebar"
-      class="col-xl-4 col-lg-5 col-md-6"
       v-if="!waiting && artefact"
-      :class="{ active : isActiveText }"
-    >
+      :class="{sidebarClosedAndTextClosed: sidebarClosedAndTextClosed,
+              sidebarOpenedAndTextClosed: sidebarOpenedAndTextClosed,
+              sidebarClosedAndTextOpened: sidebarClosedAndTextOpened,
+              sidebarOpenedAndTextOpened: sidebarOpenedAndTextOpened
+              }">
+      <!-- class="col-xl-4 col-lg-5 col-md-6" -->
       <text-side
         :artefact="artefact"
       ></text-side>
@@ -127,6 +135,18 @@ export default Vue.extend({
         },
         zoomLevel(): number {
           return this.params.zoom;
+        },
+        sidebarClosedAndTextClosed(): boolean {
+          return this.isActiveSidebar && this.isActiveText;
+        },
+        sidebarOpenedAndTextClosed(): boolean {
+          return !this.isActiveSidebar && this.isActiveText;
+        },
+        sidebarClosedAndTextOpened(): boolean {
+          return this.isActiveSidebar && !this.isActiveText;
+        },
+        sidebarOpenedAndTextOpened(): boolean {
+          return !this.isActiveSidebar && !this.isActiveText;
         },
         // actualWidth(): number {
         //   return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
@@ -258,20 +278,6 @@ export default Vue.extend({
   height: calc(100vh - 56px);
 }
 
-.artefact-container {
-  overflow: scroll;
-  position: relative;
-  padding: 0;
-  height: calc(100vh - 56px);
-  width: calc(100vw - 290px);
-}
-.artefact-container.active {
-  overflow: scroll;
-  position: relative;
-  padding: 0;
-  height: calc(100vh - 56px);
-  width: calc(100vw - 40px);
-}
 #overlay-div {
   transform-origin: top left;
   position: absolute;
@@ -308,29 +314,87 @@ export default Vue.extend({
   perspective: 1500px;
 }
 
+
 #sidebar {
+  background-color: yellow;
   min-width: 250px;
   max-width: 250px;
   transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
   transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
 }
 
-#text-right-sidebar {
-  width: 50%;
-  transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
-  transform-origin: center right; /* Set the transformed position of sidebar to center left side. */
-}
-
-#sidebar.active {
+#sidebar.sidebarActive {
+  background-color: yellow;
   margin-left: -250px;
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
-#text-right-sidebar.active {
-  margin-right: -50%;
+.artefact-container.sidebarClosedAndTextClosed {
+  background-color: red;
+  overflow: scroll;
+  position: relative;
+  padding: 0;
+  height: calc(100vh - 56px);
+  width: calc(100vw - 80px);
+}
+
+.artefact-container.sidebarOpenedAndTextClosed {
+  background-color: red;
+  overflow: scroll;
+  position: relative;
+  padding: 0;
+  height: calc(100vh - 56px);
+  width: calc(100vw - 330px);
+}
+
+.artefact-container.sidebarClosedAndTextOpened {
+  background-color: red;
+  overflow: scroll;
+  position: relative;
+  padding: 0;
+  height: calc(100vh - 56px);
+  width: calc((100vw - 80px)/2);
+}
+
+.artefact-container.sidebarOpenedAndTextOpened {
+  background-color: red;
+  overflow: scroll;
+  position: relative;
+  padding: 0;
+  height: calc(100vh - 56px);
+  width: calc((100vw - 330px)/2);
+}
+
+
+#text-right-sidebar.sidebarOpenedAndTextOpened {
+  background-color: blue;
+  width: calc((100vw - 330px)/2);
+  transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
+  transform-origin: center right; /* Set the transformed position of sidebar to center left side. */
+}
+
+#text-right-sidebar.sidebarClosedAndTextClosed {
+  background-color: blue;
+  // margin-right: -calc((100vw - 330px)/2); // ????
+  margin-right: -700px;
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
+#text-right-sidebar.sidebarOpenedAndTextClosed {
+  background-color: blue;
+  margin-right: -700px;
+  // margin-right: -calc((100vw - 330px)/2); // ????
+  transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#text-right-sidebar.sidebarClosedAndTextOpened {
+  background-color: blue;
+  width: calc((100vw - 80px)/2);
+  transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+
+// TODO -- update the madia
 @media (max-width: 1100px) {
   /* Reversing the behavior of the sidebar: 
        it'll be rotated vertically and off canvas by default, 
