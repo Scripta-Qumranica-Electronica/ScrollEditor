@@ -1,6 +1,6 @@
 <template>
   <div id="text-side" :class="{ 'fixed-header': scrolled }">
-      <input list="my-list-id" v-model="query" />
+      <input class="select-text" list="my-list-id" v-model="query" />
        <datalist id="my-list-id">
            <option :key="index" v-for="(text, index) in textList">{{ text.name }}</option>
        </datalist>
@@ -11,7 +11,8 @@
         v-for="(fragment, index) in textEdition.textFragments"
         :key="index">
         <text-fragment
-            :textFragment="fragment">
+            :textFragment="fragment"
+            id="text-box">
         </text-fragment>
        </div>
   </div>
@@ -75,8 +76,8 @@ export default Vue.extend({
 <style lang="scss" scoped>
 #text-side {
   touch-action: pan-y;
-  top: 0;
-  right: 0;
+  // top: 0;
+  // right: 0;
 }
 
 button {
@@ -85,5 +86,13 @@ button {
 .btn-info {
   background-color: #6c757d;
   border-color: #6c757d;
+}
+
+#text-box {
+  margin-right: 130px;
+}
+
+.select-text {
+  margin: 50px 10px 50px 180px;
 }
 </style>

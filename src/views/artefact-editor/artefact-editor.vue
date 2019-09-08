@@ -9,7 +9,6 @@
       v-if="!waiting && artefact"
       :class="{ sidebarActive : isActiveSidebar }"
     >
-    <!--  col-xl-2 col-lg-3 col-md-4-->
       <artefact-side-menu
         :artefact="artefact"
         :params="params"
@@ -30,8 +29,6 @@
                    sidebarClosedAndTextOpened: sidebarClosedAndTextOpened,
                    sidebarOpenedAndTextOpened: sidebarOpenedAndTextOpened
                    }">
-                   <!--  col-md-10 -->
-          <!-- :class="{sidebarActive: isActiveSidebar, textActive: isActiveText}"> -->
           <div
             ref="overlay-div"
             v-if="!waiting && artefact"
@@ -77,7 +74,6 @@
               sidebarClosedAndTextOpened: sidebarClosedAndTextOpened,
               sidebarOpenedAndTextOpened: sidebarOpenedAndTextOpened
               }">
-      <!-- class="col-xl-4 col-lg-5 col-md-6" -->
       <text-side
         :artefact="artefact"
       ></text-side>
