@@ -4,6 +4,7 @@
         v-for="(signInter, index) in sign.signInterpretations"
         :key="index">
         <label>{{signInter.character}}</label>
+        <label v-if="signInter.character===''">&nbsp;</label>
       </div>
   </div>
 </template>

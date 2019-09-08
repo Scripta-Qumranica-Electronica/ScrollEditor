@@ -17,10 +17,9 @@
       ></artefact-side-menu>
     </div>
 
-    <div id="content" class="container" 
-      v-if="!waiting && artefact"> <!--col-xl-12 col-lg-12 col-md-12-->
-      <div class="row">
-        <div id="buttons-div"> <!-- col-md-1-->
+    <div v-if="!waiting && artefact">
+      <div class="row" id="artefact-and-buttons">
+        <div class="buttons-div">
           <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
             <i class="fa fa-align-justify"></i>
           </b-button>
@@ -62,7 +61,7 @@
             </div>
           </div>
         </div>
-        <div id="buttons-div"><!--col-md-1-->
+        <div class="buttons-div">
           <b-button type="button" class="sidebarCollapse" @click="textClicked()">
             <i class="fa fa-align-justify"></i>
           </b-button>
@@ -275,7 +274,7 @@ export default Vue.extend({
 }
 #artefact-editor {
   overflow: hidden;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
 }
 
 #overlay-div {
@@ -284,11 +283,11 @@ export default Vue.extend({
   overflow: hidden;
   // margin-right: 15px;
   padding: 0;
-  height: calc(100vh - 56px);
-  width: calc(100vw- 40px);
+  height: calc(100vh - 63px);
+  width: calc(100vw- 80px);
 }
 .artefact-menu-div {
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   overflow: hidden;
 }
 #zoom-div {
@@ -297,7 +296,7 @@ export default Vue.extend({
 #rotate-dev {
   transform-origin: top left;
 }
-#buttons-div {
+.buttons-div {
   background-color: #eff1f4;
 }
 
@@ -316,7 +315,6 @@ export default Vue.extend({
 
 
 #sidebar {
-  background-color: yellow;
   min-width: 250px;
   max-width: 250px;
   transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
@@ -324,73 +322,65 @@ export default Vue.extend({
 }
 
 #sidebar.sidebarActive {
-  background-color: yellow;
   margin-left: -250px;
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 .artefact-container.sidebarClosedAndTextClosed {
-  background-color: red;
   overflow: scroll;
   position: relative;
   padding: 0;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   width: calc(100vw - 80px);
 }
 
 .artefact-container.sidebarOpenedAndTextClosed {
-  background-color: red;
   overflow: scroll;
   position: relative;
   padding: 0;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   width: calc(100vw - 330px);
 }
 
 .artefact-container.sidebarClosedAndTextOpened {
-  background-color: red;
   overflow: scroll;
   position: relative;
   padding: 0;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   width: calc((100vw - 80px)/2);
 }
 
 .artefact-container.sidebarOpenedAndTextOpened {
-  background-color: red;
   overflow: scroll;
   position: relative;
   padding: 0;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   width: calc((100vw - 330px)/2);
 }
 
 
 #text-right-sidebar.sidebarOpenedAndTextOpened {
-  background-color: blue;
   width: calc((100vw - 330px)/2);
   transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
   transform-origin: center right; /* Set the transformed position of sidebar to center left side. */
 }
 
 #text-right-sidebar.sidebarClosedAndTextClosed {
-  background-color: blue;
-  // margin-right: -calc((100vw - 330px)/2); // ????
-  margin-right: -700px;
+  margin-right: calc((-100vw + 80px)/2);
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #text-right-sidebar.sidebarOpenedAndTextClosed {
-  background-color: blue;
-  margin-right: -700px;
-  // margin-right: -calc((100vw - 330px)/2); // ????
+   margin-right: calc((-100vw + 330px)/2);
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
 #text-right-sidebar.sidebarClosedAndTextOpened {
-  background-color: blue;
   width: calc((100vw - 80px)/2);
-  transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
+}
+
+#artefact-and-buttons {
+  margin: 0px;
 }
 
 
