@@ -24,10 +24,10 @@
           </b-button>
         </div>
         <div class="artefact-container"
-          :class="{sidebarClosedAndTextClosed: sidebarClosedAndTextClosed,
-                   sidebarOpenedAndTextClosed: sidebarOpenedAndTextClosed,
-                   sidebarClosedAndTextOpened: sidebarClosedAndTextOpened,
-                   sidebarOpenedAndTextOpened: sidebarOpenedAndTextOpened
+          :class="{sidebarActiveAndTextActive: sidebarActiveAndTextActive,
+                   sidebarNotActiveAndTextActive: sidebarNotActiveAndTextActive,
+                   sidebarActiveAndTextNotActive: sidebarActiveAndTextNotActive,
+                   sidebarNotActiveAndTextNotActive: sidebarNotActiveAndTextNotActive
                    }">
           <div
             ref="overlay-div"
@@ -69,10 +69,10 @@
     <div
       id="text-right-sidebar"
       v-if="!waiting && artefact"
-      :class="{sidebarClosedAndTextClosed: sidebarClosedAndTextClosed,
-              sidebarOpenedAndTextClosed: sidebarOpenedAndTextClosed,
-              sidebarClosedAndTextOpened: sidebarClosedAndTextOpened,
-              sidebarOpenedAndTextOpened: sidebarOpenedAndTextOpened
+      :class="{sidebarActiveAndTextActive: sidebarActiveAndTextActive,
+              sidebarNotActiveAndTextActive: sidebarNotActiveAndTextActive,
+              sidebarActiveAndTextNotActive: sidebarActiveAndTextNotActive,
+              sidebarNotActiveAndTextNotActive: sidebarNotActiveAndTextNotActive
               }">
       <text-side
         :artefact="artefact"
@@ -131,16 +131,18 @@ export default Vue.extend({
         zoomLevel(): number {
           return this.params.zoom;
         },
-        sidebarClosedAndTextClosed(): boolean {
+        // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
+        // On tablet screen - Active means opened.
+        sidebarActiveAndTextActive(): boolean {
           return this.isActiveSidebar && this.isActiveText;
         },
-        sidebarOpenedAndTextClosed(): boolean {
+        sidebarNotActiveAndTextActive(): boolean {
           return !this.isActiveSidebar && this.isActiveText;
         },
-        sidebarClosedAndTextOpened(): boolean {
+        sidebarActiveAndTextNotActive(): boolean {
           return this.isActiveSidebar && !this.isActiveText;
         },
-        sidebarOpenedAndTextOpened(): boolean {
+        sidebarNotActiveAndTextNotActive(): boolean {
           return !this.isActiveSidebar && !this.isActiveText;
         },
         // actualWidth(): number {
@@ -322,7 +324,7 @@ export default Vue.extend({
   transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
-.artefact-container.sidebarClosedAndTextClosed {
+.artefact-container.sidebarActiveAndTextActive {
   overflow: scroll;
   position: relative;
   padding: 0;
@@ -330,7 +332,7 @@ export default Vue.extend({
   width: calc(100vw - 80px);
 }
 
-.artefact-container.sidebarOpenedAndTextClosed {
+.artefact-container.sidebarNotActiveAndTextActive {
   overflow: scroll;
   position: relative;
   padding: 0;
@@ -338,7 +340,7 @@ export default Vue.extend({
   width: calc(100vw - 330px);
 }
 
-.artefact-container.sidebarClosedAndTextOpened {
+.artefact-container.sidebarActiveAndTextNotActive {
   overflow: scroll;
   position: relative;
   padding: 0;
@@ -346,7 +348,7 @@ export default Vue.extend({
   width: calc((100vw - 80px)/2);
 }
 
-.artefact-container.sidebarOpenedAndTextOpened {
+.artefact-container.sidebarNotActiveAndTextNotActive {
   overflow: scroll;
   position: relative;
   padding: 0;
@@ -355,23 +357,19 @@ export default Vue.extend({
 }
 
 
-#text-right-sidebar.sidebarOpenedAndTextOpened {
+#text-right-sidebar.sidebarNotActiveAndTextNotActive {
   width: calc((100vw - 330px)/2);
-  transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
-  transform-origin: center right; /* Set the transformed position of sidebar to center left side. */
 }
 
-#text-right-sidebar.sidebarClosedAndTextClosed {
+#text-right-sidebar.sidebarActiveAndTextActive {
   margin-right: calc((-100vw + 80px)/2);
-  transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
-#text-right-sidebar.sidebarOpenedAndTextClosed {
+#text-right-sidebar.sidebarNotActiveAndTextActive {
    margin-right: calc((-100vw + 330px)/2);
-  transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
-#text-right-sidebar.sidebarClosedAndTextOpened {
+#text-right-sidebar.sidebarActiveAndTextNotActive {
   width: calc((100vw - 80px)/2);
 }
 
@@ -390,25 +388,59 @@ export default Vue.extend({
     margin-left: -250px;
     transform: rotateY(100deg);
   }
-  #sidebar.active {
+  #sidebar.sidebarActive {
     margin-left: 0;
     transform: none;
   }
 
-  .artefact-container {
+  .artefact-container.sidebarActiveAndTextActive {
     overflow: scroll;
     position: relative;
     padding: 0;
-    height: calc(100vh - 56px);
-    width: calc(100vw - 40px);
+    height: calc(100vh - 63px);
+    width: calc((100vw - 330px)/2);
   }
 
-  .artefact-container.active {
+  .artefact-container.sidebarNotActiveAndTextActive {
     overflow: scroll;
     position: relative;
     padding: 0;
-    height: calc(100vh - 56px);
-    width: calc(100vw - 40px);
+    height: calc(100vh - 63px);
+    width: calc((100vw - 80px)/2);
+  }
+
+  .artefact-container.sidebarActiveAndTextNotActive {
+    overflow: scroll;
+    position: relative;
+    padding: 0;
+    height: calc(100vh - 63px);
+    width: calc(100vw - 330px);
+  }
+
+  .artefact-container.sidebarNotActiveAndTextNotActive {
+    overflow: scroll;
+    position: relative;
+    padding: 0;
+    height: calc(100vh - 63px);
+    width: calc(100vw - 80px);
+  }
+
+
+  #text-right-sidebar.sidebarNotActiveAndTextNotActive {
+    margin-right: calc((-100vw + 80px)/2);
+  }
+
+  #text-right-sidebar.sidebarActiveAndTextActive {
+    width: calc((100vw - 330px)/2);
+    transform: rotateY(0deg);
+  }
+
+  #text-right-sidebar.sidebarNotActiveAndTextActive {
+    width: calc((100vw - 80px)/2);
+  }
+
+  #text-right-sidebar.sidebarActiveAndTextNotActive {
+    margin-right: calc(-100vw + 330px);
   }
 }
 </style>

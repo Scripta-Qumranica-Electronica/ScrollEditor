@@ -1,10 +1,12 @@
 <template>
   <div id="text-side" :class="{ 'fixed-header': scrolled }">
-      <input class="select-text" list="my-list-id" v-model="query" />
+      <input class="select-text" list="my-list-id" v-model="query" @change="search(query)"/>
        <datalist id="my-list-id">
            <option :key="index" v-for="(text, index) in textList">{{ text.name }}</option>
        </datalist>
        <button @click.prevent="search(query)" name="Search">Search</button>
+
+       <span class="isa_error">{{errorMessage}}</span>
        
        <div
         v-if="textEdition.textFragments"
@@ -59,15 +61,22 @@ export default Vue.extend({
   },
   methods: {
       search() {
-          this.textFragmentId = this.textList.find((obj) => obj.name === this.query)!.id;
-          this.getFragmentText();
+        this.errorMessage = '';
+        this.textEdition = {};
+        const textFragment = this.textList.find((obj) => obj.name === this.query);
+        if (!textFragment) {
+          this.errorMessage = 'This fragment does not exist';
+          return;
+        }
+        this.textFragmentId = textFragment.id;
+        this.getFragmentText();
 
       },
       getFragmentText() {
-           this.textService.getTextFragmentId(this.editionId, this.textFragmentId)
-            .then((data) => {
-                this.textEdition = data;
-            });
+        this.textService.getTextFragmentId(this.editionId, this.textFragmentId)
+          .then((data) => {
+              this.textEdition = data;
+          });
       }
   }
 });
@@ -75,6 +84,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 #text-side {
+  margin: 20px 50px 20px 30px;
   touch-action: pan-y;
   // top: 0;
   // right: 0;
@@ -89,10 +99,10 @@ button {
 }
 
 #text-box {
-  margin-right: 130px;
+  margin-top: 30px;
 }
 
-.select-text {
-  margin: 50px 10px 50px 180px;
+.isa_error {
+    color: #D8000C;
 }
 </style>
