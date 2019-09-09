@@ -32,7 +32,7 @@
           <div
             ref="overlay-div"
             v-if="!waiting && artefact"
-            id="overlay-div ">
+            id="overlay-div">
             <!-- :width="actualWidth"
             :height="actualHeight"> -->
 
@@ -276,13 +276,13 @@ export default Vue.extend({
 }
 
 #overlay-div {
-  transform-origin: top left;
-  position: absolute;
-  overflow: hidden;
-  // margin-right: 15px;
-  padding: 0;
-  height: calc(100vh - 63px);
-  width: calc(100vw- 80px);
+  // transform-origin: top left;
+  // position: absolute;
+  // overflow: scroll;
+  // // margin-right: 15px;
+  // padding: 0;
+  // height: calc(100vh - 63px);
+  // width: calc(100vw- 80px);
 }
 .artefact-menu-div {
   height: calc(100vh - 63px);
@@ -325,7 +325,7 @@ export default Vue.extend({
 }
 
 .artefact-container.sidebarActiveAndTextActive {
-  overflow: scroll;
+  overflow: auto;
   position: relative;
   padding: 0;
   height: calc(100vh - 63px);
@@ -333,7 +333,7 @@ export default Vue.extend({
 }
 
 .artefact-container.sidebarNotActiveAndTextActive {
-  overflow: scroll;
+  overflow: auto;
   position: relative;
   padding: 0;
   height: calc(100vh - 63px);
@@ -341,7 +341,7 @@ export default Vue.extend({
 }
 
 .artefact-container.sidebarActiveAndTextNotActive {
-  overflow: scroll;
+  overflow: auto;
   position: relative;
   padding: 0;
   height: calc(100vh - 63px);
@@ -349,7 +349,7 @@ export default Vue.extend({
 }
 
 .artefact-container.sidebarNotActiveAndTextNotActive {
-  overflow: scroll;
+  overflow: auto;
   position: relative;
   padding: 0;
   height: calc(100vh - 63px);
@@ -393,6 +393,7 @@ export default Vue.extend({
     transform: none;
   }
 
+  // TODO- check the scrolls in tablet, maybe they dno't have to appear. 
   .artefact-container.sidebarActiveAndTextActive {
     overflow: scroll;
     position: relative;

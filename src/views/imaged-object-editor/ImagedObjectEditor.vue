@@ -40,7 +40,7 @@
             <i class="fa fa-align-justify"></i>
           </b-button>
 
-          <b-button v-for="mode in [{icon: 'fa fa-pencil', val:'DRAW'}, {icon: 'fa fa-trash', val: 'ERASE'}]" 
+          <b-button v-if="canEdit" v-for="mode in [{icon: 'fa fa-pencil', val:'DRAW'}, {icon: 'fa fa-trash', val: 'ERASE'}]" 
             :key="mode.val" @click="editingModeChanged(mode.val)" 
             :pressed="modeChosen(mode.val)" class="sidebarCollapse">
             <i :class="mode.icon"></i>
@@ -53,7 +53,7 @@
             v-if="!waiting && imagedObject"
             :width="actualWidth"
             :height="actualHeight"
-            id="overlay-div ">
+            id="overlay-div">
             <div id="zoom-div"
               :style="{transform: `scale(${zoomLevel})`}"
               >
@@ -593,34 +593,34 @@ export default Vue.extend({
 }
 #imaged-object-editor {
   overflow: hidden;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
 }
 
 .imaged-object-container {
-  overflow: scroll;
+  overflow: auto;
   position: relative;
   padding: 0;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   width: calc(100vw - 290px);
 }
 .imaged-object-container.active {
-  overflow: scroll;
+  overflow: auto;
   position: relative;
   padding: 0;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   width: calc(100vw - 40px);
 }
 #overlay-div {
-  transform-origin: top left;
-  position: absolute;
-  overflow: hidden;
-  // margin-right: 15px;
-  padding: 0;
-  height: calc(100vh - 56px);
-  width: calc(100vw- 40px);
+  // transform-origin: top left;
+  // position: absolute;
+  // overflow: hidden;
+  // // margin-right: 15px;
+  // padding: 0;
+  // height: calc(100vh - 63px);
+  // width: calc(100vw- 40px);
 }
 .imaged-object-menu-div {
-  height: calc(100vh - 56px);
+  height: calc(100vh - 63px);
   overflow: hidden;
 }
 #zoom-div {
@@ -676,7 +676,7 @@ export default Vue.extend({
     overflow: scroll;
     position: relative;
     padding: 0;
-    height: calc(100vh - 56px);
+    height: calc(100vh - 63px);
     width: calc(100vw - 40px);
   }
 
@@ -684,7 +684,7 @@ export default Vue.extend({
     overflow: scroll;
     position: relative;
     padding: 0;
-    height: calc(100vh - 56px);
+    height: calc(100vh - 63px);
     width: calc(100vw - 40px);
   }
 }
