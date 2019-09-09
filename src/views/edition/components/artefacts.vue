@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="row" v-if="!artefacts"><div class="col ml-auto"><Waiting></Waiting></div></div>
+        <div v-if="!artefacts"><div class="col ml-auto"><Waiting></Waiting></div></div>
         <div v-if="artefacts">
-            <div class="row">
+            <div class="flex">
                 <b-form inline class="mt-2 filtering" @submit.prevent="">
                     <label for="filter">{{ $t('home.filterArtefacts') }}:</label>
                     <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
@@ -91,6 +91,10 @@ export default Vue.extend({
 
 <style scoped>
 .filtering {
-    margin: 10px
+    margin: 10px 10px 10px 0px;
+}
+
+.flex {
+    display: flex;
 }
 </style>

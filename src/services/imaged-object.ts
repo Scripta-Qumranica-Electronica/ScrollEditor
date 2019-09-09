@@ -7,6 +7,7 @@ import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/sqe-dt
 import { StateManager } from '@/state';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 import { Side } from '@/models/misc';
+import {baseUrl, editions, imagedObjects, artefacts} from '@/variables';
 
 class ImagedObjectService {
     public stateManager: StateManager;
@@ -23,8 +24,8 @@ class ImagedObjectService {
         if (!imagedObject) {
             throw new Error(`Can't find imagedObject with id ${imagedObjectId}`);
         }
-        const artefacts = await this.getImagedObjectArtefacts(editionId, imagedObject);
-        imagedObject.artefacts = artefacts;
+        const artefactList = await this.getImagedObjectArtefacts(editionId, imagedObject);
+        imagedObject.artefacts = artefactList;
 
         this.stateManager.imagedObjects.current = imagedObject;
 
@@ -33,15 +34,15 @@ class ImagedObjectService {
 
     public async getImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
         const response = await CommHelper.get<ImagedObjectDTO>(
-            `/v1/editions/${editionId}/imaged-objects/${imagedObject.id}?optional=artefacts&optional=masks`
+            `/${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObject.id}?optional=artefacts&optional=masks`
         );
 
-        let artefacts: Artefact[] = [];
+        let artefactList: Artefact[] = [];
         if (response.data.artefacts) {
-            artefacts = response.data.artefacts.map((obj: any) => new Artefact(obj));
+            artefactList = response.data.artefacts.map((obj: any) => new Artefact(obj));
         }
 
-        return artefacts;
+        return artefactList;
     }
 
     public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string, side: Side):
@@ -61,14 +62,14 @@ class ImagedObjectService {
             mask: '',
             name: artefactName,
         } as CreateArtefactDTO;
-        const response = await CommHelper.post<ArtefactDTO>(`/v1/editions/${editionId}/artefacts`, body);
+        const response = await CommHelper.post<ArtefactDTO>(`/${baseUrl}/${editions}/${editionId}/${artefacts}`, body);
 
         const artefact = new Artefact(response.data);
         return artefact;
     }
 
     public async deleteArtefact(art: OptimizedArtefact) {
-        await CommHelper.delete(`/v1/editions/${art.editionId}/artefacts/${art.id}`);
+        await CommHelper.delete(`/${baseUrl}/${editions}/${art.editionId}/${artefacts}/${art.id}`);
     }
 
     public async changeArtefact(editionId: number, artefact: Artefact):
@@ -79,7 +80,8 @@ class ImagedObjectService {
             name: artefact.name,
         } as UpdateArtefactDTO;
 
-        const response = await CommHelper.put<ArtefactDTO>(`/v1/editions/${editionId}/artefacts/${artefact.id}`, body);
+        const response = await CommHelper.put<ArtefactDTO>
+        (`/${baseUrl}/${editions}/${editionId}/${artefacts}/${artefact.id}`, body);
         return response.data;
     }
 
@@ -103,9 +105,9 @@ class ImagedObjectService {
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {
         const editionService = new EditionService();
-        const imagedObjects = await editionService.getEditionImagedObjects(editionId);
+        const imagedObjectList = await editionService.getEditionImagedObjects(editionId);
 
-        return imagedObjects.find((io: ImagedObject) => io.id === imagedObjectId);
+        return imagedObjectList.find((io: ImagedObject) => io.id === imagedObjectId);
     }
 }
 

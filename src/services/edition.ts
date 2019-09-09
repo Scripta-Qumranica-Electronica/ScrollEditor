@@ -6,6 +6,7 @@ import { ImagedObjectListDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { Artefact } from '@/models/artefact';
 import { ArtefactListDTO } from '@/dtos/sqe-dtos';
+import {baseUrl, editions, imagedObjects, artefacts} from '@/variables';
 
 class EditionService {
     public stateManager: StateManager;
@@ -15,7 +16,7 @@ class EditionService {
     }
 
     public async listEditions(): Promise<AllEditions> {
-        const response = await CommHelper.get<EditionListDTO>('/v1/editions');
+        const response = await CommHelper.get<EditionListDTO>(`/${baseUrl}/${editions}`);
         const editionList = [] as EditionInfo[];
         const myEditionList = [] as EditionInfo[];
         const self = this;
@@ -52,7 +53,7 @@ class EditionService {
         }
 
         this.stateManager.editions.current = undefined; // Trigger a spinner on all views
-        const response = await CommHelper.get<EditionGroupDTO>(`/v1/editions/${editionId}`);
+        const response = await CommHelper.get<EditionGroupDTO>(`/${baseUrl}/${editions}/${editionId}`);
 
         // Convert the server response into a single EditionInfo entity, putting all the other versions
         // in its otherVersions array
@@ -72,9 +73,9 @@ class EditionService {
             return this.stateManager.imagedObjects.items;
         }
 
-        const imagedObjects = await this.getEditionImagedObjects(this.stateManager.editions.current!.id);
-        this.stateManager.imagedObjects.items = imagedObjects;
-        return imagedObjects;
+        const imagedObjectList = await this.getEditionImagedObjects(this.stateManager.editions.current!.id);
+        this.stateManager.imagedObjects.items = imagedObjectList;
+        return imagedObjectList;
     }
 
     public async fetchArtefacts(ignoreCache = false): Promise<Artefact[]> {
@@ -82,14 +83,14 @@ class EditionService {
             return this.stateManager.artefacts.items;
         }
 
-        const artefacts = await this.getEditionArtefacts(this.stateManager.editions.current!.id);
-        this.stateManager.artefacts.items = artefacts;
-        return artefacts;
+        const artefactList = await this.getEditionArtefacts(this.stateManager.editions.current!.id);
+        this.stateManager.artefacts.items = artefactList;
+        return artefactList;
     }
 
     public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
         const response = await CommHelper.get<ImagedObjectListDTO>(
-            `/v1/editions/${editionId}/imaged-objects?optional=artefacts&optional=masks`
+            `/${baseUrl}/${editions}/${editionId}/${imagedObjects}?optional=artefacts&optional=masks`
         );
 
         return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
@@ -97,7 +98,7 @@ class EditionService {
 
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
         const response = await CommHelper.get<ArtefactListDTO>(
-            `/v1/editions/${editionId}/artefacts?optional=artefacts&optional=masks`
+            `/${baseUrl}/${editions}/${editionId}/${artefacts}?optional=artefacts&optional=masks`
         );
 
         return response.data.artefacts.map((d: any) => new Artefact(d));
@@ -107,7 +108,7 @@ class EditionService {
         const dto = {
             name
         } as EditionUpdateRequestDTO;
-        const response = await CommHelper.post<EditionDTO>(`/v1/editions/${editionId}`, dto);
+        const response = await CommHelper.post<EditionDTO>(`/${baseUrl}/${editions}/${editionId}`, dto);
 
         const newEdition = new EditionInfo(response.data);
         return newEdition;

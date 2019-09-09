@@ -4,7 +4,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import EditionService from './edition';
-
+import {baseUrl, editions, imagedObjects} from '@/variables';
 
 class ArtefactService {
     public stateManager: StateManager;
@@ -14,7 +14,7 @@ class ArtefactService {
 
     public async getArtefactImagedObject(editionId: number, imagedObjectId: string) {
         const response = await CommHelper.get<ImagedObjectDTO>
-        (`/v1/editions/${editionId}/imaged-objects/${imagedObjectId}`);
+        (`/${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}`);
         // if (response.data) {
         const imagedObject = new ImagedObject(response.data);
         // }
