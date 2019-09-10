@@ -64,13 +64,14 @@ export default Vue.extend({
         this.errorMessage = '';
         this.textEdition = {};
         const textFragment = this.textList.find((obj) => obj.name === this.query);
-        if (!textFragment) {
-          this.errorMessage = 'This fragment does not exist';
-          return;
+        if (this.query) {
+          if (!textFragment) {
+            this.errorMessage = 'This fragment does not exist';
+            return;
+          }
+          this.textFragmentId = textFragment.id;
+          this.getFragmentText();
         }
-        this.textFragmentId = textFragment.id;
-        this.getFragmentText();
-
       },
       getFragmentText() {
         this.textService.getTextFragmentId(this.editionId, this.textFragmentId)

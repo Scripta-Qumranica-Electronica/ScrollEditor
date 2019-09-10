@@ -167,8 +167,8 @@ export default Vue.extend({
                 parseInt(this.$route.params.artefactId)
             );
             this.fillImageSettings();
-        } catch {
-            console.error('Error in artefact editor');
+        } catch (e) {
+            console.error(e);
         } finally {
             this.waiting = false;
         }

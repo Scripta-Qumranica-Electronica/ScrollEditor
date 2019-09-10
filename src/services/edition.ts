@@ -6,7 +6,7 @@ import { ImagedObjectListDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { Artefact } from '@/models/artefact';
 import { ArtefactListDTO } from '@/dtos/sqe-dtos';
-import {baseUrl, editions, imagedObjects, artefacts} from '@/variables';
+import { ApiRoutes } from '@/variables';
 
 class EditionService {
     public stateManager: StateManager;
@@ -16,7 +16,7 @@ class EditionService {
     }
 
     public async listEditions(): Promise<AllEditions> {
-        const response = await CommHelper.get<EditionListDTO>(`/${baseUrl}/${editions}`);
+        const response = await CommHelper.get<EditionListDTO>(ApiRoutes.allEditionsUrl());
         const editionList = [] as EditionInfo[];
         const myEditionList = [] as EditionInfo[];
         const self = this;
@@ -53,7 +53,7 @@ class EditionService {
         }
 
         this.stateManager.editions.current = undefined; // Trigger a spinner on all views
-        const response = await CommHelper.get<EditionGroupDTO>(`/${baseUrl}/${editions}/${editionId}`);
+        const response = await CommHelper.get<EditionGroupDTO>(ApiRoutes.editionUrl(editionId));
 
         // Convert the server response into a single EditionInfo entity, putting all the other versions
         // in its otherVersions array
@@ -90,7 +90,7 @@ class EditionService {
 
     public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
         const response = await CommHelper.get<ImagedObjectListDTO>(
-            `/${baseUrl}/${editions}/${editionId}/${imagedObjects}?optional=artefacts&optional=masks`
+            ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
         );
 
         return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
@@ -98,7 +98,7 @@ class EditionService {
 
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
         const response = await CommHelper.get<ArtefactListDTO>(
-            `/${baseUrl}/${editions}/${editionId}/${artefacts}?optional=artefacts&optional=masks`
+            ApiRoutes.allEditionArtefactsUrl(editionId, true)
         );
 
         return response.data.artefacts.map((d: any) => new Artefact(d));
@@ -108,7 +108,7 @@ class EditionService {
         const dto = {
             name
         } as EditionUpdateRequestDTO;
-        const response = await CommHelper.post<EditionDTO>(`/${baseUrl}/${editions}/${editionId}`, dto);
+        const response = await CommHelper.post<EditionDTO>(ApiRoutes.editionUrl(editionId), dto);
 
         const newEdition = new EditionInfo(response.data);
         return newEdition;

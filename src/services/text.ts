@@ -2,7 +2,7 @@ import { CommHelper } from './comm-helper';
 import { StateManager } from '@/state';
 import { TextFragmentDataListDTO, TextEditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData, TextEdition } from '@/models/text';
-import {baseUrl, editions, textFragments} from '@/variables';
+import { ApiRoutes } from '@/variables';
 
 class TextService {
     public stateManager: StateManager;
@@ -12,13 +12,13 @@ class TextService {
 
     public async getEditionText(editionId: number) {
         const response = await CommHelper.get<TextFragmentDataListDTO>
-        (`/${baseUrl}/${editions}/${editionId}/${textFragments}`);
+        (ApiRoutes.allEditionTextFragmentsUrl(editionId));
 
         return response.data.textFragments.map((obj) => new TextFragmentData(obj));
     }
     public async getTextFragmentId(editionId: number, textFragmentId: number) {
         const response = await CommHelper.get<TextEditionDTO>
-        (`/${baseUrl}/${editions}/${editionId}/${textFragments}/${textFragmentId}`);
+        (ApiRoutes.editionTextFragmentUrl(editionId, textFragmentId));
 
         return new TextEdition(response.data);
     }

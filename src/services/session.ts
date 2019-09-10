@@ -8,8 +8,7 @@ import { LoginRequestDTO, DetailedUserDTO, UserDTO, ResetLoggedInUserPasswordReq
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
-import {baseUrl, users, login, changePassword, forgotPassword,
-    changeForgottenPassword, confirmRegistration} from '@/variables';
+import { ApiRoutes } from '@/variables';
 
 
 class SessionService {
@@ -25,7 +24,7 @@ class SessionService {
             password
         } as LoginRequestDTO;
         const response = await CommHelper.post<DetailedUserTokenDTO>
-        (`/${baseUrl}/${users}/${login}`, requestDto, false);
+        (ApiRoutes.loginUrl(), requestDto, false);
 
         this.stateManager.session.user = response.data;
         this.stateManager.session.token = response.data.token;
@@ -43,7 +42,7 @@ class SessionService {
         }
 
         try {
-            const response = await CommHelper.get<DetailedUserDTO>(`/${baseUrl}/${users}`);
+            const response = await CommHelper.get<DetailedUserDTO>(ApiRoutes.usersUrl());
             // The server returns a 401 error if the user is not logged in
             this.stateManager.session.user = response.data;
             return true;
@@ -58,35 +57,35 @@ class SessionService {
     public async forgotPassword(email: string) {
         const body = {email} as ResendUserAccountActivationRequestDTO;
         try {
-            await CommHelper.post<any>(`/${baseUrl}/${users}/${forgotPassword}`, body);
+            await CommHelper.post<any>(ApiRoutes.forgotPasswordUrl(), body);
         } catch (error) {
             console.error(error);
         }
     }
 
     public async register(data: NewUserRequestDTO): Promise<UserInfo> {
-        const response = await CommHelper.post<UserDTO>(`/${baseUrl}/${users}`, data, false);
+        const response = await CommHelper.post<UserDTO>(ApiRoutes.usersUrl(), data, false);
         return new UserInfo(response.data);
     }
 
     public async changePassword(data: ResetLoggedInUserPasswordRequestDTO) {
-        await CommHelper.post<any>(`/${baseUrl}/${users}/${changePassword}`, data);
+        await CommHelper.post<any>(ApiRoutes.changePasswordUrl(), data);
     }
 
     public async changeForgottenPassword(data: ResetForgottenUserPasswordRequestDTO) {
-        await CommHelper.post<any>(`/${baseUrl}/${users}/${changeForgottenPassword}`, data, false);
+        await CommHelper.post<any>(ApiRoutes.changeForgottenPasswordUrl(), data, false);
 
         // TODO: Figure out if we catch an exception are rethrow a different exception, or leave
         // the Axios exception as is
     }
 
     public async activateUser(data: AccountActivationRequestDTO) {
-        await CommHelper.post<any>(`/${baseUrl}/${users}/${confirmRegistration}`, data, false);
+        await CommHelper.post<any>(ApiRoutes.confirmRegistartionUrl(), data, false);
     }
 
 
     public async updateUser(data: UserUpdateRequestDTO) {
-        await CommHelper.put<any>(`/${baseUrl}/${users}`, data);
+        await CommHelper.put<any>(ApiRoutes.usersUrl(), data);
     }
 }
 

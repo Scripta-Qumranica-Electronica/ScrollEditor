@@ -4,7 +4,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import EditionService from './edition';
-import {baseUrl, editions, imagedObjects} from '@/variables';
+import { ApiRoutes } from '@/variables';
 
 class ArtefactService {
     public stateManager: StateManager;
@@ -14,10 +14,9 @@ class ArtefactService {
 
     public async getArtefactImagedObject(editionId: number, imagedObjectId: string) {
         const response = await CommHelper.get<ImagedObjectDTO>
-        (`/${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}`);
-        // if (response.data) {
+        (ApiRoutes.editionImagedObjectUrl(editionId, imagedObjectId));
+
         const imagedObject = new ImagedObject(response.data);
-        // }
         return imagedObject;
     }
 

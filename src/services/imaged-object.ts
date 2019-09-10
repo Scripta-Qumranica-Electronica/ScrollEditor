@@ -7,7 +7,7 @@ import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/sqe-dt
 import { StateManager } from '@/state';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 import { Side } from '@/models/misc';
-import {baseUrl, editions, imagedObjects, artefacts} from '@/variables';
+import { ApiRoutes } from '@/variables';
 
 class ImagedObjectService {
     public stateManager: StateManager;
@@ -34,7 +34,7 @@ class ImagedObjectService {
 
     public async getImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
         const response = await CommHelper.get<ImagedObjectDTO>(
-            `/${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObject.id}?optional=artefacts&optional=masks`
+            ApiRoutes.editionImagedObjectUrl(editionId, imagedObject.id, true)
         );
 
         let artefactList: Artefact[] = [];
@@ -62,14 +62,14 @@ class ImagedObjectService {
             mask: '',
             name: artefactName,
         } as CreateArtefactDTO;
-        const response = await CommHelper.post<ArtefactDTO>(`/${baseUrl}/${editions}/${editionId}/${artefacts}`, body);
+        const response = await CommHelper.post<ArtefactDTO>(ApiRoutes.allEditionArtefactsUrl(editionId), body);
 
         const artefact = new Artefact(response.data);
         return artefact;
     }
 
     public async deleteArtefact(art: OptimizedArtefact) {
-        await CommHelper.delete(`/${baseUrl}/${editions}/${art.editionId}/${artefacts}/${art.id}`);
+        await CommHelper.delete(ApiRoutes.editionArtefactUrl(art.editionId, art.id));
     }
 
     public async changeArtefact(editionId: number, artefact: Artefact):
@@ -81,7 +81,7 @@ class ImagedObjectService {
         } as UpdateArtefactDTO;
 
         const response = await CommHelper.put<ArtefactDTO>
-        (`/${baseUrl}/${editions}/${editionId}/${artefacts}/${artefact.id}`, body);
+        (ApiRoutes.editionArtefactUrl(editionId, artefact.id), body);
         return response.data;
     }
 
