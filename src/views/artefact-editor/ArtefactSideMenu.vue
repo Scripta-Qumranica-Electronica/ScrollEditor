@@ -29,6 +29,11 @@
                   <b-form-input ref="zoomRef" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input> <!-- v-b-tooltip.hover :title="formatTooltip()"-->
                 </div>
               </div>
+              <div class="row">
+                <div class="col">
+                  <b-form-input type="number" v-model="rotationAngle"/> 
+                </div>
+              </div>
             </section>
           </b-card-body>
         </b-collapse>
@@ -78,6 +83,15 @@ export default Vue.extend({
       set(val: any) {
           this.params.zoom = parseFloat(val);
           this.notifyChange('zoom', val);
+      }
+    },
+    rotationAngle: {
+      get(): number {
+          return this.params.rotationAngle;
+      },
+      set(val: any) {
+          this.params.rotationAngle = parseFloat(val);
+          this.notifyChange('rotationAngle', val);
       }
     },
   },

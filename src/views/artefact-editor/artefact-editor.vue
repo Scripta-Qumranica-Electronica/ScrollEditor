@@ -39,12 +39,10 @@
             <div id="zoom-div"
               :style="{transform: `scale(${zoomLevel})`}"
               >
-              <div id="rotate-div">
-                <!--
-                :width="rotateDivWidth"
-                :height="rotateDivHeight"
-                :style="{transform: `translate${translatePosition} rotate(${rotationAngle}deg)`}"
-              >-->
+              <div id="rotate-div"
+              :style="{transform: `rotate(${rotationAngle}deg)`, margin: `${artefactMargin}`}">
+               <!-- :width="rotateDivWidth"
+                :height="rotateDivHeight">-->
                 <div @wheel="onMouseWheel">
                   <artefact-image
                     class="overlay-canvas"
@@ -145,6 +143,34 @@ export default Vue.extend({
         sidebarNotActiveAndTextNotActive(): boolean {
           return !this.isActiveSidebar && !this.isActiveText;
         },
+        // originalImageWidth(): number {
+        //   debugger
+        //   //console.log(this.masterImage.masterImage.master.waweLength[0])
+        //   if (!this.masterImage.manifest) {
+        //     return 200;
+        //   }
+        //   return this.masterImage!.manifest.width;
+        // },
+        // originalImageHeight(): number {
+        //   if (!this.masterImage.manifest) {
+        //     return 200;
+        //   }
+        //   return this.masterImage!.manifest.height;
+        // },
+        // rotateDivWidth(): number {
+        //   return this.originalImageWidth * 0.5;
+        // },
+        // rotateDivHeight(): number {
+        //   return this.originalImageHeight * 0.5;
+        // },
+        rotationAngle(): number {
+          return this.params.rotationAngle;
+        },
+        artefactMargin(): string {
+          // margin-top: 0.5*diagonal - 0.5*height
+          // margin-left: 0.5*diagonal - 0.5*width
+          return '100px';
+        }
         // actualWidth(): number {
         //   return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
         // },
