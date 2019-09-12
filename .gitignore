@@ -5,6 +5,7 @@ node_modules
 # local env files
 .env.local
 .env.*.local
+docker/run-docker.ps1
 
 # Log files
 npm-debug.log*
