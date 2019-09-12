@@ -5,6 +5,7 @@
         v-for="(line, index) in textFragment.lines"
         :key="index">
         <text-line
+            :clickedSignId="clickedSignId"
             :line="line"
             direction="rtl">
         </text-line>
@@ -30,6 +31,7 @@ export default Vue.extend({
   },
   props: {
     textFragment: TextFragment,
+    clickedSignId: Number,
   },
   computed: {
   },

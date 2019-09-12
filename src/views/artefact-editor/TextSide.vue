@@ -5,14 +5,13 @@
            <option :key="index" v-for="(text, index) in textList">{{ text.name }}</option>
        </datalist>
        <button @click.prevent="search(query)" name="Search">Search</button>
-
        <span class="isa_error">{{errorMessage}}</span>
        
        <div
         v-if="textEdition.textFragments"
         v-for="(fragment, index) in textEdition.textFragments"
         :key="index">
-        <text-fragment
+        <text-fragment :clickedSignId="clickedSignId"
             :textFragment="fragment"
             id="text-box">
         </text-fragment>
@@ -44,6 +43,7 @@ export default Vue.extend({
   },
   props: {
     artefact: Artefact,
+    clickedSignId: Number,
   },
   computed: {
     editionId(): number {

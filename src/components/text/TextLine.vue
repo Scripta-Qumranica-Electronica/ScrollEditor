@@ -1,6 +1,7 @@
 <template>
   <div class="row" :dir="lineDir">
       <text-sign
+        :clickedSignId="clickedSignId"
         v-if="line.signs"
         v-for="(sign, index) in line.signs"
         :key="index"
@@ -26,6 +27,7 @@ export default Vue.extend({
   props: {
     line: Line,
     direction: String,
+    clickedSignId: Number,
   },
   computed: {
       lineDir(): string {

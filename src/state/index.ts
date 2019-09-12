@@ -1,5 +1,6 @@
 import { SessionState } from './session';
 import { EditionCollection, ImagedObjectCollection, MiscState, ArtefactCollection } from './utilities';
+import { Polygon } from '@/utils/Polygons';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -9,6 +10,7 @@ export class StateManager {
     public imagedObjects: ImagedObjectCollection;
     public artefacts: ArtefactCollection;
     public misc: MiscState;
+    public signMap: Map<string, Polygon>;
 
     private constructor() {
         this.session = new SessionState();
@@ -16,6 +18,7 @@ export class StateManager {
         this.imagedObjects = new ImagedObjectCollection();
         this.artefacts = new ArtefactCollection();
         this.misc = new MiscState();
+        this.signMap = new Map<string, Polygon>();
     }
 
     public static get instance() {

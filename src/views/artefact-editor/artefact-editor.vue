@@ -52,6 +52,11 @@
                     :imageSettingsParams="params.imageSettings"
                   ></artefact-image>
                 </div>
+                <sign-canvas
+                  v-for="shapeSign in arrayOfSigns"
+                  :key="shapeSign.signId"
+                  :shapeSign="shapeSign"
+                />
               </div>
             </div>
           </div>
@@ -59,6 +64,11 @@
         <div class="buttons-div">
           <b-button type="button" class="sidebarCollapse" @click="textClicked()">
             <i class="fa fa-align-justify"></i>
+          </b-button>
+          <b-button v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'POLYGON'}, {icon: 'fa fa-square-o', val: 'RECTANGLE'}]" 
+            :key="mode.val" @click="editingModeChanged(mode.val)" 
+            :pressed="modeChosen(mode.val)" class="sidebarCollapse">
+            <i :class="mode.icon"></i>
           </b-button>
         </div>
       </div>
@@ -72,7 +82,7 @@
               sidebarActiveAndTextNotActive: sidebarActiveAndTextNotActive,
               sidebarNotActiveAndTextNotActive: sidebarNotActiveAndTextNotActive
               }">
-      <text-side
+      <text-side :clickedSignId="clickedSignId"
         :artefact="artefact"
       ></text-side>
     </div>
@@ -83,16 +93,18 @@
 import Vue, { PropOptions } from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactImage from './artefact-image.vue';
-import { Artefact } from '../../models/artefact';
-import EditionService from '../../services/edition';
-import ArtefactService from '../../services/artefact';
+import { Artefact } from '@/models/artefact';
+import EditionService from '@/services/edition';
+import ArtefactService from '@/services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
 import TextSide from './TextSide.vue';
-import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
-import { ZoomRequestEventArgs } from '../../components/editors/types';
-import { IIIFImage } from '../../models/image';
+import SignCanvas from './SignCanvas.vue';
+import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs , DrawingShapesMode , ShapeSign} from './types';
+import { ZoomRequestEventArgs } from '@/components/editors/types';
+import { IIIFImage } from '@/models/image';
 import { Position } from '@/utils/PointerTracker';
-import { ImageSetting, SingleImageSetting } from '../../components/image-settings/types';
+import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
+import { SignInterpretation} from '@/models/text';
 
 export default Vue.extend({
     name: 'artefact-editor',
@@ -101,11 +113,17 @@ export default Vue.extend({
         ArtefactImage,
         ArtefactSideMenu,
         TextSide,
+        SignCanvas,
     },
     props: {
     },
     data() {
         return {
+            clickedSignId: 0,
+            showShapeChoice: false,
+            arrayOfSigns: [] as ShapeSign[],
+            objectSign: {},
+            shapeChoice : DrawingShapesMode.POLYGON,
             errorMessage: '',
             waiting: true,
             editionService: new EditionService(),
@@ -198,8 +216,24 @@ export default Vue.extend({
         } finally {
             this.waiting = false;
         }
+
+        this.$root.$on('isClicked', (data: SignInterpretation) => {
+          this.clickedSignId = data.signInterpretationId;
+          const objectSign = {
+            signId: data.signInterpretationId,
+            char: data.character,
+            shape: this.shapeChoice} as ShapeSign;
+          this.arrayOfSigns.push(objectSign);
+          console.log(this.arrayOfSigns );
+        });
     },
     methods: {
+        modeChosen(val: DrawingShapesMode): boolean {
+          return DrawingShapesMode[val].toString() === this.shapeChoice.toString();
+        },
+        editingModeChanged(val: any) {
+          (this as any).shapeChoice = DrawingShapesMode[val];
+        },
         sidebarClicked() {
             this.isActiveSidebar = !this.isActiveSidebar;
         },
