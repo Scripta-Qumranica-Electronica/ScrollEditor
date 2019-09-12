@@ -23,3 +23,5 @@ yarn-error.log*
 
 # Include necessary vscode files
 !.vscode/tasks.json
+!.vscode/launch.json
+
