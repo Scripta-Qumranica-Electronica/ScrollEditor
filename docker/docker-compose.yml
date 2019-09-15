@@ -40,7 +40,7 @@ services:
             - MAILER_EMAIL_PASSWORD
             - MAILER_EMAIL_SMTP_URL
             - MAILER_EMAIL_SMTP_PORT
-            - MAILER_EMAIL_SMTP_SECURITY=StartTlsWhenAvailable #The options are "None", "Auto", "SslOnConnect", "StartTls", and "StartTlsWhenAvailable"
+            - MAILER_EMAIL_SMTP_SECURITY=Auto #The options are "None", "Auto", "SslOnConnect", "StartTls", and "StartTlsWhenAvailable"
             
             ## Partner website settings (website that calls the user registration functions)
             - WEBSITE_HOST=http://localhost:8080              
@@ -51,6 +51,15 @@ services:
             - SQE_API_SECRET=kjdsavc987342r8gnx%%6bq1@@lknsdciqeurhfwiurbcea-+++
         depends_on:
             - sqe-database
+        networks:
+            - sqe_api
+        volumes:
+            - ./logs:/app/logs
+
+    sqe-test:
+        container_name: SQE_TEST
+        image: ubuntu:latest
+        command: tail -F anything
         networks:
             - sqe_api
 

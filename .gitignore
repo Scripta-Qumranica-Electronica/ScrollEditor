@@ -5,7 +5,6 @@ node_modules
 # local env files
 .env.local
 .env.*.local
-docker/run-docker.ps1
 
 # Log files
 npm-debug.log*
@@ -26,3 +25,7 @@ yarn-error.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 
+# Local files for the backend's Docker
+docker/run-docker.ps1
+docker/logs/*
+!docker/logs/README.md
