@@ -56,13 +56,6 @@ services:
         volumes:
             - ./logs:/app/logs
 
-    sqe-test:
-        container_name: SQE_TEST
-        image: ubuntu:latest
-        command: tail -F anything
-        networks:
-            - sqe_api
-
 networks:
     sqe_api:
 
