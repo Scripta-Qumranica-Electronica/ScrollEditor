@@ -31,8 +31,7 @@
                    }">
           <div
             ref="overlay-div"
-            v-if="!waiting && artefact"
-            id="overlay-div">
+            v-if="!waiting && artefact">
             <!-- :width="actualWidth"
             :height="actualHeight"> -->
 
@@ -40,23 +39,42 @@
               :style="{transform: `scale(${zoomLevel})`}"
               >
               <div id="rotate-div"
-              :style="{transform: `rotate(${rotationAngle}deg)`, margin: `${artefactMargin}`}">
-               <!-- :width="rotateDivWidth"
+              :style="{transform: `rotate(${rotationAngle}deg)`}">
+               <!--
+                 , margin: `${artefactMargin}`}"
+                  :width="rotateDivWidth"
                 :height="rotateDivHeight">-->
                 <div @wheel="onMouseWheel">
                   <artefact-image
                     class="overlay-canvas"
                     v-if="artefact"
                     :artefact="artefact"
-                    :scale="0.5"
+                    :scale="scale"
                     :imageSettingsParams="params.imageSettings"
                   ></artefact-image>
+                  <sign-canvas
+                    v-for="shapeSign in nonSelectedSigns"
+                    class="overlay-canvas"
+                    :key="shapeSign.signId"
+                    :shapeSign="shapeSign"
+                    :originalImageWidth="originalImageWidth"
+                    :originalImageHeight="originalImageHeight"
+                    :scale="scale"
+                    :params="params"
+                  />
+                  <sign-canvas
+                    v-show="sign.signId"
+                    class="overlay-canvas"
+                    :selected="true"
+                    :shapeSign="sign"
+                    :originalImageWidth="originalImageWidth"
+                    :originalImageHeight="originalImageHeight"
+                    :scale="scale"
+                    :params="params"
+                    @SignChanged="signChanged($event)"
+
+                  />
                 </div>
-                <sign-canvas
-                  v-for="shapeSign in arrayOfSigns"
-                  :key="shapeSign.signId"
-                  :shapeSign="shapeSign"
-                />
               </div>
             </div>
           </div>
@@ -95,6 +113,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactImage from './artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import EditionService from '@/services/edition';
+import ImageService from '@/services/image';
 import ArtefactService from '@/services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
 import TextSide from './TextSide.vue';
@@ -105,6 +124,8 @@ import { IIIFImage } from '@/models/image';
 import { Position } from '@/utils/PointerTracker';
 import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
 import { SignInterpretation} from '@/models/text';
+import { Polygon } from '@/utils/Polygons';
+import { ImagedObject } from '@/models/imaged-object';
 
 export default Vue.extend({
     name: 'artefact-editor',
@@ -122,16 +143,20 @@ export default Vue.extend({
             clickedSignId: 0,
             showShapeChoice: false,
             arrayOfSigns: [] as ShapeSign[],
-            objectSign: {},
+            nonSelectedSigns: [] as ShapeSign[],
             shapeChoice : DrawingShapesMode.POLYGON,
             errorMessage: '',
             waiting: true,
             editionService: new EditionService(),
+            imageService: new ImageService(),
             artefactService: new ArtefactService(),
             isActiveSidebar: false,
             isActiveText: false,
             params: new ArtefactEditorParams(),
             masterImage: {} as IIIFImage | undefined,
+            sign: {} as ShapeSign,
+            imagedObject: {} as ImagedObject | undefined,
+            scale: 0.5,
         };
     },
     computed: {
@@ -161,20 +186,12 @@ export default Vue.extend({
         sidebarNotActiveAndTextNotActive(): boolean {
           return !this.isActiveSidebar && !this.isActiveText;
         },
-        // originalImageWidth(): number {
-        //   debugger
-        //   //console.log(this.masterImage.masterImage.master.waweLength[0])
-        //   if (!this.masterImage.manifest) {
-        //     return 200;
-        //   }
-        //   return this.masterImage!.manifest.width;
-        // },
-        // originalImageHeight(): number {
-        //   if (!this.masterImage.manifest) {
-        //     return 200;
-        //   }
-        //   return this.masterImage!.manifest.height;
-        // },
+        originalImageWidth(): number {
+          return this.masterImage!.manifest.width;
+        },
+        originalImageHeight(): number {
+          return this.masterImage!.manifest.height;
+        },
         // rotateDivWidth(): number {
         //   return this.originalImageWidth * 0.5;
         // },
@@ -189,20 +206,9 @@ export default Vue.extend({
           // margin-left: 0.5*diagonal - 0.5*width
           return '100px';
         }
-        // actualWidth(): number {
-        //   return this.originalImageWidth * this.zoomLevel * this.$render.scalingFactors.image;
-        // },
-        // actualHeight(): number {
-        //   return this.originalImageHeight * this.zoomLevel * this.$render.scalingFactors.image;
-        // },
-        // originalImageWidth(): number {
-        //   return this.masterImage!.manifest.width;
-        // },
-        // originalImageHeight(): number {
-        //   return this.masterImage!.manifest.height;
-        // },
     },
     async mounted() {
+        this.prepareNonSelectedSigns();
         try {
             this.waiting = true;
             await this.editionService.fetchEdition(this.editionId);
@@ -210,24 +216,53 @@ export default Vue.extend({
                 this.editionId,
                 parseInt(this.$route.params.artefactId)
             );
-            this.fillImageSettings();
+            await this.fillImageSettings();
         } catch (e) {
             console.error(e);
         } finally {
             this.waiting = false;
         }
 
+
         this.$root.$on('isClicked', (data: SignInterpretation) => {
           this.clickedSignId = data.signInterpretationId;
           const objectSign = {
             signId: data.signInterpretationId,
             char: data.character,
-            shape: this.shapeChoice} as ShapeSign;
-          this.arrayOfSigns.push(objectSign);
-          console.log(this.arrayOfSigns );
+            shape: this.shapeChoice,
+            polygon: new Polygon() } as ShapeSign;
+          const signIndex = this.arrayOfSigns.findIndex((sign: ShapeSign) => data.signInterpretationId === sign.signId);
+          if (signIndex < 0) {
+            this.arrayOfSigns.push(objectSign);
+          } else {
+            // update the value
+            objectSign.polygon = this.arrayOfSigns[signIndex].polygon;
+            this.arrayOfSigns[signIndex] = objectSign;
+          }
+
+          this.sign = objectSign;
+          this.prepareNonSelectedSigns();
         });
     },
     methods: {
+        signChanged(polygon: Polygon) {
+          const signIndex = this.arrayOfSigns.findIndex((s: ShapeSign) => this.sign.signId === s.signId);
+          if (signIndex < 0) {
+            throw new Error("Sign doesn't exist");
+          }
+          this.arrayOfSigns[signIndex].polygon = polygon;
+        },
+        getMasterImg(): IIIFImage | undefined {
+          if (this.imagedObject && this.artefact && this.imagedObject.getImageStack(this.artefact.side)) {
+            return this.imagedObject.getImageStack(this.artefact.side)!.master;
+          }
+          return undefined;
+        },
+        prepareNonSelectedSigns() {
+          this.nonSelectedSigns = this.arrayOfSigns.filter(
+            (sign: ShapeSign) => sign.signId !== this.clickedSignId
+          );
+        },
         modeChosen(val: DrawingShapesMode): boolean {
           return DrawingShapesMode[val].toString() === this.shapeChoice.toString();
         },
@@ -243,7 +278,6 @@ export default Vue.extend({
         onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
             this.params = evt.params; // This makes sure a change is triggered in child components
         },
-
         onMouseWheel(event: WheelEvent) {
             // if (!this.selected) {
             //     return;
@@ -298,11 +332,16 @@ export default Vue.extend({
                 return;
             }
             this.params.imageSettings = {}; // as ImageSetting;
-            const imagedObject = await this.artefactService.getArtefactImagedObject(
+            this.imagedObject = await this.artefactService.getArtefactImagedObject(
                 this.artefact.editionId!, this.artefact.imagedObjectId);
-            if (imagedObject) {
-              const imageStack = imagedObject.getImageStack(this.artefact.side);
-              if (imagedObject && imageStack) {
+            if (this.imagedObject && this.imagedObject.getImageStack(this.artefact.side)
+            && this.imagedObject.getImageStack(this.artefact.side)!.master) {
+              await this.imageService.fetchImageManifest(this.imagedObject.getImageStack(this.artefact.side)!.master);
+              this.masterImage = this.getMasterImg();
+            }
+            if (this.imagedObject) {
+              const imageStack = this.imagedObject.getImageStack(this.artefact.side);
+              if (this.imagedObject && imageStack) {
                   for (const imageType of imageStack.availableImageTypes) {
                       const image = imageStack.getImage(imageType);
                       if (image) {
@@ -335,15 +374,6 @@ export default Vue.extend({
   height: calc(100vh - 63px);
 }
 
-#overlay-div {
-  // transform-origin: top left;
-  // position: absolute;
-  // overflow: scroll;
-  // // margin-right: 15px;
-  // padding: 0;
-  // height: calc(100vh - 63px);
-  // width: calc(100vw- 80px);
-}
 .artefact-menu-div {
   height: calc(100vh - 63px);
   overflow: hidden;
@@ -452,6 +482,10 @@ export default Vue.extend({
     margin-left: 0;
     transform: none;
   }
+  .overlay-canvas {
+  position: absolute;
+  transform-origin: top left;
+}
 
   // TODO- check the scrolls in tablet, maybe they dno't have to appear. 
   .artefact-container.sidebarActiveAndTextActive {

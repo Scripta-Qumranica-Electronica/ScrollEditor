@@ -9,8 +9,8 @@ export default class ImageService {
     }
 
     public async fetchImageManifests(images: IIIFImage[]) {
-        const properImages = images.filter((image) => image instanceof IIIFImage); // Filter out nulls and undefined
-
+        const properImages = images.filter((image) => image instanceof IIIFImage);
+        // Filter out nulls and undefined
         // Load all manifests concurrently
         const promises = properImages.filter((image) => this.fetchImageManifest(image));
         await Promise.all(promises);

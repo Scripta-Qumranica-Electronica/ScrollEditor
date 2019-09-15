@@ -1,25 +1,230 @@
 <template>
-    <div>
-        <label>
-            Sign canvas
-        </label>
+    <div
+        :width="actualWidth"
+        :height="actualHeight">
+        <canvas
+            class="signCanvas"
+            :width="actualWidth"
+            :height="actualHeight"
+            :class="{pulse: selected}"
+            ref="signCanvas"
+            @pointermove="pointerMove($event)"
+            @pointerdown="pointerDown($event)"
+            @pointerup="pointerUp($event)"
+        >
+        </canvas>
+        <!--:width="actualWidth"
+            :height="actualHeight"-->
     </div>
 </template>
 
 
 <script lang="ts">
 import Vue from 'vue';
+import { ArtefactEditorParams } from './types';
 import { ShapeSign } from './types';
+import { Polygon } from '@/utils/Polygons';
+import { PointerTracker , PointerTrackingEvent, Position } from '@/utils/PointerTracker';
+import { clipCanvas } from '@/utils/VectorFactory';
+
+enum EditMode {
+    DRAWING, ADJUSTING, NONE
+}
+
+// tslint:disable:no-var-requires
+const trace = require('@/utils/Potrace.js').trace;
+// tslint:enable:no-var-requires
 
 export default Vue.extend({
     name: 'sign-canvas',
+    data() {
+        return {
+            cursorPos: {} as Position,
+            // zooming: false,
+            lastCursorPos: { } as Position,
+            pointerTracker: new PointerTracker(),
+            editMode: EditMode.NONE,
+            signCanvasContext: { } as CanvasRenderingContext2D,
+            currentSignPolygon : {} as Polygon,
+        };
+    },
     props: {
-    shapeSign: {
-        type: Object as () => ShapeSign,
+        params: ArtefactEditorParams,
+        selected: Boolean,
+        originalImageWidth: Number,
+        originalImageHeight: Number,
+        shapeSign: {
+            type: Object as () => ShapeSign,
+        },
+        scale: Number,
+    },
+    computed: {
+        rotationAngle(): number {
+            return this.params.rotationAngle;
+        },
+        actualWidth(): number {
+            return this.originalImageWidth / this.scale / this.$render.scalingFactors.canvas;
+        },
+        actualHeight(): number {
+            return this.originalImageHeight / this.scale / this.$render.scalingFactors.canvas;
+        },
+        zoom(): number {
+            return this.params.zoom;
+        },
+        brushSize(): number {
+            return this.params.brushSize;
+        },
+        signCanvas(): HTMLCanvasElement {
+            return this.$refs.signCanvas as HTMLCanvasElement;
         },
     },
     mounted() {
-        console.log('shapeSign=', this.shapeSign);
+        const ctx = this.signCanvas.getContext('2d');
+        if (ctx === null) {
+            throw new Error("Can't get context for signCanvas");
+        }
+        this.signCanvasContext = ctx;
+        this.applyMaskToCanvas();
+        },
+    methods: {
+        applyMaskToCanvas() {
+            // debugger;
+            if (this.shapeSign && this.shapeSign.polygon) { // not empty polygon
+                clipCanvas(this.signCanvas, this.shapeSign.polygon.svg, 'black', 1);
+                this.currentSignPolygon = this.shapeSign.polygon;
+            } else {
+                this.signCanvasContext.clearRect(0, 0, this.signCanvas.width, this.signCanvas.height);
+                this.currentSignPolygon = new Polygon();
+            }
+        },
+        drawPoint(pos: Position) {
+            this.signCanvasContext.beginPath();
+            this.signCanvasContext.arc(pos.x,
+                                        pos.y,
+                                        this.brushSize / 2 / this.zoom / this.$render.scalingFactors.combined,
+                                        0, Math.PI * 2);
+            this.signCanvasContext.fill();
+            this.signCanvasContext.closePath();
+
+        },
+        pointerDown(event: PointerEvent) {
+            if (!this.selected) {
+                return;
+            }
+            if (event.ctrlKey || event.button !== 0) {
+                return;
+            }
+
+            const exEvent = this.extendEvent(event);
+            this.pointerTracker.handleEvent(exEvent);
+
+            const count = this.pointerTracker.count;
+            if (count === 2) {
+                this.abortDrawing();
+
+                this.editMode = EditMode.ADJUSTING;
+            } else if (count > 2) {
+                this.editMode = EditMode.NONE;
+            } else if (count === 1) {
+                this.lastCursorPos = exEvent.logicalPosition;
+
+                // Initialize the canvases
+                this.editMode = EditMode.DRAWING;
+                this.signCanvasContext.globalCompositeOperation = 'source-over';
+
+                let polygonColor = 'black';
+                if (this.selected) {
+                    polygonColor = 'red';
+                }
+                this.signCanvasContext.strokeStyle = polygonColor;
+                this.signCanvasContext.fillStyle = polygonColor;
+            }
+        },
+        extendEvent(event: PointerEvent) {
+            const normalized = this.normalizePosition(event);
+            //   const rotated = this.applyRotation(normalized);
+
+            const extended = new PointerTrackingEvent(event, normalized); // rotated
+            return extended;
+        },
+        normalizePosition(event: PointerEvent) {
+            // Take the pointer event and return the position inside the image, in canvas coordinates units
+            // (right, bottom) is (actualWidth, actualHeight)
+
+            const element = event.target as HTMLElement;
+            const initOffset = element.getBoundingClientRect();
+
+            // Position in pixels, compared to top left corner of the canvas
+            // Note: element.scrollLeft and scrollTop are probably always 0, but it doesn't hurt to add them
+            const rawPos = {
+                x: event.clientX - initOffset.left + element.scrollLeft,
+                y: event.clientY - initOffset.top + element.scrollTop,
+            } as Position;
+
+            // Take into account scaling to get to the canvas coordiantes
+            const scaledPos = {
+                x: rawPos.x / this.zoom,
+                y: rawPos.y  / this.zoom,
+            };
+
+            return scaledPos;
+        },
+        drawLine(start: Position, end: Position) {
+            this.signCanvasContext.beginPath();
+            this.signCanvasContext.lineWidth = this.brushSize / this.zoom / this.$render.scalingFactors.combined;
+            this.signCanvasContext.moveTo(start.x, start.y);
+            this.signCanvasContext.lineTo(end.x, end.y);
+            this.signCanvasContext.stroke();
+            this.signCanvasContext.closePath();
+        },
+        pointerMove(event: PointerEvent) {
+            if (!this.selected) {
+                return;
+            }
+            // this.zooming = event.ctrlKey;
+
+            const exEvent = this.extendEvent(event);
+            this.pointerTracker.handleEvent(exEvent);
+
+            if (this.editMode === EditMode.DRAWING) {
+                this.drawing();
+            }
+        },
+        async pointerUp(event: PointerEvent) {
+            if (!this.selected) {
+                return;
+            }
+
+            const exEvent = this.extendEvent(event);
+            this.pointerTracker.handleEvent(exEvent);
+
+            if (this.editMode === EditMode.DRAWING) {
+                this.drawPoint(this.lastCursorPos);
+                await this.recalculateMask();
+            }
+
+            this.editMode = EditMode.NONE;
+        },
+        drawing() {
+            // DRAWING means there's only one activate pointer, and this is it, so we don't need to consult
+            // the pointerTracker to get the primary pointer.
+            this.cursorPos = this.pointerTracker.primary.logicalPosition;
+            this.drawPoint(this.lastCursorPos);
+            this.drawLine(this.lastCursorPos, this.cursorPos);
+            this.lastCursorPos = this.cursorPos;
+        },
+        async recalculateMask() {
+            const canvas = this.signCanvas;
+            const canvasSvg: any = await trace(canvas, 1);
+            const canvasPolygon = Polygon.fromSvg(canvasSvg);
+
+            this.currentSignPolygon = canvasPolygon;
+            this.$emit('SignChanged', canvasPolygon);
+        },
+        abortDrawing() {
+            // do we need this code ?
+            // this.applyMaskToCanvas();
+        },
     }
     // state.signMap.set(sign, polygon);
 });
@@ -28,4 +233,16 @@ export default Vue.extend({
 
 
 <style lang="scss" scoped>
+    .signCanvas {
+        // background-color: yellow;
+        opacity: 0.3;
+        touch-action: pinch-zoom;
+    }
+
+    .signCanvas.pulse {
+        visibility: visible;
+        opacity: 0.3;
+        animation: pulsate 3s ease-out;
+        animation-iteration-count: infinite;
+    }
 </style>
