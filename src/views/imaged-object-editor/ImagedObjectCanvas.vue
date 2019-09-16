@@ -28,10 +28,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Matrix } from '@/utils/Matrices';
-
-enum EditMode {
-    DRAWING, ADJUSTING, NONE
-}
+import { EditMode } from '@/views/imaged-object-editor/types';
 
 // tslint:disable:no-var-requires
 const trace = require('@/utils/Potrace.js').trace;

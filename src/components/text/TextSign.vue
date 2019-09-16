@@ -3,7 +3,7 @@
       <div
         v-for="(signInter, index) in sign.signInterpretations"
         :key="index">
-        <span :style="{color:CheckColor()}" @click="signClicked()">{{signInter.character}}</span>
+        <span :style="{color: checkColor()}" @click="signClicked()">{{signInter.character}}</span>
         <span v-if="signInter.character===''">&nbsp;</span>
       </div>
   </div>
@@ -34,7 +34,7 @@ export default Vue.extend({
        this.activeColor = 'red';
        this.$root.$emit('isClicked', this.sign.signInterpretations[0] as SignInterpretation);
     },
-    CheckColor() {
+    checkColor() {
       if (this.sign.signInterpretations[0].signInterpretationId !== this.clickedSignId) {
         return  'black';
       }

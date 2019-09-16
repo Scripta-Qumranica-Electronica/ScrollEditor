@@ -1,8 +1,8 @@
 <template>
-    <div class="wrapper" id="artefact-editor">
+  <div class="wrapper" id="artefact-editor">
     <div v-if="waiting" class="col">
       <Waiting></Waiting>
-    </div> 
+    </div>
     <div
       id="sidebar"
       class="artefact-menu-div"
@@ -23,24 +23,21 @@
             <i class="fa fa-align-justify"></i>
           </b-button>
         </div>
-        <div class="artefact-container"
+        <div
+          class="artefact-container"
           :class="{sidebarActiveAndTextActive: sidebarActiveAndTextActive,
                    sidebarNotActiveAndTextActive: sidebarNotActiveAndTextActive,
                    sidebarActiveAndTextNotActive: sidebarActiveAndTextNotActive,
                    sidebarNotActiveAndTextNotActive: sidebarNotActiveAndTextNotActive
-                   }">
-          <div
-            ref="overlay-div"
-            v-if="!waiting && artefact">
+                   }"
+        >
+          <div ref="overlay-div" v-if="!waiting && artefact">
             <!-- :width="actualWidth"
-            :height="actualHeight"> -->
+            :height="actualHeight">-->
 
-            <div id="zoom-div"
-              :style="{transform: `scale(${zoomLevel})`}"
-              >
-              <div id="rotate-div"
-              :style="{transform: `rotate(${rotationAngle}deg)`}">
-               <!--
+            <div id="zoom-div" :style="{transform: `scale(${zoomLevel})`}">
+              <div id="rotate-div" :style="{transform: `rotate(${rotationAngle}deg)`}">
+                <!--
                  , margin: `${artefactMargin}`}"
                   :width="rotateDivWidth"
                 :height="rotateDivHeight">-->
@@ -72,7 +69,6 @@
                     :scale="scale"
                     :params="params"
                     @SignChanged="signChanged($event)"
-
                   />
                 </div>
               </div>
@@ -83,9 +79,13 @@
           <b-button type="button" class="sidebarCollapse" @click="textClicked()">
             <i class="fa fa-align-justify"></i>
           </b-button>
-          <b-button v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'POLYGON'}, {icon: 'fa fa-square-o', val: 'RECTANGLE'}]" 
-            :key="mode.val" @click="editingModeChanged(mode.val)" 
-            :pressed="modeChosen(mode.val)" class="sidebarCollapse">
+          <b-button
+            v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'POLYGON'}, {icon: 'fa fa-square-o', val: 'RECTANGLE'}]"
+            :key="mode.val"
+            @click="editingModeChanged(mode.val)"
+            :pressed="modeChosen(mode.val)"
+            class="sidebarCollapse"
+          >
             <i :class="mode.icon"></i>
           </b-button>
         </div>
@@ -99,10 +99,9 @@
               sidebarNotActiveAndTextActive: sidebarNotActiveAndTextActive,
               sidebarActiveAndTextNotActive: sidebarActiveAndTextNotActive,
               sidebarNotActiveAndTextNotActive: sidebarNotActiveAndTextNotActive
-              }">
-      <text-side :clickedSignId="clickedSignId"
-        :artefact="artefact"
-      ></text-side>
+              }"
+    >
+      <text-side :clickedSignId="clickedSignId" :artefact="artefact"></text-side>
     </div>
   </div>
 </template>
@@ -118,249 +117,281 @@ import ArtefactService from '@/services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
 import TextSide from './TextSide.vue';
 import SignCanvas from './SignCanvas.vue';
-import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs , DrawingShapesMode , ShapeSign} from './types';
+import {
+  ArtefactEditorParams,
+  ArtefactEditorParamsChangedArgs,
+  DrawingShapesMode,
+  ShapeSign
+} from './types';
 import { ZoomRequestEventArgs } from '@/components/editors/types';
 import { IIIFImage } from '@/models/image';
 import { Position } from '@/utils/PointerTracker';
-import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
-import { SignInterpretation} from '@/models/text';
+import {
+  ImageSetting,
+  SingleImageSetting
+} from '@/components/image-settings/types';
+import { SignInterpretation } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 
 export default Vue.extend({
-    name: 'artefact-editor',
-    components: {
-        Waiting,
-        ArtefactImage,
-        ArtefactSideMenu,
-        TextSide,
-        SignCanvas,
+  name: 'artefact-editor',
+  components: {
+    Waiting,
+    ArtefactImage,
+    ArtefactSideMenu,
+    TextSide,
+    SignCanvas
+  },
+  props: {},
+  data() {
+    return {
+      clickedSignId: 0,
+      showShapeChoice: false,
+      arrayOfSigns: [] as ShapeSign[],
+      nonSelectedSigns: [] as ShapeSign[],
+      shapeChoice: DrawingShapesMode.RECTANGLE,
+      errorMessage: '',
+      waiting: true,
+      editionService: new EditionService(),
+      imageService: new ImageService(),
+      artefactService: new ArtefactService(),
+      isActiveSidebar: false,
+      isActiveText: false,
+      params: new ArtefactEditorParams(),
+      masterImage: {} as IIIFImage | undefined,
+      sign: {} as ShapeSign,
+      imagedObject: {} as ImagedObject | undefined,
+      scale: 0.5
+    };
+  },
+  computed: {
+    artefact(): Artefact | undefined {
+      return this.$state.artefacts.current;
     },
-    props: {
+    editionId(): number {
+      return parseInt(this.$route.params.editionId);
     },
-    data() {
-        return {
-            clickedSignId: 0,
-            showShapeChoice: false,
-            arrayOfSigns: [] as ShapeSign[],
-            nonSelectedSigns: [] as ShapeSign[],
-            shapeChoice : DrawingShapesMode.POLYGON,
-            errorMessage: '',
-            waiting: true,
-            editionService: new EditionService(),
-            imageService: new ImageService(),
-            artefactService: new ArtefactService(),
-            isActiveSidebar: false,
-            isActiveText: false,
-            params: new ArtefactEditorParams(),
-            masterImage: {} as IIIFImage | undefined,
-            sign: {} as ShapeSign,
-            imagedObject: {} as ImagedObject | undefined,
-            scale: 0.5,
-        };
+    overlayDiv(): HTMLDivElement {
+      return this.$refs['overlay-div'] as HTMLDivElement;
     },
-    computed: {
-        artefact(): Artefact | undefined {
-            return this.$state.artefacts.current;
-        },
-        editionId(): number {
-            return parseInt(this.$route.params.editionId);
-        },
-        overlayDiv(): HTMLDivElement {
-            return this.$refs['overlay-div'] as HTMLDivElement;
-        },
-        zoomLevel(): number {
-          return this.params.zoom;
-        },
-        // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
-        // On tablet screen - Active means opened.
-        sidebarActiveAndTextActive(): boolean {
-          return this.isActiveSidebar && this.isActiveText;
-        },
-        sidebarNotActiveAndTextActive(): boolean {
-          return !this.isActiveSidebar && this.isActiveText;
-        },
-        sidebarActiveAndTextNotActive(): boolean {
-          return this.isActiveSidebar && !this.isActiveText;
-        },
-        sidebarNotActiveAndTextNotActive(): boolean {
-          return !this.isActiveSidebar && !this.isActiveText;
-        },
-        originalImageWidth(): number {
-          return this.masterImage!.manifest.width;
-        },
-        originalImageHeight(): number {
-          return this.masterImage!.manifest.height;
-        },
-        // rotateDivWidth(): number {
-        //   return this.originalImageWidth * 0.5;
-        // },
-        // rotateDivHeight(): number {
-        //   return this.originalImageHeight * 0.5;
-        // },
-        rotationAngle(): number {
-          return this.params.rotationAngle;
-        },
-        artefactMargin(): string {
-          // margin-top: 0.5*diagonal - 0.5*height
-          // margin-left: 0.5*diagonal - 0.5*width
-          return '100px';
+    zoomLevel(): number {
+      return this.params.zoom;
+    },
+    // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
+    // On tablet screen - Active means opened.
+    sidebarActiveAndTextActive(): boolean {
+      return this.isActiveSidebar && this.isActiveText;
+    },
+    sidebarNotActiveAndTextActive(): boolean {
+      return !this.isActiveSidebar && this.isActiveText;
+    },
+    sidebarActiveAndTextNotActive(): boolean {
+      return this.isActiveSidebar && !this.isActiveText;
+    },
+    sidebarNotActiveAndTextNotActive(): boolean {
+      return !this.isActiveSidebar && !this.isActiveText;
+    },
+    originalImageWidth(): number {
+      return this.masterImage!.manifest.width;
+    },
+    originalImageHeight(): number {
+      return this.masterImage!.manifest.height;
+    },
+    // rotateDivWidth(): number {
+    //   return this.originalImageWidth * 0.5;
+    // },
+    // rotateDivHeight(): number {
+    //   return this.originalImageHeight * 0.5;
+    // },
+    rotationAngle(): number {
+      return this.params.rotationAngle;
+    },
+    artefactMargin(): string {
+      // margin-top: 0.5*diagonal - 0.5*height
+      // margin-left: 0.5*diagonal - 0.5*width
+      return '100px';
+    }
+  },
+  async mounted() {
+    this.prepareNonSelectedSigns();
+    try {
+      this.waiting = true;
+      await this.editionService.fetchEdition(this.editionId);
+      await this.artefactService.fetchArtefactInfo(
+        this.editionId,
+        parseInt(this.$route.params.artefactId)
+      );
+      await this.fillImageSettings();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      this.waiting = false;
+    }
+    this.$root.$on('isClicked', (data: SignInterpretation) => {
+      this.clickedSignId = data.signInterpretationId;
+      const objectSign = {
+        signId: data.signInterpretationId,
+        char: data.character,
+        shape: this.shapeChoice,
+        polygon: new Polygon()
+      } as ShapeSign;
+      const signIndex = this.arrayOfSigns.findIndex(
+        (sign: ShapeSign) => data.signInterpretationId === sign.signId
+      );
+      debugger
+      if (signIndex < 0) {
+        this.arrayOfSigns.push(objectSign);
+      } else {
+        // update the value
+        objectSign.polygon = this.arrayOfSigns[signIndex].polygon;
+        this.arrayOfSigns[signIndex] = objectSign;
+      }
+
+      this.sign = objectSign;
+      this.prepareNonSelectedSigns();
+    });
+  },
+  methods: {
+    signChanged(polygon: Polygon) {
+      const signIndex = this.arrayOfSigns.findIndex(
+        (s: ShapeSign) => this.sign.signId === s.signId
+      );
+      if (signIndex < 0) {
+        throw new Error("Sign doesn't exist");
+      }
+      this.arrayOfSigns[signIndex].polygon = polygon;
+    },
+    getMasterImg(): IIIFImage | undefined {
+      if (
+        this.imagedObject &&
+        this.artefact &&
+        this.imagedObject.getImageStack(this.artefact.side)
+      ) {
+        return this.imagedObject.getImageStack(this.artefact.side)!.master;
+      }
+      return undefined;
+    },
+    prepareNonSelectedSigns() {
+      this.nonSelectedSigns = this.arrayOfSigns.filter(
+        (sign: ShapeSign) => sign.signId !== this.clickedSignId
+      );
+    },
+    modeChosen(val: DrawingShapesMode): boolean {
+      return DrawingShapesMode[val].toString() === this.shapeChoice.toString();
+    },
+    editingModeChanged(val: any) {
+      (this as any).shapeChoice = DrawingShapesMode[val];
+      const signIndex = this.arrayOfSigns.findIndex(
+        (sign: ShapeSign) => this.clickedSignId === sign.signId
+      );
+      debugger
+      if (signIndex) {
+        this.arrayOfSigns[signIndex].shape = this.shapeChoice;
+      }
+      this.sign.shape = this.shapeChoice;
+    },
+    sidebarClicked() {
+      this.isActiveSidebar = !this.isActiveSidebar;
+    },
+    textClicked() {
+      this.isActiveText = !this.isActiveText;
+    },
+    onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
+      this.params = evt.params; // This makes sure a change is triggered in child components
+    },
+    onMouseWheel(event: WheelEvent) {
+      // if (!this.selected) {
+      //     return;
+      // }
+      // Only catch control-mousewheel
+      if (!event.ctrlKey) {
+        return;
+      }
+      event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
+      const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
+      // TODO- What is mouseClientPosition ??
+      const mouseClientPosition = {
+        x: event.clientX,
+        y: event.clientY
+      } as Position;
+      this.onZoomRequest({
+        amount,
+        clientPosition: mouseClientPosition
+      } as ZoomRequestEventArgs);
+    },
+
+    onZoomRequest(event: ZoomRequestEventArgs) {
+      const oldZoom = this.params.zoom;
+      const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.05), 1);
+      if (newZoom === oldZoom) {
+        return;
+      }
+
+      // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
+      // on the same place in the image. First we need to know the exact coordinates before the zoom
+      // We get screen cordinates, we need to translate them to client coordinates
+      const viewport = this.overlayDiv.getBoundingClientRect();
+      const oldMousePosition = {
+        x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
+        y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop
+      };
+      const newMousePosition = {
+        x: (oldMousePosition.x * newZoom) / oldZoom,
+        y: (oldMousePosition.y * newZoom) / oldZoom
+      };
+      const scrollDelta = {
+        x: newMousePosition.x - oldMousePosition.x,
+        y: newMousePosition.y - oldMousePosition.y
+      };
+
+      setTimeout(() => {
+        this.overlayDiv.scrollLeft += scrollDelta.x;
+        this.overlayDiv.scrollTop += scrollDelta.y;
+      }, 0);
+
+      this.params.zoom = newZoom;
+    },
+    async fillImageSettings() {
+      if (!this.artefact) {
+        return;
+      }
+      this.params.imageSettings = {}; // as ImageSetting;
+      this.imagedObject = await this.artefactService.getArtefactImagedObject(
+        this.artefact.editionId!,
+        this.artefact.imagedObjectId
+      );
+      if (
+        this.imagedObject &&
+        this.imagedObject.getImageStack(this.artefact.side) &&
+        this.imagedObject.getImageStack(this.artefact.side)!.master
+      ) {
+        await this.imageService.fetchImageManifest(
+          this.imagedObject.getImageStack(this.artefact.side)!.master
+        );
+        this.masterImage = this.getMasterImg();
+      }
+      if (this.imagedObject) {
+        const imageStack = this.imagedObject.getImageStack(this.artefact.side);
+        if (this.imagedObject && imageStack) {
+          for (const imageType of imageStack.availableImageTypes) {
+            const image = imageStack.getImage(imageType);
+            if (image) {
+              const master = imageStack.master.type === imageType;
+              const imageSetting = {
+                image,
+                type: imageType,
+                visible: master,
+                opacity: 1
+              };
+              this.$set(this.params.imageSettings, imageType, imageSetting);
+            }
+          }
+          this.masterImage = imageStack.master;
         }
-    },
-    async mounted() {
-        this.prepareNonSelectedSigns();
-        try {
-            this.waiting = true;
-            await this.editionService.fetchEdition(this.editionId);
-            await this.artefactService.fetchArtefactInfo(
-                this.editionId,
-                parseInt(this.$route.params.artefactId)
-            );
-            await this.fillImageSettings();
-        } catch (e) {
-            console.error(e);
-        } finally {
-            this.waiting = false;
-        }
-
-
-        this.$root.$on('isClicked', (data: SignInterpretation) => {
-          this.clickedSignId = data.signInterpretationId;
-          const objectSign = {
-            signId: data.signInterpretationId,
-            char: data.character,
-            shape: this.shapeChoice,
-            polygon: new Polygon() } as ShapeSign;
-          const signIndex = this.arrayOfSigns.findIndex((sign: ShapeSign) => data.signInterpretationId === sign.signId);
-          if (signIndex < 0) {
-            this.arrayOfSigns.push(objectSign);
-          } else {
-            // update the value
-            objectSign.polygon = this.arrayOfSigns[signIndex].polygon;
-            this.arrayOfSigns[signIndex] = objectSign;
-          }
-
-          this.sign = objectSign;
-          this.prepareNonSelectedSigns();
-        });
-    },
-    methods: {
-        signChanged(polygon: Polygon) {
-          const signIndex = this.arrayOfSigns.findIndex((s: ShapeSign) => this.sign.signId === s.signId);
-          if (signIndex < 0) {
-            throw new Error("Sign doesn't exist");
-          }
-          this.arrayOfSigns[signIndex].polygon = polygon;
-        },
-        getMasterImg(): IIIFImage | undefined {
-          if (this.imagedObject && this.artefact && this.imagedObject.getImageStack(this.artefact.side)) {
-            return this.imagedObject.getImageStack(this.artefact.side)!.master;
-          }
-          return undefined;
-        },
-        prepareNonSelectedSigns() {
-          this.nonSelectedSigns = this.arrayOfSigns.filter(
-            (sign: ShapeSign) => sign.signId !== this.clickedSignId
-          );
-        },
-        modeChosen(val: DrawingShapesMode): boolean {
-          return DrawingShapesMode[val].toString() === this.shapeChoice.toString();
-        },
-        editingModeChanged(val: any) {
-          (this as any).shapeChoice = DrawingShapesMode[val];
-        },
-        sidebarClicked() {
-            this.isActiveSidebar = !this.isActiveSidebar;
-        },
-        textClicked() {
-            this.isActiveText = !this.isActiveText;
-        },
-        onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
-            this.params = evt.params; // This makes sure a change is triggered in child components
-        },
-        onMouseWheel(event: WheelEvent) {
-            // if (!this.selected) {
-            //     return;
-            // }
-            // Only catch control-mousewheel
-            if (!event.ctrlKey) {
-                return;
-            }
-            event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
-            const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
-            // TODO- What is mouseClientPosition ??
-            const mouseClientPosition = {x: event.clientX, y: event.clientY} as Position;
-            this.onZoomRequest({
-                amount,
-                clientPosition: mouseClientPosition,
-            } as ZoomRequestEventArgs);
-        },
-
-        onZoomRequest(event: ZoomRequestEventArgs) {
-          const oldZoom = this.params.zoom;
-          const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.05), 1);
-          if (newZoom === oldZoom) {
-            return;
-          }
-
-          // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
-          // on the same place in the image. First we need to know the exact coordinates before the zoom
-          // We get screen cordinates, we need to translate them to client coordinates
-          const viewport = this.overlayDiv.getBoundingClientRect();
-          const oldMousePosition = {
-            x: event.clientPosition.x - viewport.left + this.overlayDiv.scrollLeft,
-            y: event.clientPosition.y - viewport.top + this.overlayDiv.scrollTop
-          };
-          const newMousePosition = {
-            x: (oldMousePosition.x * newZoom) / oldZoom,
-            y: (oldMousePosition.y * newZoom) / oldZoom
-          };
-          const scrollDelta = {
-            x: newMousePosition.x - oldMousePosition.x,
-            y: newMousePosition.y - oldMousePosition.y
-          };
-
-          setTimeout(() => {
-            this.overlayDiv.scrollLeft += scrollDelta.x;
-            this.overlayDiv.scrollTop += scrollDelta.y;
-          }, 0);
-
-          this.params.zoom = newZoom;
-        },
-        async fillImageSettings() {
-            if (!this.artefact) {
-                return;
-            }
-            this.params.imageSettings = {}; // as ImageSetting;
-            this.imagedObject = await this.artefactService.getArtefactImagedObject(
-                this.artefact.editionId!, this.artefact.imagedObjectId);
-            if (this.imagedObject && this.imagedObject.getImageStack(this.artefact.side)
-            && this.imagedObject.getImageStack(this.artefact.side)!.master) {
-              await this.imageService.fetchImageManifest(this.imagedObject.getImageStack(this.artefact.side)!.master);
-              this.masterImage = this.getMasterImg();
-            }
-            if (this.imagedObject) {
-              const imageStack = this.imagedObject.getImageStack(this.artefact.side);
-              if (this.imagedObject && imageStack) {
-                  for (const imageType of imageStack.availableImageTypes) {
-                      const image = imageStack.getImage(imageType);
-                      if (image) {
-                          const master =
-                              imageStack.master.type === imageType;
-                          const imageSetting = {
-                              image,
-                              type: imageType,
-                              visible: master,
-                              opacity: 1
-                          };
-                          this.$set(this.params.imageSettings, imageType, imageSetting);
-                      }
-                  }
-                  this.masterImage = imageStack.master;
-              }
-            }
-        },
-    },
+      }
+    }
+  }
 });
 </script>
 
@@ -401,7 +432,6 @@ export default Vue.extend({
   perspective: 1500px;
 }
 
-
 #sidebar {
   min-width: 250px;
   max-width: 250px;
@@ -435,7 +465,7 @@ export default Vue.extend({
   position: relative;
   padding: 0;
   height: calc(100vh - 63px);
-  width: calc((100vw - 80px)/2);
+  width: calc((100vw - 80px) / 2);
 }
 
 .artefact-container.sidebarNotActiveAndTextNotActive {
@@ -443,30 +473,28 @@ export default Vue.extend({
   position: relative;
   padding: 0;
   height: calc(100vh - 63px);
-  width: calc((100vw - 330px)/2);
+  width: calc((100vw - 330px) / 2);
 }
 
-
 #text-right-sidebar.sidebarNotActiveAndTextNotActive {
-  width: calc((100vw - 330px)/2);
+  width: calc((100vw - 330px) / 2);
 }
 
 #text-right-sidebar.sidebarActiveAndTextActive {
-  margin-right: calc((-100vw + 80px)/2);
+  margin-right: calc((-100vw + 80px) / 2);
 }
 
 #text-right-sidebar.sidebarNotActiveAndTextActive {
-   margin-right: calc((-100vw + 330px)/2);
+  margin-right: calc((-100vw + 330px) / 2);
 }
 
 #text-right-sidebar.sidebarActiveAndTextNotActive {
-  width: calc((100vw - 80px)/2);
+  width: calc((100vw - 80px) / 2);
 }
 
 #artefact-and-buttons {
   margin: 0px;
 }
-
 
 // TODO -- update the madia
 @media (max-width: 1100px) {
@@ -483,17 +511,17 @@ export default Vue.extend({
     transform: none;
   }
   .overlay-canvas {
-  position: absolute;
-  transform-origin: top left;
-}
+    position: absolute;
+    transform-origin: top left;
+  }
 
-  // TODO- check the scrolls in tablet, maybe they dno't have to appear. 
+  // TODO- check the scrolls in tablet, maybe they dno't have to appear.
   .artefact-container.sidebarActiveAndTextActive {
     overflow: scroll;
     position: relative;
     padding: 0;
     height: calc(100vh - 63px);
-    width: calc((100vw - 330px)/2);
+    width: calc((100vw - 330px) / 2);
   }
 
   .artefact-container.sidebarNotActiveAndTextActive {
@@ -501,7 +529,7 @@ export default Vue.extend({
     position: relative;
     padding: 0;
     height: calc(100vh - 63px);
-    width: calc((100vw - 80px)/2);
+    width: calc((100vw - 80px) / 2);
   }
 
   .artefact-container.sidebarActiveAndTextNotActive {
@@ -520,18 +548,17 @@ export default Vue.extend({
     width: calc(100vw - 80px);
   }
 
-
   #text-right-sidebar.sidebarNotActiveAndTextNotActive {
-    margin-right: calc((-100vw + 80px)/2);
+    margin-right: calc((-100vw + 80px) / 2);
   }
 
   #text-right-sidebar.sidebarActiveAndTextActive {
-    width: calc((100vw - 330px)/2);
+    width: calc((100vw - 330px) / 2);
     transform: rotateY(0deg);
   }
 
   #text-right-sidebar.sidebarNotActiveAndTextActive {
-    width: calc((100vw - 80px)/2);
+    width: calc((100vw - 80px) / 2);
   }
 
   #text-right-sidebar.sidebarActiveAndTextNotActive {

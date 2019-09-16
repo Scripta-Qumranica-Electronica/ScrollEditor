@@ -9,9 +9,9 @@ export enum DrawingMode {
     DRAW, ERASE
 }
 
-// export enum EditMode {
-//     DRAWING, ADJUSTING, NONE
-// }
+export enum EditMode {
+    DRAWING, ADJUSTING, NONE
+}
 
 export class ImagedObjectEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;
