@@ -44,7 +44,7 @@ export default Vue.extend({
       pointerTracker: new PointerTracker(),
       editMode: EditMode.NONE,
       signCanvasContext: {} as CanvasRenderingContext2D,
-      currentSignPolygon: {} as Polygon,
+    //   currentSignPolygon: {} as Polygon,
       rectangle: 0
     };
   },
@@ -57,6 +57,11 @@ export default Vue.extend({
       type: Object as () => ShapeSign
     },
     scale: Number
+  },
+  watch: {
+    shapeSign(to: ShapeSign | undefined, from: ShapeSign | undefined) {
+        this.applyMaskToCanvas();
+    },
   },
   computed: {
     rotationAngle(): number {
@@ -96,10 +101,9 @@ export default Vue.extend({
   },
   methods: {
     applyMaskToCanvas() {
-    //   debugger;
-      if (this.shapeSign && this.shapeSign.polygon) {
+      if (this.shapeSign && this.shapeSign.polygon && this.shapeSign.polygon.svg) {
         clipCanvas(this.signCanvas, this.shapeSign.polygon.svg, 'black', 1);
-        this.currentSignPolygon = this.shapeSign.polygon;
+        // this.currentSignPolygon = this.shapeSign.polygon;
       } else {
         this.signCanvasContext.clearRect(
           0,
@@ -107,7 +111,7 @@ export default Vue.extend({
           this.signCanvas.width,
           this.signCanvas.height
         );
-        this.currentSignPolygon = new Polygon();
+        // this.currentSignPolygon = new Polygon();
       }
     },
     drawPoint(pos: Position) {
@@ -123,9 +127,14 @@ export default Vue.extend({
       this.signCanvasContext.closePath();
     },
     pointerDown(event: PointerEvent) {
-      debugger;
       if (this.shapeSign.polygon.svg !== '') {
         this.shapeSign.polygon = new Polygon();
+        this.signCanvasContext.clearRect(
+          0,
+          0,
+          this.signCanvas.width,
+          this.signCanvas.height
+        );
       }
       if (this.shapeSign.shape === DrawingShapesMode.RECTANGLE) {
         // this.signCanvasContext.strokeStyle = 'red';
@@ -249,38 +258,25 @@ export default Vue.extend({
       const canvas = this.signCanvas;
       const canvasSvg: any = await trace(canvas, 1);
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
-
-      this.currentSignPolygon = canvasPolygon;
+      this.shapeSign.polygon = canvasPolygon;
+    //   this.currentSignPolygon = canvasPolygon;
       this.$emit('SignChanged', canvasPolygon);
     },
     abortDrawing() {
-      // do we need this code ?
       // this.applyMaskToCanvas();
     },
-    // drawRectangle(firstPoint: Position, secondPoint: Position){
-    //     const x1 = firstPoint.x;
-    //     const y1 = firstPoint.y;
-    //     const x2 = secondPoint.x;
-    //     const y2 = secondPoint.y;
-    //     let height : number;
-    //     let width : number;
-    //     if(y1>y2){
-    //          height = y1-y2
-    //     }
-    //     else  {height = y2-y1};
-    //     if(x1>x2){
-    //         width=x1-x2;
-    //     }
-    //     else width = x2-x1;
-    //     rect = new Rectangle (height , width);
-    // }
-    drawRectangle(event: PointerEvent) {
+    async drawRectangle(event: PointerEvent) {
       const exEvent = this.extendEvent(event);
       if (this.rectangle === 0) {
         this.firstPointLeftCornerPosition =
           exEvent.logicalPosition.x - this.signCanvas.offsetLeft;
         this.firstPointTopCornerPosition =
           exEvent.logicalPosition.y - this.signCanvas.offsetTop;
+
+        this.drawPoint({
+            x: this.firstPointLeftCornerPosition,
+            y: this.firstPointTopCornerPosition
+        } as Position);
         this.signCanvasContext.moveTo(
           this.firstPointLeftCornerPosition,
           this.firstPointTopCornerPosition
@@ -299,6 +295,13 @@ export default Vue.extend({
 
         this.signCanvasContext.lineWidth =
           this.brushSize / 2 / this.zoom / this.$render.scalingFactors.combined;
+
+        // Clear the first point
+        this.signCanvasContext.clearRect(
+            0, 0,
+            this.signCanvas.width,
+            this.signCanvas.height
+        );
         this.signCanvasContext.strokeRect(
           this.firstPointLeftCornerPosition,
           this.firstPointTopCornerPosition,
@@ -307,6 +310,8 @@ export default Vue.extend({
         );
         this.signCanvasContext.stroke();
         this.rectangle = 0;
+
+        await this.recalculateMask();
       }
     }
   }

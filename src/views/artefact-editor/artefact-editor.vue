@@ -52,6 +52,7 @@
                   <sign-canvas
                     v-for="shapeSign in nonSelectedSigns"
                     class="overlay-canvas"
+                    :id="`${shapeSign.signId}_sign_canvas`"
                     :key="shapeSign.signId"
                     :shapeSign="shapeSign"
                     :originalImageWidth="originalImageWidth"
@@ -62,6 +63,7 @@
                   <sign-canvas
                     v-show="sign.signId"
                     class="overlay-canvas"
+                    :id="`${sign.signId}_sign_canvas`"
                     :selected="true"
                     :shapeSign="sign"
                     :originalImageWidth="originalImageWidth"
@@ -150,7 +152,7 @@ export default Vue.extend({
       showShapeChoice: false,
       arrayOfSigns: [] as ShapeSign[],
       nonSelectedSigns: [] as ShapeSign[],
-      shapeChoice: DrawingShapesMode.RECTANGLE,
+      shapeChoice: DrawingShapesMode.POLYGON,
       errorMessage: '',
       waiting: true,
       editionService: new EditionService(),
@@ -239,11 +241,11 @@ export default Vue.extend({
       const signIndex = this.arrayOfSigns.findIndex(
         (sign: ShapeSign) => data.signInterpretationId === sign.signId
       );
-      debugger
+
       if (signIndex < 0) {
         this.arrayOfSigns.push(objectSign);
       } else {
-        // update the value
+        // update the polygon
         objectSign.polygon = this.arrayOfSigns[signIndex].polygon;
         this.arrayOfSigns[signIndex] = objectSign;
       }
@@ -260,7 +262,10 @@ export default Vue.extend({
       if (signIndex < 0) {
         throw new Error("Sign doesn't exist");
       }
+      this.sign.polygon = polygon;
+      // this.arrayOfSigns[signIndex] =
       this.arrayOfSigns[signIndex].polygon = polygon;
+      this.prepareNonSelectedSigns();
     },
     getMasterImg(): IIIFImage | undefined {
       if (
@@ -285,8 +290,7 @@ export default Vue.extend({
       const signIndex = this.arrayOfSigns.findIndex(
         (sign: ShapeSign) => this.clickedSignId === sign.signId
       );
-      debugger
-      if (signIndex) {
+      if (this.arrayOfSigns[signIndex]) {
         this.arrayOfSigns[signIndex].shape = this.shapeChoice;
       }
       this.sign.shape = this.shapeChoice;
