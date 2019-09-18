@@ -30,6 +30,10 @@ export class IIIFImage {
         return this.append(`full/pct:${pct}/0/default.${extension}`);
     }
 
+    public getScaledAndCroppedUrl(pct: number, x: number, y: number, width: number, height: number, extension = 'jpg') {
+        return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
+    }
+
     private append(suffix: string) {
         return `${this.url}/${suffix}`;
     }
