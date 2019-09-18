@@ -119,9 +119,6 @@ export default Vue.extend({
                 this.boundingBox);
         }
     },
-    watch: {
-
-    }
 });
 </script>
 
