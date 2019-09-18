@@ -1,6 +1,7 @@
 import { ImageStackDTO } from '@/dtos/sqe-dtos';
 import { ImageDTO } from '@/dtos/sqe-dtos';
 import { Polygon } from '@/utils/Polygons';
+import { BoundingBox } from '@/utils/helpers';
 
 export class IIIFImage {
     public url: string;
@@ -36,22 +37,35 @@ export class IIIFImage {
 
     // Returns a server-optimized scale factor for the image, based on the manifest.
     // Returns a percentage.
-    public getOptimizedScaleFactor(expectedWidth: number): number {
+    //
+    // We take the boundingBox into account - its width and height are the actual width and height we consult
+    // (the default is the entire image's width and height)
+    public getOptimizedScaleFactor(expectedWidth: number, expectedHeight: number, boundingBox?: BoundingBox): number {
         if (!this.manifest) {
             console.warn("Can't get the scale factor of an image without loading the manifest first");
             return 100;
         }
 
+        const width: number = boundingBox ? boundingBox.width : this.manifest.width;
+        const height: number = boundingBox ? boundingBox.height : this.manifest.height;
+
         if (this.manifest.sizes) {
+            const widthFactor = width / this.manifest.width;
+            const heightFactor = height / this.manifest.height;
+
             for (const resolution of this.manifest.sizes) {
-                if (resolution.width >= expectedWidth) {
+
+                if (resolution.width * widthFactor  >= expectedWidth) {
                     return Math.ceil(100 * resolution.width / this.manifest.width);
+                }
+                if (resolution.height *  heightFactor >= expectedHeight) {
+                    return Math.ceil(100 * resolution.height / this.manifest.height);
                 }
             }
         }
 
         // Fallback - round up to the nearest 5%
-        const realScale = 100 * expectedWidth / this.manifest.width;
+        const realScale = 100 * Math.min(expectedWidth / width, expectedHeight / height);
         return Math.ceil(realScale / 5) * 5;
     }
 
