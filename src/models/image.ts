@@ -34,6 +34,27 @@ export class IIIFImage {
         return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
     }
 
+    // Returns a server-optimized scale factor for the image, based on the manifest.
+    // Returns a percentage.
+    public getOptimizedScaleFactor(expectedWidth: number): number {
+        if (!this.manifest) {
+            console.warn("Can't get the scale factor of an image without loading the manifest first");
+            return 100;
+        }
+
+        if (this.manifest.sizes) {
+            for (const resolution of this.manifest.sizes) {
+                if (resolution.width >= expectedWidth) {
+                    return Math.ceil(100 * resolution.width / this.manifest.width);
+                }
+            }
+        }
+
+        // Fallback - round up to the nearest 5%
+        const realScale = 100 * expectedWidth / this.manifest.width;
+        return Math.ceil(realScale / 5) * 5;
+    }
+
     private append(suffix: string) {
         return `${this.url}/${suffix}`;
     }

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-show="loaded">
         <img :src="imageUrl" width="100%" :style="`clip-path: url(#clip-path-${artefact.id};`" />
         <svg width="0" height="0">
             <defs>
@@ -31,8 +31,9 @@ export default Vue.extend({
             imageService: new ImageService(),
             imageStack: undefined as ImageStack | undefined,
             masterImageManifest: undefined as any,
+            loaded: false,
             elementWidth: 0,
-            serverPct: 5,
+            serverScale: 5,
         };
     },
     computed: {
@@ -40,7 +41,7 @@ export default Vue.extend({
             if (!this.imageStack) {
                 return '';
             }
-            return this.imageStack.master.getFullUrl(this.serverPct);
+            return this.imageStack.master.getFullUrl(this.serverScale);
         },
         scale(): number {
             if (this.elementWidth && this.masterImageManifest) {
@@ -50,9 +51,8 @@ export default Vue.extend({
             return 0.05;
         },
         scaledMask(): string {
-            // Note - this operation is a bit CPU intensive, we cound on Vue's caching mechanism to call it only when
+            // Note - this operation is a bit CPU intensive, we count on Vue's caching mechanism to call it only when
             // scale changes.
-            console.debug(`Calculating mask scaled by ${this.scale}`);
             return Polygon.scale(this.artefact.mask.polygon, this.scale).svg;
         },
     },
@@ -66,23 +66,28 @@ export default Vue.extend({
         }
         await this.imageService.fetchImageManifest(this.imageStack.master);
         this.masterImageManifest = this.imageStack.master.manifest;
-        this.setWidth();
+        this.loaded = true;
 
-        window.addEventListener('resize', () => {
-            this.setWidth();
-        });
+        this.updateWidth();
     },
     methods: {
-        setWidth() {
+        updateWidth() {
             this.elementWidth = this.$el.clientWidth;
+            if (!this.elementWidth) {
+                return;
+            }
 
-            // The scale has to be a multiply of 5%, because we don't want to bother the server every time someone
-            // resizes the windows by a little bit
-            const newScale = this.elementWidth / this.masterImageManifest.width;
-            this.serverPct =  Math.ceil(20 * newScale) * 5;
+            if (!this.loaded) {
+                console.warn('updateWidth called before data was loaded, which makes very little sense');
+                this.serverScale = 5;
+                return;
+            }
 
-            console.log('Setting serverPCt to ', this.serverPct);
+            this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth);
         }
+    },
+    watch: {
+
     }
 });
 </script>
