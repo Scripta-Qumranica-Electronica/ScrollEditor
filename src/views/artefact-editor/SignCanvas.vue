@@ -137,8 +137,6 @@ export default Vue.extend({
         );
       }
       if (this.shapeSign.shape === DrawingShapesMode.RECTANGLE) {
-        // this.signCanvasContext.strokeStyle = 'red';
-        // this.signCanvasContext.fillStyle = 'red';
         this.drawRectangle(event);
         return;
       }

@@ -11,7 +11,7 @@ export enum DrawingMode {
 
 export class ArtefactEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;
-    public zoom: number = 0.1;  // Zoom between 0 and 1
+    public zoom: number = 0.3;  // Zoom between 0 and 1
     public rotationAngle = 0;
     public brushSize = 20;
     public drawingMode = DrawingMode.DRAW;
