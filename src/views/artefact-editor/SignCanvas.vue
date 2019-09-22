@@ -45,7 +45,8 @@ export default Vue.extend({
       editMode: EditMode.NONE,
       signCanvasContext: {} as CanvasRenderingContext2D,
     //   currentSignPolygon: {} as Polygon,
-      rectangle: 0
+      rectangle: 0,
+      // shapeSign: {} as ShapeSign,
     };
   },
   props: {

@@ -49,16 +49,13 @@
                     :scale="scale"
                     :imageSettingsParams="params.imageSettings"
                   ></artefact-image>
-                  <sign-canvas
-                    v-for="shapeSign in nonSelectedSigns"
+                  <sign-overlay
+                    :signs="arrayOfSigns"
+                    :selectedSignId="clickedSignId"
                     class="overlay-canvas"
-                    :id="`${shapeSign.signId}_sign_canvas`"
-                    :key="shapeSign.signId"
-                    :shapeSign="shapeSign"
                     :originalImageWidth="originalImageWidth"
                     :originalImageHeight="originalImageHeight"
                     :scale="scale"
-                    :params="params"
                   />
                   <sign-canvas
                     v-show="sign.signId"
@@ -72,6 +69,7 @@
                     :params="params"
                     @SignChanged="signChanged($event)"
                   />
+                  <!-- :shapeSign="sign"-->
                 </div>
               </div>
             </div>
@@ -89,6 +87,9 @@
             class="sidebarCollapse"
           >
             <i :class="mode.icon"></i>
+          </b-button>
+            <b-button type="button" class="sidebarCollapse" @click="deletePolygon()">
+            <i class="fa fa-trash"></i>
           </b-button>
         </div>
       </div>
@@ -119,6 +120,7 @@ import ArtefactService from '@/services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
 import TextSide from './TextSide.vue';
 import SignCanvas from './SignCanvas.vue';
+import SignOverlay from './SignOverlay.vue';
 import {
   ArtefactEditorParams,
   ArtefactEditorParamsChangedArgs,
@@ -143,7 +145,8 @@ export default Vue.extend({
     ArtefactImage,
     ArtefactSideMenu,
     TextSide,
-    SignCanvas
+    SignCanvas,
+    SignOverlay
   },
   props: {},
   data() {
@@ -151,7 +154,7 @@ export default Vue.extend({
       clickedSignId: 0,
       showShapeChoice: false,
       arrayOfSigns: [] as ShapeSign[],
-      nonSelectedSigns: [] as ShapeSign[],
+      // nonSelectedSigns: [] as ShapeSign[],
       shapeChoice: DrawingShapesMode.POLYGON,
       errorMessage: '',
       waiting: true,
@@ -216,7 +219,7 @@ export default Vue.extend({
     }
   },
   async mounted() {
-    this.prepareNonSelectedSigns();
+    // this.prepareNonSelectedSigns();
     try {
       this.waiting = true;
       await this.editionService.fetchEdition(this.editionId);
@@ -251,10 +254,21 @@ export default Vue.extend({
       }
 
       this.sign = objectSign;
-      this.prepareNonSelectedSigns();
+      // this.prepareNonSelectedSigns();
     });
   },
   methods: {
+    deletePolygon() {
+      const signIndex = this.arrayOfSigns.findIndex(
+        (sign: ShapeSign) => this.clickedSignId === sign.signId
+      );
+      if (signIndex < 0) {
+        console.error('There is no object of the clicked sign');
+        return;
+      }
+      this.arrayOfSigns.splice(signIndex, 1);
+      this.sign = {} as ShapeSign;
+    },
     signChanged(polygon: Polygon) {
       const signIndex = this.arrayOfSigns.findIndex(
         (s: ShapeSign) => this.sign.signId === s.signId
@@ -262,10 +276,9 @@ export default Vue.extend({
       if (signIndex < 0) {
         throw new Error("Sign doesn't exist");
       }
-      this.sign.polygon = polygon;
-      // this.arrayOfSigns[signIndex] =
       this.arrayOfSigns[signIndex].polygon = polygon;
-      this.prepareNonSelectedSigns();
+      // this.prepareNonSelectedSigns();
+      this.sign = {} as ShapeSign;
     },
     getMasterImg(): IIIFImage | undefined {
       if (
@@ -277,11 +290,11 @@ export default Vue.extend({
       }
       return undefined;
     },
-    prepareNonSelectedSigns() {
-      this.nonSelectedSigns = this.arrayOfSigns.filter(
-        (sign: ShapeSign) => sign.signId !== this.clickedSignId
-      );
-    },
+    // prepareNonSelectedSigns() {
+      // this.nonSelectedSigns = this.arrayOfSigns.filter(
+      //   (sign: ShapeSign) => sign.signId !== this.clickedSignId
+      // );
+    // },
     modeChosen(val: DrawingShapesMode): boolean {
       return DrawingShapesMode[val].toString() === this.shapeChoice.toString();
     },
