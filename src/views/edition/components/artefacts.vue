@@ -19,7 +19,7 @@
             <ul class="list-unstyled row mt-2"  v-if="artefacts.length">
                 <li class="col-sm-6 col-md-4 col-xl-2 list-item"
                     v-for="art in artefacts"
-                    v-show="filter === '' || art.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1"
+                    v-show="filteredArtefact.indexOf(art.id) !== -1"
                     :key="art.id">
                     <artefact-card :artefact="art"></artefact-card>
                 </li>
@@ -56,10 +56,7 @@ export default Vue.extend({
     computed: {
         artefacts(): Artefact[] | undefined {
             if (this.$state.artefacts.items) {
-                if (this.sideFilter.displayName === 'Both') {
-                    return this.$state.artefacts.items;
-                }
-                return this.$state.artefacts.items.filter((item: Artefact) => item.side === this.sideFilter.name);
+                return this.$state.artefacts.items;
             }
             return undefined;
         },
@@ -69,9 +66,19 @@ export default Vue.extend({
             } else {
                 return countIf(this.artefacts, (art) => this.nameMatch(art.name));
             }
-        }
+        },
+        filteredArtefact(): number[] {
+            if (this.$state.artefacts.items) {
+                return this.$state.artefacts.items.filter((x) => ( this.filter === ''
+                        || this.nameMatch(x.name) ) // Filter for user input
+                        && ( this.sideFilter.name && this.sideFilter.name.indexOf(x.side) !== -1 ) // Filter for side
+                    ).map((x) => x.id);
+            }
+
+            return [];
+        },
     },
-    mounted() {
+    created() {
         // ignore cache, because we want to load data from server when become to another version of edition
         this.editionService.fetchEditionImagedObjects(true); // fetch it to display imagedObjects and artefacts numbers
         this.editionService.fetchArtefacts(true);

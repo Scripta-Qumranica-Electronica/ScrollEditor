@@ -37,5 +37,8 @@
     "sass-loader": "^7.0.1",
     "typescript": "~3.1.0",
     "vue-template-compiler": "^2.6.10"
+  },
+  "resolutions": {
+    "@vue/cli-service/portfinder": "1.0.23"
   }
 }

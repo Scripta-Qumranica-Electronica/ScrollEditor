@@ -1,13 +1,27 @@
 <template>
-    <div>
-        <img :src="imageUrl" width="100%" :style="`clip-path: url(#clip-path-${artefact.id};`" />
-        <svg width="0" height="0">
+    <div v-show="loaded">
+        <svg v-if="loaded"
+            :viewBox="`${boundingBox.x} ${boundingBox.y} ${boundingBox.width} ${boundingBox.height}`"
+            :width="elementWidth"
+            :height="elementHeight" 
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink">
             <defs>
-                <path :id="`path-${artefact.id}`" v-if="scaledMask" :d="scaledMask"></path>
+                <path
+                    :id="`path-${artefact.id}`"
+                    :d="artefact.mask.polygon.svg"/>
                 <clipPath :id="`clip-path-${artefact.id}`">
-                    <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`"></use>
+                    <use stroke="none" fill="none" fill-rule="evenodd" :xlink:href="`#path-${artefact.id}`"></use>
                 </clipPath>
             </defs>
+
+            <g :clip-path="`url(#clip-path-${artefact.id}`"> -->
+                <image
+                    :width="boundingBox.width"
+                    :height="boundingBox.height"
+                    :xlink:href="imageUrl"
+                    :transform="`translate(${boundingBox.x} ${boundingBox.y})`"/>
+            </g>
         </svg>
     </div>
 </template>
@@ -19,11 +33,16 @@ import { ImageStack } from '@/models/image';
 import ArtefactService from '@/services/artefact';
 import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
+import { BoundingBox } from '@/utils/helpers';
 
 export default Vue.extend({
     name: 'simple-artefact-image',
     props: {
         artefact: Artefact,
+        aspectRatio: {
+            default: 1.3,  // width/height
+            type: Number,
+        }
     },
     data() {
         return {
@@ -31,8 +50,10 @@ export default Vue.extend({
             imageService: new ImageService(),
             imageStack: undefined as ImageStack | undefined,
             masterImageManifest: undefined as any,
+            boundingBox: new BoundingBox(),
+            loaded: false,
             elementWidth: 0,
-            serverPct: 5,
+            serverScale: 5,
         };
     },
     computed: {
@@ -40,23 +61,31 @@ export default Vue.extend({
             if (!this.imageStack) {
                 return '';
             }
-            return this.imageStack.master.getFullUrl(this.serverPct);
+
+            return this.imageStack.master.getScaledAndCroppedUrl(this.serverScale,
+                this.boundingBox.x,
+                this.boundingBox.y,
+                this.boundingBox.width,
+                this.boundingBox.height);
         },
         scale(): number {
             if (this.elementWidth && this.masterImageManifest) {
-                return this.elementWidth / this.masterImageManifest.width;
+                return this.elementWidth / this.boundingBox.width;
             }
 
             return 0.05;
         },
-        scaledMask(): string {
-            // Note - this operation is a bit CPU intensive, we cound on Vue's caching mechanism to call it only when
-            // scale changes.
-            console.debug(`Calculating mask scaled by ${this.scale}`);
-            return Polygon.scale(this.artefact.mask.polygon, this.scale).svg;
-        },
+        elementHeight(): number {
+            if (this.elementWidth) {
+                return this.elementWidth / this.aspectRatio;
+            }
+
+            return 100;
+        }
     },
     async mounted() {
+        // We're using mounted instead of created, because we want this.$el to be set, *and* the manifest to load
+        // before calling updateWidth.
         const imagedObject = await this.artefactService.getArtefactImagedObject(
             this.artefact.editionId!, this.artefact.imagedObjectId);
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
@@ -66,24 +95,30 @@ export default Vue.extend({
         }
         await this.imageService.fetchImageManifest(this.imageStack.master);
         this.masterImageManifest = this.imageStack.master.manifest;
-        this.setWidth();
+        this.boundingBox = this.artefact.mask.polygon.getBoundingBox();
 
+        this.loaded = true;
+
+        this.updateWidth();
         window.addEventListener('resize', () => {
-            this.setWidth();
+            this.updateWidth();
         });
     },
     methods: {
-        setWidth() {
+        updateWidth() {
             this.elementWidth = this.$el.clientWidth;
+            if (!this.loaded) {
+                // This should never happen
+                console.warn('updateWidth called before data was loaded, which makes very little sense');
+                this.serverScale = 5;
+                return;
+            }
 
-            // The scale has to be a multiply of 5%, because we don't want to bother the server every time someone
-            // resizes the windows by a little bit
-            const newScale = this.elementWidth / this.masterImageManifest.width;
-            this.serverPct =  Math.ceil(20 * newScale) * 5;
-
-            console.log('Setting serverPCt to ', this.serverPct);
+            this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
+                this.elementWidth / this.aspectRatio,
+                this.boundingBox);
         }
-    }
+    },
 });
 </script>
 

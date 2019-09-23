@@ -6,3 +6,17 @@ export function countIf<T>(array: T[], predicate: (element: T) => boolean) {
     // using array.filter creates a new array. array.reduce avoids this and just needs the accumulator
     return array.reduce((acc, element) => predicate(element) ? acc + 1 : acc, 0);
 }
+
+export class BoundingBox {
+    public x: number;
+    public y: number;
+    public width: number;
+    public height: number;
+
+    constructor(x: number = 0, y: number = 0, width: number = 0, height: number = 0) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+}
