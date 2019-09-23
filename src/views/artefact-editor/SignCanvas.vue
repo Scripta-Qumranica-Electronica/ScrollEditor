@@ -4,7 +4,6 @@
       class="signCanvas"
       :width="actualWidth"
       :height="actualHeight"
-      :class="{pulse: selected}"
       ref="signCanvas"
       @pointermove="pointerMove($event)"
       @pointerdown="pointerDown($event)"
@@ -26,7 +25,6 @@ import {
   PointerTrackingEvent,
   Position
 } from '@/utils/PointerTracker';
-import { clipCanvas } from '@/utils/VectorFactory';
 import { EditMode } from '@/views/imaged-object-editor/types';
 
 // tslint:disable:no-var-requires
@@ -61,7 +59,7 @@ export default Vue.extend({
   },
   watch: {
     shapeSign(to: ShapeSign | undefined, from: ShapeSign | undefined) {
-        this.applyMaskToCanvas();
+        this.clearCanvas();
     },
   },
   computed: {
@@ -98,22 +96,16 @@ export default Vue.extend({
       throw new Error("Can't get context for signCanvas");
     }
     this.signCanvasContext = ctx;
-    this.applyMaskToCanvas();
+    this.clearCanvas();
   },
   methods: {
-    applyMaskToCanvas() {
-      if (this.shapeSign && this.shapeSign.polygon && this.shapeSign.polygon.svg) {
-        clipCanvas(this.signCanvas, this.shapeSign.polygon.svg, 'black', 1);
-        // this.currentSignPolygon = this.shapeSign.polygon;
-      } else {
-        this.signCanvasContext.clearRect(
+    clearCanvas() {
+      this.signCanvasContext.clearRect(
           0,
           0,
           this.signCanvas.width,
           this.signCanvas.height
         );
-        // this.currentSignPolygon = new Polygon();
-      }
     },
     drawPoint(pos: Position) {
       this.signCanvasContext.beginPath();
@@ -167,7 +159,7 @@ export default Vue.extend({
 
         let polygonColor = 'black';
         if (this.selected) {
-          polygonColor = 'red';
+          polygonColor = 'blue';
         }
         this.signCanvasContext.strokeStyle = polygonColor;
         this.signCanvasContext.fillStyle = polygonColor;
@@ -262,7 +254,7 @@ export default Vue.extend({
       this.$emit('SignChanged', canvasPolygon);
     },
     abortDrawing() {
-      // this.applyMaskToCanvas();
+      // this.clearCanvas();
     },
     async drawRectangle(event: PointerEvent) {
       const exEvent = this.extendEvent(event);
@@ -320,16 +312,7 @@ export default Vue.extend({
 
 
 <style lang="scss" scoped>
-.signCanvas {
-  // background-color: yellow;
-  opacity: 0.3;
-  touch-action: pinch-zoom;
-}
-
-.signCanvas.pulse {
-  visibility: visible;
-  opacity: 0.3;
-  animation: pulsate 3s ease-out;
-  animation-iteration-count: infinite;
-}
+  .signCanvas {
+    touch-action: pinch-zoom;
+  }
 </style>

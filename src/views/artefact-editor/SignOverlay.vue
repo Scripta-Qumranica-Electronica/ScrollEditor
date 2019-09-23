@@ -7,7 +7,12 @@
         :height="actualHeight"
       >
         <g>
-          <path v-for="sign in signs" :key="sign.signId" :d="sign.polygon.svg" />
+          <path
+          class="stroke-path"
+          :class="{pulse : sign.signId===selectedSignId}"
+          v-for="sign in signs" 
+          :key="sign.signId" 
+          :d="sign.polygon.svg" />
         </g>
       </svg>
     </div>
@@ -57,5 +62,24 @@ export default Vue.extend({
 <style lang="scss" scoped>
 #svg-scale {
   transform-origin: 0 0;
+}
+.stroke-path {
+    stroke: green;
+}
+.pulse {
+    stroke: red;
+    animation: pulsate 3s ease-out;
+    animation-iteration-count: infinite;
+}
+@keyframes pulsate {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
 }
 </style>
