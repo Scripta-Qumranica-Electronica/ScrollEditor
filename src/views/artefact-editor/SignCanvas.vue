@@ -121,13 +121,8 @@ export default Vue.extend({
     },
     pointerDown(event: PointerEvent) {
       if (this.shapeSign.polygon.svg !== '') {
-        this.shapeSign.polygon = new Polygon();
-        this.signCanvasContext.clearRect(
-          0,
-          0,
-          this.signCanvas.width,
-          this.signCanvas.height
-        );
+        // this.clearCanvas();
+        return;
       }
       if (this.shapeSign.shape === DrawingShapesMode.RECTANGLE) {
         this.drawRectangle(event);

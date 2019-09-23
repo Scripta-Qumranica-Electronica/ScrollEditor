@@ -1,8 +1,6 @@
 import { Polygon } from '@/utils/Polygons';
 import { Artefact } from '@/models/artefact';
-import { Position, PointerTrackingEvent } from '@/utils/PointerTracker';
 import { ImageSetting } from '@/components/image-settings/types';
-import { ArtefactEditorParams } from '../artefact-editor/types';
 import { BaseEditorParams } from '@/components/editors/types';
 
 export enum DrawingMode {
