@@ -53,8 +53,8 @@ import { ZoomRequestEventArgs } from '@/components/editors/types';
 
 export default Vue.extend({
   props: {
-    params: ImagedObjectEditorParams,
-    artefact: OptimizedArtefact,
+    params: Object as () => ImagedObjectEditorParams,
+    artefact: Object as () => OptimizedArtefact,
     selected: Boolean,
     editable: Boolean,
     originalImageWidth: Number,

@@ -1,21 +1,22 @@
 <template>
   <div id="text-side" :class="{ 'fixed-header': scrolled }">
       <input class="select-text" list="my-list-id" v-model="query" @change="search(query)"/>
-       <datalist id="my-list-id">
-           <option :key="index" v-for="(text, index) in textList">{{ text.name }}</option>
-       </datalist>
-       <button @click.prevent="search(query)" name="Search">Search</button>
-       <span class="isa_error">{{errorMessage}}</span>
+      <datalist id="my-list-id">
+          <option :key="index" v-for="(text, index) in textList">{{ text.name }}</option>
+      </datalist>
+      <button @click.prevent="search(query)" name="Search">Search</button>
+      <span class="isa_error">{{errorMessage}}</span>
        
-       <div
-        v-if="textEdition.textFragments"
-        v-for="(fragment, index) in textEdition.textFragments"
-        :key="index">
-        <text-fragment :clickedSignId="clickedSignId"
-            :textFragment="fragment"
-            id="text-box">
-        </text-fragment>
-       </div>
+      <div v-if="textEdition.textFragments">
+        <div
+          v-for="(fragment, index) in textEdition.textFragments"
+          :key="index">
+          <text-fragment :clickedSignId="clickedSignId"
+              :textFragment="fragment"
+              id="text-box">
+          </text-fragment>
+        </div>
+      </div>
   </div>
 </template>
 
@@ -42,7 +43,7 @@ export default Vue.extend({
     };
   },
   props: {
-    artefact: Artefact,
+    artefact: Object as () => Artefact,
     clickedSignId: Number,
   },
   computed: {

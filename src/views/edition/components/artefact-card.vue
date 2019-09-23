@@ -18,7 +18,7 @@ export default Vue.extend({
         SimpleArtefactImage,
     },
     props: {
-        artefact: Artefact,
+        artefact: Object as () => Artefact,
     },
     computed: {
         editionId(): number {

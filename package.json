@@ -30,15 +30,13 @@
     "vue2-hammer": "^2.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.10.0",
-    "@vue/cli-plugin-typescript": "^3.10.0",
-    "@vue/cli-service": "^3.10.0",
-    "node-sass": "^4.9.0",
-    "sass-loader": "^7.0.1",
-    "typescript": "~3.1.0",
+    "@vue/cli-plugin-babel": "^3.11.0",
+    "@vue/cli-plugin-typescript": "^3.11.0",
+    "@vue/cli-service": "^3.11.0",
+    "node-sass": "^4.12.0",
+    "sass-builder": "^1.0.0",
+    "sass-loader": "^8.0.0",
+    "typescript": "^3.6.3",
     "vue-template-compiler": "^2.6.10"
-  },
-  "resolutions": {
-    "@vue/cli-service/portfinder": "1.0.23"
   }
 }

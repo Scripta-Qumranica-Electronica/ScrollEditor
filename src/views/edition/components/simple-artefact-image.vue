@@ -38,7 +38,7 @@ import { BoundingBox } from '@/utils/helpers';
 export default Vue.extend({
     name: 'simple-artefact-image',
     props: {
-        artefact: Artefact,
+        artefact: Object as () => Artefact,
         aspectRatio: {
             default: 1.3,  // width/height
             type: Number,
