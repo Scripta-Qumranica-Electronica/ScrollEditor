@@ -12,7 +12,8 @@
           :class="{pulse : sign.signId===selectedSignId}"
           v-for="sign in signs" 
           :key="sign.signId" 
-          :d="sign.polygon.svg" />
+          :d="sign.polygon.svg"
+          @click="polygonClicked(sign)" />
         </g>
       </svg>
     </div>
@@ -55,7 +56,11 @@ export default Vue.extend({
       );
     }
   },
-  methods: {}
+  methods: {
+      polygonClicked(sign: ShapeSign) {
+          this.$emit('polygonChanged', sign.signId);
+      }
+  }
 });
 </script>
 

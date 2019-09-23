@@ -56,6 +56,7 @@
                     :originalImageWidth="originalImageWidth"
                     :originalImageHeight="originalImageHeight"
                     :scale="scale"
+                    @polygonChanged="polygonChanged($event)"
                   />
                   <sign-canvas
                     v-show="sign.signId"
@@ -279,6 +280,15 @@ export default Vue.extend({
       this.arrayOfSigns[signIndex].polygon = polygon;
       // this.prepareNonSelectedSigns();
       this.sign = {} as ShapeSign;
+    },
+    polygonChanged(signId: number) {
+      const signIndex = this.arrayOfSigns.findIndex(
+        (s: ShapeSign) => signId === s.signId
+      );
+      if (signIndex < 0) {
+        throw new Error("Sign doesn't exist");
+      }
+      this.clickedSignId = signId;
     },
     getMasterImg(): IIIFImage | undefined {
       if (
