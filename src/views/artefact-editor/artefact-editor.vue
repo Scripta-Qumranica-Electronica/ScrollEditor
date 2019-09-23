@@ -62,7 +62,6 @@
                     v-show="sign.signId"
                     class="overlay-canvas"
                     :id="`${sign.signId}_sign_canvas`"
-                    :selected="true"
                     :shapeSign="sign"
                     :originalImageWidth="originalImageWidth"
                     :originalImageHeight="originalImageHeight"

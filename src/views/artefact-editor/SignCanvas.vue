@@ -49,7 +49,6 @@ export default Vue.extend({
   },
   props: {
     params: ArtefactEditorParams,
-    selected: Boolean,
     originalImageWidth: Number,
     originalImageHeight: Number,
     shapeSign: {
@@ -125,10 +124,9 @@ export default Vue.extend({
         return;
       }
       if (this.shapeSign.shape === DrawingShapesMode.RECTANGLE) {
+        this.editMode = EditMode.DRAWING;
+        this.signCanvasContext.globalCompositeOperation = 'source-over';
         this.drawRectangle(event);
-        return;
-      }
-      if (!this.selected) {
         return;
       }
       if (event.ctrlKey || event.button !== 0) {
@@ -152,10 +150,7 @@ export default Vue.extend({
         this.editMode = EditMode.DRAWING;
         this.signCanvasContext.globalCompositeOperation = 'source-over';
 
-        let polygonColor = 'black';
-        if (this.selected) {
-          polygonColor = 'blue';
-        }
+        const polygonColor = 'blue';
         this.signCanvasContext.strokeStyle = polygonColor;
         this.signCanvasContext.fillStyle = polygonColor;
       }
@@ -202,9 +197,6 @@ export default Vue.extend({
       if (this.shapeSign.shape === DrawingShapesMode.RECTANGLE) {
         return;
       }
-      if (!this.selected) {
-        return;
-      }
       // this.zooming = event.ctrlKey;
 
       const exEvent = this.extendEvent(event);
@@ -216,9 +208,6 @@ export default Vue.extend({
     },
     async pointerUp(event: PointerEvent) {
       if (this.shapeSign.shape === DrawingShapesMode.RECTANGLE) {
-        return;
-      }
-      if (!this.selected) {
         return;
       }
 
@@ -253,6 +242,8 @@ export default Vue.extend({
     },
     async drawRectangle(event: PointerEvent) {
       const exEvent = this.extendEvent(event);
+      // this.pointerTracker.handleEvent(exEvent);
+
       if (this.rectangle === 0) {
         this.firstPointLeftCornerPosition =
           exEvent.logicalPosition.x - this.signCanvas.offsetLeft;
