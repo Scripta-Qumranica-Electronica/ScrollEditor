@@ -15,12 +15,16 @@
                 </clipPath>
             </defs>
 
-            <g :clip-path="`url(#clip-path-${artefact.id}`"> -->
-                <image
+            <g :clip-path="`url(#clip-path-${artefact.id}`">
+                <image 
+                    v-for="imageSetting in visibleImageSettings"
+                    :key="imageSetting.image.url"
+                    :xlink:href="getImageUrl(imageSetting.image)"
+                    :opacity="imageSetting.opacity"
                     :width="boundingBox.width"
                     :height="boundingBox.height"
-                    :xlink:href="imageUrl"
                     :transform="`translate(${boundingBox.x} ${boundingBox.y})`"/>
+                    />
             </g>
         </svg>
     </div>
@@ -29,11 +33,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
-import { ImageStack } from '@/models/image';
+import { ImageStack, IIIFImage } from '@/models/image';
 import ArtefactService from '@/services/artefact';
 import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
 import { BoundingBox } from '@/utils/helpers';
+import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
 
 export default Vue.extend({
     name: 'simple-artefact-image',
@@ -42,7 +47,13 @@ export default Vue.extend({
         aspectRatio: {
             default: 1.3,  // width/height
             type: Number,
-        }
+        },
+        imageSettings: {
+            type: Object as () => ImageSetting,
+            default: () => {
+                return {} as ImageSetting;
+            },
+        },
     },
     data() {
         return {
@@ -57,17 +68,6 @@ export default Vue.extend({
         };
     },
     computed: {
-        imageUrl(): string {
-            if (!this.imageStack) {
-                return '';
-            }
-
-            return this.imageStack.master.getScaledAndCroppedUrl(this.serverScale,
-                this.boundingBox.x,
-                this.boundingBox.y,
-                this.boundingBox.width,
-                this.boundingBox.height);
-        },
         scale(): number {
             if (this.elementWidth && this.masterImageManifest) {
                 return this.elementWidth / this.boundingBox.width;
@@ -81,6 +81,21 @@ export default Vue.extend({
             }
 
             return 100;
+        },
+        visibleImageSettings(): SingleImageSetting[] {
+            if (!Object.keys(this.imageSettings).length) {
+                // If no settings, just show the master image
+                return [{
+                    image: this.imageStack!.master,
+                    type: 'master',
+                    visible: true,
+                    opacity: 1,
+                }];
+            }
+
+            const allImageSettings = Object.keys(this.imageSettings).map((key) => this.imageSettings[key]);
+            const visibleImages = allImageSettings.filter((setting) => setting.visible);
+            return visibleImages;
         }
     },
     async mounted() {
@@ -117,7 +132,17 @@ export default Vue.extend({
             this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
                 this.elementWidth / this.aspectRatio,
                 this.boundingBox);
-        }
+        },
+        getImageUrl(image: IIIFImage) {
+            const url = image.getScaledAndCroppedUrl(this.serverScale,
+                this.boundingBox.x,
+                this.boundingBox.y,
+                this.boundingBox.width,
+                this.boundingBox.height);
+
+            console.log(`Returning ${url}`);
+            return url;
+        },
     },
 });
 </script>
