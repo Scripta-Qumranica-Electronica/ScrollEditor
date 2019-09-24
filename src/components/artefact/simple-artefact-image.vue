@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import { ImageStack, IIIFImage } from '@/models/image';
 import ArtefactService from '@/services/artefact';
@@ -39,21 +39,15 @@ import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
 import { BoundingBox } from '@/utils/helpers';
 import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
+import ArtefactDataMixin from './artefact-data-mixin';
 
 @Component({
     name: 'simple-artefact-image',
 })
-export default class SimpleArtefactImage extends Vue {
-    @Prop() private artefact!: Artefact;
+export default class SimpleArtefactImage extends  Mixins(ArtefactDataMixin) {
     @Prop({default: 1.3}) private aspectRatio!: number;
-    @Prop({default: {} as ImageSetting}) private imageSettings!: ImageSetting;
+    @Prop({default: {} as ImageSetting }) private imageSettings!: ImageSetting;
 
-    private artefactService = new ArtefactService();
-    private imageService = new ImageService();
-    private imageStack = undefined as ImageStack | undefined;
-    private masterImageManifest =  undefined;
-    private boundingBox = new BoundingBox();
-    private loaded = false;
     private elementWidth = 0;
     private serverScale = 5;
 
@@ -89,22 +83,8 @@ export default class SimpleArtefactImage extends Vue {
         return visibleImages;
     }
 
-    private async mounted() {
-        // We're using mounted instead of created, because we want this.$el to be set, *and* the manifest to load
-        // before calling updateWidth.
-        const imagedObject = await this.artefactService.getArtefactImagedObject(
-            this.artefact.editionId!, this.artefact.imagedObjectId);
-        this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
-        if (!this.imageStack) {
-            throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
-                            `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
-        }
-        await this.imageService.fetchImageManifest(this.imageStack.master);
-        this.masterImageManifest = this.imageStack.master.manifest;
-        this.boundingBox = this.artefact.mask.polygon.getBoundingBox();
-
-        this.loaded = true;
-
+    protected async mounted() {
+        console.log('SimpleArtefactImage mounted called');
         this.updateWidth();
         window.addEventListener('resize', () => {
             this.updateWidth();
