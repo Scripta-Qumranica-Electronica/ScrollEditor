@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import { ImageStack, IIIFImage } from '@/models/image';
 import ArtefactService from '@/services/artefact';
@@ -40,65 +40,56 @@ import { Polygon } from '@/utils/Polygons';
 import { BoundingBox } from '@/utils/helpers';
 import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
 
-export default Vue.extend({
+@Component({
     name: 'simple-artefact-image',
-    props: {
-        artefact: Object as () => Artefact,
-        aspectRatio: {
-            default: 1.3,  // width/height
-            type: Number,
-        },
-        imageSettings: {
-            type: Object as () => ImageSetting,
-            default: () => {
-                return {} as ImageSetting;
-            },
-        },
-    },
-    data() {
-        return {
-            artefactService: new ArtefactService(),
-            imageService: new ImageService(),
-            imageStack: undefined as ImageStack | undefined,
-            masterImageManifest: undefined as any,
-            boundingBox: new BoundingBox(),
-            loaded: false,
-            elementWidth: 0,
-            serverScale: 5,
-        };
-    },
-    computed: {
-        scale(): number {
-            if (this.elementWidth && this.masterImageManifest) {
-                return this.elementWidth / this.boundingBox.width;
-            }
+})
+export default class SimpleArtefactImage extends Vue {
+    @Prop() private artefact!: Artefact;
+    @Prop({default: 1.3}) private aspectRatio!: number;
+    @Prop({default: {} as ImageSetting}) private imageSettings!: ImageSetting;
 
-            return 0.05;
-        },
-        elementHeight(): number {
-            if (this.elementWidth) {
-                return this.elementWidth / this.aspectRatio;
-            }
+    private artefactService = new ArtefactService();
+    private imageService = new ImageService();
+    private imageStack = undefined as ImageStack | undefined;
+    private masterImageManifest =  undefined;
+    private boundingBox = new BoundingBox();
+    private loaded = false;
+    private elementWidth = 0;
+    private serverScale = 5;
 
-            return 100;
-        },
-        visibleImageSettings(): SingleImageSetting[] {
-            if (!Object.keys(this.imageSettings).length) {
-                // If no settings, just show the master image
-                return [{
-                    image: this.imageStack!.master,
-                    type: 'master',
-                    visible: true,
-                    opacity: 1,
-                }];
-            }
-
-            const allImageSettings = Object.keys(this.imageSettings).map((key) => this.imageSettings[key]);
-            const visibleImages = allImageSettings.filter((setting) => setting.visible);
-            return visibleImages;
+    get scale(): number {
+        if (this.elementWidth && this.masterImageManifest) {
+            return this.elementWidth / this.boundingBox.width;
         }
-    },
-    async mounted() {
+
+        return 0.05;
+    }
+
+    get elementHeight(): number {
+        if (this.elementWidth) {
+            return this.elementWidth / this.aspectRatio;
+        }
+
+        return 100;
+    }
+
+    get visibleImageSettings(): SingleImageSetting[] {
+        if (!Object.keys(this.imageSettings).length) {
+            // If no settings, just show the master image
+            return [{
+                image: this.imageStack!.master,
+                type: 'master',
+                visible: true,
+                opacity: 1,
+            }];
+        }
+
+        const allImageSettings = Object.keys(this.imageSettings).map((key) => this.imageSettings[key]);
+        const visibleImages = allImageSettings.filter((setting) => setting.visible);
+        return visibleImages;
+    }
+
+    private async mounted() {
         // We're using mounted instead of created, because we want this.$el to be set, *and* the manifest to load
         // before calling updateWidth.
         const imagedObject = await this.artefactService.getArtefactImagedObject(
@@ -118,31 +109,32 @@ export default Vue.extend({
         window.addEventListener('resize', () => {
             this.updateWidth();
         });
-    },
-    methods: {
-        updateWidth() {
-            this.elementWidth = this.$el.clientWidth;
-            if (!this.loaded) {
-                // This should never happen
-                console.warn('updateWidth called before data was loaded, which makes very little sense');
-                this.serverScale = 5;
-                return;
-            }
+    }
 
-            this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
-                this.elementWidth / this.aspectRatio,
-                this.boundingBox);
-        },
-        getImageUrl(image: IIIFImage) {
-            const url = image.getScaledAndCroppedUrl(this.serverScale,
-                this.boundingBox.x,
-                this.boundingBox.y,
-                this.boundingBox.width,
-                this.boundingBox.height);
-            return url;
-        },
-    },
-});
+    private updateWidth() {
+        this.elementWidth = this.$el.clientWidth;
+        if (!this.loaded) {
+            // This should never happen
+            console.warn('updateWidth called before data was loaded, which makes very little sense');
+            this.serverScale = 5;
+            return;
+        }
+
+        this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
+            this.elementWidth / this.aspectRatio,
+            this.boundingBox);
+    }
+
+    private getImageUrl(image: IIIFImage) {
+        const url = image.getScaledAndCroppedUrl(this.serverScale,
+            this.boundingBox.x,
+            this.boundingBox.y,
+            this.boundingBox.width,
+            this.boundingBox.height);
+        return url;
+    }
+}
+
 </script>
 
 <style lang="scss" scoped>
