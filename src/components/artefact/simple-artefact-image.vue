@@ -46,10 +46,15 @@ import ArtefactDataMixin from './artefact-data-mixin';
 })
 export default class SimpleArtefactImage extends  Mixins(ArtefactDataMixin) {
     @Prop({default: 1.3}) private aspectRatio!: number;
-    @Prop({default: {} as ImageSetting }) private imageSettings!: ImageSetting;
+    @Prop({
+        default: () => {
+            return {} as ImageSetting;
+        }
+    }) private imageSettings!: ImageSetting;
 
     private elementWidth = 0;
     private serverScale = 5;
+    private loaded = false;
 
     get scale(): number {
         if (this.elementWidth && this.masterImageManifest) {
@@ -84,7 +89,8 @@ export default class SimpleArtefactImage extends  Mixins(ArtefactDataMixin) {
     }
 
     protected async mounted() {
-        console.log('SimpleArtefactImage mounted called');
+        await this.mountedDone;
+        this.loaded = true;
         this.updateWidth();
         window.addEventListener('resize', () => {
             this.updateWidth();

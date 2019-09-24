@@ -4,19 +4,19 @@ import ArtefactService from '@/services/artefact';
 import ImageService from '@/services/image';
 import { ImageStack } from '@/models/image';
 import { BoundingBox } from '@/utils/helpers';
+import AsyncMountedMixinBase from './async-mounted-mixin-base';
 
 @Component
-export default class ArtefactDataMixin extends Vue {
+export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     @Prop() protected artefact!: Artefact;
 
     protected imageStack = undefined as ImageStack | undefined;
     protected masterImageManifest = null;
     protected boundingBox = new BoundingBox();
-    protected loaded = false;
     private artefactService = new ArtefactService();
     private imageService = new ImageService();
 
-    protected async mounted() {
+    protected async asyncMounted() {
         const imagedObject = await this.artefactService.getArtefactImagedObject(
             this.artefact.editionId!, this.artefact.imagedObjectId);
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
@@ -27,7 +27,5 @@ export default class ArtefactDataMixin extends Vue {
         await this.imageService.fetchImageManifest(this.imageStack.master);
         this.masterImageManifest = this.imageStack.master.manifest;
         this.boundingBox = this.artefact.mask.polygon.getBoundingBox();
-
-        this.loaded = true;
     }
 }
