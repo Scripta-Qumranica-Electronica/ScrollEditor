@@ -139,8 +139,6 @@ export default Vue.extend({
                 this.boundingBox.y,
                 this.boundingBox.width,
                 this.boundingBox.height);
-
-            console.log(`Returning ${url}`);
             return url;
         },
     },
