@@ -5,6 +5,7 @@ import ImageService from '@/services/image';
 import { ImageStack } from '@/models/image';
 import { BoundingBox } from '@/utils/helpers';
 import AsyncMountedMixinBase from './async-mounted-mixin-base';
+import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 
 @Component
 export default class ArtefactDataMixin extends AsyncMountedMixinBase {
