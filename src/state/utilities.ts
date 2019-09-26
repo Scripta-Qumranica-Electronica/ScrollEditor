@@ -43,7 +43,7 @@ abstract class StateCollection<T extends ItemWithId> {
         }
     }
 
-    public find(id: number) : T | undefined {
+    public find(id: number): T | undefined {
         if (!this._items) {
             return undefined;
         }
