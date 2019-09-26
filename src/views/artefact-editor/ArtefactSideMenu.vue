@@ -96,7 +96,7 @@ export default Vue.extend({
     },
   },
   async mounted() {
-    const imagedObject = await this.artefactService.getArtefactImagedObject(
+    const imagedObject = await this.artefactService.requestArtefactImagedObject(
         this.artefact.editionId!, this.artefact.imagedObjectId);
     this.imageStack = imagedObject.getImageStack(this.artefact.side) as ImageStack;
   },

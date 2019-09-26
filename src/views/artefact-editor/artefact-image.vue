@@ -112,14 +112,14 @@ export default Vue.extend({
         }
     },
     async mounted() {
-        const imagedObject = await this.artefactService.getArtefactImagedObject(
+        const imagedObject = await this.artefactService.requestArtefactImagedObject(
             this.artefact.editionId!, this.artefact.imagedObjectId);
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
         if (!this.imageStack) {
             throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
                             `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
         }
-        await this.imageService.fetchImageManifest(this.imageStack.master);
+        await this.imageService.requestImageManifest(this.imageStack.master);
 
         this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;

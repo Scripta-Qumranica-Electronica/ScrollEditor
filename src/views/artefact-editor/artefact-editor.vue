@@ -383,7 +383,7 @@ export default Vue.extend({
         return;
       }
       this.params.imageSettings = {}; // as ImageSetting;
-      this.imagedObject = await this.artefactService.getArtefactImagedObject(
+      this.imagedObject = await this.artefactService.requestArtefactImagedObject(
         this.artefact.editionId!,
         this.artefact.imagedObjectId
       );
@@ -392,7 +392,7 @@ export default Vue.extend({
         this.imagedObject.getImageStack(this.artefact.side) &&
         this.imagedObject.getImageStack(this.artefact.side)!.master
       ) {
-        await this.imageService.fetchImageManifest(
+        await this.imageService.requestImageManifest(
           this.imagedObject.getImageStack(this.artefact.side)!.master
         );
         this.masterImage = this.getMasterImg();
