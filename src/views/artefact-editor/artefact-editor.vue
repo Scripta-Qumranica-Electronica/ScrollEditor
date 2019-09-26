@@ -137,6 +137,7 @@ import {
 import { SignInterpretation } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
+import ImagedObjectService from '@/services/imaged-object';
 
 export default Vue.extend({
   name: 'artefact-editor',
@@ -160,6 +161,7 @@ export default Vue.extend({
       waiting: true,
       editionService: new EditionService(),
       imageService: new ImageService(),
+      imagedObjectService: new ImagedObjectService(),
       artefactService: new ArtefactService(),
       isActiveSidebar: false,
       isActiveText: false,
@@ -223,7 +225,7 @@ export default Vue.extend({
     try {
       this.waiting = true;
       await this.editionService.getEdition(this.editionId);
-      await this.artefactService.getArtefactInfo(
+      await this.artefactService.getArtefact(
         this.editionId,
         parseInt(this.$route.params.artefactId)
       );
@@ -383,7 +385,7 @@ export default Vue.extend({
         return;
       }
       this.params.imageSettings = {}; // as ImageSetting;
-      this.imagedObject = await this.artefactService.requestArtefactImagedObject(
+      this.imagedObject = await this.imagedObjectService.getImagedObject(
         this.artefact.editionId!,
         this.artefact.imagedObjectId
       );

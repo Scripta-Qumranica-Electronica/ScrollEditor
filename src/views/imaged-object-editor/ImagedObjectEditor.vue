@@ -128,6 +128,7 @@ import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
 import { Side } from '../../models/misc';
 import { ZoomRequestEventArgs } from '@/components/editors/types';
+import ArtefactService from '@/services/artefact';
 
 export default Vue.extend({
   name: 'imaged-object-editor',
@@ -140,6 +141,7 @@ export default Vue.extend({
   data() {
     return {
       imagedObjectService: new ImagedObjectService(),
+      artefactService: new ArtefactService(),
       editionService: new EditionService(),
       imageService: new ImageService(),
       waiting: true,
@@ -224,7 +226,7 @@ export default Vue.extend({
     try {
       this.waiting = true;
       await this.editionService.getEdition(this.editionId);
-      await this.imagedObjectService.getImagedObjectInfo(
+      await this.imagedObjectService.getImagedObject(
         this.editionId,
         this.$route.params.imagedObjectId
       );
@@ -421,7 +423,7 @@ export default Vue.extend({
         if (this.artefactEditingDataList[index].dirty) {
           savedFlag = true;
 
-          await this.imagedObjectService.changeArtefact(
+          await this.artefactService.changeArtefact(
             this.editionId,
             art
           ).catch (() => {
@@ -498,7 +500,7 @@ export default Vue.extend({
       }
       this.renaming = true;
       try {
-        await this.imagedObjectService.changeArtefact(
+        await this.artefactService.changeArtefact(
           this.editionId,
           this.artefact
         );
@@ -513,7 +515,7 @@ export default Vue.extend({
     },
     async onDeleteArtefact(art: OptimizedArtefact) {
       try {
-        await this.imagedObjectService.deleteArtefact(art);
+        await this.artefactService.deleteArtefact(art);
         this.showMessage('Artefact deleted', 'success');
         const index = this.optimizedArtefacts.indexOf(art);
         this.optimizedArtefacts.splice(index, 1);

@@ -15,7 +15,7 @@ class EditionService {
         this.stateManager = StateManager.instance;
     }
 
-    public async listEditions(): Promise<AllEditions> {
+    public async getAllEditions(): Promise<AllEditions> {
         const response = await CommHelper.get<EditionListDTO>(ApiRoutes.allEditionsUrl());
         const editionList = [] as EditionInfo[];
         const myEditionList = [] as EditionInfo[];
@@ -69,16 +69,6 @@ class EditionService {
         return primary;
     }
 
-    public async getEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
-        if (!ignoreCache && this.stateManager.imagedObjects.items !== undefined) {
-            return this.stateManager.imagedObjects.items;
-        }
-
-        const imagedObjectList = await this.requestEditionImagedObjects(this.stateManager.editions.current!.id);
-        this.stateManager.imagedObjects.items = imagedObjectList;
-        return imagedObjectList;
-    }
-
     public async getArtefacts(ignoreCache = false): Promise<Artefact[]> {
         if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
             return this.stateManager.artefacts.items;
@@ -87,14 +77,6 @@ class EditionService {
         const artefactList = await this.requestEditionArtefacts(this.stateManager.editions.current!.id);
         this.stateManager.artefacts.items = artefactList;
         return artefactList;
-    }
-
-    public async requestEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
-        const response = await CommHelper.get<ImagedObjectListDTO>(
-            ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
-        );
-
-        return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
     }
 
     public async requestEditionArtefacts(editionId: number): Promise<Artefact[]> {

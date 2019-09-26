@@ -163,6 +163,7 @@ import ImagedObjectService from '@/services/imaged-object';
 import { SingleImageSetting } from '@/components/image-settings/types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import { Side } from '@/models/misc';
+import ArtefactService from '@/services/artefact';
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
  * to create a modular container that holds this menu and the possible
@@ -197,6 +198,7 @@ export default Vue.extend({
   data() {
     return {
       imagedObjectService: new ImagedObjectService(),
+      artefactService: new ArtefactService(),
       errorMessage: '',
       waiting: false,
       newArtefactName: '',
@@ -313,7 +315,7 @@ export default Vue.extend({
       this.waiting = true;
       this.errorMessage = '';
       try {
-        newArtefact = await this.imagedObjectService.createArtefact
+        newArtefact = await this.artefactService.createArtefact
                 (this.editionId, this.imagedObject, this.newArtefactName, this.side as Side);
       } catch (err) {
           this.errorMessage = err;

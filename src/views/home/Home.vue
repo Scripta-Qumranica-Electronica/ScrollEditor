@@ -70,7 +70,7 @@ export default Vue.extend({
     }
   },
   async mounted() {
-    const editions = await this.editionService.listEditions();
+    const editions = await this.editionService.getAllEditions();
     this.allEditions = editions.editionList;  // TODO: Change those into computed properties that filter the state
     this.myEditions = editions.myEditionList;
   },

@@ -6,6 +6,7 @@ import { ImageStack } from '@/models/image';
 import { BoundingBox } from '@/utils/helpers';
 import AsyncMountedMixinBase from './async-mounted-mixin-base';
 import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
+import ImagedObjectService from '@/services/imaged-object';
 
 @Component
 export default class ArtefactDataMixin extends AsyncMountedMixinBase {
@@ -14,11 +15,11 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     protected imageStack = undefined as ImageStack | undefined;
     protected masterImageManifest = null;
     protected boundingBox = new BoundingBox();
-    private artefactService = new ArtefactService();
     private imageService = new ImageService();
+    private imagedObjectService = new ImagedObjectService();
 
     protected async asyncMounted() {
-        const imagedObject = await this.artefactService.requestArtefactImagedObject(
+        const imagedObject = await this.imagedObjectService.getImagedObject(
             this.artefact.editionId!, this.artefact.imagedObjectId);
 
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;

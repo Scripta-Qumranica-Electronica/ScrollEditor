@@ -49,7 +49,6 @@ import { Artefact } from '@/models/artefact';
 import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '../../services/imaged-object';
-import ArtefactService from '../../services/artefact';
 import { ImageStack } from '../../models/image';
 import { SingleImageSetting } from '../../components/image-settings/types';
 
@@ -61,7 +60,7 @@ export default Vue.extend({
   data() {
     return {
       errorMessage: '',
-      artefactService: new ArtefactService(),
+      imagedObjectService: new ImagedObjectService(),
       imageStack: {} as ImageStack,
     };
   },
@@ -96,7 +95,7 @@ export default Vue.extend({
     },
   },
   async mounted() {
-    const imagedObject = await this.artefactService.requestArtefactImagedObject(
+    const imagedObject = await this.imagedObjectService.getImagedObject(
         this.artefact.editionId!, this.artefact.imagedObjectId);
     this.imageStack = imagedObject.getImageStack(this.artefact.side) as ImageStack;
   },

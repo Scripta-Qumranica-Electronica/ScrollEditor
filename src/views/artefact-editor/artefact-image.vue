@@ -64,6 +64,7 @@ import { Polygon } from '@/utils/Polygons';
 import { Position } from '@/utils/PointerTracker';
 import { ArtefactEditorParams } from './types';
 import { SingleImageSetting, ImageSetting } from '@/components/image-settings/types';
+import ImagedObjectService from '@/services/imaged-object';
 
 export default Vue.extend({
     props: {
@@ -77,6 +78,7 @@ export default Vue.extend({
         return {
             artefactService: new ArtefactService(),
             imageService: new ImageService(),
+            imagedObjectService: new ImagedObjectService(),
             imageStack: undefined as ImageStack | undefined,
             masterImageManifest: undefined as any,
             scaledMask: {} as Polygon,
@@ -112,7 +114,7 @@ export default Vue.extend({
         }
     },
     async mounted() {
-        const imagedObject = await this.artefactService.requestArtefactImagedObject(
+        const imagedObject = await this.imagedObjectService.getImagedObject(
             this.artefact.editionId!, this.artefact.imagedObjectId);
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
         if (!this.imageStack) {

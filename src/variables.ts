@@ -32,8 +32,9 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/${artefacts}`;
     }
 
-    export function editionImagedObjectUrl(editionId: number, imagedObjectId: string, option: boolean = false) {
-        if (option) {
+    export function editionImagedObjectUrl(editionId: number, imagedObjectId: string,
+                                           includeArtefacts: boolean = false) {
+        if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}?${optionalArtefact}`;
         }
         return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}`;

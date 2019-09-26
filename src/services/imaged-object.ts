@@ -2,7 +2,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
 import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
-import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
+import { ImagedObjectDTO, ImagedObjectListDTO } from '@/dtos/sqe-dtos';
 import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
@@ -15,7 +15,7 @@ class ImagedObjectService {
         this.stateManager = StateManager.instance;
     }
 
-    public async getImagedObjectInfo(editionId: number, imagedObjectId: string) {
+    public async getImagedObject(editionId: number, imagedObjectId: string) {
         let imagedObject = this._getCachedImagedObject(editionId, imagedObjectId);
         if (!imagedObject) {
             imagedObject = await this._getImagedObject(editionId, imagedObjectId);
@@ -32,6 +32,16 @@ class ImagedObjectService {
         return imagedObject;
     }
 
+    public async getEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
+        if (!ignoreCache && this.stateManager.imagedObjects.items !== undefined) {
+            return this.stateManager.imagedObjects.items;
+        }
+
+        const imagedObjectList = await this.requestEditionImagedObjects(this.stateManager.editions.current!.id);
+        this.stateManager.imagedObjects.items = imagedObjectList;
+        return imagedObjectList;
+    }
+
     public async requestImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
         const response = await CommHelper.get<ImagedObjectDTO>(
             ApiRoutes.editionImagedObjectUrl(editionId, imagedObject.id, true)
@@ -43,46 +53,6 @@ class ImagedObjectService {
         }
 
         return artefactList;
-    }
-
-    public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string, side: Side):
-        Promise<Artefact> {
-        const imageStack = side === 'recto' ? imagedObject.recto : imagedObject.verso;
-
-        if (!imageStack) {
-            throw Error(`ImagedObject ${imagedObject.id} does not have the ${side} side`);
-        }
-
-        const masterImage = imageStack.images.find((im) => im.master);
-        if (!masterImage) {
-            throw Error(`ImagedObject ${imagedObject.id}, side ${side} has no master image`);
-        }
-        const body = {
-            masterImageId: masterImage.id,
-            mask: '',
-            name: artefactName,
-        } as CreateArtefactDTO;
-        const response = await CommHelper.post<ArtefactDTO>(ApiRoutes.allEditionArtefactsUrl(editionId), body);
-
-        const artefact = new Artefact(response.data);
-        return artefact;
-    }
-
-    public async deleteArtefact(art: OptimizedArtefact) {
-        await CommHelper.delete(ApiRoutes.editionArtefactUrl(art.editionId, art.id));
-    }
-
-    public async changeArtefact(editionId: number, artefact: Artefact):
-        Promise<ArtefactDTO> {
-        const mask = artefact.mask ? artefact.mask.polygon.wkt : '';
-        const body = {
-            mask,
-            name: artefact.name,
-        } as UpdateArtefactDTO;
-
-        const response = await CommHelper.put<ArtefactDTO>
-        (ApiRoutes.editionArtefactUrl(editionId, artefact.id), body);
-        return response.data;
     }
 
     // The position is a transform matrix for positioning the
@@ -105,10 +75,20 @@ class ImagedObjectService {
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {
         const editionService = new EditionService();
-        const imagedObjectList = await editionService.requestEditionImagedObjects(editionId);
+        const imagedObjectList = await this.requestEditionImagedObjects(editionId);
 
         return imagedObjectList.find((io: ImagedObject) => io.id === imagedObjectId);
     }
+
+    private async requestEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
+        const response = await CommHelper.get<ImagedObjectListDTO>(
+            ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
+        );
+
+        return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
+    }
+
+
 }
 
 export default ImagedObjectService;
