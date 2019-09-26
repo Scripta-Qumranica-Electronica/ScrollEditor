@@ -1,12 +1,9 @@
 import { EditionInfo, AllEditions } from '@/models/edition';
-import { ImagedObject } from '@/models/imaged-object';
 import { CommHelper } from './comm-helper';
-import { EditionListDTO, EditionGroupDTO, EditionUpdateRequestDTO, EditionDTO } from '@/dtos/sqe-dtos';
-import { ImagedObjectListDTO } from '@/dtos/sqe-dtos';
+import { EditionListDTO, EditionUpdateRequestDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
-import { Artefact } from '@/models/artefact';
-import { ArtefactListDTO } from '@/dtos/sqe-dtos';
 import { ApiRoutes } from '@/variables';
+import { Requests } from './requests';
 
 class EditionService {
     public stateManager: StateManager;
@@ -22,10 +19,10 @@ class EditionService {
         const self = this;
 
         response.data.editions.map((obj) => { // group
-            const publicEditions = obj.filter((element: any) => element.isPublic);
+            const publicEditions = obj.filter((element) => element.isPublic);
 
             if (StateManager.instance.session.user) {
-                const myEditions = obj.filter((element: any) =>
+                const myEditions = obj.filter((element) =>
                     element.owner.userId === self.stateManager.session.user!.userId);
 
                 if (myEditions.length) {
@@ -54,18 +51,9 @@ class EditionService {
         }
 
         this.stateManager.editions.current = undefined; // Trigger a spinner on all views
-        const response = await CommHelper.get<EditionGroupDTO>(ApiRoutes.editionUrl(editionId));
-
-        // Convert the server response into a single EditionInfo entity, putting all the other versions
-        // in its otherVersions array
-        const primary = new EditionInfo(response.data.primary);
-        if (!primary) {
-            throw new Error('Server did not return the version we asked for');
-        }
-        const others = response.data.others.map((obj) => new EditionInfo(obj));
-        primary.otherVersions = others;
-
+        const primary = await Requests.requestEdition(editionId);
         this.stateManager.editions.current = primary;
+
         return primary;
     }
 

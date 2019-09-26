@@ -7,6 +7,7 @@ import EditionService from './edition';
 import { ApiRoutes } from '@/variables';
 import { Side } from '@/models/misc';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
+import { Requests } from './requests';
 
 class ArtefactService {
     public stateManager: StateManager;
@@ -34,7 +35,7 @@ class ArtefactService {
             return this.stateManager.artefacts.items;
         }
 
-        const artefactList = await this.requestEditionArtefacts(this.stateManager.editions.current!.id);
+        const artefactList = await Requests.requestEditionArtefacts(this.stateManager.editions.current!.id);
         this.stateManager.artefacts.items = artefactList;
         return artefactList;
     }
@@ -92,17 +93,9 @@ class ArtefactService {
 
     private async _getArtefact(editionId: number, artefactId: number) {
         const editionService = new EditionService();
-        const artefacts = await this.requestEditionArtefacts(editionId);
+        const artefacts = await Requests.requestEditionArtefacts(editionId);
 
         return artefacts.find((a: Artefact) => a.id === artefactId);
-    }
-
-    private async requestEditionArtefacts(editionId: number): Promise<Artefact[]> {
-        const response = await CommHelper.get<ArtefactListDTO>(
-            ApiRoutes.allEditionArtefactsUrl(editionId, true)
-        );
-
-        return response.data.artefacts.map((d: any) => new Artefact(d));
     }
 }
 

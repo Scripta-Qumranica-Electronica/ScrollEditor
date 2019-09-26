@@ -8,6 +8,7 @@ import { StateManager } from '@/state';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 import { Side } from '@/models/misc';
 import { ApiRoutes } from '@/variables';
+import { Requests } from './requests';
 
 class ImagedObjectService {
     public stateManager: StateManager;
@@ -24,7 +25,7 @@ class ImagedObjectService {
         if (!imagedObject) {
             throw new Error(`Can't find imagedObject with id ${imagedObjectId}`);
         }
-        const artefactList = await this.requestImagedObjectArtefacts(editionId, imagedObject);
+        const artefactList = await Requests.requestImagedObjectArtefacts(editionId, imagedObject.id);
         imagedObject.artefacts = artefactList;
 
         this.stateManager.imagedObjects.current = imagedObject;
@@ -37,22 +38,9 @@ class ImagedObjectService {
             return this.stateManager.imagedObjects.items;
         }
 
-        const imagedObjectList = await this.requestEditionImagedObjects(this.stateManager.editions.current!.id);
+        const imagedObjectList = await Requests.requestEditionImagedObjects(this.stateManager.editions.current!.id);
         this.stateManager.imagedObjects.items = imagedObjectList;
         return imagedObjectList;
-    }
-
-    public async requestImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
-        const response = await CommHelper.get<ImagedObjectDTO>(
-            ApiRoutes.editionImagedObjectUrl(editionId, imagedObject.id, true)
-        );
-
-        let artefactList: Artefact[] = [];
-        if (response.data.artefacts) {
-            artefactList = response.data.artefacts.map((obj: any) => new Artefact(obj));
-        }
-
-        return artefactList;
     }
 
     // The position is a transform matrix for positioning the
@@ -75,20 +63,10 @@ class ImagedObjectService {
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {
         const editionService = new EditionService();
-        const imagedObjectList = await this.requestEditionImagedObjects(editionId);
+        const imagedObjectList = await Requests.requestEditionImagedObjects(editionId);
 
         return imagedObjectList.find((io: ImagedObject) => io.id === imagedObjectId);
     }
-
-    private async requestEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
-        const response = await CommHelper.get<ImagedObjectListDTO>(
-            ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
-        );
-
-        return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
-    }
-
-
 }
 
 export default ImagedObjectService;

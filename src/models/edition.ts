@@ -47,12 +47,8 @@ class EditionInfo {
     public lastEdit?: Date;
 
     public publicCopies: number = 1; // Updated by the EditionService
+    public mine: boolean = false; // Updated by the EditionService
     public otherVersions: EditionInfo[] = [];
-
-    // public numOfArtefacts: number;
-    // public numOfColumns: number;
-    // public numOfFragments: number;
-    // public otherVersions: EditionInfo[] = [];
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;

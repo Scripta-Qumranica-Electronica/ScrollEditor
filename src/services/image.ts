@@ -1,10 +1,14 @@
 import { IIIFImage } from '@/models/image';
-import axios from 'axios';
+import { Requests } from './requests';
+import { Artefact } from '@/models/artefact';
+import { ImagedObjectDTO, ImagedObjectListDTO } from '@/dtos/sqe-dtos';
+import { ApiRoutes } from '@/variables';
+import { CommHelper } from './comm-helper';
 
 export default class ImageService {
     public async requestImageManifest(image: IIIFImage) {
-        const response = await axios.get(image.manifestUrl);
-        image.manifest = response.data;
+        const manifest = await Requests.requestImageManifest(image.manifestUrl);
+        image.manifest = manifest;
         return image.manifest;
     }
 
