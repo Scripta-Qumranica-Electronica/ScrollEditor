@@ -44,7 +44,7 @@ class EditionService {
         return {editionList, myEditionList} as AllEditions;
     }
 
-    public async fetchEdition(editionId: number, ignoreCache = false): Promise<EditionInfo> {
+    public async getEdition(editionId: number, ignoreCache = false): Promise<EditionInfo> {
         // Fetches a edition version from the server and puts it in the store.
         // Returns immediately if the requested edition version is already in the store
         if (!ignoreCache &&
@@ -69,27 +69,27 @@ class EditionService {
         return primary;
     }
 
-    public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
+    public async getEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
         if (!ignoreCache && this.stateManager.imagedObjects.items !== undefined) {
             return this.stateManager.imagedObjects.items;
         }
 
-        const imagedObjectList = await this.getEditionImagedObjects(this.stateManager.editions.current!.id);
+        const imagedObjectList = await this.requestEditionImagedObjects(this.stateManager.editions.current!.id);
         this.stateManager.imagedObjects.items = imagedObjectList;
         return imagedObjectList;
     }
 
-    public async fetchArtefacts(ignoreCache = false): Promise<Artefact[]> {
+    public async getArtefacts(ignoreCache = false): Promise<Artefact[]> {
         if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
             return this.stateManager.artefacts.items;
         }
 
-        const artefactList = await this.getEditionArtefacts(this.stateManager.editions.current!.id);
+        const artefactList = await this.requestEditionArtefacts(this.stateManager.editions.current!.id);
         this.stateManager.artefacts.items = artefactList;
         return artefactList;
     }
 
-    public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
+    public async requestEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
         const response = await CommHelper.get<ImagedObjectListDTO>(
             ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
         );
@@ -97,7 +97,7 @@ class EditionService {
         return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
     }
 
-    public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
+    public async requestEditionArtefacts(editionId: number): Promise<Artefact[]> {
         const response = await CommHelper.get<ArtefactListDTO>(
             ApiRoutes.allEditionArtefactsUrl(editionId, true)
         );

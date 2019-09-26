@@ -80,8 +80,8 @@ export default Vue.extend({
     },
     created() {
         // ignore cache, because we want to load data from server when become to another version of edition
-        this.editionService.fetchEditionImagedObjects(true); // fetch it to display imagedObjects and artefacts numbers
-        this.editionService.fetchArtefacts(true);
+        this.editionService.getEditionImagedObjects(true); // fetch it to display imagedObjects and artefacts numbers
+        this.editionService.getArtefacts(true);
 
         this.sideFilter = this.sideOptions[2];
     },

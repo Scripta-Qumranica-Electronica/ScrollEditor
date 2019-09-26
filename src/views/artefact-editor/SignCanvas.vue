@@ -118,7 +118,7 @@ export default Vue.extend({
       this.signCanvasContext.fill();
       this.signCanvasContext.closePath();
     },
-    pointerDown(event: PointerEvent) {
+    async pointerDown(event: PointerEvent) {
       if (this.shapeSign.polygon.svg !== '') {
         // this.clearCanvas();
         return;
@@ -126,7 +126,7 @@ export default Vue.extend({
       if (this.shapeSign.shape === DrawingShapesMode.RECTANGLE) {
         this.editMode = EditMode.DRAWING;
         this.signCanvasContext.globalCompositeOperation = 'source-over';
-        this.drawRectangle(event);
+        await this.drawRectangle(event);
         return;
       }
       if (event.ctrlKey || event.button !== 0) {
@@ -288,7 +288,10 @@ export default Vue.extend({
         this.signCanvasContext.stroke();
         this.rectangle = 0;
 
-        await this.recalculateMask();
+        // Build the path according the starting point, and the height and width
+        // const path = `M${}`;
+        // for example: <path d="M150 12 H200 12 V200 200 H150 150" />
+        // await this.recalculateMask();
       }
     }
   }

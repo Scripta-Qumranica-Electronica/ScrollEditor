@@ -40,7 +40,7 @@
             <i class="fa fa-align-justify"></i>
           </b-button>
 
-          <b-button v-if="canEdit" v-for="mode in [{icon: 'fa fa-pencil', val:'DRAW'}, {icon: 'fa fa-trash', val: 'ERASE'}]" 
+          <b-button v-for="mode in editList" 
             :key="mode.val" @click="editingModeChanged(mode.val)" 
             :pressed="modeChosen(mode.val)" class="sidebarCollapse">
             <i :class="mode.icon"></i>
@@ -161,6 +161,12 @@ export default Vue.extend({
     };
   },
   computed: {
+    editList(): any[] {
+      if (this.canEdit) {
+        return [{icon: 'fa fa-pencil', val: 'DRAW'}, {icon: 'fa fa-trash', val: 'ERASE'}];
+      }
+      return [];
+    },
     zoomLevel(): number {
       return this.params.zoom;
     },
@@ -217,15 +223,15 @@ export default Vue.extend({
   async mounted() {
     try {
       this.waiting = true;
-      await this.editionService.fetchEdition(this.editionId);
-      await this.imagedObjectService.fetchImagedObjectInfo(
+      await this.editionService.getEdition(this.editionId);
+      await this.imagedObjectService.getImagedObjectInfo(
         this.editionId,
         this.$route.params.imagedObjectId
       );
 
       if (this.imagedObject && this.imagedObject.getImageStack(this.side)
           && this.imagedObject.getImageStack(this.side)!.master) {
-        await this.imageService.fetchImageManifest(this.imagedObject.getImageStack(this.side)!.master);
+        await this.imageService.requestImageManifest(this.imagedObject.getImageStack(this.side)!.master);
         this.masterImage = this.getMasterImg();
       }
 
@@ -609,15 +615,6 @@ export default Vue.extend({
   padding: 0;
   height: calc(100vh - 63px);
   width: calc(100vw - 40px);
-}
-#overlay-div {
-  // transform-origin: top left;
-  // position: absolute;
-  // overflow: hidden;
-  // // margin-right: 15px;
-  // padding: 0;
-  // height: calc(100vh - 63px);
-  // width: calc(100vw- 40px);
 }
 .imaged-object-menu-div {
   height: calc(100vh - 63px);

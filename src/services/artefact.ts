@@ -11,16 +11,22 @@ class ArtefactService {
     constructor() {
         this.stateManager = StateManager.instance;
     }
-
-    public async getArtefactImagedObject(editionId: number, imagedObjectId: string) {
+    public async requestArtefactImagedObject(editionId: number, imagedObjectId: string) {
         const response = await CommHelper.get<ImagedObjectDTO>
         (ApiRoutes.editionImagedObjectUrl(editionId, imagedObjectId));
 
         const imagedObject = new ImagedObject(response.data);
         return imagedObject;
     }
+    /*public async getArtefactImagedObject(editionId: number, imagedObjectId: string) {
+        const response = await CommHelper.get<ImagedObjectDTO>
+        (ApiRoutes.editionImagedObjectUrl(editionId, imagedObjectId));
 
-    public async fetchArtefactInfo(editionId: number, artefactId: number) {
+        const imagedObject = new ImagedObject(response.data);
+        return imagedObject;
+    }*/
+
+    public async getArtefactInfo(editionId: number, artefactId: number) {
         let artefact = this._getCachedArtefact(editionId, artefactId);
         if (!artefact) {
             artefact = await this._getArtefact(editionId, artefactId);
@@ -48,7 +54,7 @@ class ArtefactService {
 
     private async _getArtefact(editionId: number, artefactId: number) {
         const editionService = new EditionService();
-        const artefacts = await editionService.getEditionArtefacts(editionId);
+        const artefacts = await editionService.requestEditionArtefacts(editionId);
 
         return artefacts.find((a: Artefact) => a.id === artefactId);
     }

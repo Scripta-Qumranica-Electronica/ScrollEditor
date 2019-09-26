@@ -222,8 +222,8 @@ export default Vue.extend({
     // this.prepareNonSelectedSigns();
     try {
       this.waiting = true;
-      await this.editionService.fetchEdition(this.editionId);
-      await this.artefactService.fetchArtefactInfo(
+      await this.editionService.getEdition(this.editionId);
+      await this.artefactService.getArtefactInfo(
         this.editionId,
         parseInt(this.$route.params.artefactId)
       );
@@ -383,7 +383,7 @@ export default Vue.extend({
         return;
       }
       this.params.imageSettings = {}; // as ImageSetting;
-      this.imagedObject = await this.artefactService.getArtefactImagedObject(
+      this.imagedObject = await this.artefactService.requestArtefactImagedObject(
         this.artefact.editionId!,
         this.artefact.imagedObjectId
       );
@@ -392,7 +392,7 @@ export default Vue.extend({
         this.imagedObject.getImageStack(this.artefact.side) &&
         this.imagedObject.getImageStack(this.artefact.side)!.master
       ) {
-        await this.imageService.fetchImageManifest(
+        await this.imageService.requestImageManifest(
           this.imagedObject.getImageStack(this.artefact.side)!.master
         );
         this.masterImage = this.getMasterImg();

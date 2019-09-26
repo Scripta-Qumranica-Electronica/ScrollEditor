@@ -58,7 +58,7 @@ export default Vue.extend({
     },
     methods: {
         async loadInfo() {
-            await this.editionService.fetchEdition(this.editionId);
+            await this.editionService.getEdition(this.currentVersionId);
         },
         getPage(url: string) {
             if (url.endsWith('artefacts')) {

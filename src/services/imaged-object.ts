@@ -15,7 +15,7 @@ class ImagedObjectService {
         this.stateManager = StateManager.instance;
     }
 
-    public async fetchImagedObjectInfo(editionId: number, imagedObjectId: string) {
+    public async getImagedObjectInfo(editionId: number, imagedObjectId: string) {
         let imagedObject = this._getCachedImagedObject(editionId, imagedObjectId);
         if (!imagedObject) {
             imagedObject = await this._getImagedObject(editionId, imagedObjectId);
@@ -24,7 +24,7 @@ class ImagedObjectService {
         if (!imagedObject) {
             throw new Error(`Can't find imagedObject with id ${imagedObjectId}`);
         }
-        const artefactList = await this.getImagedObjectArtefacts(editionId, imagedObject);
+        const artefactList = await this.requestImagedObjectArtefacts(editionId, imagedObject);
         imagedObject.artefacts = artefactList;
 
         this.stateManager.imagedObjects.current = imagedObject;
@@ -32,7 +32,7 @@ class ImagedObjectService {
         return imagedObject;
     }
 
-    public async getImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
+    public async requestImagedObjectArtefacts(editionId: number, imagedObject: ImagedObject): Promise<Artefact[]> {
         const response = await CommHelper.get<ImagedObjectDTO>(
             ApiRoutes.editionImagedObjectUrl(editionId, imagedObject.id, true)
         );
@@ -105,7 +105,7 @@ class ImagedObjectService {
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {
         const editionService = new EditionService();
-        const imagedObjectList = await editionService.getEditionImagedObjects(editionId);
+        const imagedObjectList = await editionService.requestEditionImagedObjects(editionId);
 
         return imagedObjectList.find((io: ImagedObject) => io.id === imagedObjectId);
     }

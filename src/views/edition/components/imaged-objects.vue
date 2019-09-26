@@ -39,7 +39,7 @@ export default Vue.extend({
         }
     },
     mounted() {
-        this.editionService.fetchEditionImagedObjects();
+        this.editionService.getEditionImagedObjects();
     }
 });
 </script>
