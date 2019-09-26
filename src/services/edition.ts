@@ -69,24 +69,6 @@ class EditionService {
         return primary;
     }
 
-    public async getArtefacts(ignoreCache = false): Promise<Artefact[]> {
-        if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
-            return this.stateManager.artefacts.items;
-        }
-
-        const artefactList = await this.requestEditionArtefacts(this.stateManager.editions.current!.id);
-        this.stateManager.artefacts.items = artefactList;
-        return artefactList;
-    }
-
-    public async requestEditionArtefacts(editionId: number): Promise<Artefact[]> {
-        const response = await CommHelper.get<ArtefactListDTO>(
-            ApiRoutes.allEditionArtefactsUrl(editionId, true)
-        );
-
-        return response.data.artefacts.map((d: any) => new Artefact(d));
-    }
-
     public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {
         const dto = {
             name

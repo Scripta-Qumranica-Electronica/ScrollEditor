@@ -31,17 +31,17 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionService from '@/services/edition';
 import { Artefact } from '../../../models/artefact';
 import ArtefactCard from './artefact-card.vue';
 import { countIf } from '../../../utils/helpers';
 import { SideOption } from '../../imaged-object-editor/types';
 import ImagedObjectService from '@/services/imaged-object';
+import ArtefactService from '@/services/artefact';
 
 export default Vue.extend({
     data() {
         return {
-            editionService: new EditionService(),
+            artefactService: new ArtefactService(),
             imagedObjectService: new ImagedObjectService(),
             sideOptions: [
                 {displayName: 'Recto', name: 'recto'},
@@ -83,7 +83,7 @@ export default Vue.extend({
     created() {
         // ignore cache, because we want to load data from server when become to another version of edition
         this.imagedObjectService.getEditionImagedObjects(true);
-        this.editionService.getArtefacts(true);
+        this.artefactService.getEditionArtefacts(true);
 
         this.sideFilter = this.sideOptions[2];
     },

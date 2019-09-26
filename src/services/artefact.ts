@@ -1,7 +1,7 @@
 import { CommHelper } from './comm-helper';
 import { StateManager } from '@/state';
 import { ImagedObject } from '@/models/imaged-object';
-import { ImagedObjectDTO, CreateArtefactDTO, ArtefactDTO, UpdateArtefactDTO } from '@/dtos/sqe-dtos';
+import { ArtefactListDTO, CreateArtefactDTO, ArtefactDTO, UpdateArtefactDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import EditionService from './edition';
 import { ApiRoutes } from '@/variables';
@@ -27,6 +27,16 @@ class ArtefactService {
         this.stateManager.artefacts.current = artefact;
 
         return artefact;
+    }
+
+    public async getEditionArtefacts(ignoreCache = false): Promise<Artefact[]> {
+        if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
+            return this.stateManager.artefacts.items;
+        }
+
+        const artefactList = await this.requestEditionArtefacts(this.stateManager.editions.current!.id);
+        this.stateManager.artefacts.items = artefactList;
+        return artefactList;
     }
 
     public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string, side: Side):
@@ -69,8 +79,6 @@ class ArtefactService {
         return response.data;
     }
 
-
-
     private _getCachedArtefact(editionId: number, artefactId: number): Artefact | undefined {
         if (!this.stateManager.editions.current || editionId !== this.stateManager.editions.current.id) {
             return undefined;
@@ -84,9 +92,17 @@ class ArtefactService {
 
     private async _getArtefact(editionId: number, artefactId: number) {
         const editionService = new EditionService();
-        const artefacts = await editionService.requestEditionArtefacts(editionId);
+        const artefacts = await this.requestEditionArtefacts(editionId);
 
         return artefacts.find((a: Artefact) => a.id === artefactId);
+    }
+
+    private async requestEditionArtefacts(editionId: number): Promise<Artefact[]> {
+        const response = await CommHelper.get<ArtefactListDTO>(
+            ApiRoutes.allEditionArtefactsUrl(editionId, true)
+        );
+
+        return response.data.artefacts.map((d: any) => new Artefact(d));
     }
 }
 

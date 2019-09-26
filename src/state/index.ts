@@ -7,8 +7,8 @@ export class StateManager {
 
     public session: SessionState;
     public editions: EditionCollection;
-    public imagedObjects: ImagedObjectCollection;
-    public artefacts: ArtefactCollection;
+    public imagedObjects: ImagedObjectCollection;   // Imaged objects for the current edition
+    public artefacts: ArtefactCollection;           // Artefacts for the current edition or imaged object
     public misc: MiscState;
     public signMap: Map<string, Polygon>;
 
