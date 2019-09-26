@@ -240,6 +240,9 @@ export default Vue.extend({
       if (this.imagedObject!.artefacts!.length) {
         this.optimizeArtefacts();
         // Set this.artefact to visibleArtefacts[0]
+        this.optimizedArtefacts.forEach((element) => {
+          this.artefactEditingDataList.push(new ArtefactEditingData());
+        });
         this.onArtefactChanged(this.visibleArtefacts[0]);
         this.optimizedArtefacts.forEach((element) => {
           this.artefactEditingDataList.push(new ArtefactEditingData());
@@ -404,7 +407,7 @@ export default Vue.extend({
       this.saving = false;
 
       if (!savedFlag) {
-         this.showMessage('No changed detected');
+         this.showMessage('No changes detected');
       } else if (errorFlag) {
         this.showMessage('Imaged Object Save Failed', 'error');
       } else {
