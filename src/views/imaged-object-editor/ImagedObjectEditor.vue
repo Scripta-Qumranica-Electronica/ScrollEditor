@@ -218,14 +218,14 @@ export default Vue.extend({
     try {
       this.waiting = true;
       await this.editionService.fetchEdition(this.editionId);
-      await this.imagedObjectService.fetchImagedObjectInfo(
+      await this.imagedObjectService.getImagedObjectInfo(
         this.editionId,
         this.$route.params.imagedObjectId
       );
 
       if (this.imagedObject && this.imagedObject.getImageStack(this.side)
           && this.imagedObject.getImageStack(this.side)!.master) {
-        await this.imageService.fetchImageManifest(this.imagedObject.getImageStack(this.side)!.master);
+        await this.imageService.requestImageManifest(this.imagedObject.getImageStack(this.side)!.master);
         this.masterImage = this.getMasterImg();
       }
 

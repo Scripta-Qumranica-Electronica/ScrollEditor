@@ -55,7 +55,7 @@ export default Vue.extend({
     },
   },
   async mounted() {
-      this.textService.getEditionText(this.editionId)
+      this.textService.requestEditionText(this.editionId)
       .then((data) => {
           this.textList = data;
       });
@@ -75,7 +75,7 @@ export default Vue.extend({
         }
       },
       getFragmentText() {
-        this.textService.getTextFragmentId(this.editionId, this.textFragmentId)
+        this.textService.requestTextFragmentId(this.editionId, this.textFragmentId)
           .then((data) => {
               this.textEdition = data;
           });

@@ -12,7 +12,7 @@ class ArtefactService {
         this.stateManager = StateManager.instance;
     }
 
-    public async getArtefactImagedObject(editionId: number, imagedObjectId: string) {
+    public async requestArtefactImagedObject(editionId: number, imagedObjectId: string) {
         const response = await CommHelper.get<ImagedObjectDTO>
         (ApiRoutes.editionImagedObjectUrl(editionId, imagedObjectId));
 
@@ -48,7 +48,7 @@ class ArtefactService {
 
     private async _getArtefact(editionId: number, artefactId: number) {
         const editionService = new EditionService();
-        const artefacts = await editionService.getEditionArtefacts(editionId);
+        const artefacts = await editionService.requestEditionArtefacts(editionId);
 
         return artefacts.find((a: Artefact) => a.id === artefactId);
     }

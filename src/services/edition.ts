@@ -73,7 +73,7 @@ class EditionService {
             return this.stateManager.imagedObjects.items;
         }
 
-        const imagedObjectList = await this.getEditionImagedObjects(this.stateManager.editions.current!.id);
+        const imagedObjectList = await this.requestEditionImagedObjects(this.stateManager.editions.current!.id);
         this.stateManager.imagedObjects.items = imagedObjectList;
         return imagedObjectList;
     }
@@ -83,12 +83,12 @@ class EditionService {
             return this.stateManager.artefacts.items;
         }
 
-        const artefactList = await this.getEditionArtefacts(this.stateManager.editions.current!.id);
+        const artefactList = await this.requestEditionArtefacts(this.stateManager.editions.current!.id);
         this.stateManager.artefacts.items = artefactList;
         return artefactList;
     }
 
-    public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
+    public async requestEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
         const response = await CommHelper.get<ImagedObjectListDTO>(
             ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
         );
@@ -96,7 +96,7 @@ class EditionService {
         return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
     }
 
-    public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
+    public async requestEditionArtefacts(editionId: number): Promise<Artefact[]> {
         const response = await CommHelper.get<ArtefactListDTO>(
             ApiRoutes.allEditionArtefactsUrl(editionId, true)
         );

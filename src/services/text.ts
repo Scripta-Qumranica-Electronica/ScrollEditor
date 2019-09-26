@@ -10,13 +10,13 @@ class TextService {
         this.stateManager = StateManager.instance;
     }
 
-    public async getEditionText(editionId: number) {
+    public async requestEditionText(editionId: number) {
         const response = await CommHelper.get<TextFragmentDataListDTO>
         (ApiRoutes.allEditionTextFragmentsUrl(editionId));
 
         return response.data.textFragments.map((obj) => new TextFragmentData(obj));
     }
-    public async getTextFragmentId(editionId: number, textFragmentId: number) {
+    public async requestTextFragmentId(editionId: number, textFragmentId: number) {
         const response = await CommHelper.get<TextEditionDTO>
         (ApiRoutes.editionTextFragmentUrl(editionId, textFragmentId));
 
