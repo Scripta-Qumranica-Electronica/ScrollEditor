@@ -11,7 +11,6 @@
             :width="boundingBox.width"
             :height="boundingBox.height"
             :transform="`translate(${boundingBox.x} ${boundingBox.y})`"/>
-            />
     </artefact-svg>
 </template>
 
