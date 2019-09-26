@@ -179,17 +179,17 @@ export default Vue.extend({
     'image-settings': ImageSettingsComponent,
   },
   props: {
-    imagedObject: ImagedObject,
+    imagedObject: Object as () => ImagedObject,
     artefacts: {
       type: Array,
       default: () => [],
     } as PropOptions<OptimizedArtefact[]>,
-    artefact: Artefact,
+    artefact: Object as () => Artefact,
     editable: Boolean,
-    params: ImagedObjectEditorParams,
+    params: Object as () => ImagedObjectEditorParams,
     saving: Boolean,
     renaming: Boolean,
-    renameInputActive: Artefact,
+    renameInputActive: Object as () => Artefact,
     side: {
       type: String as () => Side,
     },

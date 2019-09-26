@@ -1,8 +1,7 @@
 <template>
-  <div class="row" :dir="lineDir">
+  <div class="row" :dir="lineDir" v-if="line.signs">
       <text-sign
         :clickedSignId="clickedSignId"
-        v-if="line.signs"
         v-for="(sign, index) in line.signs"
         :key="index"
         :sign="sign"

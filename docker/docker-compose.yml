@@ -15,12 +15,15 @@ services:
             - "3306"
         ports:
             - "3307:3306"
+        volumes:
+            - sqe_api_db_volume:/var/lib/mysql
         networks:
             - sqe_api
 
     sqe-http:
         container_name: SQE_HTTP_API
-        image: qumranica/sqe-http-api:v0.3.7
+        image: qumranica/sqe-http-api:0.3.8
+        restart: always
         ports:
             - 5000:5000
         environment:
@@ -32,16 +35,15 @@ services:
             - MYSQL_DATABASE=SQE
             
             ## Email settings (account that mails user registration information)
-            #- MAILER_EMAIL_ADDRESS=
-            #- MAILER_EMAIL_USERNAME=
-            #- MAILER_EMAIL_PASSWORD=
-            #- MAILER_EMAIL_SMTP_URL=
-            #- MAILER_EMAIL_SMTP_PORT=
-            #- MAILER_EMAIL_SMTP_SECURITY=StartTlsWhenAvailable #The options are "None", "Auto", "SslOnConnect", "StartTls", and "StartTlsWhenAvailable"
+            - MAILER_EMAIL_ADDRESS
+            - MAILER_EMAIL_USERNAME
+            - MAILER_EMAIL_PASSWORD
+            - MAILER_EMAIL_SMTP_URL
+            - MAILER_EMAIL_SMTP_PORT
+            - MAILER_EMAIL_SMTP_SECURITY=Auto #The options are "None", "Auto", "SslOnConnect", "StartTls", and "StartTlsWhenAvailable"
             
             ## Partner website settings (website that calls the user registration functions)
-            #- WEBSITE_HOST=
-              
+            - WEBSITE_HOST=http://localhost:8080              
             ## Dotnet telemetry optout
             - DOTNET_CLI_TELEMETRY_OPTOUT=1
               
@@ -51,6 +53,11 @@ services:
             - sqe-database
         networks:
             - sqe_api
+        volumes:
+            - ./logs:/app/logs
 
 networks:
     sqe_api:
+
+volumes:
+    sqe_api_db_volume:

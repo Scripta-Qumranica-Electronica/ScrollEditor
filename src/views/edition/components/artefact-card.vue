@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <router-link :to="{ path: `/editions/${editionId}/artefacts/${artefact.id}` }">
-            <simple-artefact-image class="card-img-top" v-if="artefact" :artefact="artefact"></simple-artefact-image>
+            <simple-artefact-image class="card-img-top" v-show="artefact" :artefact="artefact"></simple-artefact-image>
         </router-link>
         <label>{{artefact.name}} - {{artefact.side}}</label>
     </div>
@@ -10,7 +10,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
-import SimpleArtefactImage from './simple-artefact-image.vue';
+import SimpleArtefactImage from '@/components/artefact/simple-artefact-image.vue';
 
 export default Vue.extend({
     name: 'artefact-card',
@@ -18,7 +18,7 @@ export default Vue.extend({
         SimpleArtefactImage,
     },
     props: {
-        artefact: Artefact,
+        artefact: Object as () => Artefact,
     },
     computed: {
         editionId(): number {

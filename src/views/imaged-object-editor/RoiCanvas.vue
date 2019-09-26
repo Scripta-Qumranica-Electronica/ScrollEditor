@@ -43,9 +43,9 @@ export default Vue.extend({
   props: {
     originalImageWidth: Number,
     originalImageHeight: Number,
-    params: ImagedObjectEditorParams,
+    params: Object as () => ImagedObjectEditorParams,
     editable: Boolean,
-    clippingMask: Polygon,
+    clippingMask: Object as () => Polygon,
   },
   data() {
     return {

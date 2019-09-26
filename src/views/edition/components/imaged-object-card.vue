@@ -13,7 +13,7 @@ import { ImagedObject } from '@/models/imaged-object';
 
 export default Vue.extend({
     props: {
-        imagedObject: ImagedObject,
+        imagedObject: Object as () => ImagedObject,
     },
     computed: {
         imageUrl(): string | undefined {

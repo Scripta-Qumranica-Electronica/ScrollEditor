@@ -25,7 +25,7 @@ import { EditionInfo } from '@/models/edition';
 export default Vue.extend({
   name: 'edition-version-card',
   props: {
-    edition: EditionInfo,
+    edition: Object as () => EditionInfo,
   },
   computed: {
     thumbnailSource(): string | undefined {

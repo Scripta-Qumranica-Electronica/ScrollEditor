@@ -67,7 +67,7 @@ import { SingleImageSetting, ImageSetting } from '@/components/image-settings/ty
 
 export default Vue.extend({
     props: {
-        artefact: Artefact,
+        artefact: Object as () => Artefact,
         scale: Number,
         imageSettingsParams: {
             type: Object as () => ImageSetting,

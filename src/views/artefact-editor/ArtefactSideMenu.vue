@@ -66,8 +66,8 @@ export default Vue.extend({
     };
   },
   props: {
-    artefact: Artefact,
-    params: ArtefactEditorParams,
+    artefact: Object as () => Artefact,
+    params: Object as () => ArtefactEditorParams,
   },
   computed: {
     editionId(): number {
