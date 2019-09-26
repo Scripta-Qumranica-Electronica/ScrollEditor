@@ -33,32 +33,32 @@ export default Vue.extend({
     data() {
         return {
             editionService: new EditionService(),
-            currentVersionId: 0,
+            editionId: 0,
             page: '',
         };
     },
     computed: {
-        currentVersion(): EditionInfo | undefined {
+        edition(): EditionInfo | undefined {
             return this.$state.editions.current;
         },
         waiting(): boolean {
-            return !this.currentVersion;
+            return !this.edition;
         }
     },
     mounted() {
-        this.currentVersionId = parseInt(this.$route.params.editionId, 10);
+        this.editionId = parseInt(this.$route.params.editionId, 10);
         this.loadInfo();
         this.getPage(window.location.href);
     },
     beforeRouteUpdate(to, from, next) {
-        this.currentVersionId = parseInt(to.params.editionId, 10);
+        this.editionId = parseInt(to.params.editionId, 10);
         this.loadInfo();
         this.getPage(to.path);
         next();
     },
     methods: {
         async loadInfo() {
-            await this.editionService.fetchEdition(this.currentVersionId);
+            await this.editionService.fetchEdition(this.editionId);
         },
         getPage(url: string) {
             if (url.endsWith('artefacts')) {

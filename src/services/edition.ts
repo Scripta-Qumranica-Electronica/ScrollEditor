@@ -40,6 +40,7 @@ class EditionService {
             }
         });
 
+        this.stateManager.editions.items = editionList;
         return {editionList, myEditionList} as AllEditions;
     }
 

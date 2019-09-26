@@ -42,6 +42,13 @@ abstract class StateCollection<T extends ItemWithId> {
             this._current = undefined;
         }
     }
+
+    public find(id: number) : T | undefined {
+        if (!this._items) {
+            return undefined;
+        }
+        return this._items.find((it) => it.id === id);
+    }
 }
 
 export class EditionCollection extends StateCollection<EditionInfo> { }

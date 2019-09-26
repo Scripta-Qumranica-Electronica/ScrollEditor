@@ -69,14 +69,10 @@ export default Vue.extend({
       return countIf(this.myEditions, (edition) => this.nameMatch(edition.name));
     }
   },
-  mounted() {
-    this.editionService.listEditions().then((editions) => {
-      this.allEditions = editions.editionList;
-      this.myEditions = editions.myEditionList;
-      this.$state.editions.items = this.allEditions;
-    }, (error) => {
-      throw error;
-    });
+  async mounted() {
+    const editions = await this.editionService.listEditions();
+    this.allEditions = editions.editionList;  // TODO: Change those into computed properties that filter the state
+    this.myEditions = editions.myEditionList;
   },
   methods: {
       nameMatch(name: string): boolean {

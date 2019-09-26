@@ -38,7 +38,7 @@ export default Vue.extend({
       return this.edition.publicCopies;
     },
     personalVersionCount(): number {
-      return 0;
+      return 0; // TODO: Return the actual number
     }
   },
 });
