@@ -223,7 +223,7 @@ export default Vue.extend({
   async mounted() {
     try {
       this.waiting = true;
-      await this.editionService.fetchEdition(this.editionId);
+      await this.editionService.getEdition(this.editionId);
       await this.imagedObjectService.getImagedObjectInfo(
         this.editionId,
         this.$route.params.imagedObjectId

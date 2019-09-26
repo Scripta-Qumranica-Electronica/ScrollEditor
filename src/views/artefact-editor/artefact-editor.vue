@@ -222,8 +222,8 @@ export default Vue.extend({
     // this.prepareNonSelectedSigns();
     try {
       this.waiting = true;
-      await this.editionService.fetchEdition(this.editionId);
-      await this.artefactService.fetchArtefactInfo(
+      await this.editionService.getEdition(this.editionId);
+      await this.artefactService.getArtefactInfo(
         this.editionId,
         parseInt(this.$route.params.artefactId)
       );

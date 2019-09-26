@@ -43,7 +43,7 @@ class EditionService {
         return {editionList, myEditionList} as AllEditions;
     }
 
-    public async fetchEdition(editionId: number, ignoreCache = false): Promise<EditionInfo> {
+    public async getEdition(editionId: number, ignoreCache = false): Promise<EditionInfo> {
         // Fetches a edition version from the server and puts it in the store.
         // Returns immediately if the requested edition version is already in the store
         if (!ignoreCache &&
@@ -68,7 +68,7 @@ class EditionService {
         return primary;
     }
 
-    public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
+    public async getEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
         if (!ignoreCache && this.stateManager.imagedObjects.items !== undefined) {
             return this.stateManager.imagedObjects.items;
         }
@@ -78,7 +78,7 @@ class EditionService {
         return imagedObjectList;
     }
 
-    public async fetchArtefacts(ignoreCache = false): Promise<Artefact[]> {
+    public async getArtefacts(ignoreCache = false): Promise<Artefact[]> {
         if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
             return this.stateManager.artefacts.items;
         }
