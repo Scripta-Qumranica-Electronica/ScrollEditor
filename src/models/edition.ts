@@ -46,8 +46,9 @@ class EditionInfo {
     public isPublic: boolean;
     public lastEdit?: Date;
 
-    public publicCopies: number = 1; // Updated by the EditionService
-    public mine: boolean = false; // Updated by the EditionService
+    // The following properties are updated by the EditionService upon creation
+    public publicCopies: number = 1;
+    public mine: boolean = false;
     public otherVersions: EditionInfo[] = [];
 
     constructor(dto: EditionDTO) {
@@ -67,9 +68,4 @@ class EditionInfo {
     }
 }
 
-interface AllEditions {
-    editionList: EditionInfo[];
-    myEditionList: EditionInfo[];
-}
-
-export { UserInfo, EditionInfo, ShareInfo, AllEditions };
+export { UserInfo, EditionInfo, ShareInfo };

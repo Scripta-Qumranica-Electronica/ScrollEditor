@@ -1,4 +1,4 @@
-import { EditionInfo, AllEditions } from '@/models/edition';
+import { EditionInfo } from '@/models/edition';
 import { CommHelper } from './comm-helper';
 import { EditionListDTO, EditionUpdateRequestDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
@@ -12,33 +12,26 @@ class EditionService {
         this.stateManager = StateManager.instance;
     }
 
-    public async getAllEditions(): Promise<AllEditions> {
+    public async getAllEditions(): Promise<EditionInfo[]> {
         const response = await CommHelper.get<EditionListDTO>(ApiRoutes.allEditionsUrl());
-        const editionList = [] as EditionInfo[];
-        const myEditionList = [] as EditionInfo[];
-        const self = this;
+        let editionList = [] as EditionInfo[];
 
-        response.data.editions.map((obj) => { // group
-            const publicEditions = obj.filter((element) => element.isPublic);
+        response.data.editions.map((grp) => {
+            // grp is a group of editions - all versions of each other
+            const editions = grp.map((obj) => new EditionInfo(obj));
 
-            if (StateManager.instance.session.user) {
-                const myEditions = obj.filter((element) =>
-                    element.owner.userId === self.stateManager.session.user!.userId);
-
-                if (myEditions.length) {
-                    myEditionList.push(new EditionInfo(myEditions[0]));
-                    // TODO: add myCount.length or shares length ?
-                }
+            // Set various edition flags that depend on other editions
+            const publicCopies = editions.filter((ed) => ed.isPublic).length;
+            for (const edition of editions) {
+                edition.mine = edition.owner.userId === this.stateManager.session.user!.userId;
+                edition.otherVersions = editions.filter((ed) => ed !== edition);
+                edition.publicCopies = publicCopies;
             }
-            if (publicEditions.length) {
-                const editionInfo = new EditionInfo(publicEditions[0]);
-                editionInfo.publicCopies = publicEditions.length; // update number of public scrolls
-                editionList.push(editionInfo);
-            }
+
+            editionList = editionList.concat(editions);
         });
 
-        this.stateManager.editions.items = editionList;
-        return {editionList, myEditionList} as AllEditions;
+        return editionList;
     }
 
     public async getEdition(editionId: number, ignoreCache = false): Promise<EditionInfo> {

@@ -7,21 +7,21 @@ interface ItemWithId {
 }
 
 abstract class StateCollection<T extends ItemWithId> {
-    private _items: T[] | undefined;
+    private _items: T[];
     private _current: T | undefined;
     private _promises: Map<number, Promise<T>>;
 
     constructor() {
-        this._items = undefined;
+        this._items = [];
         this._current = undefined;
         this._promises = new Map<number, Promise<T>>();
     }
 
-    public get items(): T[] | undefined {
+    public get items(): T[] {
         return this._items;
     }
 
-    public set items(items: T[] | undefined) {
+    public set items(items: T[]) {
         this._items = items;
         this._current = undefined;
     }
@@ -35,7 +35,7 @@ abstract class StateCollection<T extends ItemWithId> {
             if (this._items) {
                 const existing = this._items.find((a) => a.id === item.id);
                 if (!existing) {
-                    this._items = undefined;
+                    this._items = [];
                     // reset items, so it will load the list from the server when the list will be needed
                 }
             }

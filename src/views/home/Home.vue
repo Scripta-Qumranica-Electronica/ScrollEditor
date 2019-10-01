@@ -25,10 +25,10 @@
         <small>{{ $tc('home.publicEditionGroupCount', numberOfEditions)}}</small>
       </div>
     </div>
-    <ul class="list-unstyled row mt-2" id="all-search-results" v-if="allEditions.length">
+    <ul class="list-unstyled row mt-2" id="all-search-results" v-if="publicEditions.length">
       <li
           class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
-          v-for="edition in allEditions"
+          v-for="edition in publicEditions"
           v-show="filter === '' || edition.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1"
           :key="edition.id">
         <edition-group-card :edition="edition"></edition-group-card>
@@ -40,7 +40,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionService from '@/services/edition';
+import StateService from '@/services/state';
 import EditionGroupCard from './components/EditionGroupCard.vue';
 import EditionCard from './components/EditionCard.vue';
 import { EditionInfo } from '@/models/edition';
@@ -55,24 +55,26 @@ export default Vue.extend({
   },
   data() {
     return {
-      editionService: new EditionService(),
-      allEditions: [] as EditionInfo[],
-      myEditions: [] as EditionInfo[],
+      stateService: new StateService(),
       filter: '',
     };
   },
   computed: {
+    publicEditions(): EditionInfo[] {
+      return this.$state.editions.items.filter((ed) => ed.isPublic);
+    },
+    myEditions(): EditionInfo[] {
+      return this.$state.editions.items.filter((ed) => ed.mine);
+    },
     numberOfEditions(): number {
-      return countIf(this.allEditions, (edition) => this.nameMatch(edition.name));
+      return countIf(this.publicEditions, (edition) => this.nameMatch(edition.name));
     },
     numberOfMyEditions(): number {
       return countIf(this.myEditions, (edition) => this.nameMatch(edition.name));
-    }
+    },
   },
-  async mounted() {
-    const editions = await this.editionService.getAllEditions();
-    this.allEditions = editions.editionList;  // TODO: Change those into computed properties that filter the state
-    this.myEditions = editions.myEditionList;
+  created() {
+    this.stateService.prepareAllEditions();
   },
   methods: {
       nameMatch(name: string): boolean {
