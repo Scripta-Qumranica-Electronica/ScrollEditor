@@ -23,6 +23,7 @@ import RenderingOptimizationPlugin from './plugins/rendering-optimization';
 import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
 import { StateManager } from './state';
+import StateService from './state/state-service';
 
 // import AsyncComputed from 'vue-async-computed';
 

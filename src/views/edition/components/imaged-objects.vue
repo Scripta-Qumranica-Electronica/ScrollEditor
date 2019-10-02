@@ -24,22 +24,17 @@ import { ImagedObject } from '@/models/imaged-object';
 import ImagedObjectService from '@/services/imaged-object';
 
 export default Vue.extend({
-    data() {
-        return {
-            imagedObjectService: new ImagedObjectService(),
-        };
-    },
     components: {
         ImagedObjectCard,
         Waiting,
     },
     computed: {
-        imagedObjects(): ImagedObject[] | undefined {
+        imagedObjects(): ImagedObject[] {
             return this.$state.imagedObjects.items;
         }
     },
-    mounted() {
-        this.imagedObjectService.getEditionImagedObjects();
+    created() {
+        this.$state.prepare.edition(this.$state.editions.current!.id);
     }
 });
 </script>

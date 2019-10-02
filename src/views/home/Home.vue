@@ -40,7 +40,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import StateService from '@/services/state';
 import EditionGroupCard from './components/EditionGroupCard.vue';
 import EditionCard from './components/EditionCard.vue';
 import { EditionInfo } from '@/models/edition';
@@ -55,7 +54,6 @@ export default Vue.extend({
   },
   data() {
     return {
-      stateService: new StateService(),
       filter: '',
     };
   },
@@ -74,7 +72,7 @@ export default Vue.extend({
     },
   },
   created() {
-    this.stateService.prepareAllEditions();
+    this.$state.prepare.allEditions();
   },
   methods: {
       nameMatch(name: string): boolean {

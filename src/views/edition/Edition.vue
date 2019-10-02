@@ -32,7 +32,6 @@ export default Vue.extend({
     },
     data() {
         return {
-            editionService: new EditionService(),
             editionId: 0,
             page: '',
         };
@@ -47,19 +46,16 @@ export default Vue.extend({
     },
     mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
-        this.loadInfo();
+        this.$state.prepare.edition(this.editionId);
         this.getPage(window.location.href);
     },
     beforeRouteUpdate(to, from, next) {
         this.editionId = parseInt(to.params.editionId, 10);
-        this.loadInfo();
+        this.$state.prepare.edition(this.editionId);
         this.getPage(to.path);
         next();
     },
     methods: {
-        async loadInfo() {
-            await this.editionService.getEdition(this.editionId);
-        },
         getPage(url: string) {
             if (url.endsWith('artefacts')) {
                 this.page = 'artefacts';

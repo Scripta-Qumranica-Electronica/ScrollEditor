@@ -1,8 +1,8 @@
 import { EditionInfo } from '@/models/edition';
 import { CommHelper } from './comm-helper';
-import { EditionListDTO, EditionUpdateRequestDTO, EditionDTO } from '@/dtos/sqe-dtos';
+import { EditionListDTO, EditionUpdateRequestDTO, EditionDTO, EditionGroupDTO } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
-import { ApiRoutes } from '@/variables';
+import { ApiRoutes } from '@/services/api-routes';
 import { Requests } from './requests';
 
 class EditionService {
@@ -34,18 +34,19 @@ class EditionService {
         return editionList;
     }
 
-    public async getEdition(editionId: number, ignoreCache = false): Promise<EditionInfo> {
-        // Fetches a edition version from the server and puts it in the store.
-        // Returns immediately if the requested edition version is already in the store
-        if (!ignoreCache &&
-            this.stateManager.editions.current &&
-            this.stateManager.editions.current.id === editionId) {
-            return this.stateManager.editions.current;
-        }
+    public async getEdition(editionId: number): Promise<EditionInfo> {
+        // Note: this method is probably unnecessary, since getAllEditions
+        // retrieves all the data about an edition anyway
+        const response = await CommHelper.get<EditionGroupDTO>(ApiRoutes.editionUrl(editionId));
 
-        this.stateManager.editions.current = undefined; // Trigger a spinner on all views
-        const primary = await Requests.requestEdition(editionId);
-        this.stateManager.editions.current = primary;
+        // Convert the server response into a single EditionInfo entity, putting all the other versions
+        // in its otherVersions array
+        const primary = new EditionInfo(response.data.primary);
+        if (!primary) {
+            throw new Error('Server did not return the version we asked for');
+        }
+        const others = response.data.others.map((ed) => new EditionInfo(ed));
+        primary.otherVersions = others;
 
         return primary;
     }

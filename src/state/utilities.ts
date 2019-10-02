@@ -9,12 +9,10 @@ interface ItemWithId {
 abstract class StateCollection<T extends ItemWithId> {
     private _items: T[];
     private _current: T | undefined;
-    private _promises: Map<number, Promise<T>>;
 
     constructor() {
         this._items = [];
         this._current = undefined;
-        this._promises = new Map<number, Promise<T>>();
     }
 
     public get items(): T[] {
@@ -45,19 +43,11 @@ abstract class StateCollection<T extends ItemWithId> {
         }
     }
 
-    public find(id: number): T | undefined {
+    public find(id: any): T | undefined {
         if (!this._items) {
             return undefined;
         }
         return this._items.find((it) => it.id === id);
-    }
-
-    public findPromise(id: number): Promise<T> | undefined {
-        return this._promises.get(id);
-    }
-
-    public setPromise(id: number, promise: Promise<T>) {
-        this._promises.set(id, promise);
     }
 }
 

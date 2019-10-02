@@ -8,7 +8,7 @@ import { LoginRequestDTO, DetailedUserDTO, UserDTO, ResetLoggedInUserPasswordReq
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
-import { ApiRoutes } from '@/variables';
+import { ApiRoutes } from '@/services/api-routes';
 
 
 class SessionService {

@@ -31,10 +31,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import { Artefact } from '../../../models/artefact';
+import { Artefact } from '@/models/artefact';
 import ArtefactCard from './artefact-card.vue';
-import { countIf } from '../../../utils/helpers';
-import { SideOption } from '../../imaged-object-editor/types';
+import { countIf } from '@/utils/helpers';
+import { SideOption } from '@/views/imaged-object-editor/types';
 import ImagedObjectService from '@/services/imaged-object';
 import ArtefactService from '@/services/artefact';
 
@@ -56,35 +56,21 @@ export default Vue.extend({
         Waiting,
     },
     computed: {
-        artefacts(): Artefact[] | undefined {
-            if (this.$state.artefacts.items) {
-                return this.$state.artefacts.items;
-            }
-            return undefined;
+        artefacts(): Artefact[] {
+            return this.$state.artefacts.items;
         },
         numberOfArtefacts(): number {
-            if (!this.artefacts) {
-                return 0;
-            } else {
-                return countIf(this.artefacts, (art) => this.nameMatch(art.name));
-            }
+            return countIf(this.artefacts, (art) => this.nameMatch(art.name));
         },
         filteredArtefact(): number[] {
-            if (this.$state.artefacts.items) {
-                return this.$state.artefacts.items.filter((x) => ( this.filter === ''
-                        || this.nameMatch(x.name) ) // Filter for user input
-                        && ( this.sideFilter.name && this.sideFilter.name.indexOf(x.side) !== -1 ) // Filter for side
-                    ).map((x) => x.id);
-            }
-
-            return [];
+            return this.$state.artefacts.items.filter((x) => ( this.filter === ''
+                    || this.nameMatch(x.name) ) // Filter for user input
+                    && ( this.sideFilter.name && this.sideFilter.name.indexOf(x.side) !== -1 ) // Filter for side
+                ).map((x) => x.id);
         },
     },
     created() {
-        // ignore cache, because we want to load data from server when become to another version of edition
-        this.imagedObjectService.getEditionImagedObjects(true);
-        this.artefactService.getEditionArtefacts(true);
-
+        this.$state.prepare.edition(this.$state.editions.current!.id);
         this.sideFilter = this.sideOptions[2];
     },
     methods: {

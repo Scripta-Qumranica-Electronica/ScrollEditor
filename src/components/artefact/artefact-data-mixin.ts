@@ -19,9 +19,12 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     private imagedObjectService = new ImagedObjectService();
 
     protected async asyncMounted() {
-        const imagedObject = await this.imagedObjectService.getImagedObject(
-            this.artefact.editionId!, this.artefact.imagedObjectId);
-
+        await this.$state.prepare.edition(this.artefact.editionId);
+        const imagedObject = this.$state.imagedObjects.find(this.artefact.imagedObjectId);
+        if (!imagedObject) {
+            throw new Error(
+                `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`);
+        }
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
         if (!this.imageStack) {
             throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +

@@ -4,7 +4,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { ArtefactListDTO, CreateArtefactDTO, ArtefactDTO, UpdateArtefactDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import EditionService from './edition';
-import { ApiRoutes } from '@/variables';
+import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 import { Requests } from './requests';
@@ -30,14 +30,12 @@ class ArtefactService {
         return artefact;
     }
 
-    public async getEditionArtefacts(ignoreCache = false): Promise<Artefact[]> {
-        if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
-            return this.stateManager.artefacts.items;
-        }
+    public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
+        const response = await CommHelper.get<ArtefactListDTO>(
+            ApiRoutes.allEditionArtefactsUrl(editionId, true)
+        );
 
-        const artefactList = await Requests.requestEditionArtefacts(this.stateManager.editions.current!.id);
-        this.stateManager.artefacts.items = artefactList;
-        return artefactList;
+        return response.data.artefacts.map((d: any) => new Artefact(d));
     }
 
     public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string, side: Side):
@@ -93,7 +91,7 @@ class ArtefactService {
 
     private async _getArtefact(editionId: number, artefactId: number) {
         const editionService = new EditionService();
-        const artefacts = await Requests.requestEditionArtefacts(editionId);
+        const artefacts = await this.getEditionArtefacts(editionId);
 
         return artefacts.find((a: Artefact) => a.id === artefactId);
     }

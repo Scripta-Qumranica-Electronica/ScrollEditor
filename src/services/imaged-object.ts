@@ -7,7 +7,7 @@ import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/sqe-dt
 import { StateManager } from '@/state';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 import { Side } from '@/models/misc';
-import { ApiRoutes } from '@/variables';
+import { ApiRoutes } from '@/services/api-routes';
 import { Requests } from './requests';
 
 class ImagedObjectService {
@@ -33,14 +33,12 @@ class ImagedObjectService {
         return imagedObject;
     }
 
-    public async getEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
-        if (!ignoreCache && this.stateManager.imagedObjects.items !== undefined) {
-            return this.stateManager.imagedObjects.items;
-        }
+    public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
+        const response = await CommHelper.get<ImagedObjectListDTO>(
+            ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
+        );
 
-        const imagedObjectList = await Requests.requestEditionImagedObjects(this.stateManager.editions.current!.id);
-        this.stateManager.imagedObjects.items = imagedObjectList;
-        return imagedObjectList;
+        return response.data.imagedObjects.map((d: any) => new ImagedObject(d));
     }
 
     // The position is a transform matrix for positioning the
@@ -63,7 +61,7 @@ class ImagedObjectService {
 
     private async _getImagedObject(editionId: number, imagedObjectId: string) {
         const editionService = new EditionService();
-        const imagedObjectList = await Requests.requestEditionImagedObjects(editionId);
+        const imagedObjectList = await this.getEditionImagedObjects(editionId);
 
         return imagedObjectList.find((io: ImagedObject) => io.id === imagedObjectId);
     }
