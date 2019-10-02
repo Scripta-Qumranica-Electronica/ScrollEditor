@@ -6,17 +6,8 @@ import { ApiRoutes } from '@/services/api-routes';
 import { CommHelper } from './comm-helper';
 
 export default class ImageService {
-    public async requestImageManifest(image: IIIFImage) {
+    public async getImageManifest(image: IIIFImage): Promise<any> {
         const manifest = await Requests.requestImageManifest(image.manifestUrl);
         image.manifest = manifest;
-        return image.manifest;
-    }
-
-    public async requestImageManifests(images: IIIFImage[]) {
-        const properImages = images.filter((image) => image instanceof IIIFImage);
-        // Filter out nulls and undefined
-        // Load all manifests concurrently
-        const promises = properImages.filter((image) => this.requestImageManifest(image));
-        await Promise.all(promises);
     }
 }

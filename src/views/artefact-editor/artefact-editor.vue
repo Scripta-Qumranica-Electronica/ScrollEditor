@@ -115,7 +115,6 @@ import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactImage from './artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import EditionService from '@/services/edition';
-import ImageService from '@/services/image';
 import ArtefactService from '@/services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
 import TextSide from './TextSide.vue';
@@ -160,7 +159,6 @@ export default Vue.extend({
       errorMessage: '',
       waiting: true,
       editionService: new EditionService(),
-      imageService: new ImageService(),
       imagedObjectService: new ImagedObjectService(),
       artefactService: new ArtefactService(),
       isActiveSidebar: false,
@@ -394,9 +392,8 @@ export default Vue.extend({
         this.imagedObject.getImageStack(this.artefact.side) &&
         this.imagedObject.getImageStack(this.artefact.side)!.master
       ) {
-        await this.imageService.requestImageManifest(
-          this.imagedObject.getImageStack(this.artefact.side)!.master
-        );
+        const stack = this.imagedObject.getImageStack(this.artefact.side)!;
+        this.$state.prepare.imageManifest(stack.master);
         this.masterImage = this.getMasterImg();
       }
       if (this.imagedObject) {

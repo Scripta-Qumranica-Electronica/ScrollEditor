@@ -23,7 +23,11 @@ class EditionService {
             // Set various edition flags that depend on other editions
             const publicCopies = editions.filter((ed) => ed.isPublic).length;
             for (const edition of editions) {
-                edition.mine = edition.owner.userId === this.stateManager.session.user!.userId;
+                if (this.stateManager.session.user) {
+                    edition.mine = edition.owner.userId === this.stateManager.session.user.userId;
+                } else {
+                    edition.mine = false;
+                }
                 edition.otherVersions = editions.filter((ed) => ed !== edition);
                 edition.publicCopies = publicCopies;
             }

@@ -2,6 +2,8 @@ import { StateManager } from '@/state';
 import EditionService from '@/services/edition';
 import ImagedObjectService from '@/services/imaged-object';
 import ArtefactService from '@/services/artefact';
+import { IIIFImage } from '@/models/image';
+import ImageService from '@/services/image';
 
 /*
  * This service handles all the state data.
@@ -53,6 +55,7 @@ export default class StateService {
     private editionProcess: ProcessTracking | undefined;
     private imagedObjectsProcess: ProcessTracking | undefined;
     private artefactsProcess: ProcessTracking | undefined;
+    private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
 
     public constructor(state: StateManager) {
         if (StateService.alreadyCreated) {
@@ -60,6 +63,7 @@ export default class StateService {
             throw new Error("Can't initialize StateService more than once");
         }
         this._state = state;
+        this.imageManifestProcesses = new Map<string, ProcessTracking>();
         StateService.alreadyCreated = true;
     }
 
@@ -106,6 +110,18 @@ export default class StateService {
         return this.artefactsProcess.promise;
     }
 
+    public imageManifest(image: IIIFImage): Promise<void> {
+        let pt = this.imageManifestProcesses.get(image.manifestUrl);
+        if (pt) {
+            return pt.promise;
+        }
+
+        const promise = this.imageManifestInternal(image);
+        pt = new ProcessTracking(promise, -1);
+        this.imageManifestProcesses.set(image.manifestUrl, pt);
+        return pt.promise;
+    }
+
     private async allEditionsInternal() {
         const svc = new EditionService();
         const editions = await svc.getAllEditions();
@@ -141,5 +157,11 @@ export default class StateService {
         const svc = new ArtefactService();
         const artefacts = await svc.getEditionArtefacts(editionId);
         this._state.artefacts.items = artefacts;
+    }
+
+    private async imageManifestInternal(image: IIIFImage) {
+        const svc = new ImageService();
+        const manifest = svc.getImageManifest(image);
+        image.manifest = manifest;
     }
 }

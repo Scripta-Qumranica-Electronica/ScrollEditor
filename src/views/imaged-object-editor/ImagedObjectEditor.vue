@@ -107,7 +107,6 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import EditionService from '@/services/edition';
-import ImageService from '@/services/image';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import ImagedObjectMenu from './ImagedObjectMenu.vue';
@@ -143,7 +142,6 @@ export default Vue.extend({
       imagedObjectService: new ImagedObjectService(),
       artefactService: new ArtefactService(),
       editionService: new EditionService(),
-      imageService: new ImageService(),
       waiting: true,
       artefact: undefined as OptimizedArtefact | undefined,
       initialMask: new Polygon(),
@@ -233,7 +231,8 @@ export default Vue.extend({
 
       if (this.imagedObject && this.imagedObject.getImageStack(this.side)
           && this.imagedObject.getImageStack(this.side)!.master) {
-        await this.imageService.requestImageManifest(this.imagedObject.getImageStack(this.side)!.master);
+        const stack = this.imagedObject.getImageStack(this.side)!;
+        await this.$state.prepare.imageManifest(stack.master);
         this.masterImage = this.getMasterImg();
       }
 
