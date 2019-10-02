@@ -16,7 +16,10 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     protected boundingBox = new BoundingBox();
 
     protected async asyncMounted() {
+        console.debug(`Artefact-data-mixin asyncMounted for artefact ${this.artefact.id}`);
         await this.$state.prepare.edition(this.artefact.editionId);
+        console.debug(`After prepare.edition for ${this.artefact.id}`);
+        console.debug(this.artefact);
         const imagedObject = this.$state.imagedObjects.find(this.artefact.imagedObjectId);
         if (!imagedObject) {
             throw new Error(

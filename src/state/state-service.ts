@@ -55,6 +55,7 @@ export default class StateService {
     private editionProcess: ProcessTracking | undefined;
     private imagedObjectsProcess: ProcessTracking | undefined;
     private artefactsProcess: ProcessTracking | undefined;
+    private artefactProcess: ProcessTracking | undefined;
     private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
 
     public constructor(state: StateManager) {
@@ -104,10 +105,19 @@ export default class StateService {
             return this.artefactsProcess.promise;
         }
 
-        console.log(`Preparing artefacts for edition ${editionId}`);
         const promise = this.artefactsInternal(editionId);
         this.artefactsProcess = new ProcessTracking(promise, editionId);
         return this.artefactsProcess.promise;
+    }
+
+    public artefact(editionId: number, artefactId: number): Promise<void> {
+        if (this.artefactProcess && this.artefactProcess.id === artefactId) {
+            return this.artefactProcess.promise;
+        }
+
+        const promise = this.artefactInternal(editionId, artefactId);
+        this.artefactProcess = new ProcessTracking(promise, artefactId);
+        return this.artefactProcess.promise;
     }
 
     public imageManifest(image: IIIFImage): Promise<void> {
@@ -161,7 +171,32 @@ export default class StateService {
 
     private async imageManifestInternal(image: IIIFImage) {
         const svc = new ImageService();
-        const manifest = svc.getImageManifest(image);
+        const manifest = await svc.getImageManifest(image);
         image.manifest = manifest;
+    }
+
+    private async artefactInternal(editionId: number, artefactId: number) {
+        await this.edition(editionId);
+        const artefact = this._state.artefacts.find(artefactId);
+        if (!artefact) {
+            console.error(`Can't located artefact ${artefactId} in edition ${editionId}`);
+            throw new Error(`Can't located artefact ${artefactId} in edition ${editionId}`);
+        }
+
+        const imagedObject = this._state.imagedObjects.find(artefact.imagedObjectId);
+        if (!imagedObject) {
+            console.error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
+            throw new Error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
+        }
+
+        const stack = artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
+        if (!stack) {
+            console.error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
+            throw new Error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
+        }
+        await this.imageManifest(stack.master);
+
+        this._state.artefacts.current = artefact;
+        this._state.imagedObjects.current = imagedObject;
     }
 }
