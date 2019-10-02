@@ -47,6 +47,9 @@ class ProcessTracking {
     }
 }
 
+type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
+                         'artefactProcess';
+
 export default class StateService {
     private static alreadyCreated = false;
     private _state: StateManager;
@@ -69,55 +72,23 @@ export default class StateService {
     }
 
     public allEditions(): Promise<void> {
-        if (this.allEditionsProcess) {
-            return this.allEditionsProcess.promise;
-        }
-
-        const promise = this.allEditionsInternal();
-        this.allEditionsProcess = new ProcessTracking(promise, -1);
-
-        return this.allEditionsProcess.promise;
+        return this.wrapInternal('allEditionsProcess', -1, (id: number) => this.allEditionsInternal());
     }
 
     public async edition(editionId: number): Promise<void> {
-        if (this.editionProcess && this.editionProcess.id === editionId) {
-            return this.editionProcess.promise;
-        }
-
-        const promise = this.editionInternal(editionId);
-        this.editionProcess = new ProcessTracking(promise, editionId);
-
-        return this.editionProcess.promise;
+        return this.wrapInternal('editionProcess', editionId, (id: number) => this.editionInternal(id));
     }
 
     public imagedObjects(editionId: number) {
-        if (this.imagedObjectsProcess && this.imagedObjectsProcess.id === editionId) {
-            return this.imagedObjectsProcess.promise;
-        }
-
-        const promise = this.imagedObjectsInternal(editionId);
-        this.imagedObjectsProcess = new ProcessTracking(promise, editionId);
-        return this.imagedObjectsProcess.promise;
+        return this.wrapInternal('imagedObjectsProcess', editionId, (id: number) => this.imagedObjectsInternal(id));
     }
 
     public artefacts(editionId: number): Promise<void> {
-        if (this.artefactsProcess && this.artefactsProcess.id === editionId) {
-            return this.artefactsProcess.promise;
-        }
-
-        const promise = this.artefactsInternal(editionId);
-        this.artefactsProcess = new ProcessTracking(promise, editionId);
-        return this.artefactsProcess.promise;
+        return this.wrapInternal('artefactsProcess', editionId, (id: number) => this.artefactsInternal(id));
     }
 
     public artefact(editionId: number, artefactId: number): Promise<void> {
-        if (this.artefactProcess && this.artefactProcess.id === artefactId) {
-            return this.artefactProcess.promise;
-        }
-
-        const promise = this.artefactInternal(editionId, artefactId);
-        this.artefactProcess = new ProcessTracking(promise, artefactId);
-        return this.artefactProcess.promise;
+        return this.wrapInternal('artefactProcess', artefactId, (id) => this.artefactInternal(editionId, id));
     }
 
     public imageManifest(image: IIIFImage): Promise<void> {
@@ -129,6 +100,43 @@ export default class StateService {
         const promise = this.imageManifestInternal(image);
         pt = new ProcessTracking(promise, -1);
         this.imageManifestProcesses.set(image.manifestUrl, pt);
+        return pt.promise;
+    }
+
+    private getProcess(processName: ProcessProperties): ProcessTracking | undefined {
+        const self = this as any;
+        const pt = self[processName];
+
+        if (pt === undefined) {
+            return undefined;
+        }
+
+        if (!(pt instanceof ProcessTracking)) {
+            console.error(`${processName} does not resolve to a ProcessTracking instance`);
+            throw Error(`${processName} does not resolve to a ProcessTracking instance`);
+        }
+
+        return pt;
+    }
+
+    private setProcess(processName: ProcessProperties, processTracking: ProcessTracking | undefined) {
+        const existing = this.getProcess(processName);  // throws an exception if processName is incorrect
+        const self = this as any;
+        self[processName] = processTracking;
+    }
+
+    private wrapInternal(processName: ProcessProperties, id: number, internal: (id: number) => Promise<void>) {
+        // Waiting for a better solution:
+        // https://stackoverflow.com/questions/58209234/typescript-pass-property-by-name
+        let pt = this.getProcess(processName);
+        if (pt && pt.id === id) {
+            return pt.promise;
+        }
+
+        const promise = internal(id);
+        pt = new ProcessTracking(promise, id);
+        this.setProcess(processName, pt);
+
         return pt.promise;
     }
 
