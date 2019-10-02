@@ -1,14 +1,11 @@
 import { ImagedObject } from '@/models/imaged-object';
 import EditionService from './edition';
-import { Artefact } from '@/models/artefact';
 import { CommHelper } from './comm-helper';
-import { ImagedObjectDTO, ImagedObjectListDTO } from '@/dtos/sqe-dtos';
-import { UpdateArtefactDTO, ArtefactDTO, CreateArtefactDTO } from '@/dtos/sqe-dtos';
-import { StateManager } from '@/state';
-import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
-import { Side } from '@/models/misc';
 import { ApiRoutes } from '@/services/api-routes';
-import { Requests } from './requests';
+import { StateManager } from '@/state';
+import { Artefact } from '@/models/artefact';
+import { ImagedObjectDTO, ImagedObjectListDTO } from '@/dtos/sqe-dtos';
+
 
 class ImagedObjectService {
     public stateManager: StateManager;
@@ -16,21 +13,17 @@ class ImagedObjectService {
         this.stateManager = StateManager.instance;
     }
 
-    public async getImagedObject(editionId: number, imagedObjectId: string) {
-        let imagedObject = this._getCachedImagedObject(editionId, imagedObjectId);
-        if (!imagedObject) {
-            imagedObject = await this._getImagedObject(editionId, imagedObjectId);
+    public async getImagedObjectArtefacts(editionId: number, imagedObjectId: string): Promise<Artefact[]> {
+        const response = await CommHelper.get<ImagedObjectDTO>(
+            ApiRoutes.editionImagedObjectUrl(editionId, imagedObjectId, true)
+        );
+
+        let artefactList: Artefact[] = [];
+        if (response.data.artefacts) {
+            artefactList = response.data.artefacts.map((obj: any) => new Artefact(obj));
         }
 
-        if (!imagedObject) {
-            throw new Error(`Can't find imagedObject with id ${imagedObjectId}`);
-        }
-        const artefactList = await Requests.requestImagedObjectArtefacts(editionId, imagedObject.id);
-        imagedObject.artefacts = artefactList;
-
-        this.stateManager.imagedObjects.current = imagedObject;
-
-        return imagedObject;
+        return artefactList;
     }
 
     public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {

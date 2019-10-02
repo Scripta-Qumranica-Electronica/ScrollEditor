@@ -88,7 +88,7 @@
           >
             <i :class="mode.icon"></i>
           </b-button>
-            <b-button type="button" class="sidebarCollapse" @click="deletePolygon()">
+          <b-button type="button" class="sidebarCollapse" @click="deletePolygon()">
             <i class="fa fa-trash"></i>
           </b-button>
         </div>
@@ -300,9 +300,9 @@ export default Vue.extend({
       return undefined;
     },
     // prepareNonSelectedSigns() {
-      // this.nonSelectedSigns = this.arrayOfSigns.filter(
-      //   (sign: ShapeSign) => sign.signId !== this.clickedSignId
-      // );
+    // this.nonSelectedSigns = this.arrayOfSigns.filter(
+    //   (sign: ShapeSign) => sign.signId !== this.clickedSignId
+    // );
     // },
     modeChosen(val: DrawingShapesMode): boolean {
       return DrawingShapesMode[val].toString() === this.shapeChoice.toString();
@@ -382,11 +382,12 @@ export default Vue.extend({
       if (!this.artefact) {
         return;
       }
+      await this.$state.prepare.edition(this.artefact.editionId);
       this.params.imageSettings = {}; // as ImageSetting;
-      this.imagedObject = await this.imagedObjectService.getImagedObject(
-        this.artefact.editionId!,
+      this.imagedObject = this.$state.imagedObjects.find(
         this.artefact.imagedObjectId
       );
+
       if (
         this.imagedObject &&
         this.imagedObject.getImageStack(this.artefact.side) &&

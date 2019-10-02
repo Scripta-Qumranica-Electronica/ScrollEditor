@@ -223,11 +223,8 @@ export default Vue.extend({
   async mounted() {
     try {
       this.waiting = true;
-      await this.editionService.getEdition(this.editionId);
-      await this.imagedObjectService.getImagedObject(
-        this.editionId,
-        this.$route.params.imagedObjectId
-      );
+      await this.$state.prepare.edition(this.editionId);
+      this.$state.imagedObjects.current = this.$state.imagedObjects.find(this.$route.params.imagedObjectId);
 
       if (this.imagedObject && this.imagedObject.getImageStack(this.side)
           && this.imagedObject.getImageStack(this.side)!.master) {

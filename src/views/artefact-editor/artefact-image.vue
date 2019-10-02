@@ -112,8 +112,11 @@ export default Vue.extend({
         }
     },
     async mounted() {
-        const imagedObject = await this.imagedObjectService.getImagedObject(
-            this.artefact.editionId!, this.artefact.imagedObjectId);
+        await this.$state.prepare.edition(this.artefact.editionId);
+        const imagedObject = this.$state.imagedObjects.find(this.artefact.imagedObjectId);
+        if (!imagedObject) {
+            throw new Error(`Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`);
+        }
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
         if (!this.imageStack) {
             throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +

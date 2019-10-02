@@ -7,7 +7,6 @@ import EditionService from './edition';
 import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
-import { Requests } from './requests';
 
 class ArtefactService {
     public stateManager: StateManager;
