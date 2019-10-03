@@ -20,5 +20,7 @@ export default {
     creatingNewArtefact: 'Création du nouvel Artefact',
     undo: 'Annuler',
     redo: 'Refaire',
-    filterArtefacts: "Filtre d'Artefacts"
+    filterArtefacts: "Filtre d'Artefacts",
+    both : 'Recto et Verso',
+    editorParameters : "Paramètres d'édition"
 };

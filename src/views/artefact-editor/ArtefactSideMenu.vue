@@ -20,7 +20,7 @@
     <section>
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
-          <b-button block href="#" v-b-toggle.accordion-params variant="info">Editor parameters</b-button>
+          <b-button block href="#" v-b-toggle.accordion-params variant="info">{{$t('home.editorParameters')}}</b-button>
         </b-card-header>
         <b-collapse id="accordion-params" accordion="my-accordion" role="tabpanel">
           <b-card-body>
