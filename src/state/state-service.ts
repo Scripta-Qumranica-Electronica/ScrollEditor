@@ -16,11 +16,6 @@ import ImageService from '@/services/image';
  */
 
 class ProcessTracking {
-    public static needsRefresh(pt: ProcessTracking | undefined) {
-        return (pt === undefined || pt.failed);
-        // TODO: Add some sort of expiry mechanism based on the time since pt.endTime
-    }
-
     public promise: Promise<void>;
     public id: number;
     public startTime: number;
@@ -36,14 +31,15 @@ class ProcessTracking {
 
         promise.then(() => {
             this.endTime = Date.now();
+            this.failed = false;
         }).catch((err) => {
             console.error('ProcessTracking encountered an error ', err);
             this.failed = true;
         });
     }
 
-    public get done() {
-        return !!this.endTime;
+    public needsRefresh(): boolean {
+        return this.failed;
     }
 }
 
@@ -129,7 +125,7 @@ export default class StateService {
         // Waiting for a better solution:
         // https://stackoverflow.com/questions/58209234/typescript-pass-property-by-name
         let pt = this.getProcess(processName);
-        if (pt && pt.id === id) {
+        if (pt && pt.id === id && !pt.needsRefresh()) {
             return pt.promise;
         }
 
@@ -148,12 +144,11 @@ export default class StateService {
 
     private async editionInternal(editionId: number) {
         // First, make sure we have all editions
-        this.allEditions();
-        await this.allEditionsProcess!.promise;  // Make sure we have all editions
+        await this.allEditions();
 
         const edition = this._state.editions.find(editionId);
         if (!edition) {
-            console.warn(`Can't find edition ${editionId} in all editions`);
+            console.error(`Can't find edition ${editionId} in all editions`);
             throw new Error(`Can't find edition ${editionId} in all editions`);
         }
 
