@@ -32,10 +32,10 @@
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import EditionService from '@/services/edition';
-import { Artefact } from '../../../models/artefact';
+import { Artefact } from '@/models/artefact';
 import ArtefactCard from './artefact-card.vue';
-import { countIf } from '../../../utils/helpers';
-import { SideOption } from '../../imaged-object-editor/types';
+import { countIf } from '@/utils/helpers';
+import { SideOption } from '@/views/imaged-object-editor/types';
 
 export default Vue.extend({
     data() {

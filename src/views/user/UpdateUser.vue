@@ -48,8 +48,8 @@
 import Vue from 'vue';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
-import { UserUpdateRequestDTO } from '../../dtos/sqe-dtos';
-import router from '../../router';
+import { UserUpdateRequestDTO } from '@/dtos/sqe-dtos';
+import router from '@/router';
 
 export default Vue.extend({
   name: 'update-user',

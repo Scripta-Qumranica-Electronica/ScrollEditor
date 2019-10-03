@@ -41,8 +41,8 @@
 import Vue from 'vue';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
-import { ResetLoggedInUserPasswordRequestDTO } from '../../dtos/sqe-dtos';
-import router from '../../router';
+import { ResetLoggedInUserPasswordRequestDTO } from '@/dtos/sqe-dtos';
+import router from '@/router';
 
 export default Vue.extend({
   name: 'change-password',

@@ -11,7 +11,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
-import ArtefactImage from '../../artefact-editor/artefact-image.vue';
+import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
 
 export default Vue.extend({
     name: 'artefact-card',
