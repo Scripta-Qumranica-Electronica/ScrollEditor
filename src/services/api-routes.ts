@@ -40,8 +40,8 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}`;
     }
 
-    export function allEditionImagedObjectsUrl(editionId: number, option: boolean = false) {
-        if (option) {
+    export function allEditionImagedObjectsUrl(editionId: number, includeArtefacts: boolean = false) {
+        if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}?${optionalArtefact}`;
         }
         return `${baseUrl}/${editions}/${editionId}/${imagedObjects}`;

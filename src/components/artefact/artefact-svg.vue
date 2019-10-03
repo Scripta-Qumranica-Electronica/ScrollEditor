@@ -26,8 +26,6 @@
 import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import { ImageStack, IIIFImage } from '@/models/image';
-import ArtefactService from '@/services/artefact';
-import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
 import { BoundingBox } from '@/utils/helpers';
 import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';

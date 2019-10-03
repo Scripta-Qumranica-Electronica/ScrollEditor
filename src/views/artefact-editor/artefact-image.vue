@@ -59,7 +59,6 @@ import { Artefact } from '@/models/artefact';
 import ArtefactService from '@/services/artefact';
 import { ImagedObject } from '@/models/imaged-object';
 import { IIIFImage, ImageStack } from '@/models/image';
-import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
 import { Position } from '@/utils/PointerTracker';
 import { ArtefactEditorParams } from './types';
@@ -77,7 +76,6 @@ export default Vue.extend({
     data() {
         return {
             artefactService: new ArtefactService(),
-            imageService: new ImageService(),
             imagedObjectService: new ImagedObjectService(),
             imageStack: undefined as ImageStack | undefined,
             masterImageManifest: undefined as any,
@@ -114,14 +112,17 @@ export default Vue.extend({
         }
     },
     async mounted() {
-        const imagedObject = await this.imagedObjectService.getImagedObject(
-            this.artefact.editionId!, this.artefact.imagedObjectId);
+        await this.$state.prepare.edition(this.artefact.editionId);
+        const imagedObject = this.$state.imagedObjects.find(this.artefact.imagedObjectId);
+        if (!imagedObject) {
+            throw new Error(`Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`);
+        }
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
         if (!this.imageStack) {
             throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
                             `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
         }
-        await this.imageService.requestImageManifest(this.imageStack.master);
+        await this.$state.prepare.imageManifest(this.imageStack.master);
 
         this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;

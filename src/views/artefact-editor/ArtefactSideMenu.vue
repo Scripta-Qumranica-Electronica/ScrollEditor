@@ -7,7 +7,11 @@
         </b-card-header>
         <b-collapse id="accordion-images" visible accordion="my-accordion" role="tabpanel">
           <b-card-body>
-            <image-settings :imageStack="imageStack" :params="params" @imageSettingChanged="onImageSettingChanged($event)" />
+            <image-settings
+              :imageStack="imageStack"
+              :params="params"
+              @imageSettingChanged="onImageSettingChanged($event)"
+            />
           </b-card-body>
         </b-collapse>
       </b-card>
@@ -22,16 +26,22 @@
           <b-card-body>
             <section>
               <div class="row">
-                <div class="col-5">
-                  Zoom: {{formatTooltip()}}
-                </div>
-                <div class="col">          
-                  <b-form-input ref="zoomRef" type="range" min="0.1" max="1" step="0.01"  v-model="zoom"></b-form-input> <!-- v-b-tooltip.hover :title="formatTooltip()"-->
+                <div class="col-5">Zoom: {{formatTooltip()}}</div>
+                <div class="col">
+                  <b-form-input
+                    ref="zoomRef"
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.01"
+                    v-model="zoom"
+                  ></b-form-input>
+                  <!-- v-b-tooltip.hover :title="formatTooltip()"-->
                 </div>
               </div>
               <div class="row">
                 <div class="col">
-                  <b-form-input type="number" v-model="rotationAngle"/> 
+                  <b-form-input type="number" v-model="rotationAngle" />
                 </div>
               </div>
             </section>
@@ -55,49 +65,56 @@ import { SingleImageSetting } from '../../components/image-settings/types';
 export default Vue.extend({
   name: 'artefcat-side-menu',
   components: {
-    'image-settings': ImageSettingsComponent,
+    'image-settings': ImageSettingsComponent
   },
   data() {
     return {
       errorMessage: '',
       imagedObjectService: new ImagedObjectService(),
-      imageStack: {} as ImageStack,
+      imageStack: {} as ImageStack
     };
   },
   props: {
     artefact: Object as () => Artefact,
-    params: Object as () => ArtefactEditorParams,
+    params: Object as () => ArtefactEditorParams
   },
   computed: {
     editionId(): number {
       return parseInt(this.$route.params.editionId);
     },
     scrolled(): boolean {
-        return true;
+      return true;
     },
     zoom: {
       get(): number {
-          return this.params.zoom;
+        return this.params.zoom;
       },
       set(val: any) {
-          this.params.zoom = parseFloat(val);
-          this.notifyChange('zoom', val);
+        this.params.zoom = parseFloat(val);
+        this.notifyChange('zoom', val);
       }
     },
     rotationAngle: {
       get(): number {
-          return this.params.rotationAngle;
+        return this.params.rotationAngle;
       },
       set(val: any) {
-          this.params.rotationAngle = parseFloat(val);
-          this.notifyChange('rotationAngle', val);
+        this.params.rotationAngle = parseFloat(val);
+        this.notifyChange('rotationAngle', val);
       }
-    },
+    }
   },
   async mounted() {
-    const imagedObject = await this.imagedObjectService.getImagedObject(
-        this.artefact.editionId!, this.artefact.imagedObjectId);
-    this.imageStack = imagedObject.getImageStack(this.artefact.side) as ImageStack;
+    await this.$state.prepare.edition(this.artefact.editionId);
+    const imagedObject = this.$state.imagedObjects.find(
+      this.artefact.imagedObjectId
+    );
+    if (!imagedObject) {
+      throw new Error(
+        `Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`
+      );
+    }
+    this.imageStack = imagedObject.getImageStack(this.artefact.side)!;
   },
   methods: {
     formatTooltip(): string {
@@ -107,14 +124,14 @@ export default Vue.extend({
       const args = {
         property: paramName,
         value: paramValue,
-        params: this.params,
+        params: this.params
       } as ArtefactEditorParamsChangedArgs;
       this.$emit('paramsChanged', args);
     },
     onImageSettingChanged(settings: SingleImageSetting) {
       this.params.imageSettings[settings.type] = settings;
       this.notifyChange('imageSettings', this.params.imageSettings);
-    },
+    }
   }
 });
 </script>

@@ -2,7 +2,7 @@ import { CommHelper } from './comm-helper';
 import { StateManager } from '@/state';
 import { TextFragmentDataListDTO, TextEditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData, TextEdition } from '@/models/text';
-import { ApiRoutes } from '@/variables';
+import { ApiRoutes } from '@/services/api-routes';
 
 class TextService {
     public stateManager: StateManager;

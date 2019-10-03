@@ -1,42 +1,18 @@
 import { CommHelper } from './comm-helper';
-import { StateManager } from '@/state';
 import { ImagedObject } from '@/models/imaged-object';
 import { ArtefactListDTO, CreateArtefactDTO, ArtefactDTO, UpdateArtefactDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
-import EditionService from './edition';
-import { ApiRoutes } from '@/variables';
+import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
 import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 
 class ArtefactService {
-    public stateManager: StateManager;
-    constructor() {
-        this.stateManager = StateManager.instance;
-    }
+    public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
+        const response = await CommHelper.get<ArtefactListDTO>(
+            ApiRoutes.allEditionArtefactsUrl(editionId, true)
+        );
 
-    public async getArtefact(editionId: number, artefactId: number) {
-        let artefact = this._getCachedArtefact(editionId, artefactId);
-        if (!artefact) {
-            artefact = await this._getArtefact(editionId, artefactId);
-        }
-
-        if (!artefact) {
-            throw new Error(`Can't find artefact with id ${artefactId}`);
-        }
-
-        this.stateManager.artefacts.current = artefact;
-
-        return artefact;
-    }
-
-    public async getEditionArtefacts(ignoreCache = false): Promise<Artefact[]> {
-        if (!ignoreCache && this.stateManager.artefacts.items !== undefined) {
-            return this.stateManager.artefacts.items;
-        }
-
-        const artefactList = await this.requestEditionArtefacts(this.stateManager.editions.current!.id);
-        this.stateManager.artefacts.items = artefactList;
-        return artefactList;
+        return response.data.artefacts.map((d: any) => new Artefact(d));
     }
 
     public async createArtefact(editionId: number, imagedObject: ImagedObject, artefactName: string, side: Side):
@@ -77,32 +53,6 @@ class ArtefactService {
         const response = await CommHelper.put<ArtefactDTO>
             (ApiRoutes.editionArtefactUrl(editionId, artefact.id), body);
         return response.data;
-    }
-
-    private _getCachedArtefact(editionId: number, artefactId: number): Artefact | undefined {
-        if (!this.stateManager.editions.current || editionId !== this.stateManager.editions.current.id) {
-            return undefined;
-        }
-        if (!this.stateManager.artefacts.items) {
-            return undefined;
-        }
-
-        return this.stateManager.artefacts.items.find((a: Artefact) => a.id === artefactId);
-    }
-
-    private async _getArtefact(editionId: number, artefactId: number) {
-        const editionService = new EditionService();
-        const artefacts = await this.requestEditionArtefacts(editionId);
-
-        return artefacts.find((a: Artefact) => a.id === artefactId);
-    }
-
-    private async requestEditionArtefacts(editionId: number): Promise<Artefact[]> {
-        const response = await CommHelper.get<ArtefactListDTO>(
-            ApiRoutes.allEditionArtefactsUrl(editionId, true)
-        );
-
-        return response.data.artefacts.map((d: any) => new Artefact(d));
     }
 }
 
