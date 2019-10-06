@@ -49,7 +49,7 @@ import { ImagedObjectEditorParams,
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';
-import { ZoomRequestEventArgs } from '@/components/editors/types';
+import { ZoomRequestEventArgs } from '@/models/editor-params';
 
 export default Vue.extend({
   props: {

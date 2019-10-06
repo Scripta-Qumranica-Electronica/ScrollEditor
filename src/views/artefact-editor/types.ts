@@ -1,5 +1,5 @@
 import { ImageSetting } from '@/components/image-settings/types';
-import { BaseEditorParams } from '@/components/editors/types';
+import { BaseEditorParams } from '@/models/editor-params';
 import { Polygon } from '@/utils/Polygons';
 
 export enum DrawingShapesMode {

@@ -1,7 +1,7 @@
 import { Polygon } from '@/utils/Polygons';
 import { Artefact } from '@/models/artefact';
 import { ImageSetting } from '@/components/image-settings/types';
-import { BaseEditorParams } from '@/components/editors/types';
+import { BaseEditorParams } from '@/models/editor-params';
 
 export enum DrawingMode {
     DRAW, ERASE

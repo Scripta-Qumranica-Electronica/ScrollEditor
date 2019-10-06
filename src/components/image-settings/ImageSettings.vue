@@ -14,7 +14,7 @@ import { ImageStack } from '@/models/image';
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { SingleImageSetting } from './types';
 import { ArtefactEditorParams } from '@/views/artefact-editor/types';
-import { BaseEditorParams } from '../editors/types';
+import { BaseEditorParams } from '@/models/editor-params';
 
 export default Vue.extend({
   name: 'image-settings',

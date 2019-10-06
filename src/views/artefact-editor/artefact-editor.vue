@@ -129,7 +129,7 @@ import {
     DrawingShapesMode,
     ShapeSign
 } from './types';
-import { ZoomRequestEventArgs } from '@/components/editors/types';
+import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/utils/PointerTracker';
 import {

@@ -126,7 +126,7 @@ import ROICanvas from './RoiCanvas.vue';
 import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
 import { Polygon } from '@/utils/Polygons';
 import { Side } from '../../models/misc';
-import { ZoomRequestEventArgs } from '@/components/editors/types';
+import { ZoomRequestEventArgs } from '@/models/editor-params';
 import ArtefactService from '@/services/artefact';
 
 export default Vue.extend({
