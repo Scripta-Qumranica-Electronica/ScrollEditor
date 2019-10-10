@@ -1,8 +1,7 @@
 <template>
-    <svg    ref="roiSvg"
-            :width="actualWidth"
-            :height="actualHeight"
-            :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
+    <svg :width="actualWidth"
+         :height="actualHeight"
+         :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
     <g>
       <defs>
         <path id="Full-clip-path" :d="fullImageMask"></path>  <!-- No scaling transform, since fullImageMask is already scaled -->
@@ -39,7 +38,7 @@ import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 
 export default Vue.extend({
-  name: 'roi-canvas',
+  name: 'image-layer',
   props: {
     originalImageWidth: Number,
     originalImageHeight: Number,

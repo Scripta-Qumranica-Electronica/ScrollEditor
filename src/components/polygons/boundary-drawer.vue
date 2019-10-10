@@ -26,12 +26,12 @@ type InternalMode = 'none' | 'before-polygon' | 'polygon' | 'before-corner1' | '
     name: 'boundary-drawer',
 })
 export default class BoundaryDrawer extends Vue {
-    @Prop() readonly width!: number;
-    @Prop() readonly height!: number;
-    @Prop() readonly boundingBox: BoundingBox | undefined;
+    @Prop() public readonly width!: number;
+    @Prop() public readonly height!: number;
+    @Prop() public readonly boundingBox: BoundingBox | undefined;
     @Prop({
         default: 'none',
-    }) readonly mode!: DrawingMode;
+    }) public readonly mode!: DrawingMode;
 
     private activeMode: DrawingMode = 'none';
     private internalMode: InternalMode = 'none';
@@ -47,7 +47,7 @@ export default class BoundaryDrawer extends Vue {
     // True when the polygon is closed
     private closedPolygon: boolean = false;
 
-    created() {
+    private created() {
         this.onModeChanged(this.mode);
     }
 
@@ -67,13 +67,13 @@ export default class BoundaryDrawer extends Vue {
 
     private get svgClass() {
         if (this.internalMode === 'before-polygon' || this.internalMode === 'polygon') {
-            return ['crosshair']
+            return ['crosshair'];
         }
         if (this.internalMode === 'before-corner1') {
             return ['crosshair1'];
         }
 
-        if(this.internalMode === 'before-corner2') {
+        if (this.internalMode === 'before-corner2') {
             return ['crosshair2'];
         }
 
@@ -97,10 +97,10 @@ export default class BoundaryDrawer extends Vue {
         const pt = this.eventToPoint($event);
         if (this.internalMode === 'before-corner2') {
             this.corner2 = pt;
-            this.polygonPoints = [this.corner1!, 
+            this.polygonPoints = [this.corner1!,
                 { x: this.corner1!.x, y: this.corner2!.y },
                 this.corner2!,
-                { x: this.corner2!.x, y: this.corner1!.y }, 
+                { x: this.corner2!.x, y: this.corner1!.y },
             ];
             this.closedPolygon = true;
         } else if (this.internalMode === 'polygon') {
@@ -109,7 +109,7 @@ export default class BoundaryDrawer extends Vue {
             // Update the polygon's bounding box
             if (pt.x < this.corner1!.x) {
                 this.corner1!.x = pt.x;
-            } 
+            }
             if (pt.y < this.corner1!.y) {
                 this.corner1!.y = pt.y;
             }
@@ -132,11 +132,11 @@ export default class BoundaryDrawer extends Vue {
         const width = this.corner1!.x - this.corner2!.x;  // No Math.abs since we square these
         const height = this.corner1!.y - this.corner2!.y;
         const diagonal2 = width * width + height * height;
-        
+
         const pt0 = this.polygonPoints[0];
         const pt1 = this.polygonPoints[this.polygonPoints.length - 1];
         const dist2 = (pt0.x - pt1.x) * (pt0.x - pt1.x) + (pt0.y - pt1.y) * (pt0.y - pt1.y);
-        
+
         // Now return true of sqrt(dist2) / sqrt(diagonal2) < 0.05
         return dist2 / diagonal2 < (0.05 * 0.05);
     }
@@ -152,8 +152,9 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private keyPress($event: KeyboardEvent) {
-        if($event.key === 'Escape') {
+        if ($event.key === 'Escape') {
             this.pointerCancel();
+            $event.preventDefault();
         }
     }
 
@@ -181,7 +182,7 @@ export default class BoundaryDrawer extends Vue {
     private newPolygon() {
         // Turn the polygon into an svg string, due it bit by bit
         const partials = [`M${this.polygonPoints[0].x} ${this.polygonPoints[0].y}`];
-        for(let i = 1; i < this.polygonPoints.length; i++) {
+        for (let i = 1; i < this.polygonPoints.length; i++) {
             partials.push(`L${this.polygonPoints[i].x} ${this.polygonPoints[i].y}`);
         }
         partials.push(`L${this.polygonPoints[0].x} ${this.polygonPoints[0].y}`);

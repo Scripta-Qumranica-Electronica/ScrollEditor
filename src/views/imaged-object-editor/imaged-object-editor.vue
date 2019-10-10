@@ -62,36 +62,30 @@
                 :height="rotateDivHeight"
                 :style="{transform: `translate${translatePosition} rotate(${rotationAngle}deg)`}"
               >
-                <roi-canvas
+                <image-layer
                   class="overlay-image"
                   :originalImageWidth="originalImageWidth"
                   :originalImageHeight="originalImageHeight"
                   :params="params"
                   :editable="canEdit"
                   :clipping-mask="artefact.mask.polygon"
-                ></roi-canvas>
-                <imaged-object-canvas
-                  v-for="artefact in nonSelectedArtefacts"
-                  :key="artefact.id"
-                  class="overlay-canvas"
+                ></image-layer>
+                <artefact-layer
+                  class="overlay-qrtefact"
                   :originalImageWidth="originalImageWidth"
                   :originalImageHeight="originalImageHeight"
-                  :params="params"
                   :selected="false"
-                  :artefact="artefact"
-                ></imaged-object-canvas>
-                <imaged-object-canvas
-                  class="overlay-canvas"
-                  v-show="artefact !== undefined"
+                  v-for="artefact in nonSelectedArtefacts"
+                  :key="artefact.id"/>
+                <artefact-layer
+                  class="overlay-artefact"
+                  v-if="artefact"
                   :originalImageWidth="originalImageWidth"
                   :originalImageHeight="originalImageHeight"
                   :params="params"
                   :selected="true"
                   :editable="canEdit"
-                  :artefact="artefact"
-                  @maskChanged="onMaskChanged"
-                  @zoomRequest="onZoomRequest($event)"
-                ></imaged-object-canvas>
+                  :artefact="artefact"/>
               </div>
             </div>
           </div>
@@ -109,7 +103,7 @@ import ImagedObjectService from '@/services/imaged-object';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
-import ImagedObjectMenu from './ImagedObjectMenu.vue';
+import ImagedObjectMenu from './imaged-object-menu.vue';
 import {
   ImagedObjectEditorParams,
   EditorParamsChangedArgs,
@@ -122,8 +116,8 @@ import {
 } from './types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
-import ROICanvas from './RoiCanvas.vue';
-import ImagedObjectCanvas from './ImagedObjectCanvas.vue';
+import ImageLayer from './image-layer.vue';
+import ArtefactLayer from './artefact-layer.vue';
 import { Polygon } from '@/utils/Polygons';
 import { Side } from '../../models/misc';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
@@ -134,8 +128,8 @@ export default Vue.extend({
   components: {
     Waiting,
     'imaged-object-menu': ImagedObjectMenu,
-    'roi-canvas': ROICanvas,
-    'imaged-object-canvas': ImagedObjectCanvas
+    'image-layer': ImageLayer,
+    'artefact-layer': ArtefactLayer,
   },
   data() {
     return {
@@ -594,7 +588,7 @@ export default Vue.extend({
   position: absolute;
   transform-origin: top left;
 }
-.overlay-canvas {
+.overlay-artefact {
   position: absolute;
   transform-origin: top left;
 }

@@ -158,7 +158,7 @@ import {
   ImagedObjectEditorParams, DrawingMode, EditorParamsChangedArgs, OptimizedArtefact, SideOption
 } from '@/views/imaged-object-editor/types';
 
-import SingleImageSettingComponent from '@/components/editors/SingleImageSetting.vue';
+import SingleImageSettingComponent from '@/components/image-settings/SingleImageSetting.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { SingleImageSetting } from '@/components/image-settings/types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';

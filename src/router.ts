@@ -9,7 +9,7 @@ import ChangePassword from './views/user/ChangePassword.vue';
 import UpdateUser from './views/user/UpdateUser.vue';
 import ChangeForgottenPassword from './views/user/ChangeForgottenPassword.vue';
 import Activation from './views/user/Activation.vue';
-import ImagedObjectEditor from './views/imaged-object-editor/ImagedObjectEditor.vue';
+import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 
 Vue.use(Router);

@@ -6,7 +6,8 @@ import { svgPolygonToWKT,
     svgPolygonToClipper,
     wktPolygonToSvg,
     geoJSONPolygonToWKT,
-    clipperToSVGPolygon } from './VectorFactory';
+    clipperToSVGPolygon,
+    svgPathToPoints} from './VectorFactory';
 import { BoundingBox } from './helpers';
 
 // A class representing a polygon. The internal representation is SVG.
@@ -187,6 +188,13 @@ export class Polygon {
             return null;
         }
         return svgPolygonToClipper(this._svg);
+    }
+
+    public get points() {
+        if (this.empty) {
+            return null;
+        }
+        return svgPathToPoints(this._svg);
     }
 
     public get empty(): boolean {
