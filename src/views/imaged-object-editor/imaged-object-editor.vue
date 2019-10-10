@@ -97,6 +97,13 @@
                                     :artefact="artefact"
                                     :color="getArtefactColor(artefact)"
                                 />
+                                <boundary-drawer
+                                    class="overlay-drawing"
+                                    v-if="canEdit"
+                                    :width="imageWidth"
+                                    :height="imageHeight"
+                                    @new-polygon="onNewPolygon($event)"
+                                />
                             </div>
                         </div>
                     </div>
@@ -132,6 +139,7 @@ import { Side } from '../../models/misc';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import ArtefactService from '@/services/artefact';
 import { DropdownOption } from '../../utils/helpers';
+import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 
 @Component({
     name: 'imaged-object-editor',
@@ -139,7 +147,8 @@ import { DropdownOption } from '../../utils/helpers';
         Waiting,
         'imaged-object-menu': ImagedObjectMenu,
         'image-layer': ImageLayer,
-        'artefact-layer': ArtefactLayer
+        'artefact-layer': ArtefactLayer,
+        'boundary-drawer': BoundaryDrawer,
     }
 })
 export default class ImagedObjectEditor extends Vue {
@@ -156,7 +165,7 @@ export default class ImagedObjectEditor extends Vue {
     private params = new ImagedObjectEditorParams();
     private saving = false;
     private renaming = false;
-    private renameInputActive?: Artefact;
+    private renameInputActive: Artefact | null = null;
     private nonSelectedArtefacts: Artefact[] = [];
     private nonSelectedMask = new Polygon();
     private artefactEditingDataList: ArtefactEditingData[] = [];
@@ -582,7 +591,7 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private inputRenameChanged(art: Artefact | undefined) {
-        this.renameInputActive = art;
+        this.renameInputActive = art ? art : null;
     }
 
     private onArtefactChanged(art: Artefact) {
@@ -645,6 +654,10 @@ export default class ImagedObjectEditor extends Vue {
 
         return ImagedObjectEditor.colors[idx % ImagedObjectEditor.colors.length];
     }
+
+    private onNewPolygon(poly: Polygon) {
+        console.log('New polygon received ', poly.svg);
+    }
 }
 
 /*
@@ -668,6 +681,12 @@ export default class ImagedObjectEditor extends Vue {
     position: absolute;
     transform-origin: top left;
 }
+
+.overlay-drawing {
+    position: absolute;
+    transform-origin: top left;
+}
+
 #imaged-object-editor {
     overflow: hidden;
     height: calc(100vh - 63px);

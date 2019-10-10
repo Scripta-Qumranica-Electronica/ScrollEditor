@@ -1,15 +1,17 @@
 <template>
-    <svg :width="width"
-         :height="height"
-         :viewbox="'0 0 ' + width + ' ' + height">
-    <g>
-        <polygon :points="polygonPoints" :class="{ selected, editable }" :style="additionalStyle"/>
-    </g>
-  </svg>
+    <svg :width="width" :height="height" :viewbox="'0 0 ' + width + ' ' + height">
+        <g>
+            <polygon
+                :points="polygonPoints"
+                :class="{ selected, editable }"
+                :style="additionalStyle"
+            />
+        </g>
+    </svg>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
 import { ImagedObjectEditorParams } from './types';
 import { ImageStack } from '@/models/image';
@@ -17,34 +19,30 @@ import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 import { Artefact } from '@/models/artefact';
 
-export default Vue.extend({
-  name: 'image-layer',
-  props: {
-    width: Number,
-    height: Number,
-    artefact: Object as () => Artefact,
-    color: String,
-    editable: Boolean,
-    selected: Boolean,
-  },
-  data() {
-    return {
-    };
-  },
-  computed: {
-    polygonPoints(): string | null {
+@Component({
+    name: 'image-layer',
+})
+export default class ImageLayer extends Vue {
+    @Prop() public readonly width!: number;
+    @Prop() public readonly height!: number;
+    @Prop() public readonly artefact!: Artefact;
+    @Prop() public readonly color!: string;
+    @Prop() public readonly editable!: boolean;
+    @Prop() public readonly selected!: boolean;
+
+    private get polygonPoints(): string | null {
         return this.artefact.mask.polygon.points;
-    },
-    additionalStyle() {
-      return `stroke: ${this.color}; fill: ${this.color}`;
     }
-  },
-});
+
+    private get additionalStyle() {
+        return `stroke: ${this.color}; fill: ${this.color}`;
+    }
+}
 </script>
 
 <style lang="scss" scoped>
 svg {
-  max-height: initial;
+    max-height: initial;
 }
 
 polygon {
@@ -54,7 +52,7 @@ polygon {
 }
 
 polygon.selected {
-  stroke-width: 2;
-  fill-opacity: 0.4;
+    stroke-width: 2;
+    fill-opacity: 0.4;
 }
 </style>
