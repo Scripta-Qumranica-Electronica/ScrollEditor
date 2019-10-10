@@ -71,16 +71,16 @@
                             >
                                 <image-layer
                                     class="overlay-image"
-                                    :originalImageWidth="originalImageWidth"
-                                    :originalImageHeight="originalImageHeight"
+                                    :width="imageWidth"
+                                    :height="imageHeight"
                                     :params="params"
                                     :editable="canEdit"
                                     :clipping-mask="artefact.mask.polygon"
                                 ></image-layer>
                                 <artefact-layer
                                     class="overlay-qrtefact"
-                                    :originalImageWidth="originalImageWidth"
-                                    :originalImageHeight="originalImageHeight"
+                                    :width="imageWidth"
+                                    :height="imageHeight"
                                     :selected="false"
                                     v-for="artefact in nonSelectedArtefacts"
                                     :key="artefact.id"
@@ -88,8 +88,8 @@
                                 <artefact-layer
                                     class="overlay-artefact"
                                     v-if="artefact"
-                                    :originalImageWidth="originalImageWidth"
-                                    :originalImageHeight="originalImageHeight"
+                                    :width="imageWidth"
+                                    :height="imageHeight"
                                     :params="params"
                                     :selected="true"
                                     :editable="canEdit"
@@ -186,24 +186,16 @@ export default Vue.extend({
                 : false;
         },
         actualWidth(): number {
-            return (
-                this.originalImageWidth *
-                this.zoomLevel *
-                this.$render.scalingFactors.image
-            );
+            return this.imageWidth * this.zoomLevel;
         },
         actualHeight(): number {
-            return (
-                this.originalImageHeight *
-                this.zoomLevel *
-                this.$render.scalingFactors.image
-            );
+            return this.imageHeight * this.zoomLevel;
         },
         rotateDivWidth(): number {
-            return this.originalImageWidth / this.$render.scalingFactors.image;
+            return this.imageWidth;
         },
         rotateDivHeight(): number {
-            return this.originalImageHeight / this.$render.scalingFactors.image;
+            return this.imageHeight;
         },
         rotationAngle(): number {
             return ((this.params.rotationAngle % 360) + 360) % 360;
@@ -227,10 +219,10 @@ export default Vue.extend({
         overlayDiv(): HTMLDivElement {
             return this.$refs['overlay-div'] as HTMLDivElement;
         },
-        originalImageWidth(): number {
+        imageWidth(): number {
             return this.masterImage!.manifest.width;
         },
-        originalImageHeight(): number {
+        imageHeight(): number {
             return this.masterImage!.manifest.height;
         },
         visibleArtefacts(): Artefact[] {

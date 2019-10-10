@@ -1,14 +1,14 @@
 <template>
-    <svg :width="actualWidth"
-         :height="actualHeight"
-         :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
+    <svg :width="width"
+         :height="height"
+         :viewbox="'0 0 ' + width + ' ' + height">
     <g>
       <defs>
         <path id="Full-clip-path" :d="fullImageMask"></path>  <!-- No scaling transform, since fullImageMask is already scaled -->
         <clipPath id="Full-clipping-outline">
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Full-clip-path"></use>
         </clipPath>
-        <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg" :transform="pathTransform"></path>
+        <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg"></path>
         <clipPath id="Clipping-outline">
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Clip-path"></use>
         </clipPath>
@@ -19,8 +19,8 @@
               class="clippedImg" 
               draggable="false"
               :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
-              :width="actualWidth"
-              :height="actualHeight"
+              :width="width"
+              :height="height"
               :opacity="imageSetting.opacity"
               ></image>
       </g>
@@ -40,8 +40,8 @@ import { SingleImageSetting } from '../../components/image-settings/types';
 export default Vue.extend({
   name: 'image-layer',
   props: {
-    originalImageWidth: Number,
-    originalImageHeight: Number,
+    width: Number,
+    height: Number,
     params: Object as () => ImagedObjectEditorParams,
     editable: Boolean,
     clippingMask: Object as () => Polygon,
@@ -55,20 +55,10 @@ export default Vue.extend({
       return 1;
     },
     fullImageMask(): string {
-      return `M0 0L${this.actualWidth} 0L${this.actualWidth} ${this.actualHeight}L0 ${this.actualHeight}`;
-    },
-    actualWidth(): number {
-      return this.originalImageWidth / this.$render.scalingFactors.image;
-    },
-    actualHeight(): number {
-      return this.originalImageHeight / this.$render.scalingFactors.image;
+      return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
     },
     rotateTransform(): string {
-      return `rotate(${this.params.rotationAngle} ${this.actualWidth / 2} ${this.actualHeight / 2}`;
-    },
-    pathTransform(): string {
-      const transform = 'scale(0.5)'; // `scale(${this.scale / this.$render.scalingFactors.image})`;
-      return transform;
+      return `rotate(${this.params.rotationAngle} ${this.width / 2} ${this.height / 2}`;
     },
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);

@@ -1,7 +1,7 @@
 <template>
-    <svg :width="actualWidth"
-         :height="actualHeight"
-         :viewbox="'0 0 ' + actualWidth + ' ' + actualHeight">
+    <svg :width="width"
+         :height="height"
+         :viewbox="'0 0 ' + width + ' ' + height">
     <g>
         <polygon :points="polygonPoints" :class="{ pulsate: selected && editable }"/>
     </g>
@@ -20,8 +20,8 @@ import { Artefact } from '@/models/artefact';
 export default Vue.extend({
   name: 'image-layer',
   props: {
-    originalImageWidth: Number,
-    originalImageHeight: Number,
+    width: Number,
+    height: Number,
     artefact: Object as () => Artefact,
     editable: Boolean,
     selected: Boolean,
@@ -31,12 +31,6 @@ export default Vue.extend({
     };
   },
   computed: {
-    actualWidth(): number {
-      return this.originalImageWidth / this.$render.scalingFactors.image;
-    },
-    actualHeight(): number {
-      return this.originalImageHeight / this.$render.scalingFactors.image;
-    },
     polygonPoints(): string | null {
         return this.artefact.mask.polygon.points;
     }
@@ -63,15 +57,15 @@ polygon.pulsate {
 
 @keyframes pulsate {
   0% {
-    opacity: 0.4;
+    opacity: 0.0;
     stroke-width: 3;
   }
   50% {
-    opacity: 1;
+    opacity: 0.4;
     stroke-width: 5;
   }
   100% {
-    opacity: 0.4;
+    opacity: 0.0;
     stroke-width: 3;
   }
 }
