@@ -3,7 +3,7 @@
          :height="height"
          :viewbox="'0 0 ' + width + ' ' + height">
     <g>
-        <polygon :points="polygonPoints" :class="{ pulsate: selected && editable }"/>
+        <polygon :points="polygonPoints" :class="{ selected, editable }" :style="additionalStyle"/>
     </g>
   </svg>
 </template>
@@ -23,6 +23,7 @@ export default Vue.extend({
     width: Number,
     height: Number,
     artefact: Object as () => Artefact,
+    color: String,
     editable: Boolean,
     selected: Boolean,
   },
@@ -33,6 +34,9 @@ export default Vue.extend({
   computed: {
     polygonPoints(): string | null {
         return this.artefact.mask.polygon.points;
+    },
+    additionalStyle() {
+      return `stroke: ${this.color}; fill: ${this.color}`;
     }
   },
 });
@@ -44,29 +48,13 @@ svg {
 }
 
 polygon {
-    stroke: black;
     stroke-width: 1;
     fill: transparent;
+    fill-opacity: 0.2;
 }
 
-polygon.pulsate {
-  fill: skyblue;
-  animation: pulsate 3s ease-out;
-  animation-iteration-count: infinite;
-}
-
-@keyframes pulsate {
-  0% {
-    opacity: 0.0;
-    stroke-width: 3;
-  }
-  50% {
-    opacity: 0.4;
-    stroke-width: 5;
-  }
-  100% {
-    opacity: 0.0;
-    stroke-width: 3;
-  }
+polygon.selected {
+  stroke-width: 2;
+  fill-opacity: 0.4;
 }
 </style>
