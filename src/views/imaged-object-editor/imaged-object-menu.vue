@@ -357,9 +357,6 @@ export default Vue.extend({
                 params: this.params
             } as EditorParamsChangedArgs;
             this.$emit('paramsChanged', args);
-            console.debug(
-                `Property ${paramName} changed to ${JSON.stringify(paramValue)}`
-            );
         },
         formatTooltip(): string {
             return (this.zoom * 100).toFixed(0) + '%';
