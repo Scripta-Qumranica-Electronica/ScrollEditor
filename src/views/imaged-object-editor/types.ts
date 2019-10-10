@@ -27,65 +27,20 @@ export interface EditorParamsChangedArgs {
 }
 
 export interface MaskChangedEventArgs {
-    optimizedMask: Polygon;
+    mask: Polygon;
     drawingMode: DrawingMode;
 }
 
 export interface MaskChangeOperation {
     // Previous values for the undo
     prevMask: Polygon;
-    prevOptimizedMask: Polygon;
 
     // New values for the redo
     newMask: Polygon;
-    newOptimizedMask: Polygon;
 }
 
 export class ArtefactEditingData {
     public undoList = [] as MaskChangeOperation[];
     public redoList = [] as MaskChangeOperation[];
     public dirty = false;
-}
-
-export class OptimizedArtefact extends Artefact {
-    private static colors = [
-        'purple', 'blue', 'orange', 'red', 'green', 'gray', 'magenta', 'olive', 'brown', 'cadetBlue'
-    ];
-
-    public color: string;
-    public shrinkFactor: number;
-    public optimizedMask: Polygon;
-
-    public constructor(artefact: Artefact, imagedObjectIndex: number, shrinkFactor: number) {
-        super(artefact);
-
-        this.color = OptimizedArtefact.colors[imagedObjectIndex % OptimizedArtefact.colors.length];
-        this.shrinkFactor = shrinkFactor;
-
-        this.optimizedMask = Polygon.scale(artefact.mask.polygon, 1 / this.shrinkFactor);
-    }
-
-    public unoptimizeMask() {
-        this.mask.polygon = Polygon.scale(this.optimizedMask, this.shrinkFactor);
-    }
-
-    /*
-     * Add a shrinkFactor parameter to the constructor.
-     * Add an optimizedMask property of type polygon.
-     * Use this.optimizedMask = Polygon.scale(artefact.mask, 1 / this.shrinkFactor) to fill it (in the constructor);
-     *
-     * Add an unoptimize method: unoptimizeMask which will set this.mask to Polgyon.scale(optimizedMask,...)
-     */
-}
-
-export class SideOption {
-    public static getSideOptions(): SideOption[] {
-        return [
-            {displayName: 'Recto', name: 'recto'} as SideOption,
-            {displayName: 'Verso', name: 'verso'} as SideOption
-        ];
-    }
-
-    public displayName = '';
-    public name = '';
 }

@@ -4,7 +4,6 @@ import { ArtefactListDTO, CreateArtefactDTO, ArtefactDTO, UpdateArtefactDTO } fr
 import { Artefact } from '@/models/artefact';
 import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
-import { OptimizedArtefact } from '@/views/imaged-object-editor/types';
 
 class ArtefactService {
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
@@ -38,7 +37,7 @@ class ArtefactService {
         return artefact;
     }
 
-    public async deleteArtefact(art: OptimizedArtefact) { // TODO: Pass an ordinary artefact
+    public async deleteArtefact(art: Artefact) { // TODO: Pass an ordinary artefact
         await CommHelper.delete(ApiRoutes.editionArtefactUrl(art.editionId, art.id));
     }
 

@@ -44,8 +44,7 @@ import {
 import { ImagedObjectEditorParams,
          DrawingMode,
          MaskChangedEventArgs,
-         OptimizedArtefact,
-         } from './types';
+       } from './types';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import { PointerTracker, PointerTrackingEvent, Position } from '@/utils/PointerTracker';
@@ -54,7 +53,8 @@ import { ZoomRequestEventArgs } from '@/models/editor-params';
 export default Vue.extend({
   props: {
     params: Object as () => ImagedObjectEditorParams,
-    artefact: Object as () => OptimizedArtefact,
+    artefact: Object as () => Artefact,
+    color: String,
     selected: Boolean,
     editable: Boolean,
     originalImageWidth: Number,
@@ -102,7 +102,7 @@ export default Vue.extend({
       return this.params.rotationAngle;
     },
     optimizedMask(): Polygon {
-      return this.artefact.optimizedMask;
+      return this.artefact.mask.polygon;
     },
     editModeDraw() {
       return EditMode.DRAWING;
@@ -137,8 +137,8 @@ export default Vue.extend({
         } else {
           this.maskCanvasContext.globalCompositeOperation = 'destination-out';
         }
-        this.maskCanvasContext.fillStyle = this.artefact.color;
-        this.maskCanvasContext.strokeStyle = this.artefact.color;
+        this.maskCanvasContext.fillStyle = this.color;
+        this.maskCanvasContext.strokeStyle = this.color;
       }
     },
     pointerMove(event: PointerEvent) {
@@ -294,7 +294,7 @@ export default Vue.extend({
       const canvasPolygon = Polygon.fromSvg(canvasSvg);
 
       const eventArgs = {
-        optimizedMask: canvasPolygon,
+        mask: canvasPolygon,
         drawingMode: this.params.drawingMode,
       } as MaskChangedEventArgs;
 
@@ -305,9 +305,9 @@ export default Vue.extend({
       this.applyMaskToCanvas();
     },
     applyMaskToCanvas() {
-      if (this.artefact && this.artefact.optimizedMask) {
-        clipCanvas(this.maskCanvas, this.artefact.optimizedMask.svg, this.artefact.color, 1);
-        this.currentMask = this.artefact.optimizedMask;
+      if (this.artefact && this.artefact.mask) {
+        clipCanvas(this.maskCanvas, this.artefact.mask.polygon.svg, this.color, 1);
+        this.currentMask = this.artefact.mask.polygon;
       } else {
         this.maskCanvasContext.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
         this.currentMask = new Polygon();

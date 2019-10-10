@@ -34,9 +34,9 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import ArtefactCard from './artefact-card.vue';
 import { countIf } from '@/utils/helpers';
-import { SideOption } from '@/views/imaged-object-editor/types';
 import ImagedObjectService from '@/services/imaged-object';
 import ArtefactService from '@/services/artefact';
+import { DropdownOption } from '@/utils/helpers';
 
 export default Vue.extend({
     data() {
@@ -46,8 +46,8 @@ export default Vue.extend({
             sideOptions: [
                 {displayName: 'Recto', name: 'recto'},
                 {displayName: 'Verso', name: 'verso'},
-                {displayName: 'Both', name: 'recto and verso'}],
-            sideFilter: {} as SideOption,
+                {displayName: 'Both', name: 'recto and verso'}] as DropdownOption[],
+            sideFilter: {} as DropdownOption,
             filter: '',
         };
     },
@@ -74,7 +74,7 @@ export default Vue.extend({
         this.sideFilter = this.sideOptions[2];
     },
     methods: {
-        sideFilterChanged(filter: SideOption) {
+        sideFilterChanged(filter: DropdownOption) {
             this.sideFilter = filter;
         },
         nameMatch(name: string): boolean {

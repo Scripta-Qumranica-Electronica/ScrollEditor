@@ -31,3 +31,8 @@ export interface Rectangle {
     topLeft: Point;
     bottomRight: Point;
 }
+
+export interface DropdownOption {
+    displayName: string;
+    name: string;
+}
