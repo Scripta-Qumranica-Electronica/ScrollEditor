@@ -8,8 +8,8 @@
          @pointerup="pointerUp($event)"
          @pointercancel="pointerCancel($event)"
          @keypress="keyPress($event)">
-         <polygon v-if="closedPolygon" :points="polygonString"/>
-         <polyline v-else :points="polygonString"/>
+         <polygon v-if="closedPolygon" :points="polygonString" :style="polygonStyle"/>
+         <polyline v-else :points="polygonString" :style="polylineStyle"/>
     </svg>
 </template>
 
@@ -31,6 +31,9 @@ export default class BoundaryDrawer extends Vue {
     @Prop({
         default: 'polygon',
     }) public readonly mode!: DrawingMode;
+    @Prop({
+        default: 'purple',
+    }) public readonly color!: string;
 
     private internalMode: InternalMode = 'none';
 
@@ -46,6 +49,15 @@ export default class BoundaryDrawer extends Vue {
         const pts = this.polygonPoints.map((pt) => `${pt.x}, ${pt.y}`);
         return pts.join(' ');
     }
+
+    private get polygonStyle(): string {
+        return `stroke: ${this.color};`;
+    }
+
+    private get polylineStyle(): string {
+        return `stroke: ${this.color};`;
+    }
+
     // True when the polygon is closed
     private closedPolygon: boolean = false;
 
@@ -229,12 +241,10 @@ $crosshair2: url('/assets/cursors/crosshair2.svg') crosshair;
 polygon {
     fill: white;
     fill-opacity: 0.1;
-    stroke: purple;
     stroke-width: 6;
 }
 
 polyline {
-    stroke: purple;
     stroke-width: 5;
     fill: none;
 }

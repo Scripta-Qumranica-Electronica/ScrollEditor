@@ -78,30 +78,21 @@
                                     :clipping-mask="artefact.mask.polygon"
                                 ></image-layer>
                                 <artefact-layer
-                                    class="overlay-qrtefact"
-                                    :width="imageWidth"
-                                    :height="imageHeight"
-                                    :selected="false"
-                                    v-for="artefact in nonSelectedArtefacts"
-                                    :key="artefact.id"
-                                    :color="getArtefactColor(artefact)"
-                                />
-                                <artefact-layer
                                     class="overlay-artefact"
-                                    v-if="artefact"
                                     :width="imageWidth"
                                     :height="imageHeight"
-                                    :params="params"
-                                    :selected="true"
-                                    :editable="canEdit"
-                                    :artefact="artefact"
-                                    :color="getArtefactColor(artefact)"
+                                    :selected="art.id === artefact.id"
+                                    v-for="art in visibleArtefacts"
+                                    :artefact="art"
+                                    :key="art.id"
+                                    :color="getArtefactColor(art)"
                                 />
                                 <boundary-drawer
                                     class="overlay-drawing"
-                                    v-if="canEdit"
+                                    v-if="canEdit && artefact"
                                     :width="imageWidth"
                                     :height="imageHeight"
+                                    :color="getArtefactColor(artefact)"
                                     @new-polygon="onNewPolygon($event)"
                                 />
                             </div>
@@ -121,7 +112,7 @@ import ImagedObjectService from '@/services/imaged-object';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
-import ImagedObjectMenu from './imaged-object-menu.vue';
+import ImagedObjectMenu from '@/views/imaged-object-editor/imaged-object-menu.vue';
 import {
     ImagedObjectEditorParams,
     EditorParamsChangedArgs,
@@ -129,16 +120,16 @@ import {
     MaskChangedEventArgs,
     DrawingMode,
     ArtefactEditingData,
-} from './types';
+} from '@/views/imaged-object-editor/types';
 import { Position } from '@/utils/PointerTracker';
 import { IIIFImage } from '@/models/image';
-import ImageLayer from './image-layer.vue';
-import ArtefactLayer from './artefact-layer.vue';
+import ImageLayer from '@/views/imaged-object-editor/image-layer.vue';
+import ArtefactLayer from '@/views/imaged-object-editor/artefact-layer.vue';
 import { Polygon } from '@/utils/Polygons';
-import { Side } from '../../models/misc';
+import { Side } from '@/models/misc';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import ArtefactService from '@/services/artefact';
-import { DropdownOption } from '../../utils/helpers';
+import { DropdownOption } from '@/utils/helpers';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 
 @Component({
@@ -160,7 +151,7 @@ export default class ImagedObjectEditor extends Vue {
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
     private waiting = true;
-    private artefact?: Artefact;
+    private artefact: Artefact | null = null;
     private initialMask = new Polygon();
     private params = new ImagedObjectEditorParams();
     private saving = false;
@@ -305,7 +296,7 @@ export default class ImagedObjectEditor extends Vue {
                 // this.artefactEditingData = this.getArtefactEditingData(0);
                 this.initialMask = this.artefact!.mask.polygon;
             } else {
-                this.artefact = undefined;
+                this.artefact = null;
                 this.initialMask = new Polygon();
             }
         } finally {
@@ -532,7 +523,6 @@ export default class ImagedObjectEditor extends Vue {
         this.artefacts.push(art);
 
         this.artefact = art;
-        this.prepareNonSelectedArtefacts();
         if (!this.artefact) {
             throw new Error("Can't create if there is no artefact");
         }
@@ -580,10 +570,9 @@ export default class ImagedObjectEditor extends Vue {
                 this.artefact = this.artefacts[0];
                 this.artefactEditingData = this.artefactEditingDataList[0];
             } else {
-                this.artefact = undefined;
+                this.artefact = null;
                 this.initialMask = new Polygon();
             }
-            this.prepareNonSelectedArtefacts();
         } catch (err) {
             console.error(err);
             this.showMessage('Delete artefact failed', 'error');
@@ -598,7 +587,7 @@ export default class ImagedObjectEditor extends Vue {
         this.artefact = art;
         const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         this.artefactEditingData = this.getArtefactEditingData(index);
-        this.prepareNonSelectedArtefacts();
+        console.log(`artefact changed to ${this.artefact.id}, index ${index}`);
     }
 
     private sideArtefactChanged(side: DropdownOption) {
@@ -619,19 +608,6 @@ export default class ImagedObjectEditor extends Vue {
             position: 'top-right',
             duration: 7000
         });
-    }
-
-    private prepareNonSelectedArtefacts() {
-        this.nonSelectedArtefacts = this.visibleArtefacts.filter(
-            (artefact) => artefact !== this.artefact
-        );
-        this.nonSelectedMask = new Polygon();
-        for (const artefact of this.nonSelectedArtefacts) {
-            this.nonSelectedMask = Polygon.add(
-                this.nonSelectedMask,
-                artefact.mask.polygon
-            );
-        }
     }
 
     private sidebarClicked() {

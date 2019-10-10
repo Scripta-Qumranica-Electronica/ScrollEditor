@@ -20,9 +20,9 @@ import { SingleImageSetting } from '../../components/image-settings/types';
 import { Artefact } from '@/models/artefact';
 
 @Component({
-    name: 'image-layer',
+    name: 'artefact-layer',
 })
-export default class ImageLayer extends Vue {
+export default class ArtefactLayer extends Vue {
     @Prop() public readonly width!: number;
     @Prop() public readonly height!: number;
     @Prop() public readonly artefact!: Artefact;
