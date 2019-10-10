@@ -2,7 +2,7 @@
     <svg :width="width" :height="height" :viewbox="'0 0 ' + width + ' ' + height">
         <g>
             <polygon
-                :points="polygonPoints"
+                :points="polygon.points"
                 :class="{ selected, editable }"
                 :style="additionalStyle"
             />
@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
 import { ImagedObjectEditorParams } from './types';
 import { ImageStack } from '@/models/image';
@@ -30,12 +30,13 @@ export default class ArtefactLayer extends Vue {
     @Prop() public readonly editable!: boolean;
     @Prop() public readonly selected!: boolean;
 
-    private get polygonPoints(): string | null {
-        return this.artefact.mask.polygon.points;
-    }
-
     private get additionalStyle() {
         return `stroke: ${this.color}; fill: ${this.color}`;
+    }
+
+    private get polygon() {
+        console.log('New points: ', this.artefact.mask.polygon.points);
+        return this.artefact.mask.polygon;
     }
 }
 </script>
@@ -54,5 +55,21 @@ polygon {
 polygon.selected {
     stroke-width: 2;
     fill-opacity: 0.4;
+    stroke: skyblue !important;
+    animation: pulsate 3s ease-out;
+    animation-iteration-count: infinite;
 }
+
+@keyframes pulsate {
+  0% {
+    stroke-opacity: 0.4;
+  }
+  50% {
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke-opacity: 0.4;
+  }
+}
+
 </style>

@@ -85,7 +85,7 @@ export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
  */
 
 export function svgPathToPoints(svgPath: string) {
-  const points = svgPath.replace(/[A-Za-z](\d+)\s(\d+)/g, '$1,$2 ');
+  const points = svgPath.replace(/[A-Za-z]?([\d.]+)\s([\d.]+)/g, '$1,$2 ');
   return points;
 }
 

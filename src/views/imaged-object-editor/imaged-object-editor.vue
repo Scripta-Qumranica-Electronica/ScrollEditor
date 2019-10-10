@@ -92,7 +92,7 @@
                                     v-if="canEdit && artefact"
                                     :width="imageWidth"
                                     :height="imageHeight"
-                                    :color="getArtefactColor(artefact)"
+                                    :color="isErasing ? 'black' : getArtefactColor(artefact)"
                                     @new-polygon="onNewPolygon($event)"
                                 />
                             </div>
@@ -304,8 +304,6 @@ export default class ImagedObjectEditor extends Vue {
         }
 
         this.fillImageSettings();
-        // Remove this because it will happen in onArtefactChanged function.
-        // this.prepareNonSelectedArtefacts();
     }
 
     private created() {
@@ -362,44 +360,6 @@ export default class ImagedObjectEditor extends Vue {
 
     private optimizeArtefacts() {
         this.artefacts = this.imagedObject!.artefacts || [];
-    }
-
-    private onMaskChanged(eventArgs: MaskChangedEventArgs) {
-        if (!this.artefact) {
-            throw new Error("Can't set mask if there is no artefact");
-        }
-        this.artefactEditingData.dirty = true;
-
-        // Check if the new mask intersects with a non selected artefact mask
-        const intersection = Polygon.intersect(
-            eventArgs.mask,
-            this.nonSelectedMask
-        );
-        if (!intersection.empty) {
-            this.$toasted.show("Artefact can't overlap other artefacts", {
-                type: 'info',
-                position: 'top-center',
-                duration: 5000
-            });
-            return;
-        }
-
-        // Store the old masks for the undo buffer
-        const changeOperation = {
-            prevMask: this.artefact.mask.polygon,
-        } as MaskChangeOperation;
-
-        // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)
-        this.artefact.mask.polygon = eventArgs.mask;
-
-        changeOperation.newMask = this.artefact.mask.polygon;
-
-        if (this.artefactEditingData.undoList.length >= 50) {
-            this.artefactEditingData.undoList.slice(1);
-        }
-
-        this.artefactEditingData.undoList.push(changeOperation);
-        this.artefactEditingData.redoList = [];
     }
 
     private editingModeChanged(val: any) {
@@ -631,8 +591,48 @@ export default class ImagedObjectEditor extends Vue {
         return ImagedObjectEditor.colors[idx % ImagedObjectEditor.colors.length];
     }
 
+    private get isErasing() {
+        return this.params.drawingMode === DrawingMode.ERASE;
+    }
+
     private onNewPolygon(poly: Polygon) {
-        console.log('New polygon received ', poly.svg);
+        let newPolygon: Polygon;
+
+        if (this.isErasing) {
+            newPolygon = Polygon.subtract(this.artefact!.mask.polygon, poly);
+        } else {
+            newPolygon = Polygon.add(this.artefact!.mask.polygon, poly);
+        }
+
+        // Check if the new mask intersects with a non selected artefact mask
+        const intersection = Polygon.intersect(
+            newPolygon,
+            this.nonSelectedMask
+        );
+        if (!intersection.empty) {
+            this.$toasted.show("Artefact can't overlap other artefacts", {
+                type: 'info',
+                position: 'top-center',
+                duration: 5000
+            });
+            return;
+        }
+
+        const changeOperation = {
+            prevMask: this.artefact!.mask.polygon,
+        } as MaskChangeOperation;
+
+        // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)
+        this.artefact!.mask.polygon = newPolygon;
+
+        changeOperation.newMask = this.artefact!.mask.polygon;
+
+        if (this.artefactEditingData.undoList.length >= 50) {
+            this.artefactEditingData.undoList.slice(1);
+        }
+
+        this.artefactEditingData.undoList.push(changeOperation);
+        this.artefactEditingData.redoList = [];
     }
 }
 
