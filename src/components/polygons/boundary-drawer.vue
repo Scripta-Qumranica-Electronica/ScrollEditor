@@ -1,16 +1,15 @@
 <template>
-    <svg v-bind:class='[svgClass]'
-         :width="width"
-         :height="height"
-         :viewBox="`${actualBoundingBox.x} ${actualBoundingBox.y} ${actualBoundingBox.width} ${actualBoundingBox.height}`"
-         @pointerdown="pointerDown($event)"
-         @pointermove="pointerMove($event)"
-         @pointerup="pointerUp($event)"
-         @pointercancel="pointerCancel($event)"
-         @keypress="keyPress($event)">
+    <g v-bind:class='[svgClass]'
+       pointer-events="all"
+       @pointerdown="pointerDown($event)"
+       @pointermove="pointerMove($event)"
+       @pointerup="pointerUp($event)"
+       @pointercancel="pointerCancel($event)"
+       @keypress="keyPress($event)">
+         <rect style="stroke: none; fill: none" width="10000" height="10000"/>
          <polygon v-if="closedPolygon" :points="polygonString" :style="polygonStyle"/>
          <polyline v-else :points="polygonString" :style="polylineStyle"/>
-    </svg>
+    </g>
 </template>
 
 <script lang="ts">
@@ -85,14 +84,14 @@ export default class BoundaryDrawer extends Vue {
 
     private get svgClass() {
         if (this.internalMode === 'before-polygon' || this.internalMode === 'polygon') {
-            return ['crosshair'];
+            return ['draw-boundary'];
         }
         if (this.internalMode === 'before-corner1') {
-            return ['crosshair1'];
+            return ['draw-first-corner'];
         }
 
         if (this.internalMode === 'before-corner2') {
-            return ['crosshair2'];
+            return ['draw-second-corner'];
         }
 
         return [];
@@ -214,7 +213,8 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private get svg(): SVGSVGElement {
-        return this.$el as SVGSVGElement;
+        // Find the closest surrounding svg elemet
+        return this.$el.closest('svg') as SVGSVGElement;
     }
 }
 
@@ -222,9 +222,9 @@ export default class BoundaryDrawer extends Vue {
 
 <style lang="scss" scoped>
 
-$crosshair: url('/assets/cursors/crosshair.svg') crosshair;
-$crosshair1: url('/assets/cursors/crosshair1.svg') crosshair;
-$crosshair2: url('/assets/cursors/crosshair2.svg') crosshair;
+$crosshair: url('/assets/cursors/crosshair.svg'), crosshair;
+$crosshair1: url('/assets/cursors/crosshair1.svg'), crosshair;
+$crosshair2: url('/assets/cursors/crosshair2.svg'), crosshair;
 
 .draw-first-corner {
     cursor: $crosshair1;

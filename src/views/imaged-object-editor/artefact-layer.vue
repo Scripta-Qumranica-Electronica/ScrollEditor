@@ -1,13 +1,11 @@
 <template>
-    <svg :width="width" :height="height" :viewbox="'0 0 ' + width + ' ' + height">
-        <g>
-            <polygon
-                :points="polygon.points"
-                :class="{ selected, editable }"
-                :style="additionalStyle"
-            />
-        </g>
-    </svg>
+    <g>
+        <polygon
+            :points="polygon.points"
+            :class="{ selected, editable }"
+            :style="additionalStyle"
+        />
+    </g>
 </template>
 
 <script lang="ts">
@@ -35,7 +33,6 @@ export default class ArtefactLayer extends Vue {
     }
 
     private get polygon() {
-        console.log('New points: ', this.artefact.mask.polygon.points);
         return this.artefact.mask.polygon;
     }
 }

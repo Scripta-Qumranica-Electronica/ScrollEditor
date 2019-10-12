@@ -1,7 +1,4 @@
 <template>
-    <svg :width="width"
-         :height="height"
-         :viewbox="'0 0 ' + width + ' ' + height">
     <g>
       <defs>
         <path id="Full-clip-path" :d="fullImageMask"></path>  <!-- No scaling transform, since fullImageMask is already scaled -->
@@ -26,7 +23,6 @@
       </g>
       <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
     </g>
-  </svg>
 </template>
 
 <script lang="ts">
@@ -51,14 +47,8 @@ export default Vue.extend({
     };
   },
   computed: {
-    scale(): number {
-      return 1;
-    },
     fullImageMask(): string {
       return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
-    },
-    rotateTransform(): string {
-      return `rotate(${this.params.rotationAngle} ${this.width / 2} ${this.height / 2}`;
     },
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);

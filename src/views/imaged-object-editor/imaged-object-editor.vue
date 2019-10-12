@@ -62,41 +62,31 @@
                         :height="actualHeight"
                         id="overlay-div"
                     >
-                        <div id="zoom-div" :style="{transform: `scale(${zoomLevel})`}">
-                            <div
-                                id="rotate-div"
-                                :width="rotateDivWidth"
-                                :height="rotateDivHeight"
-                                :style="{transform: `translate${translatePosition} rotate(${rotationAngle}deg)`}"
-                            >
-                                <image-layer
-                                    class="overlay-image"
-                                    :width="imageWidth"
-                                    :height="imageHeight"
-                                    :params="params"
-                                    :editable="canEdit"
-                                    :clipping-mask="artefact.mask.polygon"
-                                ></image-layer>
-                                <artefact-layer
-                                    class="overlay-artefact"
-                                    :width="imageWidth"
-                                    :height="imageHeight"
-                                    :selected="art.id === artefact.id"
-                                    v-for="art in visibleArtefacts"
-                                    :artefact="art"
-                                    :key="art.id"
-                                    :color="getArtefactColor(art)"
-                                />
-                                <boundary-drawer
-                                    class="overlay-drawing"
-                                    v-if="canEdit && artefact"
-                                    :width="imageWidth"
-                                    :height="imageHeight"
-                                    :color="isErasing ? 'black' : getArtefactColor(artefact)"
-                                    @new-polygon="onNewPolygon($event)"
-                                />
-                            </div>
-                        </div>
+                        <svg class="overlay-image"
+                             :width="imageWidth"
+                             :height="imageHeight"
+                             :viewBox="`0 0 ${imageWidth} ${imageHeight}`"
+                             :transform="`scale(${zoomLevel})`">
+                            <image-layer
+                                :width="imageWidth"
+                                :height="imageHeight"
+                                :params="params"
+                                :editable="canEdit"
+                                :clipping-mask="artefact.mask.polygon"
+                            ></image-layer>
+                            <artefact-layer
+                                :selected="art.id === artefact.id"
+                                v-for="art in visibleArtefacts"
+                                :artefact="art"
+                                :key="art.id"
+                                :color="getArtefactColor(art)"
+                            />
+                            <boundary-drawer
+                                v-if="canEdit && artefact"
+                                :color="isErasing ? 'black' : getArtefactColor(artefact)"
+                                @new-polygon="onNewPolygon($event)"
+                            />
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -547,7 +537,6 @@ export default class ImagedObjectEditor extends Vue {
         this.artefact = art;
         const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         this.artefactEditingData = this.getArtefactEditingData(index);
-        console.log(`artefact changed to ${this.artefact.id}, index ${index}`);
     }
 
     private sideArtefactChanged(side: DropdownOption) {
