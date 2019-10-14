@@ -195,25 +195,9 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private get transform(): string {
-        return `rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${this.imageHeight / 2}) scale(${this.zoomLevel})`;
+        // tslint:disable-next-line:max-line-length
+        return `scale(${this.zoomLevel}) rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${this.imageHeight / 2})`;
     }
-
-/*    private get translatePosition(): string {
-        switch (this.rotationAngle) {
-            case 90: {
-                return `(${this.rotateDivHeight}px, 0px)`;
-            }
-            case 180: {
-                return `(${this.rotateDivWidth}px, ${this.rotateDivHeight}px)`;
-            }
-            case 270: {
-                return `(0px, ${this.rotateDivWidth}px)`;
-            }
-            default: {
-                return '(0, 0)';
-            }
-        }
-     } */
 
     private get overlayDiv(): HTMLDivElement {
         return this.$refs['overlay-div'] as HTMLDivElement;
