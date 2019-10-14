@@ -78,18 +78,6 @@ export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
 }
 
 /*
- * This function converts an SVG path that looks like Mx1,y1 Lx2,y2, ...
- * into a string with a list of points: x1,y1 x2,y2, ...
- *
- * We simply remove the letters and that's it
- */
-
-export function svgPathToPoints(svgPath: string) {
-  const points = svgPath.replace(/[A-Za-z]?([\d.]+)\s([\d.]+)/g, '$1,$2 ');
-  return points;
-}
-
-/*
  * This function transforms a well-known-text
  * point into an SVG path.
  */
