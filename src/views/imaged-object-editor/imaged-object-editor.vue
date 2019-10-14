@@ -195,8 +195,24 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private get transform(): string {
-        // tslint:disable-next-line:max-line-length
-        return `scale(${this.zoomLevel}) rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${this.imageHeight / 2})`;
+        // Rotation
+        const rotate = `rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${this.imageHeight / 2})`;
+
+        // If the rotation is by 90 or 270 degrees, the image need to be moved a little bit.
+        // Since the image's width is larger than its height, rotation by 90 degrees (or 270) results in a
+        // white band to the left of the rotated image. The top of the image is cut-off by exactly the
+        // width of the white band.
+        let translate = '';
+        if (this.rotationAngle % 180) { // 90 or 270
+            // The band is caused by the new width (old height) being smaller than the old width.
+            // There actually two bands, one to the left and one to the right. The right one can't be seen.
+            const bandWidth = (this.imageWidth - this.imageHeight) / 2;
+            translate = `translate(-${bandWidth}, ${bandWidth})`;
+        }
+
+        const scale = `scale(${this.zoomLevel})`;
+
+        return `${scale} ${translate} ${rotate}`;
     }
 
     private get overlayDiv(): HTMLDivElement {
