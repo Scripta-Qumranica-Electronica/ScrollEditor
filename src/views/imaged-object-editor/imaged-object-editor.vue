@@ -147,7 +147,6 @@ export default class ImagedObjectEditor extends Vue {
     private saving = false;
     private renaming = false;
     private renameInputActive: Artefact | null = null;
-    private nonSelectedArtefacts: Artefact[] = [];
     private nonSelectedMask = new Polygon();
     private artefactEditingDataList: ArtefactEditingData[] = [];
     private artefactEditingData = new ArtefactEditingData();
@@ -537,6 +536,13 @@ export default class ImagedObjectEditor extends Vue {
         this.artefact = art;
         const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         this.artefactEditingData = this.getArtefactEditingData(index);
+
+        this.nonSelectedMask = new Polygon();
+        for (const artefact of this.artefacts) {
+            if (artefact !== this.artefact) {
+                this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask.polygon);
+            }
+        }
     }
 
     private sideArtefactChanged(side: DropdownOption) {
@@ -613,6 +619,7 @@ export default class ImagedObjectEditor extends Vue {
 
         // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)
         this.artefact!.mask.polygon = newPolygon;
+        this.artefactEditingData.dirty = true;
 
         changeOperation.newMask = this.artefact!.mask.polygon;
 
