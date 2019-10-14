@@ -66,7 +66,7 @@
                              :width="imageWidth"
                              :height="imageHeight"
                              :viewBox="`0 0 ${imageWidth} ${imageHeight}`"
-                             :transform="`scale(${zoomLevel})`">
+                             :transform="transform">
                             <image-layer
                                 :width="imageWidth"
                                 :height="imageHeight"
@@ -183,26 +183,22 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private get actualWidth(): number {
-        return this.imageWidth * this.zoomLevel;
+        return (this.rotationAngle % 180 ? this.imageHeight : this.imageWidth) * this.zoomLevel;
     }
 
     private get actualHeight(): number {
-        return this.imageHeight * this.zoomLevel;
-    }
-
-    private get rotateDivWidth(): number {
-        return this.imageWidth;
-    }
-
-    private get rotateDivHeight(): number {
-        return this.imageHeight;
+        return (this.rotationAngle % 180 ? this.imageWidth : this.imageHeight) * this.zoomLevel;
     }
 
     private get rotationAngle(): number {
         return ((this.params.rotationAngle % 360) + 360) % 360;
     }
 
-    private get translatePosition(): string {
+    private get transform(): string {
+        return `rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${this.imageHeight / 2}) scale(${this.zoomLevel})`;
+    }
+
+/*    private get translatePosition(): string {
         switch (this.rotationAngle) {
             case 90: {
                 return `(${this.rotateDivHeight}px, 0px)`;
@@ -217,7 +213,7 @@ export default class ImagedObjectEditor extends Vue {
                 return '(0, 0)';
             }
         }
-    }
+     } */
 
     private get overlayDiv(): HTMLDivElement {
         return this.$refs['overlay-div'] as HTMLDivElement;
@@ -533,13 +529,14 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onArtefactChanged(art: Artefact) {
+        console.log(`onArtefactChanged to ${art.name} (${art.id})`);
         this.artefact = art;
         const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         this.artefactEditingData = this.getArtefactEditingData(index);
 
         this.nonSelectedMask = new Polygon();
-        for (const artefact of this.artefacts) {
-            if (artefact !== this.artefact) {
+        for (const artefact of this.visibleArtefacts) {
+            if (artefact !== art) {
                 this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask.polygon);
             }
         }
