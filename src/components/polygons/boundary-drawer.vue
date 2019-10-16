@@ -45,6 +45,10 @@ export default class BoundaryDrawer extends Vue {
     // The list of points of the polygon
     private polygonPoints: Point[] = [];
 
+    // We only support single touch events. When a second pointer is used,
+    // we cancel everything
+    private activePointers: Set<number> = new Set<number>();
+
     private get polygonString(): string {
         const pts = this.polygonPoints.map((pt) => `${pt.x}, ${pt.y}`);
         return pts.join(' ');
@@ -99,6 +103,12 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private pointerDown($event: PointerEvent) {
+        this.activePointers.add($event.pointerId);
+        if (this.activePointers.size > 1) {
+            this.cancelOperation();
+            return;
+        }
+
         const pt = this.eventToPoint($event);
         this.closedPolygon = false;
         if (this.internalMode === 'before-corner1') {
@@ -114,6 +124,10 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private pointerMove($event: PointerEvent) {
+        if (this.activePointers.size > 1) {
+            return;
+        }
+
         const pt = this.eventToPoint($event);
         if (this.internalMode === 'before-corner2') {
             this.corner2 = {...pt};
@@ -165,6 +179,11 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private pointerCancel() {
+        this.cancelOperation();
+        this.activePointers = new Set<number>();
+    }
+
+    private cancelOperation() {
         this.corner1 = this.corner2 = undefined;
         this.polygonPoints = [];
         if (this.mode === 'polygon') {
@@ -172,21 +191,24 @@ export default class BoundaryDrawer extends Vue {
         } else if (this.mode === 'box') {
             this.internalMode = 'before-corner1';
         }
+        this.closedPolygon = false;
     }
 
     private keyPress($event: KeyboardEvent) {
         if ($event.key === 'Escape') {
-            this.pointerCancel();
+            this.cancelOperation();
             $event.preventDefault();
         }
     }
 
-    private pointerUp() {
+    private pointerUp($event: PointerEvent) {
+        this.activePointers.delete($event.pointerId);
+
         // TODO: Make sure the polygon is closed
         if (this.closedPolygon) {
             this.newPolygon();
         }
-        this.pointerCancel();
+        this.cancelOperation();
     }
 
     private eventToPoint($event: PointerEvent): Point {

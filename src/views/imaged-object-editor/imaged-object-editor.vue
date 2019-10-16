@@ -633,6 +633,7 @@ export default class ImagedObjectEditor extends Vue {
     padding: 0;
     height: calc(100vh - 63px);
     width: calc(100vw - 290px);
+    touch-action: none;
 }
 .imaged-object-container.active {
     overflow: auto;
@@ -644,12 +645,6 @@ export default class ImagedObjectEditor extends Vue {
 .imaged-object-menu-div {
     height: calc(100vh - 63px);
     overflow: hidden;
-}
-#zoom-div {
-    position: absolute;
-}
-#rotate-dev {
-    transform-origin: top left;
 }
 #buttons-div {
     background-color: #eff1f4;

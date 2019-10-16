@@ -11,7 +11,7 @@
  *
  * Communications with the outside is done with a zoom property and a newZoom event, which should be used by
  * the surrounding components to change the actual zoom.
- * 
+ *
  * The zoomer component should be placed right inside the div with the scrollbars. Zooming occurs on the zoomer's
  * parent element.
  */
