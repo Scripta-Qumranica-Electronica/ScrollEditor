@@ -799,13 +799,6 @@
   resolved "https://registry.yarnpkg.com/@types/js-clipper/-/js-clipper-0.0.28.tgz#88d263feff76c77649c021693e1cb9d7e1ec2ba7"
   integrity sha1-iNJj/v92x3ZJwCFpPhy51+HsK6c=
 
-"@types/jsts@^0.17.0":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@types/jsts/-/jsts-0.17.0.tgz#8e55d20986ba2ef985bb31c334525cdfe39755c5"
-  integrity sha512-HABWQ7Q33xlUniLkY8egb+vievXEkJXt2TVirBpQVGN5H+En2+ALmxoPq7ktGAat0fzI8iY1AtIFTaxjv556GA==
-  dependencies:
-    "@types/openlayers" "*"
-
 "@types/mathjs@^4.4.5":
   version "4.4.5"
   resolved "https://registry.yarnpkg.com/@types/mathjs/-/mathjs-4.4.5.tgz#b28d46919c68b93bcabf0551729624b302af9b4b"
@@ -828,15 +821,17 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
-"@types/openlayers@*":
-  version "4.6.17"
-  resolved "https://registry.yarnpkg.com/@types/openlayers/-/openlayers-4.6.17.tgz#39a8dce631e284a26cf0958664509932e6cd7c7d"
-  integrity sha512-vCCV5MY3XRmHyED1ndHxXJ/5IpeA3pX9J6IKZnMY+uTerhYNfG7pM451dgS90tSkBBxszd8ETPrF5ggQ9mqwlA==
-
 "@types/q@^1.5.1":
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha512-ce5d3q03Ex0sy4R14722Rmt6MT07Ua+k4FwDfdcToYJcMKNtRVQvJ6JCAPdAmAnbRb6CsX6aYb9m96NGod9uTw==
+
+"@types/vue2-hammer@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/vue2-hammer/-/vue2-hammer-2.1.0.tgz#c1f48c4abfe9ccefae98acaaf21a9240affaaab8"
+  integrity sha512-8ZJeYlt3L1R+nychf030mJNRr7ktGKCRF9EEtnX4VxCgMRmXPHakoqQ1pVYUA8evXYTMT5uqSon25GcRnFCpfQ==
+  dependencies:
+    vue ">=2.0.0"
 
 "@types/webpack-env@^1.13.9":
   version "1.14.0"
@@ -4831,11 +4826,6 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-jsts@^2.0.8:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/jsts/-/jsts-2.0.8.tgz#433c8f14e0537e2bfb46acadfd98884017aec06c"
-  integrity sha512-JsVWANyeQ2j8XLiPPdz1fTaaBnji8P6P95w/Rg487MW7qMAMKgc+86nw5iW/9kC5OlYvbOf4oG380Vyn90H9/g==
-
 killable@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/killable/-/killable-1.0.1.tgz#4c8ce441187a061c7474fb87ca08e2a638194892"
@@ -8679,7 +8669,7 @@ vue2-hammer@^2.1.2:
     babel-runtime "^6.26.0"
     hammerjs "^2.0.8"
 
-vue@^2.1.0, vue@^2.6.10:
+vue@>=2.0.0, vue@^2.1.0, vue@^2.6.10:
   version "2.6.10"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.10.tgz#a72b1a42a4d82a721ea438d1b6bf55e66195c637"
   integrity sha512-ImThpeNU9HbdZL3utgMCq0oiMzAkt1mcgy3/E6zWC/G6AaQoeuFdsl9nDhTDU3X1R6FK7nsIUuRACVcjI+A2GQ==

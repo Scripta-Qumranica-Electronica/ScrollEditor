@@ -1,5 +1,5 @@
 <template>
-    <div @wheel="onWheel($event)">
+    <div @wheel="onWheel($event)" v-hammer:pinch="onPinch">
         <slot></slot>
     </div>
 </template>
@@ -40,29 +40,33 @@ export default class Zoomer extends Vue {
 
         event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
         const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
+
+        // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
+        // on the same place in the image. First we need to know the exact coordinates before the zoom
+        // We get screen cordinates, we need to translate them to client coordinates
+        const viewport = this.zoomTarget.getBoundingClientRect();
+        const mousePosition: Point = {
+            x: event.clientX - viewport.left + this.zoomTarget.scrollLeft,
+            y: event.clientY - viewport.top + this.zoomTarget.scrollTop,
+        };
+
+        this.applyZoom(amount, mousePosition);
+    }
+
+    private applyZoom(amount: number, position: Point) {
         const oldZoom = this.zoom;
         const newZoom = Math.min(Math.max(oldZoom + amount, 0.05), 1);
         if (newZoom === oldZoom) {
             return;
         }
 
-        // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
-        // on the same place in the image. First we need to know the exact coordinates before the zoom
-        // We get screen cordinates, we need to translate them to client coordinates
-        const viewport = this.zoomTarget.getBoundingClientRect();
-        const oldMousePosition: Point = {
-            x: event.clientX - viewport.left + this.zoomTarget.scrollLeft,
-            y: event.clientY - viewport.top + this.zoomTarget.scrollTop,
-        };
-        console.log(`Scrolling event at ${oldMousePosition.x}, ${oldMousePosition.y}`);
-
-        const newMousePosition: Point = {
-            x: (oldMousePosition.x * newZoom) / oldZoom,
-            y: (oldMousePosition.y * newZoom) / oldZoom
+        const newPosition: Point = {
+            x: (position.x * newZoom) / oldZoom,
+            y: (position.y * newZoom) / oldZoom
         };
         const scrollDelta: Point = {
-            x: newMousePosition.x - oldMousePosition.x,
-            y: newMousePosition.y - oldMousePosition.y
+            x: newPosition.x - position.x,
+            y: newPosition.y - position.y
         };
 
         this.newZoom(newZoom);
@@ -74,6 +78,19 @@ export default class Zoomer extends Vue {
             this.zoomTarget.scrollLeft += scrollDelta.x;
             this.zoomTarget.scrollTop += scrollDelta.y;
         }, 0);
+    }
+    private onPinch(event: any) {
+        // Determine the amount based on additionalEvent: pinchin for zooming out, pinchout for zooming in
+        const amount = event.additionalEvent === "pinchin" ? -0.01 : 0.01;
+
+        // We get the center in screen coordinates, we need to convert them to the right position
+        const viewport = this.zoomTarget.getBoundingClientRect();
+        const position: Point = {
+            x: event.center.x - viewport.left + this.zoomTarget.scrollLeft,
+            y: event.center.y - viewport.top + this.zoomTarget.scrollTop,
+        };
+
+        this.applyZoom(amount, position);
     }
 
     private get zoomTarget(): Element {
