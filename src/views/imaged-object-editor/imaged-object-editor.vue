@@ -55,39 +55,39 @@
                     </b-button>
                 </div>
                 <div class="imaged-object-container" :class="{active: isActive}">
-                    <div
-                        ref="overlay-div"
-                        v-if="!waiting && imagedObject"
-                        :width="actualWidth"
-                        :height="actualHeight"
-                        id="overlay-div"
-                    >
-                        <svg class="overlay-image"
-                             :width="imageWidth"
-                             :height="imageHeight"
-                             :viewBox="`0 0 ${imageWidth} ${imageHeight}`"
-                             :transform="transform">
-                            <image-layer
+                    <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
+                        <div
+                            v-if="!waiting && imagedObject"
+                            :width="actualWidth"
+                            :height="actualHeight"
+                        >
+                            <svg class="overlay-image"
                                 :width="imageWidth"
                                 :height="imageHeight"
-                                :params="params"
-                                :editable="canEdit"
-                                :clipping-mask="artefact.mask.polygon"
-                            ></image-layer>
-                            <artefact-layer
-                                :selected="art.id === artefact.id"
-                                v-for="art in visibleArtefacts"
-                                :artefact="art"
-                                :key="art.id"
-                                :color="getArtefactColor(art)"
-                            />
-                            <boundary-drawer
-                                v-if="canEdit && artefact"
-                                :color="isErasing ? 'black' : getArtefactColor(artefact)"
-                                @new-polygon="onNewPolygon($event)"
-                            />
-                        </svg>
-                    </div>
+                                :viewBox="`0 0 ${imageWidth} ${imageHeight}`"
+                                :transform="transform">
+                                <image-layer
+                                    :width="imageWidth"
+                                    :height="imageHeight"
+                                    :params="params"
+                                    :editable="canEdit"
+                                    :clipping-mask="artefact.mask.polygon"
+                                ></image-layer>
+                                <artefact-layer
+                                    :selected="art.id === artefact.id"
+                                    v-for="art in visibleArtefacts"
+                                    :artefact="art"
+                                    :key="art.id"
+                                    :color="getArtefactColor(art)"
+                                />
+                                <boundary-drawer
+                                    v-if="canEdit && artefact"
+                                    :color="isErasing ? 'black' : getArtefactColor(artefact)"
+                                    @new-polygon="onNewPolygon($event)"
+                                />
+                            </svg>
+                        </div>
+                    </zoomer>
                 </div>
             </div>
         </div>
@@ -121,6 +121,7 @@ import { ZoomRequestEventArgs } from '@/models/editor-params';
 import ArtefactService from '@/services/artefact';
 import { DropdownOption } from '@/utils/helpers';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
+import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 
 @Component({
     name: 'imaged-object-editor',
@@ -130,6 +131,7 @@ import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
+        'zoomer': Zoomer,
     }
 })
 export default class ImagedObjectEditor extends Vue {
@@ -164,6 +166,7 @@ export default class ImagedObjectEditor extends Vue {
         }
         return [];
     }
+
     private get zoomLevel(): number {
             return this.params.zoom;
     }
@@ -213,10 +216,6 @@ export default class ImagedObjectEditor extends Vue {
         const scale = `scale(${this.zoomLevel})`;
 
         return `${scale} ${translate} ${rotate}`;
-    }
-
-    private get overlayDiv(): HTMLDivElement {
-        return this.$refs['overlay-div'] as HTMLDivElement;
     }
 
     private get imageWidth(): number {
@@ -355,42 +354,9 @@ export default class ImagedObjectEditor extends Vue {
         this.params = evt.params; // This makes sure a change is triggered in child components
     }
 
-    private onZoomRequest(event: ZoomRequestEventArgs) {
-        const oldZoom = this.params.zoom;
-        const newZoom = Math.min(Math.max(oldZoom + event.amount, 0.05), 1);
-        if (newZoom === oldZoom) {
-            return;
-        }
-
-        // After changing the zoom, we want to change the scrollbars to that the mouse cursor stays
-        // on the same place in the image. First we need to know the exact coordinates before the zoom
-        // We get screen cordinates, we need to translate them to client coordinates
-        const viewport = this.overlayDiv.getBoundingClientRect();
-        const oldMousePosition = {
-            x:
-                event.clientPosition.x -
-                viewport.left +
-                this.overlayDiv.scrollLeft,
-            y:
-                event.clientPosition.y -
-                viewport.top +
-                this.overlayDiv.scrollTop
-        };
-        const newMousePosition = {
-            x: (oldMousePosition.x * newZoom) / oldZoom,
-            y: (oldMousePosition.y * newZoom) / oldZoom
-        };
-        const scrollDelta = {
-            x: newMousePosition.x - oldMousePosition.x,
-            y: newMousePosition.y - oldMousePosition.y
-        };
-
-        setTimeout(() => {
-            this.overlayDiv.scrollLeft += scrollDelta.x;
-            this.overlayDiv.scrollTop += scrollDelta.y;
-        }, 0);
-
-        this.params.zoom = newZoom;
+    private onNewZoom(event: ZoomEventArgs) {
+        console.log(`imaged-object-editor setting zoom to ${event.zoom}`);
+        this.params.zoom = event.zoom;
     }
 
     private showSaveMsg(savedFlag: boolean, errorFlag: boolean) {
