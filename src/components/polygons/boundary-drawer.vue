@@ -34,6 +34,7 @@ export default class BoundaryDrawer extends Vue {
     @Prop({
         default: 'purple',
     }) public readonly color!: string;
+    @Prop() public readonly transformRootId!: string;
 
     private internalMode: InternalMode = 'none';
 
@@ -124,7 +125,7 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private pointerMove($event: PointerEvent) {
-        if (this.activePointers.size > 1) {
+        if (this.activePointers.size !== 1) {
             return;
         }
 
@@ -217,9 +218,17 @@ export default class BoundaryDrawer extends Vue {
         const pt = this.svg.createSVGPoint();
         pt.x = $event.clientX;
         pt.y = $event.clientY;
-        const svgPt = pt.matrixTransform(this.svg.getScreenCTM()!.inverse());
+        const svgPt = pt.matrixTransform(this.transformRoot.getScreenCTM()!.inverse());
 
         return svgPt;
+    }
+
+    private get svg(): SVGSVGElement {
+        return this.$el.closest('svg') as SVGSVGElement;
+    }
+
+    private get transformRoot(): SVGGraphicsElement {
+        return this.svg.getElementById(this.transformRootId) as SVGGraphicsElement;
     }
 
     @Emit()
@@ -233,11 +242,6 @@ export default class BoundaryDrawer extends Vue {
 
         const svg = partials.join(' ');
         return new Polygon(svg);
-    }
-
-    private get svg(): SVGSVGElement {
-        // Find the closest surrounding svg elemet
-        return this.$el.closest('svg') as SVGSVGElement;
     }
 }
 
