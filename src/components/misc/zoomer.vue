@@ -81,7 +81,7 @@ export default class Zoomer extends Vue {
     }
     private onPinch(event: any) {
         // Determine the amount based on additionalEvent: pinchin for zooming out, pinchout for zooming in
-        const amount = event.additionalEvent === "pinchin" ? -0.01 : 0.01;
+        const amount = event.additionalEvent === 'pinchin' ? -0.01 : 0.01;
 
         // We get the center in screen coordinates, we need to convert them to the right position
         const viewport = this.zoomTarget.getBoundingClientRect();

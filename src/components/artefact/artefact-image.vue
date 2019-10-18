@@ -22,10 +22,10 @@ import ArtefactDataMixin from './artefact-data-mixin';
 import ArtefactSvg from './artefact-svg.vue';
 
 @Component({
-    name: 'simple-artefact-image',
+    name: 'artefact-image',
     components: { 'artefact-svg': ArtefactSvg },
 })
-export default class SimpleArtefactImage extends Mixins(ArtefactDataMixin) {
+export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
     @Prop({default: 1.3}) private aspectRatio!: number;
     @Prop({
         default: () => {

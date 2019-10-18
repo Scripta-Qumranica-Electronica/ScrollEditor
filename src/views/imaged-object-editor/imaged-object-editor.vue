@@ -61,7 +61,7 @@
                             :width="actualWidth"
                             :height="actualHeight"
                         >
-                            <svg class="overlay-image"
+                            <svg class="overlay"
                                 :width="imageWidth"
                                 :height="imageHeight"
                                 :viewBox="`0 0 ${imageWidth} ${imageHeight}`"
@@ -608,16 +608,7 @@ export default class ImagedObjectEditor extends Vue {
 
 <style lang="scss" scoped>
 // @import '~sass-vars';
-.overlay-image {
-    position: absolute;
-    transform-origin: top left;
-}
-.overlay-artefact {
-    position: absolute;
-    transform-origin: top left;
-}
-
-.overlay-drawing {
+.overlay {
     position: absolute;
     transform-origin: top left;
 }
