@@ -61,9 +61,9 @@
                             :height="actualHeight"
                         >
                             <svg class="overlay"
-                                :width="imageWidth * zoomLevel"
-                                :height="imageHeight * zoomLevel"
-                                :viewBox="`0 0 ${imageWidth * zoomLevel} ${imageHeight * zoomLevel}`">
+                                :width="actualWidth"
+                                :height="actualHeight"
+                                :viewBox="`0 0 ${actualWidth} ${actualHeight}`">
                                 <g :transform="transform" id="transform-root">
                                     <image-layer
                                         :width="imageWidth"
