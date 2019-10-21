@@ -24,6 +24,9 @@ import VueI18n from 'vue-i18n';
 import { localizedTexts } from './i18n';
 import { StateManager } from './state';
 
+// vue2-hammer
+import { VueHammer } from 'vue2-hammer';
+
 // import AsyncComputed from 'vue-async-computed';
 
 Vue.config.productionTip = false;
@@ -58,7 +61,7 @@ Vue.use(VueShortcuts, { prevent: ['input'] });
 
 Vue.use(RenderingOptimizationPlugin);
 
-// Vue.use(AsyncComputed);
+Vue.use(VueHammer);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {

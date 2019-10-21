@@ -15,7 +15,7 @@
 // 4. Add tooltip to the slider (with the current number)
 // 5. Disable slider when checkbox is false
 import Vue from 'vue';
-import { SingleImageSetting } from './types';
+import { SingleImageSetting } from '../image-settings/types';
 
 export default Vue.extend({
     name: 'single-image-setting',

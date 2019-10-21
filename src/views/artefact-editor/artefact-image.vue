@@ -1,6 +1,6 @@
 <template>
 <div>
-    <div id="svg-scale" :style="{transform: `scale(${secondaryScale})`}">
+    <div id="svg-scale">
         <svg :viewbox="`0 0 ${scaledImageWidth} ${scaledImageHeight}`"
             :width="scaledImageWidth"
             :height="scaledImageHeight">
@@ -14,8 +14,11 @@
                 </defs>
                 <g pointer-events="none" :clip-path="`url(#clip-path-${artefact.id}`">
                     <image 
+                        v-for="imageSetting in visibleImageSettings"
+                        :key="imageSetting.image.url"
                         draggable="false"
-                        :href="masterImageUrl"></image>
+                        :xlink:href="getImageUrl(imageSetting)"
+                        :opacity="imageSetting.opacity"></image>
                 </g>
             </g>
         </svg>
@@ -55,23 +58,27 @@ import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
 import ArtefactService from '@/services/artefact';
 import { ImagedObject } from '@/models/imaged-object';
-import { ImageSetting } from '@/views/imaged-object-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
-import ImageService from '@/services/image';
 import { Polygon } from '@/utils/Polygons';
+import { Position } from '@/utils/PointerTracker';
+import { ArtefactEditorParams } from './types';
+import { SingleImageSetting, ImageSetting } from '@/components/image-settings/types';
+import ImagedObjectService from '@/services/imaged-object';
 
 export default Vue.extend({
     props: {
-        artefact: Artefact,
+        artefact: Object as () => Artefact,
         scale: Number,
+        imageSettingsParams: {
+            type: Object as () => ImageSetting,
+        },
     },
     data() {
         return {
             artefactService: new ArtefactService(),
-            imageService: new ImageService(),
+            imagedObjectService: new ImagedObjectService(),
             imageStack: undefined as ImageStack | undefined,
             masterImageManifest: undefined as any,
-            divWidth: 1 as any,  // Needs to be set in mount(), since this.$el is not reactive
             scaledMask: {} as Polygon,
         };
     },
@@ -92,38 +99,39 @@ export default Vue.extend({
             return 150;
         },
 
-        secondaryScale(): number {
-            const scale = this.divWidth / this.scaledImageWidth;
-            return scale;
+        imageSettings(): SingleImageSetting[] {
+            if (!this.imageSettingsParams) {
+                return [];
+            }
+            const values = Object.keys(this.imageSettingsParams).map((key) => this.imageSettingsParams[key]);
+            return values;
         },
 
-        masterImageUrl(): string | undefined {
-            if (!this.imageStack) {
-                return undefined;
-            }
-
-            return this.imageStack.master.getFullUrl(this.scale * 100);
+        visibleImageSettings(): SingleImageSetting[] {
+            return this.imageSettings.filter((image) => image.visible);
         }
     },
     async mounted() {
-        this.divWidth = this.$el.clientWidth;
-
-        const imagedObject = await this.artefactService.getArtefactImagedObject(
-            this.artefact.editionId!, this.artefact.imagedObjectId);
+        await this.$state.prepare.edition(this.artefact.editionId);
+        const imagedObject = this.$state.imagedObjects.find(this.artefact.imagedObjectId);
+        if (!imagedObject) {
+            throw new Error(`Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`);
+        }
         this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
         if (!this.imageStack) {
             throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
                             `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
         }
-        await this.imageService.fetchImageManifest(this.imageStack.master);
+        await this.$state.prepare.imageManifest(this.imageStack.master);
 
         this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;
-
-        window.addEventListener('resize', () => {
-            this.divWidth = this.$el.clientWidth;
-        });
     },
+    methods: {
+        getImageUrl(imageSetting: SingleImageSetting) {
+            return imageSetting.image.getFullUrl(this.scale * 100);
+        }
+    }
 });
 </script>
 

@@ -28,7 +28,7 @@ import { EditionInfo } from '@/models/edition';
 export default Vue.extend({
   name: 'edition-card',
   props: {
-      edition: EditionInfo,
+      edition: Object as () => EditionInfo,
   },
   computed: {
     thumbnailSource(): string | undefined {
@@ -38,7 +38,7 @@ export default Vue.extend({
       return this.edition.publicCopies;
     },
     personalVersionCount(): number {
-      return 0;
+      return 0; // TODO: Return the actual number
     }
   },
 });
