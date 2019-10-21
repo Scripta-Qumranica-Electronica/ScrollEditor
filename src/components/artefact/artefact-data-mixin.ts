@@ -11,7 +11,7 @@ import ImagedObjectService from '@/services/imaged-object';
 export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     @Prop() protected artefact!: Artefact;
 
-    protected imageStack = undefined as ImageStack | undefined;
+    protected imageStack: ImageStack | undefined = undefined;
     protected masterImageManifest = null;
     protected boundingBox = new BoundingBox();
 

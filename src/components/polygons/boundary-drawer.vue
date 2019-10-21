@@ -164,7 +164,7 @@ export default class BoundaryDrawer extends Vue {
     // are close enough (less than 5% of the diagonal of the polygon's bounding box),
     // the polygon is considered closed.
     private checkPolygonCloseness(): boolean {
-        const threshold = 0.1;
+        const threshold = 0.25;
 
         const width = this.corner1!.x - this.corner2!.x;  // No Math.abs since we square these
         const height = this.corner1!.y - this.corner2!.y;

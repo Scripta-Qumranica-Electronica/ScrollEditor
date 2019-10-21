@@ -35,9 +35,8 @@ export default Vue.extend({
     };
   },
   methods: {
-      onImageSettingChanged($event: any) {
-          const singleImgSetting = $event as SingleImageSetting;
-          this.$emit('imageSettingChanged', singleImgSetting);
+      onImageSettingChanged($event: SingleImageSetting) {
+          this.$emit('imageSettingChanged', $event);
       }
   },
 });

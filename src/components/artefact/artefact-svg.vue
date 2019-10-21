@@ -1,5 +1,5 @@
 <template>
-    <div v-show="loaded">
+    <div>
         <svg v-if="loaded"
             :viewBox="`${boundingBox.x} ${boundingBox.y} ${boundingBox.width} ${boundingBox.height}`"
             :width="elementWidth"
