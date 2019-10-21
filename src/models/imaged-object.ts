@@ -14,8 +14,7 @@ export class ImagedObject {
         this.id = obj.id;
 
         if (obj.artefacts) {
-            const artefacts = obj.artefacts.map((dto) => new Artefact(dto));
-            this.artefacts = artefacts;
+            this.artefacts = obj.artefacts.map((dto) => new Artefact(dto));
         } else {
             this.artefacts = [];
         }
