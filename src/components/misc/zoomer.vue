@@ -73,11 +73,14 @@ export default class Zoomer extends Vue {
 
         // We call setTimeout to update the actual scrolling position, since Vue needs to process everything else
         // in this event, including the newZoom call.
-        setTimeout(() => {
+        /* setTimeout(() => {
             console.log(`Scrolling by ${scrollDelta.x}, ${scrollDelta.y}`);
             this.zoomTarget.scrollLeft += scrollDelta.x;
             this.zoomTarget.scrollTop += scrollDelta.y;
-        }, 0);
+        }, 0); */
+        console.log(`Scrolling by ${scrollDelta.x}, ${scrollDelta.y}`);
+        this.zoomTarget.scrollLeft += scrollDelta.x;
+        this.zoomTarget.scrollTop += scrollDelta.y;
     }
     private onPinch(event: any) {
         // Determine the amount based on additionalEvent: pinchin for zooming out, pinchout for zooming in

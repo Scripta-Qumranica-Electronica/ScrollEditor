@@ -19,7 +19,7 @@ import { BoundingBox, Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 
 export type DrawingMode = 'polygon' | 'box';
-type InternalMode = 'none' | 'before-polygon' | 'polygon' | 'before-corner1' | 'before-corner2';
+type InternalMode = 'before-polygon' | 'polygon' | 'before-corner1' | 'before-corner2';
 
 @Component({
     name: 'boundary-drawer',
@@ -36,7 +36,7 @@ export default class BoundaryDrawer extends Vue {
     }) public readonly color!: string;
     @Prop() public readonly transformRootId!: string;
 
-    private internalMode: InternalMode = 'none';
+    private internalMode: InternalMode = 'before-polygon';
 
     // corner1 and corner2 are the two corners of the box in box mode,
     // or of the polygon's bounding box in polygon mode

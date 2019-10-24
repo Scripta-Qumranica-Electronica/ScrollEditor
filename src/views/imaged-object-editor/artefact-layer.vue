@@ -20,8 +20,6 @@ import { Artefact } from '@/models/artefact';
     name: 'artefact-layer',
 })
 export default class ArtefactLayer extends Vue {
-    @Prop() public readonly width!: number;
-    @Prop() public readonly height!: number;
     @Prop() public readonly artefact!: Artefact;
     @Prop() public readonly color!: string;
     @Prop() public readonly editable!: boolean;
