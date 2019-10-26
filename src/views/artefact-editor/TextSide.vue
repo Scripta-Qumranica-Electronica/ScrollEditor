@@ -1,110 +1,107 @@
 <template>
-  <div id="text-side" :class="{ 'fixed-header': scrolled }">
-      <input class="select-text" list="my-list-id" v-model="query" @change="search(query)"/>
-      <datalist id="my-list-id">
-          <option :key="index" v-for="(text, index) in textList">{{ text.name }}</option>
-      </datalist>
-      <button @click.prevent="search(query)" name="Search">Search</button>
-      <span class="isa_error">{{errorMessage}}</span>
-       
-      <div v-if="textEdition.textFragments">
-        <div
-          v-for="(fragment, index) in textEdition.textFragments"
-          :key="index">
-          <text-fragment :clickedSignId="clickedSignId"
-              :textFragment="fragment"
-              id="text-box">
-          </text-fragment>
+    <div id="text-side" :class="{ 'fixed-header': scrolled }">
+        <input class="select-text" list="my-list-id" v-model="query" @change="search(query)" />
+        <datalist id="my-list-id">
+            <option :key="tf.textFragmentId" v-for="tf in textFragments">{{ tf.name }}</option>
+        </datalist>
+        <button @click.prevent="load(query)" :disabled="loading" name="Load">Load</button>
+        <span class="isa_error">{{errorMessage}}</span>
+
+        <div v-if="textFragment">
+            <text-fragment
+                :clickedSignId="clickedSignId"
+                :textFragment="textFragment"
+                id="text-box"
+            ></text-fragment>
         </div>
-      </div>
-  </div>
+    </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
-import TextService from '@/services/text';
-import { TextFragmentData } from '@/models/text';
-import TextFragment from '@/components/text/TextFragment.vue';
+import { TextFragmentData, TextFragment } from '@/models/text';
+import TextFragmentComponent from '@/components/text/TextFragment.vue';
 
 export default Vue.extend({
-  name: 'text-side',
-  components: {
-    TextFragment
-  },
-  data() {
-    return {
-      errorMessage: '',
-      textService: new TextService(),
-      textList: [] as TextFragmentData[],
-      query: '',
-      textFragmentId: 0,
-      textEdition : {},
-    };
-  },
-  props: {
-    artefact: Object as () => Artefact,
-    clickedSignId: Number,
-  },
-  computed: {
-    editionId(): number {
-      return parseInt(this.$route.params.editionId);
+    name: 'text-side',
+    components: {
+        'text-fragment': TextFragmentComponent
     },
-    scrolled(): boolean {
-        return true;
+    data() {
+        return {
+            errorMessage: '',
+            query: '',
+            textFragmentId: 0,
+            loading: false,
+        };
     },
-  },
-  async mounted() {
-      this.textService.requestEditionText(this.editionId)
-      .then((data) => {
-          this.textList = data;
-      });
-  },
-  methods: {
-      search() {
-        this.errorMessage = '';
-        this.textEdition = {};
-        const textFragment = this.textList.find((obj) => obj.name === this.query);
-        if (this.query) {
-          if (!textFragment) {
-            this.errorMessage = 'This fragment does not exist';
-            return;
-          }
-          this.textFragmentId = textFragment.id;
-          this.getFragmentText();
+    props: {
+        artefact: Object as () => Artefact,
+        clickedSignId: Number,
+    },
+    computed: {
+        editionId(): number {
+            return parseInt(this.$route.params.editionId);
+        },
+        scrolled(): boolean {
+            return true;
+        },
+        textFragments(): TextFragmentData[] {
+            return this.$state.editions.current!.textFragments || [];
+        },
+        textFragment(): TextFragment | undefined {
+            return this.$state.textFragments.current;
         }
-      },
-      getFragmentText() {
-        this.textService.requestTextFragmentId(this.editionId, this.textFragmentId)
-          .then((data) => {
-              this.textEdition = data;
-          });
-      }
-  }
+    },
+    async mounted() {
+        this.$state.prepare.edition(this.editionId);
+    },
+    methods: {
+        load() {
+            this.errorMessage = '';
+            const textFragment = this.textFragments.find(
+               (obj) => obj.name === this.query
+            );
+            if (this.query) {
+                if (!textFragment) {
+                    this.errorMessage = 'This fragment does not exist';
+                    return;
+                }
+                this.textFragmentId = textFragment.id;
+                this.getFragmentText();
+            }
+        },
+        async getFragmentText() {
+            this.loading = true;
+            await this.$state.prepare.textFragment(this.editionId, this.textFragmentId);
+            this.loading = false;
+        }
+    }
 });
 </script>
 
 <style lang="scss" scoped>
 #text-side {
-  margin: 20px 50px 20px 30px;
-  touch-action: pan-y;
-  // top: 0;
-  // right: 0;
+    margin: 20px 50px 20px 30px;
+    touch-action: pan-y;
+    // top: 0;
+    // right: 0;
 }
 
 button {
-  margin-right: 10px;
+    margin-right: 10px;
 }
 .btn-info {
-  background-color: #6c757d;
-  border-color: #6c757d;
+    background-color: #6c757d;
+    border-color: #6c757d;
 }
 
 #text-box {
-  margin-top: 30px;
+    margin-top: 30px;
 }
 
 .isa_error {
-    color: #D8000C;
+    color: #d8000c;
 }
 </style>

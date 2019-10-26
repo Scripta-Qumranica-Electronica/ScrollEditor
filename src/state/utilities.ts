@@ -2,6 +2,7 @@ import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
+import { TextFragment } from '@/models/text';
 
 interface ItemWithId {
     id: any;
@@ -91,6 +92,8 @@ export class EditionCollection extends StateCollection<EditionInfo> { }
 export class ImagedObjectCollection extends StateCollection<ImagedObject> { }
 
 export class ArtefactCollection extends StateCollection<Artefact> { }
+
+export class TextFragmentCollection extends StateCollection<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
 
