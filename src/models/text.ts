@@ -137,6 +137,8 @@ class SignInterpretation {
     }
 }
 
+type RoiStatus = 'original' | 'new' | 'updated' | 'deleted';
+
 class InterpretationRoi {
     public interpretationRoiId?: number;
     public artefactId: number;
@@ -145,6 +147,7 @@ class InterpretationRoi {
     public position: string;
     public exceptional: boolean;
     public valuesSet: boolean;
+    public status: RoiStatus;
 
     public constructor(obj: InterpretationRoiDTO | SetInterpretationRoiDTO) {
         this.artefactId = obj.artefactId;
@@ -157,6 +160,8 @@ class InterpretationRoi {
         if (obj instanceof InterpretationRoi) {
             this.interpretationRoiId = obj.interpretationRoiId;
         }
+
+        this.status = 'original';
     }
 }
 
