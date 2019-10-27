@@ -1,5 +1,9 @@
 import { SessionState } from './session';
-import { EditionCollection, ImagedObjectCollection, MiscState, ArtefactCollection } from './utilities';
+import { EditionCollection,
+    ImagedObjectCollection,
+    MiscState,
+    ArtefactCollection,
+    TextFragmentCollection } from './utilities';
 import { Polygon } from '@/utils/Polygons';
 import StateService from './state-service';
 
@@ -10,6 +14,7 @@ export class StateManager {
     public editions: EditionCollection;
     public imagedObjects: ImagedObjectCollection;   // Imaged objects for the current edition
     public artefacts: ArtefactCollection;           // Artefacts for the current edition or imaged object
+    public textFragments: TextFragmentCollection;
     public misc: MiscState;
     public signMap: Map<string, Polygon>;
     public prepare: StateService;
@@ -19,6 +24,7 @@ export class StateManager {
         this.editions = new EditionCollection();
         this.imagedObjects = new ImagedObjectCollection();
         this.artefacts = new ArtefactCollection();
+        this.textFragments = new TextFragmentCollection();
         this.misc = new MiscState();
         this.signMap = new Map<string, Polygon>();
         this.prepare = new StateService(this);

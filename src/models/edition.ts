@@ -1,6 +1,7 @@
 import { IIIFImage } from './image';
 import { UserDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
+import { TextFragmentData } from './text';
 
 class UserInfo { // TODO: add fields like UserDTO ?
     public email: string;
@@ -50,6 +51,9 @@ class EditionInfo {
     public publicCopies: number = 1;
     public mine: boolean = false;
     public otherVersions: EditionInfo[] = [];
+
+    // The following are loaded when necessary
+    public textFragments?: TextFragmentData[];
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;

@@ -10,7 +10,7 @@ class TextFragmentData {
     public name: string;
     public editorId: number;
 
-    constructor(obj: TextFragmentData | TextFragmentDataDTO) {
+    constructor(obj: TextFragmentDataDTO) {
         this.id = obj.id;
         this.name = obj.name;
         this.editorId = obj.editorId;
@@ -67,6 +67,10 @@ class TextFragment {
         } else {
             this.lines = [];
         }
+    }
+
+    public get id() { // State collections require an id field (look for ItemWithId)
+        return this.textFragmentId;
     }
 
     private copyFrom(other: TextFragment) {

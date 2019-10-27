@@ -4,6 +4,7 @@ import ImagedObjectService from '@/services/imaged-object';
 import ArtefactService from '@/services/artefact';
 import { IIIFImage } from '@/models/image';
 import ImageService from '@/services/image';
+import TextService from '@/services/text';
 
 /*
  * This service handles all the state data.
@@ -44,7 +45,7 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-                         'artefactProcess';
+                         'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -55,6 +56,8 @@ export default class StateService {
     private imagedObjectsProcess: ProcessTracking | undefined;
     private artefactsProcess: ProcessTracking | undefined;
     private artefactProcess: ProcessTracking | undefined;
+    private textFragmentsProcess: ProcessTracking | undefined;
+    private textFragmentProcess: ProcessTracking | undefined;
     private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
 
     public constructor(state: StateManager) {
@@ -75,6 +78,10 @@ export default class StateService {
         return this.wrapInternal('editionProcess', editionId, (id: number) => this.editionInternal(id));
     }
 
+    public async textFragments(editionId: number): Promise<void> {
+        return this.wrapInternal('textFragmentsProcess', editionId, (id: number) => this.textFragmentsInternal(id));
+    }
+
     public imagedObjects(editionId: number) {
         return this.wrapInternal('imagedObjectsProcess', editionId, (id: number) => this.imagedObjectsInternal(id));
     }
@@ -85,6 +92,11 @@ export default class StateService {
 
     public artefact(editionId: number, artefactId: number): Promise<void> {
         return this.wrapInternal('artefactProcess', artefactId, (id) => this.artefactInternal(editionId, id));
+    }
+
+    public textFragment(editionId: number, textFragmentId: number): Promise<void> {
+        return this.wrapInternal(
+            'textFragmentProcess', textFragmentId, (id) => this.textFragmentInternal(editionId, id));
     }
 
     public imageManifest(image: IIIFImage): Promise<void> {
@@ -116,7 +128,6 @@ export default class StateService {
     }
 
     private setProcess(processName: ProcessProperties, processTracking: ProcessTracking | undefined) {
-        const existing = this.getProcess(processName);  // throws an exception if processName is incorrect
         const self = this as any;
         self[processName] = processTracking;
     }
@@ -155,7 +166,19 @@ export default class StateService {
         this._state.editions.current = edition;
         this.imagedObjects(editionId);
         this.artefacts(editionId);
-        await Promise.all([this.imagedObjectsProcess!.promise, this.artefactsProcess!.promise]);
+        this.textFragments(editionId);
+        await Promise.all([
+            this.imagedObjectsProcess!.promise,
+            this.artefactsProcess!.promise,
+            this.textFragmentsProcess!.promise,
+        ]);
+    }
+
+    private async textFragmentsInternal(editionId: number) {
+        this._state.editions.current!.textFragments = undefined;
+        const svc = new TextService();
+        const fragments = await svc.getEditionTextFragments(editionId);
+        this._state.editions.current!.textFragments = fragments;
     }
 
     private async imagedObjectsInternal(editionId: number) {
@@ -201,5 +224,31 @@ export default class StateService {
 
         this._state.artefacts.current = artefact;
         this._state.imagedObjects.current = imagedObject;
+    }
+
+    private async textFragmentInternal(editionId: number, textFragmentId: number) {
+        this._state.textFragments.items = [];
+        await this.edition(editionId);
+
+        // Make sure the fragment really exists with the edition
+        const textFragment = this._state.editions.current!.textFragments!.find((tf) => tf.id === textFragmentId);
+        if (!textFragment) {
+            console.error(`Can't located text fragment ID ${textFragmentId} in edition ${editionId}`);
+            throw new Error(`Can't located text fragment ID ${textFragmentId} in edition ${editionId}`);
+        }
+
+        // For now, the text fragments collection only holds one fragment, so we replace the entire collection
+        // with the data we read
+        const svc = new TextService();
+        const textEdition = await svc.getTextFragment(editionId, textFragmentId);
+
+        // For now, this is what the backend returns
+        if (textEdition.textFragments.length !== 1 || textEdition.textFragments[0].id !== textFragmentId) {
+            console.error(`Backend did not return the one expected text fragment ${textFragmentId}`);
+            throw new Error(`Backend did not return the one expected text fragment ${textFragmentId}`);
+        }
+
+        this._state.textFragments.items = [textEdition.textFragments[0]];
+        this._state.textFragments.current = this._state.textFragments.items[0];
     }
 }
