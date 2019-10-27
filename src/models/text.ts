@@ -3,7 +3,11 @@ import {  TextFragmentDataDTO,
     TextFragmentDTO,
     LineDTO,
     SignDTO,
-    SignInterpretationDTO} from '@/dtos/sqe-dtos';
+    SignInterpretationDTO,
+    InterpretationAttributeDTO,
+    InterpretationRoiDTO,
+    NextSignInterpretationDTO,
+    SetInterpretationRoiDTO} from '@/dtos/sqe-dtos';
 
 class TextFragmentData {
     public id: number;
@@ -23,12 +27,7 @@ class Line {
     public editorId: number = 0;
     public signs: Sign[] = [];
 
-    constructor(obj: Line | LineDTO) {
-        if (obj instanceof Line) {
-            this.copyFrom(obj as Line);
-            return;
-        }
-
+    constructor(obj: LineDTO) {
         this.lineId = obj.lineId;
         this.lineName = obj.lineName;
         this.editorId = obj.editorId;
@@ -38,13 +37,6 @@ class Line {
             obj.signs = [];
         }
     }
-
-    private copyFrom(other: Line) {
-        this.lineId = other.lineId;
-        this.lineName = other.lineName;
-        this.editorId = other.editorId;
-        this.signs = other.signs;
-    }
 }
 
 class TextFragment {
@@ -53,12 +45,7 @@ class TextFragment {
     public editorId: number = 0;
     public lines: Line[] = [];
 
-    constructor(obj: TextFragment | TextFragmentDTO) {
-        if (obj instanceof TextFragment) {
-            this.copyFrom(obj as TextFragment);
-            return;
-        }
-
+    constructor(obj: TextFragmentDTO) {
         this.textFragmentId = obj.textFragmentId;
         this.textFragmentName = obj.textFragmentName;
         this.editorId = obj.editorId;
@@ -120,39 +107,58 @@ class TextEdition {
 class Sign {
     public signInterpretations: SignInterpretation[] = [];
 
-    constructor(obj: Sign | SignDTO) {
-        if (obj instanceof Sign) {
-            this.copyFrom(obj as Sign);
-            return;
-        }
-
+    constructor(obj: SignDTO) {
         if (obj.signInterpretations) {
             this.signInterpretations = obj.signInterpretations.map((s) => new SignInterpretation(s));
         } else {
             this.signInterpretations = [];
         }
     }
-
-    private copyFrom(other: SignDTO) {
-        this.signInterpretations = other.signInterpretations;
-    }
 }
 
 class SignInterpretation {
     public signInterpretationId: number;
     public character: string;
-    public attributes: any []; // InterpretationAttributeDTO[];
-    public rois: any []; // InterpretationRoiDTO[];
-    public nextSignInterpretations: any []; // NextSignInterpretationDTO[];
+    public attributes: InterpretationAttributeDTO[]; // InterpretationAttributeDTO[];
+    public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
+    public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
 
-    constructor(obj: SignInterpretation | SignInterpretationDTO) {
+    constructor(obj: SignInterpretationDTO) {
         this.signInterpretationId = obj.signInterpretationId;
         this.character = obj.character;
         this.attributes = obj.attributes;
-        this.rois = obj.rois;
         this.nextSignInterpretations = obj.nextSignInterpretations;
+
+        if (obj.rois) {
+            this.rois = obj.rois.map((roi) => new InterpretationRoi(roi));
+        } else {
+            this.rois = [];
+        }
     }
 }
 
-export { TextFragmentData, TextFragment, TextEdition, Line, Sign, SignInterpretation };
+class InterpretationRoi {
+    public interpretationRoiId?: number;
+    public artefactId: number;
+    public signInterpretationId?: number;
+    public shape: string;
+    public position: string;
+    public exceptional: boolean;
+    public valuesSet: boolean;
+
+    public constructor(obj: InterpretationRoiDTO | SetInterpretationRoiDTO) {
+        this.artefactId = obj.artefactId;
+        this.signInterpretationId = obj.signInterpretationId;
+        this.shape = obj.shape;
+        this.position = obj.position;
+        this.exceptional = obj.exceptional;
+        this.valuesSet = obj.valuesSet;
+
+        if (obj instanceof InterpretationRoi) {
+            this.interpretationRoiId = obj.interpretationRoiId;
+        }
+    }
+}
+
+export { TextFragmentData, TextFragment, TextEdition, Line, Sign, SignInterpretation, InterpretationRoi };
 

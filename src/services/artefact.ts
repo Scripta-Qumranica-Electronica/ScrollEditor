@@ -28,7 +28,19 @@ class ArtefactService {
         }
         const body = {
             masterImageId: masterImage.id,
-            mask: '',
+            polygon: {
+                mask: '',
+                maskEditorId: 0,
+                transformation: {
+                    rotate: 0,
+                    scale: 0,
+                    translate: {
+                        x: 0,
+                        y: 0,
+                    }
+                },
+                positionEditorId: 0,
+            },
             name: artefactName,
         } as CreateArtefactDTO;
         const response = await CommHelper.post<ArtefactDTO>(ApiRoutes.allEditionArtefactsUrl(editionId), body);
@@ -37,7 +49,7 @@ class ArtefactService {
         return artefact;
     }
 
-    public async deleteArtefact(art: Artefact) { // TODO: Pass an ordinary artefact
+    public async deleteArtefact(art: Artefact) {
         await CommHelper.delete(ApiRoutes.editionArtefactUrl(art.editionId, art.id));
     }
 
@@ -45,7 +57,12 @@ class ArtefactService {
         Promise<ArtefactDTO> {
         const mask = artefact.mask ? artefact.mask.polygon.wkt : '';
         const body = {
-            mask,
+            polygon: {
+                mask,
+                maskEditorId: 0,
+                transformation: {},
+                positionEditorId: 0,
+            },
             name: artefact.name,
         } as UpdateArtefactDTO;
 
