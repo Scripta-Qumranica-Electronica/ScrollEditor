@@ -39,7 +39,8 @@
                              <image-layer :width="imageWidth"
                                           :height="imageHeight"
                                           :params="params"
-                                          :clipping-mask="artefact.mask.polygon"/>
+                                          :clipping-mask="artefact.mask.polygon"
+                                          :boundingBox="boundingBox"/>
                          </g>
                     </svg>
                     <!--
@@ -313,10 +314,9 @@ export default class ArtefactEditor extends Vue {
     }
 
     private get transform(): string {
-        const boundingBox = `translate(${this.boundingBox.x} ${this.boundingBox.y})`;
         const zoom = `scale(${this.zoomLevel})`;
 
-        return `${zoom} ${boundingBox}`;
+        return `${zoom}`;
     }
 
     // prepareNonSelectedSigns() {

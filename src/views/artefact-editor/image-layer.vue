@@ -6,7 +6,7 @@
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Clip-path"></use>
         </clipPath>
       </defs>
-      <g pointer-events="none" clip-path="url(#Clipping-outline)">
+      <g pointer-events="none">
         <image v-for="imageSetting in visibleImageSettings"
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg"
@@ -15,6 +15,7 @@
               :width="width"
               :height="height"
               :opacity="imageSetting.opacity"
+              :transform="`translate(${boundingBox.x} ${boundingBox.y})`"
               ></image>
       </g>
       <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
@@ -28,6 +29,7 @@ import { ImageStack } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
+import { BoundingBox } from '@/utils/helpers';
 
 export default Vue.extend({
   name: 'image-layer',
@@ -37,6 +39,7 @@ export default Vue.extend({
     params: Object as () => BaseEditorParams,
     editable: Boolean,
     clippingMask: Object as () => Polygon,
+    boundingBox: Object as () => BoundingBox,
   },
   data() {
     return {
