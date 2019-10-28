@@ -1,6 +1,6 @@
 <template>
     <div id="text-side" :class="{ 'fixed-header': scrolled }">
-        <input class="select-text" list="my-list-id" v-model="query" @change="search(query)" />
+        <input class="select-text" list="my-list-id" v-model="query" @change="load(query)" />
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in textFragments">{{ tf.name }}</option>
         </datalist>
