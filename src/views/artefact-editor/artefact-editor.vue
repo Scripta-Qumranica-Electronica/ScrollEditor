@@ -220,6 +220,10 @@ export default class ArtefactEditor extends Vue {
             this.sign = objectSign;
             // this.prepareNonSelectedSigns();
         });
+
+        /* setInterval(() => {
+            this.params.rotationAngle += 10;
+        }, 250); */
     }
 
     private get imagedObject(): ImagedObject {
