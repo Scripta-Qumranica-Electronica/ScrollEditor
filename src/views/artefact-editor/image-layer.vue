@@ -1,9 +1,9 @@
 <template>
     <g>
       <defs>
-        <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg"></path>
-        <clipPath id="Clipping-outline">
-          <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Clip-path"></use>
+        <path id="clip-path" :d="clippingMask.svg"></path>
+        <clipPath id="clip-outline">
+          <use stroke="none" fill="none" fill-rule="evenodd" xlink:href="#clip-path"></use>
         </clipPath>
       </defs>
       <g pointer-events="none">
@@ -11,11 +11,10 @@
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg"
               draggable="false"
-              :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
-              :width="width"
-              :height="height"
+              :xlink:href="getImageUrl(imageSetting.image)"
+              :width="boundingBox.width"
+              :height="boundingBox.height"
               :opacity="imageSetting.opacity"
-              :transform="`translate(${boundingBox.x} ${boundingBox.y})`"
               ></image>
       </g>
       <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
@@ -25,7 +24,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
-import { ImageStack } from '@/models/image';
+import { ImageStack, IIIFImage } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
@@ -46,9 +45,6 @@ export default Vue.extend({
     };
   },
   computed: {
-    fullImageMask(): string {
-      return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
-    },
     imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
       return values;
@@ -58,6 +54,15 @@ export default Vue.extend({
     }
   },
   methods: {
+    getImageUrl(image: IIIFImage): string {
+        const url = image.getScaledAndCroppedUrl(100 / this.$render.scalingFactors.image,
+            this.boundingBox.x,
+            this.boundingBox.y,
+            this.boundingBox.width,
+            this.boundingBox.height);
+        return url;
+
+    }
   },
 });
 </script>

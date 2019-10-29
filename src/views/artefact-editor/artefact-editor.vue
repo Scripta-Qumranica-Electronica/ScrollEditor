@@ -169,6 +169,7 @@ export default class ArtefactEditor extends Vue {
     private imageStack: ImageStack | undefined = undefined;
     private masterImageManifest = null;
     private boundingBox = new BoundingBox();
+    private boundingBoxCenter = { x: 0, y: 0 } as Position;
 
     protected get artefact() {
         return this.$state.artefacts.current!;
@@ -191,14 +192,8 @@ export default class ArtefactEditor extends Vue {
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
         this.masterImageManifest = this.imageStack.master.manifest;
-        /*this.boundingBox = {
-            x: 0,
-            y: 0,
-            width: this.imageWidth,
-            height: this.imageHeight,
-        }; */
-        this.boundingBox = this.artefact.mask.polygon.getBoundingBox();
         this.fillImageSettings();
+        this.calculateBoundingBox();
 
         this.waiting = false;
 
@@ -275,7 +270,7 @@ export default class ArtefactEditor extends Vue {
                `${this.boundingBox.width * this.zoomLevel} ${this.boundingBox.height * this.zoomLevel}`;
     }
 
-    private rotationAngle(): number {
+    private get rotationAngle(): number {
         return this.params.rotationAngle;
     }
 
@@ -315,8 +310,10 @@ export default class ArtefactEditor extends Vue {
 
     private get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
+        const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
+        const translate = `translate(${this.boundingBox.x} ${this.boundingBox.y})`;
 
-        return `${zoom}`;
+        return `${zoom} ${rotate} ${translate}`;
     }
 
     // prepareNonSelectedSigns() {
@@ -376,6 +373,30 @@ export default class ArtefactEditor extends Vue {
                 ); // Make sure this object is tracked by Vue
             }
         }
+    }
+
+    private calculateBoundingBox() {
+        // We want to support rotation without moving or scroll the artefact. This requires a little
+        // math. We start with the artefact's actual bounding box, which is a rectangle. We need to calculate the
+        // bounding box that will contain all the possible rotations of the artefact's original bounding box.
+        // This is pretty easy to do - take the diagonal of the original bounding box, and build a square with a
+        // side of that size. The square's center should be the center of the original bounding box.
+        //
+        // We ask the server to cut the image at the square, and treat everything as square. That way when we
+        // rotate everything is still visible.
+        const bb = this.artefact.mask.polygon.getBoundingBox();
+        const diag = Math.sqrt(bb.height * bb.height + bb.width * bb.width);
+        const center = this.boundingBoxCenter = {
+            x: bb.x + bb.width / 2,
+            y: bb.y + bb.height / 2,
+        } as Position;
+
+        this.boundingBox = {
+            x: center.x - diag / 2,
+            y: center.y - diag / 2,
+            width: diag,
+            height: diag,
+        };
     }
 }
 </script>
