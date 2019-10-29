@@ -40,7 +40,7 @@
                                           :height="imageHeight"
                                           :params="params"
                                           :clipping-mask="artefact.mask.polygon"
-                                          :boundingBox="boundingBox"/>
+                                          :boundingBox="artefact.mask.polygon.getBoundingBox()"/>
                          </g>
                     </svg>
                     <!--
@@ -221,9 +221,9 @@ export default class ArtefactEditor extends Vue {
             // this.prepareNonSelectedSigns();
         });
 
-        /* setInterval(() => {
-            this.params.rotationAngle += 10;
-        }, 250); */
+        setInterval(() => {
+            this.params.rotationAngle = (this.params.rotationAngle + 1) % 360;
+        }, 25);
     }
 
     private get imagedObject(): ImagedObject {
@@ -269,9 +269,17 @@ export default class ArtefactEditor extends Vue {
         return this.boundingBox.height * this.zoomLevel;
     }
 
+    private get actualX(): number {
+        return this.boundingBox.x * this.zoomLevel;
+    }
+
+    private get actualY(): number {
+        return this.boundingBox.y * this.zoomLevel;
+    }
+
     private get actualBoundingBox(): string {
-        return `${this.boundingBox.x * this.zoomLevel} ${this.boundingBox.y * this.zoomLevel} ` +
-               `${this.boundingBox.width * this.zoomLevel} ${this.boundingBox.height * this.zoomLevel}`;
+        return `${this.actualX} ${this.actualY} ` +
+               `${this.actualWidth} ${this.actualHeight}`;
     }
 
     private get rotationAngle(): number {
@@ -314,10 +322,9 @@ export default class ArtefactEditor extends Vue {
 
     private get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
-        const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
-        const translate = `translate(${this.boundingBox.x} ${this.boundingBox.y})`;
+        const rotate = `rotate(${this.rotationAngle}  ${this.boundingBox.x + (this.boundingBox.width / 2)}  ${this.boundingBox.y + (this.boundingBox.height / 2)})`;
 
-        return `${zoom} ${rotate} ${translate}`;
+        return `${zoom} ${rotate}`;
     }
 
     // prepareNonSelectedSigns() {
@@ -389,7 +396,7 @@ export default class ArtefactEditor extends Vue {
         // We ask the server to cut the image at the square, and treat everything as square. That way when we
         // rotate everything is still visible.
         const bb = this.artefact.mask.polygon.getBoundingBox();
-        const diag = Math.sqrt(bb.height * bb.height + bb.width * bb.width);
+        const diag = Math.sqrt((bb.height * bb.height) + (bb.width * bb.width));
         const center = this.boundingBoxCenter = {
             x: bb.x + bb.width / 2,
             y: bb.y + bb.height / 2,
@@ -508,9 +515,9 @@ export default class ArtefactEditor extends Vue {
 
 // TODO -- update the madia
 @media (max-width: 1100px) {
-    /* Reversing the behavior of the sidebar: 
-       it'll be rotated vertically and off canvas by default, 
-       collapsing in on toggle button click with removal of 
+    /* Reversing the behavior of the sidebar:
+       it'll be rotated vertically and off canvas by default,
+       collapsing in on toggle button click with removal of
        the vertical rotation.   */
     #sidebar {
         margin-left: -250px;

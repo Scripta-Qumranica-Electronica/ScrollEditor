@@ -1,19 +1,22 @@
 <template>
-    <g>
+    <g id="artefact-coords">
       <defs>
         <path id="path" :d="clippingMask.svg"></path>
         <clipPath id="clip-path">
           <use stroke="none" fill="none" fill-rule="evenodd" xlink:href="#path"></use>
         </clipPath>
       </defs>
-      <g pointer-events="none"> <!-- clip-path="url(#clip-path)"> -->
+      <g pointer-events="none" >
         <image v-for="imageSetting in visibleImageSettings"
               :key="'svg-image-' + imageSetting.image.url"
+              clip-path="url(#clip-path)"
               class="clippedImg"
               draggable="false"
               :xlink:href="getImageUrl(imageSetting.image)"
               :width="boundingBox.width"
               :height="boundingBox.height"
+              :x="boundingBox.x"
+              :y="boundingBox.y"
               :opacity="imageSetting.opacity"
               ></image>
       </g>
