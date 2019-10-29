@@ -1,12 +1,12 @@
 <template>
     <g>
       <defs>
-        <path id="clip-path" :d="clippingMask.svg"></path>
-        <clipPath id="clip-outline">
-          <use stroke="none" fill="none" fill-rule="evenodd" xlink:href="#clip-path"></use>
+        <path id="path" :d="clippingMask.svg"></path>
+        <clipPath id="clip-path">
+          <use stroke="none" fill="none" fill-rule="evenodd" xlink:href="#path"></use>
         </clipPath>
       </defs>
-      <g pointer-events="none">
+      <g pointer-events="none"> <!-- clip-path="url(#clip-path)"> -->
         <image v-for="imageSetting in visibleImageSettings"
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg"

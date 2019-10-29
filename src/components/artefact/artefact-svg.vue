@@ -15,7 +15,7 @@
                 </clipPath>
             </defs>
 
-            <g :clip-path="`url(#clip-path-${artefact.id}`">
+            <g :clip-path="`url(#clip-path-${artefact.id})`">
                 <slot v-bind:getImageUrl="getImageUrl"></slot>
             </g>
         </svg>
