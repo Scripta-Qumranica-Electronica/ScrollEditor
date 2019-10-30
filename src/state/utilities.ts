@@ -2,13 +2,13 @@ import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
-import { TextFragment } from '@/models/text';
+import { TextFragment, InterpretationRoi } from '@/models/text';
 
-interface ItemWithId {
-    id: any;
+interface ItemWithId<U> {
+    id: U;
 }
 
-abstract class StateCollection<T extends ItemWithId> {
+abstract class StateCollection<T extends ItemWithId<U>, U = number> {
     private _items: T[];
     private _current: T | undefined;
 
@@ -55,16 +55,15 @@ abstract class StateCollection<T extends ItemWithId> {
 
 // A cache of items, with a limit on the number of cached items.
 // Inspired by https://medium.com/sparkles-blog/a-simple-lru-cache-in-typescript-cba0d9807c40
-abstract class StateCache<T extends ItemWithId> {
-    private _entries: Map<any, T> = new Map<any, T>();
+abstract class StateCache<T extends ItemWithId<U>, U = number> {
+    private _entries: Map<U, T> = new Map<U, T>();
     private _maxEntries: number = 200;
 
     constructor(maxEntries = 200) {
         this._maxEntries = maxEntries;
-        this._entries = new Map<any, T>();
     }
 
-    public get(key: any): T | undefined {
+    public get(key: U): T | undefined {
         const entry = this._entries.get(key);
         if (entry) {
             // Add entry again, pushing it to the back of the key list (last to be removed)
@@ -75,7 +74,7 @@ abstract class StateCache<T extends ItemWithId> {
         return entry;
     }
 
-    public put(key: string, value: T) {
+    public put(key: U, value: T) {
 
         if (this._entries.size >= this._maxEntries) {
             // least-recently used cache eviction strategy
@@ -87,15 +86,47 @@ abstract class StateCache<T extends ItemWithId> {
     }
 }
 
+// A map of items, used for holding
+abstract class StateMap<T extends ItemWithId<U>, U = number> {
+    private _entries = new Map<U, T>();
+
+    public get(key: U): T | undefined {
+        return this._entries.get(key);
+    }
+
+    public put(entry: T) {
+        return this._entries.set(entry.id, entry);
+    }
+
+    public get size() {
+        return this._entries.size;
+    }
+
+    public *[Symbol.iterator]() {
+        for (const key of this._entries.keys()) {
+            yield this._entries.get(key)!;
+        }
+    }
+
+    public set(items: Iterable<T>) {
+        this._entries.clear();
+        for (const item of items) {
+            this.put(item);
+        }
+    }
+}
+
 export class EditionCollection extends StateCollection<EditionInfo> { }
 
-export class ImagedObjectCollection extends StateCollection<ImagedObject> { }
+export class ImagedObjectCollection extends StateCollection<ImagedObject, string> { }
 
 export class ArtefactCollection extends StateCollection<Artefact> { }
 
 export class TextFragmentCollection extends StateCollection<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
+
+export class InterpretationRoiMap extends StateMap<InterpretationRoi, number> { }
 
 export class MiscState {
     public newEditionId: number | undefined;

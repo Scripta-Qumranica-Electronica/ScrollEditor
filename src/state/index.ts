@@ -3,7 +3,8 @@ import { EditionCollection,
     ImagedObjectCollection,
     MiscState,
     ArtefactCollection,
-    TextFragmentCollection } from './utilities';
+    TextFragmentCollection,
+    InterpretationRoiMap} from './utilities';
 import { Polygon } from '@/utils/Polygons';
 import StateService from './state-service';
 
@@ -15,6 +16,7 @@ export class StateManager {
     public imagedObjects: ImagedObjectCollection;   // Imaged objects for the current edition
     public artefacts: ArtefactCollection;           // Artefacts for the current edition or imaged object
     public textFragments: TextFragmentCollection;
+    public interpretationRois: InterpretationRoiMap;
     public misc: MiscState;
     public signMap: Map<string, Polygon>;
     public prepare: StateService;
@@ -27,6 +29,7 @@ export class StateManager {
         this.textFragments = new TextFragmentCollection();
         this.misc = new MiscState();
         this.signMap = new Map<string, Polygon>();
+        this.interpretationRois = new InterpretationRoiMap();
         this.prepare = new StateService(this);
     }
 

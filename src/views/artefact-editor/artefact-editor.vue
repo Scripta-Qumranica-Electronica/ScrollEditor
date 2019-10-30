@@ -44,6 +44,7 @@
                                           :params="params"
                                           :clipping-mask="artefact.mask.polygon"
                                           :boundingBox="artefact.mask.polygon.getBoundingBox()"/>
+                            <roi-layer :rois="visibleRois" @click="roiClicked($event)"/>
                          </g>
                     </svg>
                     <!--
@@ -141,6 +142,8 @@ import { ImagedObject } from '@/models/imaged-object';
 import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from './image-layer.vue';
+import RoiLayer from './roi-layer.vue';
+import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -152,6 +155,8 @@ import ImageLayer from './image-layer.vue';
         'sign-canvas': SignCanvas,
         'sign-overlay': SignOverlay,
         'image-layer': ImageLayer,
+        'roi-layer': RoiLayer,
+        'boundary-drawer': BoundaryDrawer,
     }
 })
 export default class ArtefactEditor extends Vue {

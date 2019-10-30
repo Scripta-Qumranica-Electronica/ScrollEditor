@@ -169,7 +169,7 @@ export class Polygon {
         return this._svg;
     }
 
-    public get wkt() {
+    public get wkt(): string {
         if (this.empty) {
             return '';
         }
