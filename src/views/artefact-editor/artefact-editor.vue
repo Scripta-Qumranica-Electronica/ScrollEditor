@@ -35,7 +35,10 @@
                          :width="actualWidth"
                          :height="actualHeight"
                          :viewBox="actualBoundingBox">
-                         <g :transform="transform" id="transform-root">
+                         <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
+                              the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute -->
+                         <g :transform="transform" id="transform-root">  <!-- Rotate and scale the content -->
+                             <!-- This group's coordinate system is the master image's -->
                              <image-layer :width="imageWidth"
                                           :height="imageHeight"
                                           :params="params"
@@ -220,10 +223,6 @@ export default class ArtefactEditor extends Vue {
             this.sign = objectSign;
             // this.prepareNonSelectedSigns();
         });
-
-        setInterval(() => {
-            this.params.rotationAngle = (this.params.rotationAngle + 1) % 360;
-        }, 25);
     }
 
     private get imagedObject(): ImagedObject {
@@ -322,7 +321,7 @@ export default class ArtefactEditor extends Vue {
 
     private get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
-        const rotate = `rotate(${this.rotationAngle}  ${this.boundingBox.x + (this.boundingBox.width / 2)}  ${this.boundingBox.y + (this.boundingBox.height / 2)})`;
+        const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
 
         return `${zoom} ${rotate}`;
     }
