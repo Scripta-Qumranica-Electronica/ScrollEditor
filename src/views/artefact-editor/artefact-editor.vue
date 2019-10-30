@@ -7,7 +7,7 @@
             id="sidebar"
             class="artefact-menu-div"
             v-if="!waiting && artefact"
-            :class="{ sidebarActive : isActiveSidebar }"
+            :class="{ sidebar : isActiveSidebar }"
         >
             <artefact-side-menu
                 :artefact="artefact"
@@ -25,11 +25,7 @@
                 </div>
                 <div
                     class="artefact-container"
-                    :class="{sidebarActiveAndTextActive: sidebarActiveAndTextActive,
-                   sidebarNotActiveAndTextActive: sidebarNotActiveAndTextActive,
-                   sidebarActiveAndTextNotActive: sidebarActiveAndTextNotActive,
-                   sidebarNotActiveAndTextNotActive: sidebarNotActiveAndTextNotActive
-                   }"
+                    :class="{ sidebar: isActiveSidebar, text: isActiveText }"
                 >
                     <svg class="overlay"
                          :width="actualWidth"
@@ -44,7 +40,7 @@
                                           :params="params"
                                           :clipping-mask="artefact.mask.polygon"
                                           :boundingBox="artefact.mask.polygon.getBoundingBox()"/>
-                            <roi-layer :rois="visibleRois" @click="roiClicked($event)"/>
+                            <!-- <roi-layer :rois="visibleRois" @click="roiClicked($event)"/> -->
                          </g>
                     </svg>
                     <!--
@@ -101,13 +97,12 @@
         <div
             id="text-right-sidebar"
             v-if="!waiting && artefact"
-            :class="{sidebarActiveAndTextActive: sidebarActiveAndTextActive,
-              sidebarNotActiveAndTextActive: sidebarNotActiveAndTextActive,
-              sidebarActiveAndTextNotActive: sidebarActiveAndTextNotActive,
-              sidebarNotActiveAndTextNotActive: sidebarNotActiveAndTextNotActive
-              }"
+            :class="{ sidebar: isActiveSidebar, text: isActiveText }"
         >
-            <text-side :clickedSignId="clickedSignId" :artefact="artefact"></text-side>
+            <text-side :selectedSignInterpretation="selectedSignInterpretation" 
+                       :artefact="artefact"
+                       @sign-interpretation-clicked="onSignInterpretationClicked($event)">
+            </text-side>
         </div>
     </div>
 </template>
@@ -120,7 +115,7 @@ import { Artefact } from '@/models/artefact';
 import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
 import ArtefactSideMenu from './ArtefactSideMenu.vue';
-import TextSide from './TextSide.vue';
+import TextSide from './text-side.vue';
 import SignCanvas from './SignCanvas.vue';
 import SignOverlay from './SignOverlay.vue';
 import {
@@ -160,6 +155,7 @@ import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
     }
 })
 export default class ArtefactEditor extends Vue {
+    private selectedSignInterpretation: SignInterpretation | null = null;
     private clickedSignId = 0;
     private showShapeChoice = false;
     private arrayOfSigns =  [] as ShapeSign[];
@@ -241,21 +237,6 @@ export default class ArtefactEditor extends Vue {
     }
     // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
     // On tablet screen - Active means opened.
-    private sidebarActiveAndTextActive(): boolean {
-        return this.isActiveSidebar && this.isActiveText;
-    }
-
-    private sidebarNotActiveAndTextActive(): boolean {
-        return !this.isActiveSidebar && this.isActiveText;
-    }
-
-    private sidebarActiveAndTextNotActive(): boolean {
-        return this.isActiveSidebar && !this.isActiveText;
-    }
-
-    private sidebarNotActiveAndTextNotActive(): boolean {
-        return !this.isActiveSidebar && !this.isActiveText;
-    }
 
     private get imageWidth(): number {
         return this.masterImage.manifest.width;
@@ -413,6 +394,10 @@ export default class ArtefactEditor extends Vue {
             height: diag,
         };
     }
+
+    private onSignInterpretationClicked(si: SignInterpretation) {
+        this.selectedSignInterpretation = si;
+    }
 }
 </script>
 
@@ -460,12 +445,12 @@ export default class ArtefactEditor extends Vue {
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
 }
 
-#sidebar.sidebarActive {
+#sidebar.sidebar {
     margin-left: -250px;
     transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
 
-.artefact-container.sidebarActiveAndTextActive {
+.artefact-container.sidebar.text {
     overflow: auto;
     position: relative;
     padding: 0;
@@ -473,7 +458,7 @@ export default class ArtefactEditor extends Vue {
     width: calc(100vw - 80px);
 }
 
-.artefact-container.sidebarNotActiveAndTextActive {
+.artefact-container.text {
     overflow: auto;
     position: relative;
     padding: 0;
@@ -481,7 +466,7 @@ export default class ArtefactEditor extends Vue {
     width: calc(100vw - 330px);
 }
 
-.artefact-container.sidebarActiveAndTextNotActive {
+.artefact-container.sidebar {
     overflow: auto;
     position: relative;
     padding: 0;
@@ -489,7 +474,7 @@ export default class ArtefactEditor extends Vue {
     width: calc((100vw - 80px) / 2);
 }
 
-.artefact-container.sidebarNotActiveAndTextNotActive {
+.artefact-container {
     overflow: auto;
     position: relative;
     padding: 0;
@@ -497,19 +482,19 @@ export default class ArtefactEditor extends Vue {
     width: calc((100vw - 330px) / 2);
 }
 
-#text-right-sidebar.sidebarNotActiveAndTextNotActive {
+#text-right-sidebar {
     width: calc((100vw - 330px) / 2);
 }
 
-#text-right-sidebar.sidebarActiveAndTextActive {
+#text-right-sidebar.sidebar.text {
     margin-right: calc((-100vw + 80px) / 2);
 }
 
-#text-right-sidebar.sidebarNotActiveAndTextActive {
+#text-right-sidebar.text {
     margin-right: calc((-100vw + 330px) / 2);
 }
 
-#text-right-sidebar.sidebarActiveAndTextNotActive {
+#text-right-sidebar.sidebar {
     width: calc((100vw - 80px) / 2);
 }
 
@@ -537,7 +522,7 @@ export default class ArtefactEditor extends Vue {
     }
 
     // TODO- check the scrolls in tablet, maybe they dno't have to appear.
-    .artefact-container.sidebarActiveAndTextActive {
+    .artefact-container.sidebar.text {
         overflow: scroll;
         position: relative;
         padding: 0;
@@ -545,7 +530,7 @@ export default class ArtefactEditor extends Vue {
         width: calc((100vw - 330px) / 2);
     }
 
-    .artefact-container.sidebarNotActiveAndTextActive {
+    .artefact-container.text {
         overflow: scroll;
         position: relative;
         padding: 0;
@@ -553,7 +538,7 @@ export default class ArtefactEditor extends Vue {
         width: calc((100vw - 80px) / 2);
     }
 
-    .artefact-container.sidebarActiveAndTextNotActive {
+    .artefact-container.sidebar {
         overflow: scroll;
         position: relative;
         padding: 0;
@@ -561,7 +546,7 @@ export default class ArtefactEditor extends Vue {
         width: calc(100vw - 330px);
     }
 
-    .artefact-container.sidebarNotActiveAndTextNotActive {
+    .artefact-container {
         overflow: scroll;
         position: relative;
         padding: 0;
@@ -569,20 +554,20 @@ export default class ArtefactEditor extends Vue {
         width: calc(100vw - 80px);
     }
 
-    #text-right-sidebar.sidebarNotActiveAndTextNotActive {
+    #text-right-sidebar {
         margin-right: calc((-100vw + 80px) / 2);
     }
 
-    #text-right-sidebar.sidebarActiveAndTextActive {
+    #text-right-sidebar.sidebar.text {
         width: calc((100vw - 330px) / 2);
         transform: rotateY(0deg);
     }
 
-    #text-right-sidebar.sidebarNotActiveAndTextActive {
+    #text-right-sidebar.text {
         width: calc((100vw - 80px) / 2);
     }
 
-    #text-right-sidebar.sidebarActiveAndTextNotActive {
+    #text-right-sidebar.sidebar {
         margin-right: calc(-100vw + 330px);
     }
 }
