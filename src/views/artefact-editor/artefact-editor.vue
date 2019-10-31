@@ -69,7 +69,7 @@
                     <b-button
                         type="button" 
                         class="sidebarCollapse"
-                        @click="deletePolygon()"
+                        @click="onDeleteRoi()"
                         :disabled="!isDeleteEnabled"
                     >
                         <i class="fa fa-trash"></i>
@@ -318,6 +318,43 @@ export default class ArtefactEditor extends Vue {
             const si = this.$state.signInterpretations.get(ir.signInterpretationId);
             this.selectedSignInterpretation = si || null;
         }
+    }
+
+    private onDrawingModeClick(newMode: DrawingMode) {
+        this.drawingMode = newMode;
+    }
+
+    private onNewPolygon(poly: Polygon) {
+        if (!this.selectedSignInterpretation) {
+            console.error("Can't add ROI with no selected sign");
+            return;
+        }
+        const bbox = poly.getBoundingBox();
+        const normalized = Polygon.offset(poly, bbox.x, bbox.y);
+        const roi = InterpretationRoi.new(this.artefact,
+                this.selectedSignInterpretation,
+                normalized,
+                bbox);
+
+        this.selectedSignInterpretation.rois.push(roi);
+        this.$state.interpretationRois.put(roi);
+        this.visibleRois.push(roi);
+        this.selectedInterpretationRoi = roi;
+    }
+
+    private onDeleteRoi() { // Delete the selected ROI
+        const roi = this.selectedInterpretationRoi;
+        const si = this.selectedSignInterpretation;
+        if (!roi || !si) {
+            console.error("Can't delete an ROI if nothing is selected");
+            return;
+        }
+        roi.status = 'deleted';
+        si.deleteRoi(roi);
+
+        const visIndex = this.visibleRois.findIndex(r => r.id === roi.id);
+        this.visibleRois.splice(visIndex, 1);
+        this.selectedInterpretationRoi = null;
     }
 }
 </script>

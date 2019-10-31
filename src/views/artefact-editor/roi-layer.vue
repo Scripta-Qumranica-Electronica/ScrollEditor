@@ -5,7 +5,7 @@
             :key="roi.id"
             :d="roi.shape.svg"
             :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="`{ shiny: ${roi.shine}, selected: ${roi === selectedRoi} }`"
+            :class="`{ shiny: ${roi.shine}, selected: ${roi === selected} }`"
             @click="onPathClicked(roi)"
         />
     </g>
@@ -53,8 +53,8 @@ path.shiny {
 
 path.selected {
     stroke: white;
-    fill: white;
-    fill-opacity: 0.1;
+    stroke-width: 2;
+    filter: contrast(200%)
 }
 
 @keyframes pulsate {

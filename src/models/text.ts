@@ -12,6 +12,7 @@ import {
 } from '@/dtos/sqe-dtos';
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
+import { Position } from '@/utils/PointerTracker';
 
 class TextFragmentData {
     public id: number;
@@ -166,13 +167,13 @@ type RoiStatus = 'original' | 'new' | 'updated' | 'deleted';
 class InterpretationRoi {
     public static new(
         artefact: Artefact,
-        sign: SignInterpretation,
+        signInterpretation: SignInterpretation,
         shape: Polygon,
         position: Position
     ) {
         const obj = new InterpretationRoi({
             artefactId: artefact.id,
-            signInterpretationId: sign.signInterpretationId,
+            signInterpretationId: signInterpretation.id,
             shape: shape.wkt,
             position: JSON.stringify(position),
             exceptional: false,

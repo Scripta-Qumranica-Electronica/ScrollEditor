@@ -111,6 +111,31 @@ export class Polygon {
         return new Polygon(scaled);
     }
 
+    public static offset(a: Polygon, offsetX: number, offsetY: number): Polygon {
+        if (a.empty) {
+            return new Polygon();
+        }
+
+        let moved = '';
+        const re = /(\d+(\.\d*)?) (\d+(\.\d*)?)/g;
+        const source = a.svg;
+        let lastCopied = 0;
+        while (true) {
+            const match = re.exec(source);
+            if (match === null) {
+                break;
+            }
+            moved += source.substr(lastCopied, match.index - lastCopied);
+            const newX = parseFloat(match[1]) + offsetX;
+            const newY = parseFloat(match[3]) + offsetY;
+            moved += `${newX} ${newY}`;
+            lastCopied = re.lastIndex;
+        }
+        moved += source.substr(lastCopied);
+
+        return new Polygon(moved);
+    }
+
     public static clip(a: Polygon, box: BoundingBox): Polygon {
         if (a.empty) {
             return new Polygon();
