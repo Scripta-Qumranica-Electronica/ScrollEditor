@@ -144,6 +144,21 @@ class SignInterpretation {
             this.rois = [];
         }
     }
+
+    public artefactRoi(artefact: Artefact) {
+        return this.rois.find(roi => roi.artefactId === artefact.id);
+    }
+
+    public get id() {
+        return this.signInterpretationId;
+    }
+
+    public deleteRoi(roi: InterpretationRoi) {
+        const index = this.rois.findIndex(r => r.id === roi.id);
+        if (index > -1) {
+            this.rois.splice(index, 1);
+        }
+    }
 }
 
 type RoiStatus = 'original' | 'new' | 'updated' | 'deleted';

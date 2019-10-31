@@ -41,55 +41,37 @@
                                             :params="params"
                                             :clipping-mask="artefact.mask.polygon"
                                             :boundingBox="artefact.mask.polygon.getBoundingBox()"/>
-                                <!-- <roi-layer :rois="visibleRois" @click="roiClicked($event)"/> -->
+                                <roi-layer :rois="visibleRois" 
+                                           :selected="selectedInterpretationRoi"
+                                           @roi-clicked="onRoiClicked($event)"/>
+                                <boundary-drawer v-show="isDrawingEnabled"
+                                                 :mode="drawingMode"
+                                                 transformRootId="transform-root"
+                                                 @new-polygon="onNewPolygon($event)"/>
                             </g>
                         </svg>
                     </zoomer>
-                    <!--
-                    <div>
-                        <artefact-image
-                            class="overlay-canvas"
-                            v-if="artefact"
-                            :artefact="artefact"
-                            :scale="scale"
-                            :imageSettingsParams="params.imageSettings"
-                        ></artefact-image>
-                        <sign-overlay
-                            :signs="arrayOfSigns"
-                            :selectedSignId="clickedSignId"
-                            class="overlay-canvas"
-                            :originalImageWidth="originalImageWidth"
-                            :originalImageHeight="originalImageHeight"
-                            :scale="scale"
-                            @polygonChanged="polygonChanged($event)"
-                        />
-                        <sign-canvas
-                            v-show="sign.signId"
-                            class="overlay-canvas"
-                            :id="`${sign.signId}_sign_canvas`"
-                            :shapeSign="sign"
-                            :originalImageWidth="originalImageWidth"
-                            :originalImageHeight="originalImageHeight"
-                            :scale="scale"
-                            :params="params"
-                            @SignChanged="signChanged($event)"
-                        />
-                    </div> -->
                 </div>
                 <div class="buttons-div">
                     <b-button type="button" class="sidebarCollapse" @click="textClicked()">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                     <b-button
-                        v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'POLYGON'}, {icon: 'fa fa-square-o', val: 'RECTANGLE'}]"
+                        v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon'}, {icon: 'fa fa-square-o', val: 'box'}]"
                         :key="mode.val"
-                        @click="editingModeChanged(mode.val)"
-                        :pressed="modeChosen(mode.val)"
+                        @click="onDrawingModeClick(mode.val)"
+                        :pressed="drawingMode === mode.val"
+                        :disabled="!isDrawingEnabled"
                         class="sidebarCollapse"
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
-                    <b-button type="button" class="sidebarCollapse" @click="deletePolygon()">
+                    <b-button
+                        type="button" 
+                        class="sidebarCollapse"
+                        @click="deletePolygon()"
+                        :disabled="!isDeleteEnabled"
+                    >
                         <i class="fa fa-trash"></i>
                     </b-button>
                 </div>
@@ -123,8 +105,6 @@ import SignOverlay from './SignOverlay.vue';
 import {
     ArtefactEditorParams,
     ArtefactEditorParamsChangedArgs,
-    DrawingShapesMode,
-    ShapeSign
 } from './types';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
@@ -133,14 +113,14 @@ import {
     ImageSetting,
     SingleImageSetting
 } from '@/components/image-settings/types';
-import { SignInterpretation } from '@/models/text';
+import { SignInterpretation, InterpretationRoi } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from './image-layer.vue';
 import RoiLayer from './roi-layer.vue';
-import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
+import BoundaryDrawer, { DrawingMode } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 
 @Component({
@@ -150,8 +130,6 @@ import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
-        'sign-canvas': SignCanvas,
-        'sign-overlay': SignOverlay,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
@@ -160,24 +138,19 @@ import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 })
 export default class ArtefactEditor extends Vue {
     private selectedSignInterpretation: SignInterpretation | null = null;
-    private clickedSignId = 0;
-    private showShapeChoice = false;
-    private arrayOfSigns =  [] as ShapeSign[];
-    private shapeChoice = DrawingShapesMode.POLYGON;
+    private selectedInterpretationRoi: InterpretationRoi | null = null;
+    private drawingMode: DrawingMode = 'box';
+
     private errorMessage = '';
     private waiting = true;
-    private editionService = new EditionService();
-    private imagedObjectService = new ImagedObjectService();
-    private artefactService = new ArtefactService();
     private isActiveSidebar = false;
     private isActiveText = false;
     private params = new ArtefactEditorParams();
-    private sign = {} as ShapeSign;
-    private scale = 0.5;
     private imageStack: ImageStack | undefined = undefined;
-    private masterImageManifest = null;
     private boundingBox = new BoundingBox();
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
+
+    private visibleRois: InterpretationRoi[] = [];
 
     protected get artefact() {
         return this.$state.artefacts.current!;
@@ -199,35 +172,11 @@ export default class ArtefactEditor extends Vue {
                             `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
-        this.masterImageManifest = this.imageStack.master.manifest;
         this.fillImageSettings();
         this.calculateBoundingBox();
+        this.initVisibleRois();
 
         this.waiting = false;
-
-        this.$root.$on('isClicked', (data: SignInterpretation) => {
-            this.clickedSignId = data.signInterpretationId;
-            const objectSign = {
-                signId: data.signInterpretationId,
-                char: data.character,
-                shape: this.shapeChoice,
-                polygon: new Polygon()
-            } as ShapeSign;
-            const signIndex = this.arrayOfSigns.findIndex(
-                (sign: ShapeSign) => data.signInterpretationId === sign.signId
-            );
-
-            if (signIndex < 0) {
-                this.arrayOfSigns.push(objectSign);
-            } else {
-                // update the polygon
-                objectSign.polygon = this.arrayOfSigns[signIndex].polygon;
-                this.arrayOfSigns[signIndex] = objectSign;
-            }
-
-            this.sign = objectSign;
-            // this.prepareNonSelectedSigns();
-        });
     }
 
     private get imagedObject(): ImagedObject {
@@ -258,55 +207,21 @@ export default class ArtefactEditor extends Vue {
         return this.boundingBox.height * this.zoomLevel;
     }
 
-    private get actualX(): number {
-        return this.boundingBox.x * this.zoomLevel;
-    }
-
-    private get actualY(): number {
-        return this.boundingBox.y * this.zoomLevel;
-    }
-
     private get actualBoundingBox(): string {
-        return `${this.actualX} ${this.actualY} ` +
+        return `${this.boundingBox.x * this.zoomLevel} ${this.boundingBox.y * this.zoomLevel } ` +
                `${this.actualWidth} ${this.actualHeight}`;
+    }
+
+    private get isDrawingEnabled() {
+        return !!this.selectedSignInterpretation && !this.selectedInterpretationRoi;
+    }
+
+    private get isDeleteEnabled() {
+        return !!this.selectedInterpretationRoi;
     }
 
     private get rotationAngle(): number {
         return this.params.rotationAngle;
-    }
-
-    private deletePolygon() {
-        const signIndex = this.arrayOfSigns.findIndex(
-            (sign: ShapeSign) => this.clickedSignId === sign.signId
-        );
-        if (signIndex < 0) {
-            console.error('There is no object of the clicked sign');
-            return;
-        }
-        this.arrayOfSigns.splice(signIndex, 1);
-        this.sign = {} as ShapeSign;
-    }
-
-    private signChanged(polygon: Polygon) {
-        const signIndex = this.arrayOfSigns.findIndex(
-            (s: ShapeSign) => this.sign.signId === s.signId
-        );
-        if (signIndex < 0) {
-            throw new Error("Sign doesn't exist");
-        }
-        this.arrayOfSigns[signIndex].polygon = polygon;
-        // this.prepareNonSelectedSigns();
-        this.sign = {} as ShapeSign;
-    }
-
-    private polygonChanged(signId: number) {
-        const signIndex = this.arrayOfSigns.findIndex(
-            (s: ShapeSign) => signId === s.signId
-        );
-        if (signIndex < 0) {
-            throw new Error("Sign doesn't exist");
-        }
-        this.clickedSignId = signId;
     }
 
     private onNewZoom(event: ZoomEventArgs) {
@@ -318,29 +233,6 @@ export default class ArtefactEditor extends Vue {
         const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
 
         return `${zoom} ${rotate}`;
-    }
-
-    // prepareNonSelectedSigns() {
-    // this.nonSelectedSigns = this.arrayOfSigns.filter(
-    //   (sign: ShapeSign) => sign.signId !== this.clickedSignId
-    // );
-    // },
-    private modeChosen(val: DrawingShapesMode): boolean {
-        return (
-            DrawingShapesMode[val].toString() ===
-            this.shapeChoice.toString()
-        );
-    }
-
-    private editingModeChanged(val: any) {
-        (this as any).shapeChoice = DrawingShapesMode[val];
-        const signIndex = this.arrayOfSigns.findIndex(
-            (sign: ShapeSign) => this.clickedSignId === sign.signId
-        );
-        if (this.arrayOfSigns[signIndex]) {
-            this.arrayOfSigns[signIndex].shape = this.shapeChoice;
-        }
-        this.sign.shape = this.shapeChoice;
     }
 
     private sidebarClicked() {
@@ -403,8 +295,29 @@ export default class ArtefactEditor extends Vue {
         };
     }
 
+    private initVisibleRois() {
+        this.visibleRois = [];
+        for (const roi of this.$state.interpretationRois.getItems()) {
+            if (roi.status !== 'deleted' && roi.artefactId === this.artefact.id) {
+                this.visibleRois.push(roi);
+            }
+        }
+    }
+
     private onSignInterpretationClicked(si: SignInterpretation) {
         this.selectedSignInterpretation = si;
+        this.selectedInterpretationRoi = si.artefactRoi(this.artefact) || null;
+    }
+
+    private onRoiClicked(ir: InterpretationRoi) {
+        this.selectedInterpretationRoi = ir;
+
+        if (!ir.signInterpretationId) {
+            this.selectedSignInterpretation = null;
+        } else {
+            const si = this.$state.signInterpretations.get(ir.signInterpretationId);
+            this.selectedSignInterpretation = si || null;
+        }
     }
 }
 </script>

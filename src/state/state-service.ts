@@ -250,5 +250,20 @@ export default class StateService {
 
         this._state.textFragments.items = [textEdition.textFragments[0]];
         this._state.textFragments.current = this._state.textFragments.items[0];
+
+        // Add all the sign interpretations and ROIs
+        this._state.interpretationRois.clear();
+        this._state.signInterpretations.clear();
+
+        for (const line of this._state.textFragments.current.lines) {
+            for (const sign of line.signs) {
+                for (const si of sign.signInterpretations) {
+                    this._state.signInterpretations.put(si);
+                    for (const roi of si.rois) {
+                        this._state.interpretationRois.put(roi);
+                    }
+                }
+            }
+        }
     }
 }

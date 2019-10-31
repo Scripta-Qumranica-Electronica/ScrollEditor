@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
-import { BoundingBox, Point } from '@/utils/helpers';
+import { Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 
 export type DrawingMode = 'polygon' | 'box';
@@ -25,9 +25,6 @@ type InternalMode = 'before-polygon' | 'polygon' | 'before-corner1' | 'before-co
     name: 'boundary-drawer',
 })
 export default class BoundaryDrawer extends Vue {
-    @Prop() public readonly width!: number;
-    @Prop() public readonly height!: number;
-    @Prop() public readonly boundingBox: BoundingBox | undefined;
     @Prop({
         default: 'polygon',
     }) public readonly mode!: DrawingMode;
@@ -68,14 +65,6 @@ export default class BoundaryDrawer extends Vue {
 
     private created() {
         this.onModeChanged(this.mode);
-    }
-
-    private get actualBoundingBox() {
-        if (this.boundingBox) {
-            return this.boundingBox;
-        }
-
-        return new BoundingBox(0, 0, this.width, this.height);
     }
 
     @Watch('mode')

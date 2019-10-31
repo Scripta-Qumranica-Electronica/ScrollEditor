@@ -2,7 +2,7 @@ import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
-import { TextFragment, InterpretationRoi } from '@/models/text';
+import { TextFragment, InterpretationRoi, SignInterpretation } from '@/models/text';
 
 interface ItemWithId<U> {
     id: U;
@@ -102,17 +102,21 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
         return this._entries.size;
     }
 
-    public *[Symbol.iterator]() {
+    public *getItems() {
         for (const key of this._entries.keys()) {
             yield this._entries.get(key)!;
         }
     }
 
-    public set(items: Iterable<T>) {
+    public setItems(items: Iterable<T>) {
         this._entries.clear();
         for (const item of items) {
             this.put(item);
         }
+    }
+
+    public clear() {
+        this._entries.clear();
     }
 }
 
@@ -126,7 +130,9 @@ export class TextFragmentCollection extends StateCollection<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
 
-export class InterpretationRoiMap extends StateMap<InterpretationRoi, number> { }
+export class InterpretationRoiMap extends StateMap<InterpretationRoi> { }
+
+export class SignInterpretationMap extends StateMap<SignInterpretation> { }
 
 export class MiscState {
     public newEditionId: number | undefined;
