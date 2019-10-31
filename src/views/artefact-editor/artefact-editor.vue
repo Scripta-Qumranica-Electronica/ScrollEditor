@@ -329,8 +329,9 @@ export default class ArtefactEditor extends Vue {
             console.error("Can't add ROI with no selected sign");
             return;
         }
+
         const bbox = poly.getBoundingBox();
-        const normalized = Polygon.offset(poly, bbox.x, bbox.y);
+        const normalized = Polygon.offset(poly, -bbox.x, -bbox.y);
         const roi = InterpretationRoi.new(this.artefact,
                 this.selectedSignInterpretation,
                 normalized,

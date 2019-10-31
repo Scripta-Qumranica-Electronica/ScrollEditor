@@ -5,7 +5,7 @@
             :key="roi.id"
             :d="roi.shape.svg"
             :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="`{ shiny: ${roi.shine}, selected: ${roi === selected} }`"
+            :class="{ shine: roi.shiny, selected: roi === selected }"
             @click="onPathClicked(roi)"
         />
     </g>
@@ -39,21 +39,20 @@ export default class RoiLayer extends Vue {
 
 <style lang="scss" scoped>
 path {
-    stroke-width: 1;
+    stroke-width: 3;
     fill: transparent;
-    stroke: gray;
+    stroke: darkslategray;
 }
 
 path.shiny {
-    stroke-width: 2;
     stroke: skyblue !important;
     animation: pulsate 2s ease-out;
     animation-iteration-count: infinite;
 }
 
 path.selected {
-    stroke: white;
-    stroke-width: 2;
+    stroke: black;
+    stroke-width: 4;
     filter: contrast(200%)
 }
 

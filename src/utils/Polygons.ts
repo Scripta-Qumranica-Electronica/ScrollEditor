@@ -116,8 +116,8 @@ export class Polygon {
             return new Polygon();
         }
 
+        const re = Polygon.numberPairRe;
         let moved = '';
-        const re = /(\d+(\.\d*)?) (\d+(\.\d*)?)/g;
         const source = a.svg;
         let lastCopied = 0;
         while (true) {
@@ -183,6 +183,7 @@ export class Polygon {
         return new Polygon(svg);
     }
 
+    private static numberPairRe = /(\d+(\.\d*)?) (\d+(\.\d*)?)/g;
     // tslint:disable-next-line:variable-name
     private _svg: string;
 
@@ -227,16 +228,15 @@ export class Polygon {
         }
 
         // Match all the numbers in the SVG using a regex, which is faster than scanning in Javascript
-        const re = /(\d+) (\d+)/g; // Adapted from here: https://stackoverflow.com/a/18085/871910
         const source = this.svg;
 
-        let match = re.exec(source);
+        let match = Polygon.numberPairRe.exec(source);
 
         if (match === null) {
             return new BoundingBox();
         }
         const firstX = parseFloat(match[1]);
-        const firstY = parseFloat(match[2]);
+        const firstY = parseFloat(match[3]);
 
         // Set the starting values
         let minX = firstX;
@@ -245,10 +245,11 @@ export class Polygon {
         let maxY = firstY;
 
         // Get the next match
+        const re = Polygon.numberPairRe;
         match = re.exec(source);
         while (match !== null) {
             const x = parseFloat(match[1]);
-            const y = parseFloat(match[2]);
+            const y = parseFloat(match[3]);
             if (x < minX) {
                 minX = x;
             } else if (x > maxX) {
