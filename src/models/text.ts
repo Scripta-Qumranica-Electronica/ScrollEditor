@@ -12,7 +12,7 @@ import {
 } from '@/dtos/sqe-dtos';
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
-import { Position } from '@/utils/PointerTracker';
+import { Position } from '@/models/misc';
 
 class TextFragmentData {
     public id: number;

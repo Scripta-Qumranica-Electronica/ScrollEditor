@@ -112,7 +112,7 @@ import {
     DrawingMode,
     ArtefactEditingData,
 } from '@/views/imaged-object-editor/types';
-import { Position } from '@/utils/PointerTracker';
+import { Position } from '@/models/misc';
 import { IIIFImage } from '@/models/image';
 import ImageLayer from '@/views/imaged-object-editor/image-layer.vue';
 import ArtefactLayer from '@/views/imaged-object-editor/artefact-layer.vue';

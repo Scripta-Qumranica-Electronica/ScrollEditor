@@ -108,7 +108,7 @@ import {
 } from './types';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
-import { Position } from '@/utils/PointerTracker';
+import { Position } from '@/models/misc';
 import {
     ImageSetting,
     SingleImageSetting
