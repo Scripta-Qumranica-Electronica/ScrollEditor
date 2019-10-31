@@ -114,19 +114,20 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private pointerMove($event: PointerEvent) {
-        if (this.activePointers.size !== 1) {
+        if (this.activePointers.size > 1) {
             return;
         }
 
         const pt = this.eventToPoint($event);
         if (this.internalMode === 'before-corner2') {
-            this.corner2 = {...pt};
+            this.corner2 = pt;
             this.polygonPoints = [this.corner1!,
                 { x: this.corner1!.x, y: this.corner2!.y },
                 this.corner2!,
                 { x: this.corner2!.x, y: this.corner1!.y },
             ];
             this.closedPolygon = true;
+            console.log('Points: ', JSON.stringify(this.polygonPoints));
         } else if (this.internalMode === 'polygon') {
             this.polygonPoints!.push(this.eventToPoint($event));
 

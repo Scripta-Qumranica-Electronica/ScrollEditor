@@ -11,6 +11,6 @@
   <title>Layer 1</title>
   <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_1" y2="29" x2="15.5" y1="2.233337" x1="15.5" stroke-width="2" stroke="#000" fill="none"/>
   <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_2" y2="16" x2="28.5" y1="16" x1="1.5" stroke-width="2" stroke="#000" fill="none"/>
-  <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="8" id="svg_4" y="29" x="24.5" stroke-width="0" stroke="#000" fill="#000000">1</text>
+  <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="8" id="svg_4" y="29" x="24.5" stroke-width="2" stroke="#000" fill="#000000">1</text>
  </g>
 </svg>
