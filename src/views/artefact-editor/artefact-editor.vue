@@ -27,22 +27,24 @@
                     class="artefact-container"
                     :class="{ sidebar: isActiveSidebar, text: isActiveText }"
                 >
-                    <svg class="overlay"
-                         :width="actualWidth"
-                         :height="actualHeight"
-                         :viewBox="actualBoundingBox">
-                         <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
-                              the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute -->
-                         <g :transform="transform" id="transform-root">  <!-- Rotate and scale the content -->
-                             <!-- This group's coordinate system is the master image's -->
-                             <image-layer :width="imageWidth"
-                                          :height="imageHeight"
-                                          :params="params"
-                                          :clipping-mask="artefact.mask.polygon"
-                                          :boundingBox="artefact.mask.polygon.getBoundingBox()"/>
-                            <!-- <roi-layer :rois="visibleRois" @click="roiClicked($event)"/> -->
-                         </g>
-                    </svg>
+                    <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
+                        <svg class="overlay"
+                            :width="actualWidth"
+                            :height="actualHeight"
+                            :viewBox="actualBoundingBox">
+                            <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
+                                the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute -->
+                            <g :transform="transform" id="transform-root">  <!-- Rotate and scale the content -->
+                                <!-- This group's coordinate system is the master image's -->
+                                <image-layer :width="imageWidth"
+                                            :height="imageHeight"
+                                            :params="params"
+                                            :clipping-mask="artefact.mask.polygon"
+                                            :boundingBox="artefact.mask.polygon.getBoundingBox()"/>
+                                <!-- <roi-layer :rois="visibleRois" @click="roiClicked($event)"/> -->
+                            </g>
+                        </svg>
+                    </zoomer>
                     <!--
                     <div>
                         <artefact-image
@@ -139,6 +141,7 @@ import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from './image-layer.vue';
 import RoiLayer from './roi-layer.vue';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
+import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -152,6 +155,7 @@ import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
+        'zoomer': Zoomer,
     }
 })
 export default class ArtefactEditor extends Vue {
@@ -303,6 +307,10 @@ export default class ArtefactEditor extends Vue {
             throw new Error("Sign doesn't exist");
         }
         this.clickedSignId = signId;
+    }
+
+    private onNewZoom(event: ZoomEventArgs) {
+        this.params.zoom = event.zoom;
     }
 
     private get transform(): string {
