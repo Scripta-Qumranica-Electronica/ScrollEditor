@@ -12,7 +12,9 @@
             <artefact-side-menu
                 :artefact="artefact"
                 :params="params"
-                @paramsChanged="onParamsChanged($event)"
+                :saving="saving"
+                @params-changed="onParamsChanged($event)"
+                @save="onSave()"
             ></artefact-side-menu>
         </div>
 
@@ -98,7 +100,7 @@ import ArtefactImage from './artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
-import ArtefactSideMenu from './ArtefactSideMenu.vue';
+import ArtefactSideMenu from './artefact-side-menu.vue';
 import TextSide from './text-side.vue';
 import SignCanvas from './SignCanvas.vue';
 import SignOverlay from './SignOverlay.vue';
@@ -143,6 +145,7 @@ export default class ArtefactEditor extends Vue {
 
     private errorMessage = '';
     private waiting = true;
+    private saving = false;
     private isActiveSidebar = false;
     private isActiveText = false;
     private params = new ArtefactEditorParams();
@@ -356,6 +359,13 @@ export default class ArtefactEditor extends Vue {
         const visIndex = this.visibleRois.findIndex(r => r.id === roi.id);
         this.visibleRois.splice(visIndex, 1);
         this.selectedInterpretationRoi = null;
+    }
+
+    private onSave() {
+        this.saving = true;
+        setTimeout(() => {
+            this.saving = false;
+        }, 2000);
     }
 }
 </script>
