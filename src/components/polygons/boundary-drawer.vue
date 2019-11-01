@@ -127,7 +127,6 @@ export default class BoundaryDrawer extends Vue {
                 { x: this.corner2!.x, y: this.corner1!.y },
             ];
             this.closedPolygon = true;
-            console.log('Points: ', JSON.stringify(this.polygonPoints));
         } else if (this.internalMode === 'polygon') {
             this.polygonPoints!.push(this.eventToPoint($event));
 

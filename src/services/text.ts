@@ -90,30 +90,34 @@ class TextService {
     }
 
     private updateCreatedROIs(artefact: Artefact, preSaveROIs: InterpretationRoi[], listDTO: InterpretationRoiDTOList) {
-        // Created ROIs change IDs. The preSaveROIs and postSaveROIs arrays have the previous and new artefacts
-        // in the same order
         const postSaveROIs = listDTO.rois.map(dto => new InterpretationRoi(dto));
 
-        if (postSaveROIs.length !== preSaveROIs.length) {
-            throw new Error('Presave and postsave list mismatches!');
+        // First, remove the preSave ROIs
+        for (const preSave of preSaveROIs) {
+            if (preSave.signInterpretationId) {
+                const si = this.stateManager.signInterpretations.get(preSave.signInterpretationId);
+                if (si) {
+                    si.deleteRoi(preSave);
+                }
+            }
+            this.stateManager.interpretationRois.delete(preSave.id);
         }
 
-        for (let i = 0; i < postSaveROIs.length; i++) {
-            const preSaveId = preSaveROIs[i].id;
-            const postSaveROI = postSaveROIs[i];
-            if (postSaveROI.signInterpretationId) {
-                const si = this.stateManager.signInterpretations.get(postSaveROI.signInterpretationId);
+        // Now add the new ones
+        for (const postSave of listDTO.rois) {
+            const roi = new InterpretationRoi(postSave);
+            if (postSave.signInterpretationId) {
+                const si = this.stateManager.signInterpretations.get(postSave.signInterpretationId);
                 if (!si) {
                     console.error(
-                        `Can't locate sign-interpratation ${postSaveROI.signInterpretationId} ` +
+                        `Can't locate sign-interpratation ${postSave.signInterpretationId} ` +
                         `in artefact ${artefact.id}`);
                 } else {
-                    si.replaceRoi(postSaveROI, preSaveId);
+                    si.rois.push(roi);
                 }
             }
 
-            this.stateManager.interpretationRois.delete(preSaveId);
-            this.stateManager.interpretationRois.put(postSaveROI);
+            this.stateManager.interpretationRois.put(roi);
         }
     }
 

@@ -160,20 +160,6 @@ class SignInterpretation {
             this.rois.splice(index, 1);
         }
     }
-
-    public replaceRoi(roi: InterpretationRoi, prevId?: number) {
-        // Replace an roi - based on the id
-        if (!prevId) {
-            prevId = roi.id;
-        }
-
-        const index = this.rois.findIndex(r => r.id === prevId);
-        if (index > -1) {
-            this.rois[index] = roi;
-        } else {
-            console.error(`Can't replace roi ${prevId} in sign interpretation ${this.id} - can't find it`);
-        }
-    }
 }
 
 type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future

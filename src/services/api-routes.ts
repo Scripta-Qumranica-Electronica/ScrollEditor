@@ -80,10 +80,10 @@ export namespace ApiRoutes {
     }
 
     export function batchCreateRoisUrl(editionId: number) {
-        return `/${baseUrl}/${editions}/${editionId}/roi/batch`;
+        return `/${baseUrl}/${editions}/${editionId}/rois/batch`;
     }
 
     export function roiUrl(editionId: number, roiId: number) {
-        return `/${baseUrl}/${editions}/${editionId}/roi/${roiId}`;
+        return `/${baseUrl}/${editions}/${editionId}/rois/${roiId}`;
     }
 }
