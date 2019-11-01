@@ -124,6 +124,7 @@ import ImageLayer from './image-layer.vue';
 import RoiLayer from './roi-layer.vue';
 import BoundaryDrawer, { DrawingMode } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
+import TextService from '@/services/text';
 
 @Component({
     name: 'artefact-editor',
@@ -154,6 +155,7 @@ export default class ArtefactEditor extends Vue {
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
 
     private artefactService = new ArtefactService();
+    private textService = new TextService();
 
     private visibleRois: InterpretationRoi[] = [];
 
@@ -365,15 +367,14 @@ export default class ArtefactEditor extends Vue {
     }
 
     private async onSave() {
-        let appliedChanges = false;
         const as = new ArtefactService();
 
         this.saving = true;
         try {
-            appliedChanges = appliedChanges || await this.saveRotation();
-            // appliedChanges = appliedChanges || await this.saveROIs();
+            const appliedRotation = await this.saveRotation();
+            const appliedROIs =  await this.saveROIs();
 
-            if (!appliedChanges) {
+            if (!appliedRotation && !appliedROIs) {
                 this.showMessage('No changes to save', 'info');
             } else {
                 this.showMessage('Artefact Saved', 'success');
@@ -393,6 +394,18 @@ export default class ArtefactEditor extends Vue {
         this.artefact.mask.transformation.rotate = this.rotationAngle % 360;
         await this.artefactService.changeArtefact(this.artefact.editionId, this.artefact);
         return true;
+    }
+
+    private async saveROIs() {
+        const selected = this.selectedSignInterpretation;
+
+        const updated = await this.textService.updateArtefactROIs(this.artefact);
+        this.initVisibleRois();
+        if (selected) {  // Make sure we select again, as the ROIs might have changed
+            this.onSignInterpretationClicked(selected);
+        }
+
+        return updated > 0;
     }
 
     private showMessage(msg: string, type: string = 'info') {

@@ -118,6 +118,10 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
     public clear() {
         this._entries.clear();
     }
+
+    public delete(id: U) {
+        this._entries.delete(id);
+    }
 }
 
 export class EditionCollection extends StateCollection<EditionInfo> { }
@@ -130,7 +134,15 @@ export class TextFragmentCollection extends StateCollection<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
 
-export class InterpretationRoiMap extends StateMap<InterpretationRoi> { }
+export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
+    public *getArtefactRois(artefact: Artefact) {
+        for (const item of this.getItems()) {
+            if (item.artefactId === artefact.id) {
+                yield item;
+            }
+        }
+    }
+}
 
 export class SignInterpretationMap extends StateMap<SignInterpretation> { }
 

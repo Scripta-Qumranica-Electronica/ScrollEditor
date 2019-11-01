@@ -78,4 +78,12 @@ export namespace ApiRoutes {
     export function editionTextFragmentUrl(editionId: number, textFragmentId: number) {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}/${textFragmentId}`;
     }
+
+    export function batchCreateRoisUrl(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/roi/batch`;
+    }
+
+    export function roiUrl(editionId: number, roiId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/roi/${roiId}`;
+    }
 }
