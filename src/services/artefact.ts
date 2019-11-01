@@ -30,7 +30,6 @@ class ArtefactService {
             masterImageId: masterImage.id,
             polygon: {
                 mask: '',
-                maskEditorId: 0,
                 transformation: {
                     rotate: 0,
                     scale: 0,
@@ -39,7 +38,6 @@ class ArtefactService {
                         y: 0,
                     }
                 },
-                positionEditorId: 0,
             },
             name: artefactName,
         } as CreateArtefactDTO;
@@ -55,15 +53,13 @@ class ArtefactService {
 
     public async changeArtefact(editionId: number, artefact: Artefact):
         Promise<ArtefactDTO> {
-        const mask = artefact.mask ? artefact.mask.polygon.wkt : '';
         const body = {
             polygon: {
-                mask,
-                maskEditorId: 0,
-                transformation: {},
-                positionEditorId: 0,
+                mask: artefact.mask.polygon.wkt,
+                transformation: artefact.mask.transformation,
             },
             name: artefact.name,
+            statusMessage: '',
         } as UpdateArtefactDTO;
 
         const response = await CommHelper.put<ArtefactDTO>

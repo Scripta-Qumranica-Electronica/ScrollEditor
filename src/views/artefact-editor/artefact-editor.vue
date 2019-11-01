@@ -153,6 +153,8 @@ export default class ArtefactEditor extends Vue {
     private boundingBox = new BoundingBox();
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
 
+    private artefactService = new ArtefactService();
+
     private visibleRois: InterpretationRoi[] = [];
 
     protected get artefact() {
@@ -175,6 +177,7 @@ export default class ArtefactEditor extends Vue {
                             `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
+        this.params.rotationAngle = this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
         this.initVisibleRois();
@@ -361,12 +364,45 @@ export default class ArtefactEditor extends Vue {
         this.selectedInterpretationRoi = null;
     }
 
-    private onSave() {
+    private async onSave() {
+        let appliedChanges = false;
+        const as = new ArtefactService();
+
         this.saving = true;
-        setTimeout(() => {
-            this.saving = false;
-        }, 2000);
+        try {
+            appliedChanges = appliedChanges || await this.saveRotation();
+            // appliedChanges = appliedChanges || await this.saveROIs();
+
+            if (!appliedChanges) {
+                this.showMessage('No changes to save', 'info');
+            } else {
+                this.showMessage('Artefact Saved', 'success');
+            }
+        } catch (e) {
+            this.showMessage('Saving Artefact Failed', 'error');
+        }
+        this.saving = false;
     }
+
+    private async saveRotation() {
+        const rotation = this.rotationAngle % 360;
+        if (rotation === this.artefact.mask.transformation.rotate) {
+            return false;
+        }
+
+        this.artefact.mask.transformation.rotate = this.rotationAngle % 360;
+        await this.artefactService.changeArtefact(this.artefact.editionId, this.artefact);
+        return true;
+    }
+
+    private showMessage(msg: string, type: string = 'info') {
+        this.$toasted.show(msg, {
+            type,
+            position: 'top-right',
+            duration: 7000
+        });
+    }
+
 }
 </script>
 
