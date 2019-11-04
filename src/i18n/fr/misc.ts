@@ -7,4 +7,5 @@ export default {
     create: 'Créer',
     undo: 'Annuler',
     redo: 'Refaire',
+    actions: 'Actions',
 };

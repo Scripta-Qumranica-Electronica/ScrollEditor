@@ -58,7 +58,9 @@
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
-                    <b-button block href="#" v-b-toggle.accordion-actions variant="info">Actions</b-button>
+                    <b-button block href="#" v-b-toggle.accordion-actions variant="info">
+                        {{$t('misc.actions')}}
+                    </b-button>
                 </b-card-header>
                 <b-collapse id="accordion-actions" accordion="my-accordion" role="tabpanel">
                     <b-card-body>

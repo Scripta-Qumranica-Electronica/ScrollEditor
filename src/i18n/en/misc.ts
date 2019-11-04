@@ -7,4 +7,5 @@ export default {
     create: 'Create',
     undo: 'Undo',
     redo: 'Redo',
+    actions: 'Actions',
 };

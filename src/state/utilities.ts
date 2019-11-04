@@ -45,7 +45,7 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         }
     }
 
-    public find(id: any): T | undefined {
+    public find(id: U): T | undefined {
         if (!this._items) {
             return undefined;
         }
