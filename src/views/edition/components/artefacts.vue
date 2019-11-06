@@ -40,13 +40,14 @@ import { DropdownOption } from '@/utils/helpers';
 
 export default Vue.extend({
     data() {
+        debugger
         return {
             artefactService: new ArtefactService(),
             imagedObjectService: new ImagedObjectService(),
             sideOptions: [
                 {displayName: 'Recto', name: 'recto'},
                 {displayName: 'Verso', name: 'verso'},
-                {displayName: 'Both', name: 'recto and verso'}] as DropdownOption[],
+                {displayName: this.$t('home.both'), name: 'recto and verso'}] as DropdownOption[],
             sideFilter: {} as DropdownOption,
             filter: '',
         };
