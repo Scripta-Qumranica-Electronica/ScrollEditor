@@ -40,7 +40,6 @@ import { DropdownOption } from '@/utils/helpers';
 
 export default Vue.extend({
     data() {
-        debugger
         return {
             artefactService: new ArtefactService(),
             imagedObjectService: new ImagedObjectService(),
