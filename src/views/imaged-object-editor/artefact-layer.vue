@@ -42,7 +42,6 @@ svg {
 
 path {
     stroke-width: 1;
-    fill: transparent;
     fill-opacity: 0.2;
 }
 

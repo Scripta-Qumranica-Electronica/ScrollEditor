@@ -56,38 +56,35 @@
                 </div>
                 <div class="imaged-object-container" :class="{active: isActive}">
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
-                        <div
+                        <svg class="overlay"
                             :width="actualWidth"
                             :height="actualHeight"
-                        >
-                            <svg class="overlay"
-                                :width="actualWidth"
-                                :height="actualHeight"
-                                :viewBox="`0 0 ${actualWidth} ${actualHeight}`">
-                                <g :transform="transform" id="transform-root">
-                                    <image-layer
-                                        :width="imageWidth"
-                                        :height="imageHeight"
-                                        :params="params"
-                                        :editable="canEdit"
-                                        :clipping-mask="artefact.mask.polygon"
-                                    ></image-layer>
-                                    <artefact-layer
-                                        :selected="art.id === artefact.id"
-                                        v-for="art in visibleArtefacts"
-                                        :artefact="art"
-                                        :key="art.id"
-                                        :color="getArtefactColor(art)"
-                                    />
-                                    <boundary-drawer
-                                        v-if="canEdit && artefact"
-                                        :color="isErasing ? 'black' : getArtefactColor(artefact)"
-                                        transform-root-id="transform-root"
-                                        @new-polygon="onNewPolygon($event)"
-                                    />
-                                </g>
-                            </svg>
-                        </div>
+                            :viewBox="`0 0 ${actualWidth} ${actualHeight}`">
+                            <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
+                            <g :transform="transform" id="transform-root">
+                                <!-- Coordinate system is in master image coordinates -->
+                                <image-layer
+                                    :width="imageWidth"
+                                    :height="imageHeight"
+                                    :params="params"
+                                    :editable="canEdit"
+                                    :clipping-mask="artefact.mask.polygon"
+                                ></image-layer>
+                                <artefact-layer
+                                    :selected="art.id === artefact.id"
+                                    v-for="art in visibleArtefacts"
+                                    :artefact="art"
+                                    :key="art.id"
+                                    :color="getArtefactColor(art)"
+                                />
+                                <boundary-drawer
+                                    v-if="canEdit && artefact"
+                                    :color="isErasing ? 'black' : getArtefactColor(artefact)"
+                                    transform-root-id="transform-root"
+                                    @new-polygon="onNewPolygon($event)"
+                                />
+                            </g>
+                        </svg>
                     </zoomer>
                 </div>
             </div>
