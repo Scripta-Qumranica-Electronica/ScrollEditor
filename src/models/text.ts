@@ -169,13 +169,15 @@ class InterpretationRoi {
         artefact: Artefact,
         signInterpretation: SignInterpretation,
         shape: Polygon,
-        position: Position
+        position: Position,
+        rotation = 0,
     ) {
         const obj = new InterpretationRoi({
             artefactId: artefact.id,
             signInterpretationId: signInterpretation.id,
             shape: shape.wkt,
-            position: JSON.stringify(position),
+            translate: position,
+            stanceRotation: rotation,
             exceptional: false,
             valuesSet: true
         });
@@ -196,6 +198,7 @@ class InterpretationRoi {
     public exceptional: boolean;
     public valuesSet: boolean;
     public status: RoiStatus;
+    public rotation: number;
 
     // UI related fields
     public shine = false; // Shine on display
@@ -206,7 +209,8 @@ class InterpretationRoi {
         this.artefactId = obj.artefactId;
         this.signInterpretationId = obj.signInterpretationId;
         this.shape = Polygon.fromWkt(obj.shape);
-        this.position = JSON.parse(obj.position) as Position;
+        this.position = obj.translate;
+        this.rotation = obj.stanceRotation;
         this.exceptional = obj.exceptional;
         this.valuesSet = obj.valuesSet;
 
