@@ -38,12 +38,34 @@ class EditionService {
     }
 
     public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {
+        const prevEdition = this.stateManager.editions.find(editionId);
+
+        if (!prevEdition) {
+            throw new Error(`Can't copy non existing edition ${editionId}`);
+        }
+
         const dto = {
             name
         } as EditionUpdateRequestDTO;
         const response = await CommHelper.post<EditionDTO>(ApiRoutes.editionUrl(editionId), dto);
 
         const newEdition = new EditionInfo(response.data);
+
+        // Connect the new edition to other editions of its group
+        newEdition.mine = true; // Cloned editions are always mine
+        newEdition.otherVersions = [...prevEdition.otherVersions, prevEdition];  // Set new's other versions
+
+        // Update otherVersions of all the previous versions
+        for (const other of newEdition.otherVersions) {
+            other.otherVersions.push(newEdition);
+        }
+
+        // Now update the state's edition collection
+        const current = this.stateManager.editions.current;
+        const allEditions = [...this.stateManager.editions.items, newEdition];
+        this.stateManager.editions.items = allEditions;
+        this.stateManager.editions.current = current;
+
         return newEdition;
     }
 

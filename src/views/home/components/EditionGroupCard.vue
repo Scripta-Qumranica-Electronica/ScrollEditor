@@ -31,11 +31,7 @@ import { EditionInfo } from '@/models/edition';
 
 export default class EditionCard extends Vue {
     @Prop() public edition!: EditionInfo;
-    
-    private mounted() {
-        console.log('editiongroupcard ')
-    }
-  
+
     private get thumbnailSource(): string | undefined {
 
         return this.edition.thumbnail
