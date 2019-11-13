@@ -22,26 +22,37 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 
-export default Vue.extend({
-  name: 'edition-card',
-  props: {
-      edition: Object as () => EditionInfo,
-  },
-  computed: {
-    thumbnailSource(): string | undefined {
-      return this.edition.thumbnail ? this.edition.thumbnail.thumbnailUrl : undefined;
-    },
-    publicEditionCount(): number {
-      return this.edition.publicCopies;
-    },
-    personalVersionCount(): number {
-      return 0; // TODO: Return the actual number
+@Component({
+    name: 'edition-card'
+})
+
+export default class EditionCard extends Vue {
+    @Prop() public edition!: EditionInfo;
+    
+    private mounted() {
+        console.log('editiongroupcard ')
     }
-  },
-});
+  
+    private get thumbnailSource(): string | undefined {
+
+        return this.edition.thumbnail
+            ? this.edition.thumbnail.thumbnailUrl
+            : undefined;
+    }
+
+    private get publicEditionCount(): number {
+        return this.edition.publicCopies;
+    }
+
+    private get personalVersionCount(): number {
+           return 0; // TODO: Return the actual number
+    }
+}
+
+
 
 </script>
 
