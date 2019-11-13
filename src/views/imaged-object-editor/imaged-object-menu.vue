@@ -198,7 +198,7 @@
                             <b-button @click="redo()">Redo</b-button>
                         </section>
                         <section class="center-btn" v-if="editable">
-                            <b-button v-if="!saving" @click="save()">Save</b-button>
+                            <b-button v-if="!saving" @click="save()">{{$t('misc.save')}}</b-button>
                             <b-button v-if="saving" disabled class="disable">
                                 Saving...
                                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
