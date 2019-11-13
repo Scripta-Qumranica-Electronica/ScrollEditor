@@ -8,4 +8,5 @@ export default {
     undo: 'Undo',
     redo: 'Redo',
     actions: 'Actions',
+    save: 'Save'
 };

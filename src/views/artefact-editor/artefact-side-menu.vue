@@ -73,7 +73,7 @@
                             </b-button>
                         </section>
                         <section class="center-btn">
-                            <b-button v-if="!saving" @click="onSave()">Save</b-button>
+                            <b-button v-if="!saving" @click="onSave()"> {{$t('misc.save')}}</b-button>
                             <b-button v-if="saving" disabled class="disable">
                                 Saving...
                                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
