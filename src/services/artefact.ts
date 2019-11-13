@@ -4,6 +4,7 @@ import { ArtefactListDTO, CreateArtefactDTO, ArtefactDTO, UpdateArtefactDTO } fr
 import { Artefact } from '@/models/artefact';
 import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
+import { StateManager } from '@/state';
 
 class ArtefactService {
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
@@ -64,7 +65,15 @@ class ArtefactService {
 
         const response = await CommHelper.put<ArtefactDTO>
             (ApiRoutes.editionArtefactUrl(editionId, artefact.id), body);
+
+        // Update the state
+        const changed = new Artefact(response.data);
+        this.stateManager.artefacts.update(changed);
         return response.data;
+    }
+
+    private get stateManager() {
+        return StateManager.instance;
     }
 }
 

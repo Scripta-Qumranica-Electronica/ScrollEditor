@@ -51,6 +51,19 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         }
         return this._items.find((it) => it.id === id);
     }
+
+    public update(entity: T) {
+        const idx = this._items.findIndex((it) => it.id === entity.id);
+        if (idx === -1) {
+            throw new Error(`Can't update entity ${entity.id}, it is not in the collection`);
+        }
+        const current = this._current;
+        const newItems = [...this._items]; // Create a new copy, for reactiveness
+        newItems[idx] = entity;
+
+        this.items = newItems;
+        this.current = current;
+    }
 }
 
 // A cache of items, with a limit on the number of cached items.
