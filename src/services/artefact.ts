@@ -45,6 +45,7 @@ class ArtefactService {
         const response = await CommHelper.post<ArtefactDTO>(ApiRoutes.allEditionArtefactsUrl(editionId), body);
 
         const artefact = new Artefact(response.data);
+        this.stateManager.artefacts.add(artefact);
         return artefact;
     }
 
