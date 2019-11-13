@@ -17,6 +17,7 @@ import TextService from '@/services/text';
  */
 
 class ProcessTracking {
+    
     public promise: Promise<void>;
     public id: number;
     public startTime: number;
@@ -70,8 +71,8 @@ export default class StateService {
         StateService.alreadyCreated = true;
     }
 
-    public allEditions(): Promise<void> {
-        return this.wrapInternal('allEditionsProcess', -1, (id: number) => this.allEditionsInternal());
+    public allEditions(editionId:number = -1): Promise<void> {
+        return this.wrapInternal('allEditionsProcess', editionId, (id: number) => this.allEditionsInternal());
     }
 
     public async edition(editionId: number): Promise<void> {
@@ -155,7 +156,7 @@ export default class StateService {
 
     private async editionInternal(editionId: number) {
         // First, make sure we have all editions
-        await this.allEditions();
+        await this.allEditions(editionId);
 
         const edition = this._state.editions.find(editionId);
         if (!edition) {
