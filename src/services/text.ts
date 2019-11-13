@@ -72,7 +72,8 @@ class TextService {
                 artefactId: artefact.id,
                 signInterpretationId: roi.signInterpretationId,
                 shape: roi.shape.wkt,
-                position: JSON.stringify(roi.position),
+                translate: roi.position,
+                stanceRotation: roi.rotation,
                 exceptional: roi.exceptional,
                 valuesSet: roi.valuesSet
             };

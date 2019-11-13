@@ -1,13 +1,15 @@
 ﻿// This file was generate automatically. DO NOT EDIT.
 /* tslint:disable */
-
-export interface ArtefactDTO {
+export interface ArtefactDataDTO {
     id: number;
+    name: string;
+}
+
+export interface ArtefactDTO extends ArtefactDataDTO {
     editionId: number;
     imagedObjectId: string;
     imageId: number;
     artefactDataEditorId: number;
-    name: string;
     mask: PolygonDTO;
     zOrder: number;
     side: string;
@@ -18,6 +20,10 @@ export interface ArtefactListDTO {
     artefacts: ArtefactDTO[];
 }
 
+export interface ArtefactDataListDTO {
+    artefacts: ArtefactDataDTO[];
+}
+
 export interface UpdateArtefactDTO {
     polygon: PolygonDTO;
     name: string;
@@ -26,6 +32,7 @@ export interface UpdateArtefactDTO {
 
 export interface CreateArtefactDTO extends UpdateArtefactDTO {
     masterImageId: number;
+    polygon: PolygonDTO;
 }
 
 export interface EditionDTO {
@@ -78,6 +85,10 @@ export interface ShareDTO {
 export interface DeleteTokenDTO {
     editionId: number;
     token: string;
+}
+export interface DeleteEditionEntityDTO {
+    entityId: number;
+    editorId: number;
 }
 export interface EditionUpdateRequestDTO {
     name: string;
@@ -134,11 +145,13 @@ export interface PolygonDTO {
     transformation: TransformationDTO;
     positionEditorId: number;
 }
+
 export interface SetInterpretationRoiDTO {
     artefactId: number;
     signInterpretationId?: number;
     shape: string;
-    position: string;
+    translate: TranslateDTO;
+    stanceRotation: number;
     exceptional: boolean;
     valuesSet: boolean;
 }
@@ -162,6 +175,18 @@ export interface InterpretationRoiDTOList {
 
 export interface UpdatedInterpretationRoiDTOList {
     rois: UpdatedInterpretationRoiDTO[];
+}
+
+export interface BatchEditRoiDTO {
+    createRois: InterpretationRoiDTO[];
+    updateRois: UpdatedInterpretationRoiDTO[];
+    deleteRois: number[];
+}
+
+export interface BatchEditRoiResponseDTO {
+    createRois: InterpretationRoiDTO[];
+    updateRois: UpdatedInterpretationRoiDTO[];
+    deleteRois: number[];
 }
 
 export interface SignDTO {
@@ -192,8 +217,16 @@ export interface TextFragmentDataDTO {
     editorId: number;
 }
 
+export interface ArtefactTextFragmentMatchDTO extends TextFragmentDataDTO {
+    suggested: boolean;
+}
+
 export interface TextFragmentDataListDTO {
     textFragments: TextFragmentDataDTO[];
+}
+
+export interface ArtefactTextFragmentMatchListDTO {
+    textFragments: ArtefactTextFragmentMatchDTO[];
 }
 
 export interface TextFragmentDTO {
@@ -241,7 +274,7 @@ export interface LoginRequestDTO {
     email: string;
     password: string;
 }
-export interface NewUserRequestDTO {
+export interface UserUpdateRequestDTO {
     password: string;
     email: string;
     organization: string;
@@ -249,7 +282,9 @@ export interface NewUserRequestDTO {
     surname: string;
 }
 
-export interface UserUpdateRequestDTO extends NewUserRequestDTO {
+export interface NewUserRequestDTO extends UserUpdateRequestDTO {
+    email: string;
+    password: string;
 }
 export interface AccountActivationRequestDTO {
     token: string;
