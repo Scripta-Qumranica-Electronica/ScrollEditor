@@ -214,8 +214,11 @@ class InterpretationRoi {
         this.exceptional = obj.exceptional;
         this.valuesSet = obj.valuesSet;
 
-        if (obj instanceof InterpretationRoi) {
-            this.interpretationRoiId = obj.interpretationRoiId;
+        // Check if the object is an InterprettionRoiDTO
+        // We can't use instanceof, since instanceof does not work at runtime with interfaces yet.
+        // So we use the old school way
+        if (obj.hasOwnProperty('interpretationRoiId')) {
+            this.interpretationRoiId = (obj as InterpretationRoiDTO).interpretationRoiId;
         }
 
         this.status = 'original';

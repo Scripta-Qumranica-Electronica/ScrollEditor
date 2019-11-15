@@ -61,14 +61,14 @@ class TextService {
             }
         }
 
-        const response = await this.updateROIs(artefact, newROIs, deletedROIs);
-        this.updateCreatedROIs(artefact, newROIs, response.createRois);
-        this.updateDeletedROIs(artefact, deletedROIs);
+        const response = await this.updateServerROIs(artefact, newROIs, deletedROIs);
+        this.updateStateCreatedROIs(artefact, newROIs, response.createRois);
+        this.updateStateDeletedROIs(artefact, deletedROIs);
 
         return deletedROIs.length + newROIs.length;
     }
 
-    private async updateROIs(artefact: Artefact, newROIs: InterpretationRoi[], deletedROIs: InterpretationRoi[]) {
+    private async updateServerROIs(artefact: Artefact, newROIs: InterpretationRoi[], deletedROIs: InterpretationRoi[]) {
         const newDTOs = newROIs.map(roi => {
             return {
                 artefactId: artefact.id,
@@ -93,7 +93,9 @@ class TextService {
         return response.data;
     }
 
-    private updateCreatedROIs(artefact: Artefact, preSaveROIs: InterpretationRoi[], listDTO: InterpretationRoiDTO[]) {
+    private updateStateCreatedROIs(artefact: Artefact,
+                                   preSaveROIs: InterpretationRoi[],
+                                   listDTO: InterpretationRoiDTO[]) {
         const postSaveROIs = listDTO.map(dto => new InterpretationRoi(dto));
 
         // First, remove the preSave ROIs
@@ -125,7 +127,7 @@ class TextService {
         }
     }
 
-    private updateDeletedROIs(artefact: Artefact, rois: InterpretationRoi[]) {
+    private updateStateDeletedROIs(artefact: Artefact, rois: InterpretationRoi[]) {
         for (const roi of rois) {
             this.stateManager.interpretationRois.delete(roi.id);
         }
