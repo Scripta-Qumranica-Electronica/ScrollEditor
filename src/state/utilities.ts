@@ -75,7 +75,7 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         const current = this._current;
         this.items = newItems;
         this.current = current;
-    }rte
+    }
 }
 
 // A cache of items, with a limit on the number of cached items.

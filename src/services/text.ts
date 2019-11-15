@@ -5,7 +5,10 @@ import {
     TextEditionDTO,
     SetInterpretationRoiDTO,
     InterpretationRoiDTOList,
-    SetInterpretationRoiDTOList
+    SetInterpretationRoiDTOList,
+    BatchEditRoiDTO,
+    InterpretationRoiDTO,
+    BatchEditRoiResponseDTO
 } from '@/dtos/sqe-dtos';
 import {
     TextFragmentData,
@@ -58,16 +61,15 @@ class TextService {
             }
         }
 
-        const createdResponse = await this.createNewROIs(artefact, newROIs);
-        this.updateCreatedROIs(artefact, newROIs, createdResponse);
-        await this.deleteROIs(artefact, deletedROIs);
+        const response = await this.updateROIs(artefact, newROIs, deletedROIs);
+        this.updateCreatedROIs(artefact, newROIs, response.createRois);
         this.updateDeletedROIs(artefact, deletedROIs);
 
         return deletedROIs.length + newROIs.length;
     }
 
-    private async createNewROIs(artefact: Artefact, newROIs: InterpretationRoi[]) {
-        const dtos: SetInterpretationRoiDTO[] = newROIs.map(roi => {
+    private async updateROIs(artefact: Artefact, newROIs: InterpretationRoi[], deletedROIs: InterpretationRoi[]) {
+        const newDTOs = newROIs.map(roi => {
             return {
                 artefactId: artefact.id,
                 signInterpretationId: roi.signInterpretationId,
@@ -76,22 +78,23 @@ class TextService {
                 stanceRotation: roi.rotation,
                 exceptional: roi.exceptional,
                 valuesSet: roi.valuesSet
-            };
+            }  as InterpretationRoiDTO;
         });
-        const body = {
-            rois: dtos
-        } as SetInterpretationRoiDTOList;
-        const url = ApiRoutes.batchCreateRoisUrl(artefact.editionId);
-        const response = await CommHelper.post<InterpretationRoiDTOList>(
-            url,
-            body
-        );
+        const deleted = deletedROIs.map(roi => roi.interpretationRoiId).filter(id => !!id) as number[];
+        const body: BatchEditRoiDTO = {
+            createRois: newDTOs,
+            updateRois: [],
+            deleteRois: deleted,
+        };
+
+        const url = ApiRoutes.batchEditRoisUrl(artefact.editionId);
+        const response = await CommHelper.post<BatchEditRoiResponseDTO>(url, body);
 
         return response.data;
     }
 
-    private updateCreatedROIs(artefact: Artefact, preSaveROIs: InterpretationRoi[], listDTO: InterpretationRoiDTOList) {
-        const postSaveROIs = listDTO.rois.map(dto => new InterpretationRoi(dto));
+    private updateCreatedROIs(artefact: Artefact, preSaveROIs: InterpretationRoi[], listDTO: InterpretationRoiDTO[]) {
+        const postSaveROIs = listDTO.map(dto => new InterpretationRoi(dto));
 
         // First, remove the preSave ROIs
         for (const preSave of preSaveROIs) {
@@ -105,7 +108,7 @@ class TextService {
         }
 
         // Now add the new ones
-        for (const postSave of listDTO.rois) {
+        for (const postSave of listDTO) {
             const roi = new InterpretationRoi(postSave);
             if (postSave.signInterpretationId) {
                 const si = this.stateManager.signInterpretations.get(postSave.signInterpretationId);
@@ -119,17 +122,6 @@ class TextService {
             }
 
             this.stateManager.interpretationRois.put(roi);
-        }
-    }
-
-    private async deleteROIs(artefact: Artefact, rois: InterpretationRoi[]) {
-        // For now we need to delete the ROIs one by one.
-        for (const roi of rois) {
-            if (!roi.interpretationRoiId) {
-                continue;  // This ROI has never been saved to the server
-            }
-            const url = ApiRoutes.roiUrl(artefact.editionId, roi.interpretationRoiId);
-            await CommHelper.delete(url);
         }
     }
 

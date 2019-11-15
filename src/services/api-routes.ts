@@ -83,6 +83,10 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/rois/batch`;
     }
 
+    export function batchEditRoisUrl(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/rois/batch-edit`;
+    }
+
     export function roiUrl(editionId: number, roiId: number) {
         return `/${baseUrl}/${editions}/${editionId}/rois/${roiId}`;
     }
