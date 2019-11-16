@@ -25,6 +25,13 @@
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
+                <div class="sign-wheel">
+                    <sign-wheel v-if="selectedSignInterpretation"
+                                :line="selectedLine"
+                                :selectedSignInterpretation="selectedSignInterpretation"
+                                @sign-interpretation-clicked="onSignInterpretationClicked"
+                    />
+                </div>
                 <div
                     class="artefact-container"
                     :class="{ sidebar: isActiveSidebar, text: isActiveText }"
@@ -44,12 +51,12 @@
                                             :clipping-mask="artefact.mask.polygon"
                                             :boundingBox="artefact.mask.polygon.getBoundingBox()"/>
                                 <roi-layer :rois="visibleRois" 
-                                           :selected="selectedInterpretationRoi"
-                                           @roi-clicked="onRoiClicked($event)"/>
+                                        :selected="selectedInterpretationRoi"
+                                        @roi-clicked="onRoiClicked($event)"/>
                                 <boundary-drawer v-show="isDrawingEnabled"
-                                                 :mode="drawingMode"
-                                                 transformRootId="transform-root"
-                                                 @new-polygon="onNewPolygon($event)"/>
+                                                :mode="drawingMode"
+                                                transformRootId="transform-root"
+                                                @new-polygon="onNewPolygon($event)"/>
                             </g>
                         </svg>
                     </zoomer>
@@ -115,7 +122,7 @@ import {
     ImageSetting,
     SingleImageSetting
 } from '@/components/image-settings/types';
-import { SignInterpretation, InterpretationRoi } from '@/models/text';
+import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import ImagedObjectService from '@/services/imaged-object';
@@ -125,6 +132,7 @@ import RoiLayer from './roi-layer.vue';
 import BoundaryDrawer, { DrawingMode } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
+import SignWheel from './sign-wheel.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -137,6 +145,7 @@ import TextService from '@/services/text';
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
         'zoomer': Zoomer,
+        'sign-wheel': SignWheel,
     }
 })
 export default class ArtefactEditor extends Vue {
@@ -241,6 +250,14 @@ export default class ArtefactEditor extends Vue {
         const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
 
         return `${zoom} ${rotate}`;
+    }
+
+    private get selectedLine(): Line | null {
+        if (!this.selectedSignInterpretation) {
+            return null;
+        }
+
+        return this.selectedSignInterpretation.sign.line;
     }
 
     private sidebarClicked() {

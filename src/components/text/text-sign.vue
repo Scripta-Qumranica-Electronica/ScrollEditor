@@ -1,11 +1,9 @@
 <template>
     <div>
         <span
-            v-for="si in sign.signInterpretations"
-            :key="si.id"
-            :class="{ selected: si === selectedSignInterpretation }"
-            @click="signInterpretationClicked(si)"
-        >{{ si.character || '&nbsp;' }}</span>
+            :class="{ selected: chosenSI === selectedSignInterpretation }"
+            @click="signInterpretationClicked(chosenSI)"
+        >{{ chosenSI.character || '&nbsp;' }}</span>
     </div>
 </template>
 
@@ -22,6 +20,11 @@ export default class SignComponent extends Vue {
 
     private onSignInterpretationClicked(si: SignInterpretation) {
         this.signInterpretationClicked(si);
+    }
+
+    // Each sign offers alternative readings. For now we always show the first suggestion
+    private get chosenSI() {
+        return this.sign.signInterpretations[0];
     }
 
     @Emit()

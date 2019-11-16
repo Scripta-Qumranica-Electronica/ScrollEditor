@@ -32,15 +32,19 @@ class Line {
     public editorId: number = 0;
     public signs: Sign[] = [];
 
-    constructor(obj: LineDTO) {
+    public textFragment: TextFragment;
+
+    constructor(obj: LineDTO, textFragment: TextFragment) {
         this.lineId = obj.lineId;
         this.lineName = obj.lineName;
         this.editorId = obj.editorId;
         if (obj.signs) {
-            this.signs = obj.signs.map(s => new Sign(s));
+            this.signs = obj.signs.map(s => new Sign(s, this));
         } else {
             obj.signs = [];
         }
+
+        this.textFragment = textFragment;
     }
 }
 
@@ -55,7 +59,7 @@ class TextFragment {
         this.textFragmentName = obj.textFragmentName;
         this.editorId = obj.editorId;
         if (obj.lines) {
-            this.lines = obj.lines.map(l => new Line(l));
+            this.lines = obj.lines.map(l => new Line(l, this));
         } else {
             this.lines = [];
         }
@@ -114,15 +118,17 @@ class TextEdition {
 
 class Sign {
     public signInterpretations: SignInterpretation[] = [];
+    public line: Line;
 
-    constructor(obj: SignDTO) {
+    constructor(obj: SignDTO, line: Line) {
         if (obj.signInterpretations) {
             this.signInterpretations = obj.signInterpretations.map(
-                s => new SignInterpretation(s)
+                s => new SignInterpretation(s, this)
             );
         } else {
             this.signInterpretations = [];
         }
+        this.line = line;
     }
 }
 
@@ -133,7 +139,9 @@ class SignInterpretation {
     public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
     public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
 
-    constructor(obj: SignInterpretationDTO) {
+    public sign: Sign;
+
+    constructor(obj: SignInterpretationDTO, sign: Sign) {
         this.signInterpretationId = obj.signInterpretationId;
         this.character = obj.character;
         this.attributes = obj.attributes;
@@ -144,6 +152,8 @@ class SignInterpretation {
         } else {
             this.rois = [];
         }
+
+        this.sign = sign;
     }
 
     public artefactRoi(artefact: Artefact) {
