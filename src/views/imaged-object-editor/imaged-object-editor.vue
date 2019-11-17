@@ -538,7 +538,7 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private getArtefactColor(art: Artefact) {
-        const idx = this.artefacts.indexOf(art);
+        const idx = this.visibleArtefacts.indexOf(art);
         if (idx === -1) {
             console.error("Can't locate artefact in this.artefacts");
             throw new Error("Can't locate artefact in this.artefacts");

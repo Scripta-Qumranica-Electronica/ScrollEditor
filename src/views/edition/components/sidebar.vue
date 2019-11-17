@@ -31,6 +31,7 @@
         </b-nav>
 
         <b-modal id="copyModal" 
+                 ref="copyModalRef"
                  :title="$t('home.copyTitle', { name: current.name, owner: current.owner.forename })"
                  @shown="copyModalShown"
                  @ok="copyEdition"
@@ -135,11 +136,12 @@ export default Vue.extend({
                 this.$router.push({
                     path: `/editions/${newEdition.id}`,
                 });
+                (this.$refs.copyModalRef as any).hide();
             } catch (err) {
                 this.errorMessage = err;
             } finally {
                 this.waiting = false;
-            }
+            }       
         },
         copyModalShown() {
             this.newCopyName = this.current!.name;
