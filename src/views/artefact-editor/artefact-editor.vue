@@ -138,7 +138,7 @@ import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from './image-layer.vue';
 import RoiLayer from './roi-layer.vue';
-import BoundaryDrawer, { DrawingMode,AutoMode } from '@/components/polygons/boundary-drawer.vue';
+import BoundaryDrawer, { DrawingMode } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
 import SignWheel from './sign-wheel.vue';
@@ -161,8 +161,8 @@ export default class ArtefactEditor extends Vue {
     private selectedSignInterpretation: SignInterpretation | null = null;
     private selectedInterpretationRoi: InterpretationRoi | null = null;
     private drawingMode: DrawingMode = 'box';
-    private autoMode: AutoMode =true;
-    
+    private autoMode = false;
+
     private errorMessage = '';
     private waiting = true;
     private saving = false;
@@ -281,10 +281,11 @@ export default class ArtefactEditor extends Vue {
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         this.params = evt.params; // This makes sure a change is triggered in child components
     }
-    
-    private onAuto(){
-       this.autoMode=  !this.autoMode; 
+
+    private onAuto() {
+       this.autoMode = !this.autoMode;
     }
+
     private fillImageSettings() {
         if (!this.imageStack) {
             throw new Error(`No image stack for artefact ${this.artefact.id} in artefact-editor`);
@@ -379,6 +380,19 @@ export default class ArtefactEditor extends Vue {
         this.$state.interpretationRois.put(roi);
         this.visibleRois.push(roi);
         this.selectedInterpretationRoi = roi;
+
+        if (this.autoMode) {
+            // Find the next sign interpretation with a character - that can be mapped.
+            let newIndex = this.selectedSignInterpretation.sign.indexInLine + 1;
+            while (newIndex < this.selectedLine!.signs.length) {
+                const newSI = this.selectedLine!.signs[newIndex].signInterpretations[0];
+                if (newSI.character) {
+                    this.onSignInterpretationClicked(newSI);
+                    break;
+                }
+                newIndex ++;
+            }
+        }
     }
 
     private onDeleteRoi() { // Delete the selected ROI

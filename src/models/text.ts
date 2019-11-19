@@ -39,7 +39,7 @@ class Line {
         this.lineName = obj.lineName;
         this.editorId = obj.editorId;
         if (obj.signs) {
-            this.signs = obj.signs.map(s => new Sign(s, this));
+            this.signs = obj.signs.map((s, index) => new Sign(s, this, index));
         } else {
             obj.signs = [];
         }
@@ -119,8 +119,9 @@ class TextEdition {
 class Sign {
     public signInterpretations: SignInterpretation[] = [];
     public line: Line;
+    public indexInLine: number;
 
-    constructor(obj: SignDTO, line: Line) {
+    constructor(obj: SignDTO, line: Line, index: number) {
         if (obj.signInterpretations) {
             this.signInterpretations = obj.signInterpretations.map(
                 s => new SignInterpretation(s, this)
@@ -129,6 +130,7 @@ class Sign {
             this.signInterpretations = [];
         }
         this.line = line;
+        this.indexInLine = index;
     }
 }
 
