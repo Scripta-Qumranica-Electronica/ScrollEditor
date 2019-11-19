@@ -83,15 +83,16 @@
                     >
                         <i class="fa fa-trash"></i>
                     </b-button>
-                      <b-button
+                     <b-button
                         type="button" 
-                        class="sidebarCollapse"
-                        @click="onAutoClick()"
-                        :disabled="false"
+                        @click="onAuto()"
+                        :pressed="autoMode == true"
+                         class="sidebarCollapse"
                     >
                       <i class="fa fa-refresh"></i>
                     </b-button>
                 </div>
+                 
             </div>
         </div>
 
@@ -137,7 +138,7 @@ import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from './image-layer.vue';
 import RoiLayer from './roi-layer.vue';
-import BoundaryDrawer, { DrawingMode } from '@/components/polygons/boundary-drawer.vue';
+import BoundaryDrawer, { DrawingMode,AutoMode } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
 import SignWheel from './sign-wheel.vue';
@@ -160,7 +161,8 @@ export default class ArtefactEditor extends Vue {
     private selectedSignInterpretation: SignInterpretation | null = null;
     private selectedInterpretationRoi: InterpretationRoi | null = null;
     private drawingMode: DrawingMode = 'box';
-
+    private autoMode: AutoMode =true;
+    
     private errorMessage = '';
     private waiting = true;
     private saving = false;
@@ -279,7 +281,10 @@ export default class ArtefactEditor extends Vue {
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         this.params = evt.params; // This makes sure a change is triggered in child components
     }
-
+    
+    private onAuto(){
+       this.autoMode=  !this.autoMode; 
+    }
     private fillImageSettings() {
         if (!this.imageStack) {
             throw new Error(`No image stack for artefact ${this.artefact.id} in artefact-editor`);
