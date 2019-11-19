@@ -17,15 +17,16 @@
                 @save="onSave()"
             ></artefact-side-menu>
         </div>
-
-        <div v-if="!waiting && artefact">
+ 
+        <div  v-if="!waiting && artefact">
+           
             <div class="row" id="artefact-and-buttons">
                 <div class="buttons-div">
                     <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
-                <div class="sign-wheel">
+                <div class="sign-wheel sign-wheel-position">
                     <sign-wheel v-if="selectedSignInterpretation"
                                 :line="selectedLine"
                                 :selectedSignInterpretation="selectedSignInterpretation"
@@ -450,6 +451,7 @@ export default class ArtefactEditor extends Vue {
 </script>
 
 <style lang="scss" scoped>
+
 .overlay {
     position: absolute;
     transform-origin: top left;
@@ -549,7 +551,11 @@ export default class ArtefactEditor extends Vue {
 #artefact-and-buttons {
     margin: 0px;
 }
-
+.sign-wheel-position
+   {  
+    position: absolute!important;
+    margin-left: 325px!important;
+    }
 // TODO -- update the madia
 @media (max-width: 1100px) {
     /* Reversing the behavior of the sidebar:
@@ -618,5 +624,11 @@ export default class ArtefactEditor extends Vue {
     #text-right-sidebar.sidebar {
         margin-right: calc(-100vw + 330px);
     }
+.sign-wheel-position
+   {  
+    position: absolute!important;
+    margin-left: 325px!important;
+    }
+  
 }
 </style>
