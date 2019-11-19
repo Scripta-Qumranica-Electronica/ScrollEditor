@@ -141,7 +141,7 @@ export default Vue.extend({
                 this.errorMessage = err;
             } finally {
                 this.waiting = false;
-            }       
+            }
         },
         copyModalShown() {
             this.newCopyName = this.current!.name;

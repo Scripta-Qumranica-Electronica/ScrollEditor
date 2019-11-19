@@ -17,7 +17,6 @@
 import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
 import { Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
-export type AutoMode = true| false;
 export type DrawingMode = 'polygon' | 'box';
 type InternalMode = 'before-polygon' | 'polygon' | 'before-corner1' | 'before-corner2';
 

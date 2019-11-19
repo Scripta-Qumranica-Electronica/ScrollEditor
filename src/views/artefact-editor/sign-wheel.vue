@@ -62,7 +62,6 @@ export default class SignWheel extends Vue {
     }
 
     private fillWheel() {
-        debugger;
         this.selectedIndex = this.findSignIndex();
 
         const firstIndex = Math.max(this.selectedIndex - this.signsOnEachSide, 0);
