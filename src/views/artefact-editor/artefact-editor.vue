@@ -71,7 +71,7 @@
                         @click="onDrawingModeClick(mode.val)"
                         :pressed="drawingMode === mode.val"
                         :disabled="!isDrawingEnabled"
-                        class="sidebarCollapse"
+                        class="sidebarCollapse" 
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
@@ -82,6 +82,14 @@
                         :disabled="!isDeleteEnabled"
                     >
                         <i class="fa fa-trash"></i>
+                    </b-button>
+                      <b-button
+                        type="button" 
+                        class="sidebarCollapse"
+                        @click="onAutoClick()"
+                        :disabled="false"
+                    >
+                      <i class="fa fa-refresh"></i>
                     </b-button>
                 </div>
             </div>
