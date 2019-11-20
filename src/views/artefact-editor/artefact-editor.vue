@@ -71,7 +71,7 @@
                         @click="onDrawingModeClick(mode.val)"
                         :pressed="drawingMode === mode.val"
                         :disabled="!isDrawingEnabled"
-                        class="sidebarCollapse"
+                        class="sidebarCollapse" 
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
@@ -83,7 +83,16 @@
                     >
                         <i class="fa fa-trash"></i>
                     </b-button>
+                     <b-button
+                        type="button" 
+                        @click="onAuto()"
+                        :pressed="autoMode == true"
+                         class="sidebarCollapse"
+                    >
+                      <i class="fa fa-refresh"></i>
+                    </b-button>
                 </div>
+                 
             </div>
         </div>
 
@@ -152,6 +161,7 @@ export default class ArtefactEditor extends Vue {
     private selectedSignInterpretation: SignInterpretation | null = null;
     private selectedInterpretationRoi: InterpretationRoi | null = null;
     private drawingMode: DrawingMode = 'box';
+    private autoMode = false;
 
     private errorMessage = '';
     private waiting = true;
@@ -272,6 +282,10 @@ export default class ArtefactEditor extends Vue {
         this.params = evt.params; // This makes sure a change is triggered in child components
     }
 
+    private onAuto() {
+       this.autoMode = !this.autoMode;
+    }
+
     private fillImageSettings() {
         if (!this.imageStack) {
             throw new Error(`No image stack for artefact ${this.artefact.id} in artefact-editor`);
@@ -366,6 +380,19 @@ export default class ArtefactEditor extends Vue {
         this.$state.interpretationRois.put(roi);
         this.visibleRois.push(roi);
         this.selectedInterpretationRoi = roi;
+
+        if (this.autoMode) {
+            // Find the next sign interpretation with a character - that can be mapped.
+            let newIndex = this.selectedSignInterpretation.sign.indexInLine + 1;
+            while (newIndex < this.selectedLine!.signs.length) {
+                const newSI = this.selectedLine!.signs[newIndex].signInterpretations[0];
+                if (newSI.character) {
+                    this.onSignInterpretationClicked(newSI);
+                    break;
+                }
+                newIndex ++;
+            }
+        }
     }
 
     private onDeleteRoi() { // Delete the selected ROI
