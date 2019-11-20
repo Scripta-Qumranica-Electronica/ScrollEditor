@@ -46,5 +46,11 @@ span {
 
 span.selected {
     color: red;
+    font-weight: bold;
+    text-shadow: 0 0 2px black;
+    transition: 0.6s;
+    font-size:17px;
+    margin:2px;
 }
+
 </style>

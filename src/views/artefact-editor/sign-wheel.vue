@@ -5,6 +5,7 @@
             :class="signInfo.class"
             :key="signInfo.sign.signId"
             :sign="signInfo.sign"
+            :selectedSignInterpretation="selectedSignInterpretation"
             @sign-interpretation-clicked="onSignInterpretationClicked($event)"
         ></text-sign>
     </div>
@@ -36,7 +37,7 @@ export default class SignWheel extends Vue {
     public direction!: TextDirection;
     @Prop() public selectedSignInterpretation!: SignInterpretation;
     @Prop({
-        default: 3,
+        default: 5,
     })
     public signsOnEachSide!: number;
 
@@ -74,8 +75,9 @@ export default class SignWheel extends Vue {
             const si = {
                 sign: this.line.signs[i],
                 index: i,
-                class: `sign-dist-${diff}`,
+                class: `sign-dist-${diff} `,
             };
+           
             this.signs.push(si);
         }
     }
@@ -100,8 +102,9 @@ export default class SignWheel extends Vue {
 </script>
 
 <style lang="scss" scoped>
+
 #text-side {
-    margin: 20px 50px 20px 30px;
+    margin: 30px 40px 20px 30px;
     touch-action: pan-y;
     // top: 0;
     // right: 0;
@@ -122,4 +125,5 @@ button {
 .isa_error {
     color: #d8000c;
 }
+
 </style>
