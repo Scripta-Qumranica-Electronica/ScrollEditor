@@ -22,7 +22,7 @@ services:
 
     sqe-http:
         container_name: SQE_HTTP_API
-        image: qumranica/sqe-http-api:0.4.2
+        image: qumranica/sqe-http-api:0.4.4-pre2
         restart: always
         ports:
             - 5000:5000
