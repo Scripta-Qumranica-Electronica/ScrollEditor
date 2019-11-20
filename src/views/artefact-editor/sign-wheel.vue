@@ -5,6 +5,7 @@
             :class="signInfo.class"
             :key="signInfo.sign.signId"
             :sign="signInfo.sign"
+            :selectedSignInterpretation="selectedSignInterpretation"
             @sign-interpretation-clicked="onSignInterpretationClicked($event)"
         ></text-sign>
     </div>
@@ -76,6 +77,9 @@ export default class SignWheel extends Vue {
                 index: i,
                 class: `sign-dist-${diff}`,
             };
+            //  if(si.sign==this.selectedSignInterpretation.sign){
+            //    si.class ='totozo';
+            // }
             this.signs.push(si);
         }
     }
@@ -122,4 +126,5 @@ button {
 .isa_error {
     color: #d8000c;
 }
+
 </style>
