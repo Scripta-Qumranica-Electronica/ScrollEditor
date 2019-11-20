@@ -4,7 +4,7 @@
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in textFragments">{{ tf.name }}</option>
         </datalist>
-        <button @click.prevent="load(query)" :disabled="loading" name="Load">Load</button>
+        <button @click.prevent="load(query)" :disabled="loading" name="Load" class="btn btn-secondary btn-position">{{$t('misc.load')}}</button>
         <span class="isa_error">{{errorMessage}}</span>
 
         <div v-if="textFragment">
@@ -88,7 +88,7 @@ export default class TextSide extends Vue {
 
 <style lang="scss" scoped>
 #text-side {
-    margin: 20px 50px 20px 30px;
+    margin: 30px 40px 20px 30px;
     touch-action: pan-y;
     // top: 0;
     // right: 0;
@@ -109,4 +109,13 @@ button {
 .isa_error {
     color: #d8000c;
 }
+.btn-position{
+    margin-top:-5px;
+}
+.select-text{
+    height: 37px;
+    width: 190px;
+    padding: 10px;
+}
+
 </style>

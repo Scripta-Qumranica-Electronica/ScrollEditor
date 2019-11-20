@@ -520,6 +520,7 @@ export default class ArtefactEditor extends Vue {
     padding: 0;
     height: calc(100vh - 63px);
     width: calc(100vw - 80px);
+
 }
 
 .artefact-container.text {
@@ -567,8 +568,10 @@ export default class ArtefactEditor extends Vue {
 }
 .sign-wheel-position
    {  
-    position: absolute!important;
-    margin-left: 325px!important;
+    position: absolute;
+    margin-left: 325px;
+    margin-top:20px;
+  
     }
 // TODO -- update the madia
 @media (max-width: 1100px) {
@@ -640,8 +643,10 @@ export default class ArtefactEditor extends Vue {
     }
 .sign-wheel-position
    {  
-    position: absolute!important;
-    margin-left: 325px!important;
+    position: absolute;
+    margin-left: 325px;
+     margin-top:20px;
+    
     }
   
 }
