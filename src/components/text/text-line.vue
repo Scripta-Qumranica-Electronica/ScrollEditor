@@ -1,5 +1,6 @@
 <template>
     <div class="text-line" :dir="direction">
+        <span class="line-name">{{line.lineName}}</span>
         <text-sign
             :selectedSignInterpretation="selectedSignInterpretation"
             v-for="sign in line.signs"
@@ -45,4 +46,7 @@ div.text-line {
     display: flex;
 }
 
+span.line-name {
+    padding-left: 10px;
+}
 </style>
