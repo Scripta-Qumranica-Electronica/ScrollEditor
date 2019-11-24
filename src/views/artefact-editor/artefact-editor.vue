@@ -384,7 +384,7 @@ export default class ArtefactEditor extends Vue {
 
         if (this.autoMode) {
             // Find the next sign interpretation with a character - that can be mapped.
-            this.playSound('http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3');
+            this.playSound('@/assets/songs/qumran_hum.mp3');
             setTimeout(this.nextSign, 1500);
        }
     }
