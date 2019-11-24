@@ -208,6 +208,7 @@ export interface InterpretationAttributeDTO {
     interpretationAttributeId: number;
     sequence: number;
     attributeValueId: number;
+    attributeValueString: string;
     editorId: number;
     value: number;
 }
