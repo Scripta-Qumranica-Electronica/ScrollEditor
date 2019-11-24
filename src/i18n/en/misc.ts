@@ -9,5 +9,5 @@ export default {
     redo: 'Redo',
     actions: 'Actions',
     save: 'Save',
-    load:'Load'
+    load: 'Load'
 };

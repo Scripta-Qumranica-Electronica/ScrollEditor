@@ -384,25 +384,25 @@ export default class ArtefactEditor extends Vue {
 
         if (this.autoMode) {
             // Find the next sign interpretation with a character - that can be mapped.
-            this.playSound('@/assets/songs/qumran_hum.mp3');
+            this.playSound('/qumran_hum.mp3');
             setTimeout(this.nextSign, 1500);
        }
     }
-    private nextSign(){
-           let newIndex = this.selectedSignInterpretation.sign.indexInLine + 1;
-            while (newIndex < this.selectedLine!.signs.length) {
-                const newSI = this.selectedLine!.signs[newIndex].signInterpretations[0];
-                if (newSI.character) {
-                    this.onSignInterpretationClicked(newSI);
-                    break;
-                }
-                newIndex ++;
-            }    
+    private nextSign() {
+        let newIndex = this.selectedSignInterpretation!.sign.indexInLine + 1;
+        while (newIndex < this.selectedLine!.signs.length) {
+            const newSI = this.selectedLine!.signs[newIndex].signInterpretations[0];
+            if (newSI.character) {
+                this.onSignInterpretationClicked(newSI);
+                break;
+            }
+            newIndex ++;
+        }
     }
 
-   playSound (sound) {
-      if(sound) {
-        var audio = new Audio(sound);
+   private playSound(sound: string) {
+      if (sound) {
+        const audio = new Audio(sound);
         audio.play();
       }
     }

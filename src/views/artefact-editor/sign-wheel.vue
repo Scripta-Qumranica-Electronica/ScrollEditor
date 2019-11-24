@@ -77,7 +77,6 @@ export default class SignWheel extends Vue {
                 index: i,
                 class: `sign-dist-${diff} `,
             };
-           
             this.signs.push(si);
         }
     }

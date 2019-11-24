@@ -9,5 +9,5 @@ export default {
     redo: 'Refaire',
     actions: 'Actions',
     save: 'Enregistrer',
-    load:'Charge'
+    load: 'Charge'
 };
