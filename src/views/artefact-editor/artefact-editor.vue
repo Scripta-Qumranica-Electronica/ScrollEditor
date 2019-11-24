@@ -384,7 +384,12 @@ export default class ArtefactEditor extends Vue {
 
         if (this.autoMode) {
             // Find the next sign interpretation with a character - that can be mapped.
-            let newIndex = this.selectedSignInterpretation.sign.indexInLine + 1;
+            this.playSound('http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3');
+            setTimeout(this.nextSign, 1500);
+       }
+    }
+    private nextSign(){
+           let newIndex = this.selectedSignInterpretation.sign.indexInLine + 1;
             while (newIndex < this.selectedLine!.signs.length) {
                 const newSI = this.selectedLine!.signs[newIndex].signInterpretations[0];
                 if (newSI.character) {
@@ -392,8 +397,14 @@ export default class ArtefactEditor extends Vue {
                     break;
                 }
                 newIndex ++;
-            }
-        }
+            }    
+    }
+
+   playSound (sound) {
+      if(sound) {
+        var audio = new Audio(sound);
+        audio.play();
+      }
     }
 
     private onDeleteRoi() { // Delete the selected ROI
