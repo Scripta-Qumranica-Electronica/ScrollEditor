@@ -51,9 +51,12 @@ path.shiny {
 }
 
 path.selected {
-    stroke: black;
-    stroke-width: 4;
-    filter: contrast(200%)
+    stroke: #FFFF33;
+    stroke-width: 18;
+    filter: contrast(200%);
+    animation: pulsate 2s ease-out;
+    animation-iteration-count: infinite;
+
 }
 
 @keyframes pulsate {

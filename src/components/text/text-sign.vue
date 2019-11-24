@@ -59,10 +59,14 @@ span {
 }
 
 span.selected {
-    background: pink;
-}
-
-
+    //   background: pink;
+      color: red;
+    font-weight: bold;
+    text-shadow: 0 0 2px black;
+    transition: 0.6s;
+    font-size:17px;
+    margin:2px
+}  
 .is-reconstructed-true {
     color: rgba(0, 0, 0, 0);
     user-select: none;
