@@ -37,7 +37,7 @@ export default class SignWheel extends Vue {
     public direction!: TextDirection;
     @Prop() public selectedSignInterpretation!: SignInterpretation;
     @Prop({
-        default: 5,
+        default: 5
     })
     public signsOnEachSide!: number;
 
@@ -58,16 +58,32 @@ export default class SignWheel extends Vue {
     }
 
     @Watch('selectedSignInterpretation')
-    private onSelectedSignInterpretationChanged(curSign: SignInterpretation, oldSign: SignInterpretation) {
+    private onSelectedSignInterpretationChanged(
+        curSign: SignInterpretation,
+        oldSign: SignInterpretation
+    ) {
         this.fillWheel();
     }
 
     private fillWheel() {
         this.selectedIndex = this.findSignIndex();
+        let firstIndex=0;
+        let lastIndex=0;
 
-        const firstIndex = Math.max(this.selectedIndex - this.signsOnEachSide, 0);
-        const lastIndex = Math.min(this.selectedIndex + this.signsOnEachSide,
-                                   this.line.signs.length - 1);
+         if(this.$bp.between('sm', 'lg')) {
+            firstIndex = 0;
+            lastIndex = this.line.signs.length - 1;
+        }
+         else {
+            firstIndex = Math.max(
+            this.selectedIndex - this.signsOnEachSide,
+            0
+           );
+            lastIndex = Math.min(
+            this.selectedIndex + this.signsOnEachSide,
+            this.line.signs.length - 1
+            );
+        }
 
         this.signs = [];
         for (let i = firstIndex; i <= lastIndex; i++) {
@@ -75,7 +91,7 @@ export default class SignWheel extends Vue {
             const si = {
                 sign: this.line.signs[i],
                 index: i,
-                class: `sign-dist-${diff} `,
+                class: `sign-dist-${diff} `
             };
             this.signs.push(si);
         }
@@ -89,7 +105,9 @@ export default class SignWheel extends Vue {
         // Returns the index of the currently selected sign in the line
         for (let i = 0; i < this.line.signs.length; i++) {
             const sign = this.line.signs[i];
-            const siIndex = sign.signInterpretations.findIndex(si => si.id === this.selectedSignInterpretation.id);
+            const siIndex = sign.signInterpretations.findIndex(
+                si => si.id === this.selectedSignInterpretation.id
+            );
             if (siIndex !== -1) {
                 return i;
             }
@@ -101,7 +119,6 @@ export default class SignWheel extends Vue {
 </script>
 
 <style lang="scss" scoped>
-
 #text-side {
     margin: 30px 40px 20px 30px;
     touch-action: pan-y;
@@ -125,4 +142,11 @@ button {
     color: #d8000c;
 }
 
+@media (max-width: 1100px) {
+    #text-box {
+        margin-top: 30px;
+        overflow: auto;
+        display: grid;
+    }
+}
 </style>

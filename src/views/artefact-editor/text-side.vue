@@ -117,5 +117,12 @@ button {
     width: 190px;
     padding: 10px;
 }
+@media (max-width: 1100px) {
+    #text-box {
+    margin-top: 30px;
+    overflow: auto;
+    display: grid;
+}
+}
 
 </style>

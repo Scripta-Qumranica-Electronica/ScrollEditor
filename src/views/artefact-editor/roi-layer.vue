@@ -39,7 +39,7 @@ export default class RoiLayer extends Vue {
 
 <style lang="scss" scoped>
 path {
-    stroke-width: 3;
+    stroke-width: 7;
     fill: transparent;
     stroke: darkslategray;
 }
@@ -51,8 +51,8 @@ path.shiny {
 }
 
 path.selected {
-    stroke: #FFFF33;
-    stroke-width: 18;
+    stroke: #FFFF99;
+    stroke-width: 15;
     filter: contrast(200%);
     animation: pulsate 2s ease-out;
     animation-iteration-count: infinite;

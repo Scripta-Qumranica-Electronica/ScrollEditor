@@ -64,8 +64,8 @@ span.selected {
     font-weight: bold;
     text-shadow: 0 0 2px black;
     transition: 0.6s;
-    font-size:17px;
-    margin:2px
+    font-size:15px;
+    margin:1px
 }  
 .is-reconstructed-true {
     color: rgba(0, 0, 0, 0);
