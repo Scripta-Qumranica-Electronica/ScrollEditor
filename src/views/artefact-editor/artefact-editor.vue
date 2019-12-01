@@ -18,7 +18,7 @@
             ></artefact-side-menu>
         </div>
 
-        <div v-if="!waiting && artefact">
+        <div :class="{ sidebar: isActiveSidebar, text: isActiveText }" v-if="!waiting && artefact">
             <div class="row" id="artefact-and-buttons">
                 <div class="buttons-div">
                     <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
@@ -37,10 +37,15 @@
                     class="artefact-container"
                     :class="{ sidebar: isActiveSidebar, text: isActiveText }"
                 >
-                 <b-button type="button"  v-show="$bp.between('sm', 'lg')"   @click="nextLine()">
-                       <i class="fa fa-arrow-left"></i>
-                </b-button>
-                    <zoomer :zoom="zoomLevel" :angle="angle" @new-zoom="onNewZoom($event)" @new-rotate="onNewRotate($event)">
+                    <b-button type="button" v-show="$bp.between('sm', 'lg')" @click="nextLine()">
+                        <i class="fa fa-arrow-left"></i>
+                    </b-button>
+                    <zoomer
+                        :zoom="zoomLevel"
+                        :angle="angle"
+                        @new-zoom="onNewZoom($event)"
+                        @new-rotate="onNewRotate($event)"
+                    >
                         <svg
                             class="overlay"
                             :width="actualWidth"
@@ -141,7 +146,12 @@ import {
     ImageSetting,
     SingleImageSetting
 } from '@/components/image-settings/types';
-import { SignInterpretation, InterpretationRoi, Line, TextFragment } from '@/models/text';
+import {
+    SignInterpretation,
+    InterpretationRoi,
+    Line,
+    TextFragment
+} from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import ImagedObjectService from '@/services/imaged-object';
@@ -151,7 +161,10 @@ import RoiLayer from './roi-layer.vue';
 import BoundaryDrawer, {
     DrawingMode
 } from '@/components/polygons/boundary-drawer.vue';
-import Zoomer, { ZoomEventArgs, RotateEventArgs } from '@/components/misc/zoomer.vue';
+import Zoomer, {
+    ZoomEventArgs,
+    RotateEventArgs
+} from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
 import SignWheel from './sign-wheel.vue';
 
@@ -196,6 +209,9 @@ export default class ArtefactEditor extends Vue {
 
     protected async mounted() {
         this.waiting = true;
+        if (this.$bp.between('sm', 'lg')) {
+            this.isActiveSidebar = true;
+        }
         await this.$state.prepare.artefact(
             parseInt(this.$route.params.editionId),
             parseInt(this.$route.params.artefactId)
@@ -283,10 +299,9 @@ export default class ArtefactEditor extends Vue {
     private onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
     }
-      private onNewRotate(event: RotateEventArgs) {
+    private onNewRotate(event: RotateEventArgs) {
         this.params.rotationAngle = event.rotate;
     }
-
 
     private get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
@@ -311,18 +326,19 @@ export default class ArtefactEditor extends Vue {
         this.isActiveText = !this.isActiveText;
     }
 
-    private nextLine(){
-      if(this.selectedLine)
-      {
-       const linesArray = this.selectedLine.textFragment.lines;
-       const index = linesArray.findIndex(k => k.lineId === this.selectedLine!.lineId);
-        if (index !== -1) {
-            const nextLine = linesArray[index + 1];
-            this.onSignInterpretationClicked(nextLine.signs[1].signInterpretations[0]);
+    private nextLine() {
+        if (this.selectedLine) {
+            const linesArray = this.selectedLine.textFragment.lines;
+            const index = linesArray.findIndex(
+                k => k.lineId === this.selectedLine!.lineId
+            );
+            if (index !== -1) {
+                const nextLine = linesArray[index + 1];
+                this.onSignInterpretationClicked(
+                    nextLine.signs[1].signInterpretations[0]
+                );
+            }
         }
-
-      }
-     
     }
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
@@ -711,11 +727,25 @@ export default class ArtefactEditor extends Vue {
     #text-side {
         margin: 30px -5px 20px 30px;
     }
+
+    .sidebar.text {
+        .sign-wheel-position {
+            width: calc((80vw) / 2);
+        }
+    }
+    .sign-wheel {
+        overflow: auto;
+        white-space: normal;
+        word-break: break-word;
+        text-align: right;
+    }
     .sign-wheel-position {
         position: absolute;
-        margin-left: 325px;
+        margin-left: 80px;
+        margin-right: 80px;
         margin-top: 20px;
         z-index: 1000;
+        width: calc((100vw - 160px));
     }
 }
 </style>
