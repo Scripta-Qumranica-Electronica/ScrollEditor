@@ -73,6 +73,7 @@ export default class TextSide extends Vue {
         this.loading = true;
         await this.$state.prepare.textFragment(this.editionId, this.textFragmentId);
         this.loading = false;
+        this.textFragmentSelected(this.textFragmentId);
     }
 
     private onSignInterpretationClicked(si: SignInterpretation) {
@@ -82,6 +83,10 @@ export default class TextSide extends Vue {
     @Emit()
     private signInterpretationClicked(si: SignInterpretation) {
         return si;
+    }
+    @Emit()
+    private textFragmentSelected(textFragmentId:number) {
+        return textFragmentId;
     }
 }
 </script>

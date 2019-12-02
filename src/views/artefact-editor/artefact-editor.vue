@@ -122,6 +122,7 @@
                 :selectedSignInterpretation="selectedSignInterpretation"
                 :artefact="artefact"
                 @sign-interpretation-clicked="onSignInterpretationClicked($event)"
+                @text-fragment-selected="initVisibleRois()"
             ></text-side>
         </div>
     </div>
@@ -240,7 +241,7 @@ export default class ArtefactEditor extends Vue {
         this.fillImageSettings();
         this.calculateBoundingBox();
         this.initVisibleRois();
-
+    
         this.waiting = false;
     }
 
