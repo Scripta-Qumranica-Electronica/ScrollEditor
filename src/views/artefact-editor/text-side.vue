@@ -93,7 +93,7 @@ export default class TextSide extends Vue {
 
 <style lang="scss" scoped>
 #text-side {
-    margin: 30px 40px 20px 30px;
+    margin: 30px 15px 20px 30px;
     touch-action: pan-y;
     // top: 0;
     // right: 0;
@@ -109,6 +109,9 @@ button {
 
 #text-box {
     margin-top: 30px;
+     overflow: auto;
+    display: grid;
+    height: calc(100vh - 165px);
 }
 
 .isa_error {
