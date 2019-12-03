@@ -67,6 +67,13 @@ export default class EditionVersionCard extends Vue {
 </script>
 
 <style lang="scss" scoped>
+
+.card:hover,
+.list-item .card:hover {
+  
+    transform: scale(0.9, 0.9);
+    box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0), -5px -5px 30px 15px rgba(0,0,0,0.22);
+}
 img.card-img-top {
     display: block;
     height: 100px;

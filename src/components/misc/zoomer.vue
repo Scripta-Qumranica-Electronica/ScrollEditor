@@ -33,7 +33,7 @@ export interface RotateEventArgs {
 })
 export default class Zoomer extends Vue {
 
-     private degel=false;
+    private degel=false;
     @Prop() private zoom!: number;
     @Prop() private angle!: number;
 
@@ -71,7 +71,7 @@ export default class Zoomer extends Vue {
         const oldZoom = this.zoom;
         const newZoom = Math.min(Math.max(oldZoom + amount, 0.05), 1);
 
-        if(this.degel==true){
+        if(this.degel){
             return;
         }
 
@@ -126,7 +126,7 @@ export default class Zoomer extends Vue {
         console.log(event);
   
       
-       const angleCalc =(event.angle)/6;
+       const angleCalc =(event.angle);
        console.log(angleCalc,"aaaaangleCalc");
        this.newRotate(angleCalc);
 
