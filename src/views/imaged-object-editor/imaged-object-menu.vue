@@ -96,7 +96,7 @@
             </form>
         </b-modal>
 
-        <section>
+        <section v-if="artefact">
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
                     <b-button block href="#" v-b-toggle.accordion-images variant="info">Images</b-button>
@@ -156,7 +156,7 @@
                                 </div>
                             </div>
                         </section>
-                        <section v-if="artefact.mask">
+                        <section v-if="artefact && artefact.mask">
                             <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
                         </section>
                     </b-card-body>

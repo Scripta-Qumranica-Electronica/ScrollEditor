@@ -63,7 +63,8 @@
                             <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
                             <g :transform="transform" id="transform-root">
                                 <!-- Coordinate system is in master image coordinates -->
-                                <image-layer
+                                <image-layer 
+                                    v-if="artefact"
                                     :width="imageWidth"
                                     :height="imageHeight"
                                     :params="params"
@@ -510,7 +511,7 @@ export default class ImagedObjectEditor extends Vue {
 
     private sideArtefactChanged(side: DropdownOption) {
         this.side = side.name as Side;
-        if (this.artefact!.side !== side.name) {
+        if (this.artefact!.side !== side.name && this.visibleArtefacts.length) {
             this.onArtefactChanged(this.visibleArtefacts[0]);
         }
         this.fillImageSettings();
@@ -543,7 +544,7 @@ export default class ImagedObjectEditor extends Vue {
         const idx = this.visibleArtefacts.indexOf(art);
         if (idx === -1) {
             console.error("Can't locate artefact in this.artefacts");
-            throw new Error("Can't locate artefact in this.artefacts");
+            //throw new Error("Can't locate artefact in this.artefacts");
         }
 
         return ImagedObjectEditor.colors[idx % ImagedObjectEditor.colors.length];
