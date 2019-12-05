@@ -37,6 +37,7 @@
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-typescript": "^3.11.0",
     "@vue/cli-service": "^3.11.0",
+    "cypress": "^3.7.0",
     "node-sass": "^4.13.0",
     "sass-builder": "^1.0.0",
     "sass-loader": "^8.0.0",
