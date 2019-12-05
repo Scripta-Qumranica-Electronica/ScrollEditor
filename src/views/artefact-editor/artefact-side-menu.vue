@@ -97,7 +97,7 @@ import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '../../services/imaged-object';
 import { ImageStack } from '../../models/image';
-import { SingleImageSetting } from '../../components/image-settings/types';
+import { SingleImageSetting, ImageSetting } from '../../components/image-settings/types';
 
 export default Vue.extend({
     name: 'artefcat-side-menu',
@@ -166,7 +166,7 @@ export default Vue.extend({
             } as ArtefactEditorParamsChangedArgs;
             this.$emit('paramsChanged', args);
         },
-        onImageSettingChanged(settings: SingleImageSetting) {
+        onImageSettingChanged(settings: ImageSetting) {
             const totalOpacity = Object.values(settings)
                 .filter(x => x.visible)
                 .reduce((previous, current) => +current.opacity + previous, 0);
