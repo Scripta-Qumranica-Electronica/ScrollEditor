@@ -18,7 +18,7 @@
               :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
               :width="width"
               :height="height"
-              :opacity="imageSetting.opacity"
+              :opacity="imageSetting.normalizedOpacity"
               ></image>
       </g>
       <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->

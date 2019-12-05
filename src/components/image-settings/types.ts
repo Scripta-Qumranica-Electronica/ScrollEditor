@@ -6,6 +6,7 @@ export interface SingleImageSetting {
     type: string;
     visible: boolean;
     opacity: number; // Between 0 and 1
+    normalizedOpacity: number;
 }
 
 export interface ImageSetting {

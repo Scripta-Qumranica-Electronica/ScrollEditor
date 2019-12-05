@@ -327,7 +327,9 @@ export default class ImagedObjectEditor extends Vue {
                             image,
                             type: imageType,
                             visible: master,
-                            opacity: 1
+                            opacity: 1,
+                            normalizedOpacity: 1
+
                         };
                         this.$set(
                             this.params.imageSettings,

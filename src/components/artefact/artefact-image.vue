@@ -7,7 +7,7 @@
             v-for="imageSetting in visibleImageSettings"
             :key="imageSetting.image.url"
             :xlink:href="slotProps.getImageUrl(imageSetting.image)"
-            :opacity="imageSetting.opacity"
+            :opacity="imageSetting.normalizedOpacity"
             :width="boundingBox.width"
             :height="boundingBox.height"
             :transform="`translate(${boundingBox.x} ${boundingBox.y})`"/>
@@ -43,6 +43,7 @@ export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
                 type: 'master',
                 visible: true,
                 opacity: 1,
+                normalizedOpacity: 1
             }];
         }
 

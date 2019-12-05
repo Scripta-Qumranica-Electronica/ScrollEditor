@@ -170,14 +170,14 @@ export default Vue.extend({
             const totalOpacity = Object.values(settings)
                 .filter(x => x.visible)
                 .reduce((previous, current) => +current.opacity + previous, 0);
-            const newResultObj = {...this.params.imageSettings};
+
             for (let val of Object.keys(settings)) {
                 const values = +(settings[val].opacity);
                 const newOpacity = values / totalOpacity;    
-                newResultObj[val].opacity = newOpacity;
+                this.params.imageSettings[val].normalizedOpacity = newOpacity;
             }
 
-            this.notifyChange('imageSettings', newResultObj);
+            this.notifyChange('imageSettings',this.params.imageSettings );
         },
         onRotateClick(degrees: number) {
             this.params.rotationAngle += degrees;
