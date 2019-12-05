@@ -58,9 +58,12 @@
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
-                    <b-button block href="#" v-b-toggle.accordion-actions variant="info">
-                        {{$t('misc.actions')}}
-                    </b-button>
+                    <b-button
+                        block
+                        href="#"
+                        v-b-toggle.accordion-actions
+                        variant="info"
+                    >{{$t('misc.actions')}}</b-button>
                 </b-card-header>
                 <b-collapse id="accordion-actions" accordion="my-accordion" role="tabpanel">
                     <b-card-body>
@@ -73,7 +76,7 @@
                             </b-button>
                         </section>
                         <section class="center-btn">
-                            <b-button v-if="!saving" @click="onSave()"> {{$t('misc.save')}}</b-button>
+                            <b-button v-if="!saving" @click="onSave()">{{$t('misc.save')}}</b-button>
                             <b-button v-if="saving" disabled class="disable">
                                 Saving...
                                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
@@ -111,7 +114,7 @@ export default Vue.extend({
     props: {
         artefact: Object as () => Artefact,
         params: Object as () => ArtefactEditorParams,
-        saving: Boolean,
+        saving: Boolean
     },
     computed: {
         editionId(): number {
@@ -164,8 +167,17 @@ export default Vue.extend({
             this.$emit('paramsChanged', args);
         },
         onImageSettingChanged(settings: SingleImageSetting) {
-            this.params.imageSettings[settings.type] = settings;
-            this.notifyChange('imageSettings', this.params.imageSettings);
+            const totalOpacity = Object.values(settings)
+                .filter(x => x.visible)
+                .reduce((previous, current) => +current.opacity + previous, 0);
+            const newResultObj = {...this.params.imageSettings};
+            for (let val of Object.keys(settings)) {
+                const values = +(settings[val].opacity);
+                const newOpacity = values / totalOpacity;    
+                newResultObj[val].opacity = newOpacity;
+            }
+
+            this.notifyChange('imageSettings', newResultObj);
         },
         onRotateClick(degrees: number) {
             this.params.rotationAngle += degrees;
@@ -173,7 +185,7 @@ export default Vue.extend({
         },
         onSave() {
             this.$emit('save');
-        },
+        }
     }
 });
 </script>

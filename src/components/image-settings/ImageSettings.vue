@@ -1,7 +1,7 @@
 <template>
   <div>
       <single-image-setting v-for="imageType in imageStack.availableImageTypes" :key="imageType" 
-                :type="imageType" :settings="params.imageSettings[imageType]" @change="onImageSettingChanged($event)">
+                :type="imageType" :settings="params.imageSettings[imageType]" @change=" onSingleImageSettingChanged($event)">
     </single-image-setting>
 </div>
 </template>
@@ -35,8 +35,8 @@ export default Vue.extend({
     };
   },
   methods: {
-      onImageSettingChanged($event: SingleImageSetting) {
-          this.$emit('imageSettingChanged', $event);
+      onSingleImageSettingChanged($event: SingleImageSetting) {
+          this.$emit('imageSettingChanged', this.params.imageSettings);
       }
   },
 });
