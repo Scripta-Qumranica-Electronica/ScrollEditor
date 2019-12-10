@@ -1,5 +1,11 @@
 <template>
-    <div @wheel="onWheel($event)" v-hammer:pinch="onPinch" v-hammer:rotate="onRotate" v-hammer:rotatestart="onRotateStart" v-hammer:rotateend="onRotateEnd">
+    <div
+        @wheel="onWheel($event)"
+        v-hammer:pinch="onPinch"
+        v-hammer:rotate="onRotate"
+        v-hammer:rotatestart="onRotateStart"
+        v-hammer:rotateend="onRotateEnd"
+    >
         <slot></slot>
     </div>
 </template>
@@ -24,14 +30,13 @@ export interface ZoomEventArgs {
 }
 
 export interface RotateEventArgs {
-    rotate: number;    
+    rotate: number;
 }
 
 @Component({
-    name: 'zoomer',
+    name: 'zoomer'
 })
 export default class Zoomer extends Vue {
-
     @Prop() private zoom!: number;
     @Prop() private angle!: number;
     private degel = false;
@@ -48,7 +53,7 @@ export default class Zoomer extends Vue {
     private onWheel(event: WheelEvent) {
         if (!event.ctrlKey) {
             return;
-        }  
+        }
         event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
         const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
 
@@ -58,7 +63,7 @@ export default class Zoomer extends Vue {
         const viewport = this.zoomTarget.getBoundingClientRect();
         const mousePosition: Point = {
             x: event.clientX - viewport.left + this.zoomTarget.scrollLeft,
-            y: event.clientY - viewport.top + this.zoomTarget.scrollTop,
+            y: event.clientY - viewport.top + this.zoomTarget.scrollTop
         };
 
         this.applyZoom(amount, mousePosition);
@@ -98,7 +103,7 @@ export default class Zoomer extends Vue {
         const viewport = this.zoomTarget.getBoundingClientRect();
         const position: Point = {
             x: event.center.x - viewport.left + this.zoomTarget.scrollLeft,
-            y: event.center.y - viewport.top + this.zoomTarget.scrollTop,
+            y: event.center.y - viewport.top + this.zoomTarget.scrollTop
         };
 
         this.applyZoom(amount, position);
@@ -119,9 +124,8 @@ export default class Zoomer extends Vue {
     // }
 
     private onRotate(event: any) {
-
-       const angleCalc = (event.angle);
-       this.newRotate(angleCalc);
+        const angleCalc = event.angle;
+        this.newRotate(angleCalc);
     }
 }
 </script>

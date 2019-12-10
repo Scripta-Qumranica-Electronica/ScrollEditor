@@ -7,7 +7,7 @@ export const GRID_BREAKPOINTS = {
     md: 768,
     lg: 1200,
     xl: 1800
-  }
+  };
 
 declare module 'vue/types/vue' {
     interface Vue {

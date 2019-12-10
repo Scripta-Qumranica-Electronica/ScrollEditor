@@ -70,18 +70,14 @@ export default class SignWheel extends Vue {
         let firstIndex = 0;
         let lastIndex = 0;
 
-         if (this.$bp.between('sm', 'lg')) {
+        if (this.$bp.between('sm', 'lg')) {
             firstIndex = 0;
             lastIndex = this.line.signs.length - 1;
-        }
-         else {
-            firstIndex = Math.max(
-            this.selectedIndex - this.signsOnEachSide,
-            0
-           );
+        } else {
+            firstIndex = Math.max(this.selectedIndex - this.signsOnEachSide, 0);
             lastIndex = Math.min(
-            this.selectedIndex + this.signsOnEachSide,
-            this.line.signs.length - 1
+                this.selectedIndex + this.signsOnEachSide,
+                this.line.signs.length - 1
             );
         }
 
