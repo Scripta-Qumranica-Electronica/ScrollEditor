@@ -366,7 +366,8 @@ export default class ArtefactEditor extends Vue {
                     visible: isMaster,
                     opacity: 1
                 };
-                this.$set(this.params.imageSettings, imageType, imageSetting); // Make sure this object is tracked by Vue
+                // Make sure this object is tracked by Vue
+                this.$set(this.params.imageSettings, imageType, imageSetting);
             }
         }
     }
