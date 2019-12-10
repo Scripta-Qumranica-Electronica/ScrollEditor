@@ -2,7 +2,7 @@ describe('My First Test', function() {
     it('Gets, types and asserts', function() {
         cy.visit('https://example.cypress.io')
 
-        cy.pause()
+        // cy.pause()
 
         cy.contains('type').click()
 
@@ -13,5 +13,11 @@ describe('My First Test', function() {
         cy.get('.action-email')
             .type('fake@email.com')
             .should('have.value', 'fake@email.com')
+
+        // cy.get('.action-email')
+        //     .type('fakeuyrtgemail.com')
+        //     .should('have.value', '')
     })
+
+
 })
