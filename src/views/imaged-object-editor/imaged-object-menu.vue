@@ -219,12 +219,15 @@ import { Artefact } from '@/models/artefact';
 import {
     ImagedObjectEditorParams,
     DrawingMode,
-    EditorParamsChangedArgs,
+    EditorParamsChangedArgs
 } from '@/views/imaged-object-editor/types';
 
 import SingleImageSettingComponent from '@/components/image-settings/SingleImageSetting.vue';
 import ImagedObjectService from '@/services/imaged-object';
-import { SingleImageSetting } from '@/components/image-settings/types';
+import {
+    SingleImageSetting,
+    ImageSetting
+} from '@/components/image-settings/types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import { Side } from '@/models/misc';
 import ArtefactService from '@/services/artefact';
@@ -329,21 +332,21 @@ export default Vue.extend({
     },
     mounted() {
         // window.addEventListener('edition', this.handleScroll);
-        const index = this.sideOptions.findIndex((a) => a.name === this.side);
+        const index = this.sideOptions.findIndex(a => a.name === this.side);
         if (index < 0) {
             throw new Error("Side has to be either 'recto' or 'verso'");
         }
         this.sideFilter = this.sideOptions[index];
     },
     methods: {
-        onImageSettingChanged(settings: SingleImageSetting) {
-                const totalOpacity = Object.values(settings)
+        onImageSettingChanged(settings: ImageSetting) {
+            const totalOpacity = Object.values(settings)
                 .filter(x => x.visible)
-                .reduce((previous, current) => +current.opacity + previous, 0);
+                .reduce((previous, current) => current.opacity + previous, 0);
 
-            for (let val of Object.keys(settings)) {
-                const values = +(settings[val].opacity);
-                const newOpacity = values / totalOpacity;    
+            for (const val of Object.keys(settings)) {
+                const values = settings[val].opacity;
+                const newOpacity = values / totalOpacity;
                 this.params.imageSettings[val].normalizedOpacity = newOpacity;
             }
             this.notifyChange('imageSettings', this.params.imageSettings);

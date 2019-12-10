@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 // vue media 
-import { install as MediaBreakPointsPlugin, BreakPointManager } from '@yutahaga/vue-media-breakpoints';
+import { install as MediaBreakPointsPlugin} from '@yutahaga/vue-media-breakpoints';
 
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';

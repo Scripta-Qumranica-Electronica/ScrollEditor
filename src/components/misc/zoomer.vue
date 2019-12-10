@@ -24,18 +24,17 @@ export interface ZoomEventArgs {
 }
 
 export interface RotateEventArgs {
-    rotate: number;
-    
+    rotate: number;    
 }
 
 @Component({
     name: 'zoomer',
 })
 export default class Zoomer extends Vue {
-
-    private degel=false;
+    
     @Prop() private zoom!: number;
     @Prop() private angle!: number;
+    private degel = false;
 
     @Emit()
     private newZoom(zoom: number): ZoomEventArgs {
@@ -49,9 +48,7 @@ export default class Zoomer extends Vue {
     private onWheel(event: WheelEvent) {
         if (!event.ctrlKey) {
             return;
-        }
-     
-       
+        }  
         event.preventDefault(); // Don't use the browser's zoom mechanism here, just ours
         const amount = event.deltaY < 0 ? +0.01 : -0.01; // wheel up - zoom in.
 
@@ -111,32 +108,20 @@ export default class Zoomer extends Vue {
         return this.$el.parentElement!;
     }
 
-    private onRotateStart(event:any){
-        console.log('rotate start');
-        this.degel = true;
-    }
+    // private onRotateStart(event:any){
+    //     console.log('rotate start');
+    //     this.degel = true;
+    // }
 
-    private onRotateEnd(event:any){
-        console.log('rotate end');
-        this.degel = false;
-    }
+    // private onRotateEnd(event:any){
+    //     console.log('rotate end');
+    //     this.degel = false;
+    // }
 
     private onRotate(event: any) {
-      
-        console.log(event);
-  
-      
+
        const angleCalc =(event.angle);
-       console.log(angleCalc,"aaaaangleCalc");
        this.newRotate(angleCalc);
-
-
-
-
-        // console.log(event);
-        // const angleCalc = event.angle + this.angle;
-
-        // this.newRotate(angleCalc);
     }
 }
 </script>

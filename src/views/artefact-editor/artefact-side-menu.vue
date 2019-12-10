@@ -97,7 +97,10 @@ import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '../../services/imaged-object';
 import { ImageStack } from '../../models/image';
-import { SingleImageSetting, ImageSetting } from '../../components/image-settings/types';
+import {
+    SingleImageSetting,
+    ImageSetting
+} from '../../components/image-settings/types';
 
 export default Vue.extend({
     name: 'artefcat-side-menu',
@@ -169,15 +172,15 @@ export default Vue.extend({
         onImageSettingChanged(settings: ImageSetting) {
             const totalOpacity = Object.values(settings)
                 .filter(x => x.visible)
-                .reduce((previous, current) => +current.opacity + previous, 0);
+                .reduce((previous, current) => current.opacity + previous, 0);
 
-            for (let val of Object.keys(settings)) {
-                const values = +(settings[val].opacity);
-                const newOpacity = values / totalOpacity;    
+            for (const val of Object.keys(settings)) {
+                const values = settings[val].opacity;
+                const newOpacity = values / totalOpacity;
                 this.params.imageSettings[val].normalizedOpacity = newOpacity;
             }
 
-            this.notifyChange('imageSettings',this.params.imageSettings );
+            this.notifyChange('imageSettings', this.params.imageSettings);
         },
         onRotateClick(degrees: number) {
             this.params.rotationAngle += degrees;

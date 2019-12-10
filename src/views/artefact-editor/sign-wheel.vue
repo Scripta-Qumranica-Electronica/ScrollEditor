@@ -67,10 +67,10 @@ export default class SignWheel extends Vue {
 
     private fillWheel() {
         this.selectedIndex = this.findSignIndex();
-        let firstIndex=0;
-        let lastIndex=0;
+        let firstIndex = 0;
+        let lastIndex = 0;
 
-         if(this.$bp.between('sm', 'lg')) {
+         if (this.$bp.between('sm', 'lg')) {
             firstIndex = 0;
             lastIndex = this.line.signs.length - 1;
         }

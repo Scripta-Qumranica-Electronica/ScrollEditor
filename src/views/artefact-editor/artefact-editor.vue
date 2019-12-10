@@ -172,14 +172,14 @@ import SignWheel from './sign-wheel.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+       ' zoomer': Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -237,11 +237,10 @@ export default class ArtefactEditor extends Vue {
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
         this.params.rotationAngle =
-            this.artefact.mask.transformation.rotate || 0;
+        this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
         this.initVisibleRois();
-    
         this.waiting = false;
     }
 
