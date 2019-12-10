@@ -179,7 +179,7 @@ import SignWheel from './sign-wheel.vue';
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-       ' zoomer': Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -237,7 +237,7 @@ export default class ArtefactEditor extends Vue {
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
         this.params.rotationAngle =
-        this.artefact.mask.transformation.rotate || 0;
+            this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
         this.initVisibleRois();
