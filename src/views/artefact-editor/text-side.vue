@@ -84,9 +84,9 @@ export default class TextSide extends Vue {
     private signInterpretationClicked(si: SignInterpretation) {
         return si;
     }
-    
+
     @Emit()
-    private textFragmentSelected(textFragmentId:number) {
+    private textFragmentSelected(textFragmentId: number) {
         return textFragmentId;
     }
 }
