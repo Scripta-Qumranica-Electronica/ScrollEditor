@@ -180,6 +180,8 @@ export default Vue.extend({
                 this.params.imageSettings[val].normalizedOpacity = newOpacity;
             }
 
+            console.log(`Color opacity: ${this.params.imageSettings.color.opacity} visible: ${this.params.imageSettings.color.visible}`);
+            console.log(`Color normalized opacitcy: ${this.params.imageSettings.color.normalizedOpacity}`);
             this.notifyChange('imageSettings', this.params.imageSettings);
         },
         onRotateClick(degrees: number) {

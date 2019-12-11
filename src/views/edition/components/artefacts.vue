@@ -60,7 +60,7 @@ export default Vue.extend({
             return this.$state.artefacts.items;
         },
         numberOfArtefacts(): number {
-            return countIf(this.artefacts, (art) => this.nameMatch(art.name));
+            return( this.filteredArtefact && this.filteredArtefact.length) ;
         },
         filteredArtefact(): number[] {
             return this.$state.artefacts.items.filter((x) => ( this.filter === ''
