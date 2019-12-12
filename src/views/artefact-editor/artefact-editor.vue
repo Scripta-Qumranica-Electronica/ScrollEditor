@@ -145,7 +145,8 @@ import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
 import {
     ImageSetting,
-    SingleImageSetting
+    SingleImageSetting,
+    normalizeOpacity
 } from '@/components/image-settings/types';
 import {
     SignInterpretation,
@@ -364,12 +365,14 @@ export default class ArtefactEditor extends Vue {
                     image,
                     type: imageType,
                     visible: isMaster,
-                    opacity: 1
+                    opacity: 1,
+                    normalizedOpacity: 1,
                 };
                 // Make sure this object is tracked by Vue
                 this.$set(this.params.imageSettings, imageType, imageSetting);
             }
         }
+        normalizeOpacity(this.params.imageSettings);
     }
 
     private calculateBoundingBox() {

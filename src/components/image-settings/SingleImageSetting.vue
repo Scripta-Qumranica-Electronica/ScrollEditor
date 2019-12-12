@@ -1,6 +1,6 @@
 <template>
     <div class="row">
-        <b-form-checkbox v-model="settings.visible" @change="onChange">{{ type }}</b-form-checkbox>
+        <b-form-checkbox v-model="visible" @change="onVisibleChange">{{ type }}</b-form-checkbox>
         <div class="col">
             <b-form-input
                 v-model="opacity"
@@ -8,8 +8,7 @@
                 min="0"
                 max="1"
                 step="0.05"
-              
-               @input="onChange"
+               @input="onOpacityInput"
             ></b-form-input> <!-- Instead of change, find an event that is reported during tracking, or use a watcher -->
         </div>
     </div>
@@ -32,16 +31,35 @@ export default class SingleImageSettingComponent extends Vue {
     @Prop() private type!: string;
     @Prop() private settings!: SingleImageSetting;
 
-    private get opacity() {
-        return this.settings.opacity;
-    }
-    private set opacity(value) {
-        this.settings.opacity = value;
+    private opacity = '1';
+    private visible = true;
+
+    private mounted() {
+        this.opacity = this.settings.opacity.toString(); // Binding works with strings
+        this.visible = this.settings.visible;
     }
 
-    private onChange() {
+    private onVisibleChange() {
+        // Use setTimeout since the binding occurs after the input event
+        setTimeout(() => {
+            this.settings.visible = this.visible;
+            this.change();
+        }, 0);
+    }
+
+    private onOpacityInput() {
+        // We use @input because we want to update the images as the slider slides.
+        // @change only occurs once the slider stops sliding.
+
+        if (!this.visible) {
+            // Set the visibility checkbox when moving a slider
+            this.visible = true;
+            this.onVisibleChange();
+        }
+
         // use setTimeout because checkbox models update *after* the change event is fired
         setTimeout(() => {
+            this.settings.opacity = parseFloat(this.opacity);
             this.change();
         }, 0);
     }
