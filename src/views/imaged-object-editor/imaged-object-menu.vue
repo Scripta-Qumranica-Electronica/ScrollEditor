@@ -340,15 +340,6 @@ export default Vue.extend({
     },
     methods: {
         onImageSettingChanged(settings: ImageSetting) {
-            const totalOpacity = Object.values(settings)
-                .filter(x => x.visible)
-                .reduce((previous, current) => current.opacity + previous, 0);
-
-            for (const val of Object.keys(settings)) {
-                const values = settings[val].opacity;
-                const newOpacity = values / totalOpacity;
-                this.params.imageSettings[val].normalizedOpacity = newOpacity;
-            }
             this.notifyChange('imageSettings', this.params.imageSettings);
         },
         onDrawChanged(val: any) {

@@ -170,18 +170,6 @@ export default Vue.extend({
             this.$emit('paramsChanged', args);
         },
         onImageSettingChanged(settings: ImageSetting) {
-            const totalOpacity = Object.values(settings)
-                .filter(x => x.visible)
-                .reduce((previous, current) => current.opacity + previous, 0);
-
-            for (const val of Object.keys(settings)) {
-                const values = settings[val].opacity;
-                const newOpacity = values / totalOpacity;
-                this.params.imageSettings[val].normalizedOpacity = newOpacity;
-            }
-
-            console.log(`Color opacity: ${this.params.imageSettings.color.opacity} visible: ${this.params.imageSettings.color.visible}`);
-            console.log(`Color normalized opacitcy: ${this.params.imageSettings.color.normalizedOpacity}`);
             this.notifyChange('imageSettings', this.params.imageSettings);
         },
         onRotateClick(degrees: number) {
