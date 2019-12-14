@@ -78,7 +78,7 @@
                                     v-for="art in visibleArtefacts"
                                     :artefact="art"
                                     :key="art.id"
-                                    :color="getArtefactColor(art)"
+                                    :color="removeColor ? 'none' : getArtefactColor(art)"
                                 />
                                 <boundary-drawer
                                     v-if="canEdit && artefact"
@@ -575,7 +575,9 @@ export default class ImagedObjectEditor extends Vue {
     private get isErasing() {
         return this.params.drawingMode === DrawingMode.ERASE;
     }
-
+   private get removeColor() {
+        return this.params.background === false;
+    }
     private onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;
 

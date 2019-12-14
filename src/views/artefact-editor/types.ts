@@ -6,7 +6,8 @@ export class ArtefactEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;
     public zoom: number = 0.15;  // Zoom between 0 and 1
     public rotationAngle = 0;
-    public brushSize = 20;
+    public background = true;
+    // public brushSize = 20;
 }
 
 export interface ArtefactEditorParamsChangedArgs {

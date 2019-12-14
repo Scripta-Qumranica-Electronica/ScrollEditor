@@ -142,7 +142,7 @@
                                 </div>
                             </div>
                         </section>
-                        <section v-if="editable">
+                        <!-- <section v-if="editable">
                             <div class="row">
                                 <div class="col-5">Brush Size: {{brushSize}}</div>
                                 <div class="col">
@@ -155,14 +155,19 @@
                                     ></b-form-input>
                                 </div>
                             </div>
-                        </section>
+                        </section> -->
                         <section v-if="artefact && artefact.mask">
-                            <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
+                            <b-form-checkbox v-model="mask">HighLight</b-form-checkbox>
+                        </section>
+                    
+                        <section>
+                            <b-form-checkbox v-model="background">Background</b-form-checkbox>
                         </section>
                     </b-card-body>
                 </b-collapse>
             </b-card>
         </section>
+         
 
         <section>
             <b-card no-body class="mb-1">
@@ -294,15 +299,16 @@ export default Vue.extend({
                 this.notifyChange('clipMask', val);
             }
         },
-        brushSize: {
-            get(): number {
-                return this.params.brushSize;
+           background: {
+            get(): boolean {
+                return this.params.background;
             },
-            set(val: number) {
-                this.params.brushSize = val;
-                this.notifyChange('brushSize', val);
+            set(val: boolean) {
+                this.params.background = val;
+                this.notifyChange('background', val);
             }
         },
+
         sideOptions(): DropdownOption[] {
             const options = [] as DropdownOption[];
 
