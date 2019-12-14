@@ -142,20 +142,6 @@
                                 </div>
                             </div>
                         </section>
-                        <!-- <section v-if="editable">
-                            <div class="row">
-                                <div class="col-5">Brush Size: {{brushSize}}</div>
-                                <div class="col">
-                                    <b-form-input
-                                        type="range"
-                                        min="2"
-                                        max="40"
-                                        step="1"
-                                        v-model="brushSize"
-                                    ></b-form-input>
-                                </div>
-                            </div>
-                        </section> -->
                         <section v-if="artefact && artefact.mask">
                             <b-form-checkbox v-model="mask">HighLight</b-form-checkbox>
                         </section>
