@@ -92,4 +92,8 @@ export default Vue.extend({
 .flex {
     display: flex;
 }
+ul.list-unstyled {
+       height: calc(100vh - 123px);
+    overflow: auto;
+}
 </style>

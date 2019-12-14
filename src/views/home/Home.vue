@@ -83,7 +83,15 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+
 .active-language {
   font-weight: bold;
 }
+
+ul#my-search-results, 
+ul#all-search-results {  
+    height: calc(50vh - 95px);
+    overflow: auto
+}
+
 </style>
