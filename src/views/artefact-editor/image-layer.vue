@@ -41,11 +41,10 @@ import { BoundingBox } from '@/utils/helpers';
     name: 'image-layer'
 })
 export default class ImagedObjectEditor extends Vue {
-
-    @Prop() public width!: Number;
-    @Prop() public height!: Number;
+    @Prop() public width!: number;
+    @Prop() public height!: number;
     @Prop() public params!: BaseEditorParams;
-    @Prop() public editable!: Boolean;
+    @Prop() public editable!: boolean;
     @Prop() public clippingMask!: Polygon;
     @Prop() public boundingBox!: BoundingBox;
 

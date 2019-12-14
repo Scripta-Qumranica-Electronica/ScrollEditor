@@ -123,6 +123,7 @@ import ArtefactService from '@/services/artefact';
 import { DropdownOption } from '@/utils/helpers';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
+import { normalizeOpacity } from '@/components/image-settings/types';
 
 @Component({
     name: 'imaged-object-editor',
@@ -357,6 +358,7 @@ export default class ImagedObjectEditor extends Vue {
                         ); // Make sure this object is tracked by Vue
                     }
                 }
+                normalizeOpacity(this.params.imageSettings);
             }
         }
     }
@@ -564,7 +566,7 @@ export default class ImagedObjectEditor extends Vue {
         const idx = this.visibleArtefacts.indexOf(art);
         if (idx === -1) {
             console.error("Can't locate artefact in this.artefacts");
-            //throw new Error("Can't locate artefact in this.artefacts");
+            // throw new Error("Can't locate artefact in this.artefacts");
         }
 
         return ImagedObjectEditor.colors[

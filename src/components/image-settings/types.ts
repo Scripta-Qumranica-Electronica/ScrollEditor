@@ -12,3 +12,13 @@ export interface SingleImageSetting {
 export interface ImageSetting {
     [image: string]: SingleImageSetting;
 }
+
+export function normalizeOpacity(settings: ImageSetting) {
+    const totalVisibleOpacity = Object.values(settings)
+        .filter(x => x.visible)
+        .reduce((previous, current) => current.opacity + previous, 0);
+
+    for (const val of Object.keys(settings)) {
+        settings[val].normalizedOpacity = settings[val].opacity / totalVisibleOpacity;
+    }
+}
