@@ -1,12 +1,12 @@
 <template>
     <div class="wrapper">
-        <div class="col-xl-2 col-lg-2 col-md-2" id="sidebar">
+        <div class="col-xl-2 col-lg-3 col-md-4" id="sidebar">
            <edition-sidebar :page="this.page" />
         </div>
         <div v-if="waiting" class="row">
             <div class="col"><waiting></waiting></div>
         </div>
-        <div class="col-xl-10 col-lg-10 col-md-10">
+        <div class="col-xl-10 col-lg-9 col-md-8" id="fragments">
             <div v-if="!waiting" class="row">
                 <div class="col" v-if="waiting"><waiting></waiting></div>
                 <div class="col" v-if="!waiting">
@@ -69,9 +69,10 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 #sidebar {
-  min-width: 250px;
-  max-width: 250px;
   float: left;
 }
 
+#fragments {
+  float: right;
+}
 </style>
