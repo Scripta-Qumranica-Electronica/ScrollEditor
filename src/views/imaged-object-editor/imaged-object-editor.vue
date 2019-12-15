@@ -578,7 +578,7 @@ export default class ImagedObjectEditor extends Vue {
         return this.params.drawingMode === DrawingMode.ERASE;
     }
    private get removeColor() {
-        return this.params.background === false;
+        return this.params.highLight === false;
     }
     private onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;

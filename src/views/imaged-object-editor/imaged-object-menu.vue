@@ -143,11 +143,11 @@
                             </div>
                         </section>
                         <section v-if="artefact && artefact.mask">
-                            <b-form-checkbox v-model="mask">HighLight</b-form-checkbox>
+                            <b-form-checkbox v-model="background">Background</b-form-checkbox>
                         </section>
                     
                         <section>
-                            <b-form-checkbox v-model="background">Background</b-form-checkbox>
+                            <b-form-checkbox v-model="highLight">HighLight</b-form-checkbox>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -276,22 +276,22 @@ export default Vue.extend({
                 this.notifyChange('zoom', val);
             }
         },
-        mask: {
-            get(): boolean {
-                return this.params.clipMask;
-            },
-            set(val: boolean) {
-                this.params.clipMask = val;
-                this.notifyChange('clipMask', val);
-            }
-        },
-           background: {
+      background: {
             get(): boolean {
                 return this.params.background;
             },
             set(val: boolean) {
                 this.params.background = val;
                 this.notifyChange('background', val);
+            }
+        },
+        highLight: {
+            get(): boolean {
+                return this.params.highLight;
+            },
+            set(val: boolean) {
+                this.params.highLight = val;
+                this.notifyChange('highLight', val);
             }
         },
 

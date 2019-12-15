@@ -14,8 +14,8 @@ export enum EditMode {
 export class ImagedObjectEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;
     public zoom: number = 0.1;  // Zoom between 0 and 1
-    public clipMask = false;
     public background = true;
+    public highLight = true;
     public drawingMode = DrawingMode.DRAW;
     public rotationAngle = 0;
 }
