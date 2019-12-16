@@ -5,6 +5,7 @@ describe('The Home Page', function() {
 
 
     })
+    const userEmail = 'test@1.com'
 
     Cypress.Commands.add('typeLogin', (user) => {
         cy.get('input[type=email]')
@@ -63,6 +64,9 @@ describe('The Home Page', function() {
     it('Forget Password', () => {
 
         cy.contains('button', 'Forgot Password').click()
+        cy.get('#forgetPass')
+            .type(userEmail)
+            // cy.get().click()
 
     })
 })
