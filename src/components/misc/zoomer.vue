@@ -3,8 +3,6 @@
         @wheel="onWheel($event)"
         v-hammer:pinch="onPinch"
         v-hammer:rotate="onRotate"
-        v-hammer:rotatestart="onRotateStart"
-        v-hammer:rotateend="onRotateEnd"
     >
         <slot></slot>
     </div>
