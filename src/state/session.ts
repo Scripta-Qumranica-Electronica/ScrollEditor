@@ -1,8 +1,12 @@
 import { DetailedUserDTO } from '@/dtos/sqe-dtos';
 
 export class SessionState {
-    public user: DetailedUserDTO | undefined;
+    public user: DetailedUserDTO | null;
 
+    public constructor() {
+        this.user = null;
+    }
+    
     public get language(): string {
         return localStorage.getItem('language') || 'en';
     }
