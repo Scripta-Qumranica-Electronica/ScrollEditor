@@ -70,7 +70,7 @@ export default class StateService {
         StateService.alreadyCreated = true;
     }
 
-    public allEditions(): Promise<void> {
+    public async allEditions(): Promise<void> {
         return this.wrapInternal('allEditionsProcess', -1, (id: number) => this.allEditionsInternal());
     }
 
@@ -86,7 +86,7 @@ export default class StateService {
         return this.wrapInternal('imagedObjectsProcess', editionId, (id: number) => this.imagedObjectsInternal(id));
     }
 
-    public artefacts(editionId: number): Promise<void> {
+    public async artefacts(editionId: number): Promise<void> {
         return this.wrapInternal('artefactsProcess', editionId, (id: number) => this.artefactsInternal(id));
     }
 
