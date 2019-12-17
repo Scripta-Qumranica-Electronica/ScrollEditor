@@ -74,11 +74,8 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
     protected replaceItems(newItems: T[]) {
         const oldCurrent = this._current;
         this.items = newItems;
-
-        // TODO: Look for a new instance with oldCurtent.id in newItems, set this to current.
-        // If there's no such instance in newItems, set current to undefined
-        // const newCurrent =  find an element with id oldCurrent.id in newItems
-        this.current = oldCurrent;  // This should be newCurrent
+        const newCurrent = oldCurrent && this.find(oldCurrent.id) 
+        this.current = newCurrent; 
     }
 }
 
