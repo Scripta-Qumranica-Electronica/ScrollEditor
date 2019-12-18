@@ -55,7 +55,6 @@ export default class ImagedObjectEditor extends Vue {
         return values;
     }
     public get visibleImageSettings(): SingleImageSetting[] {
-        console.log(this.imageSettings, 'this.imageSettings CHANGE');
         return this.imageSettings.filter(image => image.visible);
     }
 
