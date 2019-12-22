@@ -14,7 +14,7 @@
 
         <div slot="modal-footer">
             <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
-            <b-button @click="submit" variant="primary" type="submit" :disabled="disabledSubmit">
+            <b-button @click="submit" variant="primary" type="submit"  class="forgetPass"  :disabled="disabledSubmit">
                 {{ $t('navbar.forgotPassword') }}
                 <span v-if="waiting">
                     <font-awesome-icon icon="spinner" spin></font-awesome-icon>

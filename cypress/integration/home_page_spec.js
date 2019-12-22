@@ -1,10 +1,8 @@
 describe('The Home Page', function() {
-
-    it('Navigate to Testwebsite', () => {
+    beforeEach(() => {
         cy.visit('/')
+    });
 
-
-    })
     const userEmail = 'test@1.com'
 
     Cypress.Commands.add('typeLogin', (user) => {
@@ -23,52 +21,53 @@ describe('The Home Page', function() {
 
     it('Login Fails', () => {
 
-            cy.contains('button', 'Login').click()
+        cy.contains('button', 'Login').click()
 
-            cy.typeLogin({ email: 'tests@1.com', password: 'tests' })
+        cy.typeLogin({ email: 'tests@1.com', password: 'tests' })
 
-            cy.PostLogin()
+        cy.PostLogin()
 
-            cy.get('@postUser').should((resp) => {
-                expect(resp.status).to.eq(401)
-            })
-
+        cy.get('@postUser').should((resp) => {
+            expect(resp.status).to.eq(401)
         })
-        // it('Login Fails Data ', () => {
-
-    //     cy.contains('button', 'Login').click()
-
-    //     cy.typeLogin({ email: 'tests1.com', password: 'tests' })
-
-    //     cy.PostLogin()
-
-    //     cy.get('@postUser').should((resp) => {
-    //         expect(resp.status).to.eq(400)
-    //     })
-
-    // })
-    // it('Login Sucess', () => {
-
-    //     cy.contains('button', 'Login').click()
-
-    //     cy.typeLogin({ email: 'test@1.com', password: 'test' })
-
-    //     cy.PostLogin()
-
-    //     cy.get('@postUser').should((resp) => {
-    //         expect(resp.status).to.eq(200)
-    //     })
-
-    // })
-
-    it('Forget Password', () => {
-
         cy.contains('button', 'Forgot Password').click()
         cy.get('#forgetPass')
             .type(userEmail)
-            // cy.get().click()
+        cy.get('.forgetPass').click()
 
     })
+
+    it('Login Fails Data ', () => {
+
+        cy.contains('button', 'Login').click()
+
+        cy.typeLogin({ email: 'tests1.com', password: 'tests' })
+
+        cy.PostLogin()
+
+        cy.get('@postUser').should((resp) => {
+            expect(resp.status).to.eq(400)
+        })
+
+    })
+    it('Login Sucess', () => {
+
+        cy.contains('button', 'Login').click()
+
+        cy.typeLogin({ email: 'test@1.com', password: 'test' })
+
+        cy.PostLogin()
+
+        cy.get('@postUser').should((resp) => {
+            expect(resp.status).to.eq(200)
+        })
+
+    })
+
+    // it('b-nav-item-dropdown'), () => {
+    //     cy.get(".b-nav-dropdown").click()
+    // }
+
 })
 
 
