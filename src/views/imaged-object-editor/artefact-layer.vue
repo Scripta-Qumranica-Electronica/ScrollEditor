@@ -4,6 +4,7 @@
             :d="polygon.svg"
             :class="{ selected, editable }"
             :style="additionalStyle"
+            vector-effect="non-scaling-stroke"
         />
     </g>
 </template>
