@@ -7,6 +7,7 @@
             :transform="`translate(${roi.position.x} ${roi.position.y})`"
             :class="{ shine: roi.shiny, selected: roi === selected }"
             @click="onPathClicked(roi)"
+            vector-effect="non-scaling-stroke"
         />
     </g>
 </template>
@@ -39,7 +40,7 @@ export default class RoiLayer extends Vue {
 
 <style lang="scss" scoped>
 path {
-    stroke-width: 7;
+    stroke-width: 2;
     fill: transparent;
     stroke: darkslategray;
 }
@@ -52,10 +53,11 @@ path.shiny {
 
 path.selected {
     stroke: #FFFF99;
-    stroke-width: 15;
+    stroke-width: 2;
     filter: contrast(200%);
     animation: pulsate 2s ease-out;
     animation-iteration-count: infinite;
+
 
 }
 
