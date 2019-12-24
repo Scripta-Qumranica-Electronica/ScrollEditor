@@ -25,9 +25,9 @@
                 </b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-text v-if="!current.otherVersions.length">
-                <small>{{ $t("home.noVersions") }}</small>
+                <small class="no-vers">{{ $t("home.noVersions") }}</small>
             </b-nav-text>
-            <b-btn v-if="user" v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline">{{ $t('misc.copy') }}</b-btn>
+            <b-btn v-if="user" v-b-modal.modal="'copyModal'" class="btn btn-sm btn-outline btn-copy">{{ $t('misc.copy') }}</b-btn>
         </b-nav>
 
         <b-modal id="copyModal" 

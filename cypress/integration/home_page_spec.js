@@ -19,6 +19,8 @@ describe('The Home Page', function() {
         cy.wait('@postUser')
     })
 
+
+
     it('Login Fails', () => {
 
         cy.contains('button', 'Login').click()
@@ -62,13 +64,16 @@ describe('The Home Page', function() {
             expect(resp.status).to.eq(200)
         })
 
+
     })
 
-    // it('b-nav-item-dropdown'), () => {
-    //     cy.get(".b-nav-dropdown").click()
-    // }
+
+
+
+
 
 })
+
 
 
 

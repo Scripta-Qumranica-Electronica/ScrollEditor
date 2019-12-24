@@ -28,15 +28,16 @@
                     >{{ $t('navbar.updateUserDetails') }}</b-dropdown-item-button>
                 </b-nav-item-dropdown>
 
-                <b-nav-item-dropdown right>
+                <b-nav-item-dropdown right id="language">
                     <!-- Change language -->
                     <template slot="button-content">
                         <font-awesome-icon icon="language" />
                     </template>
-                    <b-dropdown-item-button
+                    <b-dropdown-item-button class="select-lang"
                         v-for="(texts, language) in allTexts"
                         :key="language"
                         @click="changeLanguage(language)"
+                                                       
                     >
                         {{ texts.display }}
                         <span v-if="language===currentLanguage">&#x2714;</span>
