@@ -38,3 +38,9 @@ export default Vue.extend({
     }
 });
 </script>
+<style scoped>
+ul.list-unstyled {
+       height: calc(100vh - 123px);
+    overflow: auto;
+}
+</style>

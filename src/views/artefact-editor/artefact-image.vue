@@ -18,7 +18,7 @@
                         :key="imageSetting.image.url"
                         draggable="false"
                         :xlink:href="getImageUrl(imageSetting)"
-                        :opacity="imageSetting.opacity"></image>
+                        :opacity="imageSetting.normalizedOpacity"></image>
                 </g>
             </g>
         </svg>

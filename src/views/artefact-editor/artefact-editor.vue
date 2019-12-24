@@ -145,7 +145,8 @@ import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
 import {
     ImageSetting,
-    SingleImageSetting
+    SingleImageSetting,
+    normalizeOpacity
 } from '@/components/image-settings/types';
 import {
     SignInterpretation,
@@ -172,14 +173,14 @@ import SignWheel from './sign-wheel.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -241,7 +242,6 @@ export default class ArtefactEditor extends Vue {
         this.fillImageSettings();
         this.calculateBoundingBox();
         this.initVisibleRois();
-    
         this.waiting = false;
     }
 
@@ -365,11 +365,14 @@ export default class ArtefactEditor extends Vue {
                     image,
                     type: imageType,
                     visible: isMaster,
-                    opacity: 1
+                    opacity: 1,
+                    normalizedOpacity: 1,
                 };
-                this.$set(this.params.imageSettings, imageType, imageSetting); // Make sure this object is tracked by Vue
+                // Make sure this object is tracked by Vue
+                this.$set(this.params.imageSettings, imageType, imageSetting);
             }
         }
+        normalizeOpacity(this.params.imageSettings);
     }
 
     private calculateBoundingBox() {

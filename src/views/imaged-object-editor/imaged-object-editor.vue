@@ -56,26 +56,29 @@
                 </div>
                 <div class="imaged-object-container" :class="{active: isActive}">
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
-                        <svg class="overlay"
+                        <svg
+                            class="overlay"
                             :width="actualWidth"
                             :height="actualHeight"
-                            :viewBox="`0 0 ${actualWidth} ${actualHeight}`">
+                            :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
+                        >
                             <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
                             <g :transform="transform" id="transform-root">
                                 <!-- Coordinate system is in master image coordinates -->
                                 <image-layer
+                                    v-if="artefact"
                                     :width="imageWidth"
                                     :height="imageHeight"
                                     :params="params"
                                     :editable="canEdit"
                                     :clipping-mask="artefact.mask.polygon"
-                                ></image-layer>
+                                />
                                 <artefact-layer
                                     :selected="art.id === artefact.id"
                                     v-for="art in visibleArtefacts"
                                     :artefact="art"
                                     :key="art.id"
-                                    :color="getArtefactColor(art)"
+                                    :color="removeColor ? 'none' : getArtefactColor(art)"
                                 />
                                 <boundary-drawer
                                     v-if="canEdit && artefact"
@@ -107,7 +110,7 @@ import {
     MaskChangeOperation,
     MaskChangedEventArgs,
     DrawingMode,
-    ArtefactEditingData,
+    ArtefactEditingData
 } from '@/views/imaged-object-editor/types';
 import { Position } from '@/models/misc';
 import { IIIFImage } from '@/models/image';
@@ -120,6 +123,7 @@ import ArtefactService from '@/services/artefact';
 import { DropdownOption } from '@/utils/helpers';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
+import { normalizeOpacity } from '@/components/image-settings/types';
 
 @Component({
     name: 'imaged-object-editor',
@@ -129,12 +133,21 @@ import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        'zoomer': Zoomer
     }
 })
 export default class ImagedObjectEditor extends Vue {
     private static colors = [
-        'purple', 'blue', 'orange', 'red', 'green', 'gray', 'magenta', 'olive', 'brown', 'cadetBlue'
+        'purple',
+        'blue',
+        'orange',
+        'red',
+        'green',
+        'gray',
+        'magenta',
+        'olive',
+        'brown',
+        'cadetBlue'
     ];
 
     private imagedObjectService = new ImagedObjectService();
@@ -159,14 +172,14 @@ export default class ImagedObjectEditor extends Vue {
         if (this.canEdit) {
             return [
                 { icon: 'fa fa-pencil', val: 'DRAW' },
-                { icon: 'fa fa-trash', val: 'ERASE' },
+                { icon: 'fa fa-trash', val: 'ERASE' }
             ];
         }
         return [];
     }
 
     private get zoomLevel(): number {
-            return this.params.zoom;
+        return this.params.zoom;
     }
 
     private get imagedObject(): ImagedObject | undefined {
@@ -184,11 +197,17 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private get actualWidth(): number {
-        return (this.rotationAngle % 180 ? this.imageHeight : this.imageWidth) * this.zoomLevel;
+        return (
+            (this.rotationAngle % 180 ? this.imageHeight : this.imageWidth) *
+            this.zoomLevel
+        );
     }
 
     private get actualHeight(): number {
-        return (this.rotationAngle % 180 ? this.imageWidth : this.imageHeight) * this.zoomLevel;
+        return (
+            (this.rotationAngle % 180 ? this.imageWidth : this.imageHeight) *
+            this.zoomLevel
+        );
     }
 
     private get rotationAngle(): number {
@@ -197,14 +216,16 @@ export default class ImagedObjectEditor extends Vue {
 
     private get transform(): string {
         // Rotation
-        const rotate = `rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${this.imageHeight / 2})`;
+        const rotate = `rotate(${this.rotationAngle}, ${this.imageWidth /
+            2}, ${this.imageHeight / 2})`;
 
         // If the rotation is by 90 or 270 degrees, the image need to be moved a little bit.
         // Since the image's width is larger than its height, rotation by 90 degrees (or 270) results in a
         // white band to the left of the rotated image. The top of the image is cut-off by exactly the
         // width of the white band.
         let translate = '';
-        if (this.rotationAngle % 180) { // 90 or 270
+        if (this.rotationAngle % 180) {
+            // 90 or 270
             // The band is caused by the new width (old height) being smaller than the old width.
             // There actually two bands, one to the left and one to the right. The right one can't be seen.
             const bandWidth = (this.imageWidth - this.imageHeight) / 2;
@@ -225,9 +246,7 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private get visibleArtefacts(): Artefact[] {
-        return this.artefacts.filter(
-            (item) => item.side === this.side
-        );
+        return this.artefacts.filter(item => item.side === this.side);
     }
 
     private async mounted() {
@@ -253,7 +272,9 @@ export default class ImagedObjectEditor extends Vue {
             } else if (this.imagedObject.verso) {
                 this.side = 'verso';
             } else {
-                throw new Error(`Imaged Object ${this.$route.params.imagedObjectId} has no side!`);
+                throw new Error(
+                    `Imaged Object ${this.$route.params.imagedObjectId} has no side!`
+                );
             }
 
             const stack = this.imagedObject.getImageStack(this.side)!;
@@ -263,13 +284,13 @@ export default class ImagedObjectEditor extends Vue {
             if (this.imagedObject.artefacts.length) {
                 this.optimizeArtefacts();
                 // Set this.artefact to visibleArtefacts[0]
-                this.artefacts.forEach((element) => {
+                this.artefacts.forEach(element => {
                     this.artefactEditingDataList.push(
                         new ArtefactEditingData()
                     );
                 });
                 this.onArtefactChanged(this.visibleArtefacts[0]);
-                this.artefacts.forEach((element) => {
+                this.artefacts.forEach(element => {
                     this.artefactEditingDataList.push(
                         new ArtefactEditingData()
                     );
@@ -289,11 +310,11 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private created() {
-        window.addEventListener('beforeunload', (e) => this.confirmLeaving(e));
+        window.addEventListener('beforeunload', e => this.confirmLeaving(e));
     }
 
     private confirmLeaving(e: BeforeUnloadEvent) {
-        this.artefactEditingDataList.forEach((art) => {
+        this.artefactEditingDataList.forEach(art => {
             if (art.dirty) {
                 // check if there unsaved changes
                 const confirmationMessage =
@@ -321,13 +342,14 @@ export default class ImagedObjectEditor extends Vue {
                         .getImage(imageType);
                     if (image) {
                         const master =
-                            this.imagedObject.getImageStack(this.side)!
-                                .master.type === imageType;
+                            this.imagedObject.getImageStack(this.side)!.master
+                                .type === imageType;
                         const imageSetting = {
                             image,
                             type: imageType,
                             visible: master,
-                            opacity: 1
+                            opacity: 1,
+                            normalizedOpacity: 1
                         };
                         this.$set(
                             this.params.imageSettings,
@@ -336,6 +358,7 @@ export default class ImagedObjectEditor extends Vue {
                         ); // Make sure this object is tracked by Vue
                     }
                 }
+                normalizeOpacity(this.params.imageSettings);
             }
         }
     }
@@ -501,14 +524,17 @@ export default class ImagedObjectEditor extends Vue {
         this.nonSelectedMask = new Polygon();
         for (const artefact of this.visibleArtefacts) {
             if (artefact !== art) {
-                this.nonSelectedMask = Polygon.add(this.nonSelectedMask, artefact.mask.polygon);
+                this.nonSelectedMask = Polygon.add(
+                    this.nonSelectedMask,
+                    artefact.mask.polygon
+                );
             }
         }
     }
 
     private sideArtefactChanged(side: DropdownOption) {
         this.side = side.name as Side;
-        if (this.artefact!.side !== side.name) {
+        if (this.artefact!.side !== side.name && this.visibleArtefacts.length) {
             this.onArtefactChanged(this.visibleArtefacts[0]);
         }
         this.fillImageSettings();
@@ -532,8 +558,7 @@ export default class ImagedObjectEditor extends Vue {
 
     private modeChosen(val: DrawingMode): boolean {
         return (
-            DrawingMode[val].toString() ===
-            this.params.drawingMode.toString()
+            DrawingMode[val].toString() === this.params.drawingMode.toString()
         );
     }
 
@@ -541,16 +566,20 @@ export default class ImagedObjectEditor extends Vue {
         const idx = this.visibleArtefacts.indexOf(art);
         if (idx === -1) {
             console.error("Can't locate artefact in this.artefacts");
-            throw new Error("Can't locate artefact in this.artefacts");
+            // throw new Error("Can't locate artefact in this.artefacts");
         }
 
-        return ImagedObjectEditor.colors[idx % ImagedObjectEditor.colors.length];
+        return ImagedObjectEditor.colors[
+            idx % ImagedObjectEditor.colors.length
+        ];
     }
 
     private get isErasing() {
         return this.params.drawingMode === DrawingMode.ERASE;
     }
-
+   private get removeColor() {
+        return this.params.highLight === false;
+    }
     private onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;
 
@@ -575,7 +604,7 @@ export default class ImagedObjectEditor extends Vue {
         }
 
         const changeOperation = {
-            prevMask: this.artefact!.mask.polygon,
+            prevMask: this.artefact!.mask.polygon
         } as MaskChangeOperation;
 
         // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)

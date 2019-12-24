@@ -96,7 +96,7 @@
             </form>
         </b-modal>
 
-        <section>
+        <section v-if="artefact">
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
                     <b-button block href="#" v-b-toggle.accordion-images variant="info">Images</b-button>
@@ -142,27 +142,18 @@
                                 </div>
                             </div>
                         </section>
-                        <section v-if="editable">
-                            <div class="row">
-                                <div class="col-5">Brush Size: {{brushSize}}</div>
-                                <div class="col">
-                                    <b-form-input
-                                        type="range"
-                                        min="2"
-                                        max="40"
-                                        step="1"
-                                        v-model="brushSize"
-                                    ></b-form-input>
-                                </div>
-                            </div>
+                        <section v-if="artefact && artefact.mask">
+                            <b-form-checkbox v-model="background">Background</b-form-checkbox>
                         </section>
-                        <section v-if="artefact.mask">
-                            <b-form-checkbox v-model="mask">Mask</b-form-checkbox>
+                    
+                        <section>
+                            <b-form-checkbox v-model="highLight">HighLight</b-form-checkbox>
                         </section>
                     </b-card-body>
                 </b-collapse>
             </b-card>
         </section>
+         
 
         <section>
             <b-card no-body class="mb-1">
@@ -219,12 +210,15 @@ import { Artefact } from '@/models/artefact';
 import {
     ImagedObjectEditorParams,
     DrawingMode,
-    EditorParamsChangedArgs,
+    EditorParamsChangedArgs
 } from '@/views/imaged-object-editor/types';
 
 import SingleImageSettingComponent from '@/components/image-settings/SingleImageSetting.vue';
 import ImagedObjectService from '@/services/imaged-object';
-import { SingleImageSetting } from '@/components/image-settings/types';
+import {
+    SingleImageSetting,
+    ImageSetting
+} from '@/components/image-settings/types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import { Side } from '@/models/misc';
 import ArtefactService from '@/services/artefact';
@@ -282,24 +276,25 @@ export default Vue.extend({
                 this.notifyChange('zoom', val);
             }
         },
-        mask: {
+      background: {
             get(): boolean {
-                return this.params.clipMask;
+                return this.params.background;
             },
             set(val: boolean) {
-                this.params.clipMask = val;
-                this.notifyChange('clipMask', val);
+                this.params.background = val;
+                this.notifyChange('background', val);
             }
         },
-        brushSize: {
-            get(): number {
-                return this.params.brushSize;
+        highLight: {
+            get(): boolean {
+                return this.params.highLight;
             },
-            set(val: number) {
-                this.params.brushSize = val;
-                this.notifyChange('brushSize', val);
+            set(val: boolean) {
+                this.params.highLight = val;
+                this.notifyChange('highLight', val);
             }
         },
+
         sideOptions(): DropdownOption[] {
             const options = [] as DropdownOption[];
 
@@ -329,15 +324,14 @@ export default Vue.extend({
     },
     mounted() {
         // window.addEventListener('edition', this.handleScroll);
-        const index = this.sideOptions.findIndex((a) => a.name === this.side);
+        const index = this.sideOptions.findIndex(a => a.name === this.side);
         if (index < 0) {
             throw new Error("Side has to be either 'recto' or 'verso'");
         }
         this.sideFilter = this.sideOptions[index];
     },
     methods: {
-        onImageSettingChanged(settings: SingleImageSetting) {
-            this.params.imageSettings[settings.type] = settings;
+        onImageSettingChanged(settings: ImageSetting) {
             this.notifyChange('imageSettings', this.params.imageSettings);
         },
         onDrawChanged(val: any) {

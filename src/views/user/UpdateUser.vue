@@ -91,7 +91,7 @@ export default Vue.extend({
         this.waiting = true;
 
         try {
-          await this.sessionService.updateUser(data);
+          const userInfo = await this.sessionService.updateUser(data);
           router.push('/');
 
           this.$toasted.show('Your details changed', {
@@ -105,8 +105,9 @@ export default Vue.extend({
               position: 'top-right',
              duration: 7000
            });
-           // todo: update details in $state, the name in the navbar have to update
           }
+          // todo: update details in $state, the name in the navbar have to update
+           this.$state.session.user = userInfo;
         } catch (err) {
           this.errorMessage = this.errorService.getErrorMessage(err.response.data);
         } finally {

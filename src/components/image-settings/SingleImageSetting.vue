@@ -1,8 +1,15 @@
 <template>
     <div class="row">
-        <b-form-checkbox v-model="settings.visible" @change="onChange">{{ type }}</b-form-checkbox>
+        <b-form-checkbox v-model="visible" @change="onVisibleChange">{{ type }}</b-form-checkbox>
         <div class="col">
-            <b-form-input v-model="settings.opacity" type="range" min="0" max="1" step="0.05" @change="onChange"></b-form-input>
+            <b-form-input
+                v-model="opacity"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+               @input="onOpacityInput"
+            ></b-form-input> <!-- Instead of change, find an event that is reported during tracking, or use a watcher -->
         </div>
     </div>
 </template>
@@ -14,28 +21,54 @@
 // 3. Use i18n for the type
 // 4. Add tooltip to the slider (with the current number)
 // 5. Disable slider when checkbox is false
-import Vue from 'vue';
+import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { SingleImageSetting } from '../image-settings/types';
 
-export default Vue.extend({
+@Component({
     name: 'single-image-setting',
-    props: {
-        type: String,
-        settings: {
-            // Ugly, taken from
-            // https://frontendsociety.com/using-a-typescript-interfaces-and-types-as-a-prop-type-in-vuejs-508ab3f83480
-            type: Object as () => SingleImageSetting,
-        },
-    },
-    methods: {
-        onChange() {
-            // use setTimeout because checkbox models update *after* the change event is fired
-            setTimeout(() => {
-                this.$emit('change', this.settings);
-            } , 0);
-        }
+})
+export default class SingleImageSettingComponent extends Vue {
+    @Prop() private type!: string;
+    @Prop() private settings!: SingleImageSetting;
+
+    private opacity = '1';
+    private visible = true;
+
+    private mounted() {
+        this.opacity = this.settings.opacity.toString(); // Binding works with strings
+        this.visible = this.settings.visible;
     }
-});
+
+    private onVisibleChange() {
+        // Use setTimeout since the binding occurs after the input event
+        setTimeout(() => {
+            this.settings.visible = this.visible;
+            this.change();
+        }, 0);
+    }
+
+    private onOpacityInput() {
+        // We use @input because we want to update the images as the slider slides.
+        // @change only occurs once the slider stops sliding.
+
+        if (!this.visible) {
+            // Set the visibility checkbox when moving a slider
+            this.visible = true;
+            this.onVisibleChange();
+        }
+
+        // use setTimeout because checkbox models update *after* the change event is fired
+        setTimeout(() => {
+            this.settings.opacity = parseFloat(this.opacity);
+            this.change();
+        }, 0);
+    }
+
+    @Emit()
+    private change() {
+        return this.settings;
+    }
+}
 </script>
 
 <style lang="scss" scoped>

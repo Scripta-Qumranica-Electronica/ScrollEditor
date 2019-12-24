@@ -84,8 +84,10 @@ class SessionService {
     }
 
 
-    public async updateUser(data: UserUpdateRequestDTO) {
-        await CommHelper.put<any>(ApiRoutes.usersUrl(), data);
+    public async updateUser(data: UserUpdateRequestDTO): Promise<DetailedUserDTO> {
+        const response = await CommHelper.put<any>(ApiRoutes.usersUrl(), data);
+        return  response.data;
+        
     }
 }
 

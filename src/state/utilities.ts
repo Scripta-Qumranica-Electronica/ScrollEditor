@@ -72,9 +72,10 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
     }
 
     protected replaceItems(newItems: T[]) {
-        const current = this._current;
+        const oldCurrent = this._current;
         this.items = newItems;
-        this.current = current;
+        const newCurrent = oldCurrent && this.find(oldCurrent.id) 
+        this.current = newCurrent; 
     }
 }
 

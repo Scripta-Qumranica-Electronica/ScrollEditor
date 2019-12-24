@@ -10,7 +10,7 @@
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Clip-path"></use>
         </clipPath>
       </defs>
-      <g pointer-events="none" :clip-path="params.clipMask ? 'url(#Clipping-outline)' : 'url(#Full-clipping-outline)'">
+      <g pointer-events="none" :clip-path="params.background ? 'url(#Full-clipping-outline)' : 'url(#Clipping-outline)'">
         <image v-for="imageSetting in visibleImageSettings"
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg" 
@@ -18,7 +18,7 @@
               :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
               :width="width"
               :height="height"
-              :opacity="imageSetting.opacity"
+              :opacity="imageSetting.normalizedOpacity"
               ></image>
       </g>
       <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->

@@ -69,8 +69,6 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 #sidebar {
-  min-width: 250px;
-  max-width: 250px;
   float: left;
 }
 
