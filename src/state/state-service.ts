@@ -45,7 +45,7 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-                         'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
+    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -104,7 +104,7 @@ export default class StateService {
         if (pt && image.manifest) {
             return pt.promise;
         }
-    
+
         const promise = this.imageManifestInternal(image);
         pt = new ProcessTracking(promise, -1);
         this.imageManifestProcesses.set(image.manifestUrl, pt);
@@ -198,7 +198,6 @@ export default class StateService {
     private async imageManifestInternal(image: IIIFImage) {
         const svc = new ImageService();
         const manifest = await svc.getImageManifest(image);
-        console.log(manifest, 'MANIFEST RECEIVE')
         image.manifest = manifest;
     }
 
