@@ -25,7 +25,12 @@
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
-                <div class="sign-wheel sign-wheel-position">
+            
+                <div
+                    class="artefact-container"
+                    :class="{ sidebar: isActiveSidebar, text: isActiveText }"
+                >
+                    <div class="sign-wheel sign-wheel-position">
                     <sign-wheel
                         v-if="selectedSignInterpretation"
                         :line="selectedLine"
@@ -33,11 +38,7 @@
                         @sign-interpretation-clicked="onSignInterpretationClicked"
                     />
                 </div>
-                <div
-                    class="artefact-container"
-                    :class="{ sidebar: isActiveSidebar, text: isActiveText }"
-                >
-                    <b-button type="button" v-show="$bp.between('sm', 'lg')" @click="nextLine()">
+                    <b-button type="button" v-show="$bp.between('sm', 'lg')" @click="nextLine()" class="btn-next-line">
                         <i class="fa fa-arrow-left"></i>
                     </b-button>
                     <zoomer
@@ -653,11 +654,14 @@ export default class ArtefactEditor extends Vue {
 #artefact-and-buttons {
     margin: 0px;
 }
+ 
 .sign-wheel-position {
+  margin-left: 320px;
+    margin-top: 56px;
+ 
     position: absolute;
-    margin-left: 325px;
-    margin-top: 20px;
 }
+
 // TODO -- update the madia
 @media (max-width: 1100px) {
     /* Reversing the behavior of the sidebar:
@@ -749,7 +753,10 @@ export default class ArtefactEditor extends Vue {
         margin-right: 80px;
         margin-top: 20px;
         z-index: 1000;
-        width: calc((100vw - 160px));
+        // width: calc((100vw - 160px));
+    }
+    .btn-next-line{
+        margin-top:30px;
     }
 }
 </style>
