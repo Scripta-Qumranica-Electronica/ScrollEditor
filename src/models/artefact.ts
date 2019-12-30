@@ -3,6 +3,7 @@ import { ImagedObject } from './imaged-object';
 import { ArtefactDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
 import { Mask } from '@/utils/Mask';
+import { ArtefactTextFragmentData } from './text';
 
 
 export class Artefact {
@@ -17,6 +18,8 @@ export class Artefact {
     // public transformMatrix = undefined as any; // TODO: Change to matrix type?
     public zOrder = 0;
     public side: Side = 'recto';
+
+    public textFragments: ArtefactTextFragmentData[] = [];
 
 
     constructor(obj: Artefact | ArtefactDTO) {
@@ -43,5 +46,7 @@ export class Artefact {
         // this.transformMatrix = other.transformMatrix;
         this.zOrder = other.zOrder;
         this.side = other.side;
+
+        this.textFragments = [...other.textFragments];
     }
 }

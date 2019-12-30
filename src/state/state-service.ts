@@ -220,7 +220,16 @@ export default class StateService {
             console.error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
             throw new Error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
         }
-        await this.imageManifest(stack.master);
+
+        // Load the image's manifest
+        const imPromise = this.imageManifest(stack.master);
+
+        // Load the artefact's text fragments
+        const textService = new TextService();
+        const tfPromise = textService.getArtefactTextFragments(editionId, artefactId);
+
+        await Promise.all([imPromise, tfPromise]); // Let both requests happen concurrently
+        artefact.textFragments = await tfPromise;
 
         this._state.artefacts.current = artefact;
         this._state.imagedObjects.current = imagedObject;

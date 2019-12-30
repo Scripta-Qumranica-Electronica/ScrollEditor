@@ -8,12 +8,14 @@ import {
     SetInterpretationRoiDTOList,
     BatchEditRoiDTO,
     InterpretationRoiDTO,
-    BatchEditRoiResponseDTO
+    BatchEditRoiResponseDTO,
+    ArtefactTextFragmentMatchListDTO
 } from '@/dtos/sqe-dtos';
 import {
     TextFragmentData,
     TextEdition,
-    SignInterpretation
+    SignInterpretation,
+    ArtefactTextFragmentData
 } from '@/models/text';
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
@@ -33,6 +35,14 @@ class TextService {
         return response.data.textFragments.map(
             obj => new TextFragmentData(obj)
         );
+    }
+
+    public async getArtefactTextFragments(editionId: number, artefactId: number) {
+        const response = await CommHelper.get<ArtefactTextFragmentMatchListDTO>(
+            ApiRoutes.artefactTextFragmentsUrl(editionId, artefactId)
+        );
+
+        return response.data.textFragments.map(obj => new ArtefactTextFragmentData(obj));
     }
 
     public async getTextFragment(editionId: number, textFragmentId: number) {
