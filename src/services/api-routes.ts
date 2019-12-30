@@ -75,6 +75,10 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}`;
     }
 
+    export function artefactTextFragmentsUrl(editionId: number, artefactId: number) {
+        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}/text-fragments`;
+    }
+
     export function editionTextFragmentUrl(editionId: number, textFragmentId: number) {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}/${textFragmentId}`;
     }

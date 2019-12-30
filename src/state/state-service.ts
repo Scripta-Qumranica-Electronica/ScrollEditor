@@ -45,7 +45,7 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-                         'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
+    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -104,7 +104,7 @@ export default class StateService {
         if (pt && image.manifest) {
             return pt.promise;
         }
-    
+
         const promise = this.imageManifestInternal(image);
         pt = new ProcessTracking(promise, -1);
         this.imageManifestProcesses.set(image.manifestUrl, pt);
@@ -198,7 +198,6 @@ export default class StateService {
     private async imageManifestInternal(image: IIIFImage) {
         const svc = new ImageService();
         const manifest = await svc.getImageManifest(image);
-        console.log(manifest, 'MANIFEST RECEIVE')
         image.manifest = manifest;
     }
 
@@ -221,7 +220,16 @@ export default class StateService {
             console.error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
             throw new Error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
         }
-        await this.imageManifest(stack.master);
+
+        // Load the image's manifest
+        const imPromise = this.imageManifest(stack.master);
+
+        // Load the artefact's text fragments
+        const textService = new TextService();
+        const tfPromise = textService.getArtefactTextFragments(editionId, artefactId);
+
+        await Promise.all([imPromise, tfPromise]); // Let both requests happen concurrently
+        artefact.textFragments = await tfPromise;
 
         this._state.artefacts.current = artefact;
         this._state.imagedObjects.current = imagedObject;
