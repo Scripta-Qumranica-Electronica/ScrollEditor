@@ -1,5 +1,5 @@
 <template>
-    <g>
+    <g class="drawer">
         <path
             :d="polygon.svg"
             :class="{ selected, editable }"
