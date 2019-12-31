@@ -2,11 +2,11 @@
     <div id="text-side" class="fixed-header">
         <input class="select-text" list="my-list-id" v-model="query" @change="load(query)" />
         <datalist id="my-list-id">
-            <option :key="tf.textFragmentId" v-for="tf in textFragments">{{ tf.name }}</option>
+            <option :key="tf.textFragmentId" v-for="tf in suggestedTextFragment">{{ tf.name }}</option>
         </datalist>
         <button @click.prevent="load(query)" :disabled="loading" name="Load" class="btn btn-secondary btn-position">{{$t('misc.load')}}</button>
         <span class="isa_error">{{errorMessage}}</span>
-
+ 
         <div v-if="textFragment">
             <text-fragment
                 :selectedSignInterpretation="selectedSignInterpretation"
@@ -21,7 +21,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
-import { TextFragmentData, TextFragment, SignInterpretation } from '@/models/text';
+import { TextFragmentData, TextFragment, SignInterpretation, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 
 @Component({
@@ -41,9 +41,22 @@ export default class TextSide extends Vue {
     private get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
+    private get suggestedTextFragment(): ArtefactTextFragmentData[]{
+        return this.textFragments.filter(x=>!x.certain)
+    }
 
-    private get textFragments(): TextFragmentData[] {
-        return this.$state.editions.current!.textFragments || [];
+    private get textFragments(): ArtefactTextFragmentData[] {
+        let  textFragments = (this.$state.editions.current!.textFragments || [])
+             .map(
+                 x => ArtefactTextFragmentData.createFromEditionTextFragment(x)
+             )
+        let textFragmentsArtefact = this.$state.artefacts.current!.textFragments || [];   
+
+        textFragments.forEach(EditionTf => {
+            EditionTf.certain = textFragmentsArtefact.findIndex(ArtefactTf => ArtefactTf.id === EditionTf.id) > -1
+        });
+       
+       return textFragments;
     }
 
     private get textFragment(): TextFragment | undefined {
