@@ -28,19 +28,19 @@ class TextFragmentData {
 }
 
 class ArtefactTextFragmentData extends TextFragmentData {
-    public suggested: boolean;
+    public static createFromEditionTextFragment(tf: TextFragmentData) {
+        return new ArtefactTextFragmentData({
+            id: tf.id,
+            name: tf.name,
+            editorId: tf.editorId,
+            suggested: true
+        });
+    }
+    public certain: boolean;
 
     constructor(obj: ArtefactTextFragmentMatchDTO) {
         super(obj);
-        this.suggested = obj.suggested;
-    }
-
-    public get hasROIs() {
-        return !this.suggested;
-    }
-
-    public set hasROIs(value: boolean) {
-        this.suggested = !value;
+        this.certain = !obj.suggested;
     }
 }
 
