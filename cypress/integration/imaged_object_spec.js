@@ -5,6 +5,7 @@ describe('Imaged Object', function() {
 
     let NewD
     let D
+    let DBeforeErase
     Cypress.Commands.add('typeLogin', (user) => {
         cy.get('input[type=email]')
             .type(user.email)
@@ -125,7 +126,14 @@ describe('Imaged Object', function() {
         cy.get('ul>li.list-item>.card').first().click()
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-trash').click()
         cy.wait(2500)
-        let DAfterErase
+
+        cy.get('.drawer path')
+            .invoke('attr', 'd')
+            .should('contain', 'M')
+            .then(text => {
+                DBeforeErase = text;
+                cy.log(DBeforeErase);
+            });
 
 
         cy.get('g.draw-boundary')
@@ -143,5 +151,37 @@ describe('Imaged Object', function() {
 
 
     })
+
+    it('SaveAfterErase ', () => {
+
+        cy.contains('button', 'Login').click()
+
+        cy.typeLogin({ email: 'test@1.com', password: 'test' })
+
+        cy.PostLogin()
+
+        cy.get('@postUser').should((resp) => {
+            expect(resp.status).to.eq(200)
+        })
+        cy.get('ul>li.list-item>.card').contains('1QSTest').first()
+            .click({ multiple: true })
+        cy.wait(2500)
+        cy.get('.nav-item:nth-child(2)>a.nav-link>a').click()
+        cy.get('ul>li.list-item>.card').first().click()
+
+
+        let DAfterSaveErase
+
+        cy.get('.drawer path')
+            .invoke('attr', 'd')
+            .should('contain', 'M')
+            .then(text => {
+                DAfterSaveErase = text;
+                cy.log(DAfterSaveErase);
+                // expect(DAfterSaveErase).to(DBeforeErase)
+            });
+    })
+
+
 
 })
