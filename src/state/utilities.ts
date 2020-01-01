@@ -156,7 +156,7 @@ export class ImagedObjectCollection extends StateCollection<ImagedObject, string
 
 export class ArtefactCollection extends StateCollection<Artefact> { }
 
-export class TextFragmentCollection extends StateCollection<TextFragment> { }
+export class TextFragmentMap extends StateMap<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
 

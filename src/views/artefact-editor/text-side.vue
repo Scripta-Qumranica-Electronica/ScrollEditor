@@ -2,12 +2,17 @@
     <div id="text-side" class="fixed-header">
         <input class="select-text" list="my-list-id" v-model="query" @change="load(query)" />
         <datalist id="my-list-id">
-            <option :key="tf.textFragmentId" v-for="tf in suggestedTextFragment">{{ tf.name }}</option>
+            <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
         </datalist>
-        <button @click.prevent="load(query)" :disabled="loading" name="Load" class="btn btn-secondary btn-position">{{$t('misc.load')}}</button>
+        <button
+            @click.prevent="load(query)"
+            :disabled="loading"
+            name="Load"
+            class="btn btn-secondary btn-position"
+        >{{$t('misc.load')}}</button>
         <span class="isa_error">{{errorMessage}}</span>
- 
-        <div v-if="textFragment">
+
+        <div v-for="textFragment in displayedTextFragments" :key="textFragment.id">
             <text-fragment
                 :selectedSignInterpretation="selectedSignInterpretation"
                 :fragment="textFragment"
@@ -21,7 +26,12 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
-import { TextFragmentData, TextFragment, SignInterpretation, ArtefactTextFragmentData } from '@/models/text';
+import {
+    TextFragmentData,
+    TextFragment,
+    SignInterpretation,
+    ArtefactTextFragmentData
+} from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 
 @Component({
@@ -35,56 +45,72 @@ export default class TextSide extends Vue {
     @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private query = '';
-    private textFragmentId = 0;
     private loading = false;
+    // private textFragmentId = 0;
+    private displayedTextFragmentsData: ArtefactTextFragmentData[] = [];
 
     private get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
-    private get suggestedTextFragment(): ArtefactTextFragmentData[]{
-        return this.textFragments.filter(x=>!x.certain)
+
+    private get dropdownTextFragmentsData() {
+          return this.allTextFragmentsData.filter(x => !x.certain);
     }
 
-    private get textFragments(): ArtefactTextFragmentData[] {
-        let  textFragments = (this.$state.editions.current!.textFragments || [])
-             .map(
-                 x => ArtefactTextFragmentData.createFromEditionTextFragment(x)
-             )
-        let textFragmentsArtefact = this.$state.artefacts.current!.textFragments || [];   
+    private get displayedTextFragments() {
+        return this.displayedTextFragmentsData.map(tfd => this.$state.textFragments.get(tfd.id));
+    }
+
+     private get allTextFragmentsData() {
+      const textFragments = this.$state.editions.current!.textFragments.map(
+            tf => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
+        );
+      let textFragmentsArtefact = this.$state.artefacts.current!.textFragments || [];   
 
         textFragments.forEach(EditionTf => {
             EditionTf.certain = textFragmentsArtefact.findIndex(ArtefactTf => ArtefactTf.id === EditionTf.id) > -1
         });
        
-       return textFragments;
+
+        return textFragments;
     }
 
-    private get textFragment(): TextFragment | undefined {
-        return this.$state.textFragments.current;
-    }
+
+    // private get textFragment(): TextFragment | undefined {
+    //     return this.$state.textFragments.current;
+    // }
 
     private async mounted() {
-        this.$state.prepare.edition(this.editionId);
+        await this.$state.prepare.artefact(this.editionId, this.artefact.id);
+         this.displayedTextFragmentsData = this.$state.artefacts.current!.textFragments!.filter(x => x.certain);
+        //  console.log(this.displayedTextFragments)
+        // Fill the displayTextFragments array with the certain=true text fragments of the artefact
     }
 
+
     private load() {
+        // TODO: Call when the dropdown selection changes (and not with the load button)
+        // Load text fragment, add it to the beginning of the displayTextFragments array
         this.errorMessage = '';
-        const textFragment = this.textFragments.find(
-            (obj) => obj.name === this.query
+        const textFragmentData = this.allTextFragmentsData.find(
+           obj => obj.name === this.query
         );
         if (this.query) {
-            if (!textFragment) {
+            if (!textFragmentData) {
                 this.errorMessage = 'This fragment does not exist';
                 return;
             }
-            this.textFragmentId = textFragment.id;
+           this.textFragmentId = textFragmentData.id;
             this.getFragmentText();
         }
     }
 
     private async getFragmentText() {
         this.loading = true;
-        await this.$state.prepare.textFragment(this.editionId, this.textFragmentId);
+        await this.$state.prepare.textFragment(
+            this.editionId,
+            this.textFragmentId
+        );
         this.loading = false;
         this.textFragmentSelected(this.textFragmentId);
     }
@@ -123,7 +149,7 @@ button {
 
 #text-box {
     margin-top: 30px;
-     overflow: auto;
+    overflow: auto;
     display: grid;
     height: calc(100vh - 165px);
 }
@@ -131,20 +157,19 @@ button {
 .isa_error {
     color: #d8000c;
 }
-.btn-position{
-    margin-top:-5px;
+.btn-position {
+    margin-top: -5px;
 }
-.select-text{
+.select-text {
     height: 37px;
     width: 190px;
     padding: 10px;
 }
 @media (max-width: 1100px) {
     #text-box {
-    margin-top: 30px;
-    overflow: auto;
-    display: grid;
+        margin-top: 30px;
+        overflow: auto;
+        display: grid;
+    }
 }
-}
-
 </style>

@@ -164,6 +164,13 @@ export default class StateService {
         }
 
         this._state.editions.current = edition;
+
+        // Clear data from the previous edition
+        this._state.textFragments.clear();
+        this._state.interpretationRois.clear();
+        this._state.signInterpretations.clear();
+
+        // Load the new data
         this.imagedObjects(editionId);
         this.artefacts(editionId);
         this.textFragments(editionId);
@@ -175,7 +182,7 @@ export default class StateService {
     }
 
     private async textFragmentsInternal(editionId: number) {
-        this._state.editions.current!.textFragments = undefined;
+        this._state.editions.current!.textFragments = [];
         const svc = new TextService();
         const fragments = await svc.getEditionTextFragments(editionId);
         this._state.editions.current!.textFragments = fragments;
@@ -236,18 +243,22 @@ export default class StateService {
     }
 
     private async textFragmentInternal(editionId: number, textFragmentId: number) {
-        this._state.textFragments.items = [];
         await this.edition(editionId);
 
+        // See if the text fragment has already been loaded into the store
+        let textFragment = this._state.textFragments.get(textFragmentId);
+        if (textFragment) {
+            return textFragment;
+        }
+
         // Make sure the fragment really exists with the edition
-        const textFragment = this._state.editions.current!.textFragments!.find((tf) => tf.id === textFragmentId);
-        if (!textFragment) {
+        const textFragmentData = this._state.editions.current!.textFragments!.find((tf) => tf.id === textFragmentId);
+        if (!textFragmentData) {
             console.error(`Can't located text fragment ID ${textFragmentId} in edition ${editionId}`);
             throw new Error(`Can't located text fragment ID ${textFragmentId} in edition ${editionId}`);
         }
 
-        // For now, the text fragments collection only holds one fragment, so we replace the entire collection
-        // with the data we read
+        // Load the text fragment from the server
         const svc = new TextService();
         const textEdition = await svc.getTextFragment(editionId, textFragmentId);
 
@@ -257,14 +268,12 @@ export default class StateService {
             throw new Error(`Backend did not return the one expected text fragment ${textFragmentId}`);
         }
 
-        this._state.textFragments.items = [textEdition.textFragments[0]];
-        this._state.textFragments.current = this._state.textFragments.items[0];
+        const current = textEdition.textFragments[0];
+        this._state.textFragments.put(current);
 
         // Add all the sign interpretations and ROIs
-        this._state.interpretationRois.clear();
-        this._state.signInterpretations.clear();
 
-        for (const line of this._state.textFragments.current.lines) {
+        for (const line of current.lines) {
             for (const sign of line.signs) {
                 for (const si of sign.signInterpretations) {
                     this._state.signInterpretations.put(si);
