@@ -1,24 +1,29 @@
 <template>
     <div id="text-side" class="fixed-header">
-        <input class="select-text" list="my-list-id" v-model="query" @change="load(query)" />
+        <input class="select-text" list="my-list-id" @change="load($event)" />
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
         </datalist>
-        <button
+        <!-- <button
             @click.prevent="load(query)"
             :disabled="loading"
             name="Load"
             class="btn btn-secondary btn-position"
-        >{{$t('misc.load')}}</button>
+        >{{$t('misc.load')}}</button> -->
         <span class="isa_error">{{errorMessage}}</span>
 
-        <div v-for="textFragment in displayedTextFragments" :key="textFragment.id">
-            <text-fragment
+
+        <div v-for="textFragment in displayedTextFragments" :key="textFragment.id" >
+            <h3>{{textFragment.textFragmentName}}</h3>
+            <div style="border: solid 1px;">
+                <text-fragment
                 :selectedSignInterpretation="selectedSignInterpretation"
                 :fragment="textFragment"
                 @sign-interpretation-clicked="onSignInterpretationClicked($event)"
                 id="text-box"
-            ></text-fragment>
+            ></text-fragment> 
+            </div>
+             
         </div>
     </div>
 </template>
@@ -44,22 +49,30 @@ export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
     @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
-    private query = '';
+    //private query = '';
     private loading = false;
-    // private textFragmentId = 0;
-    private displayedTextFragmentsData: ArtefactTextFragmentData[] = [];
+     private textFragmentId = 0;
+
+    private displayedTextFragments: TextFragment[] = [];
 
     private get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
 
     private get dropdownTextFragmentsData() {
-          return this.allTextFragmentsData.filter(x => !x.certain);
+        return this.allTextFragmentsData.filter(x => !x.certain);
     }
 
-    private get displayedTextFragments() {
-        return this.displayedTextFragmentsData.map(tfd => this.$state.textFragments.get(tfd.id));
+    private get displayedTextFragmentsData() {
+        return this.allTextFragmentsData.filter(x => x.certain);
     }
+
+    // private get displayedTextFragments() {
+    //     if(!this.$state.textFragments.size){
+    //         return;
+    //     }
+    //     return this.displayedTextFragmentsData.map(tfd => this.$state.textFragments.get(tfd.id));
+    // }
 
      private get allTextFragmentsData() {
       const textFragments = this.$state.editions.current!.textFragments.map(
@@ -75,6 +88,8 @@ export default class TextSide extends Vue {
         return textFragments;
     }
 
+    
+
 
     // private get textFragment(): TextFragment | undefined {
     //     return this.$state.textFragments.current;
@@ -82,37 +97,46 @@ export default class TextSide extends Vue {
 
     private async mounted() {
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
-         this.displayedTextFragmentsData = this.$state.artefacts.current!.textFragments!.filter(x => x.certain);
-        //  console.log(this.displayedTextFragments)
-        // Fill the displayTextFragments array with the certain=true text fragments of the artefact
+        this.displayedTextFragmentsData.forEach(async tfd => {
+            await this.getFragmentText(tfd.id);
+            const tf = this.$state.textFragments.get(tfd.id)
+            if (tf) {
+                this.displayedTextFragments.push(tf)
+            }            
+        });
     }
 
 
-    private load() {
+    private async load(event: Event) {
+        console.log(this.displayedTextFragments, 'before')
         // TODO: Call when the dropdown selection changes (and not with the load button)
         // Load text fragment, add it to the beginning of the displayTextFragments array
         this.errorMessage = '';
         const textFragmentData = this.allTextFragmentsData.find(
-           obj => obj.name === this.query
+           obj => obj.name === event.target.value
         );
-        if (this.query) {
+        if (event.target.value) {
             if (!textFragmentData) {
                 this.errorMessage = 'This fragment does not exist';
                 return;
             }
-           this.textFragmentId = textFragmentData.id;
-            this.getFragmentText();
+           await this.getFragmentText(textFragmentData.id);
+           const tf = this.$state.textFragments.get(textFragmentData.id);
+           if(tf) {
+               this.displayedTextFragments = [tf, ...this.displayedTextFragments];
+           }
         }
+        console.log(this.displayedTextFragments, 'after')
     }
 
-    private async getFragmentText() {
+    private async getFragmentText(textFragmentId: number) {
         this.loading = true;
         await this.$state.prepare.textFragment(
             this.editionId,
-            this.textFragmentId
+            textFragmentId
         );
         this.loading = false;
-        this.textFragmentSelected(this.textFragmentId);
+        //this.textFragmentSelected(this.textFragmentId);
     }
 
     private onSignInterpretationClicked(si: SignInterpretation) {
