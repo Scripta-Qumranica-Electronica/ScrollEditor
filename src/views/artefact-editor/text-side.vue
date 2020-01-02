@@ -9,21 +9,19 @@
             :disabled="loading"
             name="Load"
             class="btn btn-secondary btn-position"
-        >{{$t('misc.load')}}</button> -->
+        >{{$t('misc.load')}}</button>-->
         <span class="isa_error">{{errorMessage}}</span>
 
-
-        <div v-for="textFragment in displayedTextFragments" :key="textFragment.id" >
+        <div v-for="textFragment in displayedTextFragments" :key="textFragment.id">
             <h3>{{textFragment.textFragmentName}}</h3>
             <div style="border: solid 1px;">
                 <text-fragment
-                :selectedSignInterpretation="selectedSignInterpretation"
-                :fragment="textFragment"
-                @sign-interpretation-clicked="onSignInterpretationClicked($event)"
-                id="text-box"
-            ></text-fragment> 
+                    :selectedSignInterpretation="selectedSignInterpretation"
+                    :fragment="textFragment"
+                    @sign-interpretation-clicked="onSignInterpretationClicked($event)"
+                    id="text-box"
+                ></text-fragment>
             </div>
-             
         </div>
     </div>
 </template>
@@ -51,7 +49,7 @@ export default class TextSide extends Vue {
     private errorMessage = '';
     //private query = '';
     private loading = false;
-     private textFragmentId = 0;
+    private textFragmentId = 0;
 
     private displayedTextFragments: TextFragment[] = [];
 
@@ -74,22 +72,22 @@ export default class TextSide extends Vue {
     //     return this.displayedTextFragmentsData.map(tfd => this.$state.textFragments.get(tfd.id));
     // }
 
-     private get allTextFragmentsData() {
-      const textFragments = this.$state.editions.current!.textFragments.map(
+    private get allTextFragmentsData() {
+        const textFragments = this.$state.editions.current!.textFragments.map(
             tf => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
         );
-      let textFragmentsArtefact = this.$state.artefacts.current!.textFragments || [];   
+        let textFragmentsArtefact =
+            this.$state.artefacts.current!.textFragments || [];
 
         textFragments.forEach(EditionTf => {
-            EditionTf.certain = textFragmentsArtefact.findIndex(ArtefactTf => ArtefactTf.id === EditionTf.id) > -1
+            EditionTf.certain =
+                textFragmentsArtefact.findIndex(
+                    ArtefactTf => ArtefactTf.id === EditionTf.id
+                ) > -1;
         });
-       
 
         return textFragments;
     }
-
-    
-
 
     // private get textFragment(): TextFragment | undefined {
     //     return this.$state.textFragments.current;
@@ -99,47 +97,68 @@ export default class TextSide extends Vue {
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
         this.displayedTextFragmentsData.forEach(async tfd => {
             await this.getFragmentText(tfd.id);
-            const tf = this.$state.textFragments.get(tfd.id)
+            const tf = this.$state.textFragments.get(tfd.id);
             if (tf) {
-                this.displayedTextFragments.push(tf)
-            }            
+                this.displayedTextFragments.push(tf);
+            }
         });
     }
 
-
     private async load(event: Event) {
-        console.log(this.displayedTextFragments, 'before')
+        console.log(this.displayedTextFragments, 'before');
         // TODO: Call when the dropdown selection changes (and not with the load button)
         // Load text fragment, add it to the beginning of the displayTextFragments array
         this.errorMessage = '';
         const textFragmentData = this.allTextFragmentsData.find(
-           obj => obj.name === event.target.value
+            obj => obj.name === event.target.value
         );
         if (event.target.value) {
             if (!textFragmentData) {
                 this.errorMessage = 'This fragment does not exist';
                 return;
             }
-           await this.getFragmentText(textFragmentData.id);
-           const tf = this.$state.textFragments.get(textFragmentData.id);
-           if(tf) {
-               this.displayedTextFragments = [tf, ...this.displayedTextFragments];
-           }
+       
+
+            let index = this.displayedTextFragments.findIndex(x => {
+             return this.dropdownTextFragmentsData.find(
+                    y => y.id === x.id
+                ) !== undefined;
+            });
+            if ( index > -1) {
+                this.displayedTextFragments.splice(index, 1);
+            }
+
+            await this.getFragmentText(textFragmentData.id);
+            const tf = this.$state.textFragments.get(textFragmentData.id);
+
+            if (tf) {
+                console.log(textFragmentData.id, 'textFragmentData');
+
+                this.displayedTextFragments = [
+                    tf,
+                    ...this.displayedTextFragments
+                ];
+            }
         }
-        console.log(this.displayedTextFragments, 'after')
+        console.log(this.displayedTextFragments, 'after');
     }
 
     private async getFragmentText(textFragmentId: number) {
         this.loading = true;
-        await this.$state.prepare.textFragment(
-            this.editionId,
-            textFragmentId
-        );
+        await this.$state.prepare.textFragment(this.editionId, textFragmentId);
         this.loading = false;
         //this.textFragmentSelected(this.textFragmentId);
     }
 
-    private onSignInterpretationClicked(si: SignInterpretation) {
+    private onSignInterpretationClicked(si: SignInterpretation) {        
+        const siTextFragment = si.sign.line.textFragment;
+        const tf = this.$state.artefacts.current!.textFragments.find(x => x.id === siTextFragment.textFragmentId);
+        if (!tf) {
+            this.$state.artefacts.current!.textFragments.push(
+                 {id: siTextFragment.textFragmentId, name: siTextFragment.textFragmentName, editorId: siTextFragment.editorId, certain: true}
+            )
+        }
+        console.log(this.$state.artefacts.current!.textFragments, 'qsdq')
         this.signInterpretationClicked(si);
     }
 
