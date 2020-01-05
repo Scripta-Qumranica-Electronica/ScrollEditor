@@ -636,8 +636,12 @@ export default class ArtefactEditor extends Vue {
 }
 
 #text-right-sidebar {
+    height: calc(100vh - 63px);
     width: calc((100vw - 330px) / 2);
+    overflow: scroll;
 }
+    
+
 
 #text-right-sidebar.sidebar.text {
     margin-right: calc((-100vw + 80px) / 2);

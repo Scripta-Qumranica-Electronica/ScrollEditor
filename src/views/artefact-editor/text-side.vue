@@ -4,17 +4,12 @@
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
         </datalist>
-        <!-- <button
-            @click.prevent="load(query)"
-            :disabled="loading"
-            name="Load"
-            class="btn btn-secondary btn-position"
-        >{{$t('misc.load')}}</button>-->
         <span class="isa_error">{{errorMessage}}</span>
 
-        <div v-for="textFragment in displayedTextFragments" :key="textFragment.id">
+        <div v-for="(textFragment, index) in displayedTextFragments" :key="textFragment.id">
             <h3>{{textFragment.textFragmentName}}</h3>
-            <div style="border: solid 1px;">
+            <button @click="toggleShow(textFragment.id)">{{ isTfShown(textFragment.id) ? 'Close' : 'Open' }}</button>
+            <div style="border: solid 1px;" v-show="isTfShown(textFragment.id)">
                 <text-fragment
                     :selectedSignInterpretation="selectedSignInterpretation"
                     :fragment="textFragment"
@@ -22,6 +17,8 @@
                     id="text-box"
                 ></text-fragment>
             </div>
+
+            <button @click="changePosition(index)">change</button>
         </div>
     </div>
 </template>
@@ -52,7 +49,7 @@ export default class TextSide extends Vue {
     private textFragmentId = 0;
 
     private displayedTextFragments: TextFragment[] = [];
-
+    private displayedTextFragmentsShow: { [key: number]: boolean } = {};
     private get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
@@ -65,12 +62,9 @@ export default class TextSide extends Vue {
         return this.allTextFragmentsData.filter(x => x.certain);
     }
 
-    // private get displayedTextFragments() {
-    //     if(!this.$state.textFragments.size){
-    //         return;
-    //     }
-    //     return this.displayedTextFragmentsData.map(tfd => this.$state.textFragments.get(tfd.id));
-    // }
+    private isTfShown(tfId: number) {
+        return this.displayedTextFragmentsShow[tfId];
+    }
 
     private get allTextFragmentsData() {
         const textFragments = this.$state.editions.current!.textFragments.map(
@@ -89,25 +83,20 @@ export default class TextSide extends Vue {
         return textFragments;
     }
 
-    // private get textFragment(): TextFragment | undefined {
-    //     return this.$state.textFragments.current;
-    // }
-
     private async mounted() {
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
-        this.displayedTextFragmentsData.forEach(async tfd => {
+        this.displayedTextFragmentsData.forEach(async (tfd, idx) => {
             await this.getFragmentText(tfd.id);
             const tf = this.$state.textFragments.get(tfd.id);
             if (tf) {
                 this.displayedTextFragments.push(tf);
+                this.displayedTextFragmentsShow[tfd.id] =
+                    idx === 0 ? true : false;
             }
         });
     }
 
     private async load(event: Event) {
-        console.log(this.displayedTextFragments, 'before');
-        // TODO: Call when the dropdown selection changes (and not with the load button)
-        // Load text fragment, add it to the beginning of the displayTextFragments array
         this.errorMessage = '';
         const textFragmentData = this.allTextFragmentsData.find(
             obj => obj.name === event.target.value
@@ -117,14 +106,14 @@ export default class TextSide extends Vue {
                 this.errorMessage = 'This fragment does not exist';
                 return;
             }
-       
 
             let index = this.displayedTextFragments.findIndex(x => {
-             return this.dropdownTextFragmentsData.find(
-                    y => y.id === x.id
-                ) !== undefined;
+                return (
+                    this.dropdownTextFragmentsData.find(y => y.id === x.id) !==
+                    undefined
+                );
             });
-            if ( index > -1) {
+            if (index > -1) {
                 this.displayedTextFragments.splice(index, 1);
             }
 
@@ -138,9 +127,29 @@ export default class TextSide extends Vue {
                     tf,
                     ...this.displayedTextFragments
                 ];
+
+                this.toggleShow(tf.id);
             }
         }
-        console.log(this.displayedTextFragments, 'after');
+    }
+
+    private changePosition(index:number){
+        if (index - 1 >= 0) {
+            const temp = this.displayedTextFragments[index];
+            this.displayedTextFragments[index] = this.displayedTextFragments[index - 1];
+            this.displayedTextFragments[index - 1] = temp;
+            this.displayedTextFragments = [...this.displayedTextFragments];
+        }
+    }
+
+    private toggleShow(tfId: number) {
+        Object.keys(this.displayedTextFragmentsShow).forEach(key => {
+            if (+key !== tfId) {
+                this.displayedTextFragmentsShow[+key] = false;
+            }
+        });
+        this.displayedTextFragmentsShow[tfId] = !this.displayedTextFragmentsShow[tfId]; // open the corresponding box
+        this.displayedTextFragmentsShow = { ...this.displayedTextFragmentsShow }; // ??? copy to  update the view
     }
 
     private async getFragmentText(textFragmentId: number) {
@@ -150,15 +159,20 @@ export default class TextSide extends Vue {
         //this.textFragmentSelected(this.textFragmentId);
     }
 
-    private onSignInterpretationClicked(si: SignInterpretation) {        
+    private onSignInterpretationClicked(si: SignInterpretation) {
         const siTextFragment = si.sign.line.textFragment;
-        const tf = this.$state.artefacts.current!.textFragments.find(x => x.id === siTextFragment.textFragmentId);
+        const tf = this.$state.artefacts.current!.textFragments.find(
+            x => x.id === siTextFragment.textFragmentId
+        );
         if (!tf) {
-            this.$state.artefacts.current!.textFragments.push(
-                 {id: siTextFragment.textFragmentId, name: siTextFragment.textFragmentName, editorId: siTextFragment.editorId, certain: true}
-            )
+            this.$state.artefacts.current!.textFragments.push({
+                id: siTextFragment.textFragmentId,
+                name: siTextFragment.textFragmentName,
+                editorId: siTextFragment.editorId,
+                certain: true
+            });
         }
-        console.log(this.$state.artefacts.current!.textFragments, 'qsdq')
+        console.log(this.$state.artefacts.current!.textFragments, 'qsdq');
         this.signInterpretationClicked(si);
     }
 
