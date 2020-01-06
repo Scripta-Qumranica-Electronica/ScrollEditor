@@ -6,31 +6,47 @@
         </datalist>
         <span class="isa_error">{{errorMessage}}</span>
 
-        <div v-for="(textFragment, index) in displayedTextFragments" :key="textFragment.id" role="tablist"> 
-             <b-card-header header-tag="header" class="p-1" >
-                 <b-row>
-                      <b-col cols="2">
-                          <b-button-group block>
-                                <b-button href="#" @click="changePosition(index, true)"><i class="fa fa-arrow-up"></i></b-button>
-                                <b-button href="#" @click="changePosition(index, false)"><i class="fa fa-arrow-down"></i></b-button>
-                            </b-button-group>
-                          </b-col>
-                        <b-col cols="10" role="tab"> <b-button block href="#" v-b-toggle="'accordion-' + index" variant="info">{{textFragment.textFragmentName}}</b-button></b-col>
+        <div
+            v-for="(textFragment, index) in displayedTextFragments"
+            :key="textFragment.id"
+            role="tablist"
+        >
+            <b-card-header header-tag="header" class="p-1">
+                <b-row>
+                    <b-col cols="2">
+                        <b-button-group block>
+                            <b-button href="#" @click="changePosition(index, true)">
+                                <i class="fa fa-arrow-up"></i>
+                            </b-button>
+                            <b-button href="#" @click="changePosition(index, false)">
+                                <i class="fa fa-arrow-down"></i>
+                            </b-button>
+                        </b-button-group>
+                    </b-col>
+                    <b-col cols="10" role="tab">
+                        <b-button
+                            block
+                            href="#"
+                            v-b-toggle="'accordion-' + index"
+                            variant="info"
+                        >{{textFragment.textFragmentName}}</b-button>
+                    </b-col>
                 </b-row>
-                
-               
-              </b-card-header>
-            <!-- <button @click="toggleShow(textFragment.id)">{{ isTfShown(textFragment.id) ? 'Close' : 'Open' }}</button> -->
-            <!-- <div style="border: solid 1px;" v-show="isTfShown(textFragment.id)"> -->
-               <b-collapse :id="'accordion-'+ index" :visible="index === 0" accordion="my-accordion" role="tabpanel">
+            </b-card-header>
+
+            <b-collapse
+                :id="'accordion-'+ index"
+                :visible="index === 0"
+                accordion="my-accordion"
+                role="tabpanel"
+            >
                 <text-fragment
                     :selectedSignInterpretation="selectedSignInterpretation"
                     :fragment="textFragment"
                     @sign-interpretation-clicked="onSignInterpretationClicked($event)"
                     id="text-box"
                 ></text-fragment>
-                </b-collapse>
-            <!-- </div> -->
+            </b-collapse>
         </div>
     </div>
 </template>
@@ -139,31 +155,23 @@ export default class TextSide extends Vue {
                     tf,
                     ...this.displayedTextFragments
                 ];
-
-                this.toggleShow(tf.id);
             }
         }
     }
 
-    private changePosition(index:number, up: boolean){
+    private changePosition(index: number, up: boolean) {
         const indexToChange = up ? index - 1 : index + 1;
-        const isInBoudaries = up ? indexToChange >= 0 : indexToChange < this.displayedTextFragments.length;
+        const isInBoudaries = up
+            ? indexToChange >= 0
+            : indexToChange < this.displayedTextFragments.length;
         if (isInBoudaries) {
             const temp = this.displayedTextFragments[index];
-            this.displayedTextFragments[index] = this.displayedTextFragments[indexToChange];
+            this.displayedTextFragments[index] = this.displayedTextFragments[
+                indexToChange
+            ];
             this.displayedTextFragments[indexToChange] = temp;
             this.displayedTextFragments = [...this.displayedTextFragments];
         }
-    }
-
-    private toggleShow(tfId: number) {
-        Object.keys(this.displayedTextFragmentsShow).forEach(key => {
-            if (+key !== tfId) {
-                this.displayedTextFragmentsShow[+key] = false;
-            }
-        });
-        this.displayedTextFragmentsShow[tfId] = !this.displayedTextFragmentsShow[tfId]; // open the corresponding box
-        this.displayedTextFragmentsShow = { ...this.displayedTextFragmentsShow }; // ??? copy to  update the view
     }
 
     private async getFragmentText(textFragmentId: number) {
