@@ -246,9 +246,9 @@ export default class StateService {
         await this.edition(editionId);
 
         // See if the text fragment has already been loaded into the store
-        let textFragment = this._state.textFragments.get(textFragmentId);
+        const textFragment = this._state.textFragments.get(textFragmentId);
         if (textFragment) {
-            return textFragment;
+            return;
         }
 
         // Make sure the fragment really exists with the edition

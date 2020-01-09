@@ -1,10 +1,10 @@
 <template>
     <div id="text-side" class="fixed-header">
-        <input class="select-text" list="my-list-id" @change="load($event)" />
+        <input class="select-text" list="my-list-id" @change="loadFragment($event)" />
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
         </datalist>
-        <span class="isa_error">{{errorMessage}}</span>
+        <span class="isa_error">{{ errorMessage }}</span>
 
         <div
             v-for="(textFragment, index) in displayedTextFragments"
@@ -29,13 +29,13 @@
                             href="#"
                             v-b-toggle="'accordion-' + index"
                             variant="info"
-                        >{{textFragment.textFragmentName}}</b-button>
+                        >{{ textFragment.textFragmentName }}</b-button>
                     </b-col>
                 </b-row>
             </b-card-header>
 
             <b-collapse
-                :id="'accordion-'+ index"
+                :id="'accordion-' + index"
                 :visible="index === 0"
                 accordion="my-accordion"
                 role="tabpanel"
@@ -43,7 +43,9 @@
                 <text-fragment
                     :selectedSignInterpretation="selectedSignInterpretation"
                     :fragment="textFragment"
-                    @sign-interpretation-clicked="onSignInterpretationClicked($event)"
+                    @sign-interpretation-clicked="
+                        onSignInterpretationClicked($event)
+                    "
                     id="text-box"
                 ></text-fragment>
             </b-collapse>
@@ -72,7 +74,6 @@ export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
     @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
-    //private query = '';
     private loading = false;
     private textFragmentId = 0;
 
@@ -98,13 +99,13 @@ export default class TextSide extends Vue {
         const textFragments = this.$state.editions.current!.textFragments.map(
             tf => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
         );
-        let textFragmentsArtefact =
+        const textFragmentsArtefact =
             this.$state.artefacts.current!.textFragments || [];
 
-        textFragments.forEach(EditionTf => {
-            EditionTf.certain =
+        textFragments.forEach(editionTf => {
+            editionTf.certain =
                 textFragmentsArtefact.findIndex(
-                    ArtefactTf => ArtefactTf.id === EditionTf.id
+                    artefactTf => artefactTf.id === editionTf.id
                 ) > -1;
         });
 
@@ -124,18 +125,19 @@ export default class TextSide extends Vue {
         });
     }
 
-    private async load(event: Event) {
+    private async loadFragment(event: Event) {
+        const target = event.target as HTMLInputElement;
         this.errorMessage = '';
         const textFragmentData = this.allTextFragmentsData.find(
-            obj => obj.name === event.target.value
+            obj => obj.name === target.value
         );
-        if (event.target.value) {
+        if (target.value) {
             if (!textFragmentData) {
                 this.errorMessage = 'This fragment does not exist';
                 return;
             }
 
-            let index = this.displayedTextFragments.findIndex(x => {
+            const index = this.displayedTextFragments.findIndex(x => {
                 return (
                     this.dropdownTextFragmentsData.find(y => y.id === x.id) !==
                     undefined
@@ -178,7 +180,7 @@ export default class TextSide extends Vue {
         this.loading = true;
         await this.$state.prepare.textFragment(this.editionId, textFragmentId);
         this.loading = false;
-        //this.textFragmentSelected(this.textFragmentId);
+        // this.textFragmentSelected(this.textFragmentId);
     }
 
     private onSignInterpretationClicked(si: SignInterpretation) {
