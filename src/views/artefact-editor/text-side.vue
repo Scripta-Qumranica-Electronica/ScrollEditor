@@ -209,6 +209,11 @@ export default class TextSide extends Vue {
     private textFragmentSelected(textFragmentId: number) {
         return textFragmentId;
     }
+
+    @Emit()
+    private textFragmentsLoaded() {
+        // Let the artefact editor know we've loaded all the initial ROIs
+    }
 }
 </script>
 

@@ -124,6 +124,7 @@
                 :artefact="artefact"
                 @sign-interpretation-clicked="onSignInterpretationClicked($event)"
                 @text-fragment-selected="initVisibleRois()"
+                @text-fragments-loaded="initVisibleRois()"
             ></text-side>
         </div>
     </div>
