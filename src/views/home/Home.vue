@@ -11,7 +11,7 @@
         <small>{{ $tc('home.personalEditionGroupCount', numberOfMyEditions)}}</small>
       </div>
     </div>
-    <ul class="list-unstyled row mt-2" id="my-search-results" v-if="myEditions.length">
+    <ul class="list-unstyled row mt-2" id="my-search-results"  v-if="myEditions.length">
       <li
           class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
           v-for="edition in myEditions"
@@ -25,7 +25,8 @@
         <small>{{ $tc('home.publicEditionGroupCount', numberOfEditions)}}</small>
       </div>
     </div>
-    <ul class="list-unstyled row mt-2" id="all-search-results" v-if="publicEditions.length">
+    <ul class="list-unstyled row mt-2" id="all-search-results" :class="{login: !this.$state.session.user }" v-if="publicEditions.length">
+    
       <li
           class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
           v-for="edition in publicEditions"
@@ -88,10 +89,14 @@ export default Vue.extend({
   font-weight: bold;
 }
 
-ul#my-search-results, 
-ul#all-search-results {  
-    height: calc(50vh - 95px);
+ul#my-search-results,
+ul#all-search-results { 
+    height: calc(50vh - 95px); 
     overflow: auto
+}
+ul#all-search-results.login{
+   height: calc(50vh - -278px);
+   overflow: auto
 }
 
 </style>

@@ -25,20 +25,25 @@
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
-            
+
                 <div
                     class="artefact-container"
                     :class="{ sidebar: isActiveSidebar, text: isActiveText }"
                 >
                     <div class="sign-wheel sign-wheel-position">
-                    <sign-wheel
-                        v-if="selectedSignInterpretation"
-                        :line="selectedLine"
-                        :selectedSignInterpretation="selectedSignInterpretation"
-                        @sign-interpretation-clicked="onSignInterpretationClicked"
-                    />
-                </div>
-                    <b-button type="button" v-show="$bp.between('sm', 'lg')" @click="nextLine()" class="btn-next-line">
+                        <sign-wheel
+                            v-if="selectedSignInterpretation"
+                            :line="selectedLine"
+                            :selectedSignInterpretation="selectedSignInterpretation"
+                            @sign-interpretation-clicked="onSignInterpretationClicked"
+                        />
+                    </div>
+                    <b-button
+                        type="button"
+                        v-show="$bp.between('sm', 'lg')"
+                        @click="nextLine()"
+                        class="btn-next-line"
+                    >
                         <i class="fa fa-arrow-left"></i>
                     </b-button>
                     <zoomer
@@ -175,14 +180,14 @@ import SignWheel from './sign-wheel.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -368,7 +373,7 @@ export default class ArtefactEditor extends Vue {
                     type: imageType,
                     visible: isMaster,
                     opacity: 1,
-                    normalizedOpacity: 1,
+                    normalizedOpacity: 1
                 };
                 // Make sure this object is tracked by Vue
                 this.$set(this.params.imageSettings, imageType, imageSetting);
@@ -641,8 +646,6 @@ export default class ArtefactEditor extends Vue {
     width: calc((100vw - 330px) / 2);
     overflow: scroll;
 }
-    
-
 
 #text-right-sidebar.sidebar.text {
     margin-right: calc((-100vw + 80px) / 2);
@@ -659,13 +662,15 @@ export default class ArtefactEditor extends Vue {
 #artefact-and-buttons {
     margin: 0px;
 }
- 
+
 .sign-wheel-position {
-  margin-left: 320px;
     margin-top: 56px;
- 
-    position: absolute;
+    text-align: center;
 }
+ .btn-next-line {
+        position: absolute;
+        top: 0px;
+    }
 
 // TODO -- update the madia
 @media (max-width: 1100px) {
@@ -743,25 +748,22 @@ export default class ArtefactEditor extends Vue {
 
     .sidebar.text {
         .sign-wheel-position {
-            width: calc((80vw) / 2);
+            margin-left: 0px;
+            margin-right: 0px;
+            width: calc((87vw) / 2);
         }
     }
     .sign-wheel {
         overflow: auto;
         white-space: normal;
         word-break: break-word;
-        text-align: right;
+        text-align: center;
     }
     .sign-wheel-position {
-        position: absolute;
-        margin-left: 80px;
-        margin-right: 80px;
-        margin-top: 20px;
+        text-align: center;
+        margin-top: 50px;
         z-index: 1000;
-        // width: calc((100vw - 160px));
     }
-    .btn-next-line{
-        margin-top:30px;
-    }
+   
 }
 </style>

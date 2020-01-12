@@ -237,7 +237,7 @@ button {
     margin-top: 30px;
     overflow: auto;
     display: grid;
-    height: calc(100vh - 165px);
+    // height: calc(100vh - 165px);
 }
 
 .isa_error {
