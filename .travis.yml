@@ -20,7 +20,7 @@ install:
   - docker-compose -f docker/docker-compose.yml build
 
 before_script:
-  - docker-compose -f docker/docker-compose.yml up -d
+  - COMPOSE_HTTP_TIMEOUT=600 docker-compose -f docker/docker-compose.yml up -d
   - yarn serve serve &
 
 script:
