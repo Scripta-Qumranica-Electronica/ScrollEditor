@@ -16,12 +16,13 @@ before_install:
 
 install:
   - yarn install --freeze
+  - yarn install wait-on
   - docker-compose -f docker/docker-compose.yml pull
   - docker-compose -f docker/docker-compose.yml build
 
 before_script:
   - COMPOSE_HTTP_TIMEOUT=600 docker-compose -f docker/docker-compose.yml up -d
-  - yarn serve & wait-on http://localhost:8080
+  - yarn serve & npx wait-on http://localhost:8080
 
 script:
   - yarn test
