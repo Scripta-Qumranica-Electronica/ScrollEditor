@@ -21,7 +21,7 @@ install:
 
 before_script:
   - COMPOSE_HTTP_TIMEOUT=600 docker-compose -f docker/docker-compose.yml up -d
-  - yarn serve serve &
+  - yarn serve & rwait-on http://localhost:8080
 
 script:
   - yarn test
