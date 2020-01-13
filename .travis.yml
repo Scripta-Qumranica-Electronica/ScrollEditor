@@ -1,0 +1,18 @@
+language: nodejs
+dist: bionic
+services: docker
+
+node_js:
+  - 12
+
+install:
+- yarn install --freeze
+
+before_script:
+- docker-compose -f docker/docker-compose.yml pull
+- docker-compose -f docker/docker-compose.yml build
+- docker-compose -f docker/docker-compose.yml up -d
+- yarn serve &
+
+script:
+- yarn run cypress runn
