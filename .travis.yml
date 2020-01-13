@@ -16,7 +16,7 @@ before_install:
 
 install:
   - yarn install --freeze
-  - yarn install wait-on
+  - yarn add wait-on
   - docker-compose -f docker/docker-compose.yml pull
   - docker-compose -f docker/docker-compose.yml build
 
