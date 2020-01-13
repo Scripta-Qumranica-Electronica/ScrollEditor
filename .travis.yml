@@ -9,6 +9,10 @@ node_js:
 cache:
   directories:
     - node_modules
+    - docker_images
+
+before_install:
+- docker load -i docker_images/images.tar || true
 
 install:
   - yarn install --freeze
@@ -21,3 +25,6 @@ before_script:
 
 script:
   - yarn test
+
+before_cache:
+- docker save -o docker_images/images.tar $(docker images -a -q)
