@@ -6,13 +6,13 @@ node_js:
   - 12
 
 install:
-- yarn install --freeze
+- npm install
 
 before_script:
 - docker-compose -f docker/docker-compose.yml pull
 - docker-compose -f docker/docker-compose.yml build
 - docker-compose -f docker/docker-compose.yml up -d
-- yarn serve &
+- npm run serve &
 
 script:
-- yarn run cypress runn
+- npm run test
