@@ -2,8 +2,9 @@
     <div class="card">
         <router-link :to="{ path: `/editions/${editionId}/artefacts/${artefact.id}` }">
             <artefact-image class="card-img-top" v-show="artefact" :artefact="artefact"></artefact-image>
+             <label>{{artefact.name}} - {{artefact.side}}</label>
         </router-link>
-        <label>{{artefact.name}} - {{artefact.side}}</label>
+       
     </div>
 </template>
 

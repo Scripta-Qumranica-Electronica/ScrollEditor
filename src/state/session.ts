@@ -6,7 +6,7 @@ export class SessionState {
     public constructor() {
         this.user = null;
     }
-    
+
     public get language(): string {
         return localStorage.getItem('language') || 'en';
     }

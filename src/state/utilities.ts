@@ -74,8 +74,8 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
     protected replaceItems(newItems: T[]) {
         const oldCurrent = this._current;
         this.items = newItems;
-        const newCurrent = oldCurrent && this.find(oldCurrent.id) 
-        this.current = newCurrent; 
+        const newCurrent = oldCurrent && this.find(oldCurrent.id);
+        this.current = newCurrent;
     }
 }
 
@@ -156,7 +156,7 @@ export class ImagedObjectCollection extends StateCollection<ImagedObject, string
 
 export class ArtefactCollection extends StateCollection<Artefact> { }
 
-export class TextFragmentCollection extends StateCollection<TextFragment> { }
+export class TextFragmentMap extends StateMap<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
 

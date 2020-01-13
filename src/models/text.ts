@@ -8,7 +8,8 @@ import {
     InterpretationAttributeDTO,
     InterpretationRoiDTO,
     NextSignInterpretationDTO,
-    SetInterpretationRoiDTO
+    SetInterpretationRoiDTO,
+    ArtefactTextFragmentMatchDTO
 } from '@/dtos/sqe-dtos';
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
@@ -23,6 +24,23 @@ class TextFragmentData {
         this.id = obj.id;
         this.name = obj.name;
         this.editorId = obj.editorId;
+    }
+}
+
+class ArtefactTextFragmentData extends TextFragmentData {
+    public static createFromEditionTextFragment(tf: TextFragmentData) {
+        return new ArtefactTextFragmentData({
+            id: tf.id,
+            name: tf.name,
+            editorId: tf.editorId,
+            suggested: true
+        });
+    }
+    public certain: boolean;
+
+    constructor(obj: ArtefactTextFragmentMatchDTO) {
+        super(obj);
+        this.certain = !obj.suggested;
     }
 }
 
@@ -251,5 +269,6 @@ export {
     Sign,
     SignInterpretation,
     InterpretationRoi,
-    TextDirection
+    TextDirection,
+    ArtefactTextFragmentData,
 };

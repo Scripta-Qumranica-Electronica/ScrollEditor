@@ -25,19 +25,25 @@
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
-                <div class="sign-wheel sign-wheel-position">
-                    <sign-wheel
-                        v-if="selectedSignInterpretation"
-                        :line="selectedLine"
-                        :selectedSignInterpretation="selectedSignInterpretation"
-                        @sign-interpretation-clicked="onSignInterpretationClicked"
-                    />
-                </div>
+
                 <div
                     class="artefact-container"
                     :class="{ sidebar: isActiveSidebar, text: isActiveText }"
                 >
-                    <b-button type="button" v-show="$bp.between('sm', 'lg')" @click="nextLine()">
+                    <div class="sign-wheel sign-wheel-position">
+                        <sign-wheel
+                            v-if="selectedSignInterpretation"
+                            :line="selectedLine"
+                            :selectedSignInterpretation="selectedSignInterpretation"
+                            @sign-interpretation-clicked="onSignInterpretationClicked"
+                        />
+                    </div>
+                    <b-button
+                        type="button"
+                        v-show="$bp.between('sm', 'lg')"
+                        @click="nextLine()"
+                        class="btn-next-line"
+                    >
                         <i class="fa fa-arrow-left"></i>
                     </b-button>
                     <zoomer
@@ -123,6 +129,7 @@
                 :artefact="artefact"
                 @sign-interpretation-clicked="onSignInterpretationClicked($event)"
                 @text-fragment-selected="initVisibleRois()"
+                @text-fragments-loaded="initVisibleRois()"
             ></text-side>
         </div>
     </div>
@@ -173,14 +180,14 @@ import SignWheel from './sign-wheel.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -366,7 +373,7 @@ export default class ArtefactEditor extends Vue {
                     type: imageType,
                     visible: isMaster,
                     opacity: 1,
-                    normalizedOpacity: 1,
+                    normalizedOpacity: 1
                 };
                 // Make sure this object is tracked by Vue
                 this.$set(this.params.imageSettings, imageType, imageSetting);
@@ -635,7 +642,9 @@ export default class ArtefactEditor extends Vue {
 }
 
 #text-right-sidebar {
+    height: calc(100vh - 63px);
     width: calc((100vw - 330px) / 2);
+    overflow: scroll;
 }
 
 #text-right-sidebar.sidebar.text {
@@ -653,11 +662,16 @@ export default class ArtefactEditor extends Vue {
 #artefact-and-buttons {
     margin: 0px;
 }
+
 .sign-wheel-position {
-    position: absolute;
-    margin-left: 325px;
-    margin-top: 20px;
+    margin-top: 56px;
+    text-align: center;
 }
+ .btn-next-line {
+        position: absolute;
+        top: 0px;
+    }
+
 // TODO -- update the madia
 @media (max-width: 1100px) {
     /* Reversing the behavior of the sidebar:
@@ -734,22 +748,22 @@ export default class ArtefactEditor extends Vue {
 
     .sidebar.text {
         .sign-wheel-position {
-            width: calc((80vw) / 2);
+            margin-left: 0px;
+            margin-right: 0px;
+            width: calc((87vw) / 2);
         }
     }
     .sign-wheel {
         overflow: auto;
         white-space: normal;
         word-break: break-word;
-        text-align: right;
+        text-align: center;
     }
     .sign-wheel-position {
-        position: absolute;
-        margin-left: 80px;
-        margin-right: 80px;
-        margin-top: 20px;
+        text-align: center;
+        margin-top: 50px;
         z-index: 1000;
-        width: calc((100vw - 160px));
     }
+   
 }
 </style>
