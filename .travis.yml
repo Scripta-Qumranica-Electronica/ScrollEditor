@@ -11,13 +11,13 @@ cache:
     - node_modules
 
 install:
-  - npm install
+  - yarn install --freeze
   - docker-compose -f docker/docker-compose.yml pull
   - docker-compose -f docker/docker-compose.yml build
 
 before_script:
   - docker-compose -f docker/docker-compose.yml up -d
-  - npm run serve &
+  - yarn serve serve &
 
 script:
-  - npm run test
+  - yarn test
