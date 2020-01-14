@@ -507,9 +507,7 @@ export default class ArtefactEditor extends Vue {
         const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
         if (!anyRoiOfSelectedTf) {
             const tfToMove = this.artefact.textFragments.find(tf => tf.id === tfId);
-            this.artefact.textFragments.push(
-                {...tfToMove, certain:false}
-            );
+           
             if(tfToMove) {
                 tfToMove.certain = false      
             }

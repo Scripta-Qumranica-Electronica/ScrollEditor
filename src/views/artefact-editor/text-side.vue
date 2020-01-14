@@ -107,7 +107,7 @@ export default class TextSide extends Vue {
         textFragments.forEach(editionTf => {
             editionTf.certain =
                 textFragmentsArtefact.findIndex(
-                    artefactTf => artefactTf.id === editionTf.id
+                    artefactTf => artefactTf.id === editionTf.id && artefactTf.certain
                 ) > -1;
         });
 
@@ -198,7 +198,9 @@ export default class TextSide extends Vue {
                 certain: true
             });
         }
-        console.log(this.$state.artefacts.current!.textFragments, 'qsdq');
+        else{
+            tf.certain = true;
+        }
         this.signInterpretationClicked(si);
     }
 
