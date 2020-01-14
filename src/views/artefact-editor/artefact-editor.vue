@@ -499,7 +499,24 @@ export default class ArtefactEditor extends Vue {
 
         const visIndex = this.visibleRois.findIndex(r => r.id === roi.id);
         this.visibleRois.splice(visIndex, 1);
+        const siId = si.signInterpretationId;
+        const tfId = si.sign.line.textFragment.textFragmentId;
+        const visibleSIs = this.visibleRois.map(r => this.$state.signInterpretations.get(r.signInterpretationId));
+        const visiblesTf = visibleSIs.map(si => si.sign.line.textFragment.textFragmentId);
+
+        const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
+        if (!anyRoiOfSelectedTf) {
+            const tfToMove = this.artefact.textFragments.find(tf => tf.id === tfId);
+            this.artefact.textFragments.push(
+                {...tfToMove, certain:false}
+            );
+            if(tfToMove) {
+                tfToMove.certain = false      
+            }
+        }
+
         this.selectedInterpretationRoi = null;
+
     }
 
     private async onSave() {
@@ -557,6 +574,7 @@ export default class ArtefactEditor extends Vue {
             duration: 7000
         });
     }
+        
 }
 </script>
 
