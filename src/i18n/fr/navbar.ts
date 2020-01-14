@@ -2,7 +2,7 @@ export default {
     home: 'Acceuil',
     about: 'A Propos',
     login: 'Connection',
-    logout: 'Deconnection',
+    logout: 'Déconnexion',
 
     forename: 'Prénom',
     surname: 'Nom de famille',
