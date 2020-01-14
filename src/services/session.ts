@@ -32,7 +32,7 @@ class SessionService {
 
     public logout() {
         // No need to contact the server, we just forget the session
-          this.stateManager.session.user = undefined;
+          this.stateManager.session.user = null;
           this.stateManager.session.token = undefined;
     }
 
@@ -47,7 +47,7 @@ class SessionService {
             this.stateManager.session.user = response.data;
             return true;
         } catch (error) {
-            this.stateManager.session.user = undefined;
+            this.stateManager.session.user = null;
             this.stateManager.session.token = undefined;
             localStorage.removeItem('token');
             return false;
@@ -87,7 +87,6 @@ class SessionService {
     public async updateUser(data: UserUpdateRequestDTO): Promise<DetailedUserDTO> {
         const response = await CommHelper.put<any>(ApiRoutes.usersUrl(), data);
         return  response.data;
-        
     }
 }
 

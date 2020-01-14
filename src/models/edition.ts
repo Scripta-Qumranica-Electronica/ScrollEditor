@@ -53,7 +53,7 @@ class EditionInfo {
     public otherVersions: EditionInfo[] = [];
 
     // The following are loaded when necessary
-    public textFragments?: TextFragmentData[];
+    public textFragments: TextFragmentData[] = [];
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;
