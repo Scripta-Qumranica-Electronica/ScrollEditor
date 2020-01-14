@@ -20,15 +20,14 @@ describe('Copy Artefact', function() {
 
     Cypress.Commands.add('PostCopyArtefact', () => {
         cy.server()
-        cy.route('POST', '/v1/editions/1655').as('postCopy')
+        cy.route('POST', '/v1/editions/1').as('postCopy')
         cy.get('#copyModal___BV_modal_footer_>button:nth-child(2)').click()
         cy.wait('@postCopy')
     })
 
     it('CopyNotLogin', function() {
         let valueText
-        cy.get('ul>li.list-item>.card').contains('1QS').first()
-            .click({ multiple: true })
+        cy.get('ul>li.list-item>.card').contains('1QS').click()
         cy.get('.no-vers')
             .invoke('text')
             .then(text => {
@@ -53,8 +52,8 @@ describe('Copy Artefact', function() {
 
         let h5
 
-        cy.get('ul>li.list-item>.card').contains('1QS99').first()
-            .click({ multiple: true })
+        cy.get('ul#all-search-results>li.list-item>.card').contains('1QS').click()
+
         cy.get('.sidebar-header>h5')
             .invoke('text')
             .then(text => {

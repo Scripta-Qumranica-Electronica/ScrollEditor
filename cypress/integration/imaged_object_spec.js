@@ -33,8 +33,7 @@ describe('Imaged Object', function() {
             expect(resp.status).to.eq(200)
         })
 
-        cy.get('ul>li.list-item>.card').contains('1QSTest').first()
-            .click({ multiple: true })
+        cy.get('ul>li.list-item>.card').contains('1QS990').click()
         cy.wait(2500)
         cy.get('.nav-item:nth-child(2)>a.nav-link>a').click()
         cy.get('ul>li.list-item>.card').first().click()
@@ -87,7 +86,7 @@ describe('Imaged Object', function() {
         cy.get('@postUser').should((resp) => {
             expect(resp.status).to.eq(200)
         })
-        cy.get('ul>li.list-item>.card').contains('1QSTest').first()
+        cy.get('ul>li.list-item>.card').contains('1QS990').first()
             .click({ multiple: true })
         cy.wait(2500)
         cy.get('.nav-item:nth-child(2)>a.nav-link>a').click()
@@ -119,7 +118,7 @@ describe('Imaged Object', function() {
         cy.get('@postUser').should((resp) => {
             expect(resp.status).to.eq(200)
         })
-        cy.get('ul>li.list-item>.card').contains('1QSTest').first()
+        cy.get('ul>li.list-item>.card').contains('1QS990').first()
             .click({ multiple: true })
         cy.wait(2500)
         cy.get('.nav-item:nth-child(2)>a.nav-link>a').click()
@@ -163,7 +162,7 @@ describe('Imaged Object', function() {
         cy.get('@postUser').should((resp) => {
             expect(resp.status).to.eq(200)
         })
-        cy.get('ul>li.list-item>.card').contains('1QSTest').first()
+        cy.get('ul>li.list-item>.card').contains('1QS990').first()
             .click({ multiple: true })
         cy.wait(2500)
         cy.get('.nav-item:nth-child(2)>a.nav-link>a').click()
@@ -178,8 +177,9 @@ describe('Imaged Object', function() {
             .then(text => {
                 DAfterSaveErase = text;
                 cy.log(DAfterSaveErase);
-                // expect(DAfterSaveErase).to(DBeforeErase)
+                expect(DAfterSaveErase).to.not.equal(DBeforeErase)
             });
+
     })
 
 
