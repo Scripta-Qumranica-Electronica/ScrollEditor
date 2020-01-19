@@ -46,10 +46,6 @@ describe('Copy Artefact', function() {
 
         cy.PostLogin()
 
-        cy.get('@postUser').should((resp) => {
-            expect(resp.status).to.eq(200)
-        })
-
         let h5
 
         cy.get('ul#all-search-results>li.list-item>.card').contains('1QS').click()

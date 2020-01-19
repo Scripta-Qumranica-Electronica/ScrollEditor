@@ -9,12 +9,12 @@
         <b-nav vertical>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
-                <router-link :class="{ bold: page === 'artefacts' }" :to="`/editions/${current.id}/artefacts`" replace>
+                <router-link :class="{ bold: page === 'artefacts',artefacts }" :to="`/editions/${current.id}/artefacts`" replace>
                     {{ $t('home.artefacts') }}: {{ artefacts }} 
                 </router-link>
             </b-nav-item>
             <b-nav-item>
-                <router-link :class="{ bold: page === 'imaged-objects'  }" :to="`/editions/${current.id}/imaged-objects`" replace>
+                <router-link :class="{ bold: page === 'imaged-objects',imagedObjects  }" :to="`/editions/${current.id}/imaged-objects`" replace>
                     {{ $t('home.imagedObjects') }}: {{ imagedObjects }}
                 </router-link>
             </b-nav-item><!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
