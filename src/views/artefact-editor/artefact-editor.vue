@@ -150,6 +150,8 @@ import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
+import { ArtefactTextFragmentData } from '@/models/text';
+
 import {
     ImageSetting,
     SingleImageSetting,
@@ -248,6 +250,7 @@ export default class ArtefactEditor extends Vue {
             this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
+        await Promise.all(this.artefact.textFragments.map((tf: ArtefactTextFragmentData) => this.$state.prepare.textFragment(this.artefact.editionId, tf.id)));
         this.initVisibleRois();
         this.waiting = false;
     }
