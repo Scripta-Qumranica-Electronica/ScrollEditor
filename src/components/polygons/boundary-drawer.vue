@@ -143,7 +143,7 @@ export default class BoundaryDrawer extends Vue {
                 this.corner2!.y = pt.y;
             }
 
-            this.closedPolygon = this.checkPolygonCloseness();
+            this.closedPolygon = false;
         }
     }
 
@@ -194,7 +194,7 @@ export default class BoundaryDrawer extends Vue {
         this.activePointers.delete($event.pointerId);
 
         // TODO: Make sure the polygon is closed
-        if (this.closedPolygon) {
+        if (this.mode === 'box' || !this.closedPolygon) {
             this.newPolygon();
         }
         this.cancelOperation();
