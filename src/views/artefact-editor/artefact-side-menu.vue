@@ -47,8 +47,8 @@
                             <div class="row">
                                 <div class="col">
                                     <b-form-input type="number" v-model="rotationAngle" />
-                                </div>
-                            </div>
+                             
+                             /div>
                         </section>
                     </b-card-body>
                 </b-collapse>
