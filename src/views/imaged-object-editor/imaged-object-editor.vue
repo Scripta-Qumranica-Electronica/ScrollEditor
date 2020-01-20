@@ -40,7 +40,8 @@
             <!-- todo: add external div with the condition -->
             <div class="row">
                 <div id="buttons-div">
-                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
+                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()"
+                      v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebarObject')">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
 
@@ -50,6 +51,7 @@
                         @click="editingModeChanged(mode.val)"
                         :pressed="modeChosen(mode.val)"
                         class="sidebarCollapse"
+                         v-b-tooltip.hover.bottom :title="mode.title"
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
@@ -171,8 +173,8 @@ export default class ImagedObjectEditor extends Vue {
     private get editList(): any[] {
         if (this.canEdit) {
             return [
-                { icon: 'fa fa-pencil', val: 'DRAW' },
-                { icon: 'fa fa-trash', val: 'ERASE' }
+                { icon: 'fa fa-pencil', val: 'DRAW',title: this.$t('misc.draw')},
+                { icon: 'fa fa-trash', val: 'ERASE',title: this.$t('misc.cancel')}
             ];
         }
         return [];

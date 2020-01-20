@@ -15,10 +15,10 @@
                 <b-row>
                     <b-col cols="2">
                         <b-button-group block>
-                            <b-button href="#" @click="changePosition(index, true)">
+                            <b-button href="#" @click="changePosition(index, true)" v-b-tooltip.hover.bottom :title="$t('misc.up')">
                                 <i class="fa fa-arrow-up"></i>
                             </b-button>
-                            <b-button href="#" @click="changePosition(index, false)">
+                            <b-button href="#" @click="changePosition(index, false)" v-b-tooltip.hover.bottom :title="$t('misc.down')">
                                 <i class="fa fa-arrow-down"></i>
                             </b-button>
                         </b-button-group>
