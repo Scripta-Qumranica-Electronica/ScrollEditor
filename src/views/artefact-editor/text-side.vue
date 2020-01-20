@@ -84,10 +84,12 @@ export default class TextSide extends Vue {
     }
 
     private get dropdownTextFragmentsData() {
+        console.log(this.allTextFragmentsData,"dropDown")
         return this.allTextFragmentsData.filter(x => !x.certain);
     }
 
     private get displayedTextFragmentsData() {
+         console.log(this.allTextFragmentsData,"dropDown")
         return this.allTextFragmentsData.filter(x => x.certain);
     }
 
@@ -105,7 +107,7 @@ export default class TextSide extends Vue {
         textFragments.forEach(editionTf => {
             editionTf.certain =
                 textFragmentsArtefact.findIndex(
-                    artefactTf => artefactTf.id === editionTf.id
+                    artefactTf => artefactTf.id === editionTf.id && artefactTf.certain
                 ) > -1;
         });
 
@@ -196,7 +198,9 @@ export default class TextSide extends Vue {
                 certain: true
             });
         }
-        console.log(this.$state.artefacts.current!.textFragments, 'qsdq');
+        else{
+            tf.certain = true;
+        }
         this.signInterpretationClicked(si);
     }
 

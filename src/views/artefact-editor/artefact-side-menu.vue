@@ -5,7 +5,7 @@
                 <b-card-header header-tag="header" class="p-1" role="tab">
                     <b-button block href="#" v-b-toggle.accordion-images variant="info">Images</b-button>
                 </b-card-header>
-                <b-collapse id="accordion-images" visible accordion="my-accordion" role="tabpanel">
+                <b-collapse id="accordion-images" visible accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <image-settings
                             :imageStack="imageStack"
@@ -27,7 +27,7 @@
                         variant="info"
                     >{{$t('home.editorParameters')}}</b-button>
                 </b-card-header>
-                <b-collapse id="accordion-params" accordion="my-accordion" role="tabpanel">
+                <b-collapse id="accordion-params" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <section>
                             <div class="row">
@@ -65,7 +65,7 @@
                         variant="info"
                     >{{$t('misc.actions')}}</b-button>
                 </b-card-header>
-                <b-collapse id="accordion-actions" accordion="my-accordion" role="tabpanel">
+                <b-collapse id="accordion-actions" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
                             <b-button @click="onRotateClick(-10)">

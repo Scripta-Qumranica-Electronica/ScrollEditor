@@ -5,6 +5,7 @@ import ArtefactService from '@/services/artefact';
 import { IIIFImage } from '@/models/image';
 import ImageService from '@/services/image';
 import TextService from '@/services/text';
+import { ArtefactTextFragmentData } from '@/models/text';
 
 /*
  * This service handles all the state data.
@@ -239,6 +240,7 @@ export default class StateService {
         artefact.textFragments = await tfPromise;
 
         this._state.artefacts.current = artefact;
+        //await Promise.all(artefact.textFragments.map((tf: ArtefactTextFragmentData) => this._state.prepare.textFragment(editionId, tf.id)));
         this._state.imagedObjects.current = imagedObject;
     }
 
