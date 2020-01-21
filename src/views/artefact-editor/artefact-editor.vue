@@ -85,7 +85,7 @@
                         </svg>
                     </zoomer>
                 </div>
-                <div class="buttons-div">
+                <div id="buttons-div">
                     <b-button type="button" class="sidebarCollapse" @click="textClicked()">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
