@@ -56,6 +56,6 @@ describe('Imaged Artefact', function() {
             .trigger('pointerup', 290, 250)
 
         cy.get('#transform-root>g:nth-child(2)').should('have.length', 1)
-            // cy.get('#buttons-div>button.sidebarCollapse>i.fa-pencil-square-o').click()
+        cy.get('#buttons-div>button.sidebarCollapse>i.fa-trash').click()
     })
 })
