@@ -31,7 +31,6 @@ describe('Imaged Artefact', function() {
 
     it('Artefact textFragment ', () => {
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-align-justify').click()
-        cy.get('input.select-text').type('col. 5').blur()
         cy.get('#my-list-id option').should('have.length', 11)
             .first().should('have.text', 'col. 1')
             .next().should('have.text', 'col. 2')
@@ -44,7 +43,9 @@ describe('Imaged Artefact', function() {
             .next().should('have.text', 'col. 9')
             .next().should('have.text', 'col. 10')
             .next().should('have.text', 'col. 11')
+        cy.get('input.select-text').type('col. 5').blur()
         cy.get(':nth-child(5) > :nth-child(76)').click()
+        cy.get('#my-list-id option').should('have.length', 10)
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-pencil-square-o').click()
 
         cy.get('g#transform-root')
@@ -56,6 +57,18 @@ describe('Imaged Artefact', function() {
             .trigger('pointerup', 290, 250)
 
         cy.get('#transform-root>g:nth-child(2)').should('have.length', 1)
-        cy.get('#buttons-div>button.sidebarCollapse>i.fa-trash').click()
+            // cy.get('#buttons-div>button.sidebarCollapse>i.fa-trash').click()
+        cy.get('input.select-text').clear()
+            // cy.get('#my-list-id option').should('have.length', 11)
+        cy.get('input.select-text').type('col. 2').blur()
+        cy.get(':nth-child(4) > :nth-child(28)').click()
+        cy.get('#buttons-div>button.sidebarCollapse>i.fa-square-o').click()
+        cy.get('g#transform-root')
+            .trigger('pointermove', 290, 250)
+            .trigger('pointerdown', 290, 250)
+            .trigger('pointermove', 350, 280)
+            .trigger('pointerup', 350, 280)
+        cy.get('#transform-root>g:nth-child(2)').should('have.length', 2)
+
     })
 })
