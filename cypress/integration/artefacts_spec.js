@@ -5,6 +5,9 @@ describe('Imaged Artefact', function() {
 
         cy.typeLogin({ email: 'test@1.com', password: 'test' })
         cy.PostLogin()
+
+
+
         cy.get('ul>li.list-item>.card').contains('1QS990').first()
             .click({ multiple: true })
         cy.wait(2500)
@@ -56,10 +59,10 @@ describe('Imaged Artefact', function() {
             .trigger('pointermove', 290, 250)
             .trigger('pointerup', 290, 250)
 
-        cy.get('#transform-root>g:nth-child(2)').should('have.length', 1)
-            // cy.get('#buttons-div>button.sidebarCollapse>i.fa-trash').click()
+        cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
+        cy.get('#buttons-div>button.sidebarCollapse>i.fa-trash').click()
         cy.get('input.select-text').clear()
-            // cy.get('#my-list-id option').should('have.length', 11)
+        cy.get('#my-list-id option').should('have.length', 11)
         cy.get('input.select-text').type('col. 2').blur()
         cy.get(':nth-child(4) > :nth-child(28)').click()
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-square-o').click()
@@ -68,7 +71,7 @@ describe('Imaged Artefact', function() {
             .trigger('pointerdown', 290, 250)
             .trigger('pointermove', 350, 280)
             .trigger('pointerup', 350, 280)
-        cy.get('#transform-root>g:nth-child(2)').should('have.length', 2)
+        cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
 
     })
 })
