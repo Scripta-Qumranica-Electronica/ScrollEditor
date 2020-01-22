@@ -24,16 +24,16 @@ describe('Imaged Artefact', function() {
     })
 
     Cypress.Commands.add('PostLogin', () => {
-        cy.server()
-        cy.route('POST', '/v1/users/login').as('postUser')
-        cy.get('button[type=submit]').click()
-        cy.wait('@postUser')
-    })
-    Cypress.Commands.add('ActionButton', () => {
-        cy.get('#buttons-div>button.sidebarCollapse>i.fa-align-justify').click()
-        cy.get('#imaged-object-menu section:nth-child(4) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(4) button').click()
-    })
+            cy.server()
+            cy.route('POST', '/v1/users/login').as('postUser')
+            cy.get('button[type=submit]').click()
+            cy.wait('@postUser')
+        })
+        // Cypress.Commands.add('ActionButton', () => {
+        //     cy.get('#buttons-div>button.sidebarCollapse>i.fa-align-justify').click()
+        //     cy.get('#imaged-object-menu section:nth-child(4) div header a').click()
+        //     cy.get('#accordion-actions .card-body section:nth-child(4) button').click()
+        // })
 
 
     it('Artefact textFragment ', () => {
@@ -76,7 +76,7 @@ describe('Imaged Artefact', function() {
                 .trigger('pointermove', 350, 280)
                 .trigger('pointerup', 350, 280)
             let save = cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
-            cy.ActionButton();
+                // cy.ActionButton();
 
         })
         // it('save ', () => {})
