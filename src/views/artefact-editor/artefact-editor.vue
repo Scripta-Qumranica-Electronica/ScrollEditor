@@ -21,7 +21,7 @@
         <div :class="{ sidebar: isActiveSidebar, text: isActiveText }" v-if="!waiting && artefact">
             <div class="row" id="artefact-and-buttons">
                 <div class="buttons-div">
-                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()">
+                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()" v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebarArtefact')">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
@@ -85,17 +85,18 @@
                         </svg>
                     </zoomer>
                 </div>
-                <div id="buttons-div">
-                    <b-button type="button" class="sidebarCollapse" @click="textClicked()">
+                <div class="buttons-div">
+                    <b-button type="button" class="sidebarCollapse" @click="textClicked()"  v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebar')">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                     <b-button
-                        v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon'}, {icon: 'fa fa-square-o', val: 'box'}]"
+                        v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon' ,title: this.$t('misc.draw')}, {icon: 'fa fa-square-o', val: 'box', title: this.$t('misc.box')}]"
                         :key="mode.val"
                         @click="onDrawingModeClick(mode.val)"
                         :pressed="drawingMode === mode.val"
                         :disabled="!isDrawingEnabled"
                         class="sidebarCollapse"
+                        v-b-tooltip.hover.bottom :title="mode.title"
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
@@ -104,6 +105,7 @@
                         class="sidebarCollapse"
                         @click="onDeleteRoi()"
                         :disabled="!isDeleteEnabled"
+                        v-b-tooltip.hover.bottom :title="$t('misc.cancel')"
                     >
                         <i class="fa fa-trash"></i>
                     </b-button>
@@ -112,6 +114,8 @@
                         @click="onAuto()"
                         :pressed="autoMode == true"
                         class="sidebarCollapse"
+                         v-b-tooltip.hover.bottom 
+                         :title="$t('misc.auto')"
                     >
                         <i class="fa fa-refresh"></i>
                     </b-button>

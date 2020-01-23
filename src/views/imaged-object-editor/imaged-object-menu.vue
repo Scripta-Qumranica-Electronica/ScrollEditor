@@ -163,10 +163,10 @@
                 <b-collapse id="accordion-actions" accordion="my-accordion" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button @click="onRotateClick(-90)">
+                            <b-button @click="onRotateClick(-90)" v-b-tooltip.hover.bottom :title="$t('misc.leftRotate')">
                                 <font-awesome-icon icon="undo"></font-awesome-icon>
                             </b-button>
-                            <b-button @click="onRotateClick(90)">
+                            <b-button @click="onRotateClick(90)" v-b-tooltip.hover.bottom :title="$t('misc.RightRotate')">
                                 <font-awesome-icon icon="redo"></font-awesome-icon>
                             </b-button>
                         </section>

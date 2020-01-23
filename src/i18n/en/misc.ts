@@ -3,11 +3,21 @@ export default {
     new: 'New',
     current: 'Current',
     copy: 'Copy',
+    draw: 'Draw',
+    box: 'Box',
     rename: 'Rename',
     create: 'Create',
     undo: 'Undo',
     redo: 'Redo',
+    up: 'Switch Up',
+    down: 'Switch Down',
     actions: 'Actions',
     save: 'Save',
-    load: 'Load'
+    load: 'Load',
+    auto: 'Auto',
+    collapsedsidebar: 'Menu TextFragment',
+    collapsedsidebarObject: 'Menu ImageObject',
+    collapsedsidebarArtefact: 'Menu Artefact',
+    leftRotate: 'Left Rotate',
+    RightRotate: 'Right Rotate'
 };

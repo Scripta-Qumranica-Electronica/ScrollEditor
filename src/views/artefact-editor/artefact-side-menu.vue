@@ -47,7 +47,8 @@
                             <div class="row">
                                 <div class="col">
                                     <b-form-input type="number" v-model="rotationAngle" />
-                                </div>
+                             
+                             </div>
                             </div>
                         </section>
                     </b-card-body>
@@ -68,10 +69,10 @@
                 <b-collapse id="accordion-actions" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button @click="onRotateClick(-10)">
+                            <b-button @click="onRotateClick(-10)" v-b-tooltip.hover.bottom :title="$t('misc.leftRotate')">
                                 <font-awesome-icon icon="undo"></font-awesome-icon>
                             </b-button>
-                            <b-button @click="onRotateClick(10)">
+                            <b-button @click="onRotateClick(10)"  v-b-tooltip.hover.bottom :title="$t('misc.RightRotate')">
                                 <font-awesome-icon icon="redo"></font-awesome-icon>
                             </b-button>
                         </section>
