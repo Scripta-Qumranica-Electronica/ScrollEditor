@@ -11,7 +11,7 @@
         <small>{{ $tc('home.personalEditionGroupCount', numberOfMyEditions)}}</small>
       </div>
     </div>
-    <ul class="list-unstyled row mt-2" id="my-search-results" v-if="myEditions.length">
+    <ul class="list-unstyled row mt-2" id="my-search-results"  v-if="myEditions.length">
       <li
           class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
           v-for="edition in myEditions"
@@ -25,10 +25,11 @@
         <small>{{ $tc('home.publicEditionGroupCount', numberOfEditions)}}</small>
       </div>
     </div>
-    <ul class="list-unstyled row mt-2" id="all-search-results" v-if="allEditions.length">
+    <ul class="list-unstyled row mt-2" id="all-search-results" :class="{login: !this.$state.session.user }" v-if="publicEditions.length">
+    
       <li
           class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
-          v-for="edition in allEditions"
+          v-for="edition in publicEditions"
           v-show="filter === '' || edition.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1"
           :key="edition.id">
         <edition-group-card :edition="edition"></edition-group-card>
@@ -40,7 +41,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionService from '@/services/edition';
 import EditionGroupCard from './components/EditionGroupCard.vue';
 import EditionCard from './components/EditionCard.vue';
 import { EditionInfo } from '@/models/edition';
@@ -55,28 +55,25 @@ export default Vue.extend({
   },
   data() {
     return {
-      editionService: new EditionService(),
-      allEditions: [] as EditionInfo[],
-      myEditions: [] as EditionInfo[],
       filter: '',
     };
   },
   computed: {
+    publicEditions(): EditionInfo[] {
+      return this.$state.editions.items.filter((ed) => ed.isPublic);
+    },
+    myEditions(): EditionInfo[] {
+      return this.$state.editions.items.filter((ed) => ed.mine);
+    },
     numberOfEditions(): number {
-      return countIf(this.allEditions, (edition) => this.nameMatch(edition.name));
+      return countIf(this.publicEditions, (edition) => this.nameMatch(edition.name));
     },
     numberOfMyEditions(): number {
       return countIf(this.myEditions, (edition) => this.nameMatch(edition.name));
-    }
+    },
   },
-  mounted() {
-    this.editionService.listEditions().then((editions) => {
-      this.allEditions = editions.editionList;
-      this.myEditions = editions.myEditionList;
-      this.$state.editions.items = this.allEditions;
-    }, (error) => {
-      throw error;
-    });
+  created() {
+    this.$state.prepare.allEditions();
   },
   methods: {
       nameMatch(name: string): boolean {
@@ -87,7 +84,19 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+
 .active-language {
   font-weight: bold;
 }
+
+ul#my-search-results,
+ul#all-search-results { 
+    height: calc(50vh - 95px); 
+    overflow: auto
+}
+ul#all-search-results.login{
+   height: calc(50vh - -278px);
+   overflow: auto
+}
+
 </style>

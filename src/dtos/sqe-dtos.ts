@@ -1,31 +1,38 @@
 ﻿// This file was generate automatically. DO NOT EDIT.
 /* tslint:disable */
-
-export interface ArtefactDTO {
+export interface ArtefactDataDTO {
     id: number;
+    name: string;
+}
+
+export interface ArtefactDTO extends ArtefactDataDTO {
     editionId: number;
     imagedObjectId: string;
     imageId: number;
     artefactDataEditorId: number;
-    name: string;
     mask: PolygonDTO;
     zOrder: number;
     side: string;
+    statusMessage: string;
 }
 
 export interface ArtefactListDTO {
     artefacts: ArtefactDTO[];
 }
-export interface UpdateArtefactDTO {
-    mask: string;
-    name: string;
-    position: string;
+
+export interface ArtefactDataListDTO {
+    artefacts: ArtefactDataDTO[];
 }
-export interface CreateArtefactDTO {
-    masterImageId: number;
-    mask: string;
+
+export interface UpdateArtefactDTO {
+    polygon: PolygonDTO;
     name: string;
-    position: string;
+    statusMessage: string;
+}
+
+export interface CreateArtefactDTO extends UpdateArtefactDTO {
+    masterImageId: number;
+    polygon: PolygonDTO;
 }
 
 export interface EditionDTO {
@@ -79,6 +86,10 @@ export interface DeleteTokenDTO {
     editionId: number;
     token: string;
 }
+export interface DeleteEditionEntityDTO {
+    entityId: number;
+    editorId: number;
+}
 export interface EditionUpdateRequestDTO {
     name: string;
     copyrightHolder: string;
@@ -127,11 +138,55 @@ export interface ImagedObjectDTO {
 export interface ImagedObjectListDTO {
     imagedObjects: ImagedObjectDTO[];
 }
+
 export interface PolygonDTO {
     mask: string;
     maskEditorId: number;
-    transformMatrix: string;
-    transformMatrixEditorId: number;
+    transformation: TransformationDTO;
+    positionEditorId: number;
+}
+
+export interface SetInterpretationRoiDTO {
+    artefactId: number;
+    signInterpretationId?: number;
+    shape: string;
+    translate: TranslateDTO;
+    stanceRotation: number;
+    exceptional: boolean;
+    valuesSet: boolean;
+}
+
+export interface InterpretationRoiDTO extends SetInterpretationRoiDTO {
+    interpretationRoiId: number;
+    editorId: number;
+}
+
+export interface UpdatedInterpretationRoiDTO extends InterpretationRoiDTO {
+    oldInterpretationRoiId: number;
+}
+
+export interface SetInterpretationRoiDTOList {
+    rois: SetInterpretationRoiDTO[];
+}
+
+export interface InterpretationRoiDTOList {
+    rois: InterpretationRoiDTO[];
+}
+
+export interface UpdatedInterpretationRoiDTOList {
+    rois: UpdatedInterpretationRoiDTO[];
+}
+
+export interface BatchEditRoiDTO {
+    createRois: InterpretationRoiDTO[];
+    updateRois: UpdatedInterpretationRoiDTO[];
+    deleteRois: number[];
+}
+
+export interface BatchEditRoiResponseDTO {
+    createRois: InterpretationRoiDTO[];
+    updateRois: UpdatedInterpretationRoiDTO[];
+    deleteRois: number[];
 }
 
 export interface SignDTO {
@@ -153,17 +208,9 @@ export interface InterpretationAttributeDTO {
     interpretationAttributeId: number;
     sequence: number;
     attributeValueId: number;
+    attributeValueString: string;
     editorId: number;
     value: number;
-}
-export interface InterpretationRoiDTO {
-    interpretationRoiId: number;
-    editorId: number;
-    artefactId: number;
-    shape: string;
-    position: string;
-    exceptional: boolean;
-    valuesSet: boolean;
 }
 export interface TextFragmentDataDTO {
     id: number;
@@ -171,8 +218,16 @@ export interface TextFragmentDataDTO {
     editorId: number;
 }
 
+export interface ArtefactTextFragmentMatchDTO extends TextFragmentDataDTO {
+    suggested: boolean;
+}
+
 export interface TextFragmentDataListDTO {
     textFragments: TextFragmentDataDTO[];
+}
+
+export interface ArtefactTextFragmentMatchListDTO {
+    textFragments: ArtefactTextFragmentMatchDTO[];
 }
 
 export interface TextFragmentDTO {
@@ -206,11 +261,21 @@ export interface CreateTextFragmentDTO {
     previousTextFragmentId?: number;
     nextTextFragmentId?: number;
 }
+
+export interface TransformationDTO {
+    scale?: number;
+    rotate?: number;
+    translate: TranslateDTO;
+}
+export interface TranslateDTO {
+    x: number;
+    y: number;
+}
 export interface LoginRequestDTO {
     email: string;
     password: string;
 }
-export interface NewUserRequestDTO {
+export interface UserUpdateRequestDTO {
     password: string;
     email: string;
     organization: string;
@@ -218,7 +283,9 @@ export interface NewUserRequestDTO {
     surname: string;
 }
 
-export interface UserUpdateRequestDTO extends NewUserRequestDTO {
+export interface NewUserRequestDTO extends UserUpdateRequestDTO {
+    email: string;
+    password: string;
 }
 export interface AccountActivationRequestDTO {
     token: string;
@@ -263,12 +330,12 @@ export interface EditorDTO {
 }
 export interface ArtefactSide {
 }
-export enum Lighting {
-    direct = 0,
-    raking = 1
-}
 export enum Direction {
     left = 0,
     right = 1,
     top = 2
+}
+export enum Lighting {
+    direct = 0,
+    raking = 1
 }

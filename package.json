@@ -1,6 +1,6 @@
 {
-  "name": "vue",
-  "version": "0.1.0",
+  "name": "sqe-scroll-editor",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode development",
@@ -16,26 +16,31 @@
     "@fortawesome/vue-fontawesome": "^0.1.2",
     "@types/js-clipper": "^0.0.28",
     "@types/mathjs": "^4.4.5",
+    "@yutahaga/vue-media-breakpoints": "^0.6.1",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
     "element-ui": "^2.4.9",
     "js-clipper": "^1.0.1",
     "mathjs": "^5.4.1",
-    "vue": "^2.5.17",
+    "vue": "^2.6.10",
+    "vue-class-component": "^7.0.2",
     "vue-i18n": "^8.3.0",
     "vue-lazyload": "^1.2.6",
+    "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.1",
     "vue-shortcuts": "^1.1.2",
     "vue-toasted": "^1.1.26",
     "vue2-hammer": "^2.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.0.5",
-    "@vue/cli-plugin-typescript": "^3.0.5",
-    "@vue/cli-service": "^3.0.5",
-    "node-sass": "^4.9.0",
-    "sass-loader": "^7.0.1",
-    "typescript": "^3.0.0",
-    "vue-template-compiler": "^2.5.17"
+    "@types/vue2-hammer": "^2.1.0",
+    "@vue/cli-plugin-babel": "^3.11.0",
+    "@vue/cli-plugin-typescript": "^3.11.0",
+    "@vue/cli-service": "^3.11.0",
+    "node-sass": "^4.13.0",
+    "sass-builder": "^1.0.0",
+    "sass-loader": "^8.0.0",
+    "typescript": "^3.6.3",
+    "vue-template-compiler": "^2.6.10"
   }
 }

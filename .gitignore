@@ -23,3 +23,9 @@ yarn-error.log*
 
 # Include necessary vscode files
 !.vscode/tasks.json
+!.vscode/launch.json
+
+# Local files for the backend's Docker
+docker/run-docker.ps1
+docker/logs/*
+!docker/logs/README.md

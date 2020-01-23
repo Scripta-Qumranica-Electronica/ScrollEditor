@@ -1,6 +1,7 @@
 import { IIIFImage } from './image';
 import { UserDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
+import { TextFragmentData } from './text';
 
 class UserInfo { // TODO: add fields like UserDTO ?
     public email: string;
@@ -46,13 +47,13 @@ class EditionInfo {
     public isPublic: boolean;
     public lastEdit?: Date;
 
-    public publicCopies: number = 1; // Updated by the EditionService
+    // The following properties are updated by the EditionService upon creation
+    public publicCopies: number = 1;
+    public mine: boolean = false;
     public otherVersions: EditionInfo[] = [];
 
-    // public numOfArtefacts: number;
-    // public numOfColumns: number;
-    // public numOfFragments: number;
-    // public otherVersions: EditionInfo[] = [];
+    // The following are loaded when necessary
+    public textFragments: TextFragmentData[] = [];
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;
@@ -71,9 +72,4 @@ class EditionInfo {
     }
 }
 
-interface AllEditions {
-    editionList: EditionInfo[];
-    myEditionList: EditionInfo[];
-}
-
-export { UserInfo, EditionInfo, ShareInfo, AllEditions };
+export { UserInfo, EditionInfo, ShareInfo };

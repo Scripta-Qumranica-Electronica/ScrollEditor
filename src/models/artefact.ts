@@ -3,6 +3,7 @@ import { ImagedObject } from './imaged-object';
 import { ArtefactDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
 import { Mask } from '@/utils/Mask';
+import { ArtefactTextFragmentData } from './text';
 
 
 export class Artefact {
@@ -18,6 +19,8 @@ export class Artefact {
     public zOrder = 0;
     public side: Side = 'recto';
 
+    public textFragments: ArtefactTextFragmentData[] = [];
+
 
     constructor(obj: Artefact | ArtefactDTO) {
         if (obj instanceof Artefact) {
@@ -29,9 +32,7 @@ export class Artefact {
         this.editionId = obj.editionId;
         this.imagedObjectId = obj.imagedObjectId;
         this.name = obj.name;
-        // this.mask = obj.mask ? Polygon.fromWkt(obj.mask.mask) : {} as Polygon;
         this.mask = new Mask(obj.mask);
-        // this.transformMatrix = obj instanceof Artefact ? obj.transformMatrix : obj.mask.transformMatrix;
         this.zOrder = obj.zOrder;
         this.side = (obj.side === 'recto') ? 'recto' : 'verso';
     }
@@ -45,5 +46,7 @@ export class Artefact {
         // this.transformMatrix = other.transformMatrix;
         this.zOrder = other.zOrder;
         this.side = other.side;
+
+        this.textFragments = [...other.textFragments];
     }
 }

@@ -32,34 +32,30 @@ export default Vue.extend({
     },
     data() {
         return {
-            editionService: new EditionService(),
-            currentVersionId: 0,
+            editionId: 0,
             page: '',
         };
     },
     computed: {
-        currentVersion(): EditionInfo | undefined {
+        edition(): EditionInfo | undefined {
             return this.$state.editions.current;
         },
         waiting(): boolean {
-            return !this.currentVersion;
+            return !this.edition;
         }
     },
     mounted() {
-        this.currentVersionId = parseInt(this.$route.params.id, 10);
-        this.loadInfo();
+        this.editionId = parseInt(this.$route.params.editionId, 10);
+        this.$state.prepare.edition(this.editionId);
         this.getPage(window.location.href);
     },
     beforeRouteUpdate(to, from, next) {
-        this.currentVersionId = parseInt(to.params.id, 10);
-        this.loadInfo();
+        this.editionId = parseInt(to.params.editionId, 10);
+        this.$state.prepare.edition(this.editionId);
         this.getPage(to.path);
         next();
     },
     methods: {
-        async loadInfo() {
-            await this.editionService.fetchEdition(this.currentVersionId);
-        },
         getPage(url: string) {
             if (url.endsWith('artefacts')) {
                 this.page = 'artefacts';
@@ -73,8 +69,6 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 #sidebar {
-  min-width: 250px;
-  max-width: 250px;
   float: left;
 }
 

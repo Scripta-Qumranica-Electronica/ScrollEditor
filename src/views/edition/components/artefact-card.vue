@@ -1,17 +1,17 @@
 <template>
     <div class="card">
-        <!-- <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imagedObject.id}` }">
-            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
-        </router-link> -->
-        <artefact-image class="card-img-top" v-if="artefact" :artefact="artefact" :scale="0.05"></artefact-image>
-        <label>{{artefact.name}} - {{artefact.side}}</label>
+        <router-link :to="{ path: `/editions/${editionId}/artefacts/${artefact.id}` }">
+            <artefact-image class="card-img-top" v-show="artefact" :artefact="artefact"></artefact-image>
+             <label>{{artefact.name}} - {{artefact.side}}</label>
+        </router-link>
+       
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
-import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
+import ArtefactImage from '@/components/artefact/artefact-image.vue';
 
 export default Vue.extend({
     name: 'artefact-card',
@@ -19,8 +19,13 @@ export default Vue.extend({
         ArtefactImage,
     },
     props: {
-        artefact: Artefact,
+        artefact: Object as () => Artefact,
     },
+    computed: {
+        editionId(): number {
+            return parseInt(this.$route.params.editionId);
+        },
+    }
 });
 </script>
 

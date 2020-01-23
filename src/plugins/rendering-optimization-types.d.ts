@@ -6,3 +6,4 @@ declare module 'vue/types/vue' {
         $render: RenderingOptimizationData;
     }
 }
+

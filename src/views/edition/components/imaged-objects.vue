@@ -21,25 +21,26 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectCard from './imaged-object-card.vue';
 import { ImagedObject } from '@/models/imaged-object';
-import EditionService from '@/services/edition';
+import ImagedObjectService from '@/services/imaged-object';
 
 export default Vue.extend({
-    data() {
-        return {
-            editionService: new EditionService(),
-        };
-    },
     components: {
         ImagedObjectCard,
         Waiting,
     },
     computed: {
-        imagedObjects(): ImagedObject[] | undefined {
+        imagedObjects(): ImagedObject[] {
             return this.$state.imagedObjects.items;
         }
     },
-    mounted() {
-        this.editionService.fetchEditionImagedObjects();
+    created() {
+        this.$state.prepare.edition(this.$state.editions.current!.id);
     }
 });
 </script>
+<style scoped>
+ul.list-unstyled {
+       height: calc(100vh - 123px);
+    overflow: auto;
+}
+</style>
