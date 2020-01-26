@@ -84,12 +84,12 @@ export default class TextSide extends Vue {
     }
 
     private get dropdownTextFragmentsData() {
-        console.log(this.allTextFragmentsData,"dropDown")
+        console.log(this.allTextFragmentsData, 'dropDown');
         return this.allTextFragmentsData.filter(x => !x.certain);
     }
 
     private get displayedTextFragmentsData() {
-         console.log(this.allTextFragmentsData,"dropDown")
+        console.log(this.allTextFragmentsData, 'dropDown');
         return this.allTextFragmentsData.filter(x => x.certain);
     }
 
@@ -197,8 +197,7 @@ export default class TextSide extends Vue {
                 editorId: siTextFragment.editorId,
                 certain: true
             });
-        }
-        else{
+        } else {
             tf.certain = true;
         }
         this.signInterpretationClicked(si);
