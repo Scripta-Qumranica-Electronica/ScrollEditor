@@ -20,7 +20,7 @@
 
         <div :class="{ sidebar: isActiveSidebar, text: isActiveText }" v-if="!waiting && artefact">
             <div class="row" id="artefact-and-buttons">
-                <div class="buttons-div">
+                <div class="buttons-div btn-menu-Artefact">
                     <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()" v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebarArtefact')">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
@@ -85,7 +85,7 @@
                         </svg>
                     </zoomer>
                 </div>
-                <div class="buttons-div">
+                <div class="buttons-div btn-tf">
                     <b-button type="button" class="sidebarCollapse" @click="textClicked()"  v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebar')">
                         <i class="fa fa-align-justify"></i>
                     </b-button>
