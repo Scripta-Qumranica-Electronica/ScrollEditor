@@ -3,6 +3,7 @@
         <div v-if="waiting" class="col">
             <waiting></waiting>
         </div>
+ 
         <div
             id="sidebar"
             class="artefact-menu-div"
@@ -31,6 +32,7 @@
                     :class="{ sidebar: isActiveSidebar, text: isActiveText }"
                 >
                     <div class="sign-wheel sign-wheel-position">
+                          {{artefact.name}}
                         <sign-wheel
                             v-if="selectedSignInterpretation"
                             :line="selectedLine"
@@ -52,6 +54,7 @@
                         @new-zoom="onNewZoom($event)"
                         @new-rotate="onNewRotate($event)"
                     >
+                  
                         <svg
                             class="overlay"
                             :width="actualWidth"
