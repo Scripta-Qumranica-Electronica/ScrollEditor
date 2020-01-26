@@ -1,5 +1,44 @@
 <template>
     <div id="imaged-object-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
+                <section>
+            <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                    <b-button
+                        block
+                        href="#"
+                        variant="info"
+                    >{{$t('home.editorParameters')}}</b-button>
+                </b-card-header>
+                <b-collapse    style="display:block;" id="accordion-params" accordion="my-accordion" role="tabpanel">
+                    <b-card-body>
+                        <section>
+                            <!-- zoom -->
+                            <div class="row">
+                                <div class="col-5">Zoom: {{formatTooltip()}}</div>
+                                <div class="col">
+                                    <b-form-input
+                                        ref="zoomRef"
+                                        type="range"
+                                        min="0.1"
+                                        max="1"
+                                        step="0.01"
+                                        v-model="zoom"
+                                    ></b-form-input>
+                                    <!-- v-b-tooltip.hover :title="formatTooltip()"-->
+                                </div>
+                            </div>
+                        </section>
+                        <section v-if="artefact && artefact.mask">
+                            <b-form-checkbox v-model="background">Background</b-form-checkbox>
+                        </section>
+                    
+                        <section>
+                            <b-form-checkbox v-model="highLight">HighLight</b-form-checkbox>
+                        </section>
+                    </b-card-body>
+                </b-collapse>
+            </b-card>
+        </section>
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
@@ -7,7 +46,6 @@
                 </b-card-header>
                 <b-collapse
                     id="accordion-artefacts"
-                    visible
                     accordion="my-accordion"
                     role="tabpanel"
                 >
@@ -113,46 +151,7 @@
             </b-card>
         </section>
 
-        <section>
-            <b-card no-body class="mb-1">
-                <b-card-header header-tag="header" class="p-1" role="tab">
-                    <b-button
-                        block
-                        href="#"
-                        v-b-toggle.accordion-params
-                        variant="info"
-                    >{{$t('home.editorParameters')}}</b-button>
-                </b-card-header>
-                <b-collapse id="accordion-params" accordion="my-accordion" role="tabpanel">
-                    <b-card-body>
-                        <section>
-                            <!-- zoom -->
-                            <div class="row">
-                                <div class="col-5">Zoom: {{formatTooltip()}}</div>
-                                <div class="col">
-                                    <b-form-input
-                                        ref="zoomRef"
-                                        type="range"
-                                        min="0.1"
-                                        max="1"
-                                        step="0.01"
-                                        v-model="zoom"
-                                    ></b-form-input>
-                                    <!-- v-b-tooltip.hover :title="formatTooltip()"-->
-                                </div>
-                            </div>
-                        </section>
-                        <section v-if="artefact && artefact.mask">
-                            <b-form-checkbox v-model="background">Background</b-form-checkbox>
-                        </section>
-                    
-                        <section>
-                            <b-form-checkbox v-model="highLight">HighLight</b-form-checkbox>
-                        </section>
-                    </b-card-body>
-                </b-collapse>
-            </b-card>
-        </section>
+
          
 
         <section>

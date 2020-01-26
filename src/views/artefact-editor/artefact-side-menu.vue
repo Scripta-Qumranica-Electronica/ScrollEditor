@@ -2,32 +2,14 @@
     <div id="artefact-side-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
         <section>
             <b-card no-body class="mb-1">
-                <b-card-header header-tag="header" class="p-1" role="tab">
-                    <b-button block href="#" v-b-toggle.accordion-images variant="info">Images</b-button>
+                <b-card-header header-tag="header" class="p-1">
+                    <b-button block href="#" variant="info">{{$t('home.editorParameters')}}</b-button>
                 </b-card-header>
-                <b-collapse id="accordion-images" visible accordion="my-accordion-side" role="tabpanel">
-                    <b-card-body>
-                        <image-settings
-                            :imageStack="imageStack"
-                            :params="params"
-                            @imageSettingChanged="onImageSettingChanged($event)"
-                        />
-                    </b-card-body>
-                </b-collapse>
-            </b-card>
-        </section>
-
-        <section>
-            <b-card no-body class="mb-1">
-                <b-card-header header-tag="header" class="p-1" role="tab">
-                    <b-button
-                        block
-                        href="#"
-                        v-b-toggle.accordion-params
-                        variant="info"
-                    >{{$t('home.editorParameters')}}</b-button>
-                </b-card-header>
-                <b-collapse id="accordion-params" accordion="my-accordion-side" role="tabpanel">
+                <b-collapse
+                    style="display:block;"
+                    id="accordion-params"
+                    accordion="my-accordion-side"
+                >
                     <b-card-body>
                         <section>
                             <div class="row">
@@ -47,15 +29,29 @@
                             <div class="row">
                                 <div class="col">
                                     <b-form-input type="number" v-model="rotationAngle" />
-                             
-                             </div>
+                                </div>
                             </div>
                         </section>
                     </b-card-body>
                 </b-collapse>
             </b-card>
         </section>
-
+        <section>
+            <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                    <b-button block href="#" v-b-toggle.accordion-images variant="info">Images</b-button>
+                </b-card-header>
+                <b-collapse id="accordion-images" accordion="my-accordion-side" role="tabpanel">
+                    <b-card-body>
+                        <image-settings
+                            :imageStack="imageStack"
+                            :params="params"
+                            @imageSettingChanged="onImageSettingChanged($event)"
+                        />
+                    </b-card-body>
+                </b-collapse>
+            </b-card>
+        </section>
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
@@ -69,10 +65,18 @@
                 <b-collapse id="accordion-actions" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button @click="onRotateClick(-10)" v-b-tooltip.hover.bottom :title="$t('misc.leftRotate')">
+                            <b-button
+                                @click="onRotateClick(-10)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.leftRotate')"
+                            >
                                 <font-awesome-icon icon="undo"></font-awesome-icon>
                             </b-button>
-                            <b-button @click="onRotateClick(10)"  v-b-tooltip.hover.bottom :title="$t('misc.RightRotate')">
+                            <b-button
+                                @click="onRotateClick(10)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.RightRotate')"
+                            >
                                 <font-awesome-icon icon="redo"></font-awesome-icon>
                             </b-button>
                         </section>
