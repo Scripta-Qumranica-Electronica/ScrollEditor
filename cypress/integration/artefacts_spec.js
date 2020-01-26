@@ -24,14 +24,18 @@ describe('Imaged Artefact', function() {
     })
 
     Cypress.Commands.add('PostLogin', () => {
-            cy.server()
-            cy.route('POST', '/v1/users/login').as('postUser')
-            cy.get('button[type=submit]').click()
-            cy.wait('@postUser')
-        })
-        // Cypress.Commands.add('ActionButton', () => {
+        cy.server()
+        cy.route('POST', '/v1/users/login').as('postUser')
+        cy.get('button[type=submit]').click()
+        cy.wait('@postUser')
+    })
+    Cypress.Commands.add('ActionButton', () => {
 
-    // })
+        cy.get('#artefact-and-buttons>.btn-menu-Artefact>.sidebarCollapse>i.fa-align-justify').click()
+        cy.get('#artefact-side-menu section:nth-child(3) div header a').click()
+        cy.get('#accordion-actions .card-body section:nth-child(2) button').click()
+
+    })
 
 
     it('Artefact textFragment ', () => {
@@ -76,21 +80,19 @@ describe('Imaged Artefact', function() {
             .trigger('pointerup', 350, 280)
         cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-align-justify').click()
-        cy.get('#artefact-and-buttons>.btn-menu-Artefact>.sidebarCollapse>i.fa-align-justify').click()
-        cy.get('#artefact-side-menu section:nth-child(3) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(2) button').click()
+        cy.ActionButton();
 
     })
     it('save ', () => {
         cy.get('nav.bg-dark>a.navbar-brand').click()
-        cy.get('ul>li.list-item>.card').contains('1QS990').first()
-            .click({ multiple: true })
-        cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
-        cy.get('#transform-root>g:nth-child(2)>path:nth-child(1)').click()
+        cy.get('ul>li.list-item>.card').contains('1QS990').first().click()
+        cy.wait(2500)
+        cy.get('.nav-item>a.nav-link>a.artefacts').click()
+        cy.get('ul>li.list-item>.card').first().click()
+            // cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
+        cy.get('#transform-root>g:nth-child(2)>path:nth-child(1)').click({ force: true })
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-trash').click()
-        cy.get('#artefact-and-buttons>.btn-menu-Artefact>.sidebarCollapse>i.fa-align-justify').click()
-        cy.get('#artefact-side-menu section:nth-child(3) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(2) button').click()
+        cy.ActionButton();
 
     })
 })
