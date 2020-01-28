@@ -8,11 +8,7 @@ describe('Imaged Artefact', function() {
 
 
 
-        cy.get('ul>li.list-item>.card').contains('1QS990').first()
-            .click({ multiple: true })
-        cy.wait(2500)
-        cy.get('.nav-item>a.nav-link>a.artefacts').click()
-        cy.get('ul>li.list-item>.card').first().click()
+
     });
 
 
@@ -36,9 +32,17 @@ describe('Imaged Artefact', function() {
         cy.get('#accordion-actions .card-body section:nth-child(2) button').click()
 
     })
+    Cypress.Commands.add('actionAfterLogin', () => {
+        cy.get('ul>li.list-item>.card').contains('1QS990').first()
+            .click({ multiple: true })
+        cy.wait(2500)
+        cy.get('.nav-item>a.nav-link>a.artefacts').click()
+        cy.get('ul>li.list-item>.card').first().click()
+    })
 
 
     it('Artefact textFragment ', () => {
+        cy.actionAfterLogin();
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-align-justify').click()
         cy.get('#my-list-id option').should('have.length', 11)
             .first().should('have.text', 'col. 1')
@@ -65,7 +69,7 @@ describe('Imaged Artefact', function() {
             .trigger('pointermove', 290, 250)
             .trigger('pointerup', 290, 250)
 
-        cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
+        // cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-trash').click()
         cy.get('input.select-text').clear()
         cy.get('#my-list-id option').should('have.length', 11)
@@ -78,21 +82,21 @@ describe('Imaged Artefact', function() {
             .trigger('pointerdown', 290, 250)
             .trigger('pointermove', 350, 280)
             .trigger('pointerup', 350, 280)
-        cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
+
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-align-justify').click()
         cy.ActionButton();
+        cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 1)
 
     })
     it('save ', () => {
         cy.get('nav.bg-dark>a.navbar-brand').click()
-        cy.get('ul>li.list-item>.card').contains('1QS990').first().click()
+        cy.actionAfterLogin();
+
         cy.wait(2500)
-        cy.get('.nav-item>a.nav-link>a.artefacts').click()
-        cy.get('ul>li.list-item>.card').first().click()
-            // cy.get('#transform-root>g:nth-child(2)>path').should('have.length', 1)
-        cy.get('#transform-root>g:nth-child(2)>path:nth-child(1)').click({ force: true })
+        cy.get('#transform-root>g:nth-child(2)').find('path').click({ force: true, multiple: true })
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-trash').click()
         cy.ActionButton();
+        cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 0)
 
     })
 })
