@@ -238,6 +238,8 @@ button {
 }
 
 #text-box {
+    font-family:'SBL Hebrew';
+    font-size: 18px;
     margin-top: 30px;
     overflow: auto;
     display: grid;
