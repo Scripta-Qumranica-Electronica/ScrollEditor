@@ -243,7 +243,7 @@ button {
     margin-top: 30px;
     overflow: auto;
     display: grid;
-    // height: calc(100vh - 165px);
+    direction: rtl;
 }
 
 .isa_error {
