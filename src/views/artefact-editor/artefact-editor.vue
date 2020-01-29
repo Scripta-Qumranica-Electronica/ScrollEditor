@@ -3,7 +3,7 @@
         <div v-if="waiting" class="col">
             <waiting></waiting>
         </div>
- 
+
         <div
             id="sidebar"
             class="artefact-menu-div"
@@ -22,7 +22,13 @@
         <div :class="{ sidebar: isActiveSidebar, text: isActiveText }" v-if="!waiting && artefact">
             <div class="row" id="artefact-and-buttons">
                 <div class="buttons-div btn-menu-Artefact">
-                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()" v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebarArtefact')">
+                    <b-button
+                        type="button"
+                        class="sidebarCollapse"
+                        @click="sidebarClicked()"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.collapsedsidebarArtefact')"
+                    >
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
@@ -30,9 +36,11 @@
                 <div
                     class="artefact-container"
                     :class="{ sidebar: isActiveSidebar, text: isActiveText }"
+                    id="info-box"
+                    ref="infoBox"
                 >
                     <div class="sign-wheel sign-wheel-position">
-                          {{artefact.name}}
+                        {{artefact.name}}
                         <sign-wheel
                             v-if="selectedSignInterpretation"
                             :line="selectedLine"
@@ -54,7 +62,6 @@
                         @new-zoom="onNewZoom($event)"
                         @new-rotate="onNewRotate($event)"
                     >
-                  
                         <svg
                             class="overlay"
                             :width="actualWidth"
@@ -89,7 +96,13 @@
                     </zoomer>
                 </div>
                 <div class="buttons-div btn-tf">
-                    <b-button type="button" class="sidebarCollapse" @click="textClicked()"  v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebar')">
+                    <b-button
+                        type="button"
+                        class="sidebarCollapse"
+                        @click="textClicked()"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.collapsedsidebar')"
+                    >
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                     <b-button
@@ -99,7 +112,8 @@
                         :pressed="drawingMode === mode.val"
                         :disabled="!isDrawingEnabled"
                         class="sidebarCollapse"
-                        v-b-tooltip.hover.bottom :title="mode.title"
+                        v-b-tooltip.hover.bottom
+                        :title="mode.title"
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
@@ -108,7 +122,8 @@
                         class="sidebarCollapse"
                         @click="onDeleteRoi()"
                         :disabled="!isDeleteEnabled"
-                        v-b-tooltip.hover.bottom :title="$t('misc.cancel')"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.cancel')"
                     >
                         <i class="fa fa-trash"></i>
                     </b-button>
@@ -117,8 +132,8 @@
                         @click="onAuto()"
                         :pressed="autoMode == true"
                         class="sidebarCollapse"
-                         v-b-tooltip.hover.bottom 
-                         :title="$t('misc.auto')"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.auto')"
                     >
                         <i class="fa fa-refresh"></i>
                     </b-button>
@@ -221,6 +236,7 @@ export default class ArtefactEditor extends Vue {
 
     private visibleRois: InterpretationRoi[] = [];
 
+ 
     protected get artefact() {
         return this.$state.artefacts.current!;
     }
@@ -257,9 +273,15 @@ export default class ArtefactEditor extends Vue {
             this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
-        await Promise.all(this.artefact.textFragments.map((tf: ArtefactTextFragmentData) => this.$state.prepare.textFragment(this.artefact.editionId, tf.id)));
+        await Promise.all(
+            this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+                this.$state.prepare.textFragment(this.artefact.editionId, tf.id)
+            )
+        );
         this.initVisibleRois();
         this.waiting = false;
+
+        setTimeout(() => this.setFirstZoom(), 0);
     }
 
     private get imagedObject(): ImagedObject {
@@ -286,10 +308,12 @@ export default class ArtefactEditor extends Vue {
     }
 
     private get actualWidth(): number {
-        return this.boundingBox.width * this.zoomLevel;
-    }
+  
+       return this.boundingBox.width * this.zoomLevel;
+  }
 
     private get actualHeight(): number {
+  
         return this.boundingBox.height * this.zoomLevel;
     }
 
@@ -312,6 +336,14 @@ export default class ArtefactEditor extends Vue {
 
     private get rotationAngle(): number {
         return this.params.rotationAngle;
+    }
+
+    private setFirstZoom(){
+        // Get height and width of infoBox
+        // Set zoom to be min(infoBox.height / boundingBox.height, infoBox.width / boundingBox.width);
+      let  height = this.$refs.infoBox.clientHeight;
+      let width = this.$refs.infoBox.clientWidth;
+      this.params.zoom = Math.min(height / this.boundingBox.height , width / this.boundingBox.width);
     }
 
     private onNewZoom(event: ZoomEventArgs) {
@@ -344,6 +376,7 @@ export default class ArtefactEditor extends Vue {
         this.isActiveText = !this.isActiveText;
     }
 
+  
     private nextLine() {
         if (this.selectedLine) {
             const linesArray = this.selectedLine.textFragment.lines;
@@ -511,20 +544,25 @@ export default class ArtefactEditor extends Vue {
         this.visibleRois.splice(visIndex, 1);
         const siId = si.signInterpretationId;
         const tfId = si.sign.line.textFragment.textFragmentId;
-        const visibleSIs = this.visibleRois.map(r => this.$state.signInterpretations.get(r.signInterpretationId));
-        const visiblesTf = visibleSIs.map(si => si.sign.line.textFragment.textFragmentId);
+        const visibleSIs = this.visibleRois.map(r =>
+            this.$state.signInterpretations.get(r.signInterpretationId)
+        );
+        const visiblesTf = visibleSIs.map(
+            si => si.sign.line.textFragment.textFragmentId
+        );
 
         const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
         if (!anyRoiOfSelectedTf) {
-            const tfToMove = this.artefact.textFragments.find(tf => tf.id === tfId);
-           
-            if(tfToMove) {
-                tfToMove.certain = false      
+            const tfToMove = this.artefact.textFragments.find(
+                tf => tf.id === tfId
+            );
+
+            if (tfToMove) {
+                tfToMove.certain = false;
             }
         }
 
         this.selectedInterpretationRoi = null;
-
     }
 
     private async onSave() {
@@ -582,7 +620,6 @@ export default class ArtefactEditor extends Vue {
             duration: 7000
         });
     }
-        
 }
 </script>
 
@@ -693,10 +730,10 @@ export default class ArtefactEditor extends Vue {
     margin-top: 56px;
     text-align: center;
 }
- .btn-next-line {
-        position: absolute;
-        top: 0px;
-    }
+.btn-next-line {
+    position: absolute;
+    top: 0px;
+}
 
 // TODO -- update the madia
 @media (max-width: 1100px) {
@@ -790,6 +827,5 @@ export default class ArtefactEditor extends Vue {
         margin-top: 50px;
         z-index: 1000;
     }
-   
 }
 </style>
