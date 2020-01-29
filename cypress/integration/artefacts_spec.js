@@ -7,8 +7,6 @@ describe('Imaged Artefact', function() {
         cy.PostLogin()
 
 
-
-
     });
 
 
@@ -24,6 +22,15 @@ describe('Imaged Artefact', function() {
         cy.route('POST', '/v1/users/login').as('postUser')
         cy.get('button[type=submit]').click()
         cy.wait('@postUser')
+
+    })
+
+    Cypress.Commands.add('PostRois', () => {
+        cy.server()
+        cy.route('POST', '/v1/editions/1646/rois/batch-edit').as('postPath')
+        cy.ActionButton()
+        cy.wait('@postPath')
+
     })
     Cypress.Commands.add('ActionButton', () => {
 
@@ -31,11 +38,12 @@ describe('Imaged Artefact', function() {
         cy.get('#artefact-side-menu section:nth-child(3) div header a').click()
         cy.get('#accordion-actions .card-body section:nth-child(2) button').click()
 
+
     })
     Cypress.Commands.add('actionAfterLogin', () => {
         cy.get('ul>li.list-item>.card').contains('1QS990').first()
             .click({ multiple: true })
-        cy.wait(2500)
+
         cy.get('.nav-item>a.nav-link>a.artefacts').click()
         cy.get('ul>li.list-item>.card').first().click()
     })
@@ -83,8 +91,8 @@ describe('Imaged Artefact', function() {
             .trigger('pointermove', 350, 280)
             .trigger('pointerup', 350, 280)
 
-        cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-align-justify').click()
-        cy.ActionButton();
+
+        cy.PostRois()
         cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 1)
 
     })
@@ -93,7 +101,7 @@ describe('Imaged Artefact', function() {
         cy.actionAfterLogin();
 
         cy.wait(2500)
-        cy.get('#transform-root>g:nth-child(2)').find('path').click({ force: true, multiple: true })
+        cy.get('#transform-root>g:nth-child(2)').find('path').click()
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-trash').click()
         cy.ActionButton();
         cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 0)
