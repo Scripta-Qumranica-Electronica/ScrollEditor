@@ -1,9 +1,9 @@
 import Vue from 'vue';
-import { HubConnection } from '@aspnet/signalr';
+import { SignalRWrapper } from './signalr-connection';
 
 declare module 'vue/types/vue' {
     interface Vue {
-        $signalR: HubConnection;
+        $signalR: SignalRWrapper;
     }
 }
 

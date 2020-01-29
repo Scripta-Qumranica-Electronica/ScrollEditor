@@ -6,6 +6,7 @@ import { IIIFImage } from '@/models/image';
 import ImageService from '@/services/image';
 import TextService from '@/services/text';
 import { ArtefactTextFragmentData } from '@/models/text';
+import SignalRConnectionPlugin, { SignalRWrapper } from '@/plugins/signalr-connection';
 
 /*
  * This service handles all the state data.
@@ -180,6 +181,7 @@ export default class StateService {
             this.artefactsProcess!.promise,
             this.textFragmentsProcess!.promise,
         ]);
+        SignalRWrapper.instance.subscribeEdition(editionId);
     }
 
     private async textFragmentsInternal(editionId: number) {
