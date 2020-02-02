@@ -32,8 +32,9 @@ describe('Copy Artefact', function() {
             .invoke('text')
             .then(text => {
                 valueText = text.trim();
-                cy.log(valueText);
                 expect(valueText).to.eq('No other versions')
+                    /*Checks if  variable valueText equal 'No other versions' 
+                                   if yes statut not login*/
             });
 
     })
@@ -46,33 +47,31 @@ describe('Copy Artefact', function() {
 
         cy.PostLogin()
 
-        let h5
+        let name /* create variable  to be equal to artefact id  */
 
         cy.get('ul#all-search-results>li.list-item>.card').contains('1QS').click()
 
         cy.get('.sidebar-header>h5')
             .invoke('text')
             .then(text => {
-                h5 = text.trim();
+                name = text.trim();
 
-                cy.log(h5);
             });
-        cy.get('.btn-copy').click()
+        cy.get('.btn-copy').click() /*create copy and check if value in the input equal with variable name*/
         cy.wait(2500)
         cy.get('#newName')
             .invoke('val')
             .then(text => {
                 const someText = text;
-                cy.log(someText);
-                expect(someText).to.eq(h5)
+                expect(someText).to.eq(name)
 
             });
         cy.wait(2500)
-        cy.get('#newName').clear()
+        cy.get('#newName').clear() /* clear the input and create new name */
         cy.get('#newName').type('1QS990')
         cy.PostCopyArtefact()
         cy.get('@postCopy').should((respon) => {
-            expect(respon.status).to.eq(200)
+            expect(respon.status).to.eq(200) /* check if statut equal 200  */
         })
     })
 
