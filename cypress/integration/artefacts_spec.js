@@ -94,9 +94,20 @@ describe('Imaged Artefact', function() {
             .trigger('pointermove', 350, 280)
             .trigger('pointerup', 350, 280)
 
-
+        cy.get(':nth-child(6) > :nth-child(45)').click({ force: true })
+        cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-refresh').click({ force: true }) /*Use button auto for create new shapes */
+        cy.get('g#transform-root') /*first shape */
+            .trigger('pointermove', 200, 220)
+            .trigger('pointerdown', 200, 220)
+            .trigger('pointermove', 240, 250)
+            .trigger('pointerup', 240, 250)
+        cy.get('g#transform-root') /*seconde shape*/
+            .trigger('pointermove', 220, 240)
+            .trigger('pointerdown', 220, 240)
+            .trigger('pointermove', 260, 280)
+            .trigger('pointerup', 260, 280)
         cy.PostRois() /*Save the shape*/
-        cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 1) /*Check exict one path*/
+        cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 3) /*Check exict one path*/
 
     })
 
@@ -106,10 +117,10 @@ describe('Imaged Artefact', function() {
         cy.actionAfterLogin();
 
         cy.wait(2500)
-        cy.get('#transform-root>g:nth-child(2)').find('path').click()
+        cy.get('#transform-root>g:nth-child(2)').find('path:nth-child(1)').click()
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-trash').click()
         cy.ActionButton();
-        cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 0)
+        cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 2)
 
     })
 })

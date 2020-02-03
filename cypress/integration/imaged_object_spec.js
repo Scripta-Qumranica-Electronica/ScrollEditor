@@ -1,4 +1,4 @@
-describe('Imaged Object', function () {
+describe('Imaged Object', function() {
     beforeEach(() => {
         cy.visit('/')
         cy.contains('button', 'Login').click()
@@ -26,12 +26,12 @@ describe('Imaged Object', function () {
     })
 
     Cypress.Commands.add('PostLogin', () => {
-        cy.server()
-        cy.route('POST', '/v1/users/login').as('postUser')
-        cy.get('button[type=submit]').click()
-        cy.wait('@postUser')
-    })
-    // The way to get a save button
+            cy.server()
+            cy.route('POST', '/v1/users/login').as('postUser')
+            cy.get('button[type=submit]').click()
+            cy.wait('@postUser')
+        })
+        // The way to get a save button
     Cypress.Commands.add('ActionButton', () => {
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-align-justify').click()
         cy.get('#imaged-object-menu section:nth-child(4) div header a').click()
@@ -95,7 +95,7 @@ describe('Imaged Object', function () {
             .should('contain', 'M')
             .then(text => {
                 DBeforeErase = text;
-                cy.log(DBeforeErase);
+
             });
 
 
