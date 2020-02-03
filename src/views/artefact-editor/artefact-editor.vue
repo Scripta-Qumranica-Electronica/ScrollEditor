@@ -142,15 +142,15 @@
 <script lang="ts">
 import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import ArtefactImage from './artefact-image.vue';
+import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
-import ArtefactSideMenu from './artefact-side-menu.vue';
-import TextSide from './text-side.vue';
+import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
+import TextSide from '@/views/artefact-editor/text-side.vue';
 import SignCanvas from './SignCanvas.vue';
 import SignOverlay from './SignOverlay.vue';
-import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
+import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from '@/views/artefact-editor/types';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
@@ -171,8 +171,8 @@ import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
-import ImageLayer from './image-layer.vue';
-import RoiLayer from './roi-layer.vue';
+import ImageLayer from '@/views/artefact-editor/image-layer.vue';
+import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
 import BoundaryDrawer, {
     DrawingMode
 } from '@/components/polygons/boundary-drawer.vue';
@@ -181,19 +181,19 @@ import Zoomer, {
     RotateEventArgs
 } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
-import SignWheel from './sign-wheel.vue';
+import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
 
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -254,7 +254,8 @@ export default class ArtefactEditor extends Vue {
             this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
-        await Promise.all(this.artefact.textFragments.map((tf: ArtefactTextFragmentData) => this.$state.prepare.textFragment(this.artefact.editionId, tf.id)));
+        await Promise.all(this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+            this.$state.prepare.textFragment(this.artefact.editionId, tf.id)));
         this.initVisibleRois();
         this.waiting = false;
     }
@@ -508,15 +509,15 @@ export default class ArtefactEditor extends Vue {
         this.visibleRois.splice(visIndex, 1);
         const siId = si.signInterpretationId;
         const tfId = si.sign.line.textFragment.textFragmentId;
-        const visibleSIs = this.visibleRois.map(r => this.$state.signInterpretations.get(r.signInterpretationId));
-        const visiblesTf = visibleSIs.map(si => si.sign.line.textFragment.textFragmentId);
+        const visibleSIs = this.visibleRois.map(r => this.$state.signInterpretations.get(r.signInterpretationId!));
+        const visiblesTf = visibleSIs.map(s => s!.sign.line.textFragment.textFragmentId);
 
         const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
         if (!anyRoiOfSelectedTf) {
             const tfToMove = this.artefact.textFragments.find(tf => tf.id === tfId);
-           
-            if(tfToMove) {
-                tfToMove.certain = false      
+
+            if (tfToMove) {
+                tfToMove.certain = false;
             }
         }
 
@@ -579,7 +580,6 @@ export default class ArtefactEditor extends Vue {
             duration: 7000
         });
     }
-        
 }
 </script>
 
