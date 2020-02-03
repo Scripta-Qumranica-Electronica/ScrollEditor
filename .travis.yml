@@ -25,7 +25,7 @@ before_script:
   - yarn serve & npx wait-on http://localhost:8080
 
 script:
-  - yarn test
+  - yarn test-travis
 
 before_cache:
 - docker save -o docker_images/images.tar $(docker images -a -q)

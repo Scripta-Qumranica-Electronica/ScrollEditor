@@ -12,9 +12,12 @@ describe('Imaged Object', function() {
         cy.get('ul>li.list-item>.card').first().click()
     });
 
-    let NewD
-    let D
-    let DBeforeErase
+    let NewD /*A variable that saves the new shape */
+    let OldPath /*A variable that saves the old shape */
+    let DBeforeErase /*A variable that saves the situation before erase */
+    let DAfterSave /*A variable that saves the situation after save */
+    let DAfterSaveErase /*A variable that saves the situation after erase */
+
     Cypress.Commands.add('typeLogin', (user) => {
         cy.get('input[type=email]')
             .type(user.email)
@@ -23,12 +26,12 @@ describe('Imaged Object', function() {
     })
 
     Cypress.Commands.add('PostLogin', () => {
-        cy.server()
-        cy.route('POST', '/v1/users/login').as('postUser')
-        cy.get('button[type=submit]').click()
-        cy.wait('@postUser')
-    })
-
+            cy.server()
+            cy.route('POST', '/v1/users/login').as('postUser')
+            cy.get('button[type=submit]').click()
+            cy.wait('@postUser')
+        })
+        // The way to get a save button
     Cypress.Commands.add('ActionButton', () => {
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-align-justify').click()
         cy.get('#imaged-object-menu section:nth-child(4) div header a').click()
@@ -36,7 +39,7 @@ describe('Imaged Object', function() {
     })
 
 
-
+    // Create new shape And check if it is not equal to the old value and save.
     it('Imaged Object Drawer ', () => {
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-pencil').click()
         cy.wait(2500)
@@ -44,7 +47,7 @@ describe('Imaged Object', function() {
             .invoke('attr', 'd')
             .should('contain', 'M')
             .then(text => {
-                D = text;
+                OldPath = text;
 
             });
 
@@ -64,15 +67,15 @@ describe('Imaged Object', function() {
             .then(text => {
                 NewD = text;
 
-                expect(D).not.to.eq(NewD)
+                expect(OldPath).not.to.eq(NewD)
             });
         cy.ActionButton();
 
     })
 
+    // Going out and checking back with it kept the shape it created
     it('Save ', () => {
         cy.wait(2500)
-        let DAfterSave
         cy.get('.drawer path')
             .invoke('attr', 'd')
             .should('contain', 'M')
@@ -82,7 +85,7 @@ describe('Imaged Object', function() {
             });
     })
 
-
+    // Deletes the shape I created and save.
     it('Erase ', () => {
         cy.get('#buttons-div>button.sidebarCollapse>i.fa-trash').click()
         cy.wait(2500)
@@ -92,7 +95,7 @@ describe('Imaged Object', function() {
             .should('contain', 'M')
             .then(text => {
                 DBeforeErase = text;
-                cy.log(DBeforeErase);
+
             });
 
 
@@ -109,9 +112,9 @@ describe('Imaged Object', function() {
 
     })
 
-    it('SaveAfterErase ', () => {
 
-        let DAfterSaveErase
+    // Checking with it has been deleted forever.
+    it('SaveAfterErase ', () => {
 
         cy.get('.drawer path')
             .invoke('attr', 'd')
