@@ -1,8 +1,7 @@
 import _Vue from 'vue';
-import { SignalRSQE } from '@/dtos/sqe-signalr';
-import { LogLevel } from '@microsoft/signalr';
+import { LogLevel, HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { StateManager } from '@/state';
-import { EditionDTO } from '@/dtos/sqe-dtos';
+import { SignalRUtilities, NotificationHandler } from '@/dtos/temp-signalr';
 
 type ConnectionStatus = 'closed' | 'connecting' | 'connected' | 'closing';
 
@@ -10,8 +9,10 @@ export class SignalRWrapper {
     // Manage the SignalR connection. This is a singleton class
     private static _instance: SignalRWrapper;
 
-    private _connection = new SignalRSQE();
-    private _status = 'closed';
+    private _connection?: HubConnection;
+    private _utils?: SignalRUtilities;
+    private _currentHandler?: NotificationHandler;
+    private _status: ConnectionStatus = 'closed';
     private _subscribedEditionId?: number;
 
     public static get instance() {
@@ -42,7 +43,7 @@ export class SignalRWrapper {
             await this.unsubscribeEdition();
         }
 
-        await this._connection!.subscribeToEdition(editionId);
+        await this._utils!.subscribeToEdition(editionId);
         console.debug('SubscribeToEdition called');
         this._subscribedEditionId = editionId;
     }
@@ -53,7 +54,7 @@ export class SignalRWrapper {
             return;
         }
 
-        await this._connection!.unsubscribeToEdition(this._subscribedEditionId);
+        await this._utils!.unsubscribeToEdition(this._subscribedEditionId);
         console.debug('UnsubscribeToEdition called');
         this._subscribedEditionId = undefined;
     }
@@ -68,20 +69,44 @@ export class SignalRWrapper {
         }
     }
 
+    public registerNotificationHandler(handler: NotificationHandler) {
+        this.unregisterNotificationHandler();
+        this._currentHandler = handler;
+        if (this._utils) {
+            this._utils!.connectNotificationHandler(handler);
+        }
+    }
+
+    public unregisterNotificationHandler() {
+        if (this._currentHandler && this._utils) {
+            this._utils.disconnectNotificationHandler(this._currentHandler);
+        }
+        this._currentHandler = undefined;
+    }
+
     private async connect() {
         console.debug('SignalR connect called, current status ', this._status);
         if (this._connection) {
             this._connection.stop();
         }
+
+        this._connection = new HubConnectionBuilder()
+            .withUrl(process.env.VUE_APP_SIGNALR_URL!, {
+                accessTokenFactory: () => StateManager.instance.session.token || ''
+            }).configureLogging(process.env.NODE_ENV === 'development' ? LogLevel.Information : LogLevel.Error)
+            .build();
+        this._utils = new SignalRUtilities(this._connection);
+
         this._status = 'connecting';
         try {
-            await this._connection.start(process.env.VUE_APP_SIGNALR_URL!,
-                process.env.NODE_ENV === 'development' ? LogLevel.Information : LogLevel.Error,
-                StateManager.instance.session.token || '');
+            await this._connection.start();
             this._status = 'connected';
-            this._connection.setOnConnectionClosed(this.onConnectionClosed);
+            this._connection!.onclose(this.onConnectionClosed);
+
+            if (this._currentHandler) {
+                this._utils.connectNotificationHandler(this._currentHandler);
+            }
             console.debug('SignalR connection opened, status is ', this._status);
-            this._connection.onUpdatedEdition(this._updatedEdition);
         } catch (error) {
             console.error("Can't connect to SignalR", error);
             this._status = 'closed';
@@ -92,12 +117,11 @@ export class SignalRWrapper {
         // Note that when removing a listener you must pass a reference to the function
         // the listener was originally created with. You cannot use an anonymous function
         // that happens to do the ssame thing as the (anonymous) function passed in.
-        this._connection.offUpdatedEdition(this._updatedEdition);
         console.debug('SignalR disconnect called, current status ', this._status);
 
         if (this._status === 'connected') {
             this._status = 'closing';
-            await this._connection.stop();
+            await this._connection!.stop();
         }
 
         this._status = 'closed';
@@ -112,14 +136,4 @@ export class SignalRWrapper {
         this._status = 'closed';
         this._subscribedEditionId = undefined;
     }
-
-    private _updatedEdition = (returnedData: EditionDTO) => {
-        console.debug('updated edition');
-        console.debug(returnedData);
-    }
-}
-
-export default function SignalRConnectionPlugin(vue: typeof _Vue, options?: any): void {
-    // TODO: Let a function calculate this based on the current browser abilities
-    vue.prototype.$signalR = SignalRWrapper.instance;
 }

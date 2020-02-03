@@ -5,8 +5,8 @@ import ArtefactService from '@/services/artefact';
 import { IIIFImage } from '@/models/image';
 import ImageService from '@/services/image';
 import TextService from '@/services/text';
-import { ArtefactTextFragmentData } from '@/models/text';
-import SignalRConnectionPlugin, { SignalRWrapper } from '@/plugins/signalr-connection';
+import { SignalRWrapper } from './signalr-connection';
+import { SignalRNotifcationHandler } from './notification-handler';
 
 /*
  * This service handles all the state data.
@@ -52,6 +52,7 @@ type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObject
 export default class StateService {
     private static alreadyCreated = false;
     private _state: StateManager;
+    private _notificationHandler: SignalRNotifcationHandler;
 
     private allEditionsProcess: ProcessTracking | undefined;
     private editionProcess: ProcessTracking | undefined;
@@ -69,6 +70,8 @@ export default class StateService {
         }
         this._state = state;
         this.imageManifestProcesses = new Map<string, ProcessTracking>();
+        this._notificationHandler = new SignalRNotifcationHandler();
+        SignalRWrapper.instance.registerNotificationHandler(this._notificationHandler);
         StateService.alreadyCreated = true;
     }
 

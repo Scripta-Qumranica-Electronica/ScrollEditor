@@ -9,7 +9,7 @@ import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
-import { SignalRWrapper } from '@/plugins/signalr-connection';
+import { SignalRWrapper } from '@/state/signalr-connection';
 
 
 class SessionService {

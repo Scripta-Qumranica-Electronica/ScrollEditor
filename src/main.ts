@@ -30,7 +30,6 @@ import { StateManager } from './state';
 
 // vue2-hammer
 import { VueHammer } from 'vue2-hammer';
-import SignalRConnectionPlugin from './plugins/signalr-connection';
 
 // import AsyncComputed from 'vue-async-computed';
 
@@ -49,7 +48,6 @@ Vue.use(VueLazyload, {
 });
 
 Vue.prototype.$state = StateManager.instance;
-Vue.use(SignalRConnectionPlugin);
 Vue.use(BootstrapVue);
 
 Vue.use(MediaBreakPointsPlugin, {
