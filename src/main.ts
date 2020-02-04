@@ -48,7 +48,6 @@ Vue.use(VueLazyload, {
 });
 
 Vue.prototype.$state = StateManager.instance;
-
 Vue.use(BootstrapVue);
 
 Vue.use(MediaBreakPointsPlugin, {
@@ -67,7 +66,6 @@ const i18n = new VueI18n( {
 
 Vue.use(Toasted);
 Vue.use(VueShortcuts, { prevent: ['input'] });
-
 Vue.use(RenderingOptimizationPlugin);
 
 Vue.use(VueHammer);

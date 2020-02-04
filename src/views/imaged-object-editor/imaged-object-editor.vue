@@ -173,8 +173,8 @@ export default class ImagedObjectEditor extends Vue {
     private get editList(): any[] {
         if (this.canEdit) {
             return [
-                { icon: 'fa fa-pencil', val: 'DRAW',title: this.$t('misc.draw')},
-                { icon: 'fa fa-trash', val: 'ERASE',title: this.$t('misc.cancel')}
+                { icon: 'fa fa-pencil', val: 'DRAW', title: this.$t('misc.draw')},
+                { icon: 'fa fa-trash', val: 'ERASE', title: this.$t('misc.cancel')}
             ];
         }
         return [];
