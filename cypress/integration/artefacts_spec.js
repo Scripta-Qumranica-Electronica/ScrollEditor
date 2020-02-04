@@ -93,8 +93,7 @@ describe('Imaged Artefact', function() {
             .trigger('pointerdown', 290, 250)
             .trigger('pointermove', 350, 280)
             .trigger('pointerup', 350, 280)
-
-        cy.get(':nth-child(6) > :nth-child(45)').click({ force: true })
+        cy.get(':nth-child(14) > :nth-child(44)').click({ force: true })
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-refresh').click({ force: true }) /*Use button auto for create new shapes */
         cy.get('g#transform-root') /*first shape */
             .trigger('pointermove', 200, 220)
@@ -102,10 +101,10 @@ describe('Imaged Artefact', function() {
             .trigger('pointermove', 240, 250)
             .trigger('pointerup', 240, 250)
         cy.get('g#transform-root') /*seconde shape*/
-            .trigger('pointermove', 220, 240)
-            .trigger('pointerdown', 220, 240)
-            .trigger('pointermove', 260, 280)
-            .trigger('pointerup', 260, 280)
+            .trigger('pointermove', 150, 250)
+            .trigger('pointerdown', 150, 250)
+            .trigger('pointermove', 190, 280)
+            .trigger('pointerup', 190, 280)
         cy.PostRois() /*Save the shape*/
         cy.get('#transform-root>g:nth-child(2)').find('path').should('have.length', 3) /*Check exict one path*/
 
