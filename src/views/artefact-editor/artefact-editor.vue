@@ -1,28 +1,3 @@
-Skip to content
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@shaindelb 
-Learn Git and GitHub without any code!
-Using the Hello World guide, you’ll start a branch, write comments, and open a pull request.
-
-
-Scripta-Qumranica-Electronica
-/
-ScrollEditor
-2
-00
- Code Issues 0 Pull requests 0 Actions Projects 0 Wiki Security Insights
-ScrollEditor/src/views/artefact-editor/artefact-editor.vue
-@shaindelb shaindelb fix the zoom when the artefact is loaded
-74d6847 5 days ago
-@zmbq@talyashra@shaindelb@Bronson-Brown-deVost
-831 lines (739 sloc)  26 KB
-  
 <template>
     <div class="wrapper" id="artefact-editor">
         <div v-if="waiting" class="col">
@@ -185,19 +160,20 @@ ScrollEditor/src/views/artefact-editor/artefact-editor.vue
 <script lang="ts">
 import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import ArtefactImage from './artefact-image.vue';
+import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
-import ArtefactSideMenu from './artefact-side-menu.vue';
-import TextSide from './text-side.vue';
+import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
+import TextSide from '@/views/artefact-editor/text-side.vue';
 import SignCanvas from './SignCanvas.vue';
 import SignOverlay from './SignOverlay.vue';
-import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
+import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from '@/views/artefact-editor/types';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
 import { ArtefactTextFragmentData } from '@/models/text';
+
 import {
     ImageSetting,
     SingleImageSetting,
@@ -213,8 +189,8 @@ import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
-import ImageLayer from './image-layer.vue';
-import RoiLayer from './roi-layer.vue';
+import ImageLayer from '@/views/artefact-editor/image-layer.vue';
+import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
 import BoundaryDrawer, {
     DrawingMode
 } from '@/components/polygons/boundary-drawer.vue';
@@ -223,18 +199,19 @@ import Zoomer, {
     RotateEventArgs
 } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
-import SignWheel from './sign-wheel.vue';
+import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
+
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -243,6 +220,7 @@ export default class ArtefactEditor extends Vue {
     private selectedInterpretationRoi: InterpretationRoi | null = null;
     private drawingMode: DrawingMode = 'box';
     private autoMode = false;
+
     private errorMessage = '';
     private waiting = true;
     private saving = false;
@@ -252,13 +230,17 @@ export default class ArtefactEditor extends Vue {
     private imageStack: ImageStack | undefined = undefined;
     private boundingBox = new BoundingBox();
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
+
     private artefactService = new ArtefactService();
     private textService = new TextService();
+
     private visibleRois: InterpretationRoi[] = [];
+
  
     protected get artefact() {
         return this.$state.artefacts.current!;
     }
+
     protected async mounted() {
         this.waiting = true;
         if (this.$bp.between('sm', 'lg')) {
@@ -291,15 +273,16 @@ export default class ArtefactEditor extends Vue {
             this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
-        await Promise.all(
-            this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
-                this.$state.prepare.textFragment(this.artefact.editionId, tf.id)
-            )
-        );
+      await Promise.all(this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+            this.$state.prepare.textFragment(this.artefact.editionId, tf.id)));
+
+
         this.initVisibleRois();
         this.waiting = false;
+
         setTimeout(() => this.setFirstZoom(), 0);
     }
+
     private get imagedObject(): ImagedObject {
         return this.$state.imagedObjects.current!;
     }
@@ -314,37 +297,46 @@ export default class ArtefactEditor extends Vue {
     }
     // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
     // On tablet screen - Active means opened.
+
     private get imageWidth(): number {
         return this.masterImage.manifest.width;
     }
+
     private get imageHeight(): number {
         return this.masterImage.manifest.height;
     }
+
     private get actualWidth(): number {
   
        return this.boundingBox.width * this.zoomLevel;
   }
+
     private get actualHeight(): number {
   
         return this.boundingBox.height * this.zoomLevel;
     }
+
     private get actualBoundingBox(): string {
         return (
             `${this.boundingBox.x * this.zoomLevel} ${this.boundingBox.y *
                 this.zoomLevel} ` + `${this.actualWidth} ${this.actualHeight}`
         );
     }
+
     private get isDrawingEnabled() {
         return (
             !!this.selectedSignInterpretation && !this.selectedInterpretationRoi
         );
     }
+
     private get isDeleteEnabled() {
         return !!this.selectedInterpretationRoi;
     }
+
     private get rotationAngle(): number {
         return this.params.rotationAngle;
     }
+
     private setFirstZoom(){
         // Get height and width of infoBox
         // Set zoom to be min(infoBox.height / boundingBox.height, infoBox.width / boundingBox.width);
@@ -352,29 +344,37 @@ export default class ArtefactEditor extends Vue {
       let width = this.$refs.infoBox.clientWidth;
       this.params.zoom = Math.min(height / this.boundingBox.height , width / this.boundingBox.width);
     }
+
     private onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
     }
     private onNewRotate(event: RotateEventArgs) {
         this.params.rotationAngle = event.rotate;
     }
+
     private get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
         const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
+
         return `${zoom} ${rotate}`;
     }
+
     private get selectedLine(): Line | null {
         if (!this.selectedSignInterpretation) {
             return null;
         }
+
         return this.selectedSignInterpretation.sign.line;
     }
+
     private sidebarClicked() {
         this.isActiveSidebar = !this.isActiveSidebar;
     }
+
     private textClicked() {
         this.isActiveText = !this.isActiveText;
     }
+
   
     private nextLine() {
         if (this.selectedLine) {
@@ -390,12 +390,15 @@ export default class ArtefactEditor extends Vue {
             }
         }
     }
+
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         this.params = evt.params; // This makes sure a change is triggered in child components
     }
+
     private onAuto() {
         this.autoMode = !this.autoMode;
     }
+
     private fillImageSettings() {
         if (!this.imageStack) {
             throw new Error(
@@ -420,6 +423,7 @@ export default class ArtefactEditor extends Vue {
         }
         normalizeOpacity(this.params.imageSettings);
     }
+
     private calculateBoundingBox() {
         // We want to support rotation without moving or scroll the artefact. This requires a little
         // math. We start with the artefact's actual bounding box, which is a rectangle. We need to calculate the
@@ -435,6 +439,7 @@ export default class ArtefactEditor extends Vue {
             x: bb.x + bb.width / 2,
             y: bb.y + bb.height / 2
         } as Position);
+
         this.boundingBox = {
             x: center.x - diag / 2,
             y: center.y - diag / 2,
@@ -442,6 +447,7 @@ export default class ArtefactEditor extends Vue {
             height: diag
         };
     }
+
     private initVisibleRois() {
         this.visibleRois = [];
         for (const roi of this.$state.interpretationRois.getItems()) {
@@ -453,12 +459,15 @@ export default class ArtefactEditor extends Vue {
             }
         }
     }
+
     private onSignInterpretationClicked(si: SignInterpretation) {
         this.selectedSignInterpretation = si;
         this.selectedInterpretationRoi = si.artefactRoi(this.artefact) || null;
     }
+
     private onRoiClicked(ir: InterpretationRoi) {
         this.selectedInterpretationRoi = ir;
+
         if (!ir.signInterpretationId) {
             this.selectedSignInterpretation = null;
         } else {
@@ -468,14 +477,17 @@ export default class ArtefactEditor extends Vue {
             this.selectedSignInterpretation = si || null;
         }
     }
+
     private onDrawingModeClick(newMode: DrawingMode) {
         this.drawingMode = newMode;
     }
+
     private onNewPolygon(poly: Polygon) {
         if (!this.selectedSignInterpretation) {
             console.error("Can't add ROI with no selected sign");
             return;
         }
+
         const bbox = poly.getBoundingBox();
         const normalized = Polygon.offset(poly, -bbox.x, -bbox.y);
         const roi = InterpretationRoi.new(
@@ -484,10 +496,12 @@ export default class ArtefactEditor extends Vue {
             normalized,
             bbox
         );
+
         this.selectedSignInterpretation.rois.push(roi);
         this.$state.interpretationRois.put(roi);
         this.visibleRois.push(roi);
         this.selectedInterpretationRoi = roi;
+
         if (this.autoMode) {
             // Find the next sign interpretation with a character - that can be mapped.
             this.playSound('/qumran_hum.mp3');
@@ -506,12 +520,14 @@ export default class ArtefactEditor extends Vue {
             newIndex++;
         }
     }
+
     private playSound(sound: string) {
         if (sound) {
             const audio = new Audio(sound);
             audio.play();
         }
     }
+
     private onDeleteRoi() {
         // Delete the selected ROI
         const roi = this.selectedInterpretationRoi;
@@ -522,33 +538,35 @@ export default class ArtefactEditor extends Vue {
         }
         roi.status = 'deleted';
         si.deleteRoi(roi);
+
         const visIndex = this.visibleRois.findIndex(r => r.id === roi.id);
         this.visibleRois.splice(visIndex, 1);
         const siId = si.signInterpretationId;
         const tfId = si.sign.line.textFragment.textFragmentId;
-        const visibleSIs = this.visibleRois.map(r =>
-            this.$state.signInterpretations.get(r.signInterpretationId)
-        );
-        const visiblesTf = visibleSIs.map(
-            si => si.sign.line.textFragment.textFragmentId
-        );
+        const visibleSIs = this.visibleRois.map(r => this.$state.signInterpretations.get(r.signInterpretationId!));
+        const visiblesTf = visibleSIs.map(s => s!.sign.line.textFragment.textFragmentId);
+
         const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
         if (!anyRoiOfSelectedTf) {
             const tfToMove = this.artefact.textFragments.find(
                 tf => tf.id === tfId
             );
-            if (tfToMove) {
+           if (tfToMove) {
                 tfToMove.certain = false;
-            }
+           }
         }
+
         this.selectedInterpretationRoi = null;
     }
+
     private async onSave() {
         const as = new ArtefactService();
+
         this.saving = true;
         try {
             const appliedRotation = await this.saveRotation();
             const appliedROIs = await this.saveROIs();
+
             if (!appliedRotation && !appliedROIs) {
                 this.showMessage('No changes to save', 'info');
             } else {
@@ -559,11 +577,13 @@ export default class ArtefactEditor extends Vue {
         }
         this.saving = false;
     }
+
     private async saveRotation() {
         const rotation = this.rotationAngle % 360;
         if (rotation === this.artefact.mask.transformation.rotate) {
             return false;
         }
+
         this.artefact.mask.transformation.rotate = this.rotationAngle % 360;
         await this.artefactService.changeArtefact(
             this.artefact.editionId,
@@ -571,8 +591,10 @@ export default class ArtefactEditor extends Vue {
         );
         return true;
     }
+
     private async saveROIs() {
         const selected = this.selectedSignInterpretation;
+
         const updated = await this.textService.updateArtefactROIs(
             this.artefact
         );
@@ -581,8 +603,10 @@ export default class ArtefactEditor extends Vue {
             // Make sure we select again, as the ROIs might have changed
             this.onSignInterpretationClicked(selected);
         }
+
         return updated > 0;
     }
+
     private showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(msg, {
             type,
@@ -602,6 +626,7 @@ export default class ArtefactEditor extends Vue {
     overflow: hidden;
     height: calc(100vh - 63px);
 }
+
 .artefact-menu-div {
     height: calc(100vh - 63px);
     overflow: hidden;
@@ -615,27 +640,32 @@ export default class ArtefactEditor extends Vue {
 .buttons-div {
     background-color: #eff1f4;
 }
+
 .sidebarCollapse {
     width: 40px;
     height: 40px;
     display: block;
     margin-bottom: 5px;
 }
+
 .wrapper {
     display: flex;
     align-items: stretch;
     perspective: 1500px;
 }
+
 #sidebar {
     min-width: 250px;
     max-width: 250px;
     transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
     transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
 }
+
 #sidebar.sidebar {
     margin-left: -250px;
     transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
+
 .artefact-container.sidebar.text {
     overflow: auto;
     position: relative;
@@ -643,6 +673,7 @@ export default class ArtefactEditor extends Vue {
     height: calc(100vh - 63px);
     width: calc(100vw - 80px);
 }
+
 .artefact-container.text {
     overflow: auto;
     position: relative;
@@ -650,6 +681,7 @@ export default class ArtefactEditor extends Vue {
     height: calc(100vh - 63px);
     width: calc(100vw - 330px);
 }
+
 .artefact-container.sidebar {
     overflow: auto;
     position: relative;
@@ -657,6 +689,7 @@ export default class ArtefactEditor extends Vue {
     height: calc(100vh - 63px);
     width: calc((100vw - 80px) / 2);
 }
+
 .artefact-container {
     overflow: auto;
     position: relative;
@@ -664,23 +697,29 @@ export default class ArtefactEditor extends Vue {
     height: calc(100vh - 63px);
     width: calc((100vw - 330px) / 2);
 }
+
 #text-right-sidebar {
     height: calc(100vh - 63px);
     width: calc((100vw - 330px) / 2);
     overflow: scroll;
 }
+
 #text-right-sidebar.sidebar.text {
     margin-right: calc((-100vw + 80px) / 2);
 }
+
 #text-right-sidebar.text {
     margin-right: calc((-100vw + 330px) / 2);
 }
+
 #text-right-sidebar.sidebar {
     width: calc((100vw - 80px) / 2);
 }
+
 #artefact-and-buttons {
     margin: 0px;
 }
+
 .sign-wheel-position {
     margin-top: 56px;
     text-align: center;
@@ -689,12 +728,14 @@ export default class ArtefactEditor extends Vue {
     position: absolute;
     top: 0px;
 }
+
 // TODO -- update the madia
 @media (max-width: 1100px) {
     /* Reversing the behavior of the sidebar:
        it'll be rotated vertically and off canvas by default,
        collapsing in on toggle button click with removal of
        the vertical rotation.   */
+
     #sidebar.sidebar {
         margin-left: -250px;
         transform: rotateY(100deg);
@@ -707,6 +748,7 @@ export default class ArtefactEditor extends Vue {
         position: absolute;
         transform-origin: top left;
     }
+
     // TODO- check the scrolls in tablet, maybe they dno't have to appear.
     .artefact-container.sidebar.text {
         overflow: scroll;
@@ -715,6 +757,7 @@ export default class ArtefactEditor extends Vue {
         height: calc(100vh - 63px);
         width: calc((93vw) / 2);
     }
+
     .artefact-container.text {
         overflow: scroll;
         position: relative;
@@ -722,6 +765,7 @@ export default class ArtefactEditor extends Vue {
         height: calc(100vh - 63px);
         width: calc(100vw - 80px);
     }
+
     .artefact-container.sidebar {
         overflow: scroll;
         position: relative;
@@ -729,6 +773,7 @@ export default class ArtefactEditor extends Vue {
         height: calc(100vh - 63px);
         width: calc((100vw - 80px));
     }
+
     .artefact-container {
         overflow: scroll;
         position: relative;
@@ -736,22 +781,28 @@ export default class ArtefactEditor extends Vue {
         height: calc(100vh - 63px);
         width: calc(100vw - 80px);
     }
+
     #text-right-sidebar.sidebar.text {
         margin-right: calc((-100vw + 330px) / 2);
     }
+
     #text-right-sidebar.sidebar.text {
         width: calc((90vw) / 2);
         transform: rotateY(0deg);
     }
+
     #text-right-sidebar.text {
         width: calc((100vw - 80px) / 2);
     }
+
     #text-right-sidebar.sidebar {
         margin-right: calc(-100vw + 330px);
     }
+
     #text-side {
         margin: 30px -5px 20px 30px;
     }
+
     .sidebar.text {
         .sign-wheel-position {
             margin-left: 0px;
@@ -772,4 +823,3 @@ export default class ArtefactEditor extends Vue {
     }
 }
 </style>
-
