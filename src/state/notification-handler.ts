@@ -10,7 +10,7 @@ export class SignalRNotifcationHandler extends NotificationHandler {
         console.debug('handleUpdateEdition ', edition);
 
         const storedEdition = StateManager.instance.editions.find(edition.id);
-        
+
         if (storedEdition) {
             const editionInfo = new EditionInfo(edition);
             const newEdition = {...storedEdition, ...editionInfo};
