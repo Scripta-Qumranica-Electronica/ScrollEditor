@@ -3,6 +3,12 @@ dist: bionic
 services:
   - docker
 
+branches:
+  only:
+  - master
+  - development
+  - tests_frontend
+
 node_js:
   - 10
 
