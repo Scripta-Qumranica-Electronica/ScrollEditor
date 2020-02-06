@@ -33,4 +33,3 @@ docker/logs/*
 # Cypress output files
 cypress/screenshots
 cypress/videos
-
