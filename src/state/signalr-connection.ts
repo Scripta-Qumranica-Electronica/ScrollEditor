@@ -1,7 +1,8 @@
 import _Vue from 'vue';
 import { LogLevel, HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { StateManager } from '@/state';
-import { SignalRUtilities, NotificationHandler } from '@/dtos/temp-signalr';
+import { SignalRUtilities } from '@/dtos/temp-signalr';
+import { NotificationHandler } from './notification-handler';
 
 type ConnectionStatus = 'closed' | 'connecting' | 'connected' | 'closing';
 
@@ -72,16 +73,38 @@ export class SignalRWrapper {
     public registerNotificationHandler(handler: NotificationHandler) {
         this.unregisterNotificationHandler();
         this._currentHandler = handler;
-        if (this._utils) {
-            this._utils!.connectNotificationHandler(handler);
-        }
+        this.connectHandler();
     }
 
     public unregisterNotificationHandler() {
         if (this._currentHandler && this._utils) {
-            this._utils.disconnectNotificationHandler(this._currentHandler);
+            this._utils.disconnectUpdatedEdition(this._currentHandler.handleUpdatedEdition);
+            this._utils.disconnectCreatedArtefact(this._currentHandler.handleCreatedArtefact);
+            this._utils.disconnectDeletedArtefact(this._currentHandler.handleDeletedArtefact);
+            this._utils.disconnectUpdatedArtefact(this._currentHandler.handleUpdatedArtefact);
+            this._utils.disconnectCreatedRoi(this._currentHandler.handleCreatedRoi);
+            this._utils.disconnectCreatedRoisBatch(this._currentHandler.handleCreatedRoisBatch);
+            this._utils.disconnectEditedRoisBatch(this._currentHandler.handleEditedRoisBatch);
+            this._utils.disconnectUpdatedRoi(this._currentHandler.handleUpdatedRoi);
+            this._utils.disconnectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
+            this._utils.disconnectDeletedRoi(this._currentHandler.handleDeletedRoi);
         }
         this._currentHandler = undefined;
+    }
+
+    private connectHandler() {
+        if (this._utils && this._currentHandler) {
+            this._utils.connectUpdatedEdition(this._currentHandler.handleUpdatedEdition);
+            this._utils.connectCreatedArtefact(this._currentHandler. handleCreatedArtefact);
+            this._utils.connectDeletedArtefact(this._currentHandler.handleDeletedArtefact);
+            this._utils.connectUpdatedArtefact(this._currentHandler.handleUpdatedArtefact);
+            this._utils.connectCreatedRoi(this._currentHandler.handleCreatedRoi);
+            this._utils.connectCreatedRoisBatch(this._currentHandler.handleCreatedRoisBatch);
+            this._utils.connectEditedRoisBatch(this._currentHandler.handleEditedRoisBatch);
+            this._utils.connectUpdatedRoi(this._currentHandler.handleUpdatedRoi);
+            this._utils.connectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
+            this._utils.connectDeletedRoi(this._currentHandler.handleDeletedRoi);
+        }
     }
 
     private async connect() {
@@ -104,7 +127,7 @@ export class SignalRWrapper {
             this._connection!.onclose(this.onConnectionClosed);
 
             if (this._currentHandler) {
-                this._utils.connectNotificationHandler(this._currentHandler);
+                this.connectHandler();
             }
             console.debug('SignalR connection opened, status is ', this._status);
         } catch (error) {

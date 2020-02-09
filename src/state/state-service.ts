@@ -6,7 +6,7 @@ import { IIIFImage } from '@/models/image';
 import ImageService from '@/services/image';
 import TextService from '@/services/text';
 import { SignalRWrapper } from './signalr-connection';
-import { SignalRNotifcationHandler } from './notification-handler';
+import { NotificationHandler } from './notification-handler';
 
 /*
  * This service handles all the state data.
@@ -52,7 +52,7 @@ type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObject
 export default class StateService {
     private static alreadyCreated = false;
     private _state: StateManager;
-    private _notificationHandler: SignalRNotifcationHandler;
+    private _notificationHandler: NotificationHandler;
 
     private allEditionsProcess: ProcessTracking | undefined;
     private editionProcess: ProcessTracking | undefined;
@@ -70,7 +70,7 @@ export default class StateService {
         }
         this._state = state;
         this.imageManifestProcesses = new Map<string, ProcessTracking>();
-        this._notificationHandler = new SignalRNotifcationHandler();
+        this._notificationHandler = new NotificationHandler();
         SignalRWrapper.instance.registerNotificationHandler(this._notificationHandler);
         StateService.alreadyCreated = true;
     }
