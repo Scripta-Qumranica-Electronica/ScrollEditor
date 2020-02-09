@@ -168,7 +168,10 @@ import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import SignCanvas from './SignCanvas.vue';
 import SignOverlay from './SignOverlay.vue';
-import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from '@/views/artefact-editor/types';
+import {
+    ArtefactEditorParams,
+    ArtefactEditorParamsChangedArgs
+} from '@/views/artefact-editor/types';
 import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
@@ -236,7 +239,6 @@ export default class ArtefactEditor extends Vue {
 
     private visibleRois: InterpretationRoi[] = [];
 
- 
     protected get artefact() {
         return this.$state.artefacts.current!;
     }
@@ -273,9 +275,11 @@ export default class ArtefactEditor extends Vue {
             this.artefact.mask.transformation.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
-      await Promise.all(this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
-            this.$state.prepare.textFragment(this.artefact.editionId, tf.id)));
-
+        await Promise.all(
+            this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+                this.$state.prepare.textFragment(this.artefact.editionId, tf.id)
+            )
+        );
 
         this.initVisibleRois();
         this.waiting = false;
@@ -307,12 +311,10 @@ export default class ArtefactEditor extends Vue {
     }
 
     private get actualWidth(): number {
-  
-       return this.boundingBox.width * this.zoomLevel;
-  }
+        return this.boundingBox.width * this.zoomLevel;
+    }
 
     private get actualHeight(): number {
-  
         return this.boundingBox.height * this.zoomLevel;
     }
 
@@ -337,12 +339,15 @@ export default class ArtefactEditor extends Vue {
         return this.params.rotationAngle;
     }
 
-    private setFirstZoom(){
+    private setFirstZoom() {
         // Get height and width of infoBox
         // Set zoom to be min(infoBox.height / boundingBox.height, infoBox.width / boundingBox.width);
-      let  height = this.$refs.infoBox.clientHeight;
-      let width = this.$refs.infoBox.clientWidth;
-      this.params.zoom = Math.min(height / this.boundingBox.height , width / this.boundingBox.width);
+        const height = (this.$refs.infoBox as Element).clientHeight;
+        const width = (this.$refs.infoBox as Element).clientWidth;
+        this.params.zoom = Math.min(
+            height / this.boundingBox.height,
+            width / this.boundingBox.width
+        );
     }
 
     private onNewZoom(event: ZoomEventArgs) {
@@ -375,7 +380,6 @@ export default class ArtefactEditor extends Vue {
         this.isActiveText = !this.isActiveText;
     }
 
-  
     private nextLine() {
         if (this.selectedLine) {
             const linesArray = this.selectedLine.textFragment.lines;
@@ -543,17 +547,21 @@ export default class ArtefactEditor extends Vue {
         this.visibleRois.splice(visIndex, 1);
         const siId = si.signInterpretationId;
         const tfId = si.sign.line.textFragment.textFragmentId;
-        const visibleSIs = this.visibleRois.map(r => this.$state.signInterpretations.get(r.signInterpretationId!));
-        const visiblesTf = visibleSIs.map(s => s!.sign.line.textFragment.textFragmentId);
+        const visibleSIs = this.visibleRois.map(r =>
+            this.$state.signInterpretations.get(r.signInterpretationId!)
+        );
+        const visiblesTf = visibleSIs.map(
+            s => s!.sign.line.textFragment.textFragmentId
+        );
 
         const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
         if (!anyRoiOfSelectedTf) {
             const tfToMove = this.artefact.textFragments.find(
                 tf => tf.id === tfId
             );
-           if (tfToMove) {
+            if (tfToMove) {
                 tfToMove.certain = false;
-           }
+            }
         }
 
         this.selectedInterpretationRoi = null;
