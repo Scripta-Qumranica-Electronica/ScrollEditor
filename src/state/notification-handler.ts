@@ -10,6 +10,8 @@ import {
 } from '@/dtos/sqe-dtos';
 import { EditionInfo } from '@/models/edition';
 import { StateManager } from '.';
+import { ImagedObject } from '@/models/imaged-object';
+import { Artefact } from '@/models/artefact';
 
 /* This file contains the implementation of all the incoming events from SignalR */
 
@@ -25,15 +27,24 @@ export class NotificationHandler {
     }
 
     public handleCreatedArtefact(artefact: ArtefactDTO): void {
-        console.warn('No implementation for handleCreatedArtefact', artefact);
+        if (artefact) {
+            const newArtefact = new Artefact(artefact);
+            StateManager.instance.imagedObjects.current!.artefacts.push(newArtefact);
+        }
     }
 
     public handleDeletedArtefact(artefactId: number): void {
-        console.warn('No implementation for handleDeletedArtefact ', artefactId);
+        if (artefactId) {
+            const deletedArtefactIndex = StateManager.instance.imagedObjects.current!.artefacts.findIndex(a => a.id === artefactId)
+            if (deletedArtefactIndex > -1) {
+                StateManager.instance.imagedObjects.current!.artefacts.splice(deletedArtefactIndex, 1)
+            } 
+        }
     }
 
     public handleUpdatedArtefact(artefact: ArtefactDTO): void {
-        console.warn('No implementation for handleUpdatedArtefact', artefact);
+           const changed = new Artefact(artefact);
+           StateManager.instance.artefacts.update(changed);
     }
 
     public handleCreatedRoi(roi: InterpretationRoiDTO): void {

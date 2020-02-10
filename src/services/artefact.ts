@@ -68,8 +68,8 @@ class ArtefactService {
             (ApiRoutes.editionArtefactUrl(editionId, artefact.id), body);
 
         // Update the state
-        const changed = new Artefact(response.data);
-        this.stateManager.artefacts.update(changed);
+        // const changed = new Artefact(response.data);
+        // this.stateManager.artefacts.update(changed);
         return response.data;
     }
 

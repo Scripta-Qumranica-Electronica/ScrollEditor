@@ -165,11 +165,10 @@ export default class ImagedObjectEditor extends Vue {
     private nonSelectedMask = new Polygon();
     private artefactEditingDataList: ArtefactEditingData[] = [];
     private artefactEditingData = new ArtefactEditingData();
-    private artefacts = [] as Artefact[];
+    //private artefacts = [] as Artefact[];
     private isActive = false;
     private masterImage?: IIIFImage;
     private side: Side = 'recto';
-
     private get editList(): any[] {
         if (this.canEdit) {
             return [
@@ -251,6 +250,10 @@ export default class ImagedObjectEditor extends Vue {
         return this.artefacts.filter(item => item.side === this.side);
     }
 
+     private get artefacts(): Artefact[]{
+      return this.imagedObject!.artefacts || [];
+    }
+
     private async mounted() {
         try {
             this.waiting = true;
@@ -284,7 +287,7 @@ export default class ImagedObjectEditor extends Vue {
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {
-                this.optimizeArtefacts();
+                //this.optimizeArtefacts();
                 // Set this.artefact to visibleArtefacts[0]
                 this.artefacts.forEach(element => {
                     this.artefactEditingDataList.push(
@@ -365,9 +368,9 @@ export default class ImagedObjectEditor extends Vue {
         }
     }
 
-    private optimizeArtefacts() {
-        this.artefacts = this.imagedObject!.artefacts || [];
-    }
+    // private optimizeArtefacts() {
+    //     this.artefacts = this.imagedObject!.artefacts || [];
+    // }
 
     private editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
@@ -454,7 +457,7 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private async onNew(art: Artefact) {
-        this.artefacts.push(art);
+        //this.artefacts.push(art);
 
         this.artefact = art;
         if (!this.artefact) {
@@ -497,7 +500,7 @@ export default class ImagedObjectEditor extends Vue {
             await this.artefactService.deleteArtefact(art);
             this.showMessage('Artefact deleted', 'success');
             const index = this.artefacts.indexOf(art);
-            this.artefacts.splice(index, 1);
+           // this.artefacts.splice(index, 1);
             this.artefactEditingDataList.splice(index, 1);
 
             if (this.artefacts[0]) {
