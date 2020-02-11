@@ -10,11 +10,21 @@ import {
 } from '@/dtos/sqe-dtos';
 import { EditionInfo } from '@/models/edition';
 import { StateManager } from '.';
-import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
+import { updateInArray, removeFromArray, addToArray } from '@/utils/collection-utils';
 
 /* This file contains the implementation of all the incoming events from SignalR */
 
+function state() {
+    return StateManager.instance;
+}
+
+/*
+ * The notification handler for all notifications.
+ *
+ * CAREFUL! For some reason that has not been resolved yet, 'this' is not bound to the right object,
+ * so do not use this in any of the handlers!
+ */
 export class NotificationHandler {
     public handleUpdatedEdition(edition: EditionDTO): void {
         const storedEdition = StateManager.instance.editions.find(edition.id);
@@ -22,29 +32,37 @@ export class NotificationHandler {
         if (storedEdition) {
             const editionInfo = new EditionInfo(edition);
             const newEdition = { ...storedEdition, ...editionInfo };
-            StateManager.instance.editions.update(newEdition);
+            state().editions.update(newEdition);
         }
     }
 
     public handleCreatedArtefact(artefact: ArtefactDTO): void {
-        if (artefact) {
-            const newArtefact = new Artefact(artefact);
-            StateManager.instance.imagedObjects.current!.artefacts.push(newArtefact);
+        const newArtefact = new Artefact(artefact);
+
+        state().artefacts.add(newArtefact, false); // Safely ignore error if artefact is already there
+        if (state().imagedObjects.current?.id === artefact.imagedObjectId) {
+            addToArray(newArtefact, StateManager.instance.imagedObjects.current?.artefacts);
         }
     }
 
     public handleDeletedArtefact(artefactId: number): void {
-        if (artefactId) {
-            const deletedArtefactIndex = StateManager.instance.imagedObjects.current!.artefacts.findIndex(a => a.id === artefactId)
-            if (deletedArtefactIndex > -1) {
-                StateManager.instance.imagedObjects.current!.artefacts.splice(deletedArtefactIndex, 1)
-            } 
-        }
+        state().artefacts.remove(artefactId, false);
+
+        // There is no imaged object ID received from the server, so we just remove the artefact from the
+        // current imaged object as well. If the artefact belongs to another imaged object, nothing is removed.
+        removeFromArray(artefactId, state().imagedObjects.current?.artefacts);
     }
 
     public handleUpdatedArtefact(artefact: ArtefactDTO): void {
-           const changed = new Artefact(artefact);
-           StateManager.instance.artefacts.update(changed);
+        console.debug('handleUpdatedArtefact ', artefact);
+        const changed = new Artefact(artefact);
+        state().artefacts.update(changed, false);
+
+        if (state().imagedObjects.current?.id === artefact.imagedObjectId) {
+            // Updates of array elements do not cause a refresh, we need
+            updateInArray(changed, state().imagedObjects.current?.artefacts);
+            console.debug('Updated artefacts of current imagedObject: ', state().imagedObjects.current?.artefacts);
+        }
     }
 
     public handleCreatedRoi(roi: InterpretationRoiDTO): void {
@@ -69,5 +87,9 @@ export class NotificationHandler {
 
     public handleDeletedRoi(roiId: number): void {
         console.warn('No implementation for handleDeleteRoi', roiId);
+    }
+
+    private get state() {
+        return StateManager.instance;
     }
 }

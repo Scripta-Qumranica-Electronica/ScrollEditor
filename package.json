@@ -36,6 +36,8 @@
     "vue2-hammer": "^2.1.2"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@types/vue2-hammer": "^2.1.0",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-typescript": "^3.11.0",
@@ -44,7 +46,7 @@
     "node-sass": "^4.13.0",
     "sass-builder": "^1.0.0",
     "sass-loader": "^8.0.0",
-    "typescript": "^3.6.3",
+    "typescript": "^3.7.5",
     "vue-template-compiler": "^2.6.10"
   }
 }
