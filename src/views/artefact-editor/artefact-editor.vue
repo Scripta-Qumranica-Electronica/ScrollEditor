@@ -340,10 +340,9 @@ export default class ArtefactEditor extends Vue {
     }
 
     private setFirstZoom() {
-        // Get height and width of infoBox
-        // Set zoom to be min(infoBox.height / boundingBox.height, infoBox.width / boundingBox.width);
-        const height = (this.$refs.infoBox as Element).clientHeight;
-        const width = (this.$refs.infoBox as Element).clientWidth;
+        const infoBox = this.$refs.infoBox as Element;
+        const height = infoBox.clientHeight;
+        const width = infoBox.clientWidth;
         this.params.zoom = Math.min(
             height / this.boundingBox.height,
             width / this.boundingBox.width

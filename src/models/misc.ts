@@ -6,3 +6,10 @@ export interface Position {
     x: number;
     y: number;
 }
+
+export function integrifyPosition(p: Position): Position {
+    return {
+        x: Math.round(p.x),
+        y: Math.round(p.y),
+    };
+}
