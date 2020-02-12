@@ -12,6 +12,7 @@ import { EditionInfo } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
 import { updateInArray, removeFromArray, addToArray } from '@/utils/collection-utils';
+import { InterpretationRoi } from '@/models/text';
 
 /* This file contains the implementation of all the incoming events from SignalR */
 
@@ -66,30 +67,83 @@ export class NotificationHandler {
     }
 
     public handleCreatedRoi(roi: InterpretationRoiDTO): void {
-        console.warn('No implementation for handleCreatedRoi', roi);
+        handleCreatedRoi(roi);
+        notifyRoiChanged();
     }
 
     public handleCreatedRoisBatch(roiList: InterpretationRoiDTOList): void {
-        console.warn('No implementation for handleCreatedRoisBatch', roiList);
+        roiList.rois.map(roi => handleCreatedRoi(roi));
+        notifyRoiChanged();
     }
 
     public handleEditedRoisBatch(rois: BatchEditRoiResponseDTO): void {
-        console.warn('No implementation for handleEditodRoisBatch', rois);
+        rois.createRois.map(roi => handleCreatedRoi(roi));
+        rois.deleteRois.map(roiId => handleDeletedRoi(roiId));
+        rois.updateRois.map(roi => handleUpdatedRoi(roi));
+        notifyRoiChanged();
     }
 
     public handleUpdatedRoi(roi: UpdatedInterpretationRoiDTO): void {
-        console.warn('No implementation for handleUpdatedRoi', roi);
+        handleUpdatedRoi(roi);
+        notifyRoiChanged();
     }
 
-    public handleUpdatedRoisBatch(rois: UpdatedInterpretationRoiDTOList): void {
-        console.warn('No implementation for handleUpdatedRoisBatch', rois);
+    public handleUpdatedRoisBatch(roiList: UpdatedInterpretationRoiDTOList): void {
+        roiList.rois.map(roi => handleUpdatedRoi(roi));
+        notifyRoiChanged();
     }
 
     public handleDeletedRoi(roiId: number): void {
-        console.warn('No implementation for handleDeleteRoi', roiId);
+        handleDeletedRoi(roiId);
+        notifyRoiChanged();
     }
+}
 
-    private get state() {
-        return StateManager.instance;
+/*
+ * ROI updating is handled in external functions which are called from the NotificationHandler.
+ *
+ * We have to use these function, since `this` is not initialized properly in the notification handler's
+ * methods, so we can't call one handler from another.
+ *
+ * After updating ROIs, components displaying ROIs should be notified (since not all properties are computed
+ * from the state). We use the event bus to fire an roi-changed event, causing components to refresh.
+ */
+
+function handleCreatedRoi(dto: InterpretationRoiDTO) {
+    // Add roi to all the ROIs, as well as to the specific sign interpretation
+    const roi = new InterpretationRoi(dto);
+    state().interpretationRois.put(roi);
+
+    if (roi.signInterpretationId) {
+        const si = state().signInterpretations.get(roi.signInterpretationId);
+        if (si) {
+            addToArray(roi, si.rois);
+        }
     }
+}
+
+function handleDeletedRoi(roiId: number) {
+    const roi = state().interpretationRois.get(roiId);
+    if (!roi) {
+        return;
+    }
+    state().interpretationRois.delete(roiId);
+
+    if (roi.signInterpretationId) {
+        const si = state().signInterpretations.get(roi.signInterpretationId);
+        if (si) {
+            si.deleteRoi(roi);
+        }
+    }
+}
+
+function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
+    // Just delete the old one and add the new one. Order of ROIs inside
+    // the lists is of no consqeuence.
+    handleDeletedRoi(dto.oldInterpretationRoiId);
+    handleCreatedRoi(dto);
+}
+
+function notifyRoiChanged() {
+    state().eventBus.$emit('roi-changed');
 }

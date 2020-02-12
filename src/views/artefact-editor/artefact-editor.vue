@@ -243,6 +243,14 @@ export default class ArtefactEditor extends Vue {
         return this.$state.artefacts.current!;
     }
 
+    protected created() {
+        this.$state.eventBus.$on('roi-changed', () => this.initVisibleRois());
+    }
+
+    protected destroyed() {
+        this.$state.eventBus.$off('roi-changed', () => this.initVisibleRois());
+    }
+
     protected async mounted() {
         this.waiting = true;
         if (this.$bp.between('sm', 'lg')) {
