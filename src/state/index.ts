@@ -8,6 +8,7 @@ import { EditionCollection,
     TextFragmentMap} from './utilities';
 import { Polygon } from '@/utils/Polygons';
 import StateService from './state-service';
+import Vue from 'vue';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -20,6 +21,7 @@ export class StateManager {
     public interpretationRois: InterpretationRoiMap;
     public signInterpretations: SignInterpretationMap;
     public misc: MiscState;
+    public eventBus: Vue;
 
     public prepare: StateService;
 
@@ -32,7 +34,7 @@ export class StateManager {
         this.misc = new MiscState();
         this.interpretationRois = new InterpretationRoiMap();
         this.signInterpretations = new SignInterpretationMap();
-
+        this.eventBus = new Vue();
         this.prepare = new StateService(this);
     }
 

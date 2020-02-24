@@ -20,6 +20,7 @@ import {
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
 import { InterpretationRoi } from '@/models/text';
+import { integrifyPosition } from '@/models/misc';
 
 class TextService {
     public stateManager: StateManager;
@@ -84,7 +85,7 @@ class TextService {
                 artefactId: artefact.id,
                 signInterpretationId: roi.signInterpretationId,
                 shape: roi.shape.wkt,
-                translate: roi.position,
+                translate: integrifyPosition(roi.position),
                 stanceRotation: roi.rotation,
                 exceptional: roi.exceptional,
                 valuesSet: roi.valuesSet

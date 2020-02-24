@@ -4,7 +4,7 @@ import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
 import { TextFragment, InterpretationRoi, SignInterpretation } from '@/models/text';
 
-interface ItemWithId<U> {
+export interface ItemWithId<U> {
     id: U;
 }
 
@@ -52,19 +52,41 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         return this._items.find((it) => it.id === id);
     }
 
-    public update(entity: T) {
+    public update(entity: T, failIfNotFound = true) {
         const idx = this._items.findIndex((it) => it.id === entity.id);
         if (idx === -1) {
-            throw new Error(`Can't update entity ${entity.id}, it is not in the collection`);
+            if (failIfNotFound) {
+                throw new Error(`Can't update entity ${entity.id}, it is not in the collection`);
+            }
         }
         const newItems = [...this._items]; // Create a new copy, for reactiveness
         newItems[idx] = entity;
         this.replaceItems(newItems);
     }
 
-    public add(entity: T) {
+    public remove(entityId: U, failIfNotFound = true) {
+        const idx = this._items.findIndex((it) => it.id === entityId);
+        if (idx === -1) {
+            if (failIfNotFound) {
+                throw new Error(`Can't delete entity ${entityId}, it is not in the collection`);
+            }
+        }
+
+        if (this._current && this._current.id === entityId) {
+            this._current = undefined;
+        }
+
+        const newItems = [...this._items]; // Create a new copy, for reactiveness
+        newItems.splice(idx, 1);
+        this.replaceItems(newItems);
+    }
+
+    public add(entity: T, failIfExisting = true) {
         if (this.find(entity.id)) {
-            throw new Error(`Can't add entity ${entity.id} ,it is already in the collection`);
+            if (failIfExisting) {
+                throw new Error(`Can't add entity ${entity.id} ,it is already in the collection`);
+            }
+            return;
         }
 
         const newItems = [...this._items, entity];

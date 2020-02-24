@@ -69,6 +69,20 @@ class EditionService {
         return newEdition;
     }
 
+    public async renameEdition(editionId: number, name: string): Promise<EditionInfo> {
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+
+        const dto = {
+            name
+        } as EditionUpdateRequestDTO;
+        const response = await CommHelper.put<EditionDTO>(ApiRoutes.editionUrl(editionId), dto);
+
+        edition.name = response.data.name;
+        return edition;
+    }
 }
 
 export default EditionService;

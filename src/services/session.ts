@@ -9,13 +9,16 @@ import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
+import { SignalRWrapper } from '@/state/signalr-connection';
 
 
 class SessionService {
-    public stateManager: StateManager;
+    private stateManager: StateManager;
+    private signalR: SignalRWrapper;
 
     constructor() {
         this.stateManager = StateManager.instance;
+        this.signalR = SignalRWrapper.instance;
     }
 
     public async login(email: string, password: string) {
@@ -28,12 +31,16 @@ class SessionService {
 
         this.stateManager.session.user = response.data;
         this.stateManager.session.token = response.data.token;
+
+        this.signalR.userChanged();
     }
 
     public logout() {
         // No need to contact the server, we just forget the session
           this.stateManager.session.user = null;
           this.stateManager.session.token = undefined;
+
+          this.signalR.userChanged();
     }
 
     public async isTokenValid() {

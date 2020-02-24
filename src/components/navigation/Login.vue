@@ -4,7 +4,7 @@
         <b-container fluid @keyup.enter="login">
             <b-row class="mb-2">
                 <b-col cols="3">{{ $t('navbar.email') }}</b-col>
-                <b-col><b-form-input ref="email" v-model="email"></b-form-input></b-col>
+                <b-col><b-form-input ref="email" v-model="email"  type="email"></b-form-input></b-col>
             </b-row>
             <b-row class="mb-2">
                 <b-col cols="3">{{ $t('navbar.password') }}</b-col>

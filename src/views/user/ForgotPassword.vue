@@ -4,7 +4,7 @@
         <b-container fluid @keyup.enter="submit">
             <b-row class="mb-2">
                 <b-col cols="3">{{ $t('navbar.email') }}</b-col>
-                <b-col><b-form-input v-model="email" type="email" ref="emailRef"></b-form-input></b-col>
+                <b-col><b-form-input v-model="email" type="email" ref="emailRef" id="forgetPass"></b-form-input></b-col>
             </b-row>
 
             <b-row>
@@ -14,7 +14,7 @@
 
         <div slot="modal-footer">
             <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
-            <b-button @click="submit" variant="primary" type="submit" :disabled="disabledSubmit">
+            <b-button @click="submit" variant="primary" type="submit"  class="forgetPass"  :disabled="disabledSubmit">
                 {{ $t('navbar.forgotPassword') }}
                 <span v-if="waiting">
                     <font-awesome-icon icon="spinner" spin></font-awesome-icon>

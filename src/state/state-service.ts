@@ -5,7 +5,8 @@ import ArtefactService from '@/services/artefact';
 import { IIIFImage } from '@/models/image';
 import ImageService from '@/services/image';
 import TextService from '@/services/text';
-import { ArtefactTextFragmentData } from '@/models/text';
+import { SignalRWrapper } from './signalr-connection';
+import { NotificationHandler } from './notification-handler';
 
 /*
  * This service handles all the state data.
@@ -51,6 +52,7 @@ type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObject
 export default class StateService {
     private static alreadyCreated = false;
     private _state: StateManager;
+    private _notificationHandler: NotificationHandler;
 
     private allEditionsProcess: ProcessTracking | undefined;
     private editionProcess: ProcessTracking | undefined;
@@ -68,6 +70,8 @@ export default class StateService {
         }
         this._state = state;
         this.imageManifestProcesses = new Map<string, ProcessTracking>();
+        this._notificationHandler = new NotificationHandler();
+        SignalRWrapper.instance.registerNotificationHandler(this._notificationHandler);
         StateService.alreadyCreated = true;
     }
 
@@ -180,6 +184,7 @@ export default class StateService {
             this.artefactsProcess!.promise,
             this.textFragmentsProcess!.promise,
         ]);
+        SignalRWrapper.instance.subscribeEdition(editionId);
     }
 
     private async textFragmentsInternal(editionId: number) {
@@ -240,7 +245,6 @@ export default class StateService {
         artefact.textFragments = await tfPromise;
 
         this._state.artefacts.current = artefact;
-        //await Promise.all(artefact.textFragments.map((tf: ArtefactTextFragmentData) => this._state.prepare.textFragment(editionId, tf.id)));
         this._state.imagedObjects.current = imagedObject;
     }
 
