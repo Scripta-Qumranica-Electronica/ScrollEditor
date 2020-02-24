@@ -14,11 +14,19 @@ export interface ImageSetting {
 }
 
 export function normalizeOpacity(settings: ImageSetting) {
-    const totalVisibleOpacity = Object.values(settings)
-        .filter(x => x.visible)
-        .reduce((previous, current) => current.opacity + previous, 0);
+    const filteredImageList = Object.values(settings).filter(x => x.visible);
+    const firstOpacity = filteredImageList[0].opacity;
 
-    for (const val of Object.keys(settings)) {
-        settings[val].normalizedOpacity = settings[val].opacity / totalVisibleOpacity;
+    const numVisible = filteredImageList.length;
+    let fullOpacity = numVisible;
+    for (const [i, val] of filteredImageList.entries()) {
+        if (i === 0) {
+            val.normalizedOpacity = 1;
+            fullOpacity -= val.opacity + numVisible - 1;
+        } else {
+            val.normalizedOpacity =
+                val.opacity * ((numVisible - i) / numVisible) + ((fullOpacity * val.opacity) / numVisible);
+            fullOpacity += 1 - val.opacity;
+        }
     }
 }
