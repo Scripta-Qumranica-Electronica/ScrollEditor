@@ -234,7 +234,7 @@ export default class ArtefactEditor extends Vue {
     private mode: ActionMode = 'box';
     private autoMode = false;
    
-    // private deleteRoi= true;
+   
     private errorMessage = '';
     private waiting = true;
     private saving = false;
@@ -585,6 +585,7 @@ export default class ArtefactEditor extends Vue {
         }
 
         this.selectedInterpretationRoi = null;
+        this.selectedSignInterpretation = null;
      
 
     }
