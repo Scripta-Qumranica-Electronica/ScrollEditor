@@ -217,7 +217,7 @@ import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
@@ -233,8 +233,7 @@ export default class ArtefactEditor extends Vue {
     private selectedInterpretationRoi: InterpretationRoi | null = null;
     private mode: ActionMode = 'box';
     private autoMode = false;
-   
-   
+
     private errorMessage = '';
     private waiting = true;
     private saving = false;
@@ -353,7 +352,7 @@ export default class ArtefactEditor extends Vue {
     private get isDeleteEnabled() {
         return !!this.selectedInterpretationRoi;
     }
-    
+
     private get rotationAngle(): number {
         return this.params.rotationAngle;
     }
@@ -393,7 +392,6 @@ export default class ArtefactEditor extends Vue {
     private sidebarClicked() {
         this.isActiveSidebar = !this.isActiveSidebar;
     }
-   
 
     private textClicked() {
         this.isActiveText = !this.isActiveText;
@@ -422,7 +420,6 @@ export default class ArtefactEditor extends Vue {
         this.autoMode = !this.autoMode;
     }
 
-  
     private fillImageSettings() {
         if (!this.imageStack) {
             throw new Error(
@@ -586,8 +583,6 @@ export default class ArtefactEditor extends Vue {
 
         this.selectedInterpretationRoi = null;
         this.selectedSignInterpretation = null;
-     
-
     }
 
     private async onSave() {
