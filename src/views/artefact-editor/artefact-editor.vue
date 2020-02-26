@@ -86,8 +86,8 @@
                                     @roi-clicked="onRoiClicked($event)"
                                 />
                                 <boundary-drawer
-                                    v-show="isDrawingEnabled"
-                                    :mode="drawingMode"
+                                    v-show="isDrawingEnabled && this.mode !== 'select'"
+                                    :mode="mode"
                                     transformRootId="transform-root"
                                     @new-polygon="onNewPolygon($event)"
                                 />
@@ -108,8 +108,8 @@
                     <b-button
                         v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon' ,title: this.$t('misc.draw')}, {icon: 'fa fa-square-o', val: 'box', title: this.$t('misc.box')}]"
                         :key="mode.val"
-                        @click="onDrawingModeClick(mode.val)"
-                        :pressed="drawingMode === mode.val"
+                        @click="onModeClick(mode.val)"
+                        :pressed="mode === mode.val"
                         :disabled="!isDrawingEnabled"
                         class="sidebarCollapse"
                         v-b-tooltip.hover.bottom
@@ -121,7 +121,7 @@
                         type="button"
                         class="sidebarCollapse"
                         @click="onDeleteRoi()"
-                        :disabled="!isDeleteEnabled"
+                          :disabled="!isDeleteEnabled"
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.cancel')"
                     >
@@ -135,8 +135,18 @@
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.auto')"
                     >
-                        <i class="fa fa-refresh"></i>
+                      <i class="fa fa-play"></i>
                     </b-button>
+
+                    <b-button
+                        type="button"
+                        @click="onModeClick('select')"
+                        :pressed="mode === 'select'"
+                        class="sidebarCollapse"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.select')"
+                    ><i class="fa fa-mouse-pointer"></i></b-button>
+                  
                 </div>
             </div>
         </div>
@@ -195,7 +205,7 @@ import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from '@/views/artefact-editor/image-layer.vue';
 import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
 import BoundaryDrawer, {
-    DrawingMode
+    ActionMode
 } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, {
     ZoomEventArgs,
@@ -207,7 +217,7 @@ import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
@@ -221,9 +231,10 @@ import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
 export default class ArtefactEditor extends Vue {
     private selectedSignInterpretation: SignInterpretation | null = null;
     private selectedInterpretationRoi: InterpretationRoi | null = null;
-    private drawingMode: DrawingMode = 'box';
+    private mode: ActionMode = 'box';
     private autoMode = false;
-
+   
+   
     private errorMessage = '';
     private waiting = true;
     private saving = false;
@@ -335,14 +346,14 @@ export default class ArtefactEditor extends Vue {
 
     private get isDrawingEnabled() {
         return (
-            !!this.selectedSignInterpretation && !this.selectedInterpretationRoi
+            !!this.selectedSignInterpretation
         );
     }
 
     private get isDeleteEnabled() {
         return !!this.selectedInterpretationRoi;
     }
-
+    
     private get rotationAngle(): number {
         return this.params.rotationAngle;
     }
@@ -382,6 +393,7 @@ export default class ArtefactEditor extends Vue {
     private sidebarClicked() {
         this.isActiveSidebar = !this.isActiveSidebar;
     }
+   
 
     private textClicked() {
         this.isActiveText = !this.isActiveText;
@@ -410,6 +422,7 @@ export default class ArtefactEditor extends Vue {
         this.autoMode = !this.autoMode;
     }
 
+  
     private fillImageSettings() {
         if (!this.imageStack) {
             throw new Error(
@@ -489,8 +502,8 @@ export default class ArtefactEditor extends Vue {
         }
     }
 
-    private onDrawingModeClick(newMode: DrawingMode) {
-        this.drawingMode = newMode;
+    private onModeClick(newMode: ActionMode) {
+        this.mode = newMode;
     }
 
     private onNewPolygon(poly: Polygon) {
@@ -572,6 +585,9 @@ export default class ArtefactEditor extends Vue {
         }
 
         this.selectedInterpretationRoi = null;
+        this.selectedSignInterpretation = null;
+     
+
     }
 
     private async onSave() {
