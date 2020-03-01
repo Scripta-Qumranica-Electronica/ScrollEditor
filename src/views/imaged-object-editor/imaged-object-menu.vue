@@ -49,7 +49,7 @@
                     accordion="my-accordion"
                     role="tabpanel"
                 >
-                    <b-card-body>
+                    <b-card-body class="card-body-height">
                         <b-dropdown :text="sideFilter.displayName">
                             <b-dropdown-item
                                 v-for="filter in sideOptions"
@@ -455,5 +455,9 @@ section.center-btn {
 #rename {
     margin-left: 20px;
     margin-right: -20px;
+}
+.card-body-height{
+    overflow-y: auto;
+    max-height: 250px;
 }
 </style>
