@@ -126,6 +126,7 @@ import { DropdownOption } from '@/utils/helpers';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { normalizeOpacity } from '@/components/image-settings/types';
+import { addToArray } from '@/utils/collection-utils';
 
 @Component({
     name: 'imaged-object-editor',
@@ -165,11 +166,9 @@ export default class ImagedObjectEditor extends Vue {
     private nonSelectedMask = new Polygon();
     private artefactEditingDataList: ArtefactEditingData[] = [];
     private artefactEditingData = new ArtefactEditingData();
-    private artefacts = [] as Artefact[];
     private isActive = false;
     private masterImage?: IIIFImage;
     private side: Side = 'recto';
-
     private get editList(): any[] {
         if (this.canEdit) {
             return [
@@ -251,6 +250,10 @@ export default class ImagedObjectEditor extends Vue {
         return this.artefacts.filter(item => item.side === this.side);
     }
 
+     private get artefacts(): Artefact[] {
+      return this.imagedObject!.artefacts || [];
+    }
+
     private async mounted() {
         try {
             this.waiting = true;
@@ -284,8 +287,6 @@ export default class ImagedObjectEditor extends Vue {
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {
-                this.optimizeArtefacts();
-                // Set this.artefact to visibleArtefacts[0]
                 this.artefacts.forEach(element => {
                     this.artefactEditingDataList.push(
                         new ArtefactEditingData()
@@ -363,10 +364,6 @@ export default class ImagedObjectEditor extends Vue {
                 normalizeOpacity(this.params.imageSettings);
             }
         }
-    }
-
-    private optimizeArtefacts() {
-        this.artefacts = this.imagedObject!.artefacts || [];
     }
 
     private editingModeChanged(val: any) {
@@ -454,7 +451,7 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private async onNew(art: Artefact) {
-        this.artefacts.push(art);
+        addToArray(art, this.imagedObject!.artefacts);
 
         this.artefact = art;
         if (!this.artefact) {
@@ -497,7 +494,7 @@ export default class ImagedObjectEditor extends Vue {
             await this.artefactService.deleteArtefact(art);
             this.showMessage('Artefact deleted', 'success');
             const index = this.artefacts.indexOf(art);
-            this.artefacts.splice(index, 1);
+           // this.artefacts.splice(index, 1);
             this.artefactEditingDataList.splice(index, 1);
 
             if (this.artefacts[0]) {
