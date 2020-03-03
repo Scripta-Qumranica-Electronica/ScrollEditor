@@ -94,7 +94,7 @@ describe('Imaged Artefact', function() {
             .trigger('pointermove', 350, 280)
             .trigger('pointerup', 350, 280)
         cy.get(':nth-child(14) > :nth-child(44)').click({ force: true })
-        cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-refresh').click({ force: true }) /*Use button auto for create new shapes */
+        cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-play').click({ force: true }) /*Use button auto for create new shapes */
         cy.get('g#transform-root') /*first shape */
             .trigger('pointermove', 200, 220)
             .trigger('pointerdown', 200, 220)
