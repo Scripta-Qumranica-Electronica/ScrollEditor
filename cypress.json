@@ -5,6 +5,7 @@
         "copy_spec.js",
         "artefacts_spec.js",
         "imaged_object_spec.js",
+        "rename_editor_spec.js",
         "language_spec.js"
     ]
 }

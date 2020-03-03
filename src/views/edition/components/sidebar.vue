@@ -11,14 +11,14 @@
             <b-btn
                 v-if="canRename && !renaming"
                 @click="openRename()"
-                class="btn btn-sm"
+                class="btn btn-sm btn-rename"
             >{{ $t('misc.rename') }}</b-btn>
 
             <input v-if="renaming" v-model="newEditionName" />
             <b-btn
                 v-if="renaming"
                 @click="onRename(newEditionName)"
-                class="btn btn-sm"
+                class="btn btn-sm btn-save"
             >{{ $t('misc.save') }}</b-btn>
         </div>
 
