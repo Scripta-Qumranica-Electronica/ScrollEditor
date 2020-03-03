@@ -24,6 +24,10 @@ class Permissions {
         this.mayWrite = dto.mayWrite;
         this.isAdmin = dto.isAdmin;
     }
+
+    public get readOnly() {
+        return !this.mayWrite;
+    }
 }
 
 class ShareInfo {

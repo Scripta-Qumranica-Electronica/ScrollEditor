@@ -534,7 +534,7 @@ export default class ArtefactEditor extends Vue {
         while (newIndex < this.selectedLine!.signs.length) {
             const newSI = this.selectedLine!.signs[newIndex]
                 .signInterpretations[0];
-            if (newSI.character) {
+            if (newSI.character && !newSI.isReconstructed) {
                 this.onSignInterpretationClicked(newSI);
                 break;
             }

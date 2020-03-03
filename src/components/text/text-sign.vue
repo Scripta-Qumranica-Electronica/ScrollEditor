@@ -37,13 +37,7 @@ export default class SignComponent extends Vue {
     }
 
     private clickable(si: SignInterpretation) {
-        if (!si.character) {
-            return false;
-        }
-        if (this.cssStrings(si).indexOf('is-reconstructed-true') !== -1) {
-            return false;
-        }
-        return true;
+        return si.character && !si.isReconstructed;
     }
 }
 </script>
