@@ -5,7 +5,7 @@
             :key="roi.id"
             :d="roi.shape.svg"
             :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="{ shine: roi.shiny, selected: roi === selected }"
+            :class="{ shine: roi.shiny, selected: roi === selected, highlighted: highlighted(roi) }"
             @click="onPathClicked(roi)"
             vector-effect="non-scaling-stroke"
         />
@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import { InterpretationRoi } from '@/models/text';
+import { InterpretationRoi, SignInterpretation } from '@/models/text';
 
 @Component({
     name: 'roi-layer',
@@ -22,6 +22,7 @@ import { InterpretationRoi } from '@/models/text';
 })
 export default class RoiLayer extends Vue {
     @Prop() public rois!: Iterator<InterpretationRoi>;
+    @Prop() public si!: SignInterpretation;
     @Prop({
         default: null
     })
@@ -35,6 +36,11 @@ export default class RoiLayer extends Vue {
     private roiClicked(roi: InterpretationRoi) {
         return roi;
     }
+
+    public highlighted(roi: InterpretationRoi) {
+        if(this.si)
+        return roi.signInterpretationId === this.si.signInterpretationId;
+    }
 }
 </script>
 
@@ -43,6 +49,11 @@ path {
     stroke-width: 2;
     fill: transparent;
     stroke: darkslategray;
+}
+path.highlighted{
+     stroke-width: 2;
+    fill: transparent;
+    stroke: red;
 }
 
 path.shiny {

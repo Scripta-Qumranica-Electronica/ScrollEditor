@@ -82,6 +82,7 @@
                                 />
                                 <roi-layer
                                     :rois="visibleRois"
+                                    :si="selectedSignInterpretation"
                                     :selected="selectedInterpretationRoi"
                                     @roi-clicked="onRoiClicked($event)"
                                 />
