@@ -41,6 +41,9 @@
                 >
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
+                        <label v-if="readOnly">
+                            <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> ReadOnly
+                        </label>
                         <sign-wheel
                             v-if="selectedSignInterpretation"
                             :line="selectedLine"
@@ -108,6 +111,7 @@
                     </b-button>
                     <b-button
                         v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon' ,title: this.$t('misc.draw')}, {icon: 'fa fa-square-o', val: 'box', title: this.$t('misc.box')}]"
+                        v-show="!readOnly"
                         :key="mode.val"
                         @click="onModeClick(mode.val)"
                         :pressed="mode === mode.val"
@@ -119,16 +123,18 @@
                         <i :class="mode.icon"></i>
                     </b-button>
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         class="sidebarCollapse"
                         @click="onDeleteRoi()"
-                          :disabled="!isDeleteEnabled"
+                        :disabled="!isDeleteEnabled"
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.cancel')"
                     >
                         <i class="fa fa-trash"></i>
                     </b-button>
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         @click="onAuto()"
                         :pressed="autoMode == true"
@@ -136,18 +142,20 @@
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.auto')"
                     >
-                      <i class="fa fa-play"></i>
+                        <i class="fa fa-play"></i>
                     </b-button>
 
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         @click="onModeClick('select')"
                         :pressed="mode === 'select'"
                         class="sidebarCollapse"
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.select')"
-                    ><i class="fa fa-mouse-pointer"></i></b-button>
-                  
+                    >
+                        <i class="fa fa-mouse-pointer"></i>
+                    </b-button>
                 </div>
             </div>
         </div>
@@ -218,14 +226,14 @@ import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel
     }
 })
@@ -305,7 +313,9 @@ export default class ArtefactEditor extends Vue {
 
         setTimeout(() => this.setFirstZoom(), 0);
     }
-
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
     private get imagedObject(): ImagedObject {
         return this.$state.imagedObjects.current!;
     }
@@ -345,9 +355,7 @@ export default class ArtefactEditor extends Vue {
     }
 
     private get isDrawingEnabled() {
-        return (
-            !!this.selectedSignInterpretation
-        );
+        return !!this.selectedSignInterpretation;
     }
 
     private get isDeleteEnabled() {

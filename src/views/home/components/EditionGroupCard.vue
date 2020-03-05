@@ -8,6 +8,12 @@
     <div class="card-body">
       <router-link tag="div" :to="{ path:`/editions/${edition.id}` }">
         <h5 class="cart-title"> {{ edition.name }}</h5>
+          <i
+                    v-if="lockEdition"
+                    v-b-tooltip.hover.bottom
+                    :title="$t('home.lock')"
+                    class="fa fa-lock"
+                ></i>
         <p>
           <span class="badge badge-info mr-1">{{ publicEditionCount }}</span>{{ $tc('home.publicEditionCount',
             publicEditionCount)}}
@@ -32,6 +38,9 @@ import { EditionInfo } from '@/models/edition';
 export default class EditionCard extends Vue {
     @Prop() public edition!: EditionInfo;
 
+  private get lockEdition(): boolean{
+          return this.edition.permission.readOnly;
+        }
     private get thumbnailSource(): string | undefined {
 
         return this.edition.thumbnail

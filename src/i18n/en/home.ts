@@ -22,5 +22,6 @@ export default {
     redo: 'Redo',
     filterArtefacts: 'Filter Artefacts',
     both : 'Both',
-    editorParameters : 'Editor Parameters'
+    editorParameters : 'Editor Parameters',
+    lock:'ReadOnly'
 };

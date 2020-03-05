@@ -8,6 +8,7 @@
                     v-if="isNew"
                 >{{ $t('misc.new') }}</span>
             </h5>
+           
             <b-btn
                 v-if="canRename && !renaming"
                 @click="openRename()"
@@ -23,6 +24,7 @@
         </div>
 
         <b-nav vertical>
+             <h5 v-if="readOnly">ReadOnly</h5>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
                 <router-link
@@ -115,6 +117,9 @@ export default Vue.extend({
         };
     },
     computed: {
+        readOnly():boolean {
+           return this.current!.permission.readOnly;
+        },
         canRename(): boolean {
             return this.current!.permission.mayWrite;
         },

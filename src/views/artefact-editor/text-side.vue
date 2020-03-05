@@ -1,6 +1,6 @@
 <template>
-    <div id="text-side" class="fixed-header">
-        <input class="select-text" list="my-list-id" @change="loadFragment($event)" />
+    <div   id="text-side" class="fixed-header">
+        <input  v-if="!readOnly" class="select-text" list="my-list-id" @change="loadFragment($event)" />
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
         </datalist>
@@ -63,6 +63,7 @@ import {
     ArtefactTextFragmentData
 } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
+import { EditionInfo } from '@/models/edition';
 
 @Component({
     name: 'text-side',
@@ -72,6 +73,7 @@ import TextFragmentComponent from '@/components/text/text-fragment.vue';
 })
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
+    
     @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
@@ -82,6 +84,10 @@ export default class TextSide extends Vue {
     private get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
+
+    private get  readOnly():boolean{
+     return this.$state.editions.current!.permission.readOnly;
+        }
 
     private get dropdownTextFragmentsData() {
         console.log(this.allTextFragmentsData, 'dropDown');
@@ -162,6 +168,8 @@ export default class TextSide extends Vue {
             }
         }
     }
+    
+    
 
     private changePosition(index: number, up: boolean) {
         const indexToChange = up ? index - 1 : index + 1;
