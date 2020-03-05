@@ -43,20 +43,21 @@ export default class SignComponent extends Vue {
 </script>
 
 <style lang="scss" scoped>
+ @import "./styles/_variables.scss";
 div {
   display: inline;
 }
 
 span {
-    color: black;
+    color: $black;
     cursor: default;
 }
 
 span.selected {
   
-    color: red;
+    color: $red;
     font-weight: bold;
-    text-shadow: 0 0 2px black;
+    text-shadow: 0 0 2px $black;
     transition: 0.6s;
     font-size:17px;
     margin:1px

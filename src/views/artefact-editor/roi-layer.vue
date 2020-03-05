@@ -45,15 +45,16 @@ export default class RoiLayer extends Vue {
 </script>
 
 <style lang="scss" scoped>
+@import "./styles/_variables.scss";
 path {
     stroke-width: 2;
     fill: transparent;
-    stroke: darkslategray;
+    stroke: $dark-not-select;
 }
 path.highlighted{
      stroke-width: 2;
     fill: transparent;
-    stroke: red;
+    stroke: $red;
 }
 
 path.shiny {
@@ -63,7 +64,7 @@ path.shiny {
 }
 
 path.selected {
-    stroke: #FFFF99;
+    stroke: $yellow-select;
     stroke-width: 2;
     filter: contrast(200%);
     animation: pulsate 2s ease-out;

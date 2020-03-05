@@ -81,7 +81,7 @@ export default class EditionVersionCard extends Vue {
 </script>
 
 <style lang="scss" scoped>
-
+@import "./styles/_variables.scss";
 .card:hover,
 .list-item .card:hover {
   
@@ -99,7 +99,7 @@ h5 {
 }
 
 .share {
-    color: black;
+    color: $black;
     background-color: white;
 }
 </style>

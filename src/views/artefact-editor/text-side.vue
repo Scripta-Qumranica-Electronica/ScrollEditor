@@ -229,11 +229,10 @@ export default class TextSide extends Vue {
 </script>
 
 <style lang="scss" scoped>
-#text-side {
+ @import "./styles/_variables.scss";
+  #text-side {
     margin: 30px 15px 20px 30px;
     touch-action: pan-y;
-    // top: 0;
-    // right: 0;
 }
 
 button {
@@ -254,7 +253,7 @@ button {
 }
 
 .isa_error {
-    color: #d8000c;
+    color: $red;
 }
 .btn-position {
     margin-top: -5px;
