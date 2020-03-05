@@ -43,7 +43,7 @@ export default class SignComponent extends Vue {
 </script>
 
 <style lang="scss" scoped>
- @import "./styles/_variables.scss";
+@import "../../assets./styles/_variables.scss";
 div {
   display: inline;
 }

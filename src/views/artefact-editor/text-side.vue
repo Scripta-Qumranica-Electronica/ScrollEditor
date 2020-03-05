@@ -229,7 +229,7 @@ export default class TextSide extends Vue {
 </script>
 
 <style lang="scss" scoped>
- @import "./styles/_variables.scss";
+@import "../../assets./styles/_variables.scss";
   #text-side {
     margin: 30px 15px 20px 30px;
     touch-action: pan-y;
