@@ -1,0 +1,58 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {   "type": "shell",
+            "label": "adb",
+            "command": "c:/utils/MinimalADB/adb.exe start-server",
+            "problemMatcher": []
+        },  
+        {
+            "type": "npm",
+            "script": "serve",
+            "isBackground": true,
+            "problemMatcher": [{
+                "severity": "error",
+                "fileLocation": "absolute",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Compiled",
+                    "endsPattern": "Time: (\\d+)ms"
+                },
+                "pattern": [
+                    {
+                        "regexp": "ERROR in (.*)",
+                        "file": 1,
+                    },
+                    {
+                        "regexp": "(\\d+):(\\d+) (.*)",
+                        "line": 1,
+                        "column": 2,
+                        "message": 3,
+                    }
+                ]
+            }, {
+                "severity": "warning",
+                "fileLocation": "absolute",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Compiled",
+                    "endsPattern": "Time: (\\d+)ms"
+                },
+                "pattern": [
+                    {
+                        "regexp": "WARNING in (.*)",
+                        "file": 1,
+                    },
+                    {
+                        "regexp": "(\\d+):(\\d+) (.*)",
+                        "line": 1,
+                        "column": 2,
+                        "message": 3,
+                    }
+                ]
+            }]
+        }
+    ]
+}

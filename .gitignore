@@ -13,7 +13,8 @@ yarn-error.log*
 
 # Editor directories and files
 .idea
-.vscode
+.vscode/*
+!.vscode/tasks.json
 *.suo
 *.ntvs*
 *.njsproj
@@ -22,3 +23,12 @@ yarn-error.log*
 
 # Include necessary vscode files
 !.vscode/tasks.json
+!.vscode/launch.json
+
+# Local files for the backend's Docker
+docker/run-docker.ps1
+docker/logs/*
+!docker/logs/README.md
+# Cypress files
+cypress/screenshots/
+cypress/videos/

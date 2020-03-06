@@ -1,100 +1,88 @@
-import { Store } from 'vuex';
-import { Communicator, ServerError } from './communications';
-import { EditionInfo, AllEditions } from '@/models/edition';
-import { ImagedObject } from '@/models/imaged-object';
+import { EditionInfo } from '@/models/edition';
 import { CommHelper } from './comm-helper';
-import { EditionListDTO, EditionGroupDTO, EditionCopyRequestDTO, EditionDTO } from '@/dtos/editions';
-import { ImagedObjectListDTO } from '@/dtos/imaged-object';
+import { EditionListDTO, EditionUpdateRequestDTO, EditionDTO, EditionGroupDTO } from '@/dtos/sqe-dtos';
+import { StateManager } from '@/state';
+import { ApiRoutes } from '@/services/api-routes';
 
 class EditionService {
-    private communicator: Communicator;
-    constructor(private store: Store<any>) {
-        this.communicator = new Communicator(this.store);
+    public stateManager: StateManager;
+
+    constructor() {
+        this.stateManager = StateManager.instance;
     }
 
-    public async listEditions(): Promise<AllEditions> {
-        const response = await CommHelper.get<EditionListDTO>('/v1/editions');
-        const editionList = [] as EditionInfo[];
-        const myEditionList = [] as EditionInfo[];
-        const self = this;
+    public async getAllEditions(): Promise<EditionInfo[]> {
+        const response = await CommHelper.get<EditionListDTO>(ApiRoutes.allEditionsUrl());
+        let editionList = [] as EditionInfo[];
 
-        response.data.editions.map((obj) => { // group
-            const publicEditions = obj.filter((element: any) => element.isPublic);
-            const myEditions = obj.filter((element: any) =>
-                element.owner.userId.toString() === self.store.state.session.userId);
+        response.data.editions.map((grp) => {
+            // grp is a group of editions - all versions of each other
+            const editions = grp.map((obj) => new EditionInfo(obj));
 
-            if (myEditions.length) {
-                myEditionList.push(new EditionInfo(myEditions[0]));
-                // TODO: add myCount.length or shares length ?
+            // Set various edition flags that depend on other editions
+            const publicCopies = editions.filter((ed) => ed.isPublic).length;
+            for (const edition of editions) {
+                if (this.stateManager.session.user) {
+                    edition.mine = edition.owner.userId === this.stateManager.session.user.userId;
+                } else {
+                    edition.mine = false;
+                }
+                edition.otherVersions = editions.filter((ed) => ed !== edition);
+                edition.publicCopies = publicCopies;
             }
-            if (publicEditions.length) {
-                const editionInfo = new EditionInfo(publicEditions[0]);
-                editionInfo.publicCopies = publicEditions.length; // update number of public scrolls
-                editionList.push(editionInfo);
-            }
+
+            editionList = editionList.concat(editions);
         });
 
-        return {editionList, myEditionList} as AllEditions;
-    }
-
-    public async fetchEdition(editionId: number, ignoreCache = false): Promise<EditionInfo> {
-        // Fetches a edition version from the server and puts it in the store.
-        // Returns immediately if the requested edition version is already in the store
-        if (!ignoreCache &&
-            this.store.state.edition &&
-            this.store.state.edition.id === editionId) {
-            return this.store.state.edition;
-        }
-
-        this.store.dispatch('edition/setEdition', null); // Trigger a spinner on all views
-        const response = await CommHelper.get<EditionGroupDTO>(`/v1/editions/${editionId}`);
-
-        // Convert the server response into a single EditionInfo entity, putting all the other versions
-        // in its otherVersions array
-        const primary = new EditionInfo(response.data.primary);
-        if (!primary) {
-            throw new ServerError( { error: 'Server did not return the version we asked for' } );
-        }
-        const others = response.data.others.map((obj) => new EditionInfo(obj));
-        primary.otherVersions = others;
-
-        this.store.dispatch('edition/setEdition', primary, { root: true });
-        return primary;
-    }
-
-    public async fetchEditionImagedObjects(ignoreCache = false): Promise<ImagedObject[]> {
-        console.log('fetchEditionImagedObject called');
-        if (!ignoreCache && this.store.state.edition.imagedObjects !== null) {
-            console.log('Returning cached list ', this.store.state.edition.imagedObjects);
-            return this.store.state.edition.imagedObjects;
-        }
-
-        console.log('Loading imaged objects from server');
-        const imagedObjects = await this.getEditionImagedObjects(this.store.state.edition.current.id);
-        console.log('Imaged objects are: ', imagedObjects);
-        this.store.dispatch('edition/setImagedObjects', imagedObjects, { root: true });
-        return imagedObjects;
-    }
-
-    public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {
-        const response = await CommHelper.get<ImagedObjectListDTO>(
-            `/v1/editions/${editionId}/imaged-objects?optional=artefacts&optional=masks`
-        );
-
-        console.log('Imaged objects DTOs are ', response.data);
-        return response.data.imagedObjects.map((d) => new ImagedObject(d));
+        return editionList;
     }
 
     public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {
+        const prevEdition = this.stateManager.editions.find(editionId);
+
+        if (!prevEdition) {
+            throw new Error(`Can't copy non existing edition ${editionId}`);
+        }
+
         const dto = {
             name
-        } as EditionCopyRequestDTO;
-        const response = await CommHelper.post<EditionDTO>(`/v1/editions/${editionId}`, dto);
+        } as EditionUpdateRequestDTO;
+        const response = await CommHelper.post<EditionDTO>(ApiRoutes.editionUrl(editionId), dto);
 
         const newEdition = new EditionInfo(response.data);
+
+        // Connect the new edition to other editions of its group
+        newEdition.mine = true; // Cloned editions are always mine
+        newEdition.otherVersions = [...prevEdition.otherVersions, prevEdition];  // Set new's other versions
+
+        // Update otherVersions of all the previous versions
+        for (const other of newEdition.otherVersions) {
+            other.otherVersions.push(newEdition);
+        }
+
+        // Now update the state's edition collection
+        const current = this.stateManager.editions.current;
+        const allEditions = [...this.stateManager.editions.items, newEdition];
+        this.stateManager.editions.items = allEditions;
+        this.stateManager.editions.current = current;
+
         return newEdition;
     }
 
+    public async renameEdition(editionId: number, name: string): Promise<EditionInfo> {
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+
+        const dto = {
+            name
+        } as EditionUpdateRequestDTO;
+        const response = await CommHelper.put<EditionDTO>(ApiRoutes.editionUrl(editionId), dto);
+
+        edition.name = response.data.name;
+        return edition;
+    }
 }
 
 export default EditionService;

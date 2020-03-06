@@ -1,11 +1,14 @@
 {
-  "name": "vue",
-  "version": "0.1.0",
+  "name": "sqe-scroll-editor",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "serve": "vue-cli-service serve --mode development",
+    "build": "vue-cli-service build --mode production",
+    "lint": "vue-cli-service lint",
+    "build-staging": "vue-cli-service build --mode staging",
+    "test": "cypress run",
+    "test-travis": "cypress run --config video=false"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.7",
@@ -13,29 +16,38 @@
     "@fortawesome/free-regular-svg-icons": "^5.4.2",
     "@fortawesome/free-solid-svg-icons": "^5.4.2",
     "@fortawesome/vue-fontawesome": "^0.1.2",
+    "@microsoft/signalr": "^3.1.0",
     "@types/js-clipper": "^0.0.28",
     "@types/mathjs": "^4.4.5",
+    "@yutahaga/vue-media-breakpoints": "^0.6.1",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "core-js": "^3.6.4",
     "element-ui": "^2.4.9",
     "js-clipper": "^1.0.1",
     "mathjs": "^5.4.1",
-    "vue": "^2.5.17",
+    "vue": "^2.6.10",
+    "vue-class-component": "^7.0.2",
     "vue-i18n": "^8.3.0",
     "vue-lazyload": "^1.2.6",
+    "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.1",
     "vue-shortcuts": "^1.1.2",
     "vue-toasted": "^1.1.26",
-    "vue2-hammer": "^2.1.2",
-    "vuex": "^3.0.1"
+    "vue2-hammer": "^2.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.0.5",
-    "@vue/cli-plugin-typescript": "^3.0.5",
-    "@vue/cli-service": "^3.0.5",
-    "node-sass": "^4.9.0",
-    "sass-loader": "^7.0.1",
-    "typescript": "^3.0.0",
-    "vue-template-compiler": "^2.5.17"
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
+    "@types/vue2-hammer": "^2.1.0",
+    "@vue/cli-plugin-babel": "~4.2.2",
+    "@vue/cli-plugin-typescript": "~4.2.2",
+    "@vue/cli-service": "~4.2.2",
+    "cypress": "^3.7.0",
+    "node-sass": "^4.13.0",
+    "sass-builder": "^1.0.0",
+    "sass-loader": "^8.0.0",
+    "typescript": "~3.7.5",
+    "vue-template-compiler": "^2.6.10"
   }
 }

@@ -1,61 +1,91 @@
 <template>
-  <div class="card">
-    <router-link tag="a" :to="{  path:`/editions/${edition.id}` }">
-      <!--TODO do not hardcode the image proxy server-->
-      <img class="card-img-top" v-if="thumbnailSource" v-lazy="thumbnailSource" :alt="edition.name">
-      <img class="card-img-top" v-else src="@/assets/images/if_scroll_1375614.svg" :alt="edition.name">
-    </router-link>
-    <div class="card-body">
-      <router-link tag="div" :to="{  path:`/editions/${edition.id}` }">
-        <h5 class="cart-title"> {{ edition.name }}</h5>
-      <!--  <p v-if="shareCount">
+    <div class="card">
+        <router-link tag="a" :to="{  path:`/editions/${edition.id}` }">
+            <!--TODO do not hardcode the image proxy server-->
+            <img
+                class="card-img-top"
+                v-if="thumbnailSource"
+                v-lazy="thumbnailSource"
+                :alt="edition.name"
+            />
+            <img
+                class="card-img-top"
+                v-else
+                src="@/assets/images/if_scroll_1375614.svg"
+                :alt="edition.name"
+            />
+        </router-link>
+        <div class="card-body">
+            <router-link tag="div" :to="{  path:`/editions/${edition.id}` }">
+                <h5 class="cart-title">{{ edition.name }}</h5>
+                <!--  <p v-if="shareCount">
           <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
             <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
           </b-btn>
-        </p> -->
-      </router-link>
+                </p>-->
+            </router-link>
+        </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 
-export default Vue.extend({
-  name: 'edition-version-card',
-  props: {
-    edition: EditionInfo,
-  },
-  computed: {
-    thumbnailSource(): string | undefined {
-      return this.edition.thumbnail ? this.edition.thumbnail.thumbnailUrl : undefined;
-    },
-    shareCount(): number {
-      return this.edition.shares.length - 1; // One is the current user
-    },
-    shareNames(): string {
-      const names = this.edition.shares.map((share) => share.user.userName);
-      return names.join(', ');
-    }
-  },
-});
+@Component({
+    name: 'edition-version-card'
+})
+export default class EditionVersionCard extends Vue {
+    @Prop() public edition!: EditionInfo;
 
+    // data() becomes data members
+    //
+    // data {
+    //        return {
+    //          element: 5;
+    //      }
+    // }
+    //
+    // private element = 5;
+
+    // Computed becomes getters
+    private get thumbnailSource(): string | undefined {
+        return this.edition.thumbnail
+            ? this.edition.thumbnail.thumbnailUrl
+            : undefined;
+    }
+
+    private get shareCount(): number {
+        return this.edition.shares.length - 1; // One is the current user
+    }
+
+    private get shareNames(): string {
+        const names = this.edition.shares.map(share => share.user.forename);
+        return names.join(', ');
+    }
+}
 </script>
 
 <style lang="scss" scoped>
+
+.card:hover,
+.list-item .card:hover {
+  
+    transform: scale(0.9, 0.9);
+    box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0), -5px -5px 30px 15px rgba(0,0,0,0.22);
+}
 img.card-img-top {
-  display: block;
-  height: 100px;
-  max-height: 100px;
-  object-fit: cover;
+    display: block;
+    height: 100px;
+    max-height: 100px;
+    object-fit: cover;
 }
 h5 {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .share {
-  color: black; 
-  background-color: white
+    color: black;
+    background-color: white;
 }
 </style>

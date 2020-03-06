@@ -118,7 +118,7 @@ export function svgPolygonToWKT(svg: string) {
   if (!svg || svg === '') {
     return '';
   }
-  let wkt: any;
+  let wkt: string = '';
   svg = svg.trim();
   if (svg.startsWith('M')) {
     const lineSegmentRegex = /\sL\s|L|L\s|\sL/g;

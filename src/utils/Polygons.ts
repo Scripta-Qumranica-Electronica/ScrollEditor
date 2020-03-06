@@ -1,12 +1,14 @@
 // tslint:disable-next-line:no-var-requires
-const ClipperLib = require('js-clipper/clipper');
+const clipperLib = require('js-clipper/clipper');
 
 import { svgPolygonToWKT,
     svgPolygonToGeoJSON,
     svgPolygonToClipper,
     wktPolygonToSvg,
     geoJSONPolygonToWKT,
-    clipperToSVGPolygon } from './VectorFactory';
+    clipperToSVGPolygon,
+} from './VectorFactory';
+import { BoundingBox } from './helpers';
 
 // A class representing a polygon. The internal representation is SVG.
 // We have methods that translate the polygon to other formats, and static factory methods that import
@@ -21,16 +23,16 @@ export class Polygon {
         if (b.empty) {
             return a;
         }
-        const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
-        const solutionPaths = new ClipperLib.Paths();
+        const cpr = new clipperLib.Clipper();
+        cpr.AddPaths(a.clipper, clipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, clipperLib.PolyType.ptClip, true);
+        const solutionPaths = new clipperLib.Paths();
 
         cpr.Execute(
-            ClipperLib.ClipType.ctUnion,
+            clipperLib.ClipType.ctUnion,
             solutionPaths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
+            clipperLib.PolyFillType.pftNonZero,
+            clipperLib.PolyFillType.pftNonZero
         );
 
         const result = Polygon.fromClipper(solutionPaths);
@@ -41,16 +43,16 @@ export class Polygon {
         if (a.empty || b.empty) {
             return a;
         }
-        const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
-        const solutionPaths = new ClipperLib.Paths();
+        const cpr = new clipperLib.Clipper();
+        cpr.AddPaths(a.clipper, clipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, clipperLib.PolyType.ptClip, true);
+        const solutionPaths = new clipperLib.Paths();
 
         cpr.Execute(
-            ClipperLib.ClipType.ctDifference,
+            clipperLib.ClipType.ctDifference,
             solutionPaths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
+            clipperLib.PolyFillType.pftNonZero,
+            clipperLib.PolyFillType.pftNonZero
           );
 
         const result = Polygon.fromClipper(solutionPaths);
@@ -62,16 +64,16 @@ export class Polygon {
             return new Polygon();
         }
 
-        const cpr = new ClipperLib.Clipper();
-        cpr.AddPaths(a.clipper, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(b.clipper, ClipperLib.PolyType.ptClip, true);
-        const solutionPaths = new ClipperLib.Paths();
+        const cpr = new clipperLib.Clipper();
+        cpr.AddPaths(a.clipper, clipperLib.PolyType.ptSubject, true);
+        cpr.AddPaths(b.clipper, clipperLib.PolyType.ptClip, true);
+        const solutionPaths = new clipperLib.Paths();
 
         cpr.Execute(
-            ClipperLib.ClipType.ctIntersection,
+            clipperLib.ClipType.ctIntersection,
             solutionPaths,
-            ClipperLib.PolyFillType.pftNonZero,
-            ClipperLib.PolyFillType.pftNonZero
+            clipperLib.PolyFillType.pftNonZero,
+            clipperLib.PolyFillType.pftNonZero
           );
 
         const result = Polygon.fromClipper(solutionPaths);
@@ -109,6 +111,59 @@ export class Polygon {
         return new Polygon(scaled);
     }
 
+    public static offset(a: Polygon, offsetX: number, offsetY: number): Polygon {
+        if (a.empty) {
+            return new Polygon();
+        }
+
+        const re = Polygon.numberPairRe;
+        let moved = '';
+        const source = a.svg;
+        let lastCopied = 0;
+        while (true) {
+            const match = re.exec(source);
+            if (match === null) {
+                break;
+            }
+            moved += source.substr(lastCopied, match.index - lastCopied);
+            const newX = parseFloat(match[1]) + offsetX;
+            const newY = parseFloat(match[3]) + offsetY;
+            moved += `${newX} ${newY}`;
+            lastCopied = re.lastIndex;
+        }
+        moved += source.substr(lastCopied);
+
+        return new Polygon(moved);
+    }
+
+    public static clip(a: Polygon, box: BoundingBox): Polygon {
+        if (a.empty) {
+            return new Polygon();
+        }
+
+        // Match all the numbers in the SVG using a regex, which is faster than scanning in Javascript
+        const re = /(\d+) (\d+)/g; // Adapted from here: https://stackoverflow.com/a/18085/871910
+        const source = a.svg;
+        let translated = '';
+        let lastCopied = 0;
+
+        while (true) {
+            const match = re.exec(source);
+            if (match === null) {
+                break;
+            }
+            translated += source.substr(lastCopied, match.index - lastCopied);
+            const x = parseFloat(match[1]) - box.x;
+            const y = parseFloat(match[2]) - box.y;
+            const num = parseFloat(match[0]);
+            translated += `${x.toString()} ${y.toString()}`;
+            lastCopied = re.lastIndex;
+        }
+        translated += source.substr(lastCopied);
+
+        return new Polygon(translated);
+    }
+
     public static fromWkt(wkt: string, boundingRect?: any) {
         const svg = wktPolygonToSvg(wkt, boundingRect);
         return new Polygon(svg);
@@ -128,6 +183,7 @@ export class Polygon {
         return new Polygon(svg);
     }
 
+    private static numberPairRe = /(\d+(\.\d*)?) (\d+(\.\d*)?)/g;
     // tslint:disable-next-line:variable-name
     private _svg: string;
 
@@ -139,7 +195,7 @@ export class Polygon {
         return this._svg;
     }
 
-    public get wkt() {
+    public get wkt(): string {
         if (this.empty) {
             return '';
         }
@@ -162,6 +218,54 @@ export class Polygon {
 
     public get empty(): boolean {
         return this._svg === '';
+    }
+
+    // Returns the bounding box of a polygon
+    // This is a function and not a getter because it's not a trivial calculation, and properties should be quick
+    public getBoundingBox(): BoundingBox {
+        if (this.empty) {
+            return new BoundingBox();
+        }
+
+        // Match all the numbers in the SVG using a regex, which is faster than scanning in Javascript
+        const source = this.svg;
+
+        let match = Polygon.numberPairRe.exec(source);
+
+        if (match === null) {
+            return new BoundingBox();
+        }
+        const firstX = parseFloat(match[1]);
+        const firstY = parseFloat(match[3]);
+
+        // Set the starting values
+        let minX = firstX;
+        let minY = firstY;
+        let maxX = firstX;
+        let maxY = firstY;
+
+        // Get the next match
+        const re = Polygon.numberPairRe;
+        match = re.exec(source);
+        while (match !== null) {
+            const x = parseFloat(match[1]);
+            const y = parseFloat(match[3]);
+            if (x < minX) {
+                minX = x;
+            } else if (x > maxX) {
+                maxX = x;
+            }
+
+            if (y < minY) {
+                minY = y;
+            } else if (y > maxY) {
+                maxY = y;
+            }
+
+            match = re.exec(source);
+        }
+
+        return new BoundingBox(minX, minY, maxX - minX, maxY - minY);
     }
 
     private normalizeSvg(svg: string): string {

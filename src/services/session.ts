@@ -1,46 +1,99 @@
-import { Store } from 'vuex';
-import { Communicator } from './communications';
-import { LoginRequestDTO, LoginResponseDTO, UserDTO } from '@/dtos/user';
+import { LoginRequestDTO, DetailedUserDTO, UserDTO, ResetLoggedInUserPasswordRequestDTO,
+    ResendUserAccountActivationRequestDTO,
+    NewUserRequestDTO,
+    ResetForgottenUserPasswordRequestDTO,
+    AccountActivationRequestDTO,
+    UserUpdateRequestDTO,
+    DetailedUserTokenDTO} from '@/dtos/sqe-dtos';
 import { CommHelper } from './comm-helper';
+import { UserInfo } from '@/models/edition';
+import { StateManager } from '@/state';
+import { ApiRoutes } from '@/services/api-routes';
+import { SignalRWrapper } from '@/state/signalr-connection';
 
 
 class SessionService {
-    private communicator: Communicator;
-    constructor(private store: Store<any>) {
-        this.communicator = new Communicator(this.store);
+    private stateManager: StateManager;
+    private signalR: SignalRWrapper;
+
+    constructor() {
+        this.stateManager = StateManager.instance;
+        this.signalR = SignalRWrapper.instance;
     }
 
-    public async login(userName: string, password: string) {
+    public async login(email: string, password: string) {
         const requestDto = {
-            userName,
+            email,
             password
         } as LoginRequestDTO;
-        const response = await CommHelper.post<LoginResponseDTO>('/v1/users/login', requestDto, false);
+        const response = await CommHelper.post<DetailedUserTokenDTO>
+        (ApiRoutes.loginUrl(), requestDto, false);
 
-        this.store.dispatch('session/logIn', {
-            userId: response.data.userId,
-            userName: response.data.userName,
-            token: response.data.token,
-        }, {root: true});
+        this.stateManager.session.user = response.data;
+        this.stateManager.session.token = response.data.token;
+
+        this.signalR.userChanged();
     }
 
     public logout() {
         // No need to contact the server, we just forget the session
-        this.store.dispatch('session/logOut', {}, { root: true });
+          this.stateManager.session.user = null;
+          this.stateManager.session.token = undefined;
+
+          this.signalR.userChanged();
     }
 
     public async isTokenValid() {
-        if (!this.store.state.session.token) {
+        if (!this.stateManager.session.token) {
             return false;
         }
 
         try {
-            await CommHelper.get<UserDTO>('/v1/users');  // The server returns a 401 error if the user is not logged in
+            const response = await CommHelper.get<DetailedUserDTO>(ApiRoutes.usersUrl());
+            // The server returns a 401 error if the user is not logged in
+            this.stateManager.session.user = response.data;
             return true;
         } catch (error) {
-            this.store.dispatch('session/logOut', {}, { root: true }); // Mark session as logged out
+            this.stateManager.session.user = null;
+            this.stateManager.session.token = undefined;
+            localStorage.removeItem('token');
             return false;
         }
+    }
+
+    public async forgotPassword(email: string) {
+        const body = {email} as ResendUserAccountActivationRequestDTO;
+        try {
+            await CommHelper.post<any>(ApiRoutes.forgotPasswordUrl(), body);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    public async register(data: NewUserRequestDTO): Promise<UserInfo> {
+        const response = await CommHelper.post<UserDTO>(ApiRoutes.usersUrl(), data, false);
+        return new UserInfo(response.data);
+    }
+
+    public async changePassword(data: ResetLoggedInUserPasswordRequestDTO) {
+        await CommHelper.post<any>(ApiRoutes.changePasswordUrl(), data);
+    }
+
+    public async changeForgottenPassword(data: ResetForgottenUserPasswordRequestDTO) {
+        await CommHelper.post<any>(ApiRoutes.changeForgottenPasswordUrl(), data, false);
+
+        // TODO: Figure out if we catch an exception are rethrow a different exception, or leave
+        // the Axios exception as is
+    }
+
+    public async activateUser(data: AccountActivationRequestDTO) {
+        await CommHelper.post<any>(ApiRoutes.confirmRegistartionUrl(), data, false);
+    }
+
+
+    public async updateUser(data: UserUpdateRequestDTO): Promise<DetailedUserDTO> {
+        const response = await CommHelper.put<any>(ApiRoutes.usersUrl(), data);
+        return  response.data;
     }
 }
 

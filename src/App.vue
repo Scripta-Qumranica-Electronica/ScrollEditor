@@ -1,6 +1,6 @@
 <template>
   <div id="app" :dir="$t('dir')">
-    <navbar></navbar>
+    <navbar v-if="!waiting"></navbar>
     <div v-if="waiting">
       <Waiting></Waiting>
     </div>
@@ -16,6 +16,7 @@
 import Navbar from '@/components/navigation/Navbar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SessionService from '@/services/session.ts';
+import { StateManager } from './state';
 
 export default {
   name: 'app',
@@ -30,12 +31,12 @@ export default {
   },
   created() {
     // Set the language
-    this.$i18n.locale = this.$store.state.language.language;
+    this.$i18n.locale = this.$state.session.language;
     this.initializeApp();
   },
   methods: {
     async initializeApp() {
-      const session = new SessionService(this.$store);
+      const session = new SessionService();
       await session.isTokenValid();
       this.waiting = false;
     },
@@ -44,6 +45,13 @@ export default {
 </script>
 
 <style>
+@font-face {
+    font-family: 'SBL Hebrew';
+    src: url('./assets/fonts/SBL_Hbrw.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 #main-container {
   max-height: calc(100vh - 56px);   /* Navbar is 56 pixels high */
   padding: 0px;
