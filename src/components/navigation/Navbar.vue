@@ -2,7 +2,9 @@
     <div>
         <b-navbar toggleable="md" type="dark" variant="dark">
             <b-navbar-brand to="/">Scrollery</b-navbar-brand>
-
+             <b-nav-item class="editionId" v-if="currentEdition" :to="{ path:`/editions/${currentEdition.id}` }">
+                {{ currentEdition.name}}
+                </b-nav-item>
             <b-navbar-nav class="ml-auto">
                 <!-- Current user -->
                 <b-nav-item right v-if="!userName">
@@ -57,6 +59,7 @@ import SessionService from '@/services/session';
 import Login from './Login.vue';
 import router from '@/router';
 import { StateManager } from '@/state';
+import { EditionInfo } from '../../models/edition';
 
 @Component({
     name: 'navbar',
@@ -82,6 +85,9 @@ export default class Navbar extends Vue {
         return this.$state.session.user
             ? this.$state.session.user.activated
             : false;
+    }
+    private  get  currentEdition(): EditionInfo | undefined{
+        return this.$state.editions.current;
     }
 
     private changeLanguage(language: string) {
@@ -121,4 +127,10 @@ export default class Navbar extends Vue {
     color: white;
     text-decoration: none;
 }
+.editionId{
+
+list-style: none;
+
+}
+
 </style>

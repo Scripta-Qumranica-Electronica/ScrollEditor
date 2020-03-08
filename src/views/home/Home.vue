@@ -75,6 +75,8 @@ export default Vue.extend({
   },
   created() {
     this.$state.prepare.allEditions();
+    
+    this.$state.editions.current = undefined;
   },
   methods: {
       nameMatch(name: string): boolean {
