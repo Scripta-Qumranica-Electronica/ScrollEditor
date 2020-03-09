@@ -22,7 +22,7 @@
                 },
                 "pattern": [
                     {
-                        "regexp": "ERROR in (.*)",
+                        "regexp": "ERROR in ([^(]*)",
                         "file": 1,
                     },
                     {
@@ -42,7 +42,7 @@
                 },
                 "pattern": [
                     {
-                        "regexp": "WARNING in (.*)",
+                        "regexp": "WARNING in ([^(]*)",
                         "file": 1,
                     },
                     {

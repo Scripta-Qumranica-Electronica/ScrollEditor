@@ -64,9 +64,11 @@
                 </div>
 
                 <div class="imaged-object-container" :class="{active: isActive}">
-                   <div class="readOnly"><label v-if="readOnly">
-                        <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> ReadOnly
-                    </label></div> 
+                    <div class="readOnly">
+                        <label v-if="readOnly">
+                            <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> ReadOnly
+                        </label>
+                    </div>
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
                         <svg
                             class="overlay"
@@ -146,7 +148,7 @@ import { addToArray } from '@/utils/collection-utils';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer
+        'zoomer': Zoomer
     }
 })
 export default class ImagedObjectEditor extends Vue {
@@ -654,7 +656,7 @@ export default class ImagedObjectEditor extends Vue {
 
 <style lang="scss" scoped>
 // @import '~sass-vars';
-.readOnly{
+.readOnly {
     text-align: center;
 }
 .overlay {

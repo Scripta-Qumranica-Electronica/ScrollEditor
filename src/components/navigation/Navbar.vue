@@ -2,9 +2,11 @@
     <div>
         <b-navbar toggleable="md" type="dark" variant="dark">
             <b-navbar-brand to="/">Scrollery</b-navbar-brand>
-             <b-nav-item class="editionId" v-if="currentEdition" :to="{ path:`/editions/${currentEdition.id}` }">
-                {{ currentEdition.name}}
-                </b-nav-item>
+            <b-nav-item
+                class="editionId"
+                v-if="currentEdition"
+                :to="{ path:`/editions/${currentEdition.id}` }"
+            >{{ currentEdition.name}}</b-nav-item>
             <b-navbar-nav class="ml-auto">
                 <!-- Current user -->
                 <b-nav-item right v-if="!userName">
@@ -35,11 +37,11 @@
                     <template slot="button-content">
                         <font-awesome-icon icon="language" />
                     </template>
-                    <b-dropdown-item-button class="select-lang"
+                    <b-dropdown-item-button
+                        class="select-lang"
                         v-for="(texts, language) in allTexts"
                         :key="language"
                         @click="changeLanguage(language)"
-                                                       
                     >
                         {{ texts.display }}
                         <span v-if="language===currentLanguage">&#x2714;</span>
@@ -86,7 +88,7 @@ export default class Navbar extends Vue {
             ? this.$state.session.user.activated
             : false;
     }
-    private  get  currentEdition(): EditionInfo | undefined{
+    private get currentEdition(): EditionInfo | undefined {
         return this.$state.editions.current;
     }
 
@@ -127,10 +129,7 @@ export default class Navbar extends Vue {
     color: white;
     text-decoration: none;
 }
-.editionId{
-
-list-style: none;
-
+.editionId {
+    list-style: none;
 }
-
 </style>

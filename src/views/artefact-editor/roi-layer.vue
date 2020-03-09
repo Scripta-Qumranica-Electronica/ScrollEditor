@@ -28,6 +28,12 @@ export default class RoiLayer extends Vue {
     })
     public selected!: InterpretationRoi | null;
 
+    public highlighted(roi: InterpretationRoi) {
+        if (this.si) {
+            return roi.signInterpretationId === this.si.signInterpretationId;
+        }
+    }
+
     private onPathClicked(roi: InterpretationRoi) {
         this.roiClicked(roi);
     }
@@ -36,23 +42,18 @@ export default class RoiLayer extends Vue {
     private roiClicked(roi: InterpretationRoi) {
         return roi;
     }
-
-    public highlighted(roi: InterpretationRoi) {
-        if(this.si)
-        return roi.signInterpretationId === this.si.signInterpretationId;
-    }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets./styles/_variables.scss";
+@import '../../assets./styles/_variables.scss';
 path {
     stroke-width: 2;
     fill: transparent;
     stroke: $dark-not-select;
 }
-path.highlighted{
-     stroke-width: 2;
+path.highlighted {
+    stroke-width: 2;
     fill: transparent;
     stroke: $red;
 }
@@ -69,8 +70,6 @@ path.selected {
     filter: contrast(200%);
     animation: pulsate 2s ease-out;
     animation-iteration-count: infinite;
-
-
 }
 
 @keyframes pulsate {

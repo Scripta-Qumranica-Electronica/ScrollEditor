@@ -1,6 +1,11 @@
 <template>
-    <div   id="text-side" class="fixed-header">
-        <input  v-if="!readOnly" class="select-text" list="my-list-id" @change="loadFragment($event)" />
+    <div id="text-side" class="fixed-header">
+        <input
+            v-if="!readOnly"
+            class="select-text"
+            list="my-list-id"
+            @change="loadFragment($event)"
+        />
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
         </datalist>
@@ -15,10 +20,20 @@
                 <b-row>
                     <b-col cols="2">
                         <b-button-group block>
-                            <b-button href="#" @click="changePosition(index, true)" v-b-tooltip.hover.bottom :title="$t('misc.up')">
+                            <b-button
+                                href="#"
+                                @click="changePosition(index, true)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.up')"
+                            >
                                 <i class="fa fa-arrow-up"></i>
                             </b-button>
-                            <b-button href="#" @click="changePosition(index, false)" v-b-tooltip.hover.bottom :title="$t('misc.down')">
+                            <b-button
+                                href="#"
+                                @click="changePosition(index, false)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.down')"
+                            >
                                 <i class="fa fa-arrow-down"></i>
                             </b-button>
                         </b-button-group>
@@ -73,7 +88,7 @@ import { EditionInfo } from '@/models/edition';
 })
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
-    
+
     @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
@@ -85,9 +100,9 @@ export default class TextSide extends Vue {
         return parseInt(this.$route.params.editionId);
     }
 
-    private get  readOnly():boolean{
-     return this.$state.editions.current!.permission.readOnly;
-        }
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
 
     private get dropdownTextFragmentsData() {
         console.log(this.allTextFragmentsData, 'dropDown');
@@ -113,7 +128,8 @@ export default class TextSide extends Vue {
         textFragments.forEach(editionTf => {
             editionTf.certain =
                 textFragmentsArtefact.findIndex(
-                    artefactTf => artefactTf.id === editionTf.id && artefactTf.certain
+                    artefactTf =>
+                        artefactTf.id === editionTf.id && artefactTf.certain
                 ) > -1;
         });
 
@@ -168,8 +184,6 @@ export default class TextSide extends Vue {
             }
         }
     }
-    
-    
 
     private changePosition(index: number, up: boolean) {
         const indexToChange = up ? index - 1 : index + 1;
@@ -229,8 +243,8 @@ export default class TextSide extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets./styles/_variables.scss";
-  #text-side {
+@import '../../assets./styles/_variables.scss';
+#text-side {
     margin: 30px 15px 20px 30px;
     touch-action: pan-y;
 }
@@ -244,7 +258,7 @@ button {
 }
 
 #text-box {
-    font-family:'SBL Hebrew';
+    font-family: 'SBL Hebrew';
     font-size: 18px;
     margin-top: 30px;
     overflow: auto;
