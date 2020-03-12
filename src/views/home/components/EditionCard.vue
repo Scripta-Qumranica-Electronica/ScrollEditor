@@ -65,9 +65,9 @@ export default class EditionVersionCard extends Vue {
             ? this.edition.thumbnail.thumbnailUrl
             : undefined;
     }
-     private get lockEdition(): boolean{
-          return this.edition.permission.readOnly;
-        }
+    private get lockEdition(): boolean {
+        return this.edition.permission.readOnly;
+    }
 
     private get shareCount(): number {
         return this.edition.shares.length - 1; // One is the current user
@@ -81,13 +81,12 @@ export default class EditionVersionCard extends Vue {
 </script>
 
 <style lang="scss" scoped>
-
-@import "../../../assets./styles/_variables.scss";
+@import '../../../assets./styles/_variables.scss';
 .card:hover,
 .list-item .card:hover {
-  
     transform: scale(0.9, 0.9);
-    box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0), -5px -5px 30px 15px rgba(0,0,0,0.22);
+    box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0),
+        -5px -5px 30px 15px rgba(0, 0, 0, 0.22);
 }
 img.card-img-top {
     display: block;

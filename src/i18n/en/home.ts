@@ -24,4 +24,5 @@ export default {
     both : 'Both',
     editorParameters : 'Editor Parameters',
     lock:'Read Only'
+
 };
