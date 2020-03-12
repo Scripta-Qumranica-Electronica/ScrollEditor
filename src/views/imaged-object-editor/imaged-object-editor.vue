@@ -65,7 +65,7 @@
 
                 <div class="imaged-object-container" :class="{active: isActive}">
                    <div class="readOnly"><label v-if="readOnly">
-                        <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> ReadOnly
+                        <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> {{ $t('home.lock') }} 
                     </label></div> 
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
                         <svg

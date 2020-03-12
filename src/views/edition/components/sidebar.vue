@@ -25,7 +25,7 @@
 
         <b-nav vertical>
             <label v-if="readOnly">
-                <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> ReadOnly
+                <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> {{ $t('home.lock') }} 
             </label>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>

@@ -42,7 +42,7 @@
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
                         <label v-if="readOnly">
-                            <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> ReadOnly
+                            <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> {{ $t('home.lock') }} 
                         </label>
                         <sign-wheel
                             v-if="selectedSignInterpretation"

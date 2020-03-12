@@ -130,7 +130,9 @@ export default class Navbar extends Vue {
 .editionId{
 
 list-style: none;
-
+}
+.editionId>a{
+    color: white;
 }
 
 </style>

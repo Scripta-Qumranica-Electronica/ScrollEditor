@@ -22,5 +22,6 @@ export default {
     redo: 'Refaire',
     filterArtefacts: "Filtre d'Artefacts",
     both : 'Recto et Verso',
-    editorParameters : "Paramètres d'édition"
+    editorParameters : "Paramètres d'édition",
+    lock:'Lecture seulement'
 };
