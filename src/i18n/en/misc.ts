@@ -3,6 +3,7 @@ export default {
     new: 'New',
     current: 'Current',
     copy: 'Copy',
+    permission: 'Permission',
     draw: 'Draw',
     box: 'Box',
     rename: 'Rename',
