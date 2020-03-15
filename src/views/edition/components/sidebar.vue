@@ -103,7 +103,7 @@
         <b-modal id="permissionModal" ref="permissionModalRef" ok-only>
             <form>
                 <b-form-input v-model="email" placeholder="Enter user email"></b-form-input>
-                <b-button variant="primary" @click="invite">Primary</b-button>
+                <b-button variant="primary" @click="invite">{{ $t('misc.invite') }}</b-button>
                 <b-list-group>
                     <b-list-group-item
                         v-for="share in current.shares"
