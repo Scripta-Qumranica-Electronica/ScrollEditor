@@ -125,7 +125,7 @@ class EditionService {
 
         } as CreateEditorRightsDTO;
 
-        // Step 3: Call the backend using CommHelper.put - the server does not return a DTO in response
+        // Step 3: Call the backend using CommHelper.post - the server does not return a DTO in response
 
         // Step 4: update the edition to include the new invitation - if there is already an
         // invitation for this editor, overwrite it instead of adding the same one.
