@@ -1,10 +1,11 @@
-import { EditionInfo } from '@/models/edition';
+import { EditionInfo, SimplifiedPermission } from '@/models/edition';
 import { CommHelper } from './comm-helper';
 import {
     EditionListDTO,
     EditionUpdateRequestDTO,
     EditionDTO,
-    EditionGroupDTO
+    EditionGroupDTO,
+    CreateEditorRightsDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -105,7 +106,30 @@ class EditionService {
         return edition;
     }
 
-    public async inviteEditor(editionId: number, email: string);
+    public async inviteEditor(editionId: number, email: string, permission: SimplifiedPermission) {
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+
+        // TODO:
+        // We need to call the server using the endpoint v1/editions/<edition-id>/add-editor-request
+        // We need to supply a CreateEditorsRightDTO object for this.
+        //
+        // step 1: get the URL
+        const url = ApiRoutes.editionRequestEditor(editionId);
+
+        // Step 2: Fill the DTO
+        // Fill the fields: mayRead, isAdmin, mayLock (same as isAdmin), mayWrite and email
+        const dto = {
+
+        } as CreateEditorRightsDTO;
+
+        // Step 3: Call the backend using CommHelper.put - the server does not return a DTO in response
+
+        // Step 4: update the edition to include the new invitation - if there is already an
+        // invitation for this editor, overwrite it instead of adding the same one.
+    }
 }
 
 export default EditionService;

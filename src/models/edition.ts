@@ -64,6 +64,7 @@ class EditionInfo {
     public owner: UserInfo;
     public thumbnail?: IIIFImage;
     public shares: ShareInfo[];
+    public invitations: ShareInfo[];
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit?: Date;
@@ -85,6 +86,7 @@ class EditionInfo {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
         this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
+        this.invitations = []; // TODO: Read invitations from DTO when they are added
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
         if (dto.lastEdit) {

@@ -25,6 +25,10 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}`;
     }
 
+    export function editionRequestEditor(editionId: number) {
+        return `${baseUrl}/${editions}/${editionId}/add-editor-request`;
+    }
+
     export function allEditionArtefactsUrl(editionId: number, option: boolean = false) {
         if (option) {
             return `/${baseUrl}/${editions}/${editionId}/${artefacts}?${optionalArtefact}`;
