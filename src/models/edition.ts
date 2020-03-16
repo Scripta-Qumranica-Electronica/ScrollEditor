@@ -3,11 +3,7 @@ import { UserDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
- enum EditionPermissions {
-    'READ' = 'read',
-    'WRITE' = 'write',
-    'ADMIN' = 'admin'
-}
+type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
 class UserInfo { // TODO: add fields like UserDTO ?
     public email: string;
@@ -36,15 +32,15 @@ class Permissions {
         return !this.mayWrite;
     }
 
-    public get permission(): EditionPermissions | undefined {
-        if (this.isAdmin)
-            return EditionPermissions.ADMIN;
-        if (this.mayWrite)
-            return EditionPermissions.WRITE
-        if (this.readOnly)
-            return EditionPermissions.READ
+    public get simplified(): SimplifiedPermission {
+        if (this.isAdmin) {
+            return 'admin';
+        }
+        if (this.mayWrite) {
+            return 'write';
+        }
+        return 'read';
     }
-
 }
 
 class ShareInfo {
@@ -54,6 +50,10 @@ class ShareInfo {
     constructor(dto: ShareDTO) {
         this.user = new UserInfo(dto.user);
         this.permissions = new Permissions(dto.permission);
+    }
+
+    public get simplified(): SimplifiedPermission {
+        return this.permissions.simplified;
     }
 }
 
@@ -93,4 +93,4 @@ class EditionInfo {
     }
 }
 
-export { EditionPermissions, UserInfo, EditionInfo, ShareInfo };
+export { SimplifiedPermission, UserInfo, EditionInfo, ShareInfo };

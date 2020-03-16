@@ -1,6 +1,11 @@
 import { EditionInfo } from '@/models/edition';
 import { CommHelper } from './comm-helper';
-import { EditionListDTO, EditionUpdateRequestDTO, EditionDTO, EditionGroupDTO } from '@/dtos/sqe-dtos';
+import {
+    EditionListDTO,
+    EditionUpdateRequestDTO,
+    EditionDTO,
+    EditionGroupDTO
+} from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 
@@ -12,22 +17,26 @@ class EditionService {
     }
 
     public async getAllEditions(): Promise<EditionInfo[]> {
-        const response = await CommHelper.get<EditionListDTO>(ApiRoutes.allEditionsUrl());
+        const response = await CommHelper.get<EditionListDTO>(
+            ApiRoutes.allEditionsUrl()
+        );
         let editionList = [] as EditionInfo[];
 
-        response.data.editions.map((grp) => {
+        response.data.editions.map(grp => {
             // grp is a group of editions - all versions of each other
-            const editions = grp.map((obj) => new EditionInfo(obj));
+            const editions = grp.map(obj => new EditionInfo(obj));
 
             // Set various edition flags that depend on other editions
-            const publicCopies = editions.filter((ed) => ed.isPublic).length;
+            const publicCopies = editions.filter(ed => ed.isPublic).length;
             for (const edition of editions) {
                 if (this.stateManager.session.user) {
-                    edition.mine = edition.owner.userId === this.stateManager.session.user.userId;
+                    edition.mine =
+                        edition.owner.userId ===
+                        this.stateManager.session.user.userId;
                 } else {
                     edition.mine = false;
                 }
-                edition.otherVersions = editions.filter((ed) => ed !== edition);
+                edition.otherVersions = editions.filter(ed => ed !== edition);
                 edition.publicCopies = publicCopies;
             }
 
@@ -37,7 +46,10 @@ class EditionService {
         return editionList;
     }
 
-    public async copyEdition(editionId: number, name: string): Promise<EditionInfo> {
+    public async copyEdition(
+        editionId: number,
+        name: string
+    ): Promise<EditionInfo> {
         const prevEdition = this.stateManager.editions.find(editionId);
 
         if (!prevEdition) {
@@ -47,13 +59,16 @@ class EditionService {
         const dto = {
             name
         } as EditionUpdateRequestDTO;
-        const response = await CommHelper.post<EditionDTO>(ApiRoutes.editionUrl(editionId), dto);
+        const response = await CommHelper.post<EditionDTO>(
+            ApiRoutes.editionUrl(editionId),
+            dto
+        );
 
         const newEdition = new EditionInfo(response.data);
 
         // Connect the new edition to other editions of its group
         newEdition.mine = true; // Cloned editions are always mine
-        newEdition.otherVersions = [...prevEdition.otherVersions, prevEdition];  // Set new's other versions
+        newEdition.otherVersions = [...prevEdition.otherVersions, prevEdition]; // Set new's other versions
 
         // Update otherVersions of all the previous versions
         for (const other of newEdition.otherVersions) {
@@ -69,7 +84,10 @@ class EditionService {
         return newEdition;
     }
 
-    public async renameEdition(editionId: number, name: string): Promise<EditionInfo> {
+    public async renameEdition(
+        editionId: number,
+        name: string
+    ): Promise<EditionInfo> {
         const edition = this.stateManager.editions.find(editionId);
         if (!edition) {
             throw new Error(`Can't find non-existing edition ${editionId}`);
@@ -78,11 +96,16 @@ class EditionService {
         const dto = {
             name
         } as EditionUpdateRequestDTO;
-        const response = await CommHelper.put<EditionDTO>(ApiRoutes.editionUrl(editionId), dto);
+        const response = await CommHelper.put<EditionDTO>(
+            ApiRoutes.editionUrl(editionId),
+            dto
+        );
 
         edition.name = response.data.name;
         return edition;
     }
+
+    public async inviteEditor(editionId: number, email: string);
 }
 
 export default EditionService;
