@@ -230,7 +230,7 @@ export default Vue.extend({
     },
 
     methods: {
-        save(share: ShareRow) {
+        update(share: ShareRow) {
             this.editionService.updateInvitation(
                 this.current!.id,
                 this.invitationRow.email,
