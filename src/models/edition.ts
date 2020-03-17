@@ -1,9 +1,15 @@
 import { IIIFImage } from './image';
-import { UserDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
 type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
+
+
+interface ShareRow {
+    email: string;
+    permission: SimplifiedPermission;
+}
 
 class UserInfo { // TODO: add fields like UserDTO ?
     public email: string;
@@ -40,6 +46,49 @@ class Permissions {
             return 'write';
         }
         return 'read';
+    }
+
+    static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
+        let rights: UpdateEditorRightsDTO;
+        switch (simplified) {
+            case 'none':
+            default:
+                rights = {
+                    mayRead: false,
+                    mayWrite: false,
+                    isAdmin: false,
+                    mayLock: false
+                }
+                break;
+            case 'read':
+                rights = {
+                    mayRead: true,
+                    mayWrite: false,
+                    isAdmin: false,
+                    mayLock: false
+                }
+                break;
+
+            case 'write':
+                rights = {
+                    mayRead: true,
+                    mayWrite: true,
+                    isAdmin: false,
+                    mayLock: false
+                }
+                break;
+
+            case 'admin':
+                rights = {
+                    mayRead: true,
+                    mayWrite: true,
+                    isAdmin: true,
+                    mayLock: true
+                }
+                break;
+        }
+
+        return rights;
     }
 }
 
@@ -85,7 +134,11 @@ class EditionInfo {
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
+        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [
+            new ShareInfo({ user: { email: 'Shaindel@gmail.com', userId: 3 }, permission: { mayWrite: false, isAdmin: true } }),
+            new ShareInfo({ user: { email: 'totosoRead@gmail.com', userId: 4 }, permission: { mayWrite: false, isAdmin: false } }),
+            new ShareInfo({ user: { email: 'totosoWrite@gmail.com', userId: 5 }, permission: { mayWrite: true, isAdmin: false } })
+        ];
         this.invitations = []; // TODO: Read invitations from DTO when they are added
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
@@ -95,4 +148,4 @@ class EditionInfo {
     }
 }
 
-export { SimplifiedPermission, UserInfo, EditionInfo, ShareInfo };
+export { Permissions, SimplifiedPermission, ShareRow, UserInfo, EditionInfo, ShareInfo };

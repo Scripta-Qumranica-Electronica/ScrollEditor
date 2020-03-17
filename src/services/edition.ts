@@ -1,11 +1,13 @@
-import { EditionInfo, SimplifiedPermission } from '@/models/edition';
+import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, UserInfo } from '@/models/edition';
 import { CommHelper } from './comm-helper';
 import {
     EditionListDTO,
     EditionUpdateRequestDTO,
     EditionDTO,
     EditionGroupDTO,
-    CreateEditorRightsDTO
+    CreateEditorRightsDTO,
+    PermissionDTO,
+    ShareDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -121,14 +123,34 @@ class EditionService {
 
         // Step 2: Fill the DTO
         // Fill the fields: mayRead, isAdmin, mayLock (same as isAdmin), mayWrite and email
+        const rights = Permissions.extractPermission(permission);
         const dto = {
-
+            email: email,
+            ...rights
         } as CreateEditorRightsDTO;
 
         // Step 3: Call the backend using CommHelper.post - the server does not return a DTO in response
+        await CommHelper.post<EditionDTO>(
+            url,
+            dto
+        );
 
         // Step 4: update the edition to include the new invitation - if there is already an
         // invitation for this editor, overwrite it instead of adding the same one.
+        const invitation = edition.invitations.find(i => i.user.email === email);
+        const permissionsDTO = new Permissions({mayWrite: rights.mayWrite, isAdmin: rights.isAdmin} as PermissionDTO);
+        if (invitation) {
+            invitation.permissions = new Permissions(permissionsDTO);
+        }
+        else {
+            const newInvitation = new ShareInfo({user: new UserInfo({email: email, userId: 0}), permission: new Permissions(permissionsDTO) } as ShareDTO);
+            edition.invitations.push(newInvitation);
+        }
+
+    }
+    public async updateInvitation(editionId: number, email: string, permission: SimplifiedPermission)
+    {
+        await this.inviteEditor(editionId, email, permission);
     }
 }
 

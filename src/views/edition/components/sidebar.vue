@@ -100,40 +100,64 @@
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
             </form>
         </b-modal>
-        <b-modal id="permissionModal" ref="permissionModalRef" ok-only>
+        <b-modal id="permissionModal" ref="permissionModalRef" hide-footer @close="invitationRow = {}" @hide="invitationRow = {}">
             <form>
-                <b-form-input v-model="email" placeholder="Enter user email"></b-form-input>
-                <b-button variant="primary" @click="invite">{{ $t('misc.invite') }}</b-button>
                 <b-list-group>
-                    <b-list-group-item
-                        v-for="share in current.shares"
-                        v-bind:key="share.user.userId"
-                    >
-                        {{share.user.email}}
+                    <b-list-group-item >
+                        <div class="row">
+                             <b-form-input
+                            v-model="invitationRow.email"
+                            placeholder="Enter user email"
+                            size="sm"
+                            class=" col-6"
+                        ></b-form-input>
                         <b-form-select
+                            size="sm"
+                            class="col-4 ml-2"
                             id="inline-form-custom-select-pref"
-                            :disabled=" share.permissions.permission === editionPermissionsEnum.ADMIN"
-                            :value="share.permissions.permission"
+                            v-model="invitationRow.permission"
                         >
-                            <option
-                                v-for="permission in editionPermissions"
-                                :value="editionPermissionsEnum[permission]"
-                                :key="permission"
-                            >{{editionPermissionsEnum[permission]}}</option>
+                            <option value="read">Read</option>
+                            <option value="write">Write</option>
+                            <option value="admin">Admin</option>
                         </b-form-select>
+                        <b-button
+                            variant="primary"
+                            size="sm"
+                            class="ml-2"
+                            @click="invite" :disabled="invitationRow.email === '' || !invitationRow.permission"
+                        >{{ $t('misc.invite') }}</b-button>
+                        </div>
+                       
+                    </b-list-group-item>
+                    <b-list-group-item   v-for="(share) in sharesRows" v-bind:key="share.email">
+                        <div class="row">
+                            <span class="col-6">{{share.email}}</span>
+                        <b-form-select :disabled="share.permission === 'admin'"
+                            size="sm"
+                            class="col-4"
+                            id="inline-form-custom-select-pref"
+                            v-model="share.permission"
+                        >
+                            <option value="none">None</option>
+                            <option value="read">Read</option>
+                            <option value="write">Write</option>
+                            <option value="admin">Admin</option>
+                        </b-form-select>
+
+                        <b-button size="sm" class="ml-2" variant="success" @click="update(share)" :disabled="share.permission === 'admin'">Update</b-button>
+                        </div>
+                        
                     </b-list-group-item>
                 </b-list-group>
             </form>
-            <template v-slot:modal-footer="{ ok }">
-                <b-button size="sm" variant="success" @click="ok()">Save</b-button>
-            </template>
         </b-modal>
     </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { EditionPermissions, EditionInfo, ShareInfo } from '@/models/edition';
+import { EditionInfo, ShareInfo, ShareRow } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 export default Vue.extend({
@@ -143,14 +167,15 @@ export default Vue.extend({
     },
     data() {
         return {
-            email: '',
+            invitationRow: {} as ShareRow,
+            editorEmail: '',
             editionService: new EditionService(),
             newCopyName: '',
             waiting: false,
             errorMessage: '',
             newEditionName: '',
-            renaming: false,
-            editionPermissionsEnum: EditionPermissions
+            renaming: false
+            // editionPermissionsEnum: EditionPermissions
         };
     },
     computed: {
@@ -196,12 +221,31 @@ export default Vue.extend({
             }
             return 0;
         },
-        editionPermissions(): string[] {
-            return Object.keys(EditionPermissions);
+        sharesRows(): ShareRow[] {
+            return this.current!.shares.map(x => ({
+                email: x.user.email,
+                permission: x.simplified
+            }));
         }
     },
+
     methods: {
-        invite() {},
+        save(share: ShareRow) {
+            this.editionService.updateInvitation(
+                this.current!.id,
+                this.invitationRow.email,
+                this.invitationRow.permission
+                
+            );
+        },
+        invite() {
+            this.editionService.inviteEditor(
+                this.current!.id,
+                this.invitationRow.email,
+                this.invitationRow.permission
+                
+            );
+        },
         openRename() {
             this.renaming = true;
             this.newEditionName = this.current!.name;
@@ -289,4 +333,11 @@ ul#version-list li {
 .bold {
     font-weight: bold;
 }
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    /* flex-wrap: wrap; */
+    justify-content: space-between;
+}
+
 </style>
