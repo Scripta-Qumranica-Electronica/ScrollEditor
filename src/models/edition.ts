@@ -134,11 +134,7 @@ class EditionInfo {
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [
-            new ShareInfo({ user: { email: 'Shaindel@gmail.com', userId: 3 }, permission: { mayWrite: false, isAdmin: true } }),
-            new ShareInfo({ user: { email: 'totosoRead@gmail.com', userId: 4 }, permission: { mayWrite: false, isAdmin: false } }),
-            new ShareInfo({ user: { email: 'totosoWrite@gmail.com', userId: 5 }, permission: { mayWrite: true, isAdmin: false } })
-        ];
+        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
         this.invitations = []; // TODO: Read invitations from DTO when they are added
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
