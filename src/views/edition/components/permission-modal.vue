@@ -1,6 +1,6 @@
 <template>
     <div v-if="current">
-        <b-modal id="permissionModal" hide-footers>
+        <b-modal id="permissionModal" hide-footer>
             <form>
                 <!-- editor invitation row -->
                 <b-list-group class="mb-3">
