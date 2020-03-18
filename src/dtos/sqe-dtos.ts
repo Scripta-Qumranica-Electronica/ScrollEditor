@@ -43,6 +43,7 @@ export interface EditionDTO {
     owner: UserDTO;
     thumbnailUrl: string;
     shares: ShareDTO[];
+    invitations: ShareDTO[];
     locked: boolean;
     isPublic: boolean;
     lastEdit: string;

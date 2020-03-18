@@ -8,6 +8,7 @@ type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
 interface ShareRow {
     email: string;
+    oldPermission: SimplifiedPermission; 
     permission: SimplifiedPermission;
 }
 
@@ -34,6 +35,26 @@ class Permissions {
         this.isAdmin = dto.isAdmin;
     }
 
+    static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
+        const rights: UpdateEditorRightsDTO = {  
+            mayRead: false,
+            mayWrite: false,
+            isAdmin: false,
+            mayLock: false 
+        }
+        
+        switch(simplified) {
+            case 'admin':
+                rights.mayLock = rights.isAdmin = true;
+            case 'write':
+                rights.mayWrite = true;
+            case 'read':
+                rights.mayRead = true;
+        } 
+
+        return rights;
+    }
+
     public get readOnly() {
         return !this.mayWrite;
     }
@@ -48,63 +69,6 @@ class Permissions {
         return 'read';
     }
 
-    // TODO: See the warning? Move this function to the top of the class
-    static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
-        /* This is a little messy, do something else. Start with
-        const rights: UpdateEditorRightsDTO = { everything false, like the default class }
-        
-        // Then
-        switch(simplified) {
-            case 'admin':
-                rights.mayLock = rights.isAdmin = true;
-                // No 'break'! Fall through to the next caluse
-            case 'write':
-                rights.mayWrite = true;
-                // No break! Fall through
-            case 'read':
-                rights.mayRead = true;
-        } */
-        let rights: UpdateEditorRightsDTO;
-        switch (simplified) {
-            case 'none':
-            default:
-                rights = {
-                    mayRead: false,
-                    mayWrite: false,
-                    isAdmin: false,
-                    mayLock: false
-                }
-                break;
-            case 'read':
-                rights = {
-                    mayRead: true,
-                    mayWrite: false,
-                    isAdmin: false,
-                    mayLock: false
-                }
-                break;
-
-            case 'write':
-                rights = {
-                    mayRead: true,
-                    mayWrite: true,
-                    isAdmin: false,
-                    mayLock: false
-                }
-                break;
-
-            case 'admin':
-                rights = {
-                    mayRead: true,
-                    mayWrite: true,
-                    isAdmin: true,
-                    mayLock: true
-                }
-                break;
-        }
-
-        return rights;
-    }
 }
 
 class ShareInfo {
@@ -149,8 +113,16 @@ class EditionInfo {
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
-        this.invitations = []; // TODO: Read invitations from DTO when they are added
+        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [
+            new ShareInfo({user : {email: 'Shaindel@gmail.com', userId: 3}, permission: {mayWrite: false, isAdmin: true}}),
+            new ShareInfo({user : {email: 'totosoRead@gmail.com', userId: 4}, permission: {mayWrite: false, isAdmin: false}}),
+            new ShareInfo({user : {email: 'totosoWrite@gmail.com', userId: 5}, permission: {mayWrite: true, isAdmin: false}})
+        ];
+        this.invitations = dto.invitations ? dto.shares.map((s) => new ShareInfo(s)) : [
+            new ShareInfo({user : {email: 'Shaindeld@gmail.com', userId: 6}, permission: {mayWrite: false, isAdmin: true}}),
+            new ShareInfo({user : {email: 'totosoReadd@gmail.com', userId: 7}, permission: {mayWrite: false, isAdmin: false}}),
+            new ShareInfo({user : {email: 'totosoWrited@gmail.com', userId: 8}, permission: {mayWrite: true, isAdmin: false}})
+        ]; // TODO: Read invitations from DTO when they are added
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
         if (dto.lastEdit) {

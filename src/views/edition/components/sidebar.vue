@@ -61,7 +61,7 @@
             >{{ $t('misc.copy') }}</b-btn>
             <b-btn
                 v-if="isAdmin"
-                v-b-modal.modal="'permissionModal'"
+               v-b-modal.permissionModal
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
@@ -100,58 +100,7 @@
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
             </form>
         </b-modal>
-        <b-modal id="permissionModal" ref="permissionModalRef" hide-footer @close="invitationRow = {}" @hide="invitationRow = {}">
-            <form>
-                <b-list-group>
-                    <b-list-group-item >
-                        <div class="row">
-                             <b-form-input
-                            v-model="invitationRow.email"
-                            placeholder="Enter user email"
-                            size="sm"
-                            class=" col-6"
-                        ></b-form-input>
-                        <b-form-select
-                            size="sm"
-                            class="col-4 ml-2"
-                            id="inline-form-custom-select-pref"
-                            v-model="invitationRow.permission"
-                        >
-                            <option value="read">Read</option>
-                            <option value="write">Write</option>
-                            <option value="admin">Admin</option>
-                        </b-form-select>
-                        <b-button
-                            variant="primary"
-                            size="sm"
-                            class="ml-2"
-                            @click="invite" :disabled="invitationRow.email === '' || !invitationRow.permission"
-                        >{{ $t('misc.invite') }}</b-button>
-                        </div>
-                       
-                    </b-list-group-item>
-                    <b-list-group-item   v-for="(share) in sharesRows" v-bind:key="share.email">
-                        <div class="row">
-                            <span class="col-6">{{share.email}}</span>
-                        <b-form-select :disabled="share.permission === 'admin'"
-                            size="sm"
-                            class="col-4"
-                            id="inline-form-custom-select-pref"
-                            v-model="share.permission"
-                        >
-                            <option value="none">None</option>
-                            <option value="read">Read</option>
-                            <option value="write">Write</option>
-                            <option value="admin">Admin</option>
-                        </b-form-select>
-
-                        <b-button size="sm" class="ml-2" variant="success" @click="update(share)" :disabled="share.permission === 'admin'">Update</b-button>
-                        </div>
-                        
-                    </b-list-group-item>
-                </b-list-group>
-            </form>
-        </b-modal>
+   <permission-modal></permission-modal>
     </div>
 </template>
 
@@ -160,14 +109,20 @@ import Vue, { PropOptions } from 'vue';
 import { EditionInfo, ShareInfo, ShareRow } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
+import permissionModal from './permission-modal.vue';
 export default Vue.extend({
     name: 'edition-ver-sidebar',
+     components: {
+      permissionModal
+    },
     props: {
         page: String
     },
     data() {
         return {
             invitationRow: {} as ShareRow,
+            // sharesRows: new Array<ShareRow>(),
+            // invitationsRows: new Array<ShareRow>(),
             editorEmail: '',
             editionService: new EditionService(),
             newCopyName: '',
@@ -179,6 +134,20 @@ export default Vue.extend({
         };
     },
     computed: {
+        sharesRows(): ShareRow[] {
+            return this.current!.shares.map(x => ({
+                email: x.user.email,
+                oldPermission: x.simplified,
+                permission: x.simplified
+            }));
+        },
+        invitationsRows(): ShareRow[] {
+            return this.current!.invitations.map(x => ({
+                email: x.user.email,
+                oldPermission: x.simplified,
+                permission: x.simplified
+            }));
+        },
         readOnly(): boolean {
             return this.current!.permission.readOnly;
         },
@@ -220,22 +189,28 @@ export default Vue.extend({
                 return artLen;
             }
             return 0;
-        },
-        sharesRows(): ShareRow[] {
-            return this.current!.shares.map(x => ({
-                email: x.user.email,
-                permission: x.simplified
-            }));
         }
     },
 
     methods: {
+        loadShareRows() {
+            this.invitationRow = {} as ShareRow;
+            // this.sharesRows = this.current!.shares.map(x => ({
+            //     email: x.user.email,
+            //     oldPermission: x.simplified,
+            //     permission: x.simplified
+            // }));
+            // this.invitationsRows = this.current!.invitations.map(x => ({
+            //     email: x.user.email,
+            //     oldPermission: x.simplified,
+            //     permission: x.simplified
+            // }));
+        },
         update(share: ShareRow) {
             this.editionService.updateInvitation(
                 this.current!.id,
-                this.invitationRow.email,
-                this.invitationRow.permission
-                
+                share.email,
+                share.permission
             );
         },
         invite() {
@@ -243,8 +218,17 @@ export default Vue.extend({
                 this.current!.id,
                 this.invitationRow.email,
                 this.invitationRow.permission
-                
             );
+        },
+        setButtonStatus(row: ShareRow, defaultText: string) {
+            let btnText = defaultText;
+            if (row.permission !== row.oldPermission) {
+                btnText = 'Update';
+            }
+            if (row.permission === 'none') {
+                btnText = 'Revoke';
+            }
+            return btnText;
         },
         openRename() {
             this.renaming = true;
@@ -339,5 +323,4 @@ ul#version-list li {
     /* flex-wrap: wrap; */
     justify-content: space-between;
 }
-
 </style>
