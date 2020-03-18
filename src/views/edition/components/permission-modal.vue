@@ -58,7 +58,7 @@
                                     @click="update(share)"
                                     :disabled="share.oldPermission === 'admin' || share.permission === share.oldPermission"
                                 >{{ setButtonStatus(share, 'Update') }}</b-button>
-                                {{share.oldPermission}} {{share.permission}}
+                              
                             </div>
                         </b-list-group-item>
                     </b-list-group>
