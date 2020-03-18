@@ -48,7 +48,22 @@ class Permissions {
         return 'read';
     }
 
+    // TODO: See the warning? Move this function to the top of the class
     static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
+        /* This is a little messy, do something else. Start with
+        const rights: UpdateEditorRightsDTO = { everything false, like the default class }
+        
+        // Then
+        switch(simplified) {
+            case 'admin':
+                rights.mayLock = rights.isAdmin = true;
+                // No 'break'! Fall through to the next caluse
+            case 'write':
+                rights.mayWrite = true;
+                // No break! Fall through
+            case 'read':
+                rights.mayRead = true;
+        } */
         let rights: UpdateEditorRightsDTO;
         switch (simplified) {
             case 'none':
