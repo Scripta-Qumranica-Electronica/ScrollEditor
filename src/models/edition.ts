@@ -3,7 +3,7 @@ import { UserDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
- enum EditionPermissions {
+enum EditionPermissions {
     'READ' = 'read',
     'WRITE' = 'write',
     'ADMIN' = 'admin'
@@ -37,12 +37,15 @@ class Permissions {
     }
 
     public get permission(): EditionPermissions | undefined {
-        if (this.isAdmin)
+        if (this.isAdmin) {
             return EditionPermissions.ADMIN;
-        if (this.mayWrite)
-            return EditionPermissions.WRITE
-        if (this.readOnly)
-            return EditionPermissions.READ
+        }
+        if (this.mayWrite) {
+            return EditionPermissions.WRITE;
+        }
+        if (this.readOnly) {
+            return EditionPermissions.READ;
+        }
     }
 
 }

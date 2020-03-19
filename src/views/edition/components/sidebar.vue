@@ -201,7 +201,9 @@ export default Vue.extend({
         }
     },
     methods: {
-        invite() {},
+        invite() {
+            // Empty for now
+        },
         openRename() {
             this.renaming = true;
             this.newEditionName = this.current!.name;

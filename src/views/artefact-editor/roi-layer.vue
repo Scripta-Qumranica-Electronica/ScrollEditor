@@ -46,7 +46,7 @@ export default class RoiLayer extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import '../../assets./styles/_variables.scss';
+@import '@/assets/styles/_variables.scss';
 path {
     stroke-width: 2;
     fill: transparent;
