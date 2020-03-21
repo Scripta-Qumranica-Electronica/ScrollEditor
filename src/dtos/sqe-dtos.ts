@@ -43,7 +43,6 @@ export interface EditionDTO {
     owner: UserDTO;
     thumbnailUrl: string;
     shares: ShareDTO[];
-    invitations: ShareDTO[];
     locked: boolean;
     isPublic: boolean;
     lastEdit: string;
@@ -93,6 +92,10 @@ export interface DeleteTokenDTO {
 export interface DeleteEditionEntityDTO {
     entityId: number;
     editorId: number;
+}
+
+export interface EditionScriptCollectionDTO {
+    letters: LetterDTO[];
 }
 export interface EditionUpdateRequestDTO {
     name: string;
@@ -149,6 +152,9 @@ export interface PolygonDTO {
     transformation: TransformationDTO;
     positionEditorId: number;
 }
+export interface WktPolygonDTO {
+    wktPolygon: string;
+}
 
 export interface SetInterpretationRoiDTO {
     artefactId: number;
@@ -191,6 +197,13 @@ export interface BatchEditRoiResponseDTO {
     createRois: InterpretationRoiDTO[];
     updateRois: UpdatedInterpretationRoiDTO[];
     deleteRois: number[];
+}
+export interface LetterDTO {
+    id: number;
+    letter: string;
+    polygon: string;
+    imageURL: string;
+    rotation: number;
 }
 
 export interface SignDTO {

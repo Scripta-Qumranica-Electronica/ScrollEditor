@@ -1,6 +1,7 @@
 export namespace ApiRoutes {
     const baseUrl = 'v1';
     const editions = 'editions';
+    const utils = 'utils';
     const artefacts = 'artefacts';
     const imagedObjects = 'imaged-objects';
     const textFragments = 'text-fragments';
@@ -97,5 +98,9 @@ export namespace ApiRoutes {
 
     export function roiUrl(editionId: number, roiId: number) {
         return `/${baseUrl}/${editions}/${editionId}/rois/${roiId}`;
+    }
+
+    export function repairPolygonUrl() {
+        return `/${baseUrl}/${utils}/repair-wkt-polygon`;
     }
 }

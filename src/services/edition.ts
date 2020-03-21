@@ -125,7 +125,7 @@ class EditionService {
         // Fill the fields: mayRead, isAdmin, mayLock (same as isAdmin), mayWrite and email
         const rights = Permissions.extractPermission(permission);
         const dto = {
-            email: email,
+            email,
             ...rights
         } as CreateEditorRightsDTO;
 
@@ -138,23 +138,25 @@ class EditionService {
         // Step 4: update the edition to include the new invitation - if there is already an
         // invitation for this editor, overwrite it instead of adding the same one.
         const invitationIdx = edition.invitations.findIndex(i => i.user.email === email);
-        const permissionsDTO = new Permissions({mayWrite: rights.mayWrite, isAdmin: rights.isAdmin} as PermissionDTO);
+        const permissionsDTO = new Permissions({ mayWrite: rights.mayWrite, isAdmin: rights.isAdmin } as PermissionDTO);
         if (invitationIdx > -1) {
             edition.invitations[invitationIdx].permissions = new Permissions(permissionsDTO);
 
             // If update to none (revoke) => remove from rows
-            if(permission === 'none') {
-                edition.invitations = [...edition.invitations.slice(0, invitationIdx), ...edition.invitations.slice(invitationIdx + 1)];
+            if (permission === 'none') {
+                edition.invitations =
+                    [...edition.invitations.slice(0, invitationIdx), ...edition.invitations.slice(invitationIdx + 1)];
             }
-        }
-        else {
-            const newInvitation = new ShareInfo({user: new UserInfo({email: email, userId: 0}), permission: new Permissions(permissionsDTO) } as ShareDTO);
+        } else {
+            const newInvitation = new ShareInfo({
+                user: new UserInfo({ email, userId: 0 }),
+                permission: new Permissions(permissionsDTO)
+            } as ShareDTO);
             edition.invitations = [...edition.invitations, newInvitation];
         }
 
     }
-    public async updateInvitation(editionId: number, email: string, permission: SimplifiedPermission)
-    {
+    public async updateInvitation(editionId: number, email: string, permission: SimplifiedPermission) {
         await this.inviteEditor(editionId, email, permission);
     }
 }

@@ -58,7 +58,6 @@
                                     @click="update(share)"
                                     :disabled="share.oldPermission === 'admin' || share.permission === share.oldPermission"
                                 >{{ setButtonStatus(share, 'Update') }}</b-button>
-                              
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -101,7 +100,12 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import { EditionInfo, ShareInfo, ShareRow, SimplifiedPermission } from '@/models/edition';
+import {
+    EditionInfo,
+    ShareInfo,
+    ShareRow,
+    SimplifiedPermission
+} from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 
@@ -114,11 +118,6 @@ export default class PermissionModal extends Vue {
     public editionService: EditionService = new EditionService();
 
     // public permissionsChanges: ShareRow[] = [];
-
-
-    public mounted() {
-        
-    }
 
     public get sharesRows(): ShareRow[] {
         return this.current!.shares.map(x => ({

@@ -8,7 +8,7 @@ type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
 interface ShareRow {
     email: string;
-    oldPermission: SimplifiedPermission; 
+    oldPermission: SimplifiedPermission;
     permission: SimplifiedPermission;
 }
 
@@ -26,33 +26,32 @@ class UserInfo { // TODO: add fields like UserDTO ?
 }
 
 class Permissions {
-    public mayWrite: boolean;
-    public isAdmin: boolean;
-
-
-    constructor(dto: PermissionDTO) {
-        this.mayWrite = dto.mayWrite;
-        this.isAdmin = dto.isAdmin;
-    }
-
-    static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
-        const rights: UpdateEditorRightsDTO = {  
+    public static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
+        const rights: UpdateEditorRightsDTO = {
             mayRead: false,
             mayWrite: false,
             isAdmin: false,
-            mayLock: false 
-        }
-        
-        switch(simplified) {
+            mayLock: false
+        };
+
+        switch (simplified) {
             case 'admin':
                 rights.mayLock = rights.isAdmin = true;
             case 'write':
                 rights.mayWrite = true;
             case 'read':
                 rights.mayRead = true;
-        } 
+        }
 
         return rights;
+    }
+
+    public mayWrite: boolean;
+    public isAdmin: boolean;
+
+    constructor(dto: PermissionDTO) {
+        this.mayWrite = dto.mayWrite;
+        this.isAdmin = dto.isAdmin;
     }
 
     public get readOnly() {
@@ -113,16 +112,8 @@ class EditionInfo {
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [
-            new ShareInfo({user : {email: 'Shaindel@gmail.com', userId: 3}, permission: {mayWrite: false, isAdmin: true}}),
-            new ShareInfo({user : {email: 'totosoRead@gmail.com', userId: 4}, permission: {mayWrite: false, isAdmin: false}}),
-            new ShareInfo({user : {email: 'totosoWrite@gmail.com', userId: 5}, permission: {mayWrite: true, isAdmin: false}})
-        ];
-        this.invitations = dto.invitations ? dto.shares.map((s) => new ShareInfo(s)) : [
-            new ShareInfo({user : {email: 'Shaindeld@gmail.com', userId: 6}, permission: {mayWrite: false, isAdmin: true}}),
-            new ShareInfo({user : {email: 'totosoReadd@gmail.com', userId: 7}, permission: {mayWrite: false, isAdmin: false}}),
-            new ShareInfo({user : {email: 'totosoWrited@gmail.com', userId: 8}, permission: {mayWrite: true, isAdmin: false}})
-        ]; // TODO: Read invitations from DTO when they are added
+        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
+        this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
         if (dto.lastEdit) {
