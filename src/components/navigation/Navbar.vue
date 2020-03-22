@@ -111,6 +111,7 @@ export default class Navbar extends Vue {
 
     private logout() {
         this.sessionService.logout();
+        router.push('/');
         location.reload();
     }
 
