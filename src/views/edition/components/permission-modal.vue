@@ -40,6 +40,7 @@
                                 <span class="col-6">{{share.email}}</span>
                                 <b-form-select
                                     :disabled="share.oldPermission === 'admin'"
+                                    @change="setRowShareStatus(share)"
                                     size="sm"
                                     class="col-4"
                                     id="inline-form-custom-select-pref"
@@ -56,8 +57,8 @@
                                     class="ml-2"
                                     variant="success"
                                     @click="update(share)"
-                                    :disabled="share.oldPermission === 'admin' || share.permission === share.oldPermission"
-                                >{{ setButtonStatus(share, 'Update') }}</b-button>
+                                    :disabled="share.disableButton"
+                                >{{share.buttonText}}</b-button>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -72,6 +73,7 @@
                             <div class="row">
                                 <span class="col-6">{{invit.email}}</span>
                                 <b-form-select
+                                    @change="setRowInvitStatus(invit)"
                                     size="sm"
                                     class="col-4"
                                     id="inline-form-custom-select-pref"
@@ -88,7 +90,7 @@
                                     class="ml-2"
                                     variant="success"
                                     @click="update(invit)"
-                                >{{ setButtonStatus(invit, 'Resend') }}</b-button>
+                                >{{invit.buttonText}}</b-button>
                             </div>
                         </b-list-group-item>
                     </b-list-group>
@@ -99,44 +101,60 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import {
-    EditionInfo,
-    ShareInfo,
-    ShareRow,
-    SimplifiedPermission
-} from '@/models/edition';
+import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
+import { EditionInfo, ShareInfo, SimplifiedPermission } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
+import { BvModalEvent } from 'bootstrap-vue';
 
+interface ShareRow {
+    email: string;
+    oldPermission: SimplifiedPermission;
+    permission: SimplifiedPermission;
+    buttonText?: string;
+    disableButton?: boolean;
+}
 @Component({
     name: 'permission-modal',
     components: {}
 })
 export default class PermissionModal extends Vue {
-    public invitationRow: ShareRow = {} as ShareRow;
+    public invitationRow: ShareRow = { permission: 'read' } as ShareRow;
     public editionService: EditionService = new EditionService();
 
     // public permissionsChanges: ShareRow[] = [];
 
-    public get sharesRows(): ShareRow[] {
-        return this.current!.shares.map(x => ({
-            email: x.user.email,
-            oldPermission: x.simplified,
-            permission: x.simplified
-        }));
+    public sharesRows: ShareRow[] = [];
+    public invitationsRows: ShareRow[] = [];
+
+    public mounted() {
+        this.$root.$on(
+            'bv::modal::show',
+            (bvEvent: BvModalEvent, modalId: string) => {
+                if (modalId !== 'permissionModal') {
+                    return;
+                }
+
+                this.sharesRows = this.current!.shares.map(x => ({
+                    email: x.user.email,
+                    oldPermission: x.simplified,
+                    permission: x.simplified,
+                    buttonText: 'Update',
+                    disableButton: true
+                }));
+
+                this.invitationsRows = this.current!.invitations.map(x => ({
+                    email: x.user.email,
+                    oldPermission: x.simplified,
+                    permission: x.simplified,
+                    buttonText: 'Resend'
+                }));
+            }
+        );
     }
 
-    public get invitationsRows(): ShareRow[] {
-        return this.current!.invitations.map(x => ({
-            email: x.user.email,
-            oldPermission: x.simplified,
-            permission: x.simplified
-        }));
-    }
-
-    public get current(): EditionInfo | undefined {
-        return this.$state.editions.current;
+    public get current(): EditionInfo {
+        return this.$state.editions.current!;
     }
 
     public update(share: ShareRow) {
@@ -152,16 +170,45 @@ export default class PermissionModal extends Vue {
             this.invitationRow.email,
             this.invitationRow.permission
         );
+        this.invitationRow.email = '';
+        this.invitationRow.permission = 'read';
     }
-    public setButtonStatus(row: ShareRow, defaultText: string) {
-        let btnText = defaultText;
+
+    public setRowShareStatus(row: ShareRow) {
         if (row.permission !== row.oldPermission) {
-            btnText = 'Update';
+            row.buttonText = 'Update';
+            row.disableButton = false;
+        } else {
+            row.disableButton = true;
         }
         if (row.permission === 'none') {
-            btnText = 'Revoke';
+            row.buttonText = 'Revoke';
         }
-        return btnText;
+    }
+
+    public setRowInvitStatus(row: ShareRow) {
+        if (row.permission !== row.oldPermission) {
+            row.buttonText = 'Update';
+        } else {
+            row.buttonText = 'Resend';
+        }
+        if (row.permission === 'none') {
+            row.buttonText = 'Revoke';
+        }
+    }
+
+    private get invitationList() {
+        return this.current.invitations;
+    }
+
+    @Watch('invitationList')
+    private onInvitationsChange(newInvitations: ShareInfo[]) {
+         this.invitationsRows = this.current!.invitations.map(x => ({
+                    email: x.user.email,
+                    oldPermission: x.simplified,
+                    permission: x.simplified,
+                    buttonText: 'Resend'
+                }));
     }
 }
 </script>
