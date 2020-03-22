@@ -61,7 +61,7 @@
             >{{ $t('misc.copy') }}</b-btn>
             <b-btn
                 v-if="isAdmin"
-               v-b-modal.permissionModal
+                v-b-modal.permissionModal
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
@@ -100,54 +100,35 @@
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
             </form>
         </b-modal>
-   <permission-modal></permission-modal>
+        <permission-modal></permission-modal>
     </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { EditionInfo, ShareInfo, ShareRow } from '@/models/edition';
+import { EditionInfo, ShareInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import permissionModal from './permission-modal.vue';
 export default Vue.extend({
     name: 'edition-ver-sidebar',
-     components: {
-      permissionModal
+    components: {
+        permissionModal
     },
     props: {
         page: String
     },
     data() {
         return {
-            invitationRow: {} as ShareRow,
-            // sharesRows: new Array<ShareRow>(),
-            // invitationsRows: new Array<ShareRow>(),
-            editorEmail: '',
             editionService: new EditionService(),
             newCopyName: '',
             waiting: false,
             errorMessage: '',
             newEditionName: '',
             renaming: false
-            // editionPermissionsEnum: EditionPermissions
         };
     },
     computed: {
-        sharesRows(): ShareRow[] {
-            return this.current!.shares.map(x => ({
-                email: x.user.email,
-                oldPermission: x.simplified,
-                permission: x.simplified
-            }));
-        },
-        invitationsRows(): ShareRow[] {
-            return this.current!.invitations.map(x => ({
-                email: x.user.email,
-                oldPermission: x.simplified,
-                permission: x.simplified
-            }));
-        },
         readOnly(): boolean {
             return this.current!.permission.readOnly;
         },
@@ -193,43 +174,6 @@ export default Vue.extend({
     },
 
     methods: {
-        loadShareRows() {
-            this.invitationRow = {} as ShareRow;
-            // this.sharesRows = this.current!.shares.map(x => ({
-            //     email: x.user.email,
-            //     oldPermission: x.simplified,
-            //     permission: x.simplified
-            // }));
-            // this.invitationsRows = this.current!.invitations.map(x => ({
-            //     email: x.user.email,
-            //     oldPermission: x.simplified,
-            //     permission: x.simplified
-            // }));
-        },
-        update(share: ShareRow) {
-            this.editionService.updateInvitation(
-                this.current!.id,
-                share.email,
-                share.permission
-            );
-        },
-        invite() {
-            this.editionService.inviteEditor(
-                this.current!.id,
-                this.invitationRow.email,
-                this.invitationRow.permission
-            );
-        },
-        setButtonStatus(row: ShareRow, defaultText: string) {
-            let btnText = defaultText;
-            if (row.permission !== row.oldPermission) {
-                btnText = 'Update';
-            }
-            if (row.permission === 'none') {
-                btnText = 'Revoke';
-            }
-            return btnText;
-        },
         openRename() {
             this.renaming = true;
             this.newEditionName = this.current!.name;
@@ -316,11 +260,5 @@ ul#version-list li {
 
 .bold {
     font-weight: bold;
-}
-.flex-container {
-    display: flex;
-    flex-direction: row;
-    /* flex-wrap: wrap; */
-    justify-content: space-between;
 }
 </style>
