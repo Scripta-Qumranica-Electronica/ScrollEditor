@@ -21,6 +21,7 @@ export default {
     undo: 'Annuler',
     redo: 'Refaire',
     filterArtefacts: "Filtre d'Artefacts",
-    both : 'Recto et Verso',
-    editorParameters : "Paramètres d'édition"
+    both: 'Recto et Verso',
+    editorParameters: "Paramètres d'édition",
+    lock: 'Lecture seulement'
 };

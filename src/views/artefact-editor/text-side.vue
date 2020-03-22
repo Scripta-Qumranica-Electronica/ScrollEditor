@@ -1,6 +1,11 @@
 <template>
     <div id="text-side" class="fixed-header">
-        <input class="select-text" list="my-list-id" @change="loadFragment($event)" />
+        <input
+            v-if="!readOnly"
+            class="select-text"
+            list="my-list-id"
+            @change="loadFragment($event)"
+        />
         <datalist id="my-list-id">
             <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
         </datalist>
@@ -15,10 +20,20 @@
                 <b-row>
                     <b-col cols="2">
                         <b-button-group block>
-                            <b-button href="#" @click="changePosition(index, true)" v-b-tooltip.hover.bottom :title="$t('misc.up')">
+                            <b-button
+                                href="#"
+                                @click="changePosition(index, true)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.up')"
+                            >
                                 <i class="fa fa-arrow-up"></i>
                             </b-button>
-                            <b-button href="#" @click="changePosition(index, false)" v-b-tooltip.hover.bottom :title="$t('misc.down')">
+                            <b-button
+                                href="#"
+                                @click="changePosition(index, false)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.down')"
+                            >
                                 <i class="fa fa-arrow-down"></i>
                             </b-button>
                         </b-button-group>
@@ -63,6 +78,7 @@ import {
     ArtefactTextFragmentData
 } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
+import { EditionInfo } from '@/models/edition';
 
 @Component({
     name: 'text-side',
@@ -72,6 +88,7 @@ import TextFragmentComponent from '@/components/text/text-fragment.vue';
 })
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
+
     @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
@@ -81,6 +98,10 @@ export default class TextSide extends Vue {
     private displayedTextFragmentsShow: { [key: number]: boolean } = {};
     private get editionId(): number {
         return parseInt(this.$route.params.editionId);
+    }
+
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
     }
 
     private get dropdownTextFragmentsData() {
@@ -107,7 +128,8 @@ export default class TextSide extends Vue {
         textFragments.forEach(editionTf => {
             editionTf.certain =
                 textFragmentsArtefact.findIndex(
-                    artefactTf => artefactTf.id === editionTf.id && artefactTf.certain
+                    artefactTf =>
+                        artefactTf.id === editionTf.id && artefactTf.certain
                 ) > -1;
         });
 
@@ -221,11 +243,10 @@ export default class TextSide extends Vue {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
 #text-side {
     margin: 30px 15px 20px 30px;
     touch-action: pan-y;
-    // top: 0;
-    // right: 0;
 }
 
 button {
@@ -237,7 +258,7 @@ button {
 }
 
 #text-box {
-    font-family:'SBL Hebrew';
+    font-family: 'SBL Hebrew';
     font-size: 18px;
     margin-top: 30px;
     overflow: auto;
@@ -246,7 +267,7 @@ button {
 }
 
 .isa_error {
-    color: #d8000c;
+    color: $red;
 }
 .btn-position {
     margin-top: -5px;

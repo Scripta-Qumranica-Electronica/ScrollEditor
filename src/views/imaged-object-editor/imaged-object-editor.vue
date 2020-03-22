@@ -40,8 +40,13 @@
             <!-- todo: add external div with the condition -->
             <div class="row">
                 <div id="buttons-div">
-                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()"
-                      v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebarObject')">
+                    <b-button
+                        type="button"
+                        class="sidebarCollapse"
+                        @click="sidebarClicked()"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.collapsedsidebarObject')"
+                    >
                         <i class="fa fa-align-justify"></i>
                     </b-button>
 
@@ -51,12 +56,18 @@
                         @click="editingModeChanged(mode.val)"
                         :pressed="modeChosen(mode.val)"
                         class="sidebarCollapse"
-                         v-b-tooltip.hover.bottom :title="mode.title"
+                        v-b-tooltip.hover.bottom
+                        :title="mode.title"
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
                 </div>
+
                 <div class="imaged-object-container" :class="{active: isActive}">
+                   <div class="readOnly"><label v-if="readOnly">
+                        <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> {{ $t('home.lock') }} 
+                    </label></div> 
+
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
                         <svg
                             class="overlay"
@@ -172,8 +183,16 @@ export default class ImagedObjectEditor extends Vue {
     private get editList(): any[] {
         if (this.canEdit) {
             return [
-                { icon: 'fa fa-pencil', val: 'DRAW', title: this.$t('misc.draw')},
-                { icon: 'fa fa-trash', val: 'ERASE', title: this.$t('misc.cancel')}
+                {
+                    icon: 'fa fa-pencil',
+                    val: 'DRAW',
+                    title: this.$t('misc.draw')
+                },
+                {
+                    icon: 'fa fa-trash',
+                    val: 'ERASE',
+                    title: this.$t('misc.cancel')
+                }
             ];
         }
         return [];
@@ -250,10 +269,12 @@ export default class ImagedObjectEditor extends Vue {
         return this.artefacts.filter(item => item.side === this.side);
     }
 
-     private get artefacts(): Artefact[] {
-      return this.imagedObject!.artefacts || [];
+    private get artefacts(): Artefact[] {
+        return this.imagedObject!.artefacts || [];
     }
-
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
     private async mounted() {
         try {
             this.waiting = true;
@@ -494,7 +515,7 @@ export default class ImagedObjectEditor extends Vue {
             await this.artefactService.deleteArtefact(art);
             this.showMessage('Artefact deleted', 'success');
             const index = this.artefacts.indexOf(art);
-           // this.artefacts.splice(index, 1);
+            // this.artefacts.splice(index, 1);
             this.artefactEditingDataList.splice(index, 1);
 
             if (this.artefacts[0]) {
@@ -576,7 +597,7 @@ export default class ImagedObjectEditor extends Vue {
     private get isErasing() {
         return this.params.drawingMode === DrawingMode.ERASE;
     }
-   private get removeColor() {
+    private get removeColor() {
         return this.params.highLight === false;
     }
     private onNewPolygon(poly: Polygon) {
@@ -634,6 +655,9 @@ export default class ImagedObjectEditor extends Vue {
 
 <style lang="scss" scoped>
 // @import '~sass-vars';
+.readOnly {
+    text-align: center;
+}
 .overlay {
     position: absolute;
     transform-origin: top left;

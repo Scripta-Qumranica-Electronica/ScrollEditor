@@ -15,6 +15,7 @@ export default {
     save: 'Enregistrer',
     load: 'Charge',
     auto: 'Auto',
+    select: 'Sélectionner',
     collapsedsidebar: 'Menu TextFragment',
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',

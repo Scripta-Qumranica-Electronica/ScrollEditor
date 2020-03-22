@@ -37,32 +37,27 @@ export default class SignComponent extends Vue {
     }
 
     private clickable(si: SignInterpretation) {
-        if (!si.character) {
-            return false;
-        }
-        if (this.cssStrings(si).indexOf('is-reconstructed-true') !== -1) {
-            return false;
-        }
-        return true;
+        return si.character && !si.isReconstructed;
     }
 }
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_variables.scss";
 div {
   display: inline;
 }
 
 span {
-    color: black;
+    color: $black;
     cursor: default;
 }
 
 span.selected {
   
-    color: red;
+    color: $red;
     font-weight: bold;
-    text-shadow: 0 0 2px black;
+    text-shadow: 0 0 2px $black;
     transition: 0.6s;
     font-size:17px;
     margin:1px

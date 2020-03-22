@@ -8,6 +8,7 @@
                     v-if="isNew"
                 >{{ $t('misc.new') }}</span>
             </h5>
+
             <b-btn
                 v-if="canRename && !renaming"
                 @click="openRename()"
@@ -23,6 +24,10 @@
         </div>
 
         <b-nav vertical>
+            <label v-if="readOnly">
+                <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i>
+                {{ $t('home.lock') }}
+            </label>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
                 <router-link
@@ -54,6 +59,11 @@
                 v-b-modal.modal="'copyModal'"
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.copy') }}</b-btn>
+            <b-btn
+                v-if="isAdmin"
+                v-b-modal.modal="'permissionModal'"
+                class="btn btn-sm btn-outline btn-copy"
+            >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
 
         <b-modal
@@ -90,15 +100,42 @@
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
             </form>
         </b-modal>
+        <b-modal id="permissionModal" ref="permissionModalRef" ok-only>
+            <form>
+                <b-form-input v-model="email" placeholder="Enter user email"></b-form-input>
+                <b-button variant="primary" @click="invite">{{ $t('misc.invite') }}</b-button>
+                <b-list-group>
+                    <b-list-group-item
+                        v-for="share in current.shares"
+                        v-bind:key="share.user.userId"
+                    >
+                        {{share.user.email}}
+                        <b-form-select
+                            id="inline-form-custom-select-pref"
+                            :disabled=" share.permissions.permission === editionPermissionsEnum.ADMIN"
+                            :value="share.permissions.permission"
+                        >
+                            <option
+                                v-for="permission in editionPermissions"
+                                :value="editionPermissionsEnum[permission]"
+                                :key="permission"
+                            >{{editionPermissionsEnum[permission]}}</option>
+                        </b-form-select>
+                    </b-list-group-item>
+                </b-list-group>
+            </form>
+            <template v-slot:modal-footer="{ ok }">
+                <b-button size="sm" variant="success" @click="ok()">Save</b-button>
+            </template>
+        </b-modal>
     </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { EditionInfo } from '@/models/edition';
+import { EditionPermissions, EditionInfo, ShareInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
-
 export default Vue.extend({
     name: 'edition-ver-sidebar',
     props: {
@@ -106,15 +143,23 @@ export default Vue.extend({
     },
     data() {
         return {
+            email: '',
             editionService: new EditionService(),
             newCopyName: '',
             waiting: false,
             errorMessage: '',
             newEditionName: '',
-            renaming: false
+            renaming: false,
+            editionPermissionsEnum: EditionPermissions
         };
     },
     computed: {
+        readOnly(): boolean {
+            return this.current!.permission.readOnly;
+        },
+        isAdmin(): boolean {
+            return this.current!.permission.isAdmin;
+        },
         canRename(): boolean {
             return this.current!.permission.mayWrite;
         },
@@ -150,9 +195,15 @@ export default Vue.extend({
                 return artLen;
             }
             return 0;
+        },
+        editionPermissions(): string[] {
+            return Object.keys(EditionPermissions);
         }
     },
     methods: {
+        invite() {
+            // Empty for now
+        },
         openRename() {
             this.renaming = true;
             this.newEditionName = this.current!.name;

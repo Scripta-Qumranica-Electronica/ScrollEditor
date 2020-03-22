@@ -81,7 +81,10 @@
                             </b-button>
                         </section>
                         <section class="center-btn">
-                            <b-button v-if="!saving" @click="onSave()">{{$t('misc.save')}}</b-button>
+                            <b-button
+                                v-if="!saving && !readOnly"
+                                @click="onSave()"
+                            >{{$t('misc.save')}}</b-button>
                             <b-button v-if="saving" disabled class="disable">
                                 Saving...
                                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
@@ -147,6 +150,11 @@ export default Vue.extend({
             set(val: any) {
                 this.params.rotationAngle = parseFloat(val);
                 this.notifyChange('rotationAngle', val);
+            }
+        },
+        readOnly: {
+            get(): boolean {
+                return this.$state.editions.current!.permission.readOnly;
             }
         }
     },

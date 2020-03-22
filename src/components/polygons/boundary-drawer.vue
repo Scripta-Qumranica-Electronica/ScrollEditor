@@ -17,7 +17,7 @@
 import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
 import { Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
-export type DrawingMode = 'polygon' | 'box';
+export type ActionMode = 'select' | 'polygon' | 'box';
 type InternalMode = 'before-polygon' | 'polygon' | 'before-corner1' | 'before-corner2';
 
 @Component({
@@ -26,7 +26,7 @@ type InternalMode = 'before-polygon' | 'polygon' | 'before-corner1' | 'before-co
 export default class BoundaryDrawer extends Vue {
     @Prop({
         default: 'polygon',
-    }) public readonly mode!: DrawingMode;
+    }) public readonly mode!: ActionMode;
     @Prop({
         default: 'purple',
     }) public readonly color!: string;
@@ -67,7 +67,7 @@ export default class BoundaryDrawer extends Vue {
     }
 
     @Watch('mode')
-    private onModeChanged(newMode: DrawingMode) {
+    private onModeChanged(newMode: ActionMode) {
         if (this.mode === 'polygon') {
             this.internalMode = 'before-polygon';
         } else if (this.mode === 'box') {
