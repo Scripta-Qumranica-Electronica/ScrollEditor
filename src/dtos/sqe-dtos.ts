@@ -61,15 +61,46 @@ export interface PermissionDTO {
     mayWrite: boolean;
     isAdmin: boolean;
 }
-export interface UpdateEditorRightsDTO {
-    mayRead?: boolean;
-    isAdmin?: boolean;
-    mayLock?: boolean;
-    mayWrite?: boolean;
+
+export interface MinimalEditorRights extends PermissionDTO {
+    mayLock: boolean;
 }
 
-export interface CreateEditorRightsDTO extends UpdateEditorRightsDTO {
+export interface UpdateEditorRightsDTO extends MinimalEditorRights {
+    mayRead: boolean;
+}
+
+export interface InviteEditorDTO extends MinimalEditorRights {
     email: string;
+}
+
+export interface DetailedEditorRightsDTO extends UpdateEditorRightsDTO {
+    email: string;
+}
+
+export interface DetailedUpdateEditorRightsDTO extends UpdateEditorRightsDTO {
+    editionId: number;
+    editionName: string;
+    date: string;
+}
+
+export interface AdminEditorRequestDTO extends DetailedUpdateEditorRightsDTO {
+    editorName: string;
+    editorEmail: string;
+}
+
+export interface EditorInvitationDTO extends DetailedUpdateEditorRightsDTO {
+    token: string;
+    requestingAdminName: string;
+    requestingAdminEmail: string;
+}
+
+export interface EditorInvitationListDTO {
+    editorInvitations: EditorInvitationDTO[];
+}
+
+export interface AdminEditorRequestListDTO {
+    editorRequests: AdminEditorRequestDTO[];
 }
 
 export interface TextEditionDTO {
@@ -96,6 +127,19 @@ export interface DeleteEditionEntityDTO {
 
 export interface EditionScriptCollectionDTO {
     letters: LetterDTO[];
+}
+export enum EditionEntities {
+    edition = 0,
+    artefact = 1,
+    textFragment = 2,
+    line = 3,
+    signInterpretation = 4,
+    roi = 5
+}
+
+export interface DeleteDTO {
+    entity: EditionEntities;
+    ids: number[];
 }
 export interface EditionUpdateRequestDTO {
     name: string;
@@ -237,6 +281,13 @@ export interface TextFragmentDataDTO {
 
 export interface ArtefactTextFragmentMatchDTO extends TextFragmentDataDTO {
     suggested: boolean;
+}
+export interface ImagedObjectTextFragmentMatchDTO {
+    editionId: number;
+    manuscriptName: string;
+    textFragmentId: number;
+    textFragmentName: string;
+    side: string;
 }
 
 export interface TextFragmentDataListDTO {

@@ -7,6 +7,7 @@ import {
     BatchEditRoiResponseDTO,
     UpdatedInterpretationRoiDTO,
     UpdatedInterpretationRoiDTOList,
+    DeleteDTO,
 } from '@/dtos/sqe-dtos';
 import { EditionInfo } from '@/models/edition';
 import { StateManager } from '.';
@@ -46,12 +47,14 @@ export class NotificationHandler {
         }
     }
 
-    public handleDeletedArtefact(artefactId: number): void {
-        state().artefacts.remove(artefactId, false);
+    public handleDeletedArtefact(dto: DeleteDTO): void {
+        for (const artefactId of dto.ids) {
+            state().artefacts.remove(artefactId, false);
 
-        // There is no imaged object ID received from the server, so we just remove the artefact from the
-        // current imaged object as well. If the artefact belongs to another imaged object, nothing is removed.
-        removeFromArray(artefactId, state().imagedObjects.current?.artefacts);
+            // There is no imaged object ID received from the server, so we just remove the artefact from the
+            // current imaged object as well. If the artefact belongs to another imaged object, nothing is removed.
+            removeFromArray(artefactId, state().imagedObjects.current?.artefacts);
+        }
     }
 
     public handleUpdatedArtefact(artefact: ArtefactDTO): void {
@@ -93,9 +96,11 @@ export class NotificationHandler {
         notifyRoiChanged();
     }
 
-    public handleDeletedRoi(roiId: number): void {
-        handleDeletedRoi(roiId);
-        notifyRoiChanged();
+    public handleDeletedRoi(dto: DeleteDTO): void {
+        for (const roiId of dto.ids) {
+            handleDeletedRoi(roiId);
+            notifyRoiChanged();
+        }
     }
 }
 

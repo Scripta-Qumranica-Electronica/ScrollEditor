@@ -5,7 +5,7 @@ import {
     EditionUpdateRequestDTO,
     EditionDTO,
     EditionGroupDTO,
-    CreateEditorRightsDTO,
+    InviteEditorDTO,
     PermissionDTO,
     ShareDTO
 } from '@/dtos/sqe-dtos';
@@ -127,7 +127,7 @@ class EditionService {
         const dto = {
             email,
             ...rights
-        } as CreateEditorRightsDTO;
+        } as InviteEditorDTO;
 
         // Step 3: Call the backend using CommHelper.post - the server does not return a DTO in response
         await CommHelper.post<EditionDTO>(
