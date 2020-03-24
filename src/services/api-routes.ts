@@ -12,7 +12,7 @@ export namespace ApiRoutes {
     const changeForgottenPassword = 'change-forgotten-password';
     const confirmRegistration = 'confirm-registration';
     const optionalArtefact = 'optional=artefacts&optional=masks';
-
+    const confirmAddEditionEditor = 'confirm-editorship';
 
     export function allEditionsUrl() {
         return `${baseUrl}/${editions}`;
@@ -30,6 +30,10 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${editionId}/add-editor-request`;
     }
 
+    export function confirmAddEditionEditorUrl(token: string) {
+        return `${baseUrl}/${editions}/${confirmAddEditionEditor}/${token}`;
+    }
+
     export function allEditionArtefactsUrl(editionId: number, option: boolean = false) {
         if (option) {
             return `/${baseUrl}/${editions}/${editionId}/${artefacts}?${optionalArtefact}`;
@@ -37,8 +41,10 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/${artefacts}`;
     }
 
-    export function editionImagedObjectUrl(editionId: number, imagedObjectId: string,
-                                           includeArtefacts: boolean = false) {
+    export function editionImagedObjectUrl(
+        editionId: number,
+        imagedObjectId: string,
+        includeArtefacts: boolean = false) {
         if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}?${optionalArtefact}`;
         }
