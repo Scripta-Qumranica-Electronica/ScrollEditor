@@ -14,7 +14,7 @@
                             ></b-form-input>
                             <b-form-select
                                 size="sm"
-                                class="col-4 ml-2"
+                                class="col-3 ml-2"
                                 id="inline-form-custom-select-pref"
                                 v-model="invitationRow.permission"
                             >
@@ -25,10 +25,18 @@
                             <b-button
                                 variant="primary"
                                 size="sm"
-                                class="ml-2"
+                                class="flex-fill ml-2"
                                 @click="invite"
                                 :disabled="invitationRow.email === '' || !invitationRow.permission"
-                            >{{ $t('misc.invite') }}</b-button>
+                            >
+                                {{ $t('misc.invite') }}
+                                <span v-if="waiting">
+                                    <font-awesome-icon icon="spinner" spin></font-awesome-icon>
+                                </span>
+                            </b-button>
+                        </div>
+                        <div class="row">
+                            <span class="col-12 text-danger">{{errorMessage}}</span>
                         </div>
                     </b-list-group-item>
                 </b-list-group>
@@ -106,6 +114,7 @@ import { EditionInfo, ShareInfo, SimplifiedPermission } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { BvModalEvent } from 'bootstrap-vue';
+// import ErrorService from '@/services/error';
 
 interface ShareRow {
     email: string;
@@ -122,10 +131,11 @@ export default class PermissionModal extends Vue {
     public invitationRow: ShareRow = { permission: 'read' } as ShareRow;
     public editionService: EditionService = new EditionService();
 
-    // public permissionsChanges: ShareRow[] = [];
-
+    // public errorService:ErrorService= new ErrorService(this)
     public sharesRows: ShareRow[] = [];
     public invitationsRows: ShareRow[] = [];
+    private waiting = false;
+    private errorMessage = '';
 
     public mounted() {
         this.$root.$on(
@@ -164,14 +174,22 @@ export default class PermissionModal extends Vue {
             share.permission
         );
     }
-    public invite() {
-        this.editionService.inviteEditor(
-            this.current!.id,
-            this.invitationRow.email,
-            this.invitationRow.permission
-        );
-        this.invitationRow.email = '';
-        this.invitationRow.permission = 'read';
+    public async invite() {
+        try {
+            this.waiting = true;
+            await this.editionService.inviteEditor(
+                this.current!.id,
+                this.invitationRow.email,
+                this.invitationRow.permission
+            );
+        } catch (e) {
+            // this.errorMessage = this.errorService.getErrorMessage(e);
+            this.errorMessage = 'An error occured';
+        } finally {
+            this.waiting = false;
+            this.invitationRow.email = '';
+            this.invitationRow.permission = 'read';
+        }
     }
 
     public setRowShareStatus(row: ShareRow) {
@@ -203,12 +221,12 @@ export default class PermissionModal extends Vue {
 
     @Watch('invitationList')
     private onInvitationsChange(newInvitations: ShareInfo[]) {
-         this.invitationsRows = this.current!.invitations.map(x => ({
-                    email: x.user.email,
-                    oldPermission: x.simplified,
-                    permission: x.simplified,
-                    buttonText: 'Resend'
-                }));
+        this.invitationsRows = this.current!.invitations.map(x => ({
+            email: x.user.email,
+            oldPermission: x.simplified,
+            permission: x.simplified,
+            buttonText: 'Resend'
+        }));
     }
 }
 </script>
