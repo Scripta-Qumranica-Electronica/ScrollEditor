@@ -1,6 +1,6 @@
 <template>
-    <div v-if="current">
-        <b-modal id="permissionModal" hide-footer>
+    <div>
+        <b-modal id="permissionModal" hide-footer @shown="shown">
             <form>
                 <!-- editor invitation row -->
                 <b-list-group class="mb-3">
@@ -11,6 +11,7 @@
                                 placeholder="Enter user email"
                                 size="sm"
                                 class="col-6"
+                                @keydown="errorMessage = ''"
                             ></b-form-input>
                             <b-form-select
                                 size="sm"
@@ -65,7 +66,7 @@
                                     class="ml-2"
                                     variant="success"
                                     @click="update(share)"
-                                    :disabled="share.disableButton"
+                                    :disabled="share.disableButton || waiting"
                                 >{{share.buttonText}}</b-button>
                             </div>
                         </b-list-group-item>
@@ -137,30 +138,21 @@ export default class PermissionModal extends Vue {
     private waiting = false;
     private errorMessage = '';
 
-    public mounted() {
-        this.$root.$on(
-            'bv::modal::show',
-            (bvEvent: BvModalEvent, modalId: string) => {
-                if (modalId !== 'permissionModal') {
-                    return;
-                }
+    public shown() {
+        this.sharesRows = this.current!.shares.map(x => ({
+            email: x.user.email,
+            oldPermission: x.simplified,
+            permission: x.simplified,
+            buttonText: 'Update',
+            disableButton: true
+        }));
 
-                this.sharesRows = this.current!.shares.map(x => ({
-                    email: x.user.email,
-                    oldPermission: x.simplified,
-                    permission: x.simplified,
-                    buttonText: 'Update',
-                    disableButton: true
-                }));
-
-                this.invitationsRows = this.current!.invitations.map(x => ({
-                    email: x.user.email,
-                    oldPermission: x.simplified,
-                    permission: x.simplified,
-                    buttonText: 'Resend'
-                }));
-            }
-        );
+        this.invitationsRows = this.current!.invitations.map(x => ({
+            email: x.user.email,
+            oldPermission: x.simplified,
+            permission: x.simplified,
+            buttonText: 'Resend'
+        }));
     }
 
     public get current(): EditionInfo {

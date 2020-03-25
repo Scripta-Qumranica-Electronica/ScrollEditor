@@ -59,9 +59,10 @@
                 v-b-modal.modal="'copyModal'"
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.copy') }}</b-btn>
+            <!-- v-b-modal.permissionModal -->
             <b-btn
                 v-if="isAdmin"
-                v-b-modal.permissionModal
+                @click="openPermissionModal()"
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
@@ -174,6 +175,11 @@ export default Vue.extend({
     },
 
     methods: {
+        openPermissionModal() {
+            console.log('dw');
+            this.$root.$emit('bv::show::modal', 'permissionModal');
+        },
+
         openRename() {
             this.renaming = true;
             this.newEditionName = this.current!.name;
