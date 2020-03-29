@@ -112,9 +112,13 @@ ul#my-search-results.afterlogin,
 ul#all-search-results.afterlogin {
     height: calc(50vh - 95px);
     overflow: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 ul#all-search-results {
     height: calc(50vh - -278px);
     overflow: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 </style>

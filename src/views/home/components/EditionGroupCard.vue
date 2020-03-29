@@ -17,13 +17,13 @@
         </router-link>
         <div class="card-body">
             <router-link tag="div" :to="{ path:`/editions/${edition.id}` }">
-                <h5 class="cart-title">{{ edition.name }}</h5>
-                <i
+                <h5 class="cart-title">{{ edition.name }} <i
                     v-if="lockEdition"
                     v-b-tooltip.hover.bottom
                     :title="$t('home.lock')"
-                    class="fa fa-lock"
-                ></i>
+                    class="fa fa-lock small"
+                ></i></h5>
+                
                 <p>
                     <span class="badge badge-info mr-1">{{ publicEditionCount }}</span>
                     {{ $tc('home.publicEditionCount',
@@ -71,9 +71,9 @@ export default class EditionCard extends Vue {
 <style lang="scss" scoped>
 .card:hover,
 .list-item .card:hover {
-    transform: scale(0.9, 0.9);
-    box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0),
-        -5px -5px 30px 15px rgba(0, 0, 0, 0.22);
+    transform: scale(0.95, 0.95);
+    box-shadow: 5px 5px 20px 5px rgba(0, 0, 0, 0),
+        -5px -5px 20px 5px rgba(0, 0, 0, 0.22);
 }
 
 img.card-img-top {
