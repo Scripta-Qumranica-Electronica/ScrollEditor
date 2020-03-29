@@ -36,7 +36,7 @@ export namespace ApiRoutes {
     }
 
     export function listInvitationEditionUrl() {
-        return `${baseUrl}/${editions}/${listInvitationEdition}}`;
+        return `${baseUrl}/${editions}/${listInvitationEdition}`;
     }
 
     export function allEditionArtefactsUrl(editionId: number, option: boolean = false) {
