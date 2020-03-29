@@ -7,6 +7,8 @@ import ImageService from '@/services/image';
 import TextService from '@/services/text';
 import { SignalRWrapper } from './signalr-connection';
 import { NotificationHandler } from './notification-handler';
+import { ShareInfo } from '@/models/edition';
+import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
 
 /*
  * This service handles all the state data.
@@ -46,7 +48,7 @@ class ProcessTracking {
     }
 }
 
-type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
+type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
     'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
 
 export default class StateService {
@@ -56,6 +58,7 @@ export default class StateService {
 
     private allEditionsProcess: ProcessTracking | undefined;
     private editionProcess: ProcessTracking | undefined;
+    private invitationProcess: ProcessTracking | undefined;
     private imagedObjectsProcess: ProcessTracking | undefined;
     private artefactsProcess: ProcessTracking | undefined;
     private artefactProcess: ProcessTracking | undefined;
@@ -81,6 +84,10 @@ export default class StateService {
 
     public async edition(editionId: number): Promise<void> {
         return this.wrapInternal('editionProcess', editionId, (id: number) => this.editionInternal(id));
+    }
+
+    public async invitations(editionId: number): Promise<void> {
+        return this.wrapInternal('invitationsProcess', editionId, (id: number) => this.invitationsInternal(id));
     }
 
     public async textFragments(editionId: number): Promise<void> {
@@ -289,5 +296,26 @@ export default class StateService {
                 }
             }
         }
+    }
+
+    private async invitationsInternal(editionId: number) {
+        await this.edition(editionId);
+
+        const svc = new EditionService();
+        const allInvitations = await svc.getAllInvitations();
+
+        const edition = this._state.editions.find(editionId);
+
+        if (!edition) {
+            return;
+        }
+
+        const editionInvitations = allInvitations.editorRequests.filter(
+                (i: AdminEditorRequestDTO) => i.editionId === edition.id
+            );
+        edition.invitations = editionInvitations.map(
+                (x: AdminEditorRequestDTO) => ({ user: { email: x.editorEmail }, permissions: { isAdmin: x.isAdmin, mayWrite: x.mayWrite } }) as ShareInfo
+            );
+
     }
 }

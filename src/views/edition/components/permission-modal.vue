@@ -138,7 +138,9 @@ export default class PermissionModal extends Vue {
     private waiting = false;
     private errorMessage = '';
 
-    public shown() {
+    public async shown() {
+        await this.editionService.stateManager.prepare.invitations(this.current.id);
+
         this.sharesRows = this.current!.shares.map(x => ({
             email: x.user.email,
             oldPermission: x.simplified,

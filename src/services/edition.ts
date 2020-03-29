@@ -7,7 +7,8 @@ import {
     EditionGroupDTO,
     InviteEditorDTO,
     PermissionDTO,
-    ShareDTO
+    ShareDTO,
+    AdminEditorRequestListDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -162,6 +163,12 @@ class EditionService {
     public async confirmAddEditionEditor(token: string) {
         await CommHelper.post<any>(ApiRoutes.confirmAddEditionEditorUrl(token), null);
     }
+
+    public async getAllInvitations(): Promise<AdminEditorRequestListDTO> {
+        const response = await CommHelper.post<AdminEditorRequestListDTO>(ApiRoutes.listInvitationEditionUrl());
+        return response.data;
+    }
+
 }
 
 export default EditionService;

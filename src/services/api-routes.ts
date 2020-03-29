@@ -13,6 +13,7 @@ export namespace ApiRoutes {
     const confirmRegistration = 'confirm-registration';
     const optionalArtefact = 'optional=artefacts&optional=masks';
     const confirmAddEditionEditor = 'confirm-editorship';
+    const listInvitationEdition = 'admin-share-requests';
 
     export function allEditionsUrl() {
         return `${baseUrl}/${editions}`;
@@ -32,6 +33,10 @@ export namespace ApiRoutes {
 
     export function confirmAddEditionEditorUrl(token: string) {
         return `${baseUrl}/${editions}/${confirmAddEditionEditor}/${token}`;
+    }
+
+    export function listInvitationEditionUrl() {
+        return `${baseUrl}/${editions}/${listInvitationEdition}}`;
     }
 
     export function allEditionArtefactsUrl(editionId: number, option: boolean = false) {
