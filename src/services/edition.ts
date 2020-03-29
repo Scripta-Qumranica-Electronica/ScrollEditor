@@ -165,7 +165,7 @@ class EditionService {
     }
 
     public async getAllInvitations(): Promise<AdminEditorRequestListDTO> {
-        const response = await CommHelper.post<AdminEditorRequestListDTO>(ApiRoutes.listInvitationEditionUrl());
+        const response = await CommHelper.get<AdminEditorRequestListDTO>(ApiRoutes.listInvitationEditionUrl());
         return response.data;
     }
 

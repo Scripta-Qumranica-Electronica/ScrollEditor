@@ -311,11 +311,13 @@ export default class StateService {
         }
 
         const editionInvitations = allInvitations.editorRequests.filter(
-                (i: AdminEditorRequestDTO) => i.editionId === edition.id
-            );
+            (i: AdminEditorRequestDTO) => i.editionId === edition.id
+        );
         edition.invitations = editionInvitations.map(
-                (x: AdminEditorRequestDTO) => ({ user: { email: x.editorEmail }, permissions: { isAdmin: x.isAdmin, mayWrite: x.mayWrite } }) as ShareInfo
-            );
-
+            (x: AdminEditorRequestDTO) => ({
+                user: { email: x.editorEmail },
+                permissions: { isAdmin: x.isAdmin, mayWrite: x.mayWrite }
+            }) as ShareInfo
+        );
     }
 }
