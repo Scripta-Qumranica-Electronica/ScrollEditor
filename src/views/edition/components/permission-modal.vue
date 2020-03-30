@@ -151,8 +151,8 @@ export default class PermissionModal extends Vue {
 
         this.invitationsRows = this.current!.invitations.map(x => ({
             email: x.user.email,
-            oldPermission: x.simplified,
-            permission: x.simplified,
+            oldPermission: x.permissions.simplified,
+            permission: x.permissions.simplified,
             buttonText: 'Resend'
         }));
     }

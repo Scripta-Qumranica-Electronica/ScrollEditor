@@ -7,7 +7,7 @@ import ImageService from '@/services/image';
 import TextService from '@/services/text';
 import { SignalRWrapper } from './signalr-connection';
 import { NotificationHandler } from './notification-handler';
-import { ShareInfo } from '@/models/edition';
+import { ShareInfo, Permissions } from '@/models/edition';
 import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
 
 /*
@@ -316,7 +316,7 @@ export default class StateService {
         edition.invitations = editionInvitations.map(
             (x: AdminEditorRequestDTO) => ({
                 user: { email: x.editorEmail },
-                permissions: { isAdmin: x.isAdmin, mayWrite: x.mayWrite }
+                permissions: new Permissions({ isAdmin: x.isAdmin, mayWrite: x.mayWrite })
             }) as ShareInfo
         );
     }
