@@ -76,6 +76,7 @@ export interface InviteEditorDTO extends MinimalEditorRights {
 
 export interface DetailedEditorRightsDTO extends UpdateEditorRightsDTO {
     email: string;
+    editionId: number;
 }
 
 export interface DetailedUpdateEditorRightsDTO extends UpdateEditorRightsDTO {
@@ -396,6 +397,7 @@ export interface DetailedUserTokenDTO extends DetailedUserDTO {
     token: string;
 }
 export interface EditorDTO {
+    email: string;
     forename: string;
     surname: string;
     organization: string;
