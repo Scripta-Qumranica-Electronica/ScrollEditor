@@ -259,7 +259,6 @@ export default class BoundaryDrawer extends Vue {
         const polygon = new Polygon(svg);
 
         if (polygon.isLegal()) {
-            console.log(polygon, 'elgal');
             this.newPolygon(polygon);
         } else {
             try {
@@ -267,7 +266,6 @@ export default class BoundaryDrawer extends Vue {
                 const fixedPolygon = await this.utilsService.repairPolygon(
                     polygon
                 );
-                console.log(fixedPolygon, 'fixedPolygon');
                 this.newPolygon(fixedPolygon);
             } catch (e) {
                 this.$toasted.show('Error trying to repair polygon..', {
