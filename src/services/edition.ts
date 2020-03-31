@@ -157,9 +157,11 @@ class EditionService {
         }
 
     }
+
     public async updateInvitation(editionId: number, email: string, permission: SimplifiedPermission) {
         await this.inviteEditor(editionId, email, permission);
     }
+
     public async confirmAddEditionEditor(token: string) {
         await CommHelper.post<any>(ApiRoutes.confirmAddEditionEditorUrl(token), null);
     }

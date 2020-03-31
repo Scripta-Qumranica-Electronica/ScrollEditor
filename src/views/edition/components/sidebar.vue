@@ -176,7 +176,6 @@ export default Vue.extend({
 
     methods: {
         openPermissionModal() {
-            console.log('dw');
             this.$root.$emit('bv::show::modal', 'permissionModal');
         },
 
