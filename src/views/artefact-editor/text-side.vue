@@ -105,12 +105,10 @@ export default class TextSide extends Vue {
     }
 
     private get dropdownTextFragmentsData() {
-        console.log(this.allTextFragmentsData, 'dropDown');
         return this.allTextFragmentsData.filter(x => !x.certain);
     }
 
     private get displayedTextFragmentsData() {
-        console.log(this.allTextFragmentsData, 'dropDown');
         return this.allTextFragmentsData.filter(x => x.certain);
     }
 
@@ -175,8 +173,6 @@ export default class TextSide extends Vue {
             const tf = this.$state.textFragments.get(textFragmentData.id);
 
             if (tf) {
-                console.log(textFragmentData.id, 'textFragmentData');
-
                 this.displayedTextFragments = [
                     tf,
                     ...this.displayedTextFragments

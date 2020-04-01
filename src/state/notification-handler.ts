@@ -58,14 +58,12 @@ export class NotificationHandler {
     }
 
     public handleUpdatedArtefact(artefact: ArtefactDTO): void {
-        console.debug('handleUpdatedArtefact ', artefact);
         const changed = new Artefact(artefact);
         state().artefacts.update(changed, false);
 
         if (state().imagedObjects.current?.id === artefact.imagedObjectId) {
             // Updates of array elements do not cause a refresh, we need
             updateInArray(changed, state().imagedObjects.current?.artefacts);
-            console.debug('Updated artefacts of current imagedObject: ', state().imagedObjects.current?.artefacts);
         }
     }
 

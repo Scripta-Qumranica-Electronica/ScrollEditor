@@ -31,7 +31,6 @@ export class SignalRWrapper {
     }
 
     public async subscribeEdition(editionId: number) {
-        console.debug('SignalR subscribeEdition called, current status ', this._status);
         if (this._subscribedEditionId === editionId) {
             return;
         }
@@ -45,23 +44,19 @@ export class SignalRWrapper {
         }
 
         await this._utils!.subscribeToEdition(editionId);
-        console.debug('SubscribeToEdition called');
         this._subscribedEditionId = editionId;
     }
 
     public async unsubscribeEdition() {
-        console.debug('SignalR unsubscribeEdition, status is ', this._status);
         if (this._status !== 'connected' || !this._subscribedEditionId) {
             return;
         }
 
         await this._utils!.unsubscribeToEdition(this._subscribedEditionId);
-        console.debug('UnsubscribeToEdition called');
         this._subscribedEditionId = undefined;
     }
 
     public async userChanged() {
-        console.debug('SignalR changing users');
         const subscribed = this._subscribedEditionId;
         await this.disconnect();
         await this.connect();
@@ -108,7 +103,6 @@ export class SignalRWrapper {
     }
 
     private async connect() {
-        console.debug('SignalR connect called, current status ', this._status);
         if (this._connection) {
             this._connection.stop();
         }
@@ -129,7 +123,6 @@ export class SignalRWrapper {
             if (this._currentHandler) {
                 this.connectHandler();
             }
-            console.debug('SignalR connection opened, status is ', this._status);
         } catch (error) {
             console.error("Can't connect to SignalR", error);
             this._status = 'closed';
@@ -140,7 +133,6 @@ export class SignalRWrapper {
         // Note that when removing a listener you must pass a reference to the function
         // the listener was originally created with. You cannot use an anonymous function
         // that happens to do the ssame thing as the (anonymous) function passed in.
-        console.debug('SignalR disconnect called, current status ', this._status);
 
         if (this._status === 'connected') {
             this._status = 'closing';
@@ -152,7 +144,6 @@ export class SignalRWrapper {
     }
 
     private onConnectionClosed(error?: Error) {
-        console.debug('SignalR onConnectionClosed called ', error);
         if (this._status !== 'closing') {
             console.warn('SignalR connection closed unexpectedly', error);
         }

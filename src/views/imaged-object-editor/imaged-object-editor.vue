@@ -396,7 +396,6 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onNewZoom(event: ZoomEventArgs) {
-        console.log(`imaged-object-editor setting zoom to ${event.zoom}`);
         this.params.zoom = event.zoom;
     }
 
@@ -536,7 +535,6 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onArtefactChanged(art: Artefact) {
-        console.log(`onArtefactChanged to ${art.name} (${art.id})`);
         this.artefact = art;
         const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         this.artefactEditingData = this.getArtefactEditingData(index);

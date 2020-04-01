@@ -14,11 +14,17 @@
  * Otherwise, we just add each point to the string
  * unaltered.
  */
-export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
-  let svg: any;
-  if (!wkt || wkt.wkt === '') {
+export function wktPolygonToSvg(wkt: string , boundingRect?: any) {
+  let svg = '';
+  if (!wkt || wkt === '') {
     return '';
   }
+
+  // Sometimes wkt polygons have some spaces in them, which we need to remove.
+  // TODO: Switch to jsts for all polygon handling, instead of this code
+  wkt = wkt.replace('POLYGON ((', 'POLYGON((');  // Trailing space after POLYGON
+  wkt = wkt.replace(/,\s/g, ','); // Space between numbers
+
   if (wkt.substring(0, 9) === 'POLYGON((') {
     const polygonInitRegex = /POLYGON/g;
     const parenInitRegex = /\(/g;
@@ -74,6 +80,7 @@ export function wktPolygonToSvg(wkt: any , boundingRect?: any) {
       svg += currentPolygonSVG.substring(1);
     });
   }
+
   return svg;
 }
 
