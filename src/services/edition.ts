@@ -8,7 +8,9 @@ import {
     InviteEditorDTO,
     PermissionDTO,
     ShareDTO,
-    AdminEditorRequestListDTO
+    AdminEditorRequestListDTO,
+    UpdateEditorRightsDTO,
+    DetailedEditorRightsDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -164,6 +166,36 @@ class EditionService {
 
     public async confirmAddEditionEditor(token: string) {
         await CommHelper.post<any>(ApiRoutes.confirmAddEditionEditorUrl(token), null);
+    }
+
+    public async updateSharePermissions(editionId: number, email: string, permission: SimplifiedPermission) {
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+        const share = edition.shares.find(sh => sh.user.email === email);
+        if (!share) {
+            throw new Error(`Can't find share for user ${email} in edition ${editionId}`);
+        }
+
+        const url = ApiRoutes.editionUpdateEditor(editionId, email);
+
+        const dto = Permissions.extractPermission(permission);
+
+        const response = await CommHelper.put<DetailedEditorRightsDTO>(url, dto);
+
+        if (response.data.mayRead) {
+            share.permissions = new Permissions(response.data);
+        } else {
+            // share has been revoked
+            const index = edition.shares.findIndex(sh => sh.user.email === email);
+            if (index === -1) {
+                // This is possible and needs to be tested. Anyway this is not a bug and the user should not be aware.
+                console.warn('Share was already removed from edition, perhaps through SignalR?');
+            } else {
+                edition.shares.splice(index, 1);
+            }
+        }
     }
 
     public async getAllInvitations(): Promise<AdminEditorRequestListDTO> {

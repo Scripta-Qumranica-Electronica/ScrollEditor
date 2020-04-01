@@ -35,6 +35,10 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${confirmAddEditionEditor}/${token}`;
     }
 
+    export function editionUpdateEditor(editionId: number, email: string) {
+        return `${baseUrl}/${editions}/${editionId}/editors/${email}`;
+    }
+
     export function listInvitationEditionUrl() {
         return `${baseUrl}/${editions}/${listInvitationEdition}`;
     }
