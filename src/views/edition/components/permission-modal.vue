@@ -48,7 +48,7 @@
                             <div class="row">
                                 <span class="col-6">{{share.email}}</span>
                                 <b-form-select
-                                    :disabled="share.oldPermission === 'admin'"
+                                    :disabled="share.disableRow || waiting"
                                     @change="setRowShareStatus(share)"
                                     size="sm"
                                     class="col-4"
@@ -66,7 +66,7 @@
                                     class="ml-2"
                                     variant="success"
                                     @click="update(share)"
-                                    :disabled="share.disableButton || waiting"
+                                    :disabled="share.disableButton || share.disableRow|| waiting"
                                 >{{share.buttonText}}</b-button>
                             </div>
                         </b-list-group-item>
@@ -82,6 +82,7 @@
                             <div class="row">
                                 <span class="col-6">{{invit.email}}</span>
                                 <b-form-select
+                                    :disabled="invit.disableRow || invit.disableButton || waiting"
                                     @change="setRowInvitStatus(invit)"
                                     size="sm"
                                     class="col-4"
@@ -99,6 +100,7 @@
                                     class="ml-2"
                                     variant="success"
                                     @click="update(invit)"
+                                    :disabled="invit.disableButton || waiting"
                                 >{{invit.buttonText}}</b-button>
                             </div>
                         </b-list-group-item>
@@ -119,10 +121,12 @@ import { BvModalEvent } from 'bootstrap-vue';
 
 interface ShareRow {
     email: string;
+    type: 'invitation' | 'share';
     oldPermission: SimplifiedPermission;
     permission: SimplifiedPermission;
     buttonText?: string;
-    disableButton?: boolean;
+    disableButton: boolean;
+    disableRow: boolean;
 }
 @Component({
     name: 'permission-modal',
@@ -141,20 +145,8 @@ export default class PermissionModal extends Vue {
     public async shown() {
         await this.editionService.stateManager.prepare.invitations(this.current.id);
 
-        this.sharesRows = this.current!.shares.map(x => ({
-            email: x.user.email,
-            oldPermission: x.simplified,
-            permission: x.simplified,
-            buttonText: 'Update',
-            disableButton: true
-        }));
-
-        this.invitationsRows = this.current!.invitations.map(x => ({
-            email: x.user.email,
-            oldPermission: x.permissions.simplified,
-            permission: x.permissions.simplified,
-            buttonText: 'Resend'
-        }));
+        this.fillShareRows(this.current!.shares);
+        this.fillInvitationRows(this.current!.invitations);
     }
 
     public get current(): EditionInfo {
@@ -162,11 +154,15 @@ export default class PermissionModal extends Vue {
     }
 
     public update(share: ShareRow) {
-        this.editionService.updateInvitation(
-            this.current!.id,
-            share.email,
-            share.permission
-        );
+        if (share.type === 'invitation') {
+            this.editionService.updateInvitation(
+                this.current!.id,
+                share.email,
+                share.permission
+            );
+        } else if (share.type === 'share') {
+            this.editionService.updateSharePermissions(this.current!.id, share.email, share.permission);
+        }
     }
     public async invite() {
         try {
@@ -187,6 +183,11 @@ export default class PermissionModal extends Vue {
     }
 
     public setRowShareStatus(row: ShareRow) {
+        if (row.email === this.$state.session.user!.email) {
+            row.disableRow = true;
+            return;
+        }
+        row.disableRow = false;
         if (row.permission !== row.oldPermission) {
             row.buttonText = 'Update';
             row.disableButton = false;
@@ -199,6 +200,7 @@ export default class PermissionModal extends Vue {
     }
 
     public setRowInvitStatus(row: ShareRow) {
+        row.disableRow = false;
         if (row.permission !== row.oldPermission) {
             row.buttonText = 'Update';
         } else {
@@ -215,12 +217,48 @@ export default class PermissionModal extends Vue {
 
     @Watch('invitationList')
     private onInvitationsChange(newInvitations: ShareInfo[]) {
+        this.fillInvitationRows(newInvitations);
+    }
+
+    private get shareList() {
+        return this.current.shares;
+    }
+
+    @Watch('shareList')
+    private onSharesChange(newShares: ShareInfo[]) {
+        this.fillShareRows(newShares);
+    }
+
+    private fillInvitationRows(invitations: ShareInfo[]) {
         this.invitationsRows = this.current!.invitations.map(x => ({
             email: x.user.email,
             oldPermission: x.simplified,
             permission: x.simplified,
-            buttonText: 'Resend'
+            buttonText: 'Resend',
+            type: 'invitation',
+            disableRow: false,
+            disableButton: false,
         }));
+
+        for (const row of this.invitationsRows) {
+            this.setRowInvitStatus(row);
+        }
+    }
+
+    private fillShareRows(shares: ShareInfo[]) {
+        this.sharesRows = this.current!.shares.map(x => ({
+            email: x.user.email,
+            oldPermission: x.simplified,
+            permission: x.simplified,
+            buttonText: 'Update',
+            disableRow: false,
+            disableButton: false,
+            type: 'share',
+        }));
+
+        for (const row of this.sharesRows) {
+            this.setRowShareStatus(row);
+        }
     }
 }
 </script>
