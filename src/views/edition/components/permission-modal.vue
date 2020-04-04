@@ -153,16 +153,25 @@ export default class PermissionModal extends Vue {
         return this.$state.editions.current!;
     }
 
-    public update(share: ShareRow) {
+    public async update(share: ShareRow) {
+        let msg = '';
         if (share.type === 'invitation') {
-            this.editionService.updateInvitation(
+            await this.editionService.updateInvitation(
                 this.current!.id,
                 share.email,
                 share.permission
             );
+            msg =`Invitation sent to ${share.email}`;
         } else if (share.type === 'share') {
-            this.editionService.updateSharePermissions(this.current!.id, share.email, share.permission);
+            await this.editionService.updateSharePermissions(this.current!.id, share.email, share.permission);
+            msg = `Permissions of ${share.email} updated`;
         }
+
+        this.$toasted.show(msg, {
+            type: 'info',
+            position: 'top-right',
+            duration: 5000,
+        });
     }
     public async invite() {
         try {
