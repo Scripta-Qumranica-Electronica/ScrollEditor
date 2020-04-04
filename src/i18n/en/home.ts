@@ -23,5 +23,6 @@ export default {
     filterArtefacts: 'Filter Artefacts',
     both: 'Both',
     editorParameters: 'Editor Parameters',
-    lock: 'Read Only'
+    lock: 'Read Only',
+    shared: 'Shared'
 };

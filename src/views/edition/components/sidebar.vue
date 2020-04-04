@@ -7,6 +7,7 @@
                     class="badge badge-success"
                     v-if="isNew"
                 >{{ $t('misc.new') }}</span>
+                <edition-icons :edition="edition" :show-text="false" />
             </h5>
 
             <b-btn
@@ -24,10 +25,6 @@
         </div>
 
         <b-nav vertical>
-            <label v-if="readOnly">
-                <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i>
-                {{ $t('home.lock') }}
-            </label>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
                 <router-link
@@ -110,11 +107,14 @@ import Vue, { PropOptions } from 'vue';
 import { EditionInfo, ShareInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
-import permissionModal from './permission-modal.vue';
+import PermissionModal from './permission-modal.vue';
+import EditionIcons from '@/components/cues/edition-icons.vue';
+
 export default Vue.extend({
     name: 'edition-ver-sidebar',
     components: {
-        permissionModal
+        PermissionModal,
+        EditionIcons,
     },
     props: {
         page: String
@@ -159,6 +159,9 @@ export default Vue.extend({
                 return this.$state.imagedObjects.items.length;
             }
             return 0;
+        },
+        edition(): EditionInfo {
+            return this.$state.editions.current!;
         },
         artefacts(): number {
             if (this.$state.imagedObjects.items) {

@@ -41,9 +41,7 @@
                 >
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
-                        <label v-if="readOnly">
-                            <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> {{ $t('home.lock') }} 
-                        </label>
+                        <edition-icons :edition="edition" :show-text="true" />
                         <sign-wheel
                             v-if="selectedSignInterpretation"
                             :line="selectedLine"
@@ -222,6 +220,8 @@ import Zoomer, {
 } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
 import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
+import EditionIcons from '@/components/cues/edition-icons.vue';
+import { EditionInfo } from '../../models/edition';
 
 @Component({
     name: 'artefact-editor',
@@ -234,7 +234,8 @@ import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
         'zoomer': Zoomer,
-        'sign-wheel': SignWheel
+        'sign-wheel': SignWheel,
+        'edition-icons': EditionIcons,
     }
 })
 export default class ArtefactEditor extends Vue {
@@ -313,8 +314,9 @@ export default class ArtefactEditor extends Vue {
 
         setTimeout(() => this.setFirstZoom(), 0);
     }
-    private get readOnly(): boolean {
-        return this.$state.editions.current!.permission.readOnly;
+
+    private get edition(): EditionInfo {
+        return this.$state.editions.current!;
     }
     private get imagedObject(): ImagedObject {
         return this.$state.imagedObjects.current!;
@@ -327,6 +329,9 @@ export default class ArtefactEditor extends Vue {
     }
     private get angle(): number {
         return this.params.rotationAngle;
+    }
+    private get readOnly(): boolean {
+        return this.edition.permission.readOnly;
     }
     // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
     // On tablet screen - Active means opened.

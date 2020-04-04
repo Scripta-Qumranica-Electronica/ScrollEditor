@@ -17,12 +17,10 @@
         </router-link>
         <div class="card-body">
             <router-link tag="div" :to="{  path:`/editions/${edition.id}` }">
-                <h5 class="cart-title">{{ edition.name }} <i
-                    v-if="lockEdition"
-                    v-b-tooltip.hover.bottom
-                    :title="$t('home.lock')"
-                    class="fa fa-lock"
-                ></i></h5>
+                <h5 class="cart-title">
+                    {{ edition.name }}
+                    <edition-icons :edition="edition"/>
+                </h5>
                 
                 <!--  <p v-if="shareCount">
           <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
@@ -37,9 +35,11 @@
 <script lang="ts">
 import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
-    name: 'edition-version-card'
+    name: 'edition-version-card',
+    components: { 'edition-icons': EditionIcons },
 })
 export default class EditionVersionCard extends Vue {
     @Prop() public edition!: EditionInfo;
