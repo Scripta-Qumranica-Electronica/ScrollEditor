@@ -301,7 +301,7 @@ $crosshair2: url('/assets/cursors/crosshair2.svg'), crosshair;
         cursor: wait;
         rect {
             fill: #f8f9fa !important;
-            opacity: 0.8;
+            opacity: 0.1;
         }
     }
 }
