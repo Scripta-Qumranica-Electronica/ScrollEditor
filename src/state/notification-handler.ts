@@ -15,6 +15,7 @@ import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
 import { updateInArray, removeFromArray, addToArray } from '@/utils/collection-utils';
 import { InterpretationRoi } from '@/models/text';
+import Vue from 'vue';
 
 /* This file contains the implementation of all the incoming events from SignalR */
 
@@ -106,12 +107,13 @@ export class NotificationHandler {
         const edition = state().editions.find(dto.editionId);
         if (edition) {
             const shareIndex = edition.shares.findIndex(s => s.email === dto.email);
-            if (shareIndex !== -1) {
-                edition.shares.splice(shareIndex, 1);
-            }
-
             const newShare = ShareInfo.fromDTO(dto);
-            edition.shares.push(newShare);
+
+            if (shareIndex > -1) {
+                Vue.set(edition.shares, shareIndex, newShare);
+            } else {
+                edition.shares.push(newShare);
+            }
 
             // We also need to update our own permissions if the changed editor is the current logged in user
             if (dto.email === state().session?.user?.email) {

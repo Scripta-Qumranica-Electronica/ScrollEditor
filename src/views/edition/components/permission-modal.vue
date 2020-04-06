@@ -153,6 +153,10 @@ export default class PermissionModal extends Vue {
         return this.$state.editions.current!;
     }
 
+    public get isAdmin(): boolean {
+        return this.current.permission.isAdmin;
+    }
+
     public async update(share: ShareRow) {
         let msg = '';
         if (share.type === 'invitation') {
