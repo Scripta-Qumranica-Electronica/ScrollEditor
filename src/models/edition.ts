@@ -1,6 +1,6 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO } from '@/dtos/sqe-dtos';
-import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO } from '@/dtos/sqe-dtos';
+import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
 type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
@@ -71,12 +71,17 @@ class Permissions {
 }
 
 class ShareInfo {
-    public user: UserInfo;
+    public static fromDTO(dto: DetailedEditorRightsDTO) {
+        return new ShareInfo(dto.email, new Permissions(dto));
+    }
+
+    public email: string;
     public permissions: Permissions;
 
-    constructor(dto: ShareDTO) {
-        this.user = new UserInfo(dto.user);
-        this.permissions = new Permissions(dto.permission);
+
+    public constructor(email: string, permissions: Permissions) {
+        this.email = email;
+        this.permissions = permissions;
     }
 
     public get simplified(): SimplifiedPermission {
@@ -112,7 +117,7 @@ class EditionInfo {
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
+        this.shares = dto.shares ? dto.shares.map((s) => ShareInfo.fromDTO(s)) : [];
         this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;

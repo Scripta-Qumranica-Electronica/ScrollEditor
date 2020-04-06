@@ -240,7 +240,7 @@ export default class PermissionModal extends Vue {
 
     private fillInvitationRows(invitations: ShareInfo[]) {
         this.invitationsRows = this.current!.invitations.map(x => ({
-            email: x.user.email,
+            email: x.email,
             oldPermission: x.simplified,
             permission: x.simplified,
             buttonText: 'Resend',
@@ -256,7 +256,7 @@ export default class PermissionModal extends Vue {
 
     private fillShareRows(shares: ShareInfo[]) {
         this.sharesRows = this.current!.shares.map(x => ({
-            email: x.user.email,
+            email: x.email,
             oldPermission: x.simplified,
             permission: x.simplified,
             buttonText: 'Update',
@@ -264,7 +264,6 @@ export default class PermissionModal extends Vue {
             disableButton: false,
             type: 'share',
         }));
-        console.debug('shareRows: ', this.sharesRows);
 
         for (const row of this.sharesRows) {
             this.setRowShareStatus(row);

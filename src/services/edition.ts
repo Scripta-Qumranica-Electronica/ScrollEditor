@@ -7,7 +7,6 @@ import {
     EditionGroupDTO,
     InviteEditorDTO,
     PermissionDTO,
-    ShareDTO,
     AdminEditorRequestListDTO,
     UpdateEditorRightsDTO,
     DetailedEditorRightsDTO
@@ -140,7 +139,7 @@ class EditionService {
 
         // Step 4: update the edition to include the new invitation - if there is already an
         // invitation for this editor, overwrite it instead of adding the same one.
-        const invitationIdx = edition.invitations.findIndex(i => i.user.email === email);
+        const invitationIdx = edition.invitations.findIndex(i => i.email === email);
         const permissionsDTO = new Permissions({
             mayWrite: rights.mayWrite,
             isAdmin: rights.isAdmin,
@@ -155,10 +154,7 @@ class EditionService {
                     [...edition.invitations.slice(0, invitationIdx), ...edition.invitations.slice(invitationIdx + 1)];
             }
         } else {
-            const newInvitation = new ShareInfo({
-                user: new UserInfo({ email, userId: 0 }),
-                permission: new Permissions(permissionsDTO)
-            } as ShareDTO);
+            const newInvitation = new ShareInfo(email, new Permissions(permissionsDTO));
             edition.invitations = [...edition.invitations, newInvitation];
         }
 
@@ -177,7 +173,7 @@ class EditionService {
         if (!edition) {
             throw new Error(`Can't find non-existing edition ${editionId}`);
         }
-        const share = edition.shares.find(sh => sh.user.email === email);
+        const share = edition.shares.find(sh => sh.email === email);
         if (!share) {
             throw new Error(`Can't find share for user ${email} in edition ${editionId}`);
         }

@@ -83,6 +83,7 @@ export class SignalRWrapper {
             this._utils.disconnectUpdatedRoi(this._currentHandler.handleUpdatedRoi);
             this._utils.disconnectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
             this._utils.disconnectDeletedRoi(this._currentHandler.handleDeletedRoi);
+            this._utils.disconnectCreatedEditor(this._currentHandler.handleCreatedEditor);
         }
         this._currentHandler = undefined;
     }
@@ -99,6 +100,7 @@ export class SignalRWrapper {
             this._utils.connectUpdatedRoi(this._currentHandler.handleUpdatedRoi);
             this._utils.connectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
             this._utils.connectDeletedRoi(this._currentHandler.handleDeletedRoi);
+            this._utils.connectCreatedEditor(this._currentHandler.handleCreatedEditor);
         }
     }
 

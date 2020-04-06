@@ -8,8 +8,9 @@ import {
     UpdatedInterpretationRoiDTO,
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
+    DetailedEditorRightsDTO,
 } from '@/dtos/sqe-dtos';
-import { EditionInfo } from '@/models/edition';
+import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
 import { updateInArray, removeFromArray, addToArray } from '@/utils/collection-utils';
@@ -98,6 +99,24 @@ export class NotificationHandler {
         for (const roiId of dto.ids) {
             handleDeletedRoi(roiId);
             notifyRoiChanged();
+        }
+    }
+
+    public handleCreatedEditor(dto: DetailedEditorRightsDTO): void {
+        const edition = state().editions.find(dto.editionId);
+        if (edition) {
+            const shareIndex = edition.shares.findIndex(s => s.email === dto.email);
+            if (shareIndex !== -1) {
+                edition.shares.splice(shareIndex, 1);
+            }
+
+            const newShare = ShareInfo.fromDTO(dto);
+            edition.shares.push(newShare);
+
+            // We also need to update our own permissions if the changed editor is the current logged in user
+            if (dto.email === state().session?.user?.email) {
+                edition.permission = new Permissions(dto);
+            }
         }
     }
 }

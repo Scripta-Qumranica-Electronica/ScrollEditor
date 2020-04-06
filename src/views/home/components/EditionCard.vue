@@ -74,7 +74,7 @@ export default class EditionVersionCard extends Vue {
     }
 
     private get shareNames(): string {
-        const names = this.edition.shares.map(share => share.user.forename);
+        const names = this.edition.shares.map(share => share.email);
         return names.join(', ');
     }
 }

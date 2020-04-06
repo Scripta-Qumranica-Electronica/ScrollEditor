@@ -42,7 +42,7 @@ export interface EditionDTO {
     permission: PermissionDTO;
     owner: UserDTO;
     thumbnailUrl: string;
-    shares: ShareDTO[];
+    shares: DetailedEditorRightsDTO[];
     locked: boolean;
     isPublic: boolean;
     lastEdit: string;
@@ -112,11 +112,6 @@ export interface TextEditionDTO {
     licence: string;
     editors: { [key: string] : EditorDTO };
     textFragments: TextFragmentDTO[];
-}
-
-export interface ShareDTO {
-    user: UserDTO;
-    permission: PermissionDTO;
 }
 export interface DeleteTokenDTO {
     editionId: number;
