@@ -25,7 +25,8 @@ export default class EditionIcons extends Vue {
     }
 
     private get shared() {
-        return this.edition.shares.length > 1;
+        // Some shares have no read permission, which means they have been revoked.
+        return this.edition.shares.filter(share => share.permissions.mayRead).length > 1;
     }
 }
 </script>

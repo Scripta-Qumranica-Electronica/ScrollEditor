@@ -316,7 +316,7 @@ export default class StateService {
         edition.invitations = editionInvitations.map(
             (x: AdminEditorRequestDTO) => ({
                 user: { email: x.editorEmail },
-                permissions: new Permissions({ isAdmin: x.isAdmin, mayWrite: x.mayWrite })
+                permissions: new Permissions({ isAdmin: x.isAdmin, mayWrite: x.mayWrite, mayRead: x.mayRead }),
             }) as ShareInfo
         );
     }

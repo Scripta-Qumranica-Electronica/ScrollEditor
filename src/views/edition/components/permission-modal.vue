@@ -161,7 +161,7 @@ export default class PermissionModal extends Vue {
                 share.email,
                 share.permission
             );
-            msg =`Invitation sent to ${share.email}`;
+            msg = `Invitation sent to ${share.email}`;
         } else if (share.type === 'share') {
             await this.editionService.updateSharePermissions(this.current!.id, share.email, share.permission);
             msg = `Permissions of ${share.email} updated`;
@@ -264,6 +264,7 @@ export default class PermissionModal extends Vue {
             disableButton: false,
             type: 'share',
         }));
+        console.debug('shareRows: ', this.sharesRows);
 
         for (const row of this.sharesRows) {
             this.setRowShareStatus(row);

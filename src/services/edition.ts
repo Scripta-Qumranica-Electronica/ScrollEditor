@@ -141,7 +141,11 @@ class EditionService {
         // Step 4: update the edition to include the new invitation - if there is already an
         // invitation for this editor, overwrite it instead of adding the same one.
         const invitationIdx = edition.invitations.findIndex(i => i.user.email === email);
-        const permissionsDTO = new Permissions({ mayWrite: rights.mayWrite, isAdmin: rights.isAdmin } as PermissionDTO);
+        const permissionsDTO = new Permissions({
+            mayWrite: rights.mayWrite,
+            isAdmin: rights.isAdmin,
+            mayRead: rights.mayRead
+        } as PermissionDTO);
         if (invitationIdx > -1) {
             edition.invitations[invitationIdx].permissions = new Permissions(permissionsDTO);
 
@@ -184,18 +188,8 @@ class EditionService {
 
         const response = await CommHelper.put<DetailedEditorRightsDTO>(url, dto);
 
-        if (response.data.mayRead) {
-            share.permissions = new Permissions(response.data);
-        } else {
-            // share has been revoked
-            const index = edition.shares.findIndex(sh => sh.user.email === email);
-            if (index === -1) {
-                // This is possible and needs to be tested. Anyway this is not a bug and the user should not be aware.
-                console.warn('Share was already removed from edition, perhaps through SignalR?');
-            } else {
-                edition.shares.splice(index, 1);
-            }
-        }
+        share.permissions = new Permissions(response.data);
+        edition.shares = [...edition.shares];
     }
 
     public async getAllInvitations(): Promise<AdminEditorRequestListDTO> {

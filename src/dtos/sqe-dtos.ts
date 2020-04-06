@@ -58,6 +58,7 @@ export interface EditionListDTO {
     editions: Array<EditionDTO>[];
 }
 export interface PermissionDTO {
+    mayRead: boolean;
     mayWrite: boolean;
     isAdmin: boolean;
 }

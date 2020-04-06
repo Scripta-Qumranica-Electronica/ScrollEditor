@@ -43,10 +43,12 @@ class Permissions {
 
     public mayWrite: boolean;
     public isAdmin: boolean;
+    public mayRead: boolean;
 
     constructor(dto: PermissionDTO) {
         this.mayWrite = dto.mayWrite;
         this.isAdmin = dto.isAdmin;
+        this.mayRead = dto.mayRead;
     }
 
     public get readOnly() {
@@ -60,7 +62,10 @@ class Permissions {
         if (this.mayWrite) {
             return 'write';
         }
-        return 'read';
+        if (this.mayRead) {
+            return 'read';
+        }
+        return 'none';
     }
 
 }
