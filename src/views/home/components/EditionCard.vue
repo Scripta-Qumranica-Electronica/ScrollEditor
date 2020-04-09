@@ -81,7 +81,7 @@ export default class EditionVersionCard extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../assets./styles/_variables.scss';
+@import '@/assets/styles/_variables.scss';
 .card:hover,
 .list-item .card:hover {
     transform: scale(0.95, 0.95);

@@ -5,8 +5,6 @@ import { TextFragmentData } from './text';
 
 type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
-
-
 class UserInfo { // TODO: add fields like UserDTO ?
     public email: string;
     public userId: number;

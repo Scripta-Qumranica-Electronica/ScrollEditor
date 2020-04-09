@@ -181,7 +181,6 @@ export default Vue.extend({
         openPermissionModal() {
             this.$root.$emit('bv::show::modal', 'permissionModal');
         },
-
         openRename() {
             this.renaming = true;
             this.newEditionName = this.current!.name;
