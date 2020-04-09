@@ -28,6 +28,6 @@ export default {
     activateUser: 'Utilisateur Activé',
     activate: 'Activer',
 
-    confirmInvitation: 'Comfirmation de  l\'invitation',
+    confirmInvitation: 'Confirmation de  l\'invitation',
     accept: 'Accepter'
 };

@@ -30,7 +30,6 @@ import Vue from 'vue';
 import ErrorService from '@/services/error';
 import router from '@/router';
 import {
-    ResetForgottenUserPasswordRequestDTO,
     DetailedUserDTO
 } from '@/dtos/sqe-dtos';
 import EditionService from '@/services/edition';
