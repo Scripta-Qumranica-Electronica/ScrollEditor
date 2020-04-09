@@ -973,6 +973,13 @@
   resolved "https://registry.yarnpkg.com/@types/js-clipper/-/js-clipper-0.0.28.tgz#88d263feff76c77649c021693e1cb9d7e1ec2ba7"
   integrity sha1-iNJj/v92x3ZJwCFpPhy51+HsK6c=
 
+"@types/jsts@^0.17.2":
+  version "0.17.2"
+  resolved "https://registry.yarnpkg.com/@types/jsts/-/jsts-0.17.2.tgz#0686864d3151255ffd0bd8dd3eb95f48fe655fe9"
+  integrity sha512-xGSBvyBTOJcNaanAxRasUGhw6GyraCpAXn9hMYruOEbl+jOXHDrlMsYjR5j0wYlJiaLdZi62w36C83uCWGTcxg==
+  dependencies:
+    "@types/openlayers" "*"
+
 "@types/mathjs@^4.4.5":
   version "4.4.5"
   resolved "https://registry.yarnpkg.com/@types/mathjs/-/mathjs-4.4.5.tgz#b28d46919c68b93bcabf0551729624b302af9b4b"
@@ -994,6 +1001,11 @@
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
+
+"@types/openlayers@*":
+  version "4.6.17"
+  resolved "https://registry.yarnpkg.com/@types/openlayers/-/openlayers-4.6.17.tgz#39a8dce631e284a26cf0958664509932e6cd7c7d"
+  integrity sha512-vCCV5MY3XRmHyED1ndHxXJ/5IpeA3pX9J6IKZnMY+uTerhYNfG7pM451dgS90tSkBBxszd8ETPrF5ggQ9mqwlA==
 
 "@types/q@^1.5.1":
   version "1.5.2"
@@ -5378,6 +5390,11 @@ jsprim@^1.2.2:
     extsprintf "1.3.0"
     json-schema "0.2.3"
     verror "1.10.0"
+
+jsts@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/jsts/-/jsts-2.1.0.tgz#6a724e9d38de8a69585f7ace09d87bf4bbda68e5"
+  integrity sha512-gxv7hw5FmXwoieHBNKyrl+DZVp1aaJbUPDgPRGf54y7owWoq75CWwL6VCmdKxt5jaMHh9CKOaG1u/WZJRUM5NA==
 
 killable@^1.0.1:
   version "1.0.1"

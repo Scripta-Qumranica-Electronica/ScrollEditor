@@ -7,6 +7,7 @@
                     class="badge badge-success"
                     v-if="isNew"
                 >{{ $t('misc.new') }}</span>
+                <edition-icons :edition="edition" :show-text="false" />
             </h5>
 
             <b-btn
@@ -24,10 +25,6 @@
         </div>
 
         <b-nav vertical>
-            <label v-if="readOnly">
-                <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i>
-                {{ $t('home.lock') }}
-            </label>
             <!-- TODO: add numOfArtefacts and numOfFragments -->
             <b-nav-item>
                 <router-link
@@ -59,9 +56,10 @@
                 v-b-modal.modal="'copyModal'"
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.copy') }}</b-btn>
+            <!-- v-b-modal.permissionModal -->
             <b-btn
                 v-if="isAdmin"
-                v-b-modal.modal="'permissionModal'"
+                @click="openPermissionModal()"
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
@@ -100,57 +98,35 @@
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
             </form>
         </b-modal>
-        <b-modal id="permissionModal" ref="permissionModalRef" ok-only>
-            <form>
-                <b-form-input v-model="email" placeholder="Enter user email"></b-form-input>
-                <b-button variant="primary" @click="invite">{{ $t('misc.invite') }}</b-button>
-                <b-list-group>
-                    <b-list-group-item
-                        v-for="share in current.shares"
-                        v-bind:key="share.user.userId"
-                    >
-                        {{share.user.email}}
-                        <b-form-select
-                            id="inline-form-custom-select-pref"
-                            :disabled=" share.permissions.permission === editionPermissionsEnum.ADMIN"
-                            :value="share.permissions.permission"
-                        >
-                            <option
-                                v-for="permission in editionPermissions"
-                                :value="editionPermissionsEnum[permission]"
-                                :key="permission"
-                            >{{editionPermissionsEnum[permission]}}</option>
-                        </b-form-select>
-                    </b-list-group-item>
-                </b-list-group>
-            </form>
-            <template v-slot:modal-footer="{ ok }">
-                <b-button size="sm" variant="success" @click="ok()">Save</b-button>
-            </template>
-        </b-modal>
+        <permission-modal></permission-modal>
     </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { EditionPermissions, EditionInfo, ShareInfo } from '@/models/edition';
+import { EditionInfo, ShareInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
+import PermissionModal from './permission-modal.vue';
+import EditionIcons from '@/components/cues/edition-icons.vue';
+
 export default Vue.extend({
     name: 'edition-ver-sidebar',
+    components: {
+        PermissionModal,
+        EditionIcons,
+    },
     props: {
         page: String
     },
     data() {
         return {
-            email: '',
             editionService: new EditionService(),
             newCopyName: '',
             waiting: false,
             errorMessage: '',
             newEditionName: '',
-            renaming: false,
-            editionPermissionsEnum: EditionPermissions
+            renaming: false
         };
     },
     computed: {
@@ -184,6 +160,9 @@ export default Vue.extend({
             }
             return 0;
         },
+        edition(): EditionInfo {
+            return this.$state.editions.current!;
+        },
         artefacts(): number {
             if (this.$state.imagedObjects.items) {
                 let artLen = 0;
@@ -195,14 +174,12 @@ export default Vue.extend({
                 return artLen;
             }
             return 0;
-        },
-        editionPermissions(): string[] {
-            return Object.keys(EditionPermissions);
         }
     },
+
     methods: {
-        invite() {
-            // Empty for now
+        openPermissionModal() {
+            this.$root.$emit('bv::show::modal', 'permissionModal');
         },
         openRename() {
             this.renaming = true;

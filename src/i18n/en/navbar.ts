@@ -26,5 +26,8 @@ export default {
     changeForgottenPassword: 'Change Forgotten Password',
 
     activateUser: 'Activate User',
-    activate: 'Activate'
+    activate: 'Activate',
+
+    confirmInvitation: 'Confirm Invitation',
+    accept: 'Accept'
 };

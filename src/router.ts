@@ -11,6 +11,7 @@ import ChangeForgottenPassword from './views/user/ChangeForgottenPassword.vue';
 import Activation from './views/user/Activation.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
+import ConfirmInvitation from './views/edition/components/confirm-invitation.vue';
 
 Vue.use(Router);
 
@@ -48,18 +49,22 @@ export default new Router({
       component: ArtefactEditor
     },
     {
+      path: '/accept-invitation/token/:token',
+      component: ConfirmInvitation,
+    },
+    {
       path: '/registration',
       component: Registration,
     },
     {
       path: '/changePassword',
       component: ChangePassword,
-      meta: {activeUserRoute: true}
+      meta: { activeUserRoute: true }
     },
     {
       path: '/updateUserDetails',
       component: UpdateUser,
-      meta: {activeUserRoute: true}
+      meta: { activeUserRoute: true }
     },
     {
       path: '/changeForgottenPassword/token/:token',
@@ -68,6 +73,6 @@ export default new Router({
     {
       path: '/activateUser/token/:token',
       component: Activation,
-    },
+    }
   ],
 });

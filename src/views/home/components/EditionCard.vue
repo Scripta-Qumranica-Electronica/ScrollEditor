@@ -17,13 +17,11 @@
         </router-link>
         <div class="card-body">
             <router-link tag="div" :to="{  path:`/editions/${edition.id}` }">
-                <h5 class="cart-title">{{ edition.name }}</h5>
-                <i
-                    v-if="lockEdition"
-                    v-b-tooltip.hover.bottom
-                    :title="$t('home.lock')"
-                    class="fa fa-lock"
-                ></i>
+                <h5 class="cart-title">
+                    {{ edition.name }}
+                    <edition-icons :edition="edition"/>
+                </h5>
+                
                 <!--  <p v-if="shareCount">
           <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
             <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
@@ -37,9 +35,11 @@
 <script lang="ts">
 import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
-    name: 'edition-version-card'
+    name: 'edition-version-card',
+    components: { 'edition-icons': EditionIcons },
 })
 export default class EditionVersionCard extends Vue {
     @Prop() public edition!: EditionInfo;
@@ -74,7 +74,7 @@ export default class EditionVersionCard extends Vue {
     }
 
     private get shareNames(): string {
-        const names = this.edition.shares.map(share => share.user.forename);
+        const names = this.edition.shares.map(share => share.email);
         return names.join(', ');
     }
 }
@@ -84,9 +84,9 @@ export default class EditionVersionCard extends Vue {
 @import '@/assets/styles/_variables.scss';
 .card:hover,
 .list-item .card:hover {
-    transform: scale(0.9, 0.9);
-    box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0),
-        -5px -5px 30px 15px rgba(0, 0, 0, 0.22);
+    transform: scale(0.95, 0.95);
+    box-shadow: 5px 5px 20px 5px rgba(0, 0, 0, 0),
+        -5px -5px 20px 5px rgba(0, 0, 0, 0.22);
 }
 img.card-img-top {
     display: block;

@@ -64,9 +64,10 @@
                 </div>
 
                 <div class="imaged-object-container" :class="{active: isActive}">
-                   <div class="readOnly"><label v-if="readOnly">
-                        <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock"></i> {{ $t('home.lock') }} 
-                    </label></div> 
+                    <div id="imaged-object-title">
+                        {{ imagedObject.id }}
+                        <edition-icons :edition="edition" :show-text="true" />
+                    </div>
 
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
                         <svg
@@ -138,6 +139,7 @@ import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { normalizeOpacity } from '@/components/image-settings/types';
 import { addToArray } from '@/utils/collection-utils';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
     name: 'imaged-object-editor',
@@ -147,7 +149,8 @@ import { addToArray } from '@/utils/collection-utils';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer
+        'zoomer': Zoomer,
+        'edition-icons': EditionIcons,
     }
 })
 export default class ImagedObjectEditor extends Vue {
@@ -210,10 +213,12 @@ export default class ImagedObjectEditor extends Vue {
         return parseInt(this.$route.params.editionId);
     }
 
+    private get edition() {
+        return this.$state.editions.current!;
+    }
+
     private get canEdit(): boolean {
-        return this.$state.editions.current
-            ? this.$state.editions.current.permission.mayWrite
-            : false;
+        return this.$state.editions.current?.permission.mayWrite || false;
     }
 
     private get actualWidth(): number {
@@ -396,7 +401,6 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onNewZoom(event: ZoomEventArgs) {
-        console.log(`imaged-object-editor setting zoom to ${event.zoom}`);
         this.params.zoom = event.zoom;
     }
 
@@ -536,7 +540,6 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onArtefactChanged(art: Artefact) {
-        console.log(`onArtefactChanged to ${art.name} (${art.id})`);
         this.artefact = art;
         const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         this.artefactEditingData = this.getArtefactEditingData(index);
@@ -702,6 +705,10 @@ export default class ImagedObjectEditor extends Vue {
     display: flex;
     align-items: stretch;
     perspective: 1500px;
+}
+
+#imaged-object-title {
+    margin-left: 80px;
 }
 
 #sidebar {
