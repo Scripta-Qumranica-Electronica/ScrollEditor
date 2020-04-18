@@ -186,7 +186,7 @@ export default Vue.extend({
             this.newEditionName = this.current!.name;
         },
         showMessage(msg: string, type: string = 'info') {
-            this.$toasted.show(msg, {
+            this.$toasted.show(this.$tc(msg), {
                 type,
                 position: 'top-right',
                 duration: 7000
@@ -237,9 +237,9 @@ export default Vue.extend({
                     this.current!.id,
                     newName
                 );
-                this.showMessage('edition renamed', 'success');
+                this.showMessage('toasts.editionSuccess', 'success');
             } catch (err) {
-                this.showMessage('edition rename failed', 'error');
+                this.showMessage('toasts.editionError', 'error');
             } finally {
                 this.renaming = false;
             }

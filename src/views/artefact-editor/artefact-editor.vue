@@ -608,12 +608,12 @@ export default class ArtefactEditor extends Vue {
             const appliedROIs = await this.saveROIs();
 
             if (!appliedRotation && !appliedROIs) {
-                this.showMessage('No changes to save', 'info');
+                this.showMessage('toasts.artefactInfo', 'info');
             } else {
-                this.showMessage('Artefact Saved', 'success');
+                this.showMessage('toasts.artefactSuccess', 'success');
             }
         } catch (e) {
-            this.showMessage('Saving Artefact Failed', 'error');
+            this.showMessage('toasts.artefactError', 'error');
         }
         this.saving = false;
     }
@@ -648,7 +648,7 @@ export default class ArtefactEditor extends Vue {
     }
 
     private showMessage(msg: string, type: string = 'info') {
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
             duration: 7000

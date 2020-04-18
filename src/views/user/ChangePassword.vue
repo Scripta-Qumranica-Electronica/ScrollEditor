@@ -80,7 +80,7 @@ export default Vue.extend({
         try {
           await this.sessionService.changePassword(data);
           router.push('/');
-          this.$toasted.show('Your password changed', {
+          this.$toasted.show(this.$tc('toasts.passwordChanged'), {
               type: 'info',
               position: 'top-right',
               duration: 7000

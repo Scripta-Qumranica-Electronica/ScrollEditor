@@ -123,7 +123,7 @@ export default Vue.extend({
                 const user = await this.sessionService.register(data);
                 router.push('/');
                 this.$toasted.show(
-                    'An activation link has been sent to your email',
+                   this.$tc('toasts.activationLink'),
                     {
                         type: 'info',
                         position: 'top-right',

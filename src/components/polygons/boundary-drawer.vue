@@ -20,6 +20,7 @@ import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
 import { Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 import UtilsService from '@/services/utils';
+import misc from '../../i18n/he/misc';
 export type ActionMode = 'select' | 'polygon' | 'box';
 type InternalMode =
     | 'before-polygon'
@@ -268,7 +269,7 @@ export default class BoundaryDrawer extends Vue {
                 );
                 this.newPolygon(fixedPolygon);
             } catch (e) {
-                this.$toasted.show('Error trying to repair polygon..', {
+                this.$toasted.show(this.$tc('toasts.repairPolygon'), {
                     type: 'error',
                     position: 'top-right',
                     duration: 3000

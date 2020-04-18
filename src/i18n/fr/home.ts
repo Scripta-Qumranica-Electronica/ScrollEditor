@@ -23,5 +23,7 @@ export default {
     filterArtefacts: "Filtre d'Artefacts",
     both: 'Recto et Verso',
     editorParameters: "Paramètres d'édition",
-    lock: 'Lecture seulement'
+    lock: 'Lecture seulement',
+    shared: 'Partagé',
+    admin: "Vos droits d'administrateur ont été révoqués"
 };

@@ -408,11 +408,11 @@ export default class ImagedObjectEditor extends Vue {
         this.saving = false;
 
         if (!savedFlag) {
-            this.showMessage('No changes detected');
+            this.showMessage('toasts.NoChangesDetected');
         } else if (errorFlag) {
-            this.showMessage('Imaged Object Save Failed', 'error');
+            this.showMessage('toasts.imagedObjectFailed', 'error');
         } else {
-            this.showMessage('Imaged Object Saved', 'success');
+            this.showMessage('toasts.imagedObjectSaved', 'success');
         }
     }
 
@@ -486,9 +486,9 @@ export default class ImagedObjectEditor extends Vue {
         try {
             this.artefactEditingData = new ArtefactEditingData();
             this.artefactEditingDataList.push(this.artefactEditingData);
-            this.showMessage('Artefact Created', 'success');
+            this.showMessage('toasts.artefactCreated', 'success');
         } catch (err) {
-            this.showMessage('Artefact creation failed', 'error');
+            this.showMessage('toasts.artefactCreatedFailed', 'error');
         } finally {
             this.saving = false;
         }
@@ -504,11 +504,11 @@ export default class ImagedObjectEditor extends Vue {
                 this.editionId,
                 this.artefact
             );
-            this.showMessage('Artefact renamed', 'success');
+            this.showMessage('toasts.artefactRenamed', 'success');
             // this.renameInputActive = {};
             this.inputRenameChanged(undefined);
         } catch (err) {
-            this.showMessage('Artefact rename failed', 'error');
+            this.showMessage('toasts.artefactRenameFailed', 'error');
         } finally {
             this.renaming = false;
         }
@@ -517,7 +517,7 @@ export default class ImagedObjectEditor extends Vue {
     private async onDeleteArtefact(art: Artefact) {
         try {
             await this.artefactService.deleteArtefact(art);
-            this.showMessage('Artefact deleted', 'success');
+            this.showMessage('toasts.artefactDeleted', 'success');
             const index = this.artefacts.indexOf(art);
             // this.artefacts.splice(index, 1);
             this.artefactEditingDataList.splice(index, 1);
@@ -531,7 +531,7 @@ export default class ImagedObjectEditor extends Vue {
             }
         } catch (err) {
             console.error(err);
-            this.showMessage('Delete artefact failed', 'error');
+            this.showMessage('toasts.deleteArtefactFailed', 'error');
         }
     }
 
@@ -568,7 +568,7 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private showMessage(msg: string, type: string = 'info') {
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
             duration: 7000
@@ -618,7 +618,7 @@ export default class ImagedObjectEditor extends Vue {
             this.nonSelectedMask
         );
         if (!intersection.empty) {
-            this.$toasted.show("Artefact can't overlap other artefacts", {
+            this.$toasted.show(this.$tc('toasts.artefactCantOverlap'), {
                 type: 'info',
                 position: 'top-center',
                 duration: 5000

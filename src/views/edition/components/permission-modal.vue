@@ -1,6 +1,7 @@
 <template>
     <div>
         <b-modal id="permissionModal" hide-footer @shown="shown">
+           <div v-if="isAdmin">
             <form>
                 <!-- editor invitation row -->
                 <b-list-group class="mb-3">
@@ -107,6 +108,8 @@
                     </b-list-group>
                 </b-card>
             </form>
+           </div>
+           <div v-if="!isAdmin" class="text-danger">{{$t(home.admin)}}</div>
         </b-modal>
     </div>
 </template>
@@ -165,13 +168,13 @@ export default class PermissionModal extends Vue {
                 share.email,
                 share.permission
             );
-            msg = `Invitation sent to ${share.email}`;
+            msg = 'toasts.invitationSent';
         } else if (share.type === 'share') {
             await this.editionService.updateSharePermissions(this.current!.id, share.email, share.permission);
-            msg = `Permissions of ${share.email} updated`;
+            msg = 'toasts.permissionsUpdated';
         }
 
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg, undefined, {email: share.email}), {
             type: 'info',
             position: 'top-right',
             duration: 5000,

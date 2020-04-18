@@ -24,5 +24,6 @@ export default {
     both: 'Both',
     editorParameters: 'Editor Parameters',
     lock: 'Read Only',
-    shared: 'Shared'
+    shared: 'Shared',
+    admin: 'Your Admin rights have been revoked'
 };
