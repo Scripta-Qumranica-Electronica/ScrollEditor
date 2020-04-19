@@ -190,6 +190,10 @@ class SignInterpretation {
             this.rois.splice(index, 1);
         }
     }
+
+    public get isReconstructed(): boolean {
+        return !!this.attributes.find(attr => attr.attributeValueString === 'is-reconstructed-true');
+    }
 }
 
 type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future

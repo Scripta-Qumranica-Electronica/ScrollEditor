@@ -1,7 +1,9 @@
 import { IIIFImage } from './image';
-import { UserDTO } from '@/dtos/sqe-dtos';
-import { PermissionDTO, ShareDTO, EditionDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO } from '@/dtos/sqe-dtos';
+import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
+
+type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
 class UserInfo { // TODO: add fields like UserDTO ?
     public email: string;
@@ -17,22 +19,71 @@ class UserInfo { // TODO: add fields like UserDTO ?
 }
 
 class Permissions {
+    public static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
+        const rights: UpdateEditorRightsDTO = {
+            mayRead: false,
+            mayWrite: false,
+            isAdmin: false,
+            mayLock: false
+        };
+
+        switch (simplified) {
+            case 'admin':
+                rights.mayLock = rights.isAdmin = true;
+            case 'write':
+                rights.mayWrite = true;
+            case 'read':
+                rights.mayRead = true;
+        }
+
+        return rights;
+    }
+
     public mayWrite: boolean;
     public isAdmin: boolean;
+    public mayRead: boolean;
 
     constructor(dto: PermissionDTO) {
         this.mayWrite = dto.mayWrite;
         this.isAdmin = dto.isAdmin;
+        this.mayRead = dto.mayRead;
     }
+
+    public get readOnly() {
+        return !this.mayWrite;
+    }
+
+    public get simplified(): SimplifiedPermission {
+        if (this.isAdmin) {
+            return 'admin';
+        }
+        if (this.mayWrite) {
+            return 'write';
+        }
+        if (this.mayRead) {
+            return 'read';
+        }
+        return 'none';
+    }
+
 }
 
 class ShareInfo {
-    public user: UserInfo;
+    public static fromDTO(dto: DetailedEditorRightsDTO) {
+        return new ShareInfo(dto.email, new Permissions(dto));
+    }
+
+    public email: string;
     public permissions: Permissions;
 
-    constructor(dto: ShareDTO) {
-        this.user = new UserInfo(dto.user);
-        this.permissions = new Permissions(dto.permission);
+
+    public constructor(email: string, permissions: Permissions) {
+        this.email = email;
+        this.permissions = permissions;
+    }
+
+    public get simplified(): SimplifiedPermission {
+        return this.permissions.simplified;
     }
 }
 
@@ -43,6 +94,7 @@ class EditionInfo {
     public owner: UserInfo;
     public thumbnail?: IIIFImage;
     public shares: ShareInfo[];
+    public invitations: ShareInfo[];
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit?: Date;
@@ -63,7 +115,8 @@ class EditionInfo {
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares ? dto.shares.map((s) => new ShareInfo(s)) : [];
+        this.shares = dto.shares ? dto.shares.map((s) => ShareInfo.fromDTO(s)) : [];
+        this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
         if (dto.lastEdit) {
@@ -72,4 +125,4 @@ class EditionInfo {
     }
 }
 
-export { UserInfo, EditionInfo, ShareInfo };
+export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo };

@@ -42,7 +42,7 @@ export interface EditionDTO {
     permission: PermissionDTO;
     owner: UserDTO;
     thumbnailUrl: string;
-    shares: ShareDTO[];
+    shares: DetailedEditorRightsDTO[];
     locked: boolean;
     isPublic: boolean;
     lastEdit: string;
@@ -58,18 +58,51 @@ export interface EditionListDTO {
     editions: Array<EditionDTO>[];
 }
 export interface PermissionDTO {
+    mayRead: boolean;
     mayWrite: boolean;
     isAdmin: boolean;
 }
-export interface UpdateEditorRightsDTO {
-    mayRead?: boolean;
-    isAdmin?: boolean;
-    mayLock?: boolean;
-    mayWrite?: boolean;
+
+export interface MinimalEditorRights extends PermissionDTO {
+    mayLock: boolean;
 }
 
-export interface CreateEditorRightsDTO extends UpdateEditorRightsDTO {
+export interface UpdateEditorRightsDTO extends MinimalEditorRights {
+    mayRead: boolean;
+}
+
+export interface InviteEditorDTO extends MinimalEditorRights {
     email: string;
+}
+
+export interface DetailedEditorRightsDTO extends UpdateEditorRightsDTO {
+    email: string;
+    editionId: number;
+}
+
+export interface DetailedUpdateEditorRightsDTO extends UpdateEditorRightsDTO {
+    editionId: number;
+    editionName: string;
+    date: string;
+}
+
+export interface AdminEditorRequestDTO extends DetailedUpdateEditorRightsDTO {
+    editorName: string;
+    editorEmail: string;
+}
+
+export interface EditorInvitationDTO extends DetailedUpdateEditorRightsDTO {
+    token: string;
+    requestingAdminName: string;
+    requestingAdminEmail: string;
+}
+
+export interface EditorInvitationListDTO {
+    editorInvitations: EditorInvitationDTO[];
+}
+
+export interface AdminEditorRequestListDTO {
+    editorRequests: AdminEditorRequestDTO[];
 }
 
 export interface TextEditionDTO {
@@ -80,11 +113,6 @@ export interface TextEditionDTO {
     editors: { [key: string] : EditorDTO };
     textFragments: TextFragmentDTO[];
 }
-
-export interface ShareDTO {
-    user: UserDTO;
-    permission: PermissionDTO;
-}
 export interface DeleteTokenDTO {
     editionId: number;
     token: string;
@@ -92,6 +120,23 @@ export interface DeleteTokenDTO {
 export interface DeleteEditionEntityDTO {
     entityId: number;
     editorId: number;
+}
+
+export interface EditionScriptCollectionDTO {
+    letters: LetterDTO[];
+}
+export enum EditionEntities {
+    edition = 0,
+    artefact = 1,
+    textFragment = 2,
+    line = 3,
+    signInterpretation = 4,
+    roi = 5
+}
+
+export interface DeleteDTO {
+    entity: EditionEntities;
+    ids: number[];
 }
 export interface EditionUpdateRequestDTO {
     name: string;
@@ -148,6 +193,9 @@ export interface PolygonDTO {
     transformation: TransformationDTO;
     positionEditorId: number;
 }
+export interface WktPolygonDTO {
+    wktPolygon: string;
+}
 
 export interface SetInterpretationRoiDTO {
     artefactId: number;
@@ -191,6 +239,13 @@ export interface BatchEditRoiResponseDTO {
     updateRois: UpdatedInterpretationRoiDTO[];
     deleteRois: number[];
 }
+export interface LetterDTO {
+    id: number;
+    letter: string;
+    polygon: string;
+    imageURL: string;
+    rotation: number;
+}
 
 export interface SignDTO {
     signInterpretations: SignInterpretationDTO[];
@@ -223,6 +278,13 @@ export interface TextFragmentDataDTO {
 
 export interface ArtefactTextFragmentMatchDTO extends TextFragmentDataDTO {
     suggested: boolean;
+}
+export interface ImagedObjectTextFragmentMatchDTO {
+    editionId: number;
+    manuscriptName: string;
+    textFragmentId: number;
+    textFragmentName: string;
+    side: string;
 }
 
 export interface TextFragmentDataListDTO {
@@ -331,6 +393,7 @@ export interface DetailedUserTokenDTO extends DetailedUserDTO {
     token: string;
 }
 export interface EditorDTO {
+    email: string;
     forename: string;
     surname: string;
     organization: string;

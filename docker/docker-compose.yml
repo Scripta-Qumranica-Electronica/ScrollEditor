@@ -4,7 +4,7 @@ version: '3.7'
 
 services:
     sqe-database:
-        image: qumranica/sqe-database:0.13.3
+        image: qumranica/sqe-database:0.16.1
         container_name: SQE_Database
         environment:
             ## These must be updated when used in production
@@ -22,7 +22,7 @@ services:
 
     sqe-http:
         container_name: SQE_HTTP_API
-        image: qumranica/sqe-http-api:0.4.4-pre3
+        image: qumranica/sqe-http-api:0.5.0
         restart: always
         ports:
             - 5000:5000

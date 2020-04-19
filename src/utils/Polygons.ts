@@ -1,5 +1,6 @@
 // tslint:disable-next-line:no-var-requires
 const clipperLib = require('js-clipper/clipper');
+import * as jsts from 'jsts';
 
 import { svgPolygonToWKT,
     svgPolygonToGeoJSON,
@@ -266,6 +267,12 @@ export class Polygon {
         }
 
         return new BoundingBox(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    public isLegal() {
+        const reader = new jsts.io.WKTReader();
+        const poly = reader.read(this.wkt);
+        return poly.isValid();
     }
 
     private normalizeSvg(svg: string): string {

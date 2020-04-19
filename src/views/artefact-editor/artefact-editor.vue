@@ -41,6 +41,7 @@
                 >
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
+                        <edition-icons :edition="edition" :show-text="true" />
                         <sign-wheel
                             v-if="selectedSignInterpretation"
                             :line="selectedLine"
@@ -82,6 +83,7 @@
                                 />
                                 <roi-layer
                                     :rois="visibleRois"
+                                    :si="selectedSignInterpretation"
                                     :selected="selectedInterpretationRoi"
                                     @roi-clicked="onRoiClicked($event)"
                                 />
@@ -107,6 +109,7 @@
                     </b-button>
                     <b-button
                         v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon' ,title: this.$t('misc.draw')}, {icon: 'fa fa-square-o', val: 'box', title: this.$t('misc.box')}]"
+                        v-show="!readOnly"
                         :key="mode.val"
                         @click="onModeClick(mode.val)"
                         :pressed="mode === mode.val"
@@ -118,16 +121,18 @@
                         <i :class="mode.icon"></i>
                     </b-button>
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         class="sidebarCollapse"
                         @click="onDeleteRoi()"
-                          :disabled="!isDeleteEnabled"
+                        :disabled="!isDeleteEnabled"
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.cancel')"
                     >
                         <i class="fa fa-trash"></i>
                     </b-button>
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         @click="onAuto()"
                         :pressed="autoMode == true"
@@ -135,18 +140,20 @@
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.auto')"
                     >
-                      <i class="fa fa-play"></i>
+                        <i class="fa fa-play"></i>
                     </b-button>
 
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         @click="onModeClick('select')"
                         :pressed="mode === 'select'"
                         class="sidebarCollapse"
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.select')"
-                    ><i class="fa fa-mouse-pointer"></i></b-button>
-                  
+                    >
+                        <i class="fa fa-mouse-pointer"></i>
+                    </b-button>
                 </div>
             </div>
         </div>
@@ -213,6 +220,8 @@ import Zoomer, {
 } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
 import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
+import EditionIcons from '@/components/cues/edition-icons.vue';
+import { EditionInfo } from '../../models/edition';
 
 @Component({
     name: 'artefact-editor',
@@ -225,7 +234,8 @@ import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
         'zoomer': Zoomer,
-        'sign-wheel': SignWheel
+        'sign-wheel': SignWheel,
+        'edition-icons': EditionIcons,
     }
 })
 export default class ArtefactEditor extends Vue {
@@ -305,6 +315,9 @@ export default class ArtefactEditor extends Vue {
         setTimeout(() => this.setFirstZoom(), 0);
     }
 
+    private get edition(): EditionInfo {
+        return this.$state.editions.current!;
+    }
     private get imagedObject(): ImagedObject {
         return this.$state.imagedObjects.current!;
     }
@@ -316,6 +329,9 @@ export default class ArtefactEditor extends Vue {
     }
     private get angle(): number {
         return this.params.rotationAngle;
+    }
+    private get readOnly(): boolean {
+        return this.edition.permission.readOnly;
     }
     // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
     // On tablet screen - Active means opened.
@@ -344,9 +360,7 @@ export default class ArtefactEditor extends Vue {
     }
 
     private get isDrawingEnabled() {
-        return (
-            !!this.selectedSignInterpretation
-        );
+        return !!this.selectedSignInterpretation;
     }
 
     private get isDeleteEnabled() {
@@ -534,7 +548,7 @@ export default class ArtefactEditor extends Vue {
         while (newIndex < this.selectedLine!.signs.length) {
             const newSI = this.selectedLine!.signs[newIndex]
                 .signInterpretations[0];
-            if (newSI.character) {
+            if (newSI.character && !newSI.isReconstructed) {
                 this.onSignInterpretationClicked(newSI);
                 break;
             }
@@ -594,12 +608,12 @@ export default class ArtefactEditor extends Vue {
             const appliedROIs = await this.saveROIs();
 
             if (!appliedRotation && !appliedROIs) {
-                this.showMessage('No changes to save', 'info');
+                this.showMessage('toasts.artefactInfo', 'info');
             } else {
-                this.showMessage('Artefact Saved', 'success');
+                this.showMessage('toasts.artefactSuccess', 'success');
             }
         } catch (e) {
-            this.showMessage('Saving Artefact Failed', 'error');
+            this.showMessage('toasts.artefactError', 'error');
         }
         this.saving = false;
     }
@@ -634,7 +648,7 @@ export default class ArtefactEditor extends Vue {
     }
 
     private showMessage(msg: string, type: string = 'info') {
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
             duration: 7000

@@ -1,6 +1,6 @@
 {
   "name": "sqe-scroll-editor",
-  "version": "0.4.0",
+  "version": "0.4.9",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode development",
@@ -18,6 +18,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.2",
     "@microsoft/signalr": "^3.1.0",
     "@types/js-clipper": "^0.0.28",
+    "@types/jsts": "^0.17.2",
     "@types/mathjs": "^4.4.5",
     "@yutahaga/vue-media-breakpoints": "^0.6.1",
     "axios": "^0.18.0",
@@ -25,6 +26,7 @@
     "core-js": "^3.6.4",
     "element-ui": "^2.4.9",
     "js-clipper": "^1.0.1",
+    "jsts": "^2.1.0",
     "mathjs": "^5.4.1",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",

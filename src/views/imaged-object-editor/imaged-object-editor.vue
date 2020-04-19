@@ -40,8 +40,13 @@
             <!-- todo: add external div with the condition -->
             <div class="row">
                 <div id="buttons-div">
-                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()"
-                      v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebarObject')">
+                    <b-button
+                        type="button"
+                        class="sidebarCollapse"
+                        @click="sidebarClicked()"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.collapsedsidebarObject')"
+                    >
                         <i class="fa fa-align-justify"></i>
                     </b-button>
 
@@ -51,12 +56,19 @@
                         @click="editingModeChanged(mode.val)"
                         :pressed="modeChosen(mode.val)"
                         class="sidebarCollapse"
-                         v-b-tooltip.hover.bottom :title="mode.title"
+                        v-b-tooltip.hover.bottom
+                        :title="mode.title"
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
                 </div>
+
                 <div class="imaged-object-container" :class="{active: isActive}">
+                    <div id="imaged-object-title">
+                        {{ imagedObject.id }}
+                        <edition-icons :edition="edition" :show-text="true" />
+                    </div>
+
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
                         <svg
                             class="overlay"
@@ -127,6 +139,7 @@ import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { normalizeOpacity } from '@/components/image-settings/types';
 import { addToArray } from '@/utils/collection-utils';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
     name: 'imaged-object-editor',
@@ -136,7 +149,8 @@ import { addToArray } from '@/utils/collection-utils';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer
+        'zoomer': Zoomer,
+        'edition-icons': EditionIcons,
     }
 })
 export default class ImagedObjectEditor extends Vue {
@@ -172,8 +186,16 @@ export default class ImagedObjectEditor extends Vue {
     private get editList(): any[] {
         if (this.canEdit) {
             return [
-                { icon: 'fa fa-pencil', val: 'DRAW', title: this.$t('misc.draw')},
-                { icon: 'fa fa-trash', val: 'ERASE', title: this.$t('misc.cancel')}
+                {
+                    icon: 'fa fa-pencil',
+                    val: 'DRAW',
+                    title: this.$t('misc.draw')
+                },
+                {
+                    icon: 'fa fa-trash',
+                    val: 'ERASE',
+                    title: this.$t('misc.cancel')
+                }
             ];
         }
         return [];
@@ -191,10 +213,12 @@ export default class ImagedObjectEditor extends Vue {
         return parseInt(this.$route.params.editionId);
     }
 
+    private get edition() {
+        return this.$state.editions.current!;
+    }
+
     private get canEdit(): boolean {
-        return this.$state.editions.current
-            ? this.$state.editions.current.permission.mayWrite
-            : false;
+        return this.$state.editions.current?.permission.mayWrite || false;
     }
 
     private get actualWidth(): number {
@@ -250,10 +274,12 @@ export default class ImagedObjectEditor extends Vue {
         return this.artefacts.filter(item => item.side === this.side);
     }
 
-     private get artefacts(): Artefact[] {
-      return this.imagedObject!.artefacts || [];
+    private get artefacts(): Artefact[] {
+        return this.imagedObject!.artefacts || [];
     }
-
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
     private async mounted() {
         try {
             this.waiting = true;
@@ -375,7 +401,6 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onNewZoom(event: ZoomEventArgs) {
-        console.log(`imaged-object-editor setting zoom to ${event.zoom}`);
         this.params.zoom = event.zoom;
     }
 
@@ -383,11 +408,11 @@ export default class ImagedObjectEditor extends Vue {
         this.saving = false;
 
         if (!savedFlag) {
-            this.showMessage('No changes detected');
+            this.showMessage('toasts.NoChangesDetected');
         } else if (errorFlag) {
-            this.showMessage('Imaged Object Save Failed', 'error');
+            this.showMessage('toasts.imagedObjectFailed', 'error');
         } else {
-            this.showMessage('Imaged Object Saved', 'success');
+            this.showMessage('toasts.imagedObjectSaved', 'success');
         }
     }
 
@@ -461,9 +486,9 @@ export default class ImagedObjectEditor extends Vue {
         try {
             this.artefactEditingData = new ArtefactEditingData();
             this.artefactEditingDataList.push(this.artefactEditingData);
-            this.showMessage('Artefact Created', 'success');
+            this.showMessage('toasts.artefactCreated', 'success');
         } catch (err) {
-            this.showMessage('Artefact creation failed', 'error');
+            this.showMessage('toasts.artefactCreatedFailed', 'error');
         } finally {
             this.saving = false;
         }
@@ -479,11 +504,11 @@ export default class ImagedObjectEditor extends Vue {
                 this.editionId,
                 this.artefact
             );
-            this.showMessage('Artefact renamed', 'success');
+            this.showMessage('toasts.artefactRenamed', 'success');
             // this.renameInputActive = {};
             this.inputRenameChanged(undefined);
         } catch (err) {
-            this.showMessage('Artefact rename failed', 'error');
+            this.showMessage('toasts.artefactRenameFailed', 'error');
         } finally {
             this.renaming = false;
         }
@@ -492,9 +517,9 @@ export default class ImagedObjectEditor extends Vue {
     private async onDeleteArtefact(art: Artefact) {
         try {
             await this.artefactService.deleteArtefact(art);
-            this.showMessage('Artefact deleted', 'success');
+            this.showMessage('toasts.artefactDeleted', 'success');
             const index = this.artefacts.indexOf(art);
-           // this.artefacts.splice(index, 1);
+            // this.artefacts.splice(index, 1);
             this.artefactEditingDataList.splice(index, 1);
 
             if (this.artefacts[0]) {
@@ -506,7 +531,7 @@ export default class ImagedObjectEditor extends Vue {
             }
         } catch (err) {
             console.error(err);
-            this.showMessage('Delete artefact failed', 'error');
+            this.showMessage('toasts.deleteArtefactFailed', 'error');
         }
     }
 
@@ -515,7 +540,6 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onArtefactChanged(art: Artefact) {
-        console.log(`onArtefactChanged to ${art.name} (${art.id})`);
         this.artefact = art;
         const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         this.artefactEditingData = this.getArtefactEditingData(index);
@@ -544,7 +568,7 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private showMessage(msg: string, type: string = 'info') {
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
             duration: 7000
@@ -576,7 +600,7 @@ export default class ImagedObjectEditor extends Vue {
     private get isErasing() {
         return this.params.drawingMode === DrawingMode.ERASE;
     }
-   private get removeColor() {
+    private get removeColor() {
         return this.params.highLight === false;
     }
     private onNewPolygon(poly: Polygon) {
@@ -594,7 +618,7 @@ export default class ImagedObjectEditor extends Vue {
             this.nonSelectedMask
         );
         if (!intersection.empty) {
-            this.$toasted.show("Artefact can't overlap other artefacts", {
+            this.$toasted.show(this.$tc('toasts.artefactCantOverlap'), {
                 type: 'info',
                 position: 'top-center',
                 duration: 5000
@@ -634,6 +658,9 @@ export default class ImagedObjectEditor extends Vue {
 
 <style lang="scss" scoped>
 // @import '~sass-vars';
+.readOnly {
+    text-align: center;
+}
 .overlay {
     position: absolute;
     transform-origin: top left;
@@ -678,6 +705,10 @@ export default class ImagedObjectEditor extends Vue {
     display: flex;
     align-items: stretch;
     perspective: 1500px;
+}
+
+#imaged-object-title {
+    margin-left: 80px;
 }
 
 #sidebar {

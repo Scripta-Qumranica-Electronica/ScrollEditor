@@ -3,6 +3,7 @@ export default {
     new: 'Nouveau',
     current: 'Actuel',
     copy: 'Copie',
+    permission: 'Autorisation',
     draw: 'Dessiner',
     box: 'Box',
     rename: 'Renommer',

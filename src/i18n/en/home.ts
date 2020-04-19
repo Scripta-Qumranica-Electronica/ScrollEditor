@@ -21,6 +21,9 @@ export default {
     undo: 'Undo',
     redo: 'Redo',
     filterArtefacts: 'Filter Artefacts',
-    both : 'Both',
-    editorParameters : 'Editor Parameters'
+    both: 'Both',
+    editorParameters: 'Editor Parameters',
+    lock: 'Read Only',
+    shared: 'Shared',
+    admin: 'Your Admin rights have been revoked'
 };
