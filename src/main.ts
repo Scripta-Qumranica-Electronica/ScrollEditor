@@ -68,7 +68,7 @@ Vue.use(Toasted);
 Vue.use(VueShortcuts, { prevent: ['input'] });
 Vue.use(RenderingOptimizationPlugin);
 
-Vue.use(VueHammer);
+Vue.use(VueHammer.config);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {

@@ -1,11 +1,3 @@
 {
-    "baseUrl": "http://localhost:8080",
-    "testFiles": [
-        "home_page_spec.js",
-        "copy_spec.js",
-        "artefacts_spec.js",
-        "imaged_object_spec.js",
-        "rename_editor_spec.js",
-        "language_spec.js"
-    ]
+  "pluginsFile": "tests/e2e/plugins/index.js"
 }
