@@ -3,7 +3,7 @@
         <b-row>
             <b-col>
                 <b-form inline class="mt-2" @submit.prevent>
-                    <label for="filter">{{ $t('home.filter') }}:</label>
+                    <label for="filter" class="filter">{{ $t('home.filter') }}:</label>
                     <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
                 </b-form>
             </b-col>

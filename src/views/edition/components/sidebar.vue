@@ -16,7 +16,7 @@
                 class="btn btn-sm btn-rename"
             >{{ $t('misc.rename') }}</b-btn>
 
-            <input v-if="renaming" v-model="newEditionName" />
+            <input class="new-edition" v-if="renaming" v-model="newEditionName" />
             <b-btn
                 v-if="renaming"
                 @click="onRename(newEditionName)"

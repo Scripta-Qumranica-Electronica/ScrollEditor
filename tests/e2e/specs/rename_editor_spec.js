@@ -40,7 +40,7 @@ describe('Rename Editor', function() {
             });
 
         cy.get('.sidebar-header>.btn-rename').click()
-        cy.get('.sidebar-header>input')
+        cy.get('.sidebar-header>input.new-edition')
             .invoke('val')
             .then(text => {
                 inputName = text;
@@ -48,10 +48,10 @@ describe('Rename Editor', function() {
                 expect(inputName).to.eq(name)
             });
         cy.wait(2500)
-        cy.get('.sidebar-header>input').clear() /* clear the input and rename new name */
-        cy.get('.sidebar-header>input').type('1QS555')
+        cy.get('.sidebar-header>input.new-edition').clear() /* clear the input and rename new name */
+        cy.get('.sidebar-header>input.new-edition').type('1QS555')
         cy.get('.sidebar-header>.btn-save').click()
-        cy.get('.sidebar-header>input')
+        cy.get('.sidebar-header>input.new-edition')
             .invoke('val')
             .then(text => {
                 newRename = text;
