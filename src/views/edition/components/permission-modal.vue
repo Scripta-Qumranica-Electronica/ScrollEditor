@@ -13,6 +13,7 @@
                                 size="sm"
                                 class="col-6"
                                 @keydown="errorMessage = ''"
+                                type="email"
                             ></b-form-input>
                             <b-form-select
                                 size="sm"
@@ -27,7 +28,7 @@
                             <b-button
                                 variant="primary"
                                 size="sm"
-                                class="flex-fill ml-2"
+                                class="flex-fill ml-2 btn-invite"
                                 @click="invite"
                                 :disabled="invitationRow.email === '' || !invitationRow.permission"
                             >
@@ -75,11 +76,10 @@
                 </b-card>
                 <!-- invitations rows -->
                 <b-card no-body header="Invitations">
-                    <b-list-group flush>
+                    <b-list-group flush id="invitations-list">
                         <b-list-group-item
                             v-for="invit in invitationsRows"
-                            v-bind:key="invit.email"
-                        >
+                            v-bind:key="invit.email">
                             <div class="row">
                                 <span class="col-6">{{invit.email}}</span>
                                 <b-form-select

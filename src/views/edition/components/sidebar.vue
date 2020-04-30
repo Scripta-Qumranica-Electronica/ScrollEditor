@@ -60,7 +60,7 @@
             <b-btn
                 v-if="isAdmin"
                 @click="openPermissionModal()"
-                class="btn btn-sm btn-outline btn-copy"
+                class="btn btn-sm btn-outline btn-permission"
             >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
 

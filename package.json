@@ -9,7 +9,7 @@
         "lint": "vue-cli-service lint",
         "build-staging": "vue-cli-service build --mode staging",
         "test-travis": "cypress run --config video=false",
-        "test:e2e": "vue-cli-service test:e2e --mode development"
+        "test:e2e": "vue-cli-service test:e2e --mode development "
     },
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^1.2.7",
@@ -52,6 +52,7 @@
         "sass-builder": "^1.0.0",
         "sass-loader": "^8.0.0",
         "typescript": "~3.7.5",
-        "vue-template-compiler": "^2.6.10"
+        "vue-template-compiler": "^2.6.10",
+        "mailslurp-client": "^8.7.8"
     }
 }
