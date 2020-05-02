@@ -108,14 +108,23 @@ describe('Register new User', function() {
                         // // extract the confirmation link (so we can confirm the user)
                         link = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/g.exec(mail.body)[2];
                         cy.log(link);
-                        cy.visit(link);
+                        cy.get('.close').click()
+                        cy.get('#register').click()
+                        cy.get('ul>li.logout:nth-child(1)').click()
+
                         cy.contains('button', 'Login').click()
                         cy.typeLogin({ email: emailAddress, password: 'test' })
-
                         cy.PostLogin()
+                        cy.wait(2500)
+                        cy.visit(link);
+                        cy.get('.btn-confirm').click()
+
 
                         cy.get('@postUser').should((resp) => {
                             expect(resp.status).to.eq(200)
+                        })
+                        cy.get('ul>li.list-item>.card').contains('1QS990').first().should(() => {
+                            expect('.fa-users').to.exist
                         })
                     }
                 );

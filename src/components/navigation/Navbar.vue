@@ -20,8 +20,8 @@
                         >{{ $t('navbar.register') }}</router-link>
                     </b-btn>
                 </b-nav-item>
-                <b-nav-item-dropdown v-if="userName" right :text="userName">
-                    <b-dropdown-item-button @click="logout()">{{ $t('navbar.logout') }}</b-dropdown-item-button>
+                <b-nav-item-dropdown v-if="userName" right :text="userName" id="register">
+                    <b-dropdown-item-button @click="logout()" class="logout">{{ $t('navbar.logout') }}</b-dropdown-item-button>
                     <b-dropdown-item-button
                         v-if="isActive"
                         @click="changePassword()"
