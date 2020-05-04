@@ -3,7 +3,6 @@
         <b-modal id="scrollModal" @shown="scrollModalShown">
             <div>
                 <form>
-                    <!-- <b-form-select v-model="artefact" :options="artefacts"></b-form-select> -->
                     <b-form-select class="mb-3" @change="selectArtefact($event)">
                         <option
                             :value="art"
@@ -12,12 +11,8 @@
                         >{{ art.name }}</option>
                     </b-form-select>
 
-                    <!-- <input class="select-text" list="my-list-id" @change="selectArtefact($event)" />
-                    <datalist id="my-list-id">
-                        <option :key="art.id" v-for="art in artefacts">{{ art.name }}</option>
-                    </datalist>-->
+
                     <div v-if="isLoaded">
-                        <!-- <artefact-card :artefact="artefact"></artefact-card> -->
                         <artefact-image :artefact="artefact"></artefact-image>
                     </div>
                 </form>
@@ -41,8 +36,7 @@ import artefactCardVue from '../edition/components/artefact-card.vue';
 @Component({
     name: 'scroll-modal',
     components: {
-        'artefact-image': ArtefactImage,
-        'artefact-card': artefactCardVue
+        'artefact-image': ArtefactImage
     }
 })
 export default class ScrollModal extends Vue {
@@ -53,22 +47,18 @@ export default class ScrollModal extends Vue {
 
     private async scrollModalShown() {
         this.isLoaded = false;
-        console.log(this.$state.editions.current!.id, 'eeeeeeeeeeeeee');
         await this.$state.prepare.artefacts(this.$state.editions.current!.id);
     }
 
     private get artefacts() {
-        console.log(this.$state.artefacts.items, 'ffffffffffffffffffff');
         return this.$state.artefacts.items || [];
     }
 
     private selectArtefact(art: Artefact) {
         this.isLoaded = false;
-        console.log(art, 'event');
         setTimeout(() => {
             this.artefact = this.artefacts.find(a => a.id === art.id);
             this.isLoaded = true;
-            console.log(this.artefact);
         }, 0);
     }
 }
