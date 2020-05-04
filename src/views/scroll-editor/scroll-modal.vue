@@ -62,15 +62,14 @@ export default class ScrollModal extends Vue {
         return this.$state.artefacts.items || [];
     }
 
-    private  selectArtefact(art: Artefact) {
+    private selectArtefact(art: Artefact) {
         this.isLoaded = false;
         console.log(art, 'event');
         setTimeout(() => {
-             this.artefact = this.artefacts.find(a => a.id === art.id);
+            this.artefact = this.artefacts.find(a => a.id === art.id);
             this.isLoaded = true;
             console.log(this.artefact);
         }, 0);
-       
     }
 }
 </script>
