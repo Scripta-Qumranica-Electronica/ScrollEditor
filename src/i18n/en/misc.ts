@@ -15,6 +15,7 @@ export default {
     actions: 'Actions',
     save: 'Save',
     load: 'Load',
+    add: 'Add',
     invite: 'Invite',
     auto: 'Auto',
     select: 'Select',

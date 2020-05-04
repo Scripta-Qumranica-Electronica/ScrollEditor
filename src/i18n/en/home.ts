@@ -6,6 +6,7 @@ export default {
     personalVersionCount: ' | personal edition | personal editions',
     shares: ' | share | shares',
     artefacts: 'Artefacts',
+    scroll: 'Scroll',
     versions: 'Versions',
     columns: 'Columns',
     imagedObjects: 'Imaged Objects',

@@ -40,6 +40,13 @@
                     replace
                 >{{ $t('home.imagedObjects') }}: {{ imagedObjects }}</router-link>
             </b-nav-item>
+              <b-nav-item>
+                <router-link
+                    :class="{ bold: page === 'scroll',scroll  }"
+                    :to="`/editions/${current.id}/scroll-editor`"
+                    replace
+                >{{ $t('home.scroll') }}</router-link>
+            </b-nav-item>
             <!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item
