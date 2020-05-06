@@ -33,6 +33,8 @@ import { Artefact } from '@/models/artefact';
 import artefactCardVue from '../edition/components/artefact-card.vue';
 // import ErrorService from '@/services/error';
 
+// Rename to add-artefact-modal
+
 @Component({
     name: 'scroll-modal',
     components: {

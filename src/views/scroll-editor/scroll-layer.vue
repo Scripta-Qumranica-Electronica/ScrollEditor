@@ -8,6 +8,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ScrollMenu from './scroll-menu.vue';
 
+
+// Shaindel - rename to scroll-area
+
 @Component({
     name: 'scroll-layer',
     components: {

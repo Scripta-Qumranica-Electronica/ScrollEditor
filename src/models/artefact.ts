@@ -13,9 +13,8 @@ export class Artefact {
     public editionId = 0;
     public imagedObjectId = '';
     public name = '';
-    public mask: Mask = {} as Mask;
-    // public mask = {} as Polygon;
-    // public transformMatrix = undefined as any; // TODO: Change to matrix type?
+    public mask: Mask = {} as Mask; // This is a bad name, but we keep the naming convention of the frontend.
+
     public zOrder = 0;
     public side: Side = 'recto';
 
@@ -36,6 +35,14 @@ export class Artefact {
         this.zOrder = obj.zOrder;
         this.side = (obj.side === 'recto') ? 'recto' : 'verso';
     }
+
+    public get isPlaced(): boolean {
+        // Shaindel: Return true if the artefact has been placed on the scroll
+        return false;
+    }
+
+    // To place an artefact on the scroll - set its mask.transformation to a proper TransformationDTO
+    // Set rotation to 0, scale to 1, set the translation x and y to (100 * number of placed artefacts, 400)
 
     private copyFrom(other: Artefact) {
         this.id = other.id;
