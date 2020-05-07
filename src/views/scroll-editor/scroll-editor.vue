@@ -5,7 +5,7 @@
             class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
             :class="{ active : isActive }"
         >
-            <scroll-menu  @paramsChanged="onParamsChanged($event)"></scroll-menu>
+            <scroll-menu @paramsChanged="onParamsChanged($event)"></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -39,7 +39,6 @@ import {
     ArtefactEditorParamsChangedArgs,
     ArtefactEditorParams
 } from '../artefact-editor/types';
-import { BoundingBox } from '@/utils/helpers';
 
 @Component({
     name: 'scroll-editor',
@@ -53,9 +52,6 @@ export default class ScrollEditor extends Vue {
     private isActive = false;
     private editionId: number = 0;
     private params = new ArtefactEditorParams();
-    private svgWidth = 5000;
-    private svgHeight = 5000;
-    private boundingBox = new BoundingBox(1, 1);
     private paramsArea: ArtefactEditorParams = new ArtefactEditorParams();
     private sidebarClicked() {
         this.isActive = !this.isActive;
@@ -73,7 +69,7 @@ export default class ScrollEditor extends Vue {
     }
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
-        this.params = evt.params; // This makes sure a change is triggered in child components
+        this.params = evt.params;
     }
 }
 </script>
@@ -116,7 +112,7 @@ export default class ScrollEditor extends Vue {
     width: calc(100vw - 290px);
     touch-action: none;
 }
-.imaged-object-container>div{
+.imaged-object-container > div {
     height: 100%;
 }
 .imaged-object-container.active {
