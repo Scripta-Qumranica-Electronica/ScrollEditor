@@ -20,7 +20,7 @@
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
-                <div class="imaged-object-container" :class="{active: isActive}">
+                <div class="artefact-container" :class="{active: isActive}">
                     <scroll-area :paramsArea="params"></scroll-area>
                 </div>
             </div>
@@ -104,7 +104,7 @@ export default class ScrollEditor extends Vue {
     margin-left: -250px;
     transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
-.imaged-object-container {
+.artefact-container {
     overflow: auto;
     position: relative;
     padding: 0;
@@ -112,10 +112,10 @@ export default class ScrollEditor extends Vue {
     width: calc(100vw - 290px);
     touch-action: none;
 }
-.imaged-object-container > div {
+.artefact-container > div {
     height: 100%;
 }
-.imaged-object-container.active {
+.artefact-container.active {
     overflow: auto;
     position: relative;
     padding: 0;

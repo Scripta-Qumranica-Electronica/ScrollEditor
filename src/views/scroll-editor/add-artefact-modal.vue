@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal id="scrollModal" @shown="scrollModalShown">
+        <b-modal id="addArtefactModal" @shown="scrollModalShown">
             <div>
                 <form>
                     <b-form-select class="mb-3" @change="selectArtefact($event)">

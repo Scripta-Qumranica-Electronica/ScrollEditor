@@ -48,7 +48,7 @@
                 >
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button @click="openScrollModal()">{{$t('misc.add')}}</b-button>
+                            <b-button @click="openAddArtefactModal()">{{$t('misc.add')}}</b-button>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -76,12 +76,11 @@ import {
     }
 })
 export default class ScrollMenu extends Vue {
+    private params: ArtefactEditorParams = new ArtefactEditorParams();
     constructor() {
-        super()
+        super();
         this.params.zoom = 0.1;
     }
-    private params: ArtefactEditorParams = new ArtefactEditorParams();
-
     private get zoom(): any {
         return this.params.zoom;
     }
@@ -93,8 +92,8 @@ export default class ScrollMenu extends Vue {
     public formatTooltip(): string {
         return (this.zoom * 100).toFixed(0) + '%';
     }
-    public openScrollModal() {
-        this.$root.$emit('bv::show::modal', 'scrollModal');
+    public openAddArtefactModal() {
+        this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
     public notifyChange(paramName: string, paramValue: any) {
         const args = {

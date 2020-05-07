@@ -31,7 +31,6 @@ import {
 } from '../artefact-editor/types';
 import { BoundingBox } from '@/utils/helpers';
 
-// Shaindel - rename to scroll-area
 
 @Component({
     name: 'scroll-area',
