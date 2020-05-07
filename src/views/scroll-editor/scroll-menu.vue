@@ -63,7 +63,10 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import AddArtefactModal from './add-artefact-modal.vue';
-import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from '../artefact-editor/types';
+import {
+    ArtefactEditorParams,
+    ArtefactEditorParamsChangedArgs
+} from '../artefact-editor/types';
 
 @Component({
     name: 'scroll-menu',
@@ -73,6 +76,10 @@ import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from '../artefa
     }
 })
 export default class ScrollMenu extends Vue {
+    constructor() {
+        super()
+        this.params.zoom = 0.1;
+    }
     private params: ArtefactEditorParams = new ArtefactEditorParams();
 
     private get zoom(): any {
@@ -89,14 +96,14 @@ export default class ScrollMenu extends Vue {
     public openScrollModal() {
         this.$root.$emit('bv::show::modal', 'scrollModal');
     }
-    public  notifyChange(paramName: string, paramValue: any) {
-            const args = {
-                property: paramName,
-                value: paramValue,
-                params: this.params
-            } as ArtefactEditorParamsChangedArgs;
-            this.$emit('paramsChanged', args);
-        }
+    public notifyChange(paramName: string, paramValue: any) {
+        const args = {
+            property: paramName,
+            value: paramValue,
+            params: this.params
+        } as ArtefactEditorParamsChangedArgs;
+        this.$emit('paramsChanged', args);
+    }
 }
 </script>
 
