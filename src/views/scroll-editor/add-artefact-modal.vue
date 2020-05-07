@@ -33,15 +33,15 @@ import { Artefact } from '@/models/artefact';
 import artefactCardVue from '../edition/components/artefact-card.vue';
 // import ErrorService from '@/services/error';
 
-// Rename to add-artefact-modal
+
 
 @Component({
-    name: 'scroll-modal',
+    name: 'add-artefact-modal',
     components: {
         'artefact-image': ArtefactImage
     }
 })
-export default class ScrollModal extends Vue {
+export default class AddArtefactModal extends Vue {
     private artefact: Artefact | undefined = {} as Artefact;
     private artefactService = new ArtefactService();
 

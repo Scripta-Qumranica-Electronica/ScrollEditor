@@ -1,8 +1,11 @@
 <template>
     <div class="wrapper" id="scroll-editor">
-        <div id="sidebar" class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
-         :class="{ active : isActive }">
-            <scroll-menu></scroll-menu>
+        <div
+            id="sidebar"
+            class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
+            :class="{ active : isActive }"
+        >
+            <scroll-menu  @paramsChanged="onParamsChanged($event)"></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -18,33 +21,43 @@
                     </b-button>
                 </div>
                 <div class="imaged-object-container" :class="{active: isActive}">
-                <scroll-layer></scroll-layer>
+                    <scroll-area :paramsArea="params"></scroll-area>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<!-- <script src="https://unpkg.com/vue-toasted"></script>-->
+
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import ScrollMenu from './scroll-menu.vue';
-import ScrollLayer from './scroll-layer.vue';
+import ScrollArea from './scroll-area.vue';
+import {
+    ArtefactEditorParamsChangedArgs,
+    ArtefactEditorParams
+} from '../artefact-editor/types';
+import { BoundingBox } from '@/utils/helpers';
 
 @Component({
     name: 'scroll-editor',
     components: {
         Waiting,
         'scroll-menu': ScrollMenu,
-        'scroll-layer': ScrollLayer
+        'scroll-area': ScrollArea
     }
 })
 export default class ScrollEditor extends Vue {
-     private isActive = false;
-     private editionId: number = 0;
-       private sidebarClicked() {
+    private isActive = false;
+    private editionId: number = 0;
+    private params = new ArtefactEditorParams();
+    private svgWidth = 5000;
+    private svgHeight = 5000;
+    private boundingBox = new BoundingBox(1, 1);
+    private paramsArea: ArtefactEditorParams = new ArtefactEditorParams();
+    private sidebarClicked() {
         this.isActive = !this.isActive;
     }
 
@@ -57,6 +70,10 @@ export default class ScrollEditor extends Vue {
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         next();
+    }
+
+    private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
+        this.params = evt.params; // This makes sure a change is triggered in child components
     }
 }
 </script>
@@ -99,6 +116,9 @@ export default class ScrollEditor extends Vue {
     width: calc(100vw - 290px);
     touch-action: none;
 }
+.imaged-object-container>div{
+    height: 100%;
+}
 .imaged-object-container.active {
     overflow: auto;
     position: relative;
@@ -111,5 +131,4 @@ export default class ScrollEditor extends Vue {
     align-items: stretch;
     perspective: 1500px;
 }
-
 </style>

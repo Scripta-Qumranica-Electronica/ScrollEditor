@@ -21,7 +21,7 @@
  */
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Point } from '@/utils/helpers';
-// import { VueHammer } from 'vue2-hammer'
+import { VueHammer } from 'vue2-hammer';
 
 export interface ZoomEventArgs {
     zoom: number;
