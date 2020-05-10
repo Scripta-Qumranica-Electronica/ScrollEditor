@@ -77,10 +77,6 @@ import {
 })
 export default class ScrollMenu extends Vue {
     private params: ArtefactEditorParams = new ArtefactEditorParams();
-    constructor() {
-        super();
-        this.params.zoom = 0.1;
-    }
     private get zoom(): any {
         return this.params.zoom;
     }
@@ -102,6 +98,10 @@ export default class ScrollMenu extends Vue {
             params: this.params
         } as ArtefactEditorParamsChangedArgs;
         this.$emit('paramsChanged', args);
+    }
+
+    public mounted() {
+        this.zoom = 0.1;
     }
 }
 </script>

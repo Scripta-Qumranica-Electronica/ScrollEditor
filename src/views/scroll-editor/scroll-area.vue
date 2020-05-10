@@ -1,19 +1,18 @@
 <template>
-        <zoomer :zoom="zoomLevel" :angle="angle"> <!-- Add an event to handle zoom (newZoom). Don't add the angle, we don't need rotation -->
-            <svg :width="svgWidth" :height="svgHeight" :viewBox="`0 0 ${svgWidth} ${svgHeight}`">
-                <g :transform="transform" id="transform-root">
-                    <circle
-                        :cx="positionX"
-                        :cy="positionY"
-                        :r="imgWidth"
-                        stroke="green"
-                        stroke-width="4"
-                        fill="yellow"
-                    />
-                </g>
-            </svg>
-        </zoomer>
-   
+    <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
+        <svg :width="actualWidth" :height="actualHeight" :viewBox="`0 0 ${actualWidth} ${actualHeight}`">
+            <g :transform="transform" id="transform-root">
+                <circle
+                    :cx="positionX"
+                    :cy="positionY"
+                    :r="imgWidth"
+                    stroke="green"
+                    stroke-width="4"
+                    fill="yellow"
+                />
+            </g>
+        </svg>
+    </zoomer>
 </template>
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
@@ -31,7 +30,6 @@ import {
 } from '../artefact-editor/types';
 import { BoundingBox } from '@/utils/helpers';
 
-
 @Component({
     name: 'scroll-area',
     components: {
@@ -40,24 +38,24 @@ import { BoundingBox } from '@/utils/helpers';
     }
 })
 export default class ScrollArea extends Vue {
-    @Prop() public paramsArea: ArtefactEditorParams = new ArtefactEditorParams(); // Shaindel - rename to params
+    @Prop()
+    public params!: ArtefactEditorParams; // Shaindel - rename to params
     private imageWidth = 10000;
     private imageHeight = 10000;
     private boundingBox = new BoundingBox(1, 1);
 
-
-   private get svgWidth(): number { // Shaindel - Rename to actualWidth
+    private get actualWidth(): number {
         return this.imageWidth * this.zoomLevel;
     }
 
-    private get svgHeight(): number { // Shaindel - rename to actualHeight
+    private get actualHeight(): number {
         return this.imageHeight * this.zoomLevel;
     }
     private get positionX(): number {
-        return this.svgWidth / 2;
+        return this.actualWidth / 2;
     }
     private get positionY(): number {
-        return this.svgHeight / 2;
+        return this.actualHeight / 2;
     }
 
     private get imgWidth(): number {
@@ -65,17 +63,12 @@ export default class ScrollArea extends Vue {
     }
 
     private get zoomLevel() {
-        return this.paramsArea.zoom;
+        return this.params.zoom;
     }
 
-    private set zoomLevel(val) {
-        return this.paramsArea.zoom;
+    private onNewZoom(event: ZoomEventArgs) {
+        this.params.zoom = parseFloat(event.zoom.toString());
     }
-
-    private get angle() {
-        return this.paramsArea.rotationAngle;
-    }
-
 
     private get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
@@ -85,8 +78,7 @@ export default class ScrollArea extends Vue {
 </script>
 
 <style lang="scss" scoped>
-#transform-root{
+#transform-root {
     transform-origin: center;
 }
-
 </style>

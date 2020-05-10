@@ -21,7 +21,7 @@
                     </b-button>
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
-                    <scroll-area :paramsArea="params"></scroll-area>
+                    <scroll-area :params="params"></scroll-area>
                 </div>
             </div>
         </div>
@@ -52,7 +52,6 @@ export default class ScrollEditor extends Vue {
     private isActive = false;
     private editionId: number = 0;
     private params = new ArtefactEditorParams();
-    private paramsArea: ArtefactEditorParams = new ArtefactEditorParams();
     private sidebarClicked() {
         this.isActive = !this.isActive;
     }
