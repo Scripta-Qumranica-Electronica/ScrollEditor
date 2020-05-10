@@ -36,7 +36,7 @@ export interface RotateEventArgs {
 })
 export default class Zoomer extends Vue {
     @Prop() private zoom!: number;
-    @Prop() private angle!: number;
+    @Prop({ default: 0 }) private angle!: number;
     private degel = false;
 
     @Emit()

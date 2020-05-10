@@ -1,5 +1,5 @@
 <template>
-        <zoomer :zoom="zoomLevel" :angle="angle">
+        <zoomer :zoom="zoomLevel" :angle="angle"> <!-- Add an event to handle zoom (newZoom). Don't add the angle, we don't need rotation -->
             <svg :width="svgWidth" :height="svgHeight" :viewBox="`0 0 ${svgWidth} ${svgHeight}`">
                 <g :transform="transform" id="transform-root">
                     <circle
@@ -40,17 +40,17 @@ import { BoundingBox } from '@/utils/helpers';
     }
 })
 export default class ScrollArea extends Vue {
-    @Prop() public paramsArea: ArtefactEditorParams = new ArtefactEditorParams();
+    @Prop() public paramsArea: ArtefactEditorParams = new ArtefactEditorParams(); // Shaindel - rename to params
     private imageWidth = 10000;
     private imageHeight = 10000;
     private boundingBox = new BoundingBox(1, 1);
 
 
-   private get svgWidth(): number {
+   private get svgWidth(): number { // Shaindel - Rename to actualWidth
         return this.imageWidth * this.zoomLevel;
     }
 
-    private get svgHeight(): number {
+    private get svgHeight(): number { // Shaindel - rename to actualHeight
         return this.imageHeight * this.zoomLevel;
     }
     private get positionX(): number {
