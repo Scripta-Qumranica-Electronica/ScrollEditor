@@ -1,6 +1,6 @@
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from './imaged-object';
-import { ArtefactDTO } from '@/dtos/sqe-dtos';
+import { ArtefactDTO, TransformationDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
 import { Mask } from '@/utils/Mask';
 import { ArtefactTextFragmentData } from './text';
@@ -38,11 +38,19 @@ export class Artefact {
 
     public get isPlaced(): boolean {
         // Shaindel: Return true if the artefact has been placed on the scroll
-        return false;
+        if (this.mask.transformation.translate || this.mask.transformation.scale || this.mask.transformation.rotate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // To place an artefact on the scroll - set its mask.transformation to a proper TransformationDTO
     // Set rotation to 0, scale to 1, set the translation x and y to (100 * number of placed artefacts, 400)
+    public placeOnScroll(transformationDTO: TransformationDTO) {
+        this.mask.transformation = {...transformationDTO};
+        // this.mask.transformation.rotate = transformationDTO.rotate;
+    }
 
     private copyFrom(other: Artefact) {
         this.id = other.id;
