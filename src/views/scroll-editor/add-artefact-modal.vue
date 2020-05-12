@@ -1,6 +1,11 @@
 <template>
     <div>
-        <b-modal ref="addArtefactModalRef" id="addArtefactModal" hide-footer @shown="scrollModalShown">
+        <b-modal
+            ref="addArtefactModalRef"
+            id="addArtefactModal"
+            hide-footer
+            @shown="scrollModalShown"
+        >
             <div>
                 <form>
                     <b-form-select class="mb-3" @change="selectArtefact($event)">
@@ -56,12 +61,14 @@ export default class AddArtefactModal extends Vue {
     private get artefacts() {
         return this.$state.artefacts.items || [];
     }
+
     // private get edition(){
     //     return this.$state.editions.current;
     // }
-private get nonPlacedArtefacts(){
-   return this.artefacts.filter(x => !x.isPlaced);
-}
+    private get nonPlacedArtefacts() {
+        return this.artefacts.filter(x => !x.isPlaced);
+    }
+
     private selectArtefact(art: Artefact) {
         this.isLoaded = false;
         setTimeout(() => {
@@ -70,11 +77,12 @@ private get nonPlacedArtefacts(){
         }, 0);
     }
     private addArtefactScroll() {
+        // Shaindel - Close modal, add artefact in the scroll-editor and not here.
         const numberOfPlaced = this.artefacts.filter(x => x.isPlaced).length;
 
         const transformation: TransformationDTO = {
             translate: {
-                x: 100 * numberOfPlaced,
+                x: 800 * numberOfPlaced,
                 y: 400
             },
             scale: 1,

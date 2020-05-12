@@ -2,14 +2,11 @@
     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
         <svg :width="actualWidth" :height="actualHeight" :viewBox="`0 0 ${actualWidth} ${actualHeight}`">
             <g :transform="transform" id="transform-root">
-                <circle
-                    :cx="positionX"
-                    :cy="positionY"
-                    :r="imgWidth"
-                    stroke="green"
-                    stroke-width="4"
-                    fill="yellow"
-                />
+                <!-- For each artefact, we need a group as follows: -->
+                <g v-for="artefact in placedArtefacts" :key="artefact.id" :transform="artefact.svgTransform"> 
+                    <!-- Take <defs> and <path> and <image> from the artefact-image,
+                        for now display the master image -->
+                </g> -->
             </g>
         </svg>
     </zoomer>
@@ -72,7 +69,7 @@ export default class ScrollArea extends Vue {
 
     private get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
-        return `${zoom}`;
+        return zoom;
     }
 }
 </script>

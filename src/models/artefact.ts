@@ -4,6 +4,7 @@ import { ArtefactDTO, TransformationDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
 import { Mask } from '@/utils/Mask';
 import { ArtefactTextFragmentData } from './text';
+import { BoundingBox } from '@/utils/helpers';
 
 
 export class Artefact {
@@ -45,23 +46,35 @@ export class Artefact {
         }
     }
 
-    // To place an artefact on the scroll - set its mask.transformation to a proper TransformationDTO
-    // Set rotation to 0, scale to 1, set the translation x and y to (100 * number of placed artefacts, 400)
+    // TBD: Perhaps rename to setTransformation, or maybe even drop this function entirely
+    // and manipulate mask from the outside
     public placeOnScroll(transformationDTO: TransformationDTO) {
-        this.mask.transformation = {...transformationDTO};
-        // this.mask.transformation.rotate = transformationDTO.rotate;
+        this.mask.transformation = { ...transformationDTO };
+    }
+
+    public get boundingBox(): BoundingBox {
+        return this.mask.polygon.getBoundingBox();
+    }
+
+    // Shaindel: Please implement this function
+    public get svgTransform(): string {
+        const scale = '...';   // Scale by scale of transform
+        const translate = '...'; // Translate by x,y of transform - x,y of boundBox
+        const rotate = '...'; // Rotate by transform around middle of bounding box
+
+        return `${scale} ${translate} ${rotate}`;
     }
 
     private copyFrom(other: Artefact) {
-        this.id = other.id;
-        this.editionId = other.editionId;
-        this.imagedObjectId = other.imagedObjectId;
-        this.name = other.name;
-        this.mask = other.mask;
-        // this.transformMatrix = other.transformMatrix;
-        this.zOrder = other.zOrder;
-        this.side = other.side;
+    this.id = other.id;
+    this.editionId = other.editionId;
+    this.imagedObjectId = other.imagedObjectId;
+    this.name = other.name;
+    this.mask = other.mask;
+    // this.transformMatrix = other.transformMatrix;
+    this.zOrder = other.zOrder;
+    this.side = other.side;
 
-        this.textFragments = [...other.textFragments];
-    }
+    this.textFragments = [...other.textFragments];
+}
 }
