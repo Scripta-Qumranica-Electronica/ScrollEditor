@@ -39,6 +39,7 @@ import {
     ArtefactEditorParamsChangedArgs,
     ArtefactEditorParams
 } from '../artefact-editor/types';
+import { TransformationDTO } from '@/dtos/sqe-dtos';
 
 @Component({
     name: 'scroll-editor',
@@ -59,9 +60,21 @@ export default class ScrollEditor extends Vue {
     private async mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
+
+        this.$root.$on('bv::modal::hide', (bvEvent: any, modalId: any) => {
+            if (modalId === 'addArtefactModal') {
+                const artefactId = bvEvent.trigger;
+                this.onAddArtefactModalClose(artefactId);
+            }
+        });
     }
 
-    private async beforeRouteUpdate(to, from, next) { // Shaindel: Add types
+    private get artefacts() {
+        return this.$state.artefacts.items || [];
+    }
+
+    private async beforeRouteUpdate(to, from, next) {
+        // Shaindel: Add types
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         next();
@@ -69,6 +82,24 @@ export default class ScrollEditor extends Vue {
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         this.params = evt.params;
+    }
+
+    private onAddArtefactModalClose(artId: number) {
+        const artefact = this.$state.artefacts.find(artId);
+        if (artefact) {
+            const numberOfPlaced = this.artefacts.filter(x => x.isPlaced)
+                .length;
+
+            const transformation: TransformationDTO = {
+                translate: {
+                    x: 800 * numberOfPlaced,
+                    y: 400
+                },
+                scale: 1,
+                rotate: 0
+            };
+            artefact.placeOnScroll(transformation);
+        }
     }
 }
 </script>

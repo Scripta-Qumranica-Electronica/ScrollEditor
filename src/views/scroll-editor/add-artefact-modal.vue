@@ -21,7 +21,7 @@
                     </div>
                 </form>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" @click="addArtefactScroll()">Add</button>
+                    <button type="button" class="btn btn-primary" @click="closeModal()">Add</button>
                 </div>
             </div>
         </b-modal>
@@ -76,21 +76,13 @@ export default class AddArtefactModal extends Vue {
             this.isLoaded = true;
         }, 0);
     }
-    private addArtefactScroll() {
-        // Shaindel - Close modal, add artefact in the scroll-editor and not here.
-        const numberOfPlaced = this.artefacts.filter(x => x.isPlaced).length;
 
-        const transformation: TransformationDTO = {
-            translate: {
-                x: 800 * numberOfPlaced,
-                y: 400
-            },
-            scale: 1,
-            rotate: 0
-        };
-
-        this.artefact!.placeOnScroll(transformation);
-        (this.$refs.addArtefactModalRef as any).hide();
+    // @Emit()
+    // private Close(added: boolean) {
+    //     return added;
+    // }
+    private closeModal() {
+        (this.$refs.addArtefactModalRef as any).hide(this.artefact!.id);
     }
 }
 </script>
