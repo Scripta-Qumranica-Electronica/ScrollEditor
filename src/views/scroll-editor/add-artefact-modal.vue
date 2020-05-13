@@ -77,10 +77,6 @@ export default class AddArtefactModal extends Vue {
         }, 0);
     }
 
-    // @Emit()
-    // private Close(added: boolean) {
-    //     return added;
-    // }
     private closeModal() {
         (this.$refs.addArtefactModalRef as any).hide(this.artefact!.id);
     }
