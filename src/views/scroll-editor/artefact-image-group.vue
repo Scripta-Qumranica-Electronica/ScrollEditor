@@ -33,18 +33,23 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
                               // Wait until the IIIF server can handle requests of various sizes
 
     get masterImageUrl() {
-        return this.imageStack!.master.getFullUrl(this.imageScale * 100);
+        const image = this.imageStack!.master;
+        const url = image.getScaledAndCroppedUrl(
+            this.imageScale * 100,
+            this.boundingBox.x,
+            this.boundingBox.y,
+            this.boundingBox.width,
+            this.boundingBox.height
+        );
+        return url;
     }
 
     get imageTransform(): string {
-        // The image is loaded at a lower resolution (depending on scale),
-        // we need to scale it back to the original size of the image
-        const scale = `scale(1 / ${this.imageScale})`;
-
-        // And we need to move it so that the artefact image is shown
+        // Note that we do not zoom the image at all, even though its original resolution depends on imageScale
+        // That's because we specify the width and height of the image element, and the browser makes sure the image
+        // is scaled to those dimensions
         const translate = `translate(${this.boundingBox.x} ${this.boundingBox.y})`;
-
-        return `${translate} ${scale}`;
+        return translate;
     }
 
     public get groupTransform(): string {
