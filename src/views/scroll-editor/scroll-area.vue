@@ -6,11 +6,10 @@
             :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
         >
             <g :transform="transform" id="transform-root">
-                <!-- For each artefact, we need a group as follows: -->
-                <template v-for="artefact in placedArtefacts">
-                    <artefact-image-group :artefact="artefact" v-bind:key="artefact.id"> </artefact-image-group>
-                </template>
-            </g>
+                <artefact-image-group v-for="artefact in placedArtefacts"
+                                        :artefact="artefact" 
+                                        :key="artefact.id" />
+           </g>
         </svg>
     </zoomer>
 </template>
@@ -42,7 +41,7 @@ import ArtefactImageGroup from './artefact-image-group.vue';
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup
 
     }

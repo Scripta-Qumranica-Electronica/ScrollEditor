@@ -56,15 +56,6 @@ export class Artefact {
         return this.mask.polygon.getBoundingBox();
     }
 
-    // Shaindel: Please implement this function
-    public get svgTransform(): string {
-        const scale = '...';   // Scale by scale of transform
-        const translate = '...'; // Translate by x,y of transform - x,y of boundBox
-        const rotate = '...'; // Rotate by transform around middle of bounding box
-
-        return `${scale} ${translate} ${rotate}`;
-    }
-
     private copyFrom(other: Artefact) {
     this.id = other.id;
     this.editionId = other.editionId;
