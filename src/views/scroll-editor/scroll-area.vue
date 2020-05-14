@@ -8,7 +8,8 @@
             <g :transform="transform" id="transform-root">
                 <artefact-image-group v-for="artefact in placedArtefacts"
                                         :artefact="artefact" 
-                                        :key="artefact.id" />
+                                        :key="artefact.id"
+                                        :selected="artefact===selectedArtefact" />
            </g>
         </svg>
     </zoomer>
@@ -53,9 +54,12 @@ export default class ScrollArea extends Vue {
     private imageHeight = 10000;
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
+    // Shaindel: Add a `selected` property for the selected artefact
+
     private get artefacts() {
         return this.$state.artefacts.items || [];
     }
+
 
     private get actualWidth(): number {
         return this.imageWidth * this.zoomLevel;

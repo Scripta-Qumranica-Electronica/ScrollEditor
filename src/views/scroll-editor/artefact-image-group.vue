@@ -14,6 +14,8 @@
                 :xlink:href="masterImageUrl"
             />
         </g>
+        <path :d="artefact.mask.polygon.svg"
+              vector-effect="non-scaling-stroke" />
     </g>
 </template> 
 
@@ -28,6 +30,10 @@ import { Polygon } from '@/utils/Polygons';
 })
 export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private loaded = false;
+
+    // Add a selected property (default is false)
+    // If artefact is selected, add a CSS style for the group, that will make the image brighter
+    // Add a blinking bounary around the artefact - use the <path> element for this
 
     private imageScale = 0.5; // TODO: Set a dynamic scale, based on actual element size.
                               // Wait until the IIIF server can handle requests of various sizes
@@ -47,7 +53,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     get imageTransform(): string {
         // Note that we do not zoom the image at all, even though its original resolution depends on imageScale
         // That's because we specify the width and height of the image element, and the browser makes sure the image
-        // is scaled to those dimensions
+        // is scaled to those
         const translate = `translate(${this.boundingBox.x} ${this.boundingBox.y})`;
         return translate;
     }
@@ -59,13 +65,17 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         }
 
         const scale = `scale(${trans.scale})`;   // Scale by scale of transform
-        const translate = `translate(${trans.translate.x} ${trans.translate.y})`;
 
-        // Rotate around the bounding box's center. When we apply this rotation, the artefact has already
+         // Rotate around the bounding box's center. When we apply this rotation, the artefact has already
         // been shifted to the bounding box starts at (0,0)
         const midX = this.boundingBox.width / 2;
         const midY = this.boundingBox.height / 2;
         const rotate = `rotate(${trans.rotate}, ${midX}, ${midY})`;
+
+        // Move the image to the right place - first to (0,0) by reducing the bounding-box, then to the right position
+        const translateX = -this.artefact.boundingBox.x + this.artefact.mask.transformation.translate.x;
+        const translateY = - this.artefact.boundingBox.y + this.artefact.mask.transformation.translate.y;
+        const translate = `translate(${translateX}, ${translateY})`;
 
         return `${scale} ${translate} ${rotate}`;
     }
@@ -78,4 +88,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 </script>
 
 <style lang="scss" scoped>
+path {
+    stroke-width: 100;
+    fill-opacity: 0;
+}
 </style>                 
