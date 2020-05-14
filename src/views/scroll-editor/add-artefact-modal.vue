@@ -13,7 +13,7 @@
                             :value="art"
                             v-bind:key="art.id"
                             v-for="art in nonPlacedArtefacts"
-                        >{{ art.name }}</option>
+                        >{{ art.name }} - {{art.side}}</option>
                     </b-form-select>
 
                     <div v-if="isLoaded">
