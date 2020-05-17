@@ -6,11 +6,13 @@
             :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
         >
             <g :transform="transform" id="transform-root">
-                <artefact-image-group v-for="artefact in placedArtefacts"
-                                        :artefact="artefact" 
-                                        :key="artefact.id"
-                                        :selected="artefact===selectedArtefact" />
-           </g>
+                <artefact-image-group
+                   @on-select="selectArtefact(artefact)"
+                    :artefact="artefact"
+                    v-for="artefact in placedArtefacts" :key="artefact.id"
+                    :selected="artefact===selectedArtefact"
+                />
+            </g>
         </svg>
     </zoomer>
 </template>
@@ -42,9 +44,8 @@ import ArtefactImageGroup from './artefact-image-group.vue';
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup
-
     }
 })
 export default class ScrollArea extends Vue {
@@ -54,12 +55,11 @@ export default class ScrollArea extends Vue {
     private imageHeight = 10000;
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
-    // Shaindel: Add a `selected` property for the selected artefact
+    private selectedArtefact: Artefact = {} as Artefact;
 
     private get artefacts() {
         return this.$state.artefacts.items || [];
     }
-
 
     private get actualWidth(): number {
         return this.imageWidth * this.zoomLevel;
@@ -93,6 +93,9 @@ export default class ScrollArea extends Vue {
     }
     private get placedArtefacts() {
         return this.artefacts.filter(x => x.isPlaced);
+    }
+    private selectArtefact(artefact: Artefact) {
+        this.selectedArtefact = artefact;
     }
 }
 </script>
