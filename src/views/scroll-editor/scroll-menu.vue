@@ -48,109 +48,104 @@
                 >
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button @click="openAddArtefactModal()">{{$t('misc.add')}}</b-button>
-                            <table>
-                                <tr>
-                                    <td></td>
-                                    <td>
-                                        <b-button
-                                            class="mt-2"
-                                            size="sm"
-                                            :disabled="!artefactSelect"
-                                            @click="dragArtefact(0,-1)"
-                                        >
-                                            <i class="fa fa-arrow-up"></i>
+                            <b-button @click="openAddArtefactModal()">{{$t('misc.add')}} artefact</b-button>
+                            <div class="mt-2">
+                                <b-button-group size="sm">
+                                    <b-button
+                                        :disabled="!artefact"
+                                        :pressed="mode === 'translate'"
+                                        @click="setMode('translate')"
+                                    >Translate</b-button>
+                                    <b-button
+                                        :disabled="!artefact"
+                                        :pressed="mode === 'scale'"
+                                        @click="setMode('scale')"
+                                    >Scale</b-button>
+                                    <b-button
+                                        :disabled="!artefact"
+                                        :pressed="mode === 'rotate'"
+                                        @click="setMode('rotate')"
+                                    >Rotate</b-button>
+                                </b-button-group>
+                                <div v-if="mode === 'translate'">
+                                    <table>
+                                        <tr>
+                                            <td></td>
+                                            <td>
+                                                <b-button
+                                                    class="mt-2"
+                                                    size="sm"
+                                                    :disabled="!artefactSelect"
+                                                    @click="dragArtefact(0,-1)"
+                                                >
+                                                    <i class="fa fa-arrow-up"></i>
+                                                </b-button>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b-button
+                                                    class="mb-2"
+                                                    size="sm"
+                                                    :disabled="!artefactSelect"
+                                                    @click="dragArtefact(-1,0)"
+                                                >
+                                                    <i class="fa fa-arrow-left"></i>
+                                                </b-button>
+                                            </td>
+                                            <td>
+                                                <b-button
+                                                    class="mb-2"
+                                                    size="sm"
+                                                    :disabled="!artefactSelect"
+                                                    @click="dragArtefact(0,1)"
+                                                >
+                                                    <i class="fa fa-arrow-down"></i>
+                                                </b-button>
+                                            </td>
+                                            <td>
+                                                <b-button
+                                                    class="mb-2"
+                                                    size="sm"
+                                                    :disabled="!artefactSelect"
+                                                    @click="dragArtefact(1,0)"
+                                                >
+                                                    <i class="fa fa-arrow-right"></i>
+                                                </b-button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <input v-model="translateValue" />
+                                </div>
+                                <div v-if="mode === 'scale'">
+                                    <b-button-group size="sm">
+                                        <b-button class="m-2" @click="zoomArtefact(1)">
+                                            <i class="fa fa-plus"></i>
                                         </b-button>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b-button
-                                            class="mb-2"
-                                            size="sm"
-                                            :disabled="!artefactSelect"
-                                            @click="dragArtefact(-1,0)"
-                                        >
-                                            <i class="fa fa-arrow-left"></i>
+                                        <b-button class="m-2" @click="zoomArtefact(-1)">
+                                            <i class="fa fa-minus"></i>
                                         </b-button>
-                                    </td>
-                                    <td>
-                                        <b-button
-                                            class="mb-2"
-                                            size="sm"
-                                            :disabled="!artefactSelect"
-                                            @click="dragArtefact(0,1)"
-                                        >
-                                            <i class="fa fa-arrow-down"></i>
-                                        </b-button>
-                                    </td>
-                                    <td>
-                                        <b-button
-                                            class="mb-2"
-                                            size="sm"
-                                            :disabled="!artefactSelect"
-                                            @click="dragArtefact(1,0)"
-                                        >
-                                            <i class="fa fa-arrow-right"></i>
-                                        </b-button>
-                                    </td>
-                                </tr>
-                            </table>
-                            <input v-model="translateValue" />
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!artefactSelect"
-                                @click="rotateArtefact(-1)"
-                            >
-                                <font-awesome-icon icon="undo"></font-awesome-icon>
-                                {{rotationValue}}°
-                            </b-button>
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!artefactSelect"
-                                @click="rotateArtefact(1)"
-                            >
-                                <font-awesome-icon icon="redo"></font-awesome-icon>
-                                {{rotationValue}}°
-                            </b-button>
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!artefactSelect"
-                                @click="rotateSlowArtefact(-1)"
-                            >
-                                <font-awesome-icon icon="undo"></font-awesome-icon>5°
-                            </b-button>
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!artefactSelect"
-                                @click="rotateSlowArtefact(1)"
-                            >
-                                <font-awesome-icon icon="redo"></font-awesome-icon>5°
-                            </b-button>
-                            <input v-model="rotationValue" />
+                                        <b-button class="m-2" @click="resetScaleArtefact()">Reset</b-button>
+                                    </b-button-group>
 
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!artefactSelect"
-                                @click="zoomArtefact(1)"
-                            >
-                                <i class="fa fa-plus"></i>
-                            </b-button>
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!artefactSelect"
-                                @click="zoomArtefact(-1)"
-                            >
-                                <i class="fa fa-minus"></i>
-                            </b-button>
-                            <input v-model="zoomValue" />
+                                    <input v-model="zoomValue" />
+                                </div>
+                                <div v-if="mode === 'rotate'">
+                                    <b-button-group size="sm">
+                                        <b-button class="m-2" @click="rotateArtefact(-1)">
+                                            <font-awesome-icon icon="undo"></font-awesome-icon>
+                                            {{rotationValue}}°
+                                        </b-button>
+                                        <b-button class="m-2" @click="rotateArtefact(1)">
+                                            <font-awesome-icon icon="redo"></font-awesome-icon>
+                                            {{rotationValue}}°
+                                        </b-button>
+                                        <b-button class="m-2" @click="resetRotationArtefact()">Reset</b-button>
+                                    </b-button-group>
+                                    <input v-model="rotationValue" />
+                                </div>
+                            </div>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -184,8 +179,9 @@ export default class ScrollMenu extends Vue {
     private params: ArtefactEditorParams = new ArtefactEditorParams();
     private translateValue = 5;
     private rotationValue = 45;
-    private rotationSlowValue = 5;
     private zoomValue = 5;
+    private reset!: number;
+    private mode: string = '';
 
     private get artefactSelect(): Artefact | undefined {
         return this.artefact;
@@ -216,8 +212,15 @@ export default class ScrollMenu extends Vue {
     }
 
     public mounted() {
+        window.addEventListener('keydown', this.onKeyPress);
+
         this.zoom = 0.1;
     }
+
+    public destroyed() {
+        window.removeEventListener('keydown', this.onKeyPress);
+    }
+
     public dragArtefact(translateX: number, translateY: number) {
         this.artefact!.mask.transformation.translate.x +=
             this.translateValue * translateX;
@@ -228,13 +231,58 @@ export default class ScrollMenu extends Vue {
         this.artefact!.mask.transformation.rotate! +=
             rotate * this.rotationValue;
     }
-    public rotateSlowArtefact(rotate: number) {
-        this.artefact!.mask.transformation.rotate! +=
-            rotate * this.rotationSlowValue;
-    }
     public zoomArtefact(zoom: number) {
         this.artefact!.mask.transformation.scale! +=
             (zoom * this.zoomValue) / 100;
+    }
+    public resetRotationArtefact() {
+        this.artefact!.mask.transformation.rotate = 0;
+    }
+    public resetScaleArtefact() {
+        this.artefact!.mask.transformation.scale = 1;
+    }
+
+    private setMode(mode: string) {
+        this.mode = mode;
+    }
+
+    private onKeyPress(event: KeyboardEvent) {
+        if (!this.artefact) {
+            return;
+        }
+
+        console.log(event);
+        switch (event.key) {
+            case 'm':
+                this.setMode('translate');
+                break;
+            case 'r':
+                this.setMode('rotate');
+                break;
+            case 's':
+                this.setMode('scale');
+                break;
+            case 'ArrowLeft':
+                if (this.mode === 'translate') {
+                    this.dragArtefact(-1, 0);
+                }
+                break;
+            case 'ArrowRight':
+                if (this.mode === 'translate') {
+                    this.dragArtefact(1, 0);
+                }
+                break;
+            case 'ArrowUp':
+                if (this.mode === 'translate') {
+                    this.dragArtefact(0, -1);
+                }
+                break;
+            case 'ArrowDown':
+                if (this.mode === 'translate') {
+                    this.dragArtefact(0, 1);
+                }
+                break;
+        }
     }
 }
 </script>

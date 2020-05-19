@@ -101,6 +101,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private onSelect(): boolean {
         return true;
     }
+
 }
 </script>
 
