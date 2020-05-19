@@ -19,7 +19,7 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ScrollMenu from './scroll-menu.vue';
 import Zoomer, {
@@ -96,7 +96,9 @@ export default class ScrollArea extends Vue {
     }
     private selectArtefact(artefact: Artefact) {
         this.selectedArtefact = artefact;
+        this.$emit('onSelectArtefact', this.selectedArtefact);
     }
+
 }
 </script>
 

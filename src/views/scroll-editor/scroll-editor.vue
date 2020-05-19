@@ -5,7 +5,7 @@
             class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
             :class="{ active : isActive }"
         >
-            <scroll-menu @paramsChanged="onParamsChanged($event)"></scroll-menu>
+            <scroll-menu :artefact="artefact" @paramsChanged="onParamsChanged($event)"></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -21,7 +21,7 @@
                     </b-button>
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
-                    <scroll-area :params="params"></scroll-area>
+                    <scroll-area @onSelectArtefact="selectArtefact($event)" :params="params"></scroll-area>
                 </div>
             </div>
         </div>
@@ -50,14 +50,22 @@ import { TransformationDTO } from '@/dtos/sqe-dtos';
     }
 })
 export default class ScrollEditor extends Vue {
+    private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
     private editionId: number = 0;
     private params = new ArtefactEditorParams();
+
+    public selectArtefact(artefact: Artefact | undefined) {
+        this.artefact = artefact;
+    }
+
     private sidebarClicked() {
         this.isActive = !this.isActive;
     }
 
     private async mounted() {
+        this.artefact = undefined;
+
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
 
