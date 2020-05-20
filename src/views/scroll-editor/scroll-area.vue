@@ -5,13 +5,16 @@
             :height="actualHeight"
             :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
         >
-            <g :transform="transform" id="transform-root">
+            <g id="root" :transform="transform">
                 <artefact-image-group
                    @on-select="selectArtefact(artefact)"
                     :artefact="artefact"
                     v-for="artefact in placedArtefacts" :key="artefact.id"
                     :selected="artefact===selectedArtefact"
                 />
+                <ellipse cx="100" cy="100" rx="100" ry="100"/>
+                <ellipse cx="1000" cy="1000" rx="100" ry="100"/>
+                <ellipse cx="5000" cy="5000" rx="100" ry="100"/>
             </g>
         </svg>
     </zoomer>
@@ -101,7 +104,4 @@ export default class ScrollArea extends Vue {
 </script>
 
 <style lang="scss" scoped>
-#transform-root {
-    transform-origin: center;
-}
 </style>
