@@ -49,6 +49,108 @@
                     <b-card-body>
                         <section class="center-btn">
                             <b-button @click="openAddArtefactModal()">{{$t('misc.add')}}</b-button>
+                            <table>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <b-button
+                                            class="mt-2"
+                                            size="sm"
+                                            :disabled="!artefactSelect"
+                                            @click="dragArtefact(0,-1)"
+                                        >
+                                            <i class="fa fa-arrow-up"></i>
+                                        </b-button>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b-button
+                                            class="mb-2"
+                                            size="sm"
+                                            :disabled="!artefactSelect"
+                                            @click="dragArtefact(-1,0)"
+                                        >
+                                            <i class="fa fa-arrow-left"></i>
+                                        </b-button>
+                                    </td>
+                                    <td>
+                                        <b-button
+                                            class="mb-2"
+                                            size="sm"
+                                            :disabled="!artefactSelect"
+                                            @click="dragArtefact(0,1)"
+                                        >
+                                            <i class="fa fa-arrow-down"></i>
+                                        </b-button>
+                                    </td>
+                                    <td>
+                                        <b-button
+                                            class="mb-2"
+                                            size="sm"
+                                            :disabled="!artefactSelect"
+                                            @click="dragArtefact(1,0)"
+                                        >
+                                            <i class="fa fa-arrow-right"></i>
+                                        </b-button>
+                                    </td>
+                                </tr>
+                            </table>
+                            <input v-model="translateValue" />
+                            <b-button
+                                class="m-2"
+                                size="sm"
+                                :disabled="!artefactSelect"
+                                @click="rotateArtefact(-1)"
+                            >
+                                <font-awesome-icon icon="undo"></font-awesome-icon>
+                                {{rotationValue}}°
+                            </b-button>
+                            <b-button
+                                class="m-2"
+                                size="sm"
+                                :disabled="!artefactSelect"
+                                @click="rotateArtefact(1)"
+                            >
+                                <font-awesome-icon icon="redo"></font-awesome-icon>
+                                {{rotationValue}}°
+                            </b-button>
+                            <b-button
+                                class="m-2"
+                                size="sm"
+                                :disabled="!artefactSelect"
+                                @click="rotateSlowArtefact(-1)"
+                            >
+                                <font-awesome-icon icon="undo"></font-awesome-icon>5°
+                            </b-button>
+                            <b-button
+                                class="m-2"
+                                size="sm"
+                                :disabled="!artefactSelect"
+                                @click="rotateSlowArtefact(1)"
+                            >
+                                <font-awesome-icon icon="redo"></font-awesome-icon>5°
+                            </b-button>
+                            <input v-model="rotationValue" />
+
+                            <b-button
+                                class="m-2"
+                                size="sm"
+                                :disabled="!artefactSelect"
+                                @click="zoomArtefact(1)"
+                            >
+                                <i class="fa fa-plus"></i>
+                            </b-button>
+                            <b-button
+                                class="m-2"
+                                size="sm"
+                                :disabled="!artefactSelect"
+                                @click="zoomArtefact(-1)"
+                            >
+                                <i class="fa fa-minus"></i>
+                            </b-button>
+                            <input v-model="zoomValue" />
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -67,6 +169,7 @@ import {
     ArtefactEditorParams,
     ArtefactEditorParamsChangedArgs
 } from '../artefact-editor/types';
+import { TransformationDTO } from '@/dtos/sqe-dtos';
 
 @Component({
     name: 'scroll-menu',
@@ -76,10 +179,22 @@ import {
     }
 })
 export default class ScrollMenu extends Vue {
+    @Prop()
+    public artefact: Artefact | undefined = undefined;
     private params: ArtefactEditorParams = new ArtefactEditorParams();
+    private translateValue = 5;
+    private rotationValue = 45;
+    private rotationSlowValue = 5;
+    private zoomValue = 5;
+
+    private get artefactSelect(): Artefact | undefined {
+        return this.artefact;
+    }
+
     private get zoom(): any {
         return this.params.zoom;
     }
+
     private set zoom(val: any) {
         this.params.zoom = parseFloat(val);
         this.notifyChange('zoom', val);
@@ -102,6 +217,24 @@ export default class ScrollMenu extends Vue {
 
     public mounted() {
         this.zoom = 0.1;
+    }
+    public dragArtefact(translateX: number, translateY: number) {
+        this.artefact!.mask.transformation.translate.x +=
+            this.translateValue * translateX;
+        this.artefact!.mask.transformation.translate.y +=
+            this.translateValue * translateY;
+    }
+    public rotateArtefact(rotate: number) {
+        this.artefact!.mask.transformation.rotate! +=
+            rotate * this.rotationValue;
+    }
+    public rotateSlowArtefact(rotate: number) {
+        this.artefact!.mask.transformation.rotate! +=
+            rotate * this.rotationSlowValue;
+    }
+    public zoomArtefact(zoom: number) {
+        this.artefact!.mask.transformation.scale! +=
+            (zoom * this.zoomValue) / 100;
     }
 }
 </script>
