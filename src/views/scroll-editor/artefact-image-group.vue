@@ -1,12 +1,12 @@
 <template>
-    <g v-if="loaded" :key="artefact.id" :transform="groupTransform">
+    <g v-if="loaded" :key="artefact.id" :transform="groupTransform" id="transform-root"> 
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.polygon.svg" />
             <clipPath :id="`clip-path-${artefact.id}`">
                 <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
             </clipPath>
         </defs>
-        <g :clip-path="`url(#clip-path-${artefact.id})`">
+        <g :clip-path="`url(#clip-path-${artefact.id})`" >
             <image
                 @click="onSelect()"
                 :width="boundingBox.width"
@@ -111,5 +111,8 @@ path.selected {
     fill-opacity: 0.3;
     stroke: blue;
     fill: aliceblue;
+}
+#transform-root {
+    transform-origin: center;
 }
 </style>                 
