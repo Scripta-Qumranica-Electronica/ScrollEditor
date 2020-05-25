@@ -14,7 +14,7 @@ import { install as MediaBreakPointsPlugin} from '@yutahaga/vue-media-breakpoint
 
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faLanguage, faSpinner, faSearch, faRedo, faUndo } from '@fortawesome/free-solid-svg-icons';
+import { faLanguage, faSpinner, faSearch, faRedo, faUndo, faArrowsAlt, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Other plugins
@@ -55,7 +55,7 @@ Vue.use(MediaBreakPointsPlugin, {
 });
 
 
-library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo);
+library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);
