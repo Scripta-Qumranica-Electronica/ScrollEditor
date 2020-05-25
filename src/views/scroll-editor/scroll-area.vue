@@ -1,23 +1,30 @@
 <template>
+<div ref="scrollArea" id="outer">
+    <div v-draggable="draggableOptions" v-show="selectedArtefact" style="position: absolute;">
+        <div ref="handleTools" style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move">
+            <i class="fa fa-ellipsis-v"></i>
+        </div>
+        <artefact-toolsbox :params="params" :float="true" :artefact="selectedArtefact"></artefact-toolsbox>
+    </div>
     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
+      
         <svg
             :width="actualWidth"
             :height="actualHeight"
             :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
         >
             <g id="root" :transform="transform">
+                <!-- <artefact-toolsbox :artefact="artefact"></artefact-toolsbox> -->
                 <artefact-image-group
                    @on-select="selectArtefact(artefact)"
                     :artefact="artefact"
                     v-for="artefact in placedArtefacts" :key="artefact.id"
                     :selected="artefact===selectedArtefact"
                 />
-                <ellipse cx="100" cy="100" rx="100" ry="100"/>
-                <ellipse cx="1000" cy="1000" rx="100" ry="100"/>
-                <ellipse cx="5000" cy="5000" rx="100" ry="100"/>
             </g>
         </svg>
     </zoomer>
+    </div>
 </template>
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
@@ -31,7 +38,8 @@ import Zoomer, {
 } from '@/components/misc/zoomer.vue';
 import {
     ArtefactEditorParamsChangedArgs,
-    ArtefactEditorParams
+    ArtefactEditorParams,
+    ScrollEditorParams
 } from '../artefact-editor/types';
 import { BoundingBox } from '@/utils/helpers';
 import {
@@ -42,23 +50,37 @@ import { ImageStack } from '@/models/image';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
+import ArtefactToolsbox from './artefact-toolsbox.vue';
+import { Draggable, DraggableValue } from './drag-directive'
 
 @Component({
     name: 'scroll-area',
     components: {
         Waiting,
         zoomer: Zoomer,
-        'artefact-image-group': ArtefactImageGroup
+        'artefact-image-group': ArtefactImageGroup,
+        'artefact-toolsbox': ArtefactToolsbox
+    },
+    directives: {
+        Draggable
     }
 })
 export default class ScrollArea extends Vue {
     @Prop()
-    public params!: ArtefactEditorParams;
+    public params!: ScrollEditorParams;
     private imageWidth = 10000;
     private imageHeight = 10000;
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
-    private selectedArtefact: Artefact = {} as Artefact;
+    private selectedArtefact: Artefact | undefined = {} as Artefact;
+    private draggableOptions: DraggableValue = {};
+
+    private mounted() {
+        this.selectedArtefact = undefined;
+
+        this.draggableOptions.handle = this.$refs['handleTools'];
+        this.draggableOptions.boundingElement = this.$refs['scrollArea'];
+    }
 
     private get artefacts() {
         return this.$state.artefacts.items || [];
@@ -83,7 +105,7 @@ export default class ScrollArea extends Vue {
     }
 
     private get zoomLevel() {
-        return this.params.zoom;
+        return this.params && this.params.zoom || 0;
     }
 
     private onNewZoom(event: ZoomEventArgs) {
@@ -105,5 +127,5 @@ export default class ScrollArea extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 </style>

@@ -5,7 +5,11 @@
             class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
             :class="{ active : isActive }"
         >
-            <scroll-menu :artefact="artefact" @paramsChanged="onParamsChanged($event)"></scroll-menu>
+            <scroll-menu
+                :artefact="artefact"
+                @paramsChanged="onParamsChanged($event)"
+                @saveArt="onSave()"
+            ></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -37,9 +41,11 @@ import ScrollMenu from './scroll-menu.vue';
 import ScrollArea from './scroll-area.vue';
 import {
     ArtefactEditorParamsChangedArgs,
-    ArtefactEditorParams
+    ArtefactEditorParams,
+    ScrollEditorParams
 } from '../artefact-editor/types';
 import { TransformationDTO } from '@/dtos/sqe-dtos';
+import ArtefactService from '@/services/artefact';
 
 @Component({
     name: 'scroll-editor',
@@ -53,7 +59,8 @@ export default class ScrollEditor extends Vue {
     private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
     private editionId: number = 0;
-    private params = new ArtefactEditorParams();
+    private params: ScrollEditorParams = new ScrollEditorParams();
+    private artefactService = new ArtefactService();
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.artefact = artefact;
@@ -81,6 +88,10 @@ export default class ScrollEditor extends Vue {
         return this.$state.artefacts.items || [];
     }
 
+    private get placedArtefacts() {
+        return this.artefacts.filter(x => x.isPlaced);
+    }
+
     private async beforeRouteUpdate(to, from, next) {
         // Shaindel: Add types
         this.editionId = parseInt(to.params.editionId, 10);
@@ -89,7 +100,7 @@ export default class ScrollEditor extends Vue {
     }
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
-        this.params = evt.params;
+        this.params = evt.params as ScrollEditorParams;
     }
 
     private onAddArtefactModalClose(artId: number) {
@@ -108,6 +119,12 @@ export default class ScrollEditor extends Vue {
             };
             artefact.placeOnScroll(transformation);
         }
+    }
+
+    private onSave() {
+        this.placedArtefacts.forEach(async artefact => {
+            await this.artefactService.changeArtefact(this.editionId, artefact);
+        });
     }
 }
 </script>
@@ -144,7 +161,7 @@ export default class ScrollEditor extends Vue {
 }
 .artefact-container {
     overflow: auto;
-    position: relative;
+    // position: relative;
     padding: 0;
     height: calc(100vh - 63px);
     width: calc(100vw - 290px);

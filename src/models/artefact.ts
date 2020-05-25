@@ -38,7 +38,6 @@ export class Artefact {
     }
 
     public get isPlaced(): boolean {
-        // Shaindel: Return true if the artefact has been placed on the scroll
         if (this.mask.transformation.translate || this.mask.transformation.scale || this.mask.transformation.rotate) {
             return true;
         } else {
