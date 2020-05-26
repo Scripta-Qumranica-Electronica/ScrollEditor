@@ -7,8 +7,12 @@
         >
             <scroll-menu
                 :artefact="artefact"
+                :undo-redo="undoRedo"
                 @paramsChanged="onParamsChanged($event)"
+                @new-operation="onNewOperation($event)"
                 @saveArt="onSave()"
+                @undo="onUndo()"
+                @redo="onRedo()"
             ></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
@@ -25,7 +29,7 @@
                     </b-button>
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
-                    <scroll-area @onSelectArtefact="selectArtefact($event)" :params="params"></scroll-area>
+                    <scroll-area @onSelectArtefact="selectArtefact($event)" :params="params" @new-operation="onNewOperation($event)"></scroll-area>
                 </div>
             </div>
         </div>
@@ -46,6 +50,9 @@ import {
 } from '../artefact-editor/types';
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactService from '@/services/artefact';
+import { UndoRedoManager } from '@/utils/undo-redo';
+import { ScrollEditorOperation } from './undo-redo-ops';
+import { Transformation } from '@/utils/Mask';
 
 @Component({
     name: 'scroll-editor',
@@ -61,6 +68,7 @@ export default class ScrollEditor extends Vue {
     private editionId: number = 0;
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
+    private undoRedo = new UndoRedoManager<ScrollEditorOperation>();
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.artefact = artefact;
@@ -109,14 +117,14 @@ export default class ScrollEditor extends Vue {
             const numberOfPlaced = this.artefacts.filter(x => x.isPlaced)
                 .length;
 
-            const transformation: TransformationDTO = {
+            const transformation = new Transformation({
                 translate: {
                     x: 800 * numberOfPlaced,
                     y: 400
                 },
                 scale: 1,
                 rotate: 0
-            };
+            });
             artefact.placeOnScroll(transformation);
         }
     }
@@ -125,6 +133,18 @@ export default class ScrollEditor extends Vue {
         this.placedArtefacts.forEach(async artefact => {
             await this.artefactService.changeArtefact(this.editionId, artefact);
         });
+    }
+
+    private onNewOperation(op: ScrollEditorOperation) {
+        this.undoRedo.addOperation(op);
+    }
+
+    private onUndo() {
+        this.undoRedo.undo();
+    }
+
+    private onRedo() {
+        this.undoRedo.redo();
     }
 }
 </script>

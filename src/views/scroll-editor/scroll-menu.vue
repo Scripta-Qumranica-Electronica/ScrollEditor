@@ -49,9 +49,23 @@
                     <b-card-body>
                         <section class="center-btn">
                             <b-button @click="openAddArtefactModal()">{{$t('misc.add')}} artefact</b-button>
-                           <artefact-toolsbox :params="params" :artefact="artefact"></artefact-toolsbox>
-                            <b-button   :disabled="!artefactSelect"  @click="onSave()">{{$t('misc.save')}} artefacts </b-button>
+                            <artefact-toolsbox
+                                :params="params"
+                                :artefact="artefact"
+                                @new-operation="onNewOperation($event)"
+                            ></artefact-toolsbox>
+                            <b-button
+                                :disabled="!artefactSelect"
+                                @click="onSave()"
+                            >{{$t('misc.save')}} artefacts</b-button>
                         </section>
+                        <section
+                            class="center-btn"
+                        >
+                            <b-button @click="onUndo()" :disabled="!canUndo">Undo</b-button>
+                            <b-button @click="onRedo()" :disabled="!canRedo">Redo</b-button>
+                        </section>
+
                     </b-card-body>
                 </b-collapse>
             </b-card>
@@ -61,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import AddArtefactModal from './add-artefact-modal.vue';
@@ -73,7 +87,8 @@ import {
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactToolsbox from './artefact-toolsbox.vue';
 import ArtefactService from '@/services/artefact';
-   
+import { ScrollEditorOperation } from './undo-redo-ops';
+import { UndoRedoManager, CanUndoRedo } from '@/utils/undo-redo';
 
 @Component({
     name: 'scroll-menu',
@@ -86,8 +101,11 @@ import ArtefactService from '@/services/artefact';
 export default class ScrollMenu extends Vue {
     @Prop()
     public artefact: Artefact | undefined = undefined;
+    @Prop()
+    public undoRedo!: CanUndoRedo;
 
     private params: ScrollEditorParams = new ScrollEditorParams();
+
 
     private get zoom(): any {
         return this.params.zoom;
@@ -98,7 +116,7 @@ export default class ScrollMenu extends Vue {
         this.notifyChange('zoom', val);
     }
 
-  private get artefactSelect(): Artefact | undefined {
+    private get artefactSelect(): Artefact | undefined {
         return this.artefact;
     }
 
@@ -108,8 +126,11 @@ export default class ScrollMenu extends Vue {
     public openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
-   public onSave() {
-            this.$emit('saveArt');
+    public onSave() {
+        this.$emit('saveArt');
+    }
+    public onNewOperation(operation: ScrollEditorOperation) {
+        this.newOperation(operation);
     }
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
@@ -122,6 +143,35 @@ export default class ScrollMenu extends Vue {
 
     public mounted() {
         this.zoom = 0.1;
+    }
+
+    private get canUndo(): boolean {
+        return this.undoRedo.canUndo;
+    }
+
+    private get canRedo(): boolean {
+        return this.undoRedo.canRedo;
+    }
+
+    private onUndo() {
+        this.undo();
+    }
+    @Emit()
+    private undo() {
+        // Just emit the event
+    }
+
+    private onRedo() {
+        this.redo();
+    }
+    @Emit()
+    private redo() {
+        // Just emit the event
+    }
+
+    @Emit()
+    private newOperation(op: ScrollEditorOperation) {
+        return op;
     }
 }
 </script>

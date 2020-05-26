@@ -59,6 +59,8 @@ class ArtefactService {
             polygon: {
                 mask: artefact.mask.polygon.wkt,
                 transformation: artefact.mask.transformation,
+                maskEditorId: 0,
+                positionEditorId: 0,
             },
             name: artefact.name,
             statusMessage: '',

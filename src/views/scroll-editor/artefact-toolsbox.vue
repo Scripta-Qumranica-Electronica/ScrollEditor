@@ -136,6 +136,8 @@ import {
     ScrollEditorMode
 } from '../artefact-editor/types';
 import { TransformationDTO } from '../../dtos/sqe-dtos';
+import { ScrollEditorOperation, ScrollEditorOperationType } from './undo-redo-ops';
+import { Transformation } from '@/utils/Mask';
 
 @Component({
     name: 'artefact-toolsbox',
@@ -164,10 +166,7 @@ export default class ArtefactToolsbox extends Vue {
     // private mode!: ScrollEditorParams ;
     public mounted() {
         if (this.keyboardInput) {
-            console.debug('artefact-toolbox hooking into keyboard event');
             window.addEventListener('keydown', this.onKeyPress);
-        } else {
-            console.debug('artefact-box with no keyboard events');
         }
     }
 
@@ -186,31 +185,56 @@ export default class ArtefactToolsbox extends Vue {
     }
 
     public dragArtefact(dirX: number, dirY: number) {
+        const trans = this.artefact!.mask.transformation.clone();
         const jump = parseInt(this.params.move.toString());
-        this.artefact!.mask.transformation.translate.x += jump * dirX;
-        this.artefact!.mask.transformation.translate.y += jump * dirY;
+        trans.translate.x += jump * dirX;
+        trans.translate.y += jump * dirY;
+        this.setTransformation('translate', trans);
     }
     public removeArtefat() {
-        this.artefact!.mask.transformation = {} as TransformationDTO;
+        this.setTransformation('delete', Transformation.empty);
         this.artefact = undefined;
     }
     public rotateArtefact(direction: number) {
+        const trans = this.artefact!.mask.transformation.clone();
+        if (!trans.rotate) {
+            trans.rotate = 0;
+        }
         const deltaAngle = direction * this.params.rotate;
-        const oldAngle = this.artefact!.mask.transformation.rotate!;
+        const oldAngle = trans.rotate!;
         const newAngle = oldAngle + deltaAngle;
         const normalizedAngle = ((newAngle % 360) + 360) % 360;
+        trans.rotate = normalizedAngle;
 
-        this.artefact!.mask.transformation.rotate = normalizedAngle;
+        this.setTransformation('rotate', trans);
     }
+
     public zoomArtefact(direction: number) {
+        const trans = this.artefact!.mask.transformation.clone();
         const zoomDelta = (direction * this.params.scale) / 100;
-        this.artefact!.mask.transformation.scale! += zoomDelta;
+        if (!trans.scale) {
+            trans.scale = 1;
+        }
+        trans.scale += zoomDelta;
+        this.setTransformation('scale', trans);
     }
+
     public resetRotationArtefact() {
-        this.artefact!.mask.transformation.rotate = 0;
+        const trans = this.artefact!.mask.transformation.clone();
+        trans.rotate = 0;
+        this.setTransformation('rotate', trans);
     }
+
     public resetScaleArtefact() {
-        this.artefact!.mask.transformation.scale = 1;
+        const trans = this.artefact!.mask.transformation.clone();
+        trans.scale = 1;
+        this.setTransformation('scale', trans);
+    }
+
+    private setTransformation(opType: ScrollEditorOperationType, newTrans: Transformation) {
+        const op = new ScrollEditorOperation(this.artefact!, opType, this.artefact!.mask.transformation, newTrans);
+        this.artefact!.mask.transformation = newTrans;
+        this.newOperation(op);
     }
 
     private setMode(mode: ScrollEditorMode) {
@@ -270,6 +294,11 @@ export default class ArtefactToolsbox extends Vue {
                 }
                 break;
         }
+    }
+
+    @Emit()
+    private newOperation(op: ScrollEditorOperation) {
+        return op;
     }
 }
 </script>

@@ -4,7 +4,7 @@
         <div ref="handleTools" style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move">
             <i class="fa fa-ellipsis-v"></i>
         </div>
-        <artefact-toolsbox :keyboard-input="false" :params="params" :float="true" :artefact="selectedArtefact"></artefact-toolsbox>
+        <artefact-toolsbox :keyboard-input="false" :params="params" :float="true" :artefact="selectedArtefact" @new-operation="onNewOperation($event)"></artefact-toolsbox>
     </div>
     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
       
@@ -52,6 +52,7 @@ import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolsbox from './artefact-toolsbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
+import { ScrollEditorOperation } from './undo-redo-ops';
 
 @Component({
     name: 'scroll-area',
@@ -122,6 +123,14 @@ export default class ScrollArea extends Vue {
     private selectArtefact(artefact: Artefact) {
         this.selectedArtefact = artefact;
         this.$emit('onSelectArtefact', this.selectedArtefact);
+    }
+
+    private onNewOperation(op: ScrollEditorOperation) {
+        this.newOperation(op);
+    }
+    @Emit()
+    private newOperation(op: ScrollEditorOperation) {
+        return op;
     }
 
 }
