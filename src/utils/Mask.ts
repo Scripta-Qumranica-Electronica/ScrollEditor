@@ -13,10 +13,7 @@ export class Matrix {
 export class Transformation implements TransformationDTO {
     public static get empty() {
         return new Transformation({
-            scale: undefined,
-            rotate: undefined,
-            translate: { x: 0, y: 0 }
-        });
+        } as TransformationDTO);
     }
     public scale?: number;
     public rotate?: number;

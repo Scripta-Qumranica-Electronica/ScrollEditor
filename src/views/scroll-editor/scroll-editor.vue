@@ -126,6 +126,9 @@ export default class ScrollEditor extends Vue {
                 rotate: 0
             });
             artefact.placeOnScroll(transformation);
+            this.undoRedo.addOperation(
+                new ScrollEditorOperation(artefact, 'add', Transformation.empty, transformation)
+            );
         }
     }
 
