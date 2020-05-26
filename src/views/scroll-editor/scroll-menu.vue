@@ -73,7 +73,6 @@ import {
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactToolsbox from './artefact-toolsbox.vue';
 import ArtefactService from '@/services/artefact';
-   
 
 @Component({
     name: 'scroll-menu',

@@ -51,13 +51,13 @@ import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolsbox from './artefact-toolsbox.vue';
-import { Draggable, DraggableValue } from './drag-directive'
+import { Draggable, DraggableValue } from './drag-directive';
 
 @Component({
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolsbox': ArtefactToolsbox
     },
@@ -78,8 +78,8 @@ export default class ScrollArea extends Vue {
     private mounted() {
         this.selectedArtefact = undefined;
 
-        this.draggableOptions.handle = this.$refs['handleTools'];
-        this.draggableOptions.boundingElement = this.$refs['scrollArea'];
+        this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
+        this.draggableOptions.boundingElement = this.$refs.scrollArea as HTMLElement;
     }
 
     private get artefacts() {

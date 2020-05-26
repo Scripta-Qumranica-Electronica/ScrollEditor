@@ -92,7 +92,7 @@ export default class ScrollEditor extends Vue {
         return this.artefacts.filter(x => x.isPlaced);
     }
 
-    private async beforeRouteUpdate(to, from, next) {
+    private async beforeRouteUpdate(to: any, from: any, next: () => void) {
         // Shaindel: Add types
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
