@@ -173,25 +173,26 @@ export default class ArtefactToolsbox extends Vue {
         window.removeEventListener('keydown', this.onKeyPress);
     }
 
-    public dragArtefact(translateX: number, translateY: number) {
-        const move = parseInt(this.params.move.toString());
-        this.artefact!.mask.transformation.translate.x +=
-            move * translateX;
-        this.artefact!.mask.transformation.translate.y +=
-            move * translateY;
+    public dragArtefact(dirX: number, dirY: number) {
+        const jump = parseInt(this.params.move.toString());
+        this.artefact!.mask.transformation.translate.x += jump * dirX;
+        this.artefact!.mask.transformation.translate.y += jump * dirY;
     }
     public removeArtefat() {
         this.artefact!.mask.transformation = {} as TransformationDTO;
         this.artefact = undefined;
     }
-    public rotateArtefact(rotate: number) {
-        const angle = rotate * this.params.rotate;
-        this.artefact!.mask.transformation.rotate! +=
-            angle < 0 ? angle + 360 : angle;
+    public rotateArtefact(direction: number) {
+        const deltaAngle = direction * this.params.rotate;
+        const oldAngle = this.artefact!.mask.transformation.rotate!;
+        const newAngle = oldAngle + deltaAngle;
+        const normalizedAngle = ((newAngle % 360) + 360) % 360;
+
+        this.artefact!.mask.transformation.rotate = normalizedAngle;
     }
-    public zoomArtefact(zoom: number) {
-        this.artefact!.mask.transformation.scale! +=
-            (zoom * this.params.scale) / 100;
+    public zoomArtefact(direction: number) {
+        const zoomDelta = (direction * this.params.scale) / 100;
+        this.artefact!.mask.transformation.scale! += zoomDelta;
     }
     public resetRotationArtefact() {
         this.artefact!.mask.transformation.rotate = 0;
