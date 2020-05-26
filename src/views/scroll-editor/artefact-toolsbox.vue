@@ -146,8 +146,10 @@ export default class ArtefactToolsbox extends Vue {
         default: undefined
     })
     public artefact: Artefact | undefined;
+
     @Prop({ default: false })
     public float!: boolean;
+
     @Prop(
         {
             default: new ScrollEditorParams()
@@ -155,10 +157,18 @@ export default class ArtefactToolsbox extends Vue {
     )
     public params!: ScrollEditorParams;
 
+    @Prop({ default: true })
+    public keyboardInput!: boolean;
+
     private reset!: number;
     // private mode!: ScrollEditorParams ;
     public mounted() {
-        window.addEventListener('keydown', this.onKeyPress);
+        if (this.keyboardInput) {
+            console.debug('artefact-toolbox hooking into keyboard event');
+            window.addEventListener('keydown', this.onKeyPress);
+        } else {
+            console.debug('artefact-box with no keyboard events');
+        }
     }
 
     private get mode(): ScrollEditorMode {
@@ -170,7 +180,9 @@ export default class ArtefactToolsbox extends Vue {
     }
 
     public destroyed() {
-        window.removeEventListener('keydown', this.onKeyPress);
+        if (this.keyboardInput) {
+            window.removeEventListener('keydown', this.onKeyPress);
+        }
     }
 
     public dragArtefact(dirX: number, dirY: number) {

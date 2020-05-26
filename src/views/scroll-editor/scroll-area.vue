@@ -4,7 +4,7 @@
         <div ref="handleTools" style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move">
             <i class="fa fa-ellipsis-v"></i>
         </div>
-        <artefact-toolsbox :params="params" :float="true" :artefact="selectedArtefact"></artefact-toolsbox>
+        <artefact-toolsbox :keyboard-input="false" :params="params" :float="true" :artefact="selectedArtefact"></artefact-toolsbox>
     </div>
     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
       
