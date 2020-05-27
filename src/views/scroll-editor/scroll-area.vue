@@ -52,7 +52,7 @@ import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolsbox from './artefact-toolsbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
-import { ScrollEditorOperation } from './undo-redo-ops';
+import { ScrollEditorOperation } from './operations';
 
 @Component({
     name: 'scroll-area',

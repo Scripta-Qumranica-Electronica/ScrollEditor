@@ -1,10 +1,10 @@
-import { Operation } from '@/utils/undo-redo';
+import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
 import { Transformation } from '@/utils/Mask';
 
 export type ScrollEditorOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete';
 
-export class ScrollEditorOperation implements Operation {
+export class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
     public prev: Transformation;
     public next: Transformation;
 
@@ -36,5 +36,9 @@ export class ScrollEditorOperation implements Operation {
 
         // Operations are of the same type on the same artefact, we can unite them
         return new ScrollEditorOperation(this.artefact, this.type, op.prev, this.next);
+    }
+
+    public getId(): number {
+        return this.artefact.id;
     }
 }

@@ -136,7 +136,7 @@ import {
     ScrollEditorMode
 } from '../artefact-editor/types';
 import { TransformationDTO } from '../../dtos/sqe-dtos';
-import { ScrollEditorOperation, ScrollEditorOperationType } from './undo-redo-ops';
+import { ScrollEditorOperation, ScrollEditorOperationType } from './operations';
 import { Transformation } from '@/utils/Mask';
 
 @Component({

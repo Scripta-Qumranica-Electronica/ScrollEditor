@@ -7,7 +7,7 @@
         >
             <scroll-menu
                 :artefact="artefact"
-                :undo-redo="undoRedo"
+                :status-indicator="operationsManager"
                 @paramsChanged="onParamsChanged($event)"
                 @new-operation="onNewOperation($event)"
                 @saveArt="onSave()"
@@ -50,8 +50,8 @@ import {
 } from '../artefact-editor/types';
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactService from '@/services/artefact';
-import { UndoRedoManager } from '@/utils/undo-redo';
-import { ScrollEditorOperation } from './undo-redo-ops';
+import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import { ScrollEditorOperation } from './operations';
 import { Transformation } from '@/utils/Mask';
 
 @Component({
@@ -62,16 +62,36 @@ import { Transformation } from '@/utils/Mask';
         'scroll-area': ScrollArea
     }
 })
-export default class ScrollEditor extends Vue {
+export default class ScrollEditor extends Vue implements SavingAgent {
     private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
     private editionId: number = 0;
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
-    private undoRedo = new UndoRedoManager<ScrollEditorOperation>();
+    private operationsManager = new OperationsManager<ScrollEditorOperation>(this);
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.artefact = artefact;
+    }
+
+    public async saveEntities(ids: number[]): Promise<boolean> {
+        // Shaindel: Show an indication that the data is being saved
+        for (const id of ids) {
+            const artefact = this.$state.artefacts.find(id);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${id} for saving`);
+                continue;
+            }
+            try {
+                await this.artefactService.changeArtefact(this.editionId, artefact);
+            } catch (error) {
+                console.error("Can't save arterfact to server", error);
+                // Shaindel: Report save error to user in Toast
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private sidebarClicked() {
@@ -126,28 +146,26 @@ export default class ScrollEditor extends Vue {
                 rotate: 0
             });
             artefact.placeOnScroll(transformation);
-            this.undoRedo.addOperation(
+            this.operationsManager.addOperation(
                 new ScrollEditorOperation(artefact, 'add', Transformation.empty, transformation)
             );
         }
     }
 
     private onSave() {
-        this.placedArtefacts.forEach(async artefact => {
-            await this.artefactService.changeArtefact(this.editionId, artefact);
-        });
+        this.operationsManager.save();
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
-        this.undoRedo.addOperation(op);
+        this.operationsManager.addOperation(op);
     }
 
     private onUndo() {
-        this.undoRedo.undo();
+        this.operationsManager.undo();
     }
 
     private onRedo() {
-        this.undoRedo.redo();
+        this.operationsManager.redo();
     }
 }
 </script>

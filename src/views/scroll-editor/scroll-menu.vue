@@ -55,7 +55,7 @@
                                 @new-operation="onNewOperation($event)"
                             ></artefact-toolsbox>
                             <b-button
-                                :disabled="!artefactSelect"
+                                :disabled="!isDirty"
                                 @click="onSave()"
                             >{{$t('misc.save')}} artefacts</b-button>
                         </section>
@@ -65,7 +65,9 @@
                             <b-button @click="onUndo()" :disabled="!canUndo">Undo</b-button>
                             <b-button @click="onRedo()" :disabled="!canRedo">Redo</b-button>
                         </section>
-
+                        <section class="center-btn">
+                            <p>{{ saveStatusMessage }}</p>
+                        </section>
                     </b-card-body>
                 </b-collapse>
             </b-card>
@@ -87,8 +89,8 @@ import {
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactToolsbox from './artefact-toolsbox.vue';
 import ArtefactService from '@/services/artefact';
-import { ScrollEditorOperation } from './undo-redo-ops';
-import { UndoRedoManager, CanUndoRedo } from '@/utils/undo-redo';
+import { ScrollEditorOperation } from './operations';
+import { OperationsManager, OperationsManagerStatus } from '@/utils/operations-manager';
 
 @Component({
     name: 'scroll-menu',
@@ -102,7 +104,7 @@ export default class ScrollMenu extends Vue {
     @Prop()
     public artefact: Artefact | undefined = undefined;
     @Prop()
-    public undoRedo!: CanUndoRedo;
+    public statusIndicator!: OperationsManagerStatus;
 
     private params: ScrollEditorParams = new ScrollEditorParams();
 
@@ -146,11 +148,15 @@ export default class ScrollMenu extends Vue {
     }
 
     private get canUndo(): boolean {
-        return this.undoRedo.canUndo;
+        return this.statusIndicator.canUndo;
     }
 
     private get canRedo(): boolean {
-        return this.undoRedo.canRedo;
+        return this.statusIndicator.canRedo;
+    }
+
+    private get isDirty(): boolean {
+        return this.statusIndicator.isDirty;
     }
 
     private onUndo() {
@@ -172,6 +178,16 @@ export default class ScrollMenu extends Vue {
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
+    }
+
+    private get saveStatusMessage(): string {
+        if (this.statusIndicator.isSaving) {
+            return 'Saving...';
+        }
+        if (this.statusIndicator.isDirty) {
+            return 'Save pending';
+        }
+        return 'Scroll Saved';
     }
 }
 </script>
