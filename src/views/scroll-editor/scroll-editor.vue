@@ -75,7 +75,6 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     public async saveEntities(ids: number[]): Promise<boolean> {
-        // Shaindel: Show an indication that the data is being saved
         for (const id of ids) {
             const artefact = this.$state.artefacts.find(id);
             if (!artefact) {
