@@ -32,7 +32,7 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     private dirty: Set<K> = new Set<K>();
     private _isDirty: boolean = false;
     private saveInProgress: boolean = false;
-    private autoSaveTimer? : number;
+    private autoSaveTimer?: number;
 
     // Set autoSaveInterval to 0 to disable autoSave
     constructor(private savingAgent: SavingAgent<K>, public autoSaveInterval = 3000) { }
