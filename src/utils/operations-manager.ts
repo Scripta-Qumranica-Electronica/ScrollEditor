@@ -30,9 +30,12 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     private undoStack: OP[] = [];
     private redoStack: OP[] = [];
     private dirty: Set<K> = new Set<K>();
+    private _isDirty: boolean = false;
     private saveInProgress: boolean = false;
+    private autoSaveTimer? : number;
 
-    constructor(private savingAgent: SavingAgent<K>) { }
+    // Set autoSaveInterval to 0 to disable autoSave
+    constructor(private savingAgent: SavingAgent<K>, public autoSaveInterval = 3000) { }
 
     // Add operation to the undo stack, uniting operations if applicable
     public addOperation(op: OP) {
@@ -60,7 +63,9 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     }
 
     public get isDirty(): boolean {
-        return this.dirty.size !== 0;
+        // We do not use `this.dirty.size > 0` since Vue does not bind property to set sizes, and does not
+        // refresh when the dirty flag changes
+        return this._isDirty;
     }
 
     public get isSaving(): boolean {
@@ -100,6 +105,7 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
         // Now we're saving. Store the dirty set so we remark as dirty of saving fails
         const preSaveDirty = Array.from(this.dirty);
         this.dirty.clear();
+        this._isDirty = false;
         let saveOk = false;
         try {
             saveOk = await this.savingAgent.saveEntities(preSaveDirty);
@@ -112,6 +118,7 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
             // Saving failed, add all dirty elements back
             for (const id of preSaveDirty) {
                 this.dirty.add(id);
+                this._isDirty = true;
             }
             console.warn('Saving failed');
         }
@@ -119,5 +126,13 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
 
     private setDirty(op: Operation<OP, K>) {
         this.dirty.add(op.getId());
+        this._isDirty = true;
+
+        if (this.autoSaveInterval) {
+            if (this.autoSaveTimer) {
+                window.clearTimeout(this.autoSaveTimer);
+            }
+            this.autoSaveTimer = window.setTimeout(() => this.save(), this.autoSaveInterval);
+        }
     }
 }
