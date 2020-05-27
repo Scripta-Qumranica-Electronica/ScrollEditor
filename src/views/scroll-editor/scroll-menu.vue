@@ -49,11 +49,11 @@
                     <b-card-body>
                         <section class="center-btn">
                             <b-button @click="openAddArtefactModal()">{{$t('misc.add')}} artefact</b-button>
-                            <artefact-toolsbox
+                            <artefact-toolbox
                                 :params="params"
                                 :artefact="artefact"
                                 @new-operation="onNewOperation($event)"
-                            ></artefact-toolsbox>
+                            ></artefact-toolbox>
                             <b-button
                                 :disabled="!isDirty"
                                 @click="onSave()"
@@ -87,7 +87,7 @@ import {
     ScrollEditorParams
 } from '../artefact-editor/types';
 import { TransformationDTO } from '@/dtos/sqe-dtos';
-import ArtefactToolsbox from './artefact-toolsbox.vue';
+import ArtefactToolbox from './artefact-toolbox.vue';
 import ArtefactService from '@/services/artefact';
 import { ScrollEditorOperation } from './operations';
 import { OperationsManager, OperationsManagerStatus } from '@/utils/operations-manager';
@@ -97,7 +97,7 @@ import { OperationsManager, OperationsManagerStatus } from '@/utils/operations-m
     components: {
         Waiting,
         'add-artefact-modal': AddArtefactModal,
-        'artefact-toolsbox': ArtefactToolsbox
+        'artefact-toolbox': ArtefactToolbox
     }
 })
 export default class ScrollMenu extends Vue {

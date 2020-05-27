@@ -4,7 +4,7 @@
         <div ref="handleTools" style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move">
             <i class="fa fa-ellipsis-v"></i>
         </div>
-        <artefact-toolsbox :keyboard-input="false" :params="params" :float="true" :artefact="selectedArtefact" @new-operation="onNewOperation($event)"></artefact-toolsbox>
+        <artefact-toolbox :keyboard-input="false" :params="params" :float="true" :artefact="selectedArtefact" @new-operation="onNewOperation($event)"></artefact-toolbox>
     </div>
     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
       
@@ -14,7 +14,6 @@
             :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
         >
             <g id="root" :transform="transform">
-                <!-- <artefact-toolsbox :artefact="artefact"></artefact-toolsbox> -->
                 <artefact-image-group
                    @on-select="selectArtefact(artefact)"
                     :artefact="artefact"
@@ -50,7 +49,7 @@ import { ImageStack } from '@/models/image';
 import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
-import ArtefactToolsbox from './artefact-toolsbox.vue';
+import ArtefactToolbox from './artefact-toolbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
 
@@ -60,7 +59,7 @@ import { ScrollEditorOperation } from './operations';
         Waiting,
         'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
-        'artefact-toolsbox': ArtefactToolsbox
+        'artefact-toolbox': ArtefactToolbox
     },
     directives: {
         Draggable

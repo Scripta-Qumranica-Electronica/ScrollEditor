@@ -158,10 +158,10 @@ import { ScrollEditorOperation, ScrollEditorOperationType } from './operations';
 import { Transformation } from '@/utils/Mask';
 
 @Component({
-    name: 'artefact-toolsbox',
+    name: 'artefact-toolbox',
     components: {}
 })
-export default class ArtefactToolsbox extends Vue {
+export default class ArtefactToolbox extends Vue {
     @Prop({
         default: undefined
     })
