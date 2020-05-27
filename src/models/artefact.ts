@@ -1,11 +1,10 @@
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from './imaged-object';
-import { ArtefactDTO, TransformationDTO } from '@/dtos/sqe-dtos';
+import { ArtefactDTO, TransformationDTO, TranslateDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
-import { Mask } from '@/utils/Mask';
+import { Mask, Transformation } from '@/utils/Mask';
 import { ArtefactTextFragmentData } from './text';
 import { BoundingBox } from '@/utils/helpers';
-
 
 export class Artefact {
     // Default values specified to remove an error - we initialize them in the constructor or in copyFrom.
@@ -47,24 +46,33 @@ export class Artefact {
 
     // TBD: Perhaps rename to setTransformation, or maybe even drop this function entirely
     // and manipulate mask from the outside
-    public placeOnScroll(transformationDTO: TransformationDTO) {
-        this.mask.transformation = { ...transformationDTO };
+    public placeOnScroll(transformation: Transformation) {
+        this.mask.transformation = transformation.clone();
     }
 
     public get boundingBox(): BoundingBox {
         return this.mask.polygon.getBoundingBox();
     }
 
-    private copyFrom(other: Artefact) {
-    this.id = other.id;
-    this.editionId = other.editionId;
-    this.imagedObjectId = other.imagedObjectId;
-    this.name = other.name;
-    this.mask = other.mask;
-    // this.transformMatrix = other.transformMatrix;
-    this.zOrder = other.zOrder;
-    this.side = other.side;
+    public cloneTransformation(): TransformationDTO {
+        const trans = this.mask.transformation;
+        return {
+            scale: trans.scale,
+            rotate: trans.rotate,
+            translate: {...trans.translate},
+        };
+    }
 
-    this.textFragments = [...other.textFragments];
-}
+    private copyFrom(other: Artefact) {
+        this.id = other.id;
+        this.editionId = other.editionId;
+        this.imagedObjectId = other.imagedObjectId;
+        this.name = other.name;
+        this.mask = other.mask;
+        // this.transformMatrix = other.transformMatrix;
+        this.zOrder = other.zOrder;
+        this.side = other.side;
+
+        this.textFragments = [...other.textFragments];
+    }
 }

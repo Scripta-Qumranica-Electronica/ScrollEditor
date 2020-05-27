@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 // vue media
-import { install as MediaBreakPointsPlugin} from '@yutahaga/vue-media-breakpoints';
+import { install as MediaBreakPointsPlugin } from '@yutahaga/vue-media-breakpoints';
 
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -59,7 +59,7 @@ library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);
-const i18n = new VueI18n( {
+const i18n = new VueI18n({
   locale: 'en',
   messages: localizedTexts,
 });
@@ -78,7 +78,7 @@ router.beforeEach((to, from, next) => {
       // We know it's ugly but we do not have a vue instance, and that's how we can know what the value is.
       next();
     } else {
-      next({ path: '/'});
+      next({ path: '/' });
     }
   } else {
     next(); // make sure to always call next()!

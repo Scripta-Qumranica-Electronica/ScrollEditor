@@ -7,8 +7,12 @@
         >
             <scroll-menu
                 :artefact="artefact"
+                :status-indicator="operationsManager"
                 @paramsChanged="onParamsChanged($event)"
+                @new-operation="onNewOperation($event)"
                 @saveArt="onSave()"
+                @undo="onUndo()"
+                @redo="onRedo()"
             ></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
@@ -25,7 +29,7 @@
                     </b-button>
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
-                    <scroll-area @onSelectArtefact="selectArtefact($event)" :params="params"></scroll-area>
+                    <scroll-area @onSelectArtefact="selectArtefact($event)" :params="params" @new-operation="onNewOperation($event)"></scroll-area>
                 </div>
             </div>
         </div>
@@ -46,6 +50,9 @@ import {
 } from '../artefact-editor/types';
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactService from '@/services/artefact';
+import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import { ScrollEditorOperation } from './operations';
+import { Transformation } from '@/utils/Mask';
 
 @Component({
     name: 'scroll-editor',
@@ -55,15 +62,36 @@ import ArtefactService from '@/services/artefact';
         'scroll-area': ScrollArea
     }
 })
-export default class ScrollEditor extends Vue {
+export default class ScrollEditor extends Vue implements SavingAgent {
     private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
     private editionId: number = 0;
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
+    private operationsManager = new OperationsManager<ScrollEditorOperation>(this);
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.artefact = artefact;
+    }
+
+    public async saveEntities(ids: number[]): Promise<boolean> {
+        // Shaindel: Show an indication that the data is being saved
+        for (const id of ids) {
+            const artefact = this.$state.artefacts.find(id);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${id} for saving`);
+                continue;
+            }
+            try {
+                await this.artefactService.changeArtefact(this.editionId, artefact);
+            } catch (error) {
+                console.error("Can't save arterfact to server", error);
+                // Shaindel: Report save error to user in Toast
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private sidebarClicked() {
@@ -92,7 +120,7 @@ export default class ScrollEditor extends Vue {
         return this.artefacts.filter(x => x.isPlaced);
     }
 
-    private async beforeRouteUpdate(to, from, next) {
+    private async beforeRouteUpdate(to: any, from: any, next: () => void) {
         // Shaindel: Add types
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
@@ -109,22 +137,35 @@ export default class ScrollEditor extends Vue {
             const numberOfPlaced = this.artefacts.filter(x => x.isPlaced)
                 .length;
 
-            const transformation: TransformationDTO = {
+            const transformation = new Transformation({
                 translate: {
                     x: 800 * numberOfPlaced,
                     y: 400
                 },
                 scale: 1,
                 rotate: 0
-            };
+            });
             artefact.placeOnScroll(transformation);
+            this.operationsManager.addOperation(
+                new ScrollEditorOperation(artefact, 'add', Transformation.empty, transformation)
+            );
         }
     }
 
     private onSave() {
-        this.placedArtefacts.forEach(async artefact => {
-            await this.artefactService.changeArtefact(this.editionId, artefact);
-        });
+        this.operationsManager.save();
+    }
+
+    private onNewOperation(op: ScrollEditorOperation) {
+        this.operationsManager.addOperation(op);
+    }
+
+    private onUndo() {
+        this.operationsManager.undo();
+    }
+
+    private onRedo() {
+        this.operationsManager.redo();
     }
 }
 </script>

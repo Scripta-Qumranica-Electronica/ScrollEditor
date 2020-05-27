@@ -154,6 +154,8 @@ import {
     ScrollEditorMode
 } from '../artefact-editor/types';
 import { TransformationDTO } from '../../dtos/sqe-dtos';
+import { ScrollEditorOperation, ScrollEditorOperationType } from './operations';
+import { Transformation } from '@/utils/Mask';
 
 @Component({
     name: 'artefact-toolsbox',
@@ -164,8 +166,10 @@ export default class ArtefactToolsbox extends Vue {
         default: undefined
     })
     public artefact: Artefact | undefined;
+
     @Prop({ default: false })
     public float!: boolean;
+
     @Prop(
         {
             default: new ScrollEditorParams()
@@ -173,10 +177,15 @@ export default class ArtefactToolsbox extends Vue {
     )
     public params!: ScrollEditorParams;
 
+    @Prop({ default: true })
+    public keyboardInput!: boolean;
+
     private reset!: number;
     // private mode!: ScrollEditorParams ;
     public mounted() {
-        window.addEventListener('keydown', this.onKeyPress);
+        if (this.keyboardInput) {
+            window.addEventListener('keydown', this.onKeyPress);
+        }
     }
 
     private get mode(): ScrollEditorMode {
@@ -188,34 +197,62 @@ export default class ArtefactToolsbox extends Vue {
     }
 
     public destroyed() {
-        window.removeEventListener('keydown', this.onKeyPress);
+        if (this.keyboardInput) {
+            window.removeEventListener('keydown', this.onKeyPress);
+        }
     }
 
-    public dragArtefact(translateX: number, translateY: number) {
-        const move = parseInt(this.params.move.toString());
-        this.artefact!.mask.transformation.translate.x +=
-            move * translateX;
-        this.artefact!.mask.transformation.translate.y +=
-            move * translateY;
+    public dragArtefact(dirX: number, dirY: number) {
+        const trans = this.artefact!.mask.transformation.clone();
+        const jump = parseInt(this.params.move.toString());
+        trans.translate.x += jump * dirX;
+        trans.translate.y += jump * dirY;
+        this.setTransformation('translate', trans);
     }
     public removeArtefat() {
-        this.artefact!.mask.transformation = {} as TransformationDTO;
+        this.setTransformation('delete', Transformation.empty);
         this.artefact = undefined;
     }
-    public rotateArtefact(rotate: number) {
-        const angle = rotate * this.params.rotate;
-        this.artefact!.mask.transformation.rotate! +=
-            angle < 0 ? angle + 360 : angle;
+    public rotateArtefact(direction: number) {
+        const trans = this.artefact!.mask.transformation.clone();
+        if (!trans.rotate) {
+            trans.rotate = 0;
+        }
+        const deltaAngle = direction * this.params.rotate;
+        const oldAngle = trans.rotate!;
+        const newAngle = oldAngle + deltaAngle;
+        const normalizedAngle = ((newAngle % 360) + 360) % 360;
+        trans.rotate = normalizedAngle;
+
+        this.setTransformation('rotate', trans);
     }
-    public zoomArtefact(zoom: number) {
-        this.artefact!.mask.transformation.scale! +=
-            (zoom * this.params.scale) / 100;
+
+    public zoomArtefact(direction: number) {
+        const trans = this.artefact!.mask.transformation.clone();
+        const zoomDelta = (direction * this.params.scale) / 100;
+        if (!trans.scale) {
+            trans.scale = 1;
+        }
+        trans.scale += zoomDelta;
+        this.setTransformation('scale', trans);
     }
+
     public resetRotationArtefact() {
-        this.artefact!.mask.transformation.rotate = 0;
+        const trans = this.artefact!.mask.transformation.clone();
+        trans.rotate = 0;
+        this.setTransformation('rotate', trans);
     }
+
     public resetScaleArtefact() {
-        this.artefact!.mask.transformation.scale = 1;
+        const trans = this.artefact!.mask.transformation.clone();
+        trans.scale = 1;
+        this.setTransformation('scale', trans);
+    }
+
+    private setTransformation(opType: ScrollEditorOperationType, newTrans: Transformation) {
+        const op = new ScrollEditorOperation(this.artefact!, opType, this.artefact!.mask.transformation, newTrans);
+        this.artefact!.mask.transformation = newTrans;
+        this.newOperation(op);
     }
 
     private setMode(mode: ScrollEditorMode) {
@@ -275,6 +312,11 @@ export default class ArtefactToolsbox extends Vue {
                 }
                 break;
         }
+    }
+
+    @Emit()
+    private newOperation(op: ScrollEditorOperation) {
+        return op;
     }
 }
 </script>

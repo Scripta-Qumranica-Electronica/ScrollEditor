@@ -4,7 +4,7 @@
         <div ref="handleTools" style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move">
             <i class="fa fa-ellipsis-v"></i>
         </div>
-        <artefact-toolsbox :params="params" :float="true" :artefact="selectedArtefact"></artefact-toolsbox>
+        <artefact-toolsbox :keyboard-input="false" :params="params" :float="true" :artefact="selectedArtefact" @new-operation="onNewOperation($event)"></artefact-toolsbox>
     </div>
     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
       
@@ -51,13 +51,14 @@ import { Artefact } from '@/models/artefact';
 import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolsbox from './artefact-toolsbox.vue';
-import { Draggable, DraggableValue } from './drag-directive'
+import { Draggable, DraggableValue } from './drag-directive';
+import { ScrollEditorOperation } from './operations';
 
 @Component({
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolsbox': ArtefactToolsbox
     },
@@ -78,8 +79,8 @@ export default class ScrollArea extends Vue {
     private mounted() {
         this.selectedArtefact = undefined;
 
-        this.draggableOptions.handle = this.$refs['handleTools'];
-        this.draggableOptions.boundingElement = this.$refs['scrollArea'];
+        this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
+        this.draggableOptions.boundingElement = this.$refs.scrollArea as HTMLElement;
     }
 
     private get artefacts() {
@@ -122,6 +123,14 @@ export default class ScrollArea extends Vue {
     private selectArtefact(artefact: Artefact) {
         this.selectedArtefact = artefact;
         this.$emit('onSelectArtefact', this.selectedArtefact);
+    }
+
+    private onNewOperation(op: ScrollEditorOperation) {
+        this.newOperation(op);
+    }
+    @Emit()
+    private newOperation(op: ScrollEditorOperation) {
+        return op;
     }
 
 }
