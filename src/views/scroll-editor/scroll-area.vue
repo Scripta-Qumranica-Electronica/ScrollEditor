@@ -4,7 +4,7 @@
         <div ref="handleTools" style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move">
             <i class="fa fa-ellipsis-v"></i>
         </div>
-        <artefact-toolbox :keyboard-input="false" :params="params" :float="true" :artefact="selectedArtefact" @new-operation="onNewOperation($event)"></artefact-toolbox>
+        <artefact-toolbox :keyboard-input="false" :params="params" :float="true" :artefactId="selectedArtefact && selectedArtefact.id" @new-operation="onNewOperation($event)"></artefact-toolbox>
     </div>
     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
       
@@ -18,7 +18,7 @@
                    @on-select="selectArtefact(artefact)"
                     :artefact="artefact"
                     v-for="artefact in placedArtefacts" :key="artefact.id"
-                    :selected="artefact===selectedArtefact"
+                    :selected="artefact.id === (selectedArtefact && selectedArtefact.id)"
                 />
             </g>
         </svg>

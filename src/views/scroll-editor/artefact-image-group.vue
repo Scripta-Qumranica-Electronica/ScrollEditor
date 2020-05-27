@@ -53,9 +53,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     })
     public selected!: boolean;
     private loaded = false;
-    // Add a selected property (default is false)
-    // If artefact is selected, add a CSS style for the group, that will make the image brighter
-    // Add a blinking bounary around the artefact - use the <path> element for this
 
     private imageScale = 0.5; // TODO: Set a dynamic scale, based on actual element size.
     // Wait until the IIIF server can handle requests of various sizes

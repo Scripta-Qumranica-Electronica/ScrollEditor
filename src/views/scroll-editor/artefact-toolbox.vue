@@ -1,6 +1,6 @@
 <template>
     <div :class="{'mt-2': !float}">
-        <b-button-group size="sm" :class="{'btn-group': float}">
+        <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
             <b-button
                 :pill="float"
                 :disabled="!artefact"
@@ -34,111 +34,105 @@
                 </span>
                 <font-awesome-icon v-if="float" icon="sync" size="xs"></font-awesome-icon>
             </b-button>
-            <b-button
-                :pill="float"
-                :disabled="!artefact"
-                @click="removeArtefat()"
-                class="delete"
-            >
-                
-                <font-awesome-icon  icon="trash-alt" size="xs"></font-awesome-icon>
-            </b-button>
         </b-button-group>
-        <div v-if="mode === 'move'" :class="{'row': float}">
-            <table>
-                <tr>
-                    <td></td>
-                    <td>
-                        <b-button
-                            :class="[float ? 'btn-xs' : '', 'mt-2']"
-                            size="sm"
-                            :disabled="!artefactSelect"
-                            @click="dragArtefact(0,-1)"
-                        >
-                            <i class="fa fa-arrow-up"></i>
-                        </b-button>
-                    </td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>
-                        <b-button
-                            :class="[float ? 'btn-xs' : '', 'mb-2']"
-                            size="sm"
-                            :disabled="!artefactSelect"
-                            @click="dragArtefact(-1,0)"
-                        >
-                            <i class="fa fa-arrow-left"></i>
-                        </b-button>
-                    </td>
-                    <td>
-                        <b-button
-                           :class="[float ? 'btn-xs' : '', 'mb-2']"
-                            size="sm"
-                            :disabled="!artefactSelect"
-                            @click="dragArtefact(0,1)"
-                        >
-                            <i class="fa fa-arrow-down"></i>
-                        </b-button>
-                    </td>
-                    <td>
-                        <b-button
-                            :class="[float ? 'btn-xs' : '', 'mb-2']"
-                            size="sm"
-                            :disabled="!artefactSelect"
-                            @click="dragArtefact(1,0)"
-                        >
-                            <i class="fa fa-arrow-right"></i>
-                        </b-button>
-                    </td>
-                </tr>
-            </table>
-             <b-row class="mt-4">
-                <b-col sm="6">
-                    <b-form-input
-                        id="input-small"
-                        size="sm"
-                        type="number"
-                         v-model="params.move"
-                    ></b-form-input>
-                </b-col>
-            </b-row>
-        </div>
-        <div v-if="mode === 'scale'">
-            <b-button-group size="sm">
-                <b-button class="m-2" @click="zoomArtefact(1)">
+        <b-row v-if="mode === 'move'" no-gutters align-v="end">
+            <div>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <b-button
+                                :class="[float ? 'btn-xs' : '', 'mt-2']"
+                                size="sm"
+                                :disabled="!artefact"
+                                @click="dragArtefact(0,-1)"
+                            >
+                                <i class="fa fa-arrow-up"></i>
+                            </b-button>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b-button
+                                :class="[float ? 'btn-xs' : '', 'mb-2']"
+                                size="sm"
+                                :disabled="!artefact"
+                                @click="dragArtefact(-1,0)"
+                            >
+                                <i class="fa fa-arrow-left"></i>
+                            </b-button>
+                        </td>
+                        <td>
+                            <b-button
+                                :class="[float ? 'btn-xs' : '', 'mb-2']"
+                                size="sm"
+                                :disabled="!artefact"
+                                @click="dragArtefact(0,1)"
+                            >
+                                <i class="fa fa-arrow-down"></i>
+                            </b-button>
+                        </td>
+                        <td>
+                            <b-button
+                                :class="[float ? 'btn-xs' : '', 'mb-2']"
+                                size="sm"
+                                :disabled="!artefact"
+                                @click="dragArtefact(1,0)"
+                            >
+                                <i class="fa fa-arrow-right"></i>
+                            </b-button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <b-col cols="4" class="mb-2">
+                <b-form-input id="input-small" size="sm" type="number" v-model="params.move"></b-form-input>
+            </b-col>
+        </b-row>
+        <b-row v-if="mode === 'scale'" no-gutters align-v="end">
+            <b-button-group>
+                <b-button
+                    :class="[float ? 'btn-xs' : '',  'm-1']"
+                    size="sm"
+                    @click="zoomArtefact(1)"
+                >
                     <i class="fa fa-plus"></i>
                 </b-button>
-                <b-button class="m-2" @click="zoomArtefact(-1)">
+                <b-button
+                    :class="[float ? 'btn-xs' : '', 'm-1']"
+                    size="sm"
+                    @click="zoomArtefact(-1)"
+                >
                     <i class="fa fa-minus"></i>
                 </b-button>
-                <b-button class="m-2" @click="resetScaleArtefact()">Reset</b-button>
             </b-button-group>
-             <b-row class="my-1">
-                <b-col sm="5">
-                    <b-form-input
-                        id="input-small"
-                        size="sm"
-                        type="number"
-                         v-model="params.scale"
-                    ></b-form-input>
-                </b-col>
-            </b-row>
-        </div>
-        <div v-if="mode === 'rotate'">
-            <b-button-group size="sm">
-                <b-button class="m-2" @click="rotateArtefact(-1)">
+            <b-col cols="4" class="mb-1">
+                <b-form-input id="input-small" size="sm" type="number" v-model="params.scale"></b-form-input>
+            </b-col>
+        </b-row>
+        <b-row v-if="mode === 'rotate'" no-gutters align-v="end">
+            <b-button-group>
+                <b-button
+                    :class="[float ? 'btn-xs' : '', 'm-1']"
+                    size="sm"
+                    @click="rotateArtefact(-1)"
+                >
                     <font-awesome-icon icon="undo"></font-awesome-icon>
-                    {{params.rotate}}°
                 </b-button>
-                <b-button class="m-2" @click="rotateArtefact(1)">
+                <b-button
+                    :class="[float ? 'btn-xs' : '', 'm-1']"
+                    size="sm"
+                    @click="rotateArtefact(1)"
+                >
                     <font-awesome-icon icon="redo"></font-awesome-icon>
-                    {{params.rotate}}°
                 </b-button>
-                <b-button class="m-2" @click="resetRotationArtefact()">Reset</b-button>
+                <!-- <b-button class="m-2" @click="resetRotationArtefact()">Reset</b-button> -->
             </b-button-group>
-            <input v-model="params.rotate" type="number" />
-        </div>
+            <b-col cols="4" class="mb-1">
+                <b-form-input id="input-small" size="sm" type="number" v-model="params.rotate"></b-form-input>
+            </b-col>
+        </b-row>
     </div>
 </template>
 
@@ -163,18 +157,16 @@ import { Transformation } from '@/utils/Mask';
 })
 export default class ArtefactToolbox extends Vue {
     @Prop({
-        default: undefined
+        default: -1
     })
-    public artefact: Artefact | undefined;
+    public artefactId!: number;
 
     @Prop({ default: false })
     public float!: boolean;
 
-    @Prop(
-        {
-            default: new ScrollEditorParams()
-        }
-    )
+    @Prop({
+        default: new ScrollEditorParams()
+    })
     public params!: ScrollEditorParams;
 
     @Prop({ default: true })
@@ -192,8 +184,8 @@ export default class ArtefactToolbox extends Vue {
         return this.params!.mode;
     }
 
-    private get artefactSelect(): Artefact | undefined {
-        return this.artefact;
+    private get artefact(): Artefact | undefined {
+        return this.$state.artefacts.find(this.artefactId);
     }
 
     public destroyed() {
@@ -209,10 +201,7 @@ export default class ArtefactToolbox extends Vue {
         trans.translate.y += jump * dirY;
         this.setTransformation('translate', trans);
     }
-    public removeArtefat() {
-        this.setTransformation('delete', Transformation.empty);
-        this.artefact = undefined;
-    }
+
     public rotateArtefact(direction: number) {
         const trans = this.artefact!.mask.transformation.clone();
         if (!trans.rotate) {
@@ -249,8 +238,16 @@ export default class ArtefactToolbox extends Vue {
         this.setTransformation('scale', trans);
     }
 
-    private setTransformation(opType: ScrollEditorOperationType, newTrans: Transformation) {
-        const op = new ScrollEditorOperation(this.artefact!, opType, this.artefact!.mask.transformation, newTrans);
+    private setTransformation(
+        opType: ScrollEditorOperationType,
+        newTrans: Transformation
+    ) {
+        const op = new ScrollEditorOperation(
+            this.artefact!,
+            opType,
+            this.artefact!.mask.transformation,
+            newTrans
+        );
         this.artefact!.mask.transformation = newTrans;
         this.newOperation(op);
     }
@@ -322,16 +319,16 @@ export default class ArtefactToolbox extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.delete{
-    color:red;
+.delete {
+    color: red;
 }
-.btn-xs{
- padding: 0.1rem 0.15rem;
+.btn-xs {
+    padding: 0.1rem 0.15rem;
     font-size: 0.75rem;
     line-height: 1;
     border-radius: 0.2rem;
 }
-.btn-group{
+.btn-menu {
     background: #e3e7ea;
 }
 </style>

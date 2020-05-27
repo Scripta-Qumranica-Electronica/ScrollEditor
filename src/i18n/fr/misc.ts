@@ -7,6 +7,7 @@ export default {
     draw: 'Dessiner',
     box: 'Box',
     rename: 'Renommer',
+    remove: 'Retirer',
     create: 'Créer',
     undo: 'Annuler',
     redo: 'Refaire',

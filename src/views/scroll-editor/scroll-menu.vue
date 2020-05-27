@@ -48,22 +48,32 @@
                 >
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button @click="openAddArtefactModal()">{{$t('misc.add')}} artefact</b-button>
+                            <b-button
+                                size="sm"
+                                class="mb-2"
+                                @click="openAddArtefactModal()"
+                            >{{$t('misc.add')}} artefact</b-button>
+                            <b-button
+                                size="sm"
+                                class="mb-2"
+                                :disabled="!artefact"
+                                @click="removeArtefat()"
+                            >{{$t('misc.remove')}} artefact</b-button>
                             <artefact-toolbox
                                 :params="params"
-                                :artefact="artefact"
+                                :artefactId="artefact && artefact.id"
                                 @new-operation="onNewOperation($event)"
                             ></artefact-toolbox>
                             <b-button
+                                size="sm"
+                                class="mb-2"
                                 :disabled="!isDirty"
                                 @click="onSave()"
                             >{{$t('misc.save')}} artefacts</b-button>
                         </section>
-                        <section
-                            class="center-btn"
-                        >
-                            <b-button @click="onUndo()" :disabled="!canUndo">Undo</b-button>
-                            <b-button @click="onRedo()" :disabled="!canRedo">Redo</b-button>
+                        <section class="center-btn">
+                            <b-button @click="onUndo()" size="sm" :disabled="!canUndo">Undo</b-button>
+                            <b-button @click="onRedo()" size="sm" :disabled="!canRedo">Redo</b-button>
                         </section>
                         <section class="center-btn">
                             <p>{{ saveStatusMessage }}</p>
@@ -89,8 +99,12 @@ import {
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import ArtefactService from '@/services/artefact';
-import { ScrollEditorOperation } from './operations';
-import { OperationsManager, OperationsManagerStatus } from '@/utils/operations-manager';
+import { ScrollEditorOperation, ScrollEditorOperationType } from './operations';
+import {
+    OperationsManager,
+    OperationsManagerStatus
+} from '@/utils/operations-manager';
+import { Transformation } from '@/utils/Mask';
 
 @Component({
     name: 'scroll-menu',
@@ -107,7 +121,6 @@ export default class ScrollMenu extends Vue {
     public statusIndicator!: OperationsManagerStatus;
 
     private params: ScrollEditorParams = new ScrollEditorParams();
-
 
     private get zoom(): any {
         return this.params.zoom;
@@ -133,6 +146,10 @@ export default class ScrollMenu extends Vue {
     }
     public onNewOperation(operation: ScrollEditorOperation) {
         this.newOperation(operation);
+    }
+    public removeArtefat() {
+        this.setTransformation('delete', Transformation.empty);
+        this.artefact = undefined;
     }
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
@@ -161,6 +178,19 @@ export default class ScrollMenu extends Vue {
 
     private onUndo() {
         this.undo();
+    }
+    private setTransformation(
+        opType: ScrollEditorOperationType,
+        newTrans: Transformation
+    ) {
+        const op = new ScrollEditorOperation(
+            this.artefact!,
+            opType,
+            this.artefact!.mask.transformation,
+            newTrans
+        );
+        this.artefact!.mask.transformation = newTrans;
+        this.newOperation(op);
     }
     @Emit()
     private undo() {
@@ -197,5 +227,9 @@ export default class ScrollMenu extends Vue {
     touch-action: pan-y;
     top: 0;
     right: 0;
+}
+
+button {
+    margin-right: 10px;
 }
 </style>
