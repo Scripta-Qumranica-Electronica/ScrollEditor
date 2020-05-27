@@ -1,6 +1,6 @@
 <template>
     <div :class="{'mt-2': !float}">
-        <b-button-group size="sm">
+        <b-button-group size="sm" :class="{'btn-group': float}">
             <b-button
                 :pill="float"
                 :disabled="!artefact"
@@ -38,18 +38,19 @@
                 :pill="float"
                 :disabled="!artefact"
                 @click="removeArtefat()"
+                class="delete"
             >
-                <span v-if="!float">Delete</span>
-                <font-awesome-icon v-if="float" icon="sync" size="xs"></font-awesome-icon>
+                
+                <font-awesome-icon  icon="trash-alt" size="xs"></font-awesome-icon>
             </b-button>
         </b-button-group>
-        <div v-if="mode === 'move'">
+        <div v-if="mode === 'move'" :class="{'row': float}">
             <table>
                 <tr>
                     <td></td>
                     <td>
                         <b-button
-                            class="mt-2"
+                            :class="[float ? 'btn-xs' : '', 'mt-2']"
                             size="sm"
                             :disabled="!artefactSelect"
                             @click="dragArtefact(0,-1)"
@@ -62,7 +63,7 @@
                 <tr>
                     <td>
                         <b-button
-                            class="mb-2"
+                            :class="[float ? 'btn-xs' : '', 'mb-2']"
                             size="sm"
                             :disabled="!artefactSelect"
                             @click="dragArtefact(-1,0)"
@@ -72,7 +73,7 @@
                     </td>
                     <td>
                         <b-button
-                            class="mb-2"
+                           :class="[float ? 'btn-xs' : '', 'mb-2']"
                             size="sm"
                             :disabled="!artefactSelect"
                             @click="dragArtefact(0,1)"
@@ -82,7 +83,7 @@
                     </td>
                     <td>
                         <b-button
-                            class="mb-2"
+                            :class="[float ? 'btn-xs' : '', 'mb-2']"
                             size="sm"
                             :disabled="!artefactSelect"
                             @click="dragArtefact(1,0)"
@@ -92,7 +93,16 @@
                     </td>
                 </tr>
             </table>
-            <input v-model="params.move" type="number" />
+             <b-row class="mt-4">
+                <b-col sm="6">
+                    <b-form-input
+                        id="input-small"
+                        size="sm"
+                        type="number"
+                         v-model="params.move"
+                    ></b-form-input>
+                </b-col>
+            </b-row>
         </div>
         <div v-if="mode === 'scale'">
             <b-button-group size="sm">
@@ -104,8 +114,16 @@
                 </b-button>
                 <b-button class="m-2" @click="resetScaleArtefact()">Reset</b-button>
             </b-button-group>
-
-            <input v-model="params.scale" type="number" />
+             <b-row class="my-1">
+                <b-col sm="5">
+                    <b-form-input
+                        id="input-small"
+                        size="sm"
+                        type="number"
+                         v-model="params.scale"
+                    ></b-form-input>
+                </b-col>
+            </b-row>
         </div>
         <div v-if="mode === 'rotate'">
             <b-button-group size="sm">
@@ -262,4 +280,16 @@ export default class ArtefactToolsbox extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.delete{
+    color:red;
+}
+.btn-xs{
+ padding: 0.1rem 0.15rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    border-radius: 0.2rem;
+}
+.btn-group{
+    background: #e3e7ea;
+}
 </style>
