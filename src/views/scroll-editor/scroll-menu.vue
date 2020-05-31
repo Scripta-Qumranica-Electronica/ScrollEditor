@@ -1,5 +1,12 @@
 <template>
     <div id="scroll-side-menu" role="tablist">
+        <section class="center-btn" v-if="!readOnly">
+            <div>{{ saveStatusMessage }}</div>
+        </section>
+        <section v-if="readOnly">
+            {{ edition.name}}
+            <edition-icons :edition="edition" :show-text="true" />
+        </section>
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1">
@@ -30,7 +37,7 @@
                 </b-collapse>
             </b-card>
         </section>
-        <section>
+        <section v-show="!readOnly">
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
                     <b-button
@@ -75,9 +82,6 @@
                             <b-button @click="onUndo()" size="sm" :disabled="!canUndo">Undo</b-button>
                             <b-button @click="onRedo()" size="sm" :disabled="!canRedo">Redo</b-button>
                         </section>
-                        <section class="center-btn">
-                            <p>{{ saveStatusMessage }}</p>
-                        </section>
                     </b-card-body>
                 </b-collapse>
             </b-card>
@@ -105,13 +109,15 @@ import {
     OperationsManagerStatus
 } from '@/utils/operations-manager';
 import { Transformation } from '@/utils/Mask';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
     name: 'scroll-menu',
     components: {
         Waiting,
         'add-artefact-modal': AddArtefactModal,
-        'artefact-toolbox': ArtefactToolbox
+        'artefact-toolbox': ArtefactToolbox,
+        'edition-icons': EditionIcons
     }
 })
 export default class ScrollMenu extends Vue {
@@ -129,6 +135,12 @@ export default class ScrollMenu extends Vue {
     private set zoom(val: any) {
         this.params.zoom = parseFloat(val);
         this.notifyChange('zoom', val);
+    }
+    private get edition() {
+        return this.$state.editions.current! || {};
+    }
+    private get readOnly(): boolean {
+        return this.edition.permission && this.edition.permission.readOnly;
     }
 
     private get artefactSelect(): Artefact | undefined {

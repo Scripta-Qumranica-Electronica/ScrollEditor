@@ -27,9 +27,13 @@
                     >
                         <i class="fa fa-align-justify"></i>
                     </b-button>
-                </div>
+                </div>  
                 <div class="artefact-container" :class="{active: isActive}">
-                    <scroll-area @onSelectArtefact="selectArtefact($event)" :params="params" @new-operation="onNewOperation($event)"></scroll-area>
+                    <scroll-area
+                        @onSelectArtefact="selectArtefact($event)"
+                        :params="params"
+                        @new-operation="onNewOperation($event)"
+                    ></scroll-area>
                 </div>
             </div>
         </div>
@@ -68,7 +72,9 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private editionId: number = 0;
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
-    private operationsManager = new OperationsManager<ScrollEditorOperation>(this);
+    private operationsManager = new OperationsManager<ScrollEditorOperation>(
+        this
+    );
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.artefact = artefact;
@@ -82,7 +88,10 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 continue;
             }
             try {
-                await this.artefactService.changeArtefact(this.editionId, artefact);
+                await this.artefactService.changeArtefact(
+                    this.editionId,
+                    artefact
+                );
             } catch (error) {
                 console.error("Can't save arterfact to server", error);
                 // Shaindel: Report save error to user in Toast
@@ -110,7 +119,6 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             }
         });
     }
-
     private get artefacts() {
         return this.$state.artefacts.items || [];
     }
@@ -146,7 +154,12 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             });
             artefact.placeOnScroll(transformation);
             this.operationsManager.addOperation(
-                new ScrollEditorOperation(artefact, 'add', Transformation.empty, transformation)
+                new ScrollEditorOperation(
+                    artefact,
+                    'add',
+                    Transformation.empty,
+                    transformation
+                )
             );
         }
     }
