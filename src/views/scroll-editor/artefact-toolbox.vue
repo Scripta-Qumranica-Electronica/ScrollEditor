@@ -35,6 +35,14 @@
                 <font-awesome-icon v-if="float" icon="sync" size="xs"></font-awesome-icon>
             </b-button>
         </b-button-group>
+        <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
+            <b-button :disabled="!artefact" @click="setZIndex(1)" v-if="!float">
+                <span v-if="!float">top</span>
+            </b-button>
+            <b-button :disabled="!artefact" @click="setZIndex(-1)" v-if="!float">
+                <span v-if="!float">down</span>
+            </b-button>
+        </b-button-group>
         <b-row v-if="mode === 'move'" no-gutters align-v="end">
             <div>
                 <table>
@@ -148,7 +156,12 @@ import {
     ScrollEditorMode
 } from '../artefact-editor/types';
 import { TransformationDTO } from '../../dtos/sqe-dtos';
-import { ScrollEditorOperation, ScrollEditorOperationType } from './operations';
+import {
+    ScrollEditorOperation,
+    ScrollEditorOperationType,
+    TransformOperation,
+    ZIndexOperation
+} from './operations';
 import { Transformation } from '@/utils/Mask';
 
 @Component({
@@ -238,12 +251,25 @@ export default class ArtefactToolbox extends Vue {
         this.setTransformation('scale', trans);
     }
 
+    private setZIndex(zIndexDirection: number) {
+
+        const placedArtefacts = this.$state.artefacts.items.filter(x => x.isPlaced);
+        const artefactsZOrders = placedArtefacts.map(x => x.zOrder);
+
+        const zIndex = zIndexDirection < 0 ? Math.min(...artefactsZOrders) - 1 : Math.max(...artefactsZOrders) + 1 ;
+
+        const op = new ZIndexOperation(this.artefact!.id, 'z-index', this.artefact!.zOrder, zIndex);
+
+        this.artefact!.zOrder = zIndex;
+        this.newOperation(op);
+    }
+
     private setTransformation(
         opType: ScrollEditorOperationType,
         newTrans: Transformation
     ) {
-        const op = new ScrollEditorOperation(
-            this.artefact!,
+        const op = new TransformOperation(
+            this.artefact!.id,
             opType,
             this.artefact!.mask.transformation,
             newTrans
@@ -310,7 +336,6 @@ export default class ArtefactToolbox extends Vue {
                 break;
         }
     }
-
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;

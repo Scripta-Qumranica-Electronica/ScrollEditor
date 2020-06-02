@@ -27,7 +27,7 @@
                     >
                         <i class="fa fa-align-justify"></i>
                     </b-button>
-                </div>  
+                </div>
                 <div class="artefact-container" :class="{active: isActive}">
                     <scroll-area
                         @onSelectArtefact="selectArtefact($event)"
@@ -55,7 +55,7 @@ import {
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactService from '@/services/artefact';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { ScrollEditorOperation } from './operations';
+import { ScrollEditorOperation, TransformOperation } from './operations';
 import { Transformation } from '@/utils/Mask';
 
 @Component({
@@ -144,6 +144,14 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             const numberOfPlaced = this.artefacts.filter(x => x.isPlaced)
                 .length;
 
+            const orderedArtefacts = this.artefacts
+                .filter(x => x.isPlaced)
+                .sort(x => x.zOrder);
+            const lengthArray = orderedArtefacts.length;
+            const maxZindex =
+                lengthArray > 0 ? orderedArtefacts[lengthArray - 1].zOrder : 0;
+            artefact.zOrder = maxZindex + 1;
+
             const transformation = new Transformation({
                 translate: {
                     x: 800 * numberOfPlaced,
@@ -152,10 +160,11 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 scale: 1,
                 rotate: 0
             });
+
             artefact.placeOnScroll(transformation);
             this.operationsManager.addOperation(
-                new ScrollEditorOperation(
-                    artefact,
+                new TransformOperation(
+                    artefact.id,
                     'add',
                     Transformation.empty,
                     transformation

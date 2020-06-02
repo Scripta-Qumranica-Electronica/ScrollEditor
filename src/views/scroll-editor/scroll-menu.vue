@@ -64,7 +64,7 @@
                                 size="sm"
                                 class="mb-2"
                                 :disabled="!artefact"
-                                @click="removeArtefat()"
+                                @click="removeArtefact()"
                             >{{$t('misc.remove')}} artefact</b-button>
                             <artefact-toolbox
                                 :params="params"
@@ -103,7 +103,7 @@ import {
 import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import ArtefactService from '@/services/artefact';
-import { ScrollEditorOperation, ScrollEditorOperationType } from './operations';
+import { ScrollEditorOperation, ScrollEditorOperationType, TransformOperation } from './operations';
 import {
     OperationsManager,
     OperationsManagerStatus
@@ -159,7 +159,7 @@ export default class ScrollMenu extends Vue {
     public onNewOperation(operation: ScrollEditorOperation) {
         this.newOperation(operation);
     }
-    public removeArtefat() {
+    public removeArtefact() {
         this.setTransformation('delete', Transformation.empty);
         this.artefact = undefined;
     }
@@ -183,7 +183,6 @@ export default class ScrollMenu extends Vue {
     private get canRedo(): boolean {
         return this.statusIndicator.canRedo;
     }
-
     private get isDirty(): boolean {
         return this.statusIndicator.isDirty;
     }
@@ -195,8 +194,8 @@ export default class ScrollMenu extends Vue {
         opType: ScrollEditorOperationType,
         newTrans: Transformation
     ) {
-        const op = new ScrollEditorOperation(
-            this.artefact!,
+        const op = new TransformOperation(
+            this.artefact!.id,
             opType,
             this.artefact!.mask.transformation,
             newTrans
@@ -216,7 +215,6 @@ export default class ScrollMenu extends Vue {
     private redo() {
         // Just emit the event
     }
-
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;

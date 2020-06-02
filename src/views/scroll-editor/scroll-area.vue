@@ -16,6 +16,8 @@
             <g id="root" :transform="transform">
                 <artefact-image-group
                    @on-select="selectArtefact(artefact)"
+                   @new-operation="onNewOperation($event)"
+                    transformRootId ="root"
                     :artefact="artefact"
                     v-for="artefact in placedArtefacts" :key="artefact.id"
                     :selected="artefact.id === (selectedArtefact && selectedArtefact.id)"
@@ -117,8 +119,9 @@ export default class ScrollArea extends Vue {
         return zoom;
     }
     private get placedArtefacts() {
-        return this.artefacts.filter(x => x.isPlaced);
+        return this.artefacts.filter(x => x.isPlaced).sort((a, b) => a.zOrder > b.zOrder ? 1 : -1);
     }
+
     private selectArtefact(artefact: Artefact) {
         this.selectedArtefact = artefact;
         this.$emit('onSelectArtefact', this.selectedArtefact);
