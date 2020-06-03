@@ -146,10 +146,8 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
             const orderedArtefacts = this.artefacts
                 .filter(x => x.isPlaced)
-                .sort(x => x.zOrder);
-            const lengthArray = orderedArtefacts.length;
-            const maxZindex =
-                lengthArray > 0 ? orderedArtefacts[lengthArray - 1].zOrder : 0;
+                .map(x => x.zOrder);
+            const maxZindex = Math.max(...orderedArtefacts);
             artefact.zOrder = maxZindex + 1;
 
             const transformation = new Transformation({
