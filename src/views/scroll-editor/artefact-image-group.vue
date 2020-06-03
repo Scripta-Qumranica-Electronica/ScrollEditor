@@ -1,12 +1,22 @@
 <template>
-    <g v-if="loaded" :key="artefact.id" :transform="groupTransform"> 
+    <g
+        v-if="loaded"
+        :key="artefact.id"
+        :transform="groupTransform"
+        :data="artefact.zOrder"
+        pointer-events="all"
+        @pointerdown="pointerDown($event)"
+        @pointermove="pointerMove($event)"
+        @pointerup="pointerUp($event)"
+        @pointercancel="pointerCancel($event)"
+    >
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.polygon.svg" />
             <clipPath :id="`clip-path-${artefact.id}`">
                 <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
             </clipPath>
         </defs>
-        <g :clip-path="`url(#clip-path-${artefact.id})`" >
+        <g :clip-path="`url(#clip-path-${artefact.id})`">
             <image
                 @click="onSelect()"
                 :width="boundingBox.width"
@@ -43,6 +53,8 @@ import { Component, Prop, Vue, Mixins, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import ArtefactDataMixin from '@/components/artefact/artefact-data-mixin';
 import { Polygon } from '@/utils/Polygons';
+import { Point } from '@/utils/helpers';
+import { ScrollEditorOperation, TransformOperation } from './operations';
 
 @Component({
     name: 'artefact-image-group'
@@ -52,7 +64,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         default: false
     })
     public selected!: boolean;
+    @Prop() public readonly transformRootId!: string;
+    private mouseOrigin?: Point;
     private loaded = false;
+    private pointerId: number = -1;
+    private element!: SVGGElement | null;
 
     private imageScale = 0.5; // TODO: Set a dynamic scale, based on actual element size.
     // Wait until the IIIF server can handle requests of various sizes
@@ -80,7 +96,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     public get groupTransform(): string {
         const trans = this.artefact.mask.transformation;
         if (!trans.scale) {
-            return '';  // No transform at all, do nothing
+            return ''; // No transform at all, do nothing
         }
 
         // First, move bounding box's center to (0, 0)
@@ -101,6 +117,16 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return `${translateToPlace} ${rotate} ${scale} ${translateToZero}`;
     }
 
+    private get svg(): SVGSVGElement {
+        return this.$el.closest('svg') as SVGSVGElement;
+    }
+
+    private get transformRoot(): SVGGraphicsElement {
+        return this.svg.getElementById(
+            this.transformRootId
+        ) as SVGGraphicsElement;
+    }
+
     protected async mounted() {
         await this.mountedDone;
         this.loaded = true;
@@ -110,7 +136,90 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private onSelect(): boolean {
         return true;
     }
+    private eventToPoint($event: PointerEvent): Point {
+        // Changing coordinate systems taken from:
+        // https://www.sitepoint.com/how-to-translate-from-dom-to-svg-coordinates-and-back-again/
+        const pt = this.svg.createSVGPoint();
+        pt.x = $event.clientX;
+        pt.y = $event.clientY;
+        const svgPt = pt.matrixTransform(
+            this.transformRoot.getScreenCTM()!.inverse()
+        );
 
+        return svgPt;
+    }
+
+    private pointerDown($event: PointerEvent) {
+        if (this.pointerId > 0) {
+            return;
+        }
+
+        this.pointerId = $event.pointerId;
+        this.element = ($event.target! as HTMLBaseElement)!.closest('g');
+
+        (($event.target as HTMLBaseElement) || this.element).setPointerCapture(
+            this.pointerId
+        );
+
+        const pt = this.eventToPoint($event);
+        this.mouseOrigin = { x: pt.x, y: pt.y };
+    }
+
+    private pointerMove($event: PointerEvent) {
+        if (
+            !this.mouseOrigin ||
+            !this.selected ||
+            this.pointerId !== $event.pointerId
+        ) {
+            return;
+        }
+
+        const pt = this.eventToPoint($event);
+
+        const diffPt = {
+            x: pt.x - this.mouseOrigin!.x,
+            y: pt.y - this.mouseOrigin!.y
+        };
+
+        this.artefact!.mask.transformation.translate.x += diffPt.x;
+        this.artefact!.mask.transformation.translate.y += diffPt.y;
+
+        this.mouseOrigin.x = pt.x;
+        this.mouseOrigin.y = pt.y;
+    }
+
+    private pointerUp($event: PointerEvent) {
+        if (this.pointerId !== $event.pointerId) {
+            return;
+        }
+        const trans = this.artefact!.mask.transformation.clone();
+        const op = new TransformOperation(
+            this.artefact.id,
+            'translate',
+            this.artefact!.mask.transformation,
+            trans
+        );
+
+        this.newOperation(op);
+
+        this.cancelOperation($event.target as HTMLBaseElement);
+    }
+
+    private pointerCancel() {
+        this.cancelOperation();
+    }
+
+    private cancelOperation(targetElement?: HTMLBaseElement) {
+        this.mouseOrigin = undefined;
+        (targetElement || this.element)!.releasePointerCapture(this.pointerId);
+        this.element = null;
+        this.pointerId = -1;
+    }
+
+    @Emit()
+    private newOperation(op: ScrollEditorOperation) {
+        return op;
+    }
 }
 </script>
 
