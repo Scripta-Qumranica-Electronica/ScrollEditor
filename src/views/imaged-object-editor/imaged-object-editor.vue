@@ -13,6 +13,7 @@
                 :imagedObject="imagedObject"
                 :artefacts="visibleArtefacts"
                 :artefact="artefact"
+                :artefactId="artefactId"
                 :params="params"
                 :editable="canEdit"
                 :side="side"
@@ -86,7 +87,7 @@
                                     :height="imageHeight"
                                     :params="params"
                                     :editable="canEdit"
-                                    :clipping-mask="artefact.mask.polygon"
+                                    :clipping-mask="artefact.mask && artefact.mask.polygon"
                                 />
                                 <artefact-layer
                                     :selected="art.id === artefact.id"
@@ -173,7 +174,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
     private waiting = true;
-    private artefact: Artefact | null = null;
+    private artefactId: number = -1;
     private initialMask = new Polygon();
     private params = new ImagedObjectEditorParams();
     private saving = false;
@@ -190,12 +191,12 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
     >(this, 0);
 
     public async saveEntities(ids: number[]): Promise<boolean> {
-        if (!this.artefact) {
-            throw new Error("Can't save if there is no artefact");
-        }
+        // if (!this.artefact) {
+        //     throw new Error("Can't save if there is no artefact");
+        // }
 
         for (const id of ids) {
-            const artefact = this.artefacts.find(art => art.id === id);
+            const artefact = this.artefacts.find(x => x.id === id);
             if (!artefact) {
                 console.warn(`Can't find artefact ${id} for saving`);
                 continue;
@@ -206,15 +207,19 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
                     artefact
                 );
                 this.showMessage('toasts.imagedObjectSaved', 'success');
-                this.artefact = this.artefacts.find(art => art.id === id);
             } catch (error) {
                 console.error("Can't save arterfact to server", error);
                 this.showMessage('toasts.imagedObjectFailed', 'error');
-                return false;
+                continue;
             }
         }
 
         return true;
+    }
+
+    private get artefact(): Artefact | undefined{
+        const artefact = this.artefacts.find(x => x.id === this.artefactId);
+        return artefact;
     }
 
     private get editList(): any[] {
@@ -234,11 +239,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         }
         return [];
     }
-    // private get artefactstore(): Artefact |undefined {
-    //     const artefact = this.$state.artefacts.find(this.artefact!.id);
-    //     return artefact;
-    // }
-
+ 
     private get zoomLevel(): number {
         return this.params.zoom;
     }
@@ -351,18 +352,12 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {
-                // this.artefacts.forEach(element => {
-                //     this.artefactEditingDataList.push(
-                //         new ArtefactEditingData()
-                //     );
-                // });
                 this.onArtefactChanged(this.visibleArtefacts[0]);
 
                 // Remove this because it will happen in onArtefactChanged function.
-                // this.artefactEditingData = this.getArtefactEditingData(0);
                 this.initialMask = this.artefact!.mask.polygon;
             } else {
-                this.artefact = null;
+                this.artefactId = -1;
                 this.initialMask = new Polygon();
             }
         } finally {
@@ -484,10 +479,10 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         this.operationsManager.redo();
     }
 
-    private async onNew(art: Artefact) {
+    private onNew(art: Artefact) {
         addToArray(art, this.imagedObject!.artefacts);
 
-        this.artefact = art;
+        this.artefactId = art.id;
         if (!this.artefact) {
             throw new Error("Can't create if there is no artefact");
         }
@@ -528,14 +523,12 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
             await this.artefactService.deleteArtefact(art);
             this.showMessage('toasts.artefactDeleted', 'success');
             const index = this.artefacts.indexOf(art);
-            // this.artefacts.splice(index, 1);
-            this.artefactEditingDataList.splice(index, 1);
+
 
             if (this.artefacts[0]) {
-                this.artefact = this.artefacts[0];
-                this.artefactEditingData = this.artefactEditingDataList[0];
+                this.artefactId = this.artefacts[0].id;
             } else {
-                this.artefact = null;
+                this.artefactId = undefined;
                 this.initialMask = new Polygon();
             }
         } catch (err) {
@@ -549,13 +542,13 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
     }
 
     private onArtefactChanged(art: Artefact) {
-        this.artefact = art;
+        this.artefactId = art.id;
         // const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         // this.artefactEditingData = this.getArtefactEditingData(index);
 
         this.nonSelectedMask = new Polygon();
         for (const artefact of this.visibleArtefacts) {
-            if (artefact !== art) {
+            if (artefact.id !== art.id) {
                 this.nonSelectedMask = Polygon.add(
                     this.nonSelectedMask,
                     artefact.mask.polygon
@@ -637,7 +630,8 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         }
 
         console.log(
-            this.artefact!.mask.polygon.svg, newPolygon.svg,
+            this.artefact!.mask.polygon.svg,
+            newPolygon.svg,
             'hasChanged'
         );
         this.operationsManager.addOperation(

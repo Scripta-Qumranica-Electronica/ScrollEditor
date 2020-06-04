@@ -55,12 +55,13 @@
                                 @click="sideFilterChanged(filter)"
                             >{{filter.displayName}}</b-dropdown-item>
                         </b-dropdown>
+                        {{artefact && artefact.id}}
                         <table>
                             <tr v-for="art in artefacts" :key="art.id">
                                 <td>
                                     <span
                                         v-if="renameInputActive!==art"
-                                        :class="{ selected: art===artefact }"
+                                        :class="{ selected: art.id === artefact.id }"
                                         @click="chooseArtefact(art)"
                                         :style="{'color': art.color}"
                                     >{{ art.name }}</span>
