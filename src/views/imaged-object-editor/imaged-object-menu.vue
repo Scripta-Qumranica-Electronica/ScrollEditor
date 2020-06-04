@@ -1,15 +1,17 @@
 <template>
     <div id="imaged-object-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
-                <section>
+        <section>{{saveStatusMessage}}</section>
+        <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
-                    <b-button
-                        block
-                        href="#"
-                        variant="info"
-                    >{{$t('home.editorParameters')}}</b-button>
+                    <b-button block href="#" variant="info">{{$t('home.editorParameters')}}</b-button>
                 </b-card-header>
-                <b-collapse    style="display:block;" id="accordion-params" accordion="my-accordion" role="tabpanel">
+                <b-collapse
+                    style="display:block;"
+                    id="accordion-params"
+                    accordion="my-accordion"
+                    role="tabpanel"
+                >
                     <b-card-body>
                         <section>
                             <!-- zoom -->
@@ -31,7 +33,7 @@
                         <section v-if="artefact && artefact.mask">
                             <b-form-checkbox v-model="background">Background</b-form-checkbox>
                         </section>
-                    
+
                         <section>
                             <b-form-checkbox v-model="highLight">HighLight</b-form-checkbox>
                         </section>
@@ -44,11 +46,7 @@
                 <b-card-header header-tag="header" class="p-1" role="tab">
                     <b-button block href="#" v-b-toggle.accordion-artefacts variant="info">Artefacts</b-button>
                 </b-card-header>
-                <b-collapse
-                    id="accordion-artefacts"
-                    accordion="my-accordion"
-                    role="tabpanel"
-                >
+                <b-collapse id="accordion-artefacts" accordion="my-accordion" role="tabpanel">
                     <b-card-body class="card-body-height">
                         <b-dropdown :text="sideFilter.displayName">
                             <b-dropdown-item
@@ -151,9 +149,6 @@
             </b-card>
         </section>
 
-
-         
-
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
@@ -162,10 +157,18 @@
                 <b-collapse id="accordion-actions" accordion="my-accordion" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button @click="onRotateClick(-90)" v-b-tooltip.hover.bottom :title="$t('misc.leftRotate')">
+                            <b-button
+                                @click="onRotateClick(-90)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.leftRotate')"
+                            >
                                 <font-awesome-icon icon="undo"></font-awesome-icon>
                             </b-button>
-                            <b-button @click="onRotateClick(90)" v-b-tooltip.hover.bottom :title="$t('misc.RightRotate')">
+                            <b-button
+                                @click="onRotateClick(90)"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.RightRotate')"
+                            >
                                 <font-awesome-icon icon="redo"></font-awesome-icon>
                             </b-button>
                         </section>
@@ -184,8 +187,8 @@
               { shortcut: [ 'arrowleft' ], callback: undoModal },
             ]"
                         >
-                            <b-button @click="undo()">Undo</b-button>
-                            <b-button @click="redo()">Redo</b-button>
+                            <b-button :disabled="!canUndo" @click="undo()">Undo</b-button>
+                            <b-button :disabled="!canRedo" @click="redo()">Redo</b-button>
                         </section>
                         <section class="center-btn" v-if="editable">
                             <b-button v-if="!saving" @click="save()">{{$t('misc.save')}}</b-button>
@@ -222,6 +225,7 @@ import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vu
 import { Side } from '@/models/misc';
 import ArtefactService from '@/services/artefact';
 import { DropdownOption } from '@/utils/helpers';
+import { OperationsManagerStatus } from '@/utils/operations-manager';
 
 /**
  * This component has a lot of emit functions.  Perhaps it will be better
@@ -252,7 +256,8 @@ export default Vue.extend({
         renameInputActive: Object as () => Artefact,
         side: {
             type: String as () => Side
-        }
+        },
+        statusIndicator: Object as () => OperationsManagerStatus
     },
     data() {
         return {
@@ -275,7 +280,7 @@ export default Vue.extend({
                 this.notifyChange('zoom', val);
             }
         },
-      background: {
+        background: {
             get(): boolean {
                 return this.params.background;
             },
@@ -315,7 +320,19 @@ export default Vue.extend({
             return this.newArtefactName.trim().length > 0;
         },
         canUndo() {
-            return true;
+            return this.statusIndicator.canUndo;
+        },
+        canRedo() {
+            return this.statusIndicator.canRedo;
+        },
+        saveStatusMessage(): string {
+            if (this.statusIndicator.isSaving) {
+                return 'Saving...';
+            }
+            if (this.statusIndicator.isDirty) {
+                return 'Save pending';
+            }
+            return 'Saved';
         },
         editionId(): number {
             return parseInt(this.$route.params.editionId);
@@ -456,7 +473,7 @@ section.center-btn {
     margin-left: 20px;
     margin-right: -20px;
 }
-.card-body-height{
+.card-body-height {
     overflow-y: auto;
     max-height: 250px;
 }

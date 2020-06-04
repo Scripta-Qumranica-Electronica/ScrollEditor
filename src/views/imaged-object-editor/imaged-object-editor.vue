@@ -16,6 +16,7 @@
                 :params="params"
                 :editable="canEdit"
                 :side="side"
+                :status-indicator="operationsManager"
                 @paramsChanged="onParamsChanged($event)"
                 @save="onSave($event)"
                 @undo="onUndo($event)"
@@ -140,7 +141,8 @@ import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { normalizeOpacity } from '@/components/image-settings/types';
 import { addToArray } from '@/utils/collection-utils';
 import EditionIcons from '@/components/cues/edition-icons.vue';
-
+import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import { ImagedObjectEditorOperation } from './operations';
 @Component({
     name: 'imaged-object-editor',
     components: {
@@ -149,11 +151,11 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
-        'edition-icons': EditionIcons,
+        zoomer: Zoomer,
+        'edition-icons': EditionIcons
     }
 })
-export default class ImagedObjectEditor extends Vue {
+export default class ImagedObjectEditor extends Vue implements SavingAgent {
     private static colors = [
         'purple',
         'blue',
@@ -178,11 +180,43 @@ export default class ImagedObjectEditor extends Vue {
     private renaming = false;
     private renameInputActive: Artefact | null = null;
     private nonSelectedMask = new Polygon();
-    private artefactEditingDataList: ArtefactEditingData[] = [];
-    private artefactEditingData = new ArtefactEditingData();
+    // private artefactEditingDataList: ArtefactEditingData[] = [];
+    // private artefactEditingData = new ArtefactEditingData();
     private isActive = false;
     private masterImage?: IIIFImage;
     private side: Side = 'recto';
+    private operationsManager = new OperationsManager<
+        ImagedObjectEditorOperation
+    >(this, 0);
+
+    public async saveEntities(ids: number[]): Promise<boolean> {
+        if (!this.artefact) {
+            throw new Error("Can't save if there is no artefact");
+        }
+
+        for (const id of ids) {
+            const artefact = this.artefacts.find(art => art.id === id);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${id} for saving`);
+                continue;
+            }
+            try {
+                await this.artefactService.changeArtefact(
+                    this.editionId,
+                    artefact
+                );
+                this.showMessage('toasts.imagedObjectSaved', 'success');
+                this.artefact = this.artefacts.find(art => art.id === id);
+            } catch (error) {
+                console.error("Can't save arterfact to server", error);
+                this.showMessage('toasts.imagedObjectFailed', 'error');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private get editList(): any[] {
         if (this.canEdit) {
             return [
@@ -200,6 +234,10 @@ export default class ImagedObjectEditor extends Vue {
         }
         return [];
     }
+    // private get artefactstore(): Artefact |undefined {
+    //     const artefact = this.$state.artefacts.find(this.artefact!.id);
+    //     return artefact;
+    // }
 
     private get zoomLevel(): number {
         return this.params.zoom;
@@ -313,17 +351,13 @@ export default class ImagedObjectEditor extends Vue {
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {
-                this.artefacts.forEach(element => {
-                    this.artefactEditingDataList.push(
-                        new ArtefactEditingData()
-                    );
-                });
+                // this.artefacts.forEach(element => {
+                //     this.artefactEditingDataList.push(
+                //         new ArtefactEditingData()
+                //     );
+                // });
                 this.onArtefactChanged(this.visibleArtefacts[0]);
-                this.artefacts.forEach(element => {
-                    this.artefactEditingDataList.push(
-                        new ArtefactEditingData()
-                    );
-                });
+
                 // Remove this because it will happen in onArtefactChanged function.
                 // this.artefactEditingData = this.getArtefactEditingData(0);
                 this.initialMask = this.artefact!.mask.polygon;
@@ -343,17 +377,15 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private confirmLeaving(e: BeforeUnloadEvent) {
-        this.artefactEditingDataList.forEach(art => {
-            if (art.dirty) {
-                // check if there unsaved changes
-                const confirmationMessage =
-                    'It looks like you have been editing something. ' +
-                    'If you leave before saving, your changes will be lost.';
+        if (this.operationsManager.isDirty) {
+            // check if there unsaved changes
+            const confirmationMessage =
+                'It looks like you have been editing something. ' +
+                'If you leave before saving, your changes will be lost.';
 
-                (e || window.event).returnValue = confirmationMessage;
-                return confirmationMessage;
-            }
-        });
+            (e || window.event).returnValue = confirmationMessage;
+            return confirmationMessage;
+        }
     }
 
     private fillImageSettings() {
@@ -404,75 +436,52 @@ export default class ImagedObjectEditor extends Vue {
         this.params.zoom = event.zoom;
     }
 
-    private showSaveMsg(savedFlag: boolean, errorFlag: boolean) {
-        this.saving = false;
-
-        if (!savedFlag) {
-            this.showMessage('toasts.NoChangesDetected');
-        } else if (errorFlag) {
-            this.showMessage('toasts.imagedObjectFailed', 'error');
-        } else {
-            this.showMessage('toasts.imagedObjectSaved', 'success');
-        }
-    }
-
     private onSave() {
-        if (!this.artefact) {
-            throw new Error("Can't save if there is no artefact");
+        if (!this.operationsManager.isDirty) {
+            this.showMessage('toasts.NoChangesDetected');
+            return;
         }
-        this.saving = true;
-        let savedFlag = false;
-        let errorFlag = false;
-
-        this.artefacts.forEach(async (art, index) => {
-            if (this.artefactEditingDataList[index].dirty) {
-                savedFlag = true;
-
-                await this.artefactService
-                    .changeArtefact(this.editionId, art)
-                    .catch(() => {
-                        errorFlag = true;
-                    })
-                    .finally(() => {
-                        if (index === this.artefacts.length - 1) {
-                            this.showSaveMsg(savedFlag, errorFlag);
-                        }
-                    });
-                this.artefactEditingDataList[index].dirty = false;
-            } else {
-                setTimeout(() => {
-                    if (index === this.artefacts.length - 1) {
-                        this.showSaveMsg(savedFlag, errorFlag);
-                    }
-                }, 1000);
-            }
-        });
+        this.operationsManager.save();
     }
+    // private onSave() {
+    //     if (!this.artefact) {
+    //         throw new Error("Can't save if there is no artefact");
+    //     }
+    //     this.saving = true;
+    //     let savedFlag = false;
+    //     let errorFlag = false;
+
+    //     this.artefacts.forEach(async (art, index) => {
+    //         if (this.artefactEditingDataList[index].dirty) {
+    //             savedFlag = true;
+
+    //             await this.artefactService
+    //                 .changeArtefact(this.editionId, art)
+    //                 .catch(() => {
+    //                     errorFlag = true;
+    //                 })
+    //                 .finally(() => {
+    //                     if (index === this.artefacts.length - 1) {
+    //                         this.showSaveMsg(savedFlag, errorFlag);
+    //                     }
+    //                 });
+    //             this.artefactEditingDataList[index].dirty = false;
+    //         } else {
+    //             setTimeout(() => {
+    //                 if (index === this.artefacts.length - 1) {
+    //                     this.showSaveMsg(savedFlag, errorFlag);
+    //                 }
+    //             }, 1000);
+    //         }
+    //     });
+    // }
 
     private onUndo() {
-        if (!this.artefact) {
-            throw new Error("Can't undo mask if there is no artefact");
-        }
-        if (this.artefactEditingData.undoList.length) {
-            this.artefactEditingData.dirty = true;
-
-            const toUndo: MaskChangeOperation = this.artefactEditingData.undoList.pop()!;
-            this.artefactEditingData.redoList.push(toUndo);
-
-            this.artefact.mask.polygon = toUndo.prevMask;
-        }
+        this.operationsManager.undo();
     }
 
     private onRedo() {
-        if (!this.artefact) {
-            throw new Error("Can't redo mask if there is no artefact");
-        }
-        if (this.artefactEditingData.redoList.length) {
-            const toRedo: MaskChangeOperation = this.artefactEditingData.redoList.pop()!;
-            this.artefactEditingData.undoList.push(toRedo);
-
-            this.artefact.mask.polygon = toRedo.newMask;
-        }
+        this.operationsManager.redo();
     }
 
     private async onNew(art: Artefact) {
@@ -484,8 +493,8 @@ export default class ImagedObjectEditor extends Vue {
         }
         this.saving = true;
         try {
-            this.artefactEditingData = new ArtefactEditingData();
-            this.artefactEditingDataList.push(this.artefactEditingData);
+            // this.artefactEditingData = new ArtefactEditingData();
+            // this.artefactEditingDataList.push(this.artefactEditingData);
             this.showMessage('toasts.artefactCreated', 'success');
         } catch (err) {
             this.showMessage('toasts.artefactCreatedFailed', 'error');
@@ -541,8 +550,8 @@ export default class ImagedObjectEditor extends Vue {
 
     private onArtefactChanged(art: Artefact) {
         this.artefact = art;
-        const index = this.artefacts.indexOf(art); // index artefact in artefact list.
-        this.artefactEditingData = this.getArtefactEditingData(index);
+        // const index = this.artefacts.indexOf(art); // index artefact in artefact list.
+        // this.artefactEditingData = this.getArtefactEditingData(index);
 
         this.nonSelectedMask = new Polygon();
         for (const artefact of this.visibleArtefacts) {
@@ -563,9 +572,9 @@ export default class ImagedObjectEditor extends Vue {
         this.fillImageSettings();
     }
 
-    private getArtefactEditingData(index: number) {
-        return this.artefactEditingDataList[index];
-    }
+    // private getArtefactEditingData(index: number) {
+    //     return this.artefactEditingDataList[index];
+    // }
 
     private showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(this.$tc(msg), {
@@ -603,6 +612,7 @@ export default class ImagedObjectEditor extends Vue {
     private get removeColor() {
         return this.params.highLight === false;
     }
+
     private onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;
 
@@ -626,22 +636,19 @@ export default class ImagedObjectEditor extends Vue {
             return;
         }
 
-        const changeOperation = {
-            prevMask: this.artefact!.mask.polygon
-        } as MaskChangeOperation;
-
-        // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)
+        console.log(
+            this.artefact!.mask.polygon.svg, newPolygon.svg,
+            'hasChanged'
+        );
+        this.operationsManager.addOperation(
+            new ImagedObjectEditorOperation(
+                this.artefact!.id,
+                this.isErasing ? 'erase' : 'draw',
+                this.artefact!.mask.polygon,
+                newPolygon
+            )
+        );
         this.artefact!.mask.polygon = newPolygon;
-        this.artefactEditingData.dirty = true;
-
-        changeOperation.newMask = this.artefact!.mask.polygon;
-
-        if (this.artefactEditingData.undoList.length >= 50) {
-            this.artefactEditingData.undoList.slice(1);
-        }
-
-        this.artefactEditingData.undoList.push(changeOperation);
-        this.artefactEditingData.redoList = [];
     }
 }
 
