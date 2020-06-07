@@ -62,7 +62,7 @@ class ArtefactService {
                 maskEditorId: 0,
                 positionEditorId: 0,
             },
-            zOrder: artefact.zOrder,
+            // zOrder: artefact.zOrder,
             name: artefact.name,
             statusMessage: '',
         } as UpdateArtefactDTO;

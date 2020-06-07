@@ -15,21 +15,24 @@ export class Transformation implements TransformationDTO {
         return new Transformation({
         } as TransformationDTO);
     }
-    public scale?: number;
-    public rotate?: number;
+    public scale: number;
+    public rotate: number;
     public translate: TranslateDTO;
+    public zIndex: number;
 
     public constructor(dto: TransformationDTO) {
         this.scale = dto.scale;
         this.rotate = dto.rotate;
         this.translate = dto.translate;
+        this.zIndex = dto.zIndex;
     }
 
     public clone(): Transformation {
         return new Transformation({
             scale: this.scale,
             rotate: this.rotate,
-            translate: {...this.translate}
+            translate: { ...this.translate },
+            zIndex: this.zIndex
         });
     }
 }
@@ -39,7 +42,7 @@ export class Mask {
     public polygon: Polygon;
 
     constructor(obj: PolygonDTO) {
-        this.transformation = new Transformation(obj.transformation);
+        this.transformation = obj.transformation ? new Transformation(obj.transformation) : {} as Transformation;
         this.polygon = Polygon.fromWkt(obj.mask);
     }
 }

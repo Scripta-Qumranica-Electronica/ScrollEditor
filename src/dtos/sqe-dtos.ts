@@ -31,7 +31,7 @@ export interface UpdateArtefactDTO {
 
 export interface UpdateArtefactTransformDTO {
     artefactId: number;
-    transform: TransformationDTO;
+    transform?: TransformationDTO;
 }
 
 export interface BatchUpdateArtefactTransformDTO {

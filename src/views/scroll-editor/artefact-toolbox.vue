@@ -159,8 +159,7 @@ import { TransformationDTO } from '../../dtos/sqe-dtos';
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    TransformOperation,
-    ZIndexOperation
+    TransformOperation
 } from './operations';
 import { Transformation } from '@/utils/Mask';
 
@@ -236,6 +235,7 @@ export default class ArtefactToolbox extends Vue {
             trans.scale = 1;
         }
         trans.scale += zoomDelta;
+        trans.scale = +trans.scale.toFixed(4);
         this.setTransformation('scale', trans);
     }
 
@@ -252,16 +252,22 @@ export default class ArtefactToolbox extends Vue {
     }
 
     private setZIndex(zIndexDirection: number) {
+        const placedArtefacts = this.$state.artefacts.items.filter(
+            x => x.isPlaced
+        );
+        const artefactsZOrders = placedArtefacts.map(
+            x => x.mask.transformation.zIndex
+        );
 
-        const placedArtefacts = this.$state.artefacts.items.filter(x => x.isPlaced);
-        const artefactsZOrders = placedArtefacts.map(x => x.zOrder);
+        const zIndex =
+            zIndexDirection < 0
+                ? Math.min(...artefactsZOrders) - 1
+                : Math.max(...artefactsZOrders) + 1;
 
-        const zIndex = zIndexDirection < 0 ? Math.min(...artefactsZOrders) - 1 : Math.max(...artefactsZOrders) + 1 ;
+        const trans = this.artefact!.mask.transformation.clone();
+        trans.zIndex = zIndex;
 
-        const op = new ZIndexOperation(this.artefact!.id, 'z-index', this.artefact!.zOrder, zIndex);
-
-        this.artefact!.zOrder = zIndex;
-        this.newOperation(op);
+        this.setTransformation('z-index', trans);
     }
 
     private setTransformation(

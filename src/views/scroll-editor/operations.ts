@@ -19,6 +19,7 @@ export abstract class ScrollEditorOperation implements Operation<ScrollEditorOpe
     public getId(): number {
         return this.artefact.id;
     }
+
     protected get artefact(): Artefact {
         const artefact = state().artefacts.find(this.artefactId);
         if (!artefact) {
@@ -51,7 +52,6 @@ export class TransformOperation extends ScrollEditorOperation {
 
     public redo(): void {
         this.artefact.mask.transformation = this.next.clone();
-
     }
 
     public uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined {
@@ -68,36 +68,5 @@ export class TransformOperation extends ScrollEditorOperation {
         return new TransformOperation(this.artefactId, this.type, (op as TransformOperation).prev, this.next);
     }
 
-
 }
 
-
-export class ZIndexOperation extends ScrollEditorOperation {
-
-
-    public constructor(
-        artefactId: number,
-        type: ScrollEditorOperationType,
-        public prevZIndex: number,
-        public nextZIndex: number,
-    ) {
-        super(artefactId, type);
-        if (type !== 'z-index') {
-            throw Error('ZIndexOperation must accept a z-index type');
-        }
-    }
-
-
-    public undo(): void {
-        this.artefact.zOrder = this.prevZIndex;
-    }
-
-    public redo(): void {
-        this.artefact.zOrder = this.nextZIndex;
-
-    }
-
-    public uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined {
-        return undefined;
-    }
-}

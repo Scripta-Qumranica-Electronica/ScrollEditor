@@ -11,10 +11,12 @@ import {
     UpdateEditorRightsDTO,
     DetailedEditorRightsDTO,
     BatchUpdatedArtefactTransformDTO,
-    BatchUpdateArtefactTransformDTO
+    BatchUpdateArtefactTransformDTO,
+    UpdateArtefactTransformDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
+import { Artefact } from '@/models/artefact';
 
 class EditionService {
     public stateManager: StateManager;
@@ -195,12 +197,34 @@ class EditionService {
         return response.data;
     }
 
-    public async updateArtefactDTOs(editionId: number, updateArtefacts: Artefact[]) : Promise<BatchUpdatedArtefactTransformDTO> {
+    public async updateArtefactDTOs(editionId: number, updateArtefacts: Artefact[])
+        : Promise<BatchUpdatedArtefactTransformDTO> {
         // TODO: Fill BatchUpdateArtefactTransformDTO and access server
-        const dto: BatchUpdateArtefactTransformDTO;
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+
+        const artefactTransforms: UpdateArtefactTransformDTO[] = updateArtefacts.map(
+            (x: Artefact) => ({
+                artefactId: x.id,
+                transform: x.isPlaced ? x.mask.transformation : undefined
+            })
+        );
+
         // Fill dto with data
-        // CAll server: CommHelper.post<BatchUpdatedArtefactTrasnformDTO>...
+        const dto = {
+            artefactTransforms
+        } as BatchUpdateArtefactTransformDTO;
+
+        // Call server: CommHelper.post<BatchUpdatedArtefactTrasnformDTO>...
+        const response = await CommHelper.post<BatchUpdatedArtefactTransformDTO>(
+            ApiRoutes.batchUpdateArtefactDTOs(editionId),
+            dto
+        );
+
         // Return value
+        return response.data;
     }
 }
 

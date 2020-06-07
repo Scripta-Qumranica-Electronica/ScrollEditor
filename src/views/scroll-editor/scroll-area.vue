@@ -1,30 +1,39 @@
 <template>
-<div ref="scrollArea" id="outer">
-    <div v-draggable="draggableOptions" v-show="selectedArtefact" style="position: absolute;">
-        <div ref="handleTools" style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move">
-            <i class="fa fa-ellipsis-v"></i>
+    <div ref="scrollArea" id="outer">
+        <div v-draggable="draggableOptions" v-show="selectedArtefact" style="position: absolute;">
+            <div
+                ref="handleTools"
+                style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move"
+            >
+                <i class="fa fa-ellipsis-v"></i>
+            </div>
+            <artefact-toolbox
+                :keyboard-input="false"
+                :params="params"
+                :float="true"
+                :artefactId="selectedArtefact && selectedArtefact.id"
+                @new-operation="onNewOperation($event)"
+            ></artefact-toolbox>
         </div>
-        <artefact-toolbox :keyboard-input="false" :params="params" :float="true" :artefactId="selectedArtefact && selectedArtefact.id" @new-operation="onNewOperation($event)"></artefact-toolbox>
-    </div>
-    <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
-      
-        <svg
-            :width="actualWidth"
-            :height="actualHeight"
-            :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
-        >
-            <g id="root" :transform="transform">
-                <artefact-image-group
-                   @on-select="selectArtefact(artefact)"
-                   @new-operation="onNewOperation($event)"
-                    transformRootId ="root"
-                    :artefact="artefact"
-                    v-for="artefact in placedArtefacts" :key="artefact.id"
-                    :selected="artefact.id === (selectedArtefact && selectedArtefact.id)"
-                />
-            </g>
-        </svg>
-    </zoomer>
+        <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
+            <svg
+                :width="actualWidth"
+                :height="actualHeight"
+                :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
+            >
+                <g id="root" :transform="transform">
+                    <artefact-image-group
+                        @on-select="selectArtefact(artefact)"
+                        @new-operation="onNewOperation($event)"
+                        transformRootId="root"
+                        :artefact="artefact"
+                        v-for="artefact in placedArtefacts"
+                        :key="artefact.id"
+                        :selected="artefact.id === (selectedArtefact && selectedArtefact.id)"
+                    />
+                </g>
+            </svg>
+        </zoomer>
     </div>
 </template>
 
@@ -59,7 +68,7 @@ import { ScrollEditorOperation } from './operations';
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -81,7 +90,8 @@ export default class ScrollArea extends Vue {
         this.selectedArtefact = undefined;
 
         this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
-        this.draggableOptions.boundingElement = this.$refs.scrollArea as HTMLElement;
+        this.draggableOptions.boundingElement = this.$refs
+            .scrollArea as HTMLElement;
     }
 
     private get artefacts() {
@@ -107,7 +117,7 @@ export default class ScrollArea extends Vue {
     }
 
     private get zoomLevel() {
-        return this.params && this.params.zoom || 0;
+        return (this.params && this.params.zoom) || 0;
     }
 
     private onNewZoom(event: ZoomEventArgs) {
@@ -119,7 +129,13 @@ export default class ScrollArea extends Vue {
         return zoom;
     }
     private get placedArtefacts() {
-        return this.artefacts.filter(x => x.isPlaced).sort((a, b) => a.zOrder > b.zOrder ? 1 : -1);
+        return this.artefacts
+            .filter(x => x.isPlaced)
+            .sort((a, b) =>
+                a.mask.transformation.zIndex > b.mask.transformation.zIndex
+                    ? 1
+                    : -1
+            );
     }
 
     private selectArtefact(artefact: Artefact) {
@@ -134,7 +150,6 @@ export default class ScrollArea extends Vue {
     private newOperation(op: ScrollEditorOperation) {
         return op;
     }
-
 }
 </script>
 

@@ -57,6 +57,7 @@ import ArtefactService from '@/services/artefact';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import { ScrollEditorOperation, TransformOperation } from './operations';
 import { Transformation } from '@/utils/Mask';
+import EditionService from '@/services/edition';
 
 @Component({
     name: 'scroll-editor',
@@ -72,6 +73,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private editionId: number = 0;
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
+    private editionService = new EditionService();
     private operationsManager = new OperationsManager<ScrollEditorOperation>(
         this
     );
@@ -81,22 +83,18 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     public async saveEntities(ids: number[]): Promise<boolean> {
-        for (const id of ids) {
-            const artefact = this.$state.artefacts.find(id);
-            if (!artefact) {
-                console.warn(`Can't find artefact ${id} for saving`);
-                continue;
-            }
-            try {
-                await this.artefactService.changeArtefact(
-                    this.editionId,
-                    artefact
-                );
-            } catch (error) {
-                console.error("Can't save arterfact to server", error);
-                // Shaindel: Report save error to user in Toast
-                return false;
-            }
+        const artefacts = ids.map(
+            x => this.$state.artefacts.find(x) as Artefact
+        );
+        try {
+            await this.editionService.updateArtefactDTOs(
+                this.editionId,
+                artefacts
+            );
+        } catch (error) {
+            console.error("Can't save arterfacts to server", error);
+            // Shaindel: Report save error to user in Toast
+            return false;
         }
 
         return true;
@@ -146,9 +144,8 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
             const orderedArtefacts = this.artefacts
                 .filter(x => x.isPlaced)
-                .map(x => x.zOrder);
-            const maxZindex = Math.max(...orderedArtefacts);
-            artefact.zOrder = maxZindex + 1;
+                .map(x => x.mask.transformation.zIndex);
+            const maxZindex = orderedArtefacts.length ? Math.max(...orderedArtefacts) : -1;
 
             const transformation = new Transformation({
                 translate: {
@@ -156,7 +153,8 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                     y: 400
                 },
                 scale: 1,
-                rotate: 0
+                rotate: 0,
+                zIndex: maxZindex + 1
             });
 
             artefact.placeOnScroll(transformation);

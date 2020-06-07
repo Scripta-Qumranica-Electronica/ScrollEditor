@@ -15,7 +15,7 @@ export class Artefact {
     public name = '';
     public mask: Mask = {} as Mask; // This is a bad name, but we keep the naming convention of the frontend.
 
-    public zOrder = 0;
+    // public zOrder = 0;
     public side: Side = 'recto';
 
     public textFragments: ArtefactTextFragmentData[] = [];
@@ -32,7 +32,6 @@ export class Artefact {
         this.imagedObjectId = obj.imagedObjectId;
         this.name = obj.name;
         this.mask = new Mask(obj.mask);
-        this.zOrder = obj.zOrder;
         this.side = (obj.side === 'recto') ? 'recto' : 'verso';
     }
 
@@ -60,6 +59,7 @@ export class Artefact {
             scale: trans.scale,
             rotate: trans.rotate,
             translate: {...trans.translate},
+            zIndex: trans.zIndex
         };
     }
 
@@ -70,7 +70,7 @@ export class Artefact {
         this.name = other.name;
         this.mask = other.mask;
         // this.transformMatrix = other.transformMatrix;
-        this.zOrder = other.zOrder;
+        // this.zOrder = other.zOrder;
         this.side = other.side;
 
         this.textFragments = [...other.textFragments];

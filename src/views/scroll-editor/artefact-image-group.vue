@@ -189,7 +189,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private pointerUp($event: PointerEvent) {
-        if (this.pointerId !== $event.pointerId) {
+        if (this.pointerId !== $event.pointerId || !this.selected) {
+            this.cancelOperation($event.target as HTMLBaseElement);
             return;
         }
         const trans = this.artefact!.mask.transformation.clone();
