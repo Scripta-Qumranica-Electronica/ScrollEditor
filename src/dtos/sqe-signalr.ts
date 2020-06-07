@@ -14,12 +14,15 @@ import {
 	ArtefactListDTO,
 	ArtefactDataListDTO,
 	UpdateArtefactDTO,
+	UpdateArtefactTransformDTO,
+	BatchUpdateArtefactTransformDTO,
+	UpdatedArtefactTransformDTO,
+	BatchUpdatedArtefactTransformDTO,
 	CreateArtefactDTO,
 	EditionDTO,
 	EditionGroupDTO,
 	EditionListDTO,
 	PermissionDTO,
-	MinimalEditorRights,
 	UpdateEditorRightsDTO,
 	InviteEditorDTO,
 	DetailedEditorRightsDTO,
@@ -31,7 +34,6 @@ import {
 	TextEditionDTO,
 	DeleteTokenDTO,
 	DeleteEditionEntityDTO,
-	EditionScriptCollectionDTO,
 	DeleteDTO,
 	EditionUpdateRequestDTO,
 	EditionCopyDTO,
@@ -41,6 +43,7 @@ import {
 	ImageStackDTO,
 	ImagedObjectDTO,
 	ImagedObjectListDTO,
+	SetPolygonDTO,
 	PolygonDTO,
 	WktPolygonDTO,
 	SetInterpretationRoiDTO,
@@ -51,11 +54,16 @@ import {
 	UpdatedInterpretationRoiDTOList,
 	BatchEditRoiDTO,
 	BatchEditRoiResponseDTO,
-	LetterDTO,
 	SignDTO,
 	NextSignInterpretationDTO,
 	SignInterpretationDTO,
 	InterpretationAttributeDTO,
+	EditionScriptCollectionDTO,
+	EditionScriptLinesDTO,
+	CharacterShapeDTO,
+	ScriptTextFragmentDTO,
+	ScriptLineDTO,
+	ScriptArtefactCharactersDTO,
 	TextFragmentDataDTO,
 	ArtefactTextFragmentMatchDTO,
 	ImagedObjectTextFragmentMatchDTO,
@@ -350,6 +358,17 @@ export class SignalRUtilities {
     }
 
     /**
+	 * Provides spatial data for all letters in the edition organized and oriented
+	 * by lines.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 *
+	 */
+    public async getV1EditionsEditionIdScriptLines(editionId: number): Promise<EditionScriptLinesDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdScriptLines', editionId);
+    }
+
+    /**
 	 * Creates a new text fragment in the given edition of a scroll
 	 *
 	 * @param createFragment - A JSON object with the details of the new text fragment to be created
@@ -588,6 +607,12 @@ export class SignalRUtilities {
 
     /**
 	 * Creates a new artefact with the provided data.
+	 * 
+	 * If no mask is provided, a placeholder mask will be created with the values:
+	 * "POLYGON((0 0,1 1,1 0,0 0))" (the system requires a valid WKT polygon mask for
+	 * every artefact). It is not recommended to leave the mask, name, or work status
+	 * blank or null. It will often be advantageous to leave the transformation null
+	 * when first creating a new artefact.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param payload - A CreateArtefactDTO with the data for the new artefact
@@ -657,7 +682,17 @@ export class SignalRUtilities {
     }
 
     /**
-	 * Updates the specified artefact
+	 * Updates the specified artefact.
+	 * 
+	 * There are many possible attributes that can be changed for
+	 * an artefact. The caller should only input only those that
+	 * should be changed. Attributes with a null value will be ignored.
+	 * For instance, setting the mask to null or "" will result in
+	 * no changes to the current mask, and no value for the mask will
+	 * be returned (or broadcast). Likewise, the transformation, name,
+	 * or status message may be set to null and no change will be made
+	 * to those entities (though any unchanged values will be returned
+	 * along with the changed values and also broadcast to co-editors).
 	 *
 	 * @param artefactId - Unique Id of the desired artefact
 	 * @param editionId - Unique Id of the desired edition
@@ -666,6 +701,17 @@ export class SignalRUtilities {
 	 */
     public async putV1EditionsEditionIdArtefactsArtefactId(editionId: number, artefactId: number, payload: UpdateArtefactDTO): Promise<ArtefactDTO> {
         return await this._connection.invoke('PutV1EditionsEditionIdArtefactsArtefactId', editionId, artefactId, payload);
+    }
+
+    /**
+	 * Updates the positional data for a batch of artefacts
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param payload - A BatchUpdateArtefactTransformDTO with a list of the desired updates
+	 *
+	 */
+    public async postV1EditionsEditionIdArtefactsBatchTransformation(editionId: number, payload: BatchUpdateArtefactTransformDTO): Promise<BatchUpdatedArtefactTransformDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdArtefactsBatchTransformation', editionId, payload);
     }
 
     /*
@@ -958,6 +1004,23 @@ export class SignalRUtilities {
 	 */
     public disconnectUpdatedArtefact(handler: (msg: ArtefactDTO) => void): void {
         this._connection.off('UpdatedArtefact', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the transform details for a batch of artefacts has been updated
+	 *
+	 */
+    public connectBatchUpdatedArtefactTransform(handler: (msg: BatchUpdatedArtefactTransformDTO) => void): void {
+        this._connection.on('BatchUpdatedArtefactTransform', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the transform details for a batch of artefacts has been updated
+	 *
+	 */
+    public disconnectBatchUpdatedArtefactTransform(handler: (msg: BatchUpdatedArtefactTransformDTO) => void): void {
+        this._connection.off('BatchUpdatedArtefactTransform', handler)
     }
 
 } 

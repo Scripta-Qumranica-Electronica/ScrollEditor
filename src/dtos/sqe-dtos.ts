@@ -11,7 +11,6 @@ export interface ArtefactDTO extends ArtefactDataDTO {
     imageId: number;
     artefactDataEditorId: number;
     mask: PolygonDTO;
-    zOrder: number;
     side: string;
     statusMessage: string;
 }
@@ -25,14 +24,31 @@ export interface ArtefactDataListDTO {
 }
 
 export interface UpdateArtefactDTO {
-    polygon: PolygonDTO;
+    polygon: SetPolygonDTO;
     name: string;
     statusMessage: string;
 }
 
+export interface UpdateArtefactTransformDTO {
+    artefactId: number;
+    transform: TransformationDTO;
+}
+
+export interface BatchUpdateArtefactTransformDTO {
+    artefactTransforms: UpdateArtefactTransformDTO[];
+}
+
+export interface UpdatedArtefactTransformDTO extends UpdateArtefactTransformDTO {
+    positionEditorId: number;
+}
+
+export interface BatchUpdatedArtefactTransformDTO {
+    artefactTransforms: UpdatedArtefactTransformDTO[];
+}
+
 export interface CreateArtefactDTO extends UpdateArtefactDTO {
     masterImageId: number;
-    polygon: PolygonDTO;
+    polygon: SetPolygonDTO;
 }
 
 export interface EditionDTO {
@@ -63,15 +79,11 @@ export interface PermissionDTO {
     isAdmin: boolean;
 }
 
-export interface MinimalEditorRights extends PermissionDTO {
+export interface UpdateEditorRightsDTO extends PermissionDTO {
     mayLock: boolean;
 }
 
-export interface UpdateEditorRightsDTO extends MinimalEditorRights {
-    mayRead: boolean;
-}
-
-export interface InviteEditorDTO extends MinimalEditorRights {
+export interface InviteEditorDTO extends UpdateEditorRightsDTO {
     email: string;
 }
 
@@ -121,10 +133,6 @@ export interface DeleteEditionEntityDTO {
     entityId: number;
     editorId: number;
 }
-
-export interface EditionScriptCollectionDTO {
-    letters: LetterDTO[];
-}
 export enum EditionEntities {
     edition = 0,
     artefact = 1,
@@ -156,6 +164,7 @@ export interface ImageDTO {
     waveLength: string[];
     type: string;
     side: string;
+    ppi: number;
     regionInMasterImage: string;
     regionInImage: string;
     transformToMaster: string;
@@ -187,10 +196,13 @@ export interface ImagedObjectListDTO {
     imagedObjects: ImagedObjectDTO[];
 }
 
-export interface PolygonDTO {
+export interface SetPolygonDTO {
     mask: string;
-    maskEditorId: number;
     transformation: TransformationDTO;
+}
+
+export interface PolygonDTO extends SetPolygonDTO {
+    maskEditorId: number;
     positionEditorId: number;
 }
 export interface WktPolygonDTO {
@@ -239,13 +251,6 @@ export interface BatchEditRoiResponseDTO {
     updateRois: UpdatedInterpretationRoiDTO[];
     deleteRois: number[];
 }
-export interface LetterDTO {
-    id: number;
-    letter: string;
-    polygon: string;
-    imageURL: string;
-    rotation: number;
-}
 
 export interface SignDTO {
     signInterpretations: SignInterpretationDTO[];
@@ -269,6 +274,41 @@ export interface InterpretationAttributeDTO {
     attributeValueString: string;
     editorId: number;
     value: number;
+}
+
+export interface EditionScriptCollectionDTO {
+    letters: CharacterShapeDTO[];
+}
+
+export interface EditionScriptLinesDTO {
+    textFragments: ScriptTextFragmentDTO[];
+}
+export interface CharacterShapeDTO {
+    id: number;
+    character: string;
+    polygon: string;
+    imageURL: string;
+    rotation: number;
+    attributes: string[];
+}
+
+export interface ScriptTextFragmentDTO {
+    textFragmentName: string;
+    textFragmentId: number;
+    lines: ScriptLineDTO[];
+}
+
+export interface ScriptLineDTO {
+    lineName: string;
+    lineId: number;
+    artefacts: ScriptArtefactCharactersDTO[];
+}
+
+export interface ScriptArtefactCharactersDTO {
+    artefactName: string;
+    artefactId: number;
+    mask: PolygonDTO;
+    characters: SignInterpretationDTO[];
 }
 export interface TextFragmentDataDTO {
     id: number;
@@ -332,8 +372,9 @@ export interface CreateTextFragmentDTO extends UpdateTextFragmentDTO {
 }
 
 export interface TransformationDTO {
-    scale?: number;
-    rotate?: number;
+    scale: number;
+    rotate: number;
+    zIndex: number;
     translate: TranslateDTO;
 }
 export interface TranslateDTO {
