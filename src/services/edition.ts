@@ -9,7 +9,9 @@ import {
     PermissionDTO,
     AdminEditorRequestListDTO,
     UpdateEditorRightsDTO,
-    DetailedEditorRightsDTO
+    DetailedEditorRightsDTO,
+    BatchUpdatedArtefactTransformDTO,
+    BatchUpdateArtefactTransformDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -193,6 +195,13 @@ class EditionService {
         return response.data;
     }
 
+    public async updateArtefactDTOs(editionId: number, updateArtefacts: Artefact[]) : Promise<BatchUpdatedArtefactTransformDTO> {
+        // TODO: Fill BatchUpdateArtefactTransformDTO and access server
+        const dto: BatchUpdateArtefactTransformDTO;
+        // Fill dto with data
+        // CAll server: CommHelper.post<BatchUpdatedArtefactTrasnformDTO>...
+        // Return value
+    }
 }
 
 export default EditionService;

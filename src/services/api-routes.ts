@@ -118,4 +118,8 @@ export namespace ApiRoutes {
     export function repairPolygonUrl() {
         return `/${baseUrl}/${utils}/repair-wkt-polygon`;
     }
+
+    export function batchUpdateArtefactDTOs(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/${artefacts}/batch-transformation`;
+    }
 }
