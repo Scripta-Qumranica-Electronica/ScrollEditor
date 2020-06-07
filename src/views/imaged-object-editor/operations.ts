@@ -10,7 +10,7 @@ function state() {
 
 export type ImagedObjectEditorOperationType = 'draw' | 'erase';
 
-export class ImagedObjectEditorOperation implements Operation<ImagedObjectEditorOperation>{
+export class ImagedObjectEditorOperation implements Operation<ImagedObjectEditorOperation> {
 
     public prev: Polygon;
     public next: Polygon;

@@ -152,7 +152,7 @@ import { ImagedObjectEditorOperation } from './operations';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'edition-icons': EditionIcons
     }
 })
@@ -217,7 +217,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         return true;
     }
 
-    private get artefact(): Artefact | undefined{
+    private get artefact(): Artefact | undefined {
         const artefact = this.artefacts.find(x => x.id === this.artefactId);
         return artefact;
     }
@@ -239,7 +239,6 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         }
         return [];
     }
- 
     private get zoomLevel(): number {
         return this.params.zoom;
     }

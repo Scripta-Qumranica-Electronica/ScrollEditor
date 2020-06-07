@@ -9,7 +9,7 @@ function state() {
 
 export type ScrollEditorOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete' | 'z-index';
 
-export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation>{
+export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
     public constructor(public artefactId: number, public type: ScrollEditorOperationType) { }
 
     public abstract undo(): void;

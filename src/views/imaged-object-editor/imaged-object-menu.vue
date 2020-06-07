@@ -55,7 +55,6 @@
                                 @click="sideFilterChanged(filter)"
                             >{{filter.displayName}}</b-dropdown-item>
                         </b-dropdown>
-                        {{artefact && artefact.id}}
                         <table>
                             <tr v-for="art in artefacts" :key="art.id">
                                 <td>
