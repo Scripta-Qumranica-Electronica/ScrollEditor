@@ -42,7 +42,7 @@ export class Mask {
     public polygon: Polygon;
 
     constructor(obj: PolygonDTO) {
-        this.transformation = obj.transformation ? new Transformation(obj.transformation) : {} as Transformation;
+        this.transformation = new Transformation(obj.transformation);
         this.polygon = Polygon.fromWkt(obj.mask);
     }
 }
