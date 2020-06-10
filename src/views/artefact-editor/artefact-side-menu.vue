@@ -79,6 +79,8 @@
                             >
                                 <font-awesome-icon icon="redo"></font-awesome-icon>
                             </b-button>
+                            <b-button :disabled="!canUndo" @click="undo()">Undo</b-button>
+                            <b-button :disabled="!canRedo" @click="redo()">Redo</b-button>
                         </section>
                         <section class="center-btn">
                             <b-button
@@ -109,6 +111,7 @@ import {
     SingleImageSetting,
     ImageSetting
 } from '../../components/image-settings/types';
+import { OperationsManagerStatus } from '@/utils/operations-manager';
 
 export default Vue.extend({
     name: 'artefcat-side-menu',
@@ -125,7 +128,8 @@ export default Vue.extend({
     props: {
         artefact: Object as () => Artefact,
         params: Object as () => ArtefactEditorParams,
-        saving: Boolean
+        saving: Boolean,
+        statusIndicator: Object as () => OperationsManagerStatus
     },
     computed: {
         editionId(): number {
@@ -156,7 +160,17 @@ export default Vue.extend({
             get(): boolean {
                 return this.$state.editions.current!.permission.readOnly;
             }
-        }
+        },
+        canUndo: {
+            get(): boolean {
+                 return this.statusIndicator.canUndo;
+            }
+        },
+        canRedo: {
+            get(): boolean {
+                 return this.statusIndicator.canRedo;
+            }
+        },
     },
     async mounted() {
         await this.$state.prepare.edition(this.artefact.editionId);
@@ -191,7 +205,13 @@ export default Vue.extend({
         },
         onSave() {
             this.$emit('save');
-        }
+        },
+        undo() {
+            this.$emit('undo');
+        },
+        redo() {
+            this.$emit('redo');
+        },
     }
 });
 </script>
