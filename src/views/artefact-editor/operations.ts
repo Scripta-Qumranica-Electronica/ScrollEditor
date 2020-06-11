@@ -21,7 +21,11 @@ export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase';
 
 
 export abstract class ArtefactEditorOperation implements Operation<ArtefactEditorOperation> {
-    public constructor(public artefactId: number, public type: ArtefactEditorOperationType) { }
+    public constructor(
+        public artefactId: number,
+        public type: ArtefactEditorOperationType,
+        public artefactEditorInstance: ArtefactEditor
+    ) { }
 
     public abstract undo(): void;
     public abstract redo(): void;
@@ -49,18 +53,19 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
         artefactId: number,
         prev: number,
         next: number,
+        public artefactEditorInstance: ArtefactEditor
     ) {
-        super(artefactId, 'rotate');
+        super(artefactId, 'rotate', artefactEditorInstance);
         this.prev = prev;
         this.next = next;
     }
 
     public undo(): void {
-        this.artefact.mask.transformation.rotate = this.prev;
+        this.artefactEditorInstance.params.rotationAngle = this.prev;
     }
 
     public redo(): void {
-        this.artefact.mask.transformation.rotate = this.next;
+        this.artefactEditorInstance.params.rotationAngle = this.next;
     }
 
     public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
@@ -77,7 +82,8 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
         return new ArtefactRotateOperation(
             this.artefactId,
             (op as ArtefactRotateOperation).prev,
-            this.next
+            this.next,
+            this.artefactEditorInstance
         );
     }
 
@@ -93,7 +99,7 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
         // public prev: ArtefactEditorStatus,
         // public next: ArtefactEditorStatus
     ) {
-        super(artefactId, type);
+        super(artefactId, type, artefactEditorInstance);
     }
 
     public undo(): void {

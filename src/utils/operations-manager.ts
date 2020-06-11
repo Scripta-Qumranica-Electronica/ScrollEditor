@@ -41,7 +41,7 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     public addOperation(op: OP) {
         this.redoStack = [];
 
-        if (this.undoStack.length > 0) {
+        if (this.undoStack.length > 0 && this.dirty.size) {
             const lastIndex = this.undoStack.length - 1;
             const united = op.uniteWith(this.undoStack[lastIndex]);
             if (united) {

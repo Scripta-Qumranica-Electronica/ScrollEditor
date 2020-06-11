@@ -16,7 +16,6 @@
                 :saving="saving"
                 :status-indicator="operationsManager"
                 @paramsChanged="onParamsChanged($event)"
-                @save="onSave()"
                 @undo="onUndo($event)"
                 @redo="onRedo($event)"
             ></artefact-side-menu>
@@ -62,7 +61,7 @@
                     </b-button>
                     <zoomer
                         :zoom="zoomLevel"
-                        :angle="angle"
+                        :angle="rotationAngle"
                         @new-zoom="onNewZoom($event)"
                         @new-rotate="onNewRotate($event)"
                     >
@@ -250,6 +249,7 @@ import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
     }
 })
 export default class ArtefactEditor extends Vue implements SavingAgent {
+    public params = new ArtefactEditorParams();
     private selectedSignInterpretation: SignInterpretation | null = null;
     private selectedInterpretationRoi: InterpretationRoi | null = null;
     private mode: ActionMode = 'box';
@@ -260,7 +260,6 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
     private saving = false;
     private isActiveSidebar = false;
     private isActiveText = false;
-    private params = new ArtefactEditorParams();
     private imageStack: ImageStack | undefined = undefined;
     private boundingBox = new BoundingBox();
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
@@ -285,13 +284,13 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             const appliedRotation = await this.saveRotation();
             const appliedROIs = await this.saveROIs();
 
-            if (!appliedRotation && !appliedROIs) {
-                this.showMessage('toasts.artefactInfo', 'info');
-            } else {
-                this.showMessage('toasts.artefactSuccess', 'success');
-            }
+            // if (!appliedRotation && !appliedROIs) {
+            //     // this.showMessage('toasts.artefactInfo', 'info');
+            // } else {
+            //     this.showMessage('toasts.artefactSuccess', 'success');
+            // }
         } catch (e) {
-            this.showMessage('toasts.artefactError', 'error');
+            console.error("Can't save arterfacts to server", e);
             return false;
         }
         this.saving = false;
@@ -313,15 +312,16 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             normalized,
             bbox
         );
+
         const placedRoi = this.placeRoi(roi);
+
         const op: ArtefactROIOperation = new ArtefactROIOperation(
             this.artefact.id,
             'draw',
-            placedRoi,
+            { ...placedRoi },
             this
         );
         this.onNewOperation(op);
-
         if (this.autoMode) {
             // Find the next sign interpretation with a character - that can be mapped.
             this.playSound('/qumran_hum.mp3');
@@ -330,14 +330,16 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
     }
 
     public removeRoi(roi: InterpretationRoi) {
-        const roiShape = roi.shape;
+        const roiBbox = roi.shape.getBoundingBox();
         const visibleRoi = this.visibleRois.find(
             vRoi =>
-                vRoi.shape.svg === roiShape.svg &&
-                vRoi.shape.wkt === roiShape.wkt
+                vRoi.shape.getBoundingBox().x === roiBbox.x &&
+                vRoi.shape.getBoundingBox().y === roiBbox.y &&
+                vRoi.shape.getBoundingBox().width === roiBbox.width &&
+                vRoi.shape.getBoundingBox().height === roiBbox.height
         );
         if (!visibleRoi) {
-            console.error('Cannot find a ROI with the shape:', roiShape);
+            console.error('Cannot find a ROI with the bounding box:', roiBbox);
             return;
         }
         const existedRoi = this.$state.interpretationRois.get(visibleRoi.id);
@@ -421,9 +423,6 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
     }
     private get zoomLevel(): number {
         return this.params.zoom;
-    }
-    private get angle(): number {
-        return this.params.rotationAngle;
     }
     private get readOnly(): boolean {
         return this.edition.permission.readOnly;
@@ -515,7 +514,8 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             // }
             // newRoi = new InterpretationRoi(roiDTO);
         }
-        newRoi.status = roi.status;
+        // For now the status 'update' doesn't do the save, we put 'new' to save it
+        newRoi.status = 'new';
         const si = this.$state.signInterpretations.get(
             roi.signInterpretationId!
         );
@@ -535,15 +535,15 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             console.error("Can't delete an ROI if nothing is selected");
             return;
         }
-
-        this.removeRoi(roi);
         const op: ArtefactROIOperation = new ArtefactROIOperation(
             this.artefact.id,
             'erase',
-            roi,
+            {...roi},
             this
         );
         this.onNewOperation(op);
+
+        this.removeRoi(roi);
     }
     private onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
@@ -616,7 +616,8 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             const op: ArtefactRotateOperation = new ArtefactRotateOperation(
                 this.artefact.id,
                 this.artefact.mask.transformation.rotate,
-                evt.value
+                evt.value,
+                this
             );
             this.onNewOperation(op);
         }
@@ -745,10 +746,6 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             position: 'top-right',
             duration: 7000
         });
-    }
-
-    private onSave() {
-        this.operationsManager.save();
     }
 
     private onNewOperation(op: ArtefactEditorOperation) {
