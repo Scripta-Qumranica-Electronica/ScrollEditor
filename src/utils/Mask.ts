@@ -10,7 +10,7 @@ export class Matrix {
 }
 
 
-export class Transformation implements TransformationDTO {
+export class Transformation implements TransformationDTO {  // Shaindel - Rename into Placement
     public static get empty() {
         return new Transformation({
         } as TransformationDTO);
@@ -37,7 +37,7 @@ export class Transformation implements TransformationDTO {
     }
 }
 // A Mask is a Polygon and Transformation pair
-export class Mask {
+export class Mask {  // Shaindel - delete this object, we no longer need it
     public transformation: Transformation;
     public polygon: Polygon;
 

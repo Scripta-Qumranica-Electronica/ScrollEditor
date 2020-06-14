@@ -13,7 +13,8 @@ export class Artefact {
     public editionId = 0;
     public imagedObjectId = '';
     public name = '';
-    public mask: Mask = {} as Mask; // This is a bad name, but we keep the naming convention of the frontend.
+    public mask: Mask = {} as Mask; // Shaindel - Mask should be of class Polygon
+    // Shaindel - add the other new fields from ArtefactDTO (placement, isPlaced, editors, etc...)
 
     // public zOrder = 0;
     public side: Side = 'recto';
@@ -35,7 +36,7 @@ export class Artefact {
         this.side = (obj.side === 'recto') ? 'recto' : 'verso';
     }
 
-    public get isPlaced(): boolean {
+    public get isPlaced(): boolean { // Shaindel - delete this function
         if (this.mask.transformation.translate || this.mask.transformation.scale || this.mask.transformation.rotate) {
             return true;
         } else {
