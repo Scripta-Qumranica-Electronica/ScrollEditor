@@ -1,6 +1,6 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { Transformation } from '@/utils/Mask';
+import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
 import { Polygon } from '@/utils/Polygons';
 import { InterpretationRoi, SignInterpretation } from '@/models/text';

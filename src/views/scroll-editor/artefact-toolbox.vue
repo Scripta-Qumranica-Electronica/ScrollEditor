@@ -155,13 +155,13 @@ import {
     ScrollEditorParams,
     ScrollEditorMode
 } from '../artefact-editor/types';
-import { TransformationDTO } from '../../dtos/sqe-dtos';
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    TransformOperation
+    PlacementOperation,
 } from './operations';
-import { Transformation } from '@/utils/Mask';
+import { Placement } from '@/utils/Placement';
+
 
 @Component({
     name: 'artefact-toolbox',
@@ -207,48 +207,48 @@ export default class ArtefactToolbox extends Vue {
     }
 
     public dragArtefact(dirX: number, dirY: number) {
-        const trans = this.artefact!.mask.transformation.clone();
+        const placement = this.artefact!.placement.clone();
         const jump = parseInt(this.params.move.toString());
-        trans.translate.x += jump * dirX;
-        trans.translate.y += jump * dirY;
-        this.setTransformation('translate', trans);
+        placement!.translate.x += jump * dirX;
+        placement!.translate.y += jump * dirY;
+        this.setPlacement('translate', placement);
     }
 
     public rotateArtefact(direction: number) {
-        const trans = this.artefact!.mask.transformation.clone();
-        if (!trans.rotate) {
-            trans.rotate = 0;
+        const placement = this.artefact!.placement.clone();
+        if (!placement.rotate) {
+            placement.rotate = 0;
         }
         const deltaAngle = direction * this.params.rotate;
-        const oldAngle = trans.rotate!;
+        const oldAngle = placement.rotate!;
         const newAngle = oldAngle + deltaAngle;
         const normalizedAngle = ((newAngle % 360) + 360) % 360;
-        trans.rotate = normalizedAngle;
+        placement.rotate = normalizedAngle;
 
-        this.setTransformation('rotate', trans);
+        this.setPlacement('rotate', placement);
     }
 
     public zoomArtefact(direction: number) {
-        const trans = this.artefact!.mask.transformation.clone();
+        const trans = this.artefact!.placement.clone();
         const zoomDelta = (direction * this.params.scale) / 100;
         if (!trans.scale) {
             trans.scale = 1;
         }
         trans.scale += zoomDelta;
         trans.scale = +trans.scale.toFixed(4);
-        this.setTransformation('scale', trans);
+        this.setPlacement('scale', trans);
     }
 
     public resetRotationArtefact() {
-        const trans = this.artefact!.mask.transformation.clone();
-        trans.rotate = 0;
-        this.setTransformation('rotate', trans);
+        const placement = this.artefact!.placement.clone();
+        placement.rotate = 0;
+        this.setPlacement('rotate', placement);
     }
 
     public resetScaleArtefact() {
-        const trans = this.artefact!.mask.transformation.clone();
-        trans.scale = 1;
-        this.setTransformation('scale', trans);
+        const placement = this.artefact!.placement.clone();
+        placement.scale = 1;
+        this.setPlacement('scale', placement);
     }
 
     private setZIndex(zIndexDirection: number) {
@@ -256,7 +256,7 @@ export default class ArtefactToolbox extends Vue {
             x => x.isPlaced
         );
         const artefactsZOrders = placedArtefacts.map(
-            x => x.mask.transformation.zIndex
+            x => x.placement.zIndex
         );
 
         const zIndex =
@@ -264,23 +264,23 @@ export default class ArtefactToolbox extends Vue {
                 ? Math.min(...artefactsZOrders) - 1
                 : Math.max(...artefactsZOrders) + 1;
 
-        const trans = this.artefact!.mask.transformation.clone();
-        trans.zIndex = zIndex;
+        const placement = this.artefact!.placement.clone();
+        placement.zIndex = zIndex;
 
-        this.setTransformation('z-index', trans);
+        this.setPlacement('z-index', placement);
     }
 
-    private setTransformation(
+    private setPlacement(
         opType: ScrollEditorOperationType,
-        newTrans: Transformation
+        newPlacement: Placement
     ) {
-        const op = new TransformOperation(
+        const op = new PlacementOperation(
             this.artefact!.id,
             opType,
-            this.artefact!.mask.transformation,
-            newTrans
+            this.artefact!.placement,
+            newPlacement
         );
-        this.artefact!.mask.transformation = newTrans;
+        this.artefact!.placement = newPlacement;
         this.newOperation(op);
     }
 

@@ -40,7 +40,6 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     // Add operation to the undo stack, uniting operations if applicable
     public addOperation(op: OP) {
         this.redoStack = [];
-
         if (this.undoStack.length > 0 && this.dirty.size) {
             const lastIndex = this.undoStack.length - 1;
             const united = op.uniteWith(this.undoStack[lastIndex]);

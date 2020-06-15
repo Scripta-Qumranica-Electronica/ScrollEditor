@@ -60,6 +60,13 @@ export class NotificationHandler {
     }
 
     public handleUpdatedArtefact(artefact: ArtefactDTO): void {
+        if (!artefact.mask) {
+            const oldArtefact = state().artefacts.find(artefact.id);
+            if (oldArtefact) {
+                artefact.mask = oldArtefact.mask.wkt;
+            }
+
+        }
         const changed = new Artefact(artefact);
         state().artefacts.update(changed, false);
 

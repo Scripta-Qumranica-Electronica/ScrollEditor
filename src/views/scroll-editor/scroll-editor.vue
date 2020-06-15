@@ -10,7 +10,6 @@
                 :status-indicator="operationsManager"
                 @paramsChanged="onParamsChanged($event)"
                 @new-operation="onNewOperation($event)"
-                @saveArt="onSave()"
                 @undo="onUndo()"
                 @redo="onRedo()"
             ></scroll-menu>
@@ -30,10 +29,15 @@
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
                     <scroll-area
+                        ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
                         :params="params"
                         @new-operation="onNewOperation($event)"
                     ></scroll-area>
+                </div>
+
+                <div style="height: 30px">
+                    {{artefact}}
                 </div>
             </div>
         </div>
@@ -52,12 +56,11 @@ import {
     ArtefactEditorParams,
     ScrollEditorParams
 } from '../artefact-editor/types';
-import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactService from '@/services/artefact';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { ScrollEditorOperation, TransformOperation } from './operations';
-import { Transformation } from '@/utils/Mask';
+import { ScrollEditorOperation, PlacementOperation } from './operations';
 import EditionService from '@/services/edition';
+import { Placement } from '@/utils/Placement';
 
 @Component({
     name: 'scroll-editor',
@@ -75,8 +78,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
     private operationsManager = new OperationsManager<ScrollEditorOperation>(
-        this
-    );
+        this);
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.artefact = artefact;
@@ -126,7 +128,6 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     private async beforeRouteUpdate(to: any, from: any, next: () => void) {
-        // Shaindel: Add types
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         next();
@@ -144,10 +145,10 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
             const orderedArtefacts = this.artefacts
                 .filter(x => x.isPlaced)
-                .map(x => x.mask.transformation.zIndex);
+                .map(x => x.placement.zIndex);
             const maxZindex = orderedArtefacts.length ? Math.max(...orderedArtefacts) : -1;
 
-            const transformation = new Transformation({
+            const placement = new Placement({
                 translate: {
                     x: 800 * numberOfPlaced,
                     y: 400
@@ -157,13 +158,14 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 zIndex: maxZindex + 1
             });
 
-            artefact.placeOnScroll(transformation);
+            artefact.placeOnScroll(placement);
             this.operationsManager.addOperation(
-                new TransformOperation(
+                new PlacementOperation(
                     artefact.id,
                     'add',
-                    Transformation.empty,
-                    transformation
+                    Placement.empty,
+                    placement,
+                    this.$refs.scrollAreaRef as ScrollArea
                 )
             );
         }
@@ -174,6 +176,11 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
+        op.scrollAreaInstance = (this.$refs.scrollAreaRef as ScrollArea);
+        debugger;
+        if(op.type === 'delete') {
+            (this.$refs.scrollAreaRef as ScrollArea).selectArtefact(undefined);
+        }
         this.operationsManager.addOperation(op);
     }
 

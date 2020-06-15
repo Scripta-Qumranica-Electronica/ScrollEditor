@@ -10,7 +10,11 @@ export interface ArtefactDTO extends ArtefactDataDTO {
     imagedObjectId: string;
     imageId: number;
     artefactDataEditorId: number;
-    mask: PolygonDTO;
+    mask: string;
+    artefactMaskEditorId: number;
+    isPlaced: boolean;
+    placement: PlacementDTO;
+    artefactPlacementEditorId?: number;
     side: string;
     statusMessage: string;
 }
@@ -24,31 +28,32 @@ export interface ArtefactDataListDTO {
 }
 
 export interface UpdateArtefactDTO {
-    polygon: SetPolygonDTO;
+    mask: string;
+    placement: PlacementDTO;
     name: string;
     statusMessage: string;
 }
 
-export interface UpdateArtefactTransformDTO {
+export interface UpdateArtefactPlacementDTO {
     artefactId: number;
-    transform: TransformationDTO;
+    placement: PlacementDTO;
 }
 
-export interface BatchUpdateArtefactTransformDTO {
-    artefactTransforms: UpdateArtefactTransformDTO[];
+export interface BatchUpdateArtefactPlacementDTO {
+    artefactPlacements: UpdateArtefactPlacementDTO[];
 }
 
-export interface UpdatedArtefactTransformDTO extends UpdateArtefactTransformDTO {
-    positionEditorId: number;
+export interface UpdatedArtefactPlacementDTO extends UpdateArtefactPlacementDTO {
+    placementEditorId: number;
 }
 
 export interface BatchUpdatedArtefactTransformDTO {
-    artefactTransforms: UpdatedArtefactTransformDTO[];
+    artefactPlacements: UpdatedArtefactPlacementDTO[];
 }
 
 export interface CreateArtefactDTO extends UpdateArtefactDTO {
     masterImageId: number;
-    polygon: SetPolygonDTO;
+    mask: string;
 }
 
 export interface EditionDTO {
@@ -195,16 +200,6 @@ export interface ImagedObjectDTO {
 export interface ImagedObjectListDTO {
     imagedObjects: ImagedObjectDTO[];
 }
-
-export interface SetPolygonDTO {
-    mask: string;
-    transformation: TransformationDTO;
-}
-
-export interface PolygonDTO extends SetPolygonDTO {
-    maskEditorId: number;
-    positionEditorId: number;
-}
 export interface WktPolygonDTO {
     wktPolygon: string;
 }
@@ -307,7 +302,7 @@ export interface ScriptLineDTO {
 export interface ScriptArtefactCharactersDTO {
     artefactName: string;
     artefactId: number;
-    mask: PolygonDTO;
+    placement: PlacementDTO;
     characters: SignInterpretationDTO[];
 }
 export interface TextFragmentDataDTO {
@@ -371,15 +366,15 @@ export interface CreateTextFragmentDTO extends UpdateTextFragmentDTO {
     name: string;
 }
 
-export interface TransformationDTO {
+export interface PlacementDTO {
     scale: number;
     rotate: number;
     zIndex: number;
     translate: TranslateDTO;
 }
 export interface TranslateDTO {
-    x: number;
-    y: number;
+    x?: number;
+    y?: number;
 }
 export interface LoginRequestDTO {
     email: string;

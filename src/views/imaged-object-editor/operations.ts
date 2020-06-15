@@ -1,6 +1,6 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { Transformation } from '@/utils/Mask';
+import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
 import { Polygon } from '@/utils/Polygons';
 
@@ -39,11 +39,11 @@ export class ImagedObjectEditorOperation implements Operation<ImagedObjectEditor
     }
 
     public undo(): void {
-        this.artefact.mask.polygon = new Polygon(this.prev.svg);
+        this.artefact.mask = new Polygon(this.prev.svg);
     }
 
     public redo(): void {
-        this.artefact.mask.polygon = new Polygon(this.next.svg);
+        this.artefact.mask = new Polygon(this.next.svg);
 
     }
     public uniteWith(op: ImagedObjectEditorOperation): ImagedObjectEditorOperation | undefined {

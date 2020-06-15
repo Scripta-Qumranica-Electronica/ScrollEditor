@@ -8,15 +8,14 @@ import {
     InviteEditorDTO,
     PermissionDTO,
     AdminEditorRequestListDTO,
-    UpdateEditorRightsDTO,
     DetailedEditorRightsDTO,
-    BatchUpdatedArtefactTransformDTO,
-    BatchUpdateArtefactTransformDTO,
-    UpdateArtefactTransformDTO
+    UpdateArtefactPlacementDTO,
+    BatchUpdateArtefactPlacementDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
+import { Placement } from '@/utils/Placement';
 
 class EditionService {
     public stateManager: StateManager;
@@ -198,27 +197,27 @@ class EditionService {
     }
 
     public async updateArtefactDTOs(editionId: number, updateArtefacts: Artefact[])
-        : Promise<BatchUpdatedArtefactTransformDTO> {
+        : Promise<BatchUpdateArtefactPlacementDTO> {
         // TODO: Fill BatchUpdateArtefactTransformDTO and access server
         const edition = this.stateManager.editions.find(editionId);
         if (!edition) {
             throw new Error(`Can't find non-existing edition ${editionId}`);
         }
 
-        const artefactTransforms: UpdateArtefactTransformDTO[] = updateArtefacts.map(
+        const artefactPlacements: UpdateArtefactPlacementDTO[] = updateArtefacts.map(
             (x: Artefact) => ({
                 artefactId: x.id,
-                transform: x.isPlaced ? x.mask.transformation : undefined
+                placement: x.placement
             })
         );
 
         // Fill dto with data
         const dto = {
-            artefactTransforms
-        } as BatchUpdateArtefactTransformDTO;
+            artefactPlacements
+        } as BatchUpdateArtefactPlacementDTO;
 
         // Call server: CommHelper.post<BatchUpdatedArtefactTrasnformDTO>...
-        const response = await CommHelper.post<BatchUpdatedArtefactTransformDTO>(
+        const response = await CommHelper.post<BatchUpdateArtefactPlacementDTO>(
             ApiRoutes.batchUpdateArtefactDTOs(editionId),
             dto
         );

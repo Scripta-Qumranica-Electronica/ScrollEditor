@@ -1,7 +1,8 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { Transformation } from '@/utils/Mask';
+import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
+import ScrollArea from './scroll-area.vue';
 
 function state() {
     return StateManager.instance;
@@ -10,7 +11,11 @@ function state() {
 export type ScrollEditorOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete' | 'z-index';
 
 export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
-    public constructor(public artefactId: number, public type: ScrollEditorOperationType) { }
+    public constructor(
+        public artefactId: number,
+        public type: ScrollEditorOperationType,
+        public scrollAreaInstance?: ScrollArea
+    ) { }
 
     public abstract undo(): void;
     public abstract redo(): void;
@@ -30,28 +35,53 @@ export abstract class ScrollEditorOperation implements Operation<ScrollEditorOpe
     }
 }
 
-export class TransformOperation extends ScrollEditorOperation {
-    public prev: Transformation;
-    public next: Transformation;
+export class PlacementOperation extends ScrollEditorOperation {
+    public prev: Placement;
+    public next: Placement;
 
     public constructor(
         artefactId: number,
         type: ScrollEditorOperationType,
-        prev: Transformation,
-        next: Transformation,
+        prev: Placement,
+        next: Placement,
+        public scrollAreaInstance?: ScrollArea
+
     ) {
-        super(artefactId, type);
+        super(artefactId, type, scrollAreaInstance);
         this.prev = prev.clone();
         this.next = next.clone();
     }
 
 
     public undo(): void {
-        this.artefact.mask.transformation = this.prev.clone();
+        this.artefact.placement = this.prev.clone();
+        this.artefact.isPlaced =
+            this.artefact.placement.translate.x !== undefined
+            && this.artefact.placement.translate.y !== undefined;
+            debugger;
+        if (this.scrollAreaInstance) {
+            if (this.artefact.isPlaced) {
+                this.scrollAreaInstance.selectArtefact(this.artefact);
+            } else {
+                this.scrollAreaInstance.selectArtefact(undefined);
+            }
+
+        }
     }
 
     public redo(): void {
-        this.artefact.mask.transformation = this.next.clone();
+        this.artefact.placement = this.next.clone();
+        this.artefact.isPlaced =
+            this.artefact.placement.translate.x !== undefined
+            && this.artefact.placement.translate.y !== undefined;
+        if (this.scrollAreaInstance) {
+            if (this.artefact.isPlaced) {
+                this.scrollAreaInstance.selectArtefact(this.artefact);
+            } else {
+                this.scrollAreaInstance.selectArtefact(undefined);
+            }
+
+        }
     }
 
     public uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined {
@@ -65,7 +95,7 @@ export class TransformOperation extends ScrollEditorOperation {
         }
 
         // Operations are of the same type on the same artefact, we can unite them
-        return new TransformOperation(this.artefactId, this.type, (op as TransformOperation).prev, this.next);
+        return new PlacementOperation(this.artefactId, this.type, (op as PlacementOperation).prev, this.next);
     }
 
 }

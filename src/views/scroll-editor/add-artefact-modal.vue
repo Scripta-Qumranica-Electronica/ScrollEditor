@@ -38,7 +38,6 @@ import ArtefactImage from '@/components/artefact/artefact-image.vue';
 import ArtefactService from '@/services/artefact';
 import { Artefact } from '@/models/artefact';
 import artefactCardVue from '../edition/components/artefact-card.vue';
-import { TransformationDTO } from '../../dtos/sqe-dtos';
 // import ErrorService from '@/services/error';
 
 @Component({

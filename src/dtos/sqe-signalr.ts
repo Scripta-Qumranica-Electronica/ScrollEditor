@@ -14,9 +14,9 @@ import {
 	ArtefactListDTO,
 	ArtefactDataListDTO,
 	UpdateArtefactDTO,
-	UpdateArtefactTransformDTO,
-	BatchUpdateArtefactTransformDTO,
-	UpdatedArtefactTransformDTO,
+	UpdateArtefactPlacementDTO,
+	BatchUpdateArtefactPlacementDTO,
+	UpdatedArtefactPlacementDTO,
 	BatchUpdatedArtefactTransformDTO,
 	CreateArtefactDTO,
 	EditionDTO,
@@ -43,8 +43,6 @@ import {
 	ImageStackDTO,
 	ImagedObjectDTO,
 	ImagedObjectListDTO,
-	SetPolygonDTO,
-	PolygonDTO,
 	WktPolygonDTO,
 	SetInterpretationRoiDTO,
 	InterpretationRoiDTO,
@@ -76,7 +74,7 @@ import {
 	LineTextDTO,
 	UpdateTextFragmentDTO,
 	CreateTextFragmentDTO,
-	TransformationDTO,
+	PlacementDTO,
 	TranslateDTO,
 	LoginRequestDTO,
 	UserUpdateRequestDTO,
@@ -710,7 +708,7 @@ export class SignalRUtilities {
 	 * @param payload - A BatchUpdateArtefactTransformDTO with a list of the desired updates
 	 *
 	 */
-    public async postV1EditionsEditionIdArtefactsBatchTransformation(editionId: number, payload: BatchUpdateArtefactTransformDTO): Promise<BatchUpdatedArtefactTransformDTO> {
+    public async postV1EditionsEditionIdArtefactsBatchTransformation(editionId: number, payload: BatchUpdateArtefactPlacementDTO): Promise<BatchUpdatedArtefactTransformDTO> {
         return await this._connection.invoke('PostV1EditionsEditionIdArtefactsBatchTransformation', editionId, payload);
     }
 

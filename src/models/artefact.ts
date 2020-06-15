@@ -1,10 +1,10 @@
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from './imaged-object';
-import { ArtefactDTO, TransformationDTO, TranslateDTO } from '@/dtos/sqe-dtos';
+import { ArtefactDTO, PlacementDTO} from '@/dtos/sqe-dtos';
 import { Side } from './misc';
-import { Mask, Transformation } from '@/utils/Mask';
 import { ArtefactTextFragmentData } from './text';
 import { BoundingBox } from '@/utils/helpers';
+import { Placement } from '@/utils/Placement';
 
 export class Artefact {
     // Default values specified to remove an error - we initialize them in the constructor or in copyFrom.
@@ -13,10 +13,11 @@ export class Artefact {
     public editionId = 0;
     public imagedObjectId = '';
     public name = '';
-    public mask: Mask = {} as Mask; // Shaindel - Mask should be of class Polygon
-    // Shaindel - add the other new fields from ArtefactDTO (placement, isPlaced, editors, etc...)
-
-    // public zOrder = 0;
+    public mask: Polygon = new Polygon('');
+    public artefactMaskEditorId = 0;
+    public isPlaced: boolean;
+    public placement: Placement;
+    public artefactPlacementEditorId: number | undefined;
     public side: Side = 'recto';
 
     public textFragments: ArtefactTextFragmentData[] = [];
@@ -32,36 +33,27 @@ export class Artefact {
         this.editionId = obj.editionId;
         this.imagedObjectId = obj.imagedObjectId;
         this.name = obj.name;
-        this.mask = new Mask(obj.mask);
+        this.mask = Polygon.fromWkt(obj.mask);
+        this.artefactMaskEditorId = obj.artefactMaskEditorId;
+        this.isPlaced = obj.isPlaced;
+        this.placement = new Placement(obj.placement);
+        this.artefactPlacementEditorId = obj.artefactPlacementEditorId;
         this.side = (obj.side === 'recto') ? 'recto' : 'verso';
-    }
-
-    public get isPlaced(): boolean { // Shaindel - delete this function
-        if (this.mask.transformation.translate || this.mask.transformation.scale || this.mask.transformation.rotate) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     // TBD: Perhaps rename to setTransformation, or maybe even drop this function entirely
     // and manipulate mask from the outside
-    public placeOnScroll(transformation: Transformation) {
-        this.mask.transformation = transformation.clone();
+    public placeOnScroll(placement: Placement) {
+        this.placement = placement.clone();
+        this.isPlaced = true;
     }
 
     public get boundingBox(): BoundingBox {
-        return this.mask.polygon.getBoundingBox();
+        return this.mask.getBoundingBox();
     }
 
-    public cloneTransformation(): TransformationDTO {
-        const trans = this.mask.transformation;
-        return {
-            scale: trans.scale,
-            rotate: trans.rotate,
-            translate: {...trans.translate},
-            zIndex: trans.zIndex
-        };
+    public clonePlacement(): Placement {
+        return this.placement.clone();
     }
 
     private copyFrom(other: Artefact) {
@@ -70,8 +62,10 @@ export class Artefact {
         this.imagedObjectId = other.imagedObjectId;
         this.name = other.name;
         this.mask = other.mask;
-        // this.transformMatrix = other.transformMatrix;
-        // this.zOrder = other.zOrder;
+        this.artefactMaskEditorId = other.artefactMaskEditorId;
+        this.isPlaced = other.isPlaced;
+        this.placement = other.placement;
+        this.artefactPlacementEditorId = other.artefactPlacementEditorId;
         this.side = other.side;
 
         this.textFragments = [...other.textFragments];

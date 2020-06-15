@@ -11,7 +11,7 @@
         @pointercancel="pointerCancel($event)"
     >
         <defs>
-            <path :id="`path-${artefact.id}`" :d="artefact.mask.polygon.svg" />
+            <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
             <clipPath :id="`clip-path-${artefact.id}`">
                 <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
             </clipPath>
@@ -28,7 +28,7 @@
         <path
             class="selected"
             v-if="selected"
-            :d="artefact.mask.polygon.svg"
+            :d="artefact.mask.svg"
             vector-effect="non-scaling-stroke"
         />
     </g>
@@ -54,7 +54,8 @@ import { Artefact } from '@/models/artefact';
 import ArtefactDataMixin from '@/components/artefact/artefact-data-mixin';
 import { Polygon } from '@/utils/Polygons';
 import { Point } from '@/utils/helpers';
-import { ScrollEditorOperation, TransformOperation } from './operations';
+import { ScrollEditorOperation, PlacementOperation } from './operations';
+import { Placement } from '../../utils/Placement';
 
 @Component({
     name: 'artefact-image-group'
@@ -69,6 +70,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private loaded = false;
     private pointerId: number = -1;
     private element!: SVGGElement | null;
+    private previousPlacement!: Placement;
 
     private imageScale = 0.5; // TODO: Set a dynamic scale, based on actual element size.
     // Wait until the IIIF server can handle requests of various sizes
@@ -94,8 +96,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     public get groupTransform(): string {
-        const trans = this.artefact.mask.transformation;
-        if (!trans.scale) {
+        const placement = this.artefact.placement;
+        if (!placement.scale) {
             return ''; // No transform at all, do nothing
         }
 
@@ -105,12 +107,13 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const translateToZero = `translate(-${midX}, -${midY})`;
 
         // Now, scale and rotate around (0 ,0)
-        const scale = `scale(${trans.scale})`; // Scale by scale of transform
-        const rotate = `rotate(${trans.rotate})`;
+        const scale = `scale(${placement.scale})`; // Scale by scale of transform
+        const rotate = `rotate(${placement.rotate})`;
 
         // Finally, move to correct place. Remember that at this point the artefact's top left is (-midX, -midY)
-        const translateX = this.boundingBox.width / 2 + trans.translate.x;
-        const translateY = this.boundingBox.height / 2 + trans.translate.y;
+        const translateX = this.boundingBox.width / 2 + placement!.translate!.x;
+        const translateY =
+            this.boundingBox.height / 2 + placement!.translate!.y;
         const translateToPlace = `translate(${translateX}, ${translateY})`;
 
         // Transformations are performed by SVG from right to left
@@ -153,7 +156,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         if (this.pointerId > 0) {
             return;
         }
-
+        this.previousPlacement = this.artefact.placement.clone();
         this.pointerId = $event.pointerId;
         this.element = ($event.target! as HTMLBaseElement)!.closest('g');
 
@@ -180,9 +183,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             x: pt.x - this.mouseOrigin!.x,
             y: pt.y - this.mouseOrigin!.y
         };
-
-        this.artefact!.mask.transformation.translate.x += diffPt.x;
-        this.artefact!.mask.transformation.translate.y += diffPt.y;
+        this.artefact.placement.translate.x += diffPt.x;
+        this.artefact.placement.translate.y += diffPt.y;
 
         this.mouseOrigin.x = pt.x;
         this.mouseOrigin.y = pt.y;
@@ -193,14 +195,13 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             this.cancelOperation($event.target as HTMLBaseElement);
             return;
         }
-        const trans = this.artefact!.mask.transformation.clone();
-        const op = new TransformOperation(
+        const trans = this.artefact.placement.clone();
+        const op = new PlacementOperation(
             this.artefact.id,
             'translate',
-            this.artefact!.mask.transformation,
+            this.previousPlacement,
             trans
         );
-
         this.newOperation(op);
 
         this.cancelOperation($event.target as HTMLBaseElement);

@@ -71,12 +71,12 @@
                                 :artefactId="artefact && artefact.id"
                                 @new-operation="onNewOperation($event)"
                             ></artefact-toolbox>
-                            <b-button
+                            <!-- <b-button
                                 size="sm"
                                 class="mb-2"
                                 :disabled="!isDirty"
                                 @click="onSave()"
-                            >{{$t('misc.save')}} artefacts</b-button>
+                            >{{$t('misc.save')}} artefacts</b-button>-->
                         </section>
                         <section class="center-btn">
                             <b-button @click="onUndo()" size="sm" :disabled="!canUndo">Undo</b-button>
@@ -85,6 +85,7 @@
                     </b-card-body>
                 </b-collapse>
             </b-card>
+            {{artefact}}
         </section>
         <add-artefact-modal></add-artefact-modal>
     </div>
@@ -100,16 +101,15 @@ import {
     ArtefactEditorParamsChangedArgs,
     ScrollEditorParams
 } from '../artefact-editor/types';
-import { TransformationDTO } from '@/dtos/sqe-dtos';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import ArtefactService from '@/services/artefact';
-import { ScrollEditorOperation, ScrollEditorOperationType, TransformOperation } from './operations';
+import { ScrollEditorOperation, ScrollEditorOperationType, PlacementOperation } from './operations';
 import {
     OperationsManager,
     OperationsManagerStatus
 } from '@/utils/operations-manager';
-import { Transformation } from '@/utils/Mask';
 import EditionIcons from '@/components/cues/edition-icons.vue';
+import { Placement } from '../../utils/Placement';
 
 @Component({
     name: 'scroll-menu',
@@ -143,25 +143,22 @@ export default class ScrollMenu extends Vue {
         return this.edition.permission && this.edition.permission.readOnly;
     }
 
-    private get artefactSelect(): Artefact | undefined {
-        return this.artefact;
-    }
-
     public formatTooltip(): string {
         return (this.zoom * 100).toFixed(0) + '%';
     }
     public openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
-    public onSave() {
-        this.$emit('saveArt');
-    }
+    // public onSave() {
+    //     this.$emit('saveArt');
+    // }
     public onNewOperation(operation: ScrollEditorOperation) {
         this.newOperation(operation);
     }
     public removeArtefact() {
-        this.setTransformation('delete', Transformation.empty);
-        this.artefact = undefined;
+        this.artefact!.isPlaced = false;
+        this.setPlacement('delete', Placement.empty);
+        // this.artefact = undefined;
     }
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
@@ -190,17 +187,17 @@ export default class ScrollMenu extends Vue {
     private onUndo() {
         this.undo();
     }
-    private setTransformation(
+    private setPlacement(
         opType: ScrollEditorOperationType,
-        newTrans: Transformation
+        newTrans: Placement
     ) {
-        const op = new TransformOperation(
+        const op = new PlacementOperation(
             this.artefact!.id,
             opType,
-            this.artefact!.mask.transformation,
+            this.artefact!.placement,
             newTrans
         );
-        this.artefact!.mask.transformation = newTrans;
+        this.artefact!.placement = newTrans;
         this.newOperation(op);
     }
     @Emit()

@@ -124,7 +124,7 @@ export default Vue.extend({
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
 
-        this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
+        this.scaledMask = Polygon.scale(this.artefact.mask, this.scale);
         this.masterImageManifest = this.imageStack.master.manifest;
     },
     methods: {

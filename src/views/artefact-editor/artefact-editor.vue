@@ -80,8 +80,8 @@
                                     :width="imageWidth"
                                     :height="imageHeight"
                                     :params="params"
-                                    :clipping-mask="artefact.mask.polygon"
-                                    :boundingBox="artefact.mask.polygon.getBoundingBox()"
+                                    :clipping-mask="artefact.mask"
+                                    :boundingBox="artefact.mask.getBoundingBox()"
                                 />
                                 <roi-layer
                                     :rois="visibleRois"
@@ -236,14 +236,14 @@ import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons
     }
@@ -397,7 +397,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
         this.params.rotationAngle =
-            this.artefact.mask.transformation.rotate || 0;
+            this.artefact.placement.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
         await Promise.all(
@@ -615,7 +615,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         if (evt.property === 'rotationAngle') {
             const op: ArtefactRotateOperation = new ArtefactRotateOperation(
                 this.artefact.id,
-                this.artefact.mask.transformation.rotate,
+                this.artefact.placement.rotate,
                 evt.value,
                 this
             );
@@ -661,7 +661,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         //
         // We ask the server to cut the image at the square, and treat everything as square. That way when we
         // rotate everything is still visible.
-        const bb = this.artefact.mask.polygon.getBoundingBox();
+        const bb = this.artefact.mask.getBoundingBox();
         const diag = Math.sqrt(bb.height * bb.height + bb.width * bb.width);
         const center = (this.boundingBoxCenter = {
             x: bb.x + bb.width / 2,
@@ -712,11 +712,11 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
 
     private async saveRotation() {
         const rotation = (this.rotationAngle % 360) + (360 % 360);
-        if (rotation === this.artefact.mask.transformation.rotate) {
+        if (rotation === this.artefact.placement.rotate) {
             return false;
         }
 
-        this.artefact.mask.transformation.rotate =
+        this.artefact.placement.rotate =
             (this.rotationAngle % 360) + (360 % 360);
         await this.artefactService.changeArtefact(
             this.artefact.editionId,

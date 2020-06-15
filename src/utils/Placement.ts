@@ -1,0 +1,43 @@
+import { TranslateDTO, PlacementDTO } from '@/dtos/sqe-dtos';
+
+export class Matrix {
+    public transformMatrix: string;
+
+    constructor(obj: any) {
+        this.transformMatrix = obj.transformMatrix;
+    }
+}
+
+
+export class Placement implements PlacementDTO {  // Shaindel - Rename into Placement
+    public static get empty() {
+        return new Placement({
+            rotate: 0,
+            scale: 1,
+            translate: { x: undefined, y: undefined },
+            zIndex: 0
+        } as PlacementDTO);
+    }
+
+    public scale: number;
+    public rotate: number;
+    public translate: TranslateDTO;
+    public zIndex: number;
+
+    public constructor(dto: PlacementDTO) {
+        this.scale = dto.scale;
+        this.rotate = dto.rotate;
+        this.translate = dto.translate;
+        this.zIndex = dto.zIndex;
+    }
+
+    public clone(): Placement {
+        return new Placement({
+            scale: this.scale,
+            rotate: this.rotate,
+            translate: { ...this.translate },
+            zIndex: this.zIndex
+        });
+    }
+}
+

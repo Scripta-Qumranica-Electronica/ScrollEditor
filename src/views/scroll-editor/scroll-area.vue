@@ -86,6 +86,11 @@ export default class ScrollArea extends Vue {
     private selectedArtefact: Artefact | undefined = {} as Artefact;
     private draggableOptions: DraggableValue = {};
 
+    public selectArtefact(artefact: Artefact) {
+        this.selectedArtefact = artefact;
+        this.$emit('onSelectArtefact', this.selectedArtefact);
+    }
+
     private mounted() {
         this.selectedArtefact = undefined;
 
@@ -131,16 +136,7 @@ export default class ScrollArea extends Vue {
     private get placedArtefacts() {
         return this.artefacts
             .filter(x => x.isPlaced)
-            .sort((a, b) =>
-                a.mask.transformation.zIndex > b.mask.transformation.zIndex
-                    ? 1
-                    : -1
-            );
-    }
-
-    private selectArtefact(artefact: Artefact) {
-        this.selectedArtefact = artefact;
-        this.$emit('onSelectArtefact', this.selectedArtefact);
+            .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
     }
 
     private onNewOperation(op: ScrollEditorOperation) {

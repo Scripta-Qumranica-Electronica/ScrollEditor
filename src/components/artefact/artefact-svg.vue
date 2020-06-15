@@ -9,7 +9,7 @@
             <defs>
                 <path
                     :id="`path-${artefact.id}`"
-                    :d="artefact.mask.polygon.svg"/>
+                    :d="artefact.mask.svg"/>
                 <clipPath :id="`clip-path-${artefact.id}`">
                     <use stroke="none" fill="none" fill-rule="evenodd" :xlink:href="`#path-${artefact.id}`"></use>
                 </clipPath>

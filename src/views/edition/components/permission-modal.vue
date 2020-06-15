@@ -109,7 +109,7 @@
                 </b-card>
             </form>
            </div>
-           <div v-if="!isAdmin" class="text-danger">{{$t(home.admin)}}</div>
+           <div v-if="!isAdmin" class="text-danger">Ad</div>
         </b-modal>
     </div>
 </template>

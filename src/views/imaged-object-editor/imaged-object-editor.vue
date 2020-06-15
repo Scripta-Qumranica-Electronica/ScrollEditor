@@ -87,7 +87,7 @@
                                     :height="imageHeight"
                                     :params="params"
                                     :editable="canEdit"
-                                    :clipping-mask="artefact.mask && artefact.mask.polygon"
+                                    :clipping-mask="artefact.mask"
                                 />
                                 <artefact-layer
                                     :selected="art.id === artefact.id"
@@ -188,7 +188,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
     private side: Side = 'recto';
     private operationsManager = new OperationsManager<
         ImagedObjectEditorOperation
-    >(this, 0);
+    >(this);
 
     public async saveEntities(ids: number[]): Promise<boolean> {
         // if (!this.artefact) {
@@ -354,7 +354,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
                 this.onArtefactChanged(this.visibleArtefacts[0]);
 
                 // Remove this because it will happen in onArtefactChanged function.
-                this.initialMask = this.artefact!.mask.polygon;
+                this.initialMask = this.artefact!.mask;
             } else {
                 this.artefactId = -1;
                 this.initialMask = new Polygon();
@@ -550,7 +550,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
             if (artefact.id !== art.id) {
                 this.nonSelectedMask = Polygon.add(
                     this.nonSelectedMask,
-                    artefact.mask.polygon
+                    artefact.mask
                 );
             }
         }
@@ -609,9 +609,9 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         let newPolygon: Polygon;
 
         if (this.isErasing) {
-            newPolygon = Polygon.subtract(this.artefact!.mask.polygon, poly);
+            newPolygon = Polygon.subtract(this.artefact!.mask, poly);
         } else {
-            newPolygon = Polygon.add(this.artefact!.mask.polygon, poly);
+            newPolygon = Polygon.add(this.artefact!.mask, poly);
         }
 
         // Check if the new mask intersects with a non selected artefact mask
@@ -629,7 +629,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         }
 
         console.log(
-            this.artefact!.mask.polygon.svg,
+            this.artefact!.mask.svg,
             newPolygon.svg,
             'hasChanged'
         );
@@ -637,11 +637,11 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
             new ImagedObjectEditorOperation(
                 this.artefact!.id,
                 this.isErasing ? 'erase' : 'draw',
-                this.artefact!.mask.polygon,
+                this.artefact!.mask,
                 newPolygon
             )
         );
-        this.artefact!.mask.polygon = newPolygon;
+        this.artefact!.mask = newPolygon;
     }
 }
 
