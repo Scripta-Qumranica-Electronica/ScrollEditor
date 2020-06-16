@@ -19,7 +19,6 @@
                 :side="side"
                 :status-indicator="operationsManager"
                 @paramsChanged="onParamsChanged($event)"
-                @save="onSave($event)"
                 @undo="onUndo($event)"
                 @redo="onRedo($event)"
                 @create="onNew($event)"
@@ -430,13 +429,13 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
         this.params.zoom = event.zoom;
     }
 
-    private onSave() {
-        if (!this.operationsManager.isDirty) {
-            this.showMessage('toasts.NoChangesDetected');
-            return;
-        }
-        this.operationsManager.save();
-    }
+    // private onSave() {
+    //     if (!this.operationsManager.isDirty) {
+    //         this.showMessage('toasts.NoChangesDetected');
+    //         return;
+    //     }
+    //     this.operationsManager.save();
+    // }
     // private onSave() {
     //     if (!this.artefact) {
     //         throw new Error("Can't save if there is no artefact");
@@ -527,7 +526,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
             if (this.artefacts[0]) {
                 this.artefactId = this.artefacts[0].id;
             } else {
-                this.artefactId = undefined;
+                this.artefactId = 0;
                 this.initialMask = new Polygon();
             }
         } catch (err) {

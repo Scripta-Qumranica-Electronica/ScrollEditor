@@ -129,17 +129,12 @@ export const Draggable: DirectiveOptions = {
 
             const pos = getInitialMousePosition(event);
             const dx = pos.left - state.initialMousePos.left;
-            console.log('pos.top', pos.top)
-            console.log('state.initialMousePos.top', state.initialMousePos.top)
             const dy = pos.top - state.initialMousePos.top;
-            console.log('dy', dy)
 
             let currentDragPosition = {
                 left: state.startDragPosition.left + dx,
                 top: state.startDragPosition.top + dy
             };
-            console.log('state.startDragPosition.top', state.startDragPosition.top)
-            console.log('currentDragPosition', currentDragPosition)
 
             const boundingRect = getBoundingRect();
             const elementRect = el.getBoundingClientRect();
@@ -212,14 +207,14 @@ export const Draggable: DirectiveOptions = {
                 return {
                     left: event.clientX,
                     top: event.clientY - 56
-                }
+                };
             }
             if (event instanceof TouchEvent) {
                 const touch = event.changedTouches[event.changedTouches.length - 1];
                 return {
                     left: touch.clientX,
                     top: touch.clientY - 56
-                }
+                };
             }
         }
 

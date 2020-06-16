@@ -68,7 +68,7 @@ import { ScrollEditorOperation } from './operations';
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -86,7 +86,7 @@ export default class ScrollArea extends Vue {
     private selectedArtefact: Artefact | undefined = {} as Artefact;
     private draggableOptions: DraggableValue = {};
 
-    public selectArtefact(artefact: Artefact) {
+    public selectArtefact(artefact: Artefact | undefined) {
         this.selectedArtefact = artefact;
         this.$emit('onSelectArtefact', this.selectedArtefact);
     }

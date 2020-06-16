@@ -318,7 +318,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         const op: ArtefactROIOperation = new ArtefactROIOperation(
             this.artefact.id,
             'draw',
-            { ...placedRoi },
+            placedRoi.clone(),
             this
         );
         this.onNewOperation(op);
@@ -327,6 +327,37 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             this.playSound('/qumran_hum.mp3');
             setTimeout(this.nextSign, 1500);
         }
+    }
+
+    public placeRoi(roi: InterpretationRoi) {
+        let newRoi = this.$state.interpretationRois.get(roi.id);
+        if (!newRoi) {
+            newRoi = roi;
+            this.$state.interpretationRois.put(newRoi);
+            // const roiDTO: SetInterpretationRoiDTO = {
+            //     artefactId: roi.artefactId,
+            //     shape: roi.shape.wkt,
+            //     translate: roi.position,
+            //     stanceRotation: roi.rotation,
+            //     exceptional: roi.exceptional,
+            //     valuesSet: roi.valuesSet,
+            //     signInterpretationId: roi.signInterpretationId
+            // }
+            // newRoi = new InterpretationRoi(roiDTO);
+        }
+        // For now the status 'update' doesn't do the save, we put 'new' to save it
+        newRoi.status = 'new';
+        const si = this.$state.signInterpretations.get(
+            roi.signInterpretationId!
+        );
+        if (si) {
+            si.rois.push(newRoi);
+        }
+        this.visibleRois.push(newRoi);
+        this.selectedInterpretationRoi = newRoi;
+        this.selectedSignInterpretation = si || null;
+
+        return newRoi;
     }
 
     public removeRoi(roi: InterpretationRoi) {
@@ -498,36 +529,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             width / this.boundingBox.width
         );
     }
-    private placeRoi(roi: InterpretationRoi) {
-        let newRoi = this.$state.interpretationRois.get(roi.id);
-        if (!newRoi) {
-            newRoi = roi;
-            this.$state.interpretationRois.put(newRoi);
-            // const roiDTO: SetInterpretationRoiDTO = {
-            //     artefactId: roi.artefactId,
-            //     shape: roi.shape.wkt,
-            //     translate: roi.position,
-            //     stanceRotation: roi.rotation,
-            //     exceptional: roi.exceptional,
-            //     valuesSet: roi.valuesSet,
-            //     signInterpretationId: roi.signInterpretationId
-            // }
-            // newRoi = new InterpretationRoi(roiDTO);
-        }
-        // For now the status 'update' doesn't do the save, we put 'new' to save it
-        newRoi.status = 'new';
-        const si = this.$state.signInterpretations.get(
-            roi.signInterpretationId!
-        );
-        if (si) {
-            si.rois.push(newRoi);
-        }
-        this.visibleRois.push(newRoi);
-        this.selectedInterpretationRoi = newRoi;
-        this.selectedSignInterpretation = si || null;
 
-        return newRoi;
-    }
     private onDeleteRoi() {
         const roi = this.selectedInterpretationRoi;
         const si = this.selectedSignInterpretation;
@@ -538,7 +540,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         const op: ArtefactROIOperation = new ArtefactROIOperation(
             this.artefact.id,
             'erase',
-            {...roi},
+            roi.clone(),
             this
         );
         this.onNewOperation(op);

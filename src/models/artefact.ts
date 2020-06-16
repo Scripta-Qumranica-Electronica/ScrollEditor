@@ -15,8 +15,8 @@ export class Artefact {
     public name = '';
     public mask: Polygon = new Polygon('');
     public artefactMaskEditorId = 0;
-    public isPlaced: boolean;
-    public placement: Placement;
+    public isPlaced: boolean = false;
+    public placement: Placement = Placement.empty;
     public artefactPlacementEditorId: number | undefined;
     public side: Side = 'recto';
 

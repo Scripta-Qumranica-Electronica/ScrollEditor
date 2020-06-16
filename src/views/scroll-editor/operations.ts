@@ -58,7 +58,6 @@ export class PlacementOperation extends ScrollEditorOperation {
         this.artefact.isPlaced =
             this.artefact.placement.translate.x !== undefined
             && this.artefact.placement.translate.y !== undefined;
-            debugger;
         if (this.scrollAreaInstance) {
             if (this.artefact.isPlaced) {
                 this.scrollAreaInstance.selectArtefact(this.artefact);

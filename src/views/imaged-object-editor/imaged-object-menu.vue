@@ -190,13 +190,13 @@
                             <b-button :disabled="!canUndo" @click="undo()">Undo</b-button>
                             <b-button :disabled="!canRedo" @click="redo()">Redo</b-button>
                         </section>
-                        <section class="center-btn" v-if="editable">
+                        <!-- <section class="center-btn" v-if="editable">
                             <b-button v-if="!saving" @click="save()">{{$t('misc.save')}}</b-button>
                             <b-button v-if="saving" disabled class="disable">
                                 Saving...
                                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
                             </b-button>
-                        </section>
+                        </section> -->
                     </b-card-body>
                 </b-collapse>
             </b-card>
@@ -251,7 +251,7 @@ export default Vue.extend({
         artefact: Object as () => Artefact,
         editable: Boolean,
         params: Object as () => ImagedObjectEditorParams,
-        saving: Boolean,
+        // saving: Boolean,
         renaming: Boolean,
         renameInputActive: Object as () => Artefact,
         side: {
@@ -319,10 +319,10 @@ export default Vue.extend({
         canCreate(): boolean {
             return this.newArtefactName.trim().length > 0;
         },
-        canUndo() {
+        canUndo(): boolean {
             return this.statusIndicator.canUndo;
         },
-        canRedo() {
+        canRedo(): boolean {
             return this.statusIndicator.canRedo;
         },
         saveStatusMessage(): string {
@@ -377,9 +377,9 @@ export default Vue.extend({
                 this.params.drawingMode.toString()
             );
         },
-        save() {
-            this.$emit('save', this.artefact);
-        },
+        // save() {
+        //     this.$emit('save', this.artefact);
+        // },
         undoModal() {
             (this.$refs.undoRef as any).show();
         },

@@ -209,8 +209,8 @@ export default class ArtefactToolbox extends Vue {
     public dragArtefact(dirX: number, dirY: number) {
         const placement = this.artefact!.placement.clone();
         const jump = parseInt(this.params.move.toString());
-        placement!.translate.x += jump * dirX;
-        placement!.translate.y += jump * dirY;
+        placement!.translate.x! += jump * dirX;
+        placement!.translate.y! += jump * dirY;
         this.setPlacement('translate', placement);
     }
 

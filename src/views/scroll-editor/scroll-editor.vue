@@ -35,10 +35,6 @@
                         @new-operation="onNewOperation($event)"
                     ></scroll-area>
                 </div>
-
-                <div style="height: 30px">
-                    {{artefact}}
-                </div>
             </div>
         </div>
     </div>
@@ -78,7 +74,8 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
     private operationsManager = new OperationsManager<ScrollEditorOperation>(
-        this);
+        this
+    );
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.artefact = artefact;
@@ -146,7 +143,9 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             const orderedArtefacts = this.artefacts
                 .filter(x => x.isPlaced)
                 .map(x => x.placement.zIndex);
-            const maxZindex = orderedArtefacts.length ? Math.max(...orderedArtefacts) : -1;
+            const maxZindex = orderedArtefacts.length
+                ? Math.max(...orderedArtefacts)
+                : -1;
 
             const placement = new Placement({
                 translate: {
@@ -176,9 +175,8 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
-        op.scrollAreaInstance = (this.$refs.scrollAreaRef as ScrollArea);
-        debugger;
-        if(op.type === 'delete') {
+        op.scrollAreaInstance = this.$refs.scrollAreaRef as ScrollArea;
+        if (op.type === 'delete') {
             (this.$refs.scrollAreaRef as ScrollArea).selectArtefact(undefined);
         }
         this.operationsManager.addOperation(op);

@@ -111,9 +111,9 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const rotate = `rotate(${placement.rotate})`;
 
         // Finally, move to correct place. Remember that at this point the artefact's top left is (-midX, -midY)
-        const translateX = this.boundingBox.width / 2 + placement!.translate!.x;
+        const translateX = this.boundingBox.width / 2 + placement.translate.x!;
         const translateY =
-            this.boundingBox.height / 2 + placement!.translate!.y;
+            this.boundingBox.height / 2 + placement.translate.y!;
         const translateToPlace = `translate(${translateX}, ${translateY})`;
 
         // Transformations are performed by SVG from right to left
@@ -183,8 +183,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             x: pt.x - this.mouseOrigin!.x,
             y: pt.y - this.mouseOrigin!.y
         };
-        this.artefact.placement.translate.x += diffPt.x;
-        this.artefact.placement.translate.y += diffPt.y;
+        this.artefact.placement.translate.x! += diffPt.x;
+        this.artefact.placement.translate.y! += diffPt.y;
 
         this.mouseOrigin.x = pt.x;
         this.mouseOrigin.y = pt.y;
