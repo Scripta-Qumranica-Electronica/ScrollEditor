@@ -1,3 +1,4 @@
+/* tslint:disable */
 // Directive to drag DOM elements from:
 // https://github.com/IsraelZablianov/draggable-vue-directive
 // Version 2.1.0
