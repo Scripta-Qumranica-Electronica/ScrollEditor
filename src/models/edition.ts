@@ -98,6 +98,7 @@ class EditionInfo {
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit?: Date;
+    public groupsArtefacts: GroupArtefacts[];
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -119,10 +120,19 @@ class EditionInfo {
         this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
+        this.groupsArtefacts = [];
         if (dto.lastEdit) {
             this.lastEdit = new Date(Date.parse(dto.lastEdit));
         }
     }
 }
+class GroupArtefacts {
+    public id: number = 0;
+    public ids: number[] = [];
 
-export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo };
+    constructor(artefactsIds: number[]) {
+        this.ids.push(...artefactsIds);
+    }
+}
+
+export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, GroupArtefacts };

@@ -264,7 +264,7 @@ class InterpretationRoi {
     }
 
     public clone() {
-        return new InterpretationRoi(
+        const copy = new InterpretationRoi(
             {
                 artefactId: this.artefactId,
                 signInterpretationId: this.signInterpretationId,
@@ -275,6 +275,10 @@ class InterpretationRoi {
                 valuesSet: this.valuesSet,
             } as InterpretationRoiDTO
         );
+        copy.internalId = this.internalId;
+        copy.interpretationRoiId = this.interpretationRoiId;
+
+        return copy;
     }
 }
 

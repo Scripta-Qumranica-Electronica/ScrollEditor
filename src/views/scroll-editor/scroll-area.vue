@@ -10,11 +10,16 @@
             <artefact-toolbox
                 :keyboard-input="false"
                 :params="params"
+                :selectedArtefactsList="selectedArtefactsList"
                 :float="true"
                 :artefactId="selectedArtefact && selectedArtefact.id"
                 @new-operation="onNewOperation($event)"
+                @save-group="onSaveGroup()"
+                @cancel-group="cancelGroup()"
+                @manageGroup="manageGroup()"
             ></artefact-toolbox>
         </div>
+        <!-- {{selectedArtefactsList}} -->
         <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
             <svg
                 :width="actualWidth"
@@ -29,7 +34,7 @@
                         :artefact="artefact"
                         v-for="artefact in placedArtefacts"
                         :key="artefact.id"
-                        :selected="artefact.id === (selectedArtefact && selectedArtefact.id)"
+                        :selected="isArtefactSelected(artefact)"
                     />
                 </g>
             </svg>
@@ -63,6 +68,7 @@ import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
+import { GroupArtefacts } from '@/models/edition';
 
 @Component({
     name: 'scroll-area',
@@ -79,6 +85,8 @@ import { ScrollEditorOperation } from './operations';
 export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
+    @Prop()
+    private selectedArtefactsList: Artefact[] = [];
     private imageWidth = 10000;
     private imageHeight = 10000;
     private imageSettings!: ImageSetting;
@@ -89,6 +97,14 @@ export default class ScrollArea extends Vue {
     public selectArtefact(artefact: Artefact | undefined) {
         this.selectedArtefact = artefact;
         this.$emit('onSelectArtefact', this.selectedArtefact);
+    }
+
+    private created() {
+        this.$state.eventBus.$on('select-artefact', (art: Artefact) => this.selectArtefact(art));
+    }
+
+    private destroyed() {
+        this.$state.eventBus.$off('select-artefact');
     }
 
     private mounted() {
@@ -139,9 +155,35 @@ export default class ScrollArea extends Vue {
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
     }
 
+    private isArtefactSelected(artefact: Artefact): boolean {
+        let res: boolean;
+        if (this.params.mode === 'group' || this.params.mode === 'manageGroup') {
+            res =
+                this.selectedArtefactsList.findIndex(i => i === artefact.id) >
+                -1;
+        } else {
+            res =
+                artefact.id ===
+                (this.selectedArtefact && this.selectedArtefact.id);
+        }
+
+        return res;
+    }
+
     private onNewOperation(op: ScrollEditorOperation) {
         this.newOperation(op);
     }
+
+    private onSaveGroup() {
+        this.$emit('onSaveGroupArtefacts');
+    }
+    private cancelGroup() {
+        this.$emit('onCancelGroup');
+    }
+    private manageGroup() {
+        this.$emit('onManageGroup');
+    }
+
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;

@@ -2,7 +2,7 @@ import { ImageSetting } from '@/components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
 import { Polygon } from '@/utils/Polygons';
 
-export type ScrollEditorMode = '' | 'move'| 'scale' |'rotate' ;
+export type ScrollEditorMode = '' | 'move'| 'scale' |'rotate' | 'group' | 'manageGroup';
 
 export class ArtefactEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;

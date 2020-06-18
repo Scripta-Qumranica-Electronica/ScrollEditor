@@ -1,6 +1,6 @@
 <template>
     <div :class="{'mt-2': !float}">
-        <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
+        <b-button-group size="sm" class="mb-1">
             <b-button
                 :pill="float"
                 :disabled="!artefact"
@@ -35,12 +35,25 @@
                 <font-awesome-icon v-if="float" icon="sync" size="xs"></font-awesome-icon>
             </b-button>
         </b-button-group>
-        <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
-            <b-button :disabled="!artefact" @click="setZIndex(1)" v-if="!float">
-                <span v-if="!float">top</span>
+        <b-button-group size="sm" class="mb-1">
+            <b-button v-if="!float" :pressed="mode === 'group'" @click="setMode('group')">
+                <span>
+                    New
+                    <u>G</u>roup
+                </span>
+                <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
             </b-button>
-            <b-button :disabled="!artefact" @click="setZIndex(-1)" v-if="!float">
-                <span v-if="!float">down</span>
+            <b-button
+                v-if="!float"
+                :pill="float"
+                :disabled="!save"
+                :pressed="mode === 'group'"
+                @click="setMode('manageGroup')"
+            >
+                <span>
+                    Ma<u>n</u>age group
+                </span>
+                <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
             </b-button>
         </b-button-group>
         <b-row v-if="mode === 'move'" no-gutters align-v="end">
@@ -98,6 +111,25 @@
                 <b-form-input id="input-small" size="sm" type="number" v-model="params.move"></b-form-input>
             </b-col>
         </b-row>
+        <b-row no-gutters align-v="end">
+            <b-button-group>
+                <b-button
+                     v-if="!float"
+                    :disabled="selectedArtefactsList.length<=1"
+                    class="m-1"
+                    size="sm"
+                    @click="saveGroup()"
+                >save Group</b-button>
+                
+            <b-button 
+                v-if="!float"
+                size="sm"
+                class="m-1"
+                :disabled="selectedArtefactsList.length<=1"
+                @click="cancelGroup()"
+            >cancel</b-button>
+            </b-button-group>
+        </b-row>
         <b-row v-if="mode === 'scale'" no-gutters align-v="end">
             <b-button-group>
                 <b-button
@@ -141,6 +173,14 @@
                 <b-form-input id="input-small" size="sm" type="number" v-model="params.rotate"></b-form-input>
             </b-col>
         </b-row>
+        <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
+            <b-button :disabled="!artefact" @click="setZIndex(1)" v-if="!float">
+                <span v-if="!float">top</span>
+            </b-button>
+            <b-button :disabled="!artefact" @click="setZIndex(-1)" v-if="!float">
+                <span v-if="!float">down</span>
+            </b-button>
+        </b-button-group>
     </div>
 </template>
 
@@ -158,10 +198,9 @@ import {
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    PlacementOperation,
+    PlacementOperation
 } from './operations';
 import { Placement } from '@/utils/Placement';
-
 
 @Component({
     name: 'artefact-toolbox',
@@ -183,9 +222,11 @@ export default class ArtefactToolbox extends Vue {
 
     @Prop({ default: true })
     public keyboardInput!: boolean;
+    @Prop()
+    private selectedArtefactsList: Artefact[] = [];
 
     private reset!: number;
-    // private mode!: ScrollEditorParams ;
+    private save: boolean = false;
     public mounted() {
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
@@ -255,9 +296,7 @@ export default class ArtefactToolbox extends Vue {
         const placedArtefacts = this.$state.artefacts.items.filter(
             x => x.isPlaced
         );
-        const artefactsZOrders = placedArtefacts.map(
-            x => x.placement.zIndex
-        );
+        const artefactsZOrders = placedArtefacts.map(x => x.placement.zIndex);
 
         const zIndex =
             zIndexDirection < 0
@@ -286,6 +325,9 @@ export default class ArtefactToolbox extends Vue {
 
     private setMode(mode: ScrollEditorMode) {
         this.params.mode = mode;
+        if (this.params.mode !== 'group') {
+            this.cancelGroup();
+        }
     }
 
     private onKeyPress(event: KeyboardEvent) {
@@ -343,8 +385,21 @@ export default class ArtefactToolbox extends Vue {
         }
     }
     @Emit()
+    private saveGroup() {
+        this.save = true;
+        return true;
+    }
+    @Emit()
+    private manageGroup() {
+        return true;
+    }
+    @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
+    }
+    @Emit()
+    private cancelGroup() {
+        return true;
     }
 }
 </script>

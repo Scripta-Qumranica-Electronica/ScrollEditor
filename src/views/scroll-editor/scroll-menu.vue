@@ -70,13 +70,11 @@
                                 :params="params"
                                 :artefactId="artefact && artefact.id"
                                 @new-operation="onNewOperation($event)"
+                                @save-group="onSaveGroup()"
+                                @cancel-group="cancelGroup()"
+                                @manageGroup="manageGroup()"
+                                :selectedArtefactsList="selectedArtefactsList"
                             ></artefact-toolbox>
-                            <!-- <b-button
-                                size="sm"
-                                class="mb-2"
-                                :disabled="!isDirty"
-                                @click="onSave()"
-                            >{{$t('misc.save')}} artefacts</b-button>-->
                         </section>
                         <section class="center-btn">
                             <b-button @click="onUndo()" size="sm" :disabled="!canUndo">Undo</b-button>
@@ -85,7 +83,6 @@
                     </b-card-body>
                 </b-collapse>
             </b-card>
-            {{artefact}}
         </section>
         <add-artefact-modal></add-artefact-modal>
     </div>
@@ -103,13 +100,18 @@ import {
 } from '../artefact-editor/types';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import ArtefactService from '@/services/artefact';
-import { ScrollEditorOperation, ScrollEditorOperationType, PlacementOperation } from './operations';
+import {
+    ScrollEditorOperation,
+    ScrollEditorOperationType,
+    PlacementOperation
+} from './operations';
 import {
     OperationsManager,
     OperationsManagerStatus
 } from '@/utils/operations-manager';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
+import { GroupArtefacts } from '../../models/edition';
 
 @Component({
     name: 'scroll-menu',
@@ -125,6 +127,8 @@ export default class ScrollMenu extends Vue {
     public artefact: Artefact | undefined = undefined;
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
+    @Prop()
+    private selectedArtefactsList: Artefact[] = [];
 
     private params: ScrollEditorParams = new ScrollEditorParams();
 
@@ -225,6 +229,15 @@ export default class ScrollMenu extends Vue {
             return 'Save pending';
         }
         return 'Scroll Saved';
+    }
+    private onSaveGroup() {
+        this.$emit('onSaveGroupArtefacts');
+    }
+    private cancelGroup() {
+        this.$emit('onCancelGroup');
+    }
+     private manageGroup() {
+        this.$emit('onManageGroup');
     }
 }
 </script>
