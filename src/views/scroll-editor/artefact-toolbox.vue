@@ -36,18 +36,18 @@
             </b-button>
         </b-button-group>
         <b-button-group size="sm" class="mb-1">
-            <b-button v-if="!float" :pressed="mode === 'group'" @click="setMode('group')">
+            <!-- <b-button v-if="!float" :pressed="mode === 'group'" @click="setMode('group')">
                 <span>
                     New
                     <u>G</u>roup
                 </span>
                 <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
-            </b-button>
+            </b-button> -->
             <b-button
                 v-if="!float"
                 :pill="float"
-                :disabled="!save"
-                :pressed="mode === 'group'"
+                :disabled="!artefact && selectedGroup.ids.length === 0"
+                :pressed="mode === 'manageGroup'"
                 @click="setMode('manageGroup')"
             >
                 <span>
@@ -115,7 +115,7 @@
             <b-button-group>
                 <b-button
                      v-if="!float"
-                    :disabled="selectedArtefactsList.length<=1"
+                    :disabled="selectedGroup.ids.length <= 1"
                     class="m-1"
                     size="sm"
                     @click="saveGroup()"
@@ -125,7 +125,7 @@
                 v-if="!float"
                 size="sm"
                 class="m-1"
-                :disabled="selectedArtefactsList.length<=1"
+                :disabled="selectedGroup.ids.length<=1"
                 @click="cancelGroup()"
             >cancel</b-button>
             </b-button-group>
@@ -201,6 +201,7 @@ import {
     PlacementOperation
 } from './operations';
 import { Placement } from '@/utils/Placement';
+import { GroupArtefacts } from '@/models/edition';
 
 @Component({
     name: 'artefact-toolbox',
@@ -223,10 +224,9 @@ export default class ArtefactToolbox extends Vue {
     @Prop({ default: true })
     public keyboardInput!: boolean;
     @Prop()
-    private selectedArtefactsList: Artefact[] = [];
+    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);
 
     private reset!: number;
-    private save: boolean = false;
     public mounted() {
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
@@ -325,9 +325,6 @@ export default class ArtefactToolbox extends Vue {
 
     private setMode(mode: ScrollEditorMode) {
         this.params.mode = mode;
-        if (this.params.mode !== 'group') {
-            this.cancelGroup();
-        }
     }
 
     private onKeyPress(event: KeyboardEvent) {
@@ -386,7 +383,6 @@ export default class ArtefactToolbox extends Vue {
     }
     @Emit()
     private saveGroup() {
-        this.save = true;
         return true;
     }
     @Emit()

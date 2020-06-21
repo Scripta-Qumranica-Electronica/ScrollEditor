@@ -131,6 +131,7 @@ class GroupArtefacts {
     public ids: number[] = [];
 
     constructor(artefactsIds: number[]) {
+        this.id = Math.floor(Math.random() * 10);
         this.ids.push(...artefactsIds);
     }
 }

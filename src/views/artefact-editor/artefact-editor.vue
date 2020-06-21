@@ -236,14 +236,14 @@ import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons
     }

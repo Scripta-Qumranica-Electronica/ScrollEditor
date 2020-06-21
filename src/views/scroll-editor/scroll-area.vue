@@ -7,10 +7,11 @@
             >
                 <i class="fa fa-ellipsis-v"></i>
             </div>
+            <!-- {{selectedGroup}} -->
             <artefact-toolbox
                 :keyboard-input="false"
                 :params="params"
-                :selectedArtefactsList="selectedArtefactsList"
+                :selectedGroup="selectedGroup"
                 :float="true"
                 :artefactId="selectedArtefact && selectedArtefact.id"
                 @new-operation="onNewOperation($event)"
@@ -86,7 +87,7 @@ export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
     @Prop()
-    private selectedArtefactsList: Artefact[] = [];
+    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);
     private imageWidth = 10000;
     private imageHeight = 10000;
     private imageSettings!: ImageSetting;
@@ -157,9 +158,9 @@ export default class ScrollArea extends Vue {
 
     private isArtefactSelected(artefact: Artefact): boolean {
         let res: boolean;
-        if (this.params.mode === 'group' || this.params.mode === 'manageGroup') {
+        if (this.selectedGroup.ids.length) {
             res =
-                this.selectedArtefactsList.findIndex(i => i === artefact.id) >
+                this.selectedGroup.ids.findIndex(i => i === artefact.id) >
                 -1;
         } else {
             res =

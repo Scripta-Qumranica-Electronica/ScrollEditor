@@ -73,7 +73,7 @@
                                 @save-group="onSaveGroup()"
                                 @cancel-group="cancelGroup()"
                                 @manageGroup="manageGroup()"
-                                :selectedArtefactsList="selectedArtefactsList"
+                                :selectedGroup="selectedGroup"
                             ></artefact-toolbox>
                         </section>
                         <section class="center-btn">
@@ -128,7 +128,7 @@ export default class ScrollMenu extends Vue {
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
     @Prop()
-    private selectedArtefactsList: Artefact[] = [];
+    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);
 
     private params: ScrollEditorParams = new ScrollEditorParams();
 
