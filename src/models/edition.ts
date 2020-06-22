@@ -126,12 +126,12 @@ class EditionInfo {
         }
     }
 }
-class GroupArtefacts {
-    public id: number = 0;
-    public ids: number[] = [];
+class GroupArtefacts { // Shaindel: Rename into ArtefactGroup
+    public id: number = 0;  // Rename to groupId
+    public ids: number[] = [];  // Rename to artefactIds
 
     constructor(artefactsIds: number[]) {
-        this.id = Math.floor(Math.random() * 10);
+        this.id = Math.floor(Math.random() * 10); // Choose a negative number here
         this.ids.push(...artefactsIds);
     }
 }

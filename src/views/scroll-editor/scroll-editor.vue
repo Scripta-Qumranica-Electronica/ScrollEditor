@@ -83,7 +83,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
-    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);
+    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);  // Shaindel - what happens if only one artefact is selected?
     private operationsManager = new OperationsManager<ScrollEditorOperation>(
         this
     );
@@ -105,16 +105,22 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 // if artefact not in any group
                 this.selectedGroup.ids.push(artefact!.id!);
             } else if (existingGroup) {
+                // Shaindel: this can be confusing, switching groups like this. I think
+                // that if an artefact belongs to another group, it shouldn't be selectable at all.
+                // We should change the cursor in that case, so that the user knows it can't select this artefact.
                 // if artefact already in group
                 this.selectedGroup.id = existingGroup.id;
                 this.selectedGroup.ids = [...existingGroup.ids];
             }
         } else {
+            // Shaindel: if if artefact is undefined? 
             if (existingGroup) {
                 // if artefact already in group
                 this.selectedGroup.id = existingGroup.id;
                 this.selectedGroup.ids = [...existingGroup.ids];
             } else {
+                // Shaindel - this just overwrites the selected group, and may not be a good idea. Perhaps we should
+                // create a new group with just one artefact, and leave the last group intact?
                 this.selectedGroup.ids = [artefact!.id!];
             }
             this.artefact = artefact;
