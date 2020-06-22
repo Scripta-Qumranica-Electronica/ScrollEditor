@@ -10,21 +10,13 @@ function state() {
     return StateManager.instance;
 }
 
-// export class ArtefactEditorStatus {
-//     public constructor(
-//         public selectedSI: SignInterpretation | null,
-//         public selectedROI: InterpretationRoi | null
-//     ) { }
-// }
-
 export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase';
 
 
 export abstract class ArtefactEditorOperation implements Operation<ArtefactEditorOperation> {
     public constructor(
         public artefactId: number,
-        public type: ArtefactEditorOperationType,
-        public artefactEditorInstance: ArtefactEditor
+        public type: ArtefactEditorOperationType
     ) { }
 
     public abstract undo(): void;
@@ -52,20 +44,22 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
     public constructor(
         artefactId: number,
         prev: number,
-        next: number,
-        public artefactEditorInstance: ArtefactEditor
+        next: number
     ) {
-        super(artefactId, 'rotate', artefactEditorInstance);
+        super(artefactId, 'rotate');
         this.prev = prev;
         this.next = next;
     }
 
     public undo(): void {
-        this.artefactEditorInstance.params.rotationAngle = this.prev;
+        state().eventBus.$emit('change-artefact-rotation', this.prev);
+        // this.artefactEditorInstance.params.rotationAngle = this.prev;
     }
 
     public redo(): void {
-        this.artefactEditorInstance.params.rotationAngle = this.next;
+        state().eventBus.$emit('change-artefact-rotation', this.next);
+
+        // this.artefactEditorInstance.params.rotationAngle = this.next;
     }
 
     public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
@@ -82,8 +76,8 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
         return new ArtefactRotateOperation(
             this.artefactId,
             (op as ArtefactRotateOperation).prev,
-            this.next,
-            this.artefactEditorInstance
+            this.next
+            // this.artefactEditorInstance,
         );
     }
 
@@ -94,29 +88,34 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
     public constructor(
         artefactId: number,
         type: ArtefactEditorOperationType,
-        public roi: InterpretationRoi,
-        public artefactEditorInstance: ArtefactEditor
+        public roi: InterpretationRoi
+        // public artefactEditorInstance: ArtefactEditor
         // public prev: ArtefactEditorStatus,
         // public next: ArtefactEditorStatus
     ) {
-        super(artefactId, type, artefactEditorInstance);
+        super(artefactId, type);
+        this.roi = roi.clone();
     }
 
     public undo(): void {
         if (this.type === 'draw') {
-            this.artefactEditorInstance.removeRoi(this.roi);
+            state().eventBus.$emit('remove-roi', this.roi);
+            // this.artefactEditorInstance.removeRoi(this.roi);
         } else {
             // Restore status to previous status - it should no longer be deleted
-            this.artefactEditorInstance.placeRoi(this.roi);
+            state().eventBus.$emit('place-roi', this.roi);
+            // this.artefactEditorInstance.placeRoi(this.roi);
         }
     }
 
     public redo(): void {
         if (this.type === 'draw') {
-            this.artefactEditorInstance.placeRoi(this.roi);
+            state().eventBus.$emit('place-roi', this.roi);
+            //  this.artefactEditorInstance.placeRoi(this.roi);
         } else {
             // Restore status to previous status - it should no longer be deleted
-            this.artefactEditorInstance.removeRoi(this.roi);
+            // this.artefactEditorInstance.removeRoi(this.roi);
+            state().eventBus.$emit('remove-roi', this.roi);
         }
     }
 

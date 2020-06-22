@@ -283,12 +283,6 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         try {
             const appliedRotation = await this.saveRotation();
             const appliedROIs = await this.saveROIs();
-
-            // if (!appliedRotation && !appliedROIs) {
-            //     // this.showMessage('toasts.artefactInfo', 'info');
-            // } else {
-            //     this.showMessage('toasts.artefactSuccess', 'success');
-            // }
         } catch (e) {
             console.error("Can't save arterfacts to server", e);
             return false;
@@ -318,8 +312,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         const op: ArtefactROIOperation = new ArtefactROIOperation(
             this.artefact.id,
             'draw',
-            placedRoi.clone(),
-            this
+            placedRoi.clone()
         );
         this.onNewOperation(op);
         if (this.autoMode) {
@@ -362,6 +355,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
 
     public removeRoi(roi: InterpretationRoi) {
         const roiBbox = roi.shape.getBoundingBox();
+        console.log(roiBbox);
         const visibleRoi = this.visibleRois.find(
             vRoi =>
                 vRoi.shape.getBoundingBox().x === roiBbox.x &&
@@ -392,11 +386,20 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
     }
 
     protected created() {
-        this.$state.eventBus.$on('roi-changed', () => this.initVisibleRois());
+        this.$state.eventBus.$on('roi-changed', this.initVisibleRois);
+        this.$state.eventBus.$on(
+            'change-artefact-rotation',
+            (angle: number) => (this.params.rotationAngle = angle)
+        );
+        this.$state.eventBus.$on('remove-roi', this.removeRoi);
+        this.$state.eventBus.$on('place-roi', this.placeRoi);
     }
 
     protected destroyed() {
-        this.$state.eventBus.$off('roi-changed', () => this.initVisibleRois());
+        this.$state.eventBus.$off('roi-changed', this.initVisibleRois);
+        this.$state.eventBus.$off('change-artefact-rotation');
+        this.$state.eventBus.$off('remove-roi', this.removeRoi);
+        this.$state.eventBus.$off('place-roi', this.placeRoi);
     }
 
     protected async mounted() {
@@ -427,8 +430,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             );
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
-        this.params.rotationAngle =
-            this.artefact.placement.rotate || 0;
+        this.params.rotationAngle = this.artefact.placement.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
         await Promise.all(
@@ -540,8 +542,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         const op: ArtefactROIOperation = new ArtefactROIOperation(
             this.artefact.id,
             'erase',
-            roi.clone(),
-            this
+            roi.clone()
         );
         this.onNewOperation(op);
 
@@ -568,7 +569,6 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
 
         return this.selectedSignInterpretation.sign.line;
     }
-
     private nextSign() {
         let newIndex = this.selectedSignInterpretation!.sign.indexInLine + 1;
         while (newIndex < this.selectedLine!.signs.length) {
@@ -618,8 +618,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
             const op: ArtefactRotateOperation = new ArtefactRotateOperation(
                 this.artefact.id,
                 this.artefact.placement.rotate,
-                evt.value,
-                this
+                evt.value
             );
             this.onNewOperation(op);
         }

@@ -13,8 +13,7 @@ export type ScrollEditorOperationType = 'translate' | 'scale' | 'rotate' | 'add'
 export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
     public constructor(
         public artefactId: number,
-        public type: ScrollEditorOperationType,
-        public scrollAreaInstance?: ScrollArea
+        public type: ScrollEditorOperationType
     ) { }
 
     public abstract undo(): void;
@@ -43,11 +42,10 @@ export class PlacementOperation extends ScrollEditorOperation {
         artefactId: number,
         type: ScrollEditorOperationType,
         prev: Placement,
-        next: Placement,
-        public scrollAreaInstance?: ScrollArea
+        next: Placement
 
     ) {
-        super(artefactId, type, scrollAreaInstance);
+        super(artefactId, type);
         this.prev = prev.clone();
         this.next = next.clone();
     }
@@ -58,14 +56,13 @@ export class PlacementOperation extends ScrollEditorOperation {
         this.artefact.isPlaced =
             this.artefact.placement.translate.x !== undefined
             && this.artefact.placement.translate.y !== undefined;
-        if (this.scrollAreaInstance) {
-            if (this.artefact.isPlaced) {
-                this.scrollAreaInstance.selectArtefact(this.artefact);
-            } else {
-                this.scrollAreaInstance.selectArtefact(undefined);
-            }
-
+        if (this.artefact.isPlaced) {
+            state().eventBus.$emit('select-artefact', this.artefact);
+        } else {
+            state().eventBus.$emit('select-artefact', undefined);
         }
+
+
     }
 
     public redo(): void {
@@ -73,13 +70,10 @@ export class PlacementOperation extends ScrollEditorOperation {
         this.artefact.isPlaced =
             this.artefact.placement.translate.x !== undefined
             && this.artefact.placement.translate.y !== undefined;
-        if (this.scrollAreaInstance) {
-            if (this.artefact.isPlaced) {
-                this.scrollAreaInstance.selectArtefact(this.artefact);
-            } else {
-                this.scrollAreaInstance.selectArtefact(undefined);
-            }
-
+        if (this.artefact.isPlaced) {
+            state().eventBus.$emit('select-artefact', this.artefact);
+        } else {
+            state().eventBus.$emit('select-artefact', undefined);
         }
     }
 

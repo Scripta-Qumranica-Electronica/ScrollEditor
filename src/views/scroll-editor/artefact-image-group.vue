@@ -16,21 +16,22 @@
                 <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
             </clipPath>
         </defs>
-        <g :clip-path="`url(#clip-path-${artefact.id})`">
-            <image
-                @click="onSelect()"
-                :width="boundingBox.width"
-                :height="boundingBox.height"
-                :transform="imageTransform"
-                :xlink:href="masterImageUrl"
+        <g @click="onSelect()">
+            <g :clip-path="`url(#clip-path-${artefact.id})`">
+                <image
+                    :width="boundingBox.width"
+                    :height="boundingBox.height"
+                    :transform="imageTransform"
+                    :xlink:href="masterImageUrl"
+                />
+            </g>
+            <path
+                class="selected"
+                v-if="selected"
+                :d="artefact.mask.svg"
+                vector-effect="non-scaling-stroke"
             />
         </g>
-        <path
-            class="selected"
-            v-if="selected"
-            :d="artefact.mask.svg"
-            vector-effect="non-scaling-stroke"
-        />
     </g>
 </template> 
 
@@ -112,8 +113,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         // Finally, move to correct place. Remember that at this point the artefact's top left is (-midX, -midY)
         const translateX = this.boundingBox.width / 2 + placement.translate.x!;
-        const translateY =
-            this.boundingBox.height / 2 + placement.translate.y!;
+        const translateY = this.boundingBox.height / 2 + placement.translate.y!;
         const translateToPlace = `translate(${translateX}, ${translateY})`;
 
         // Transformations are performed by SVG from right to left

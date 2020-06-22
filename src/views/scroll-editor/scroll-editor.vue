@@ -8,11 +8,16 @@
             <scroll-menu
                 :artefact="artefact"
                 :status-indicator="operationsManager"
+                :selectedGroup="selectedGroup"
                 @paramsChanged="onParamsChanged($event)"
                 @new-operation="onNewOperation($event)"
                 @undo="onUndo()"
                 @redo="onRedo()"
+                @onCancelGroup="cancelGroup()"
+                @onSaveGroupArtefacts="saveGroupArtefacts()"
+                @onManageGroup="manageGroup()"
             ></scroll-menu>
+            <!-- {{edition.groupsArtefacts}} -->
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -31,8 +36,12 @@
                     <scroll-area
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
+                        @onSaveGroupArtefacts="saveGroupArtefacts()"
+                        @onManageGroup="manageGroup()"
                         :params="params"
+                        :selectedGroup="selectedGroup"
                         @new-operation="onNewOperation($event)"
+                        @onCancelGroup="cancelGroup()"
                     ></scroll-area>
                 </div>
             </div>
@@ -57,6 +66,7 @@ import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import { ScrollEditorOperation, PlacementOperation } from './operations';
 import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
+import { GroupArtefacts } from '../../models/edition';
 
 @Component({
     name: 'scroll-editor',
@@ -73,12 +83,42 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
+    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);
     private operationsManager = new OperationsManager<ScrollEditorOperation>(
         this
     );
 
     public selectArtefact(artefact: Artefact | undefined) {
-        this.artefact = artefact;
+        const existingGroup = this.edition!.groupsArtefacts.find(
+            x => artefact && x.ids.includes(artefact!.id)
+        );
+
+        if (this.params.mode === 'manageGroup') {
+            const isSelectedIndex = this.selectedGroup.ids.findIndex(
+                a => a === artefact!.id
+            );
+
+            if (isSelectedIndex > -1) {
+                // remove artefact from current group
+                this.selectedGroup.ids.splice(isSelectedIndex, 1);
+            } else if (!existingGroup) {
+                // if artefact not in any group
+                this.selectedGroup.ids.push(artefact!.id!);
+            } else if (existingGroup) {
+                // if artefact already in group
+                this.selectedGroup.id = existingGroup.id;
+                this.selectedGroup.ids = [...existingGroup.ids];
+            }
+        } else {
+            if (existingGroup) {
+                // if artefact already in group
+                this.selectedGroup.id = existingGroup.id;
+                this.selectedGroup.ids = [...existingGroup.ids];
+            } else {
+                this.selectedGroup.ids = [artefact!.id!];
+            }
+            this.artefact = artefact;
+        }
     }
 
     public async saveEntities(ids: number[]): Promise<boolean> {
@@ -116,8 +156,13 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             }
         });
     }
+
     private get artefacts() {
         return this.$state.artefacts.items || [];
+    }
+
+    private get edition() {
+        return this.$state.editions.current;
     }
 
     private get placedArtefacts() {
@@ -163,11 +208,23 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                     artefact.id,
                     'add',
                     Placement.empty,
-                    placement,
-                    this.$refs.scrollAreaRef as ScrollArea
+                    placement
                 )
             );
         }
+    }
+
+    private saveGroupArtefacts() {
+        const group = this.edition!.groupsArtefacts.find(
+            x => x.id === this.selectedGroup.id
+        );
+        if (group) {
+            group.ids = [...this.selectedGroup.ids];
+        } else {
+            this.edition!.groupsArtefacts.push({ ...this.selectedGroup });
+        }
+
+        this.cancelGroup();
     }
 
     private onSave() {
@@ -175,7 +232,6 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
-        op.scrollAreaInstance = this.$refs.scrollAreaRef as ScrollArea;
         if (op.type === 'delete') {
             (this.$refs.scrollAreaRef as ScrollArea).selectArtefact(undefined);
         }
@@ -188,6 +244,11 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
     private onRedo() {
         this.operationsManager.redo();
+    }
+    private cancelGroup() {
+        this.selectedGroup = new GroupArtefacts([]);
+        (this.$refs.scrollAreaRef as ScrollArea).selectArtefact(undefined);
+        this.params.mode = '';
     }
 }
 </script>
