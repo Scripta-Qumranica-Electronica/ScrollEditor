@@ -55,7 +55,7 @@ enum ChangePositionType {
 }
 
 function extractHandle(handle: HandleType): HTMLElement {
-    return handle && (handle as Vue).$el || handle as HTMLElement;
+    return (handle && (handle as Vue).$el || handle) as HTMLElement;
 }
 
 function getPosWithBoundaries(
@@ -92,7 +92,7 @@ function getPosWithBoundaries(
 
 export const Draggable: DirectiveOptions = {
     bind(el: HTMLElement, binding: DraggableBindings, vnode: VNode, oldVnode: VNode) {
-        Draggable.update(el, binding, vnode, oldVnode);
+        Draggable.update!(el, binding, vnode, oldVnode);
     },
     update(el: HTMLElement, binding: DraggableBindings, vnode: VNode, oldVnode: VNode) {
         if (binding.value && binding.value.stopDragging) {
@@ -129,8 +129,8 @@ export const Draggable: DirectiveOptions = {
             }
 
             const pos = getInitialMousePosition(event);
-            const dx = pos.left - state.initialMousePos.left;
-            const dy = pos.top - state.initialMousePos.top;
+            const dx = pos!.left - state.initialMousePos!.left;
+            const dy = pos!.top - state.initialMousePos!.top;
 
             let currentDragPosition = {
                 left: state.startDragPosition.left + dx,
