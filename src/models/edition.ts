@@ -98,7 +98,7 @@ class EditionInfo {
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit?: Date;
-    public groupsArtefacts: GroupArtefacts[];
+    public artefactGroup: ArtefactGroup[];
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -120,20 +120,20 @@ class EditionInfo {
         this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
-        this.groupsArtefacts = [];
+        this.artefactGroup = [];
         if (dto.lastEdit) {
             this.lastEdit = new Date(Date.parse(dto.lastEdit));
         }
     }
 }
-class GroupArtefacts { // Shaindel: Rename into ArtefactGroup
-    public id: number = 0;  // Rename to groupId
-    public ids: number[] = [];  // Rename to artefactIds
+class ArtefactGroup {
+    public groupId: number = 0;
+    public artefactIds: number[] = [];
 
     constructor(artefactsIds: number[]) {
-        this.id = Math.floor(Math.random() * 10); // Choose a negative number here
-        this.ids.push(...artefactsIds);
+        this.groupId = Math.floor(Math.random() * -10);
+        this.artefactIds.push(...artefactsIds);
     }
 }
 
-export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, GroupArtefacts };
+export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, ArtefactGroup };

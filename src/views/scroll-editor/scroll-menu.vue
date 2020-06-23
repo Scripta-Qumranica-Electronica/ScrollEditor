@@ -111,7 +111,7 @@ import {
 } from '@/utils/operations-manager';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
-import { GroupArtefacts } from '../../models/edition';
+import { ArtefactGroup } from '../../models/edition';
 
 @Component({
     name: 'scroll-menu',
@@ -128,7 +128,7 @@ export default class ScrollMenu extends Vue {
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
     @Prop()
-    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);
+    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
 
     private params: ScrollEditorParams = new ScrollEditorParams();
 

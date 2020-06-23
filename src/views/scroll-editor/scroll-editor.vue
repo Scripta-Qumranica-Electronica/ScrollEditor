@@ -17,7 +17,7 @@
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onManageGroup="manageGroup()"
             ></scroll-menu>
-            <!-- {{edition.groupsArtefacts}} -->
+            <!-- {{edition.artefactGroup}} -->
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -33,6 +33,7 @@
                     </b-button>
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
+                    {{selectedGroup}}
                     <scroll-area
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
@@ -66,7 +67,7 @@ import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import { ScrollEditorOperation, PlacementOperation } from './operations';
 import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
-import { GroupArtefacts } from '../../models/edition';
+import { ArtefactGroup } from '../../models/edition';
 
 @Component({
     name: 'scroll-editor',
@@ -83,52 +84,44 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
-    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);  // Shaindel - what happens if only one artefact is selected?
+    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
+    // Shaindel - what happens if only one artefact is selected?
     private operationsManager = new OperationsManager<ScrollEditorOperation>(
         this
     );
 
     public selectArtefact(artefact: Artefact | undefined) {
-        const existingGroup = this.edition!.groupsArtefacts.find(
-            x => artefact && x.ids.includes(artefact!.id)
+        const existingGroup = this.edition!.artefactGroup.find(
+            x => artefact && x.artefactIds.includes(artefact!.id)
         );
 
         if (this.params.mode === 'manageGroup') {
-            const isSelectedIndex = this.selectedGroup.ids.findIndex(
+            const isSelectedIndex = this.selectedGroup.artefactIds.findIndex(
                 a => a === artefact!.id
             );
 
             if (isSelectedIndex > -1) {
                 // remove artefact from current group
-                this.selectedGroup.ids.splice(isSelectedIndex, 1);
+                this.selectedGroup.artefactIds.splice(isSelectedIndex, 1);
             } else if (!existingGroup) {
                 // if artefact not in any group
-                this.selectedGroup.ids.push(artefact!.id!);
-            } else if (existingGroup) {
-                // Shaindel: this can be confusing, switching groups like this. I think
-                // that if an artefact belongs to another group, it shouldn't be selectable at all.
-                // We should change the cursor in that case, so that the user knows it can't select this artefact.
-                // if artefact already in group
-                this.selectedGroup.id = existingGroup.id;
-                this.selectedGroup.ids = [...existingGroup.ids];
+                this.selectedGroup.artefactIds.push(artefact!.id!);
             }
         } else {
-            // Shaindel: if if artefact is undefined? 
+            // Shaindel: if if artefact is undefined?
             if (existingGroup) {
                 // if artefact already in group
-                this.selectedGroup.id = existingGroup.id;
-                this.selectedGroup.ids = [...existingGroup.ids];
+                this.selectedGroup.groupId = existingGroup.groupId;
+                this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
             } else {
-                // Shaindel - this just overwrites the selected group, and may not be a good idea. Perhaps we should
-                // create a new group with just one artefact, and leave the last group intact?
-                this.selectedGroup.ids = [artefact!.id!];
+                this.selectedGroup = new ArtefactGroup([artefact!.id!]);
             }
             this.artefact = artefact;
         }
     }
 
-    public async saveEntities(ids: number[]): Promise<boolean> {
-        const artefacts = ids.map(
+    public async saveEntities(artefactIds: number[]): Promise<boolean> {
+        const artefacts = artefactIds.map(
             x => this.$state.artefacts.find(x) as Artefact
         );
         try {
@@ -221,13 +214,13 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     private saveGroupArtefacts() {
-        const group = this.edition!.groupsArtefacts.find(
-            x => x.id === this.selectedGroup.id
+        const group = this.edition!.artefactGroup.find(
+            x => x.groupId === this.selectedGroup.groupId
         );
         if (group) {
-            group.ids = [...this.selectedGroup.ids];
+            group.artefactIds = [...this.selectedGroup.artefactIds];
         } else {
-            this.edition!.groupsArtefacts.push({ ...this.selectedGroup });
+            this.edition!.artefactGroup.push({ ...this.selectedGroup });
         }
 
         this.cancelGroup();
@@ -252,7 +245,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         this.operationsManager.redo();
     }
     private cancelGroup() {
-        this.selectedGroup = new GroupArtefacts([]);
+        this.selectedGroup = new ArtefactGroup([]);
         (this.$refs.scrollAreaRef as ScrollArea).selectArtefact(undefined);
         this.params.mode = '';
     }

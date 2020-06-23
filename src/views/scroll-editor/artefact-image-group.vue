@@ -1,5 +1,5 @@
 <template>
-    <g
+    <g  :class="{disabled: disabled}"
         v-if="loaded"
         :key="artefact.id"
         :transform="groupTransform"
@@ -66,6 +66,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         default: false
     })
     public selected!: boolean;
+    @Prop({
+        default: false
+    })
+    public disabled!: boolean;
     @Prop() public readonly transformRootId!: string;
     private mouseOrigin?: Point;
     private loaded = false;
@@ -231,5 +235,9 @@ path.selected {
     fill-opacity: 0.3;
     stroke: blue;
     fill: aliceblue;
+}
+
+.disabled {
+    cursor: not-allowed;
 }
 </style>                 

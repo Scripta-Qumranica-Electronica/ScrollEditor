@@ -35,6 +35,7 @@
                         :artefact="artefact"
                         v-for="artefact in placedArtefacts"
                         :key="artefact.id"
+                        :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
                     />
                 </g>
@@ -69,7 +70,7 @@ import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
-import { GroupArtefacts } from '@/models/edition';
+import { ArtefactGroup } from '@/models/edition';
 
 @Component({
     name: 'scroll-area',
@@ -87,7 +88,7 @@ export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
     @Prop()
-    private selectedGroup: GroupArtefacts = new GroupArtefacts([]);
+    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
     private imageWidth = 10000;
     private imageHeight = 10000;
     private imageSettings!: ImageSetting;
@@ -101,7 +102,9 @@ export default class ScrollArea extends Vue {
     }
 
     private created() {
-        this.$state.eventBus.$on('select-artefact', (art: Artefact) => this.selectArtefact(art));
+        this.$state.eventBus.$on('select-artefact', (art: Artefact) =>
+            this.selectArtefact(art)
+        );
     }
 
     private destroyed() {
@@ -116,8 +119,18 @@ export default class ScrollArea extends Vue {
             .scrollArea as HTMLElement;
     }
 
+    private get edition() {
+        return this.$state.editions.current;
+    }
+
     private get artefacts() {
         return this.$state.artefacts.items || [];
+    }
+
+    private artefactGroup(artefact: Artefact | undefined) {
+        return this.edition!.artefactGroup.find(
+            x => artefact && x.artefactIds.includes(artefact!.id)
+        );
     }
 
     private get actualWidth(): number {
@@ -158,10 +171,11 @@ export default class ScrollArea extends Vue {
 
     private isArtefactSelected(artefact: Artefact): boolean {
         let res: boolean;
-        if (this.selectedGroup.ids.length) {
+        if (this.selectedGroup.artefactIds.length) {
             res =
-                this.selectedGroup.ids.findIndex(i => i === artefact.id) >
-                -1;
+                this.selectedGroup.artefactIds.findIndex(
+                    i => i === artefact.id
+                ) > -1;
         } else {
             res =
                 artefact.id ===
@@ -169,6 +183,15 @@ export default class ScrollArea extends Vue {
         }
 
         return res;
+    }
+
+    private isArtefactDisabled(artefact: Artefact | undefined): boolean {
+        const artefactGroup = this.artefactGroup(artefact);
+        return (
+            this.params.mode === 'manageGroup' &&
+            !!artefactGroup &&
+            artefactGroup.groupId !== this.selectedGroup.groupId
+        );
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
