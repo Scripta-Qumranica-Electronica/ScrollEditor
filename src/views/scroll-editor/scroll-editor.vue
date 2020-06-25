@@ -17,7 +17,7 @@
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onManageGroup="manageGroup()"
             ></scroll-menu>
-            <!-- {{edition.artefactGroup}} -->
+            <!-- aa {{artefact && artefact.id}} -->
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -64,7 +64,7 @@ import {
 } from '../artefact-editor/types';
 import ArtefactService from '@/services/artefact';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { ScrollEditorOperation, PlacementOperation } from './operations';
+import { ScrollEditorOperation, PlacementOperation, GroupPlacementOperations } from './operations';
 import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '../../models/edition';
@@ -86,7 +86,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private editionService = new EditionService();
     private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
     // Shaindel - what happens if only one artefact is selected?
-    private operationsManager = new OperationsManager<ScrollEditorOperation>(
+    private operationsManager = new OperationsManager<ScrollEditorOperation | GroupPlacementOperations>(
         this
     );
 
@@ -103,16 +103,17 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             if (isSelectedIndex > -1) {
                 // remove artefact from current group
                 this.selectedGroup.artefactIds.splice(isSelectedIndex, 1);
-            } else if (!existingGroup) {
-                // if artefact not in any group
+            } else if (!existingGroup || existingGroup.groupId === this.selectedGroup.groupId) {
+                // if artefact not in any group or in this group but was unselected
                 this.selectedGroup.artefactIds.push(artefact!.id!);
             }
         } else {
-            // Shaindel: if if artefact is undefined?
             if (existingGroup) {
                 // if artefact already in group
                 this.selectedGroup.groupId = existingGroup.groupId;
                 this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
+            } else if (!artefact) {
+                this.cancelGroup();
             } else {
                 this.selectedGroup = new ArtefactGroup([artefact!.id!]);
             }
@@ -230,9 +231,9 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         this.operationsManager.save();
     }
 
-    private onNewOperation(op: ScrollEditorOperation) {
+    private onNewOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
         if (op.type === 'delete') {
-            (this.$refs.scrollAreaRef as ScrollArea).selectArtefact(undefined);
+            this.cancelGroup();
         }
         this.operationsManager.addOperation(op);
     }
@@ -244,6 +245,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private onRedo() {
         this.operationsManager.redo();
     }
+
     private cancelGroup() {
         this.selectedGroup = new ArtefactGroup([]);
         (this.$refs.scrollAreaRef as ScrollArea).selectArtefact(undefined);

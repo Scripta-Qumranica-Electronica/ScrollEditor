@@ -1,5 +1,6 @@
 <template>
-    <g  :class="{disabled: disabled}"
+    <g
+        :class="{disabled: disabled}"
         v-if="loaded"
         :key="artefact.id"
         :transform="groupTransform"
@@ -55,8 +56,14 @@ import { Artefact } from '@/models/artefact';
 import ArtefactDataMixin from '@/components/artefact/artefact-data-mixin';
 import { Polygon } from '@/utils/Polygons';
 import { Point } from '@/utils/helpers';
-import { ScrollEditorOperation, PlacementOperation } from './operations';
+import {
+    ScrollEditorOperation,
+    PlacementOperation,
+    ScrollEditorOperationType,
+    GroupPlacementOperations
+} from './operations';
 import { Placement } from '../../utils/Placement';
+import { ArtefactGroup } from '@/models/edition';
 
 @Component({
     name: 'artefact-image-group'
@@ -71,11 +78,13 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     })
     public disabled!: boolean;
     @Prop() public readonly transformRootId!: string;
+    @Prop()
+    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
     private mouseOrigin?: Point;
     private loaded = false;
     private pointerId: number = -1;
     private element!: SVGGElement | null;
-    private previousPlacement!: Placement;
+    private previousPlacement!: any[];
 
     private imageScale = 0.5; // TODO: Set a dynamic scale, based on actual element size.
     // Wait until the IIIF server can handle requests of various sizes
@@ -155,12 +164,21 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         return svgPt;
     }
+    private get selectedArtefacts(): Array<Artefact | undefined> {
+        return this.selectedGroup.artefactIds.map((x: number) =>
+            this.$state.artefacts.find(x)
+        );
+    }
 
     private pointerDown($event: PointerEvent) {
         if (this.pointerId > 0) {
             return;
         }
-        this.previousPlacement = this.artefact.placement.clone();
+        this.previousPlacement = this.selectedArtefacts.map(art => ({
+            placement: art!.placement.clone(),
+            artefactId: art!.id
+        }));
+
         this.pointerId = $event.pointerId;
         this.element = ($event.target! as HTMLBaseElement)!.closest('g');
 
@@ -187,32 +205,52 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             x: pt.x - this.mouseOrigin!.x,
             y: pt.y - this.mouseOrigin!.y
         };
-        this.artefact.placement.translate.x! += diffPt.x;
-        this.artefact.placement.translate.y! += diffPt.y;
+
+        this.selectedArtefacts.forEach(art => {
+            art!.placement.translate.x! += diffPt.x;
+            art!.placement.translate.y! += diffPt.y;
+        });
 
         this.mouseOrigin.x = pt.x;
         this.mouseOrigin.y = pt.y;
     }
 
     private pointerUp($event: PointerEvent) {
+        const operations: ScrollEditorOperation[] = [];
         if (this.pointerId !== $event.pointerId || !this.selected) {
             this.cancelOperation($event.target as HTMLBaseElement);
             return;
         }
-        const trans = this.artefact.placement.clone();
-        const op = new PlacementOperation(
-            this.artefact.id,
-            'translate',
-            this.previousPlacement,
-            trans
+        this.selectedArtefacts.forEach(art => {
+            const trans = art!.placement.clone();
+            operations.push(this.createOperation('translate', trans, art));
+        });
+
+        const groupPlacementOperations = new GroupPlacementOperations(
+            this.selectedGroup.groupId,
+            operations
         );
-        this.newOperation(op);
+        this.newOperation(groupPlacementOperations);
 
         this.cancelOperation($event.target as HTMLBaseElement);
     }
 
     private pointerCancel() {
         this.cancelOperation();
+    }
+
+    private createOperation(
+        opType: ScrollEditorOperationType,
+        newPlacement: Placement,
+        artefact: Artefact | undefined
+    ): PlacementOperation {
+        const op = new PlacementOperation(
+            artefact!.id,
+            opType,
+            this.previousPlacement.find(x => x.artefactId === artefact!.id).placement,
+            newPlacement
+        );
+        return op;
     }
 
     private cancelOperation(targetElement?: HTMLBaseElement) {
@@ -223,7 +261,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     @Emit()
-    private newOperation(op: ScrollEditorOperation) {
+    private newOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
         return op;
     }
 }

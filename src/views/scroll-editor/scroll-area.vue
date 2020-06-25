@@ -37,6 +37,7 @@
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
+                        :selectedGroup="selectedGroup"
                     />
                 </g>
             </svg>

@@ -200,7 +200,7 @@
                                 <b-button-group>
                                     <b-button
                                         v-if="!float"
-                                        :disabled="selectedGroup.artefactIds.length <= 1"
+                                        :disabled=" params.mode !== 'manageGroup'"
                                         class="m-1"
                                         size="sm"
                                         @click="saveGroup()"
@@ -210,7 +210,7 @@
                                         v-if="!float"
                                         size="sm"
                                         class="m-1"
-                                        :disabled="selectedGroup.artefactIds.length<=1"
+                                        :disabled="params.mode !== 'manageGroup'"
                                         @click="cancelGroup()"
                                     >cancel</b-button>
                                 </b-button-group>
@@ -364,14 +364,19 @@ export default class ArtefactToolbox extends Vue {
         const groupCenterPoint = this.getGroupCenter();
 
         const deltaAngleDegrees = direction * this.params.rotate;
-        const deltaAngleRadians = direction * deltaAngleDegrees * (Math.PI / 180);
+        const deltaAngleRadians =
+            direction * deltaAngleDegrees * (Math.PI / 180);
 
         this.selectedArtefacts.forEach(art => {
             // Rotate each artefact by deltaAngleDegrees
             this.rotateArtefact(art, deltaAngleDegrees);
 
             // Translate each artefact
-            this.translateArtefactAfterGroupRotation(art, groupCenterPoint, deltaAngleRadians);
+            this.translateArtefactAfterGroupRotation(
+                art,
+                groupCenterPoint,
+                deltaAngleRadians
+            );
         });
     }
 
@@ -399,7 +404,7 @@ export default class ArtefactToolbox extends Vue {
         const yFromOrigin = artefactCenterPoint.y - groupCenterPoint.y;
 
         const newMidXArt = cos * xFromOrigin - sin * yFromOrigin;
-        const newMidYArt = sin * xFromOrigin + cos * yFromOrigin;
+        const newMidYArt = sin * xFromOrigin + cos * xFromOrigin;
 
         const deltaX = newMidXArt - xFromOrigin;
         const deltaY = newMidYArt - yFromOrigin;
@@ -407,7 +412,6 @@ export default class ArtefactToolbox extends Vue {
         art!.placement.translate.x = art!.placement.translate.x! + deltaX;
         art!.placement.translate.y = art!.placement.translate.y! + deltaY;
     }
-
 
     public zoomArtefact(direction: number) {
         const operations: ScrollEditorOperation[] = [];
@@ -460,20 +464,29 @@ export default class ArtefactToolbox extends Vue {
     }
 
     private setZIndex(zIndexDirection: number) {
-        const placedArtefacts = this.$state.artefacts.items.filter(
-            x => x.isPlaced
+        const operations: ScrollEditorOperation[] = [];
+        this.selectedArtefacts.forEach(art => {
+            const placedArtefacts = this.$state.artefacts.items.filter(
+                x => x.isPlaced
+            );
+            const artefactsZOrders = placedArtefacts.map(
+                x => x.placement.zIndex
+            );
+
+            const zIndex =
+                zIndexDirection < 0
+                    ? Math.min(...artefactsZOrders) - 1
+                    : Math.max(...artefactsZOrders) + 1;
+
+            const placement = art!.placement.clone();
+            placement.zIndex = zIndex;
+            operations.push(this.createOperation('z-index', placement, art));
+        });
+        const groupPlacementOperations = new GroupPlacementOperations(
+            this.selectedGroup.groupId,
+            operations
         );
-        const artefactsZOrders = placedArtefacts.map(x => x.placement.zIndex);
-
-        const zIndex =
-            zIndexDirection < 0
-                ? Math.min(...artefactsZOrders) - 1
-                : Math.max(...artefactsZOrders) + 1;
-
-        const placement = this.artefact!.placement.clone();
-        placement.zIndex = zIndex;
-
-        this.setPlacement('z-index', placement, this.artefact);
+        this.newOperation(groupPlacementOperations);
     }
 
     private createOperation(

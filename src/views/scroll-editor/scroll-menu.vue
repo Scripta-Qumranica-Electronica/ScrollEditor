@@ -55,17 +55,23 @@
                 >
                     <b-card-body>
                         <section class="center-btn">
-                            <b-button
-                                size="sm"
-                                class="mb-2"
-                                @click="openAddArtefactModal()"
-                            >{{$t('misc.add')}} artefact</b-button>
-                            <b-button
-                                size="sm"
-                                class="mb-2"
-                                :disabled="!artefact"
-                                @click="removeArtefact()"
-                            >{{$t('misc.remove')}} artefact</b-button>
+                            <b-card no-body class="mb-1">
+                                <b-card-header header-tag="header" class="p-1" role="tab">
+                                    <b-button-group size="sm" class="m-1">
+                                        <b-button
+                                            size="sm"
+                                            class="mr-2"
+                                            @click="openAddArtefactModal()"
+                                        >{{$t('misc.add')}} artefact</b-button>
+                                        <b-button
+                                            size="sm"
+                                            :disabled="!artefact"
+                                            @click="removeArtefact()"
+                                        >{{$t('misc.remove')}} artefact</b-button>
+                                    </b-button-group>
+                                </b-card-header>
+                            </b-card>
+
                             <artefact-toolbox
                                 :params="params"
                                 :artefactId="artefact && artefact.id"
@@ -77,8 +83,10 @@
                             ></artefact-toolbox>
                         </section>
                         <section class="center-btn">
-                            <b-button @click="onUndo()" size="sm" :disabled="!canUndo">Undo</b-button>
-                            <b-button @click="onRedo()" size="sm" :disabled="!canRedo">Redo</b-button>
+                            <b-button-group size="sm" class="m-1">
+                                <b-button @click="onUndo()" size="sm" :disabled="!canUndo">Undo</b-button>
+                                <b-button @click="onRedo()" size="sm" :disabled="!canRedo">Redo</b-button>
+                            </b-button-group>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -103,7 +111,8 @@ import ArtefactService from '@/services/artefact';
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    PlacementOperation
+    PlacementOperation,
+    GroupPlacementOperations
 } from './operations';
 import {
     OperationsManager,
@@ -146,6 +155,11 @@ export default class ScrollMenu extends Vue {
     private get readOnly(): boolean {
         return this.edition.permission && this.edition.permission.readOnly;
     }
+    private get selectedArtefacts(): Array<Artefact | undefined> {
+        return this.selectedGroup.artefactIds.map((x: number) =>
+            this.$state.artefacts.find(x)
+        );
+    }
 
     public formatTooltip(): string {
         return (this.zoom * 100).toFixed(0) + '%';
@@ -159,11 +173,26 @@ export default class ScrollMenu extends Vue {
     public onNewOperation(operation: ScrollEditorOperation) {
         this.newOperation(operation);
     }
+
     public removeArtefact() {
-        this.artefact!.isPlaced = false;
-        this.setPlacement('delete', Placement.empty);
-        // this.artefact = undefined;
+        const operations: ScrollEditorOperation[] = [];
+        
+        this.selectedArtefacts.forEach(art => {
+            art!.isPlaced = false;
+            operations.push(
+                this.createOperation('delete', Placement.empty, art)
+            );
+            const groupPlacementOperations = new GroupPlacementOperations(
+                this.selectedGroup.groupId,
+                operations
+            );
+            this.newOperation(groupPlacementOperations);
+        });
+
+        // this.setPlacement('delete', Placement.empty);
+        this.cancelGroup();
     }
+
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
             property: paramName,
@@ -204,6 +233,20 @@ export default class ScrollMenu extends Vue {
         this.artefact!.placement = newTrans;
         this.newOperation(op);
     }
+    private createOperation(
+        opType: ScrollEditorOperationType,
+        newPlacement: Placement,
+        artefact: Artefact | undefined
+    ): PlacementOperation {
+        const op = new PlacementOperation(
+            artefact!.id,
+            opType,
+            artefact!.placement,
+            newPlacement
+        );
+        artefact!.placement = newPlacement;
+        return op;
+    }
     @Emit()
     private undo() {
         // Just emit the event
@@ -217,7 +260,7 @@ export default class ScrollMenu extends Vue {
         // Just emit the event
     }
     @Emit()
-    private newOperation(op: ScrollEditorOperation) {
+    private newOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
         return op;
     }
 
@@ -236,7 +279,7 @@ export default class ScrollMenu extends Vue {
     private cancelGroup() {
         this.$emit('onCancelGroup');
     }
-     private manageGroup() {
+    private manageGroup() {
         this.$emit('onManageGroup');
     }
 }
@@ -247,9 +290,5 @@ export default class ScrollMenu extends Vue {
     touch-action: pan-y;
     top: 0;
     right: 0;
-}
-
-button {
-    margin-right: 10px;
 }
 </style>

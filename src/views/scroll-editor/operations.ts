@@ -61,8 +61,6 @@ export class PlacementOperation extends ScrollEditorOperation {
         } else {
             state().eventBus.$emit('select-artefact', undefined);
         }
-
-
     }
 
     public redo(): void {
@@ -92,4 +90,67 @@ export class PlacementOperation extends ScrollEditorOperation {
     }
 
 }
+
+export class GroupPlacementOperations implements Operation<GroupPlacementOperations> {
+    public operations: ScrollEditorOperation[];
+    public type: string = 'group';
+
+    public constructor(
+        public groupId: number,
+        operations: ScrollEditorOperation[],
+
+    ) {
+        this.operations = operations;
+    }
+
+
+    public undo(): void {
+        this.operations.forEach(
+            op => op.undo()
+        );
+    }
+
+    public redo(): void {
+        this.operations.forEach(
+            op => op.redo()
+        );
+    }
+
+    public uniteWith(op: PlacementOperation | GroupPlacementOperations): GroupPlacementOperations | undefined {
+        if (op.type === 'group') {
+            (op as GroupPlacementOperations).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
+            this.operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
+
+            const prevIds = (op as GroupPlacementOperations).operations.map(op => op.getId());
+            const nextIds = this.operations.map(op => op.getId());
+
+            const areSameArrays = prevIds.length === nextIds.length
+                && prevIds.every((value, index) => value === nextIds[index]);
+
+            if (areSameArrays) {
+                const unitedOperations: Array<ScrollEditorOperation | undefined> = [];
+                for (let i = 0; i < this.operations.length; i++) {
+                    const united = this.operations[i].uniteWith((op as GroupPlacementOperations).operations[i]);
+                    if (!united) {
+                        return undefined;
+                    }
+                    unitedOperations.push(united);
+                }
+
+                return new GroupPlacementOperations(
+                    this.getId(),
+                    unitedOperations as ScrollEditorOperation[]);
+            }
+
+            return undefined;
+
+        }
+    }
+
+    public getId() {
+        return this.groupId;
+    }
+
+}
+
 
