@@ -1,209 +1,239 @@
 <template>
     <div :class="{'mt-2': !float}">
-        <b-card no-body class="mb-1">
-            <b-card-header header-tag="header" class="p-1" role="tab">
-                <b-button-group size="sm" class="m-1">
-                    <b-button
-                        :pill="float"
-                        :disabled="!artefact"
-                        :pressed="mode === 'move'"
-                        @click="setMode('move')"
-                    >
-                        <span v-if="!float">
-                            <u>M</u>ove
-                        </span>
-                        <font-awesome-icon v-if="float" icon="arrows-alt" size="xs"></font-awesome-icon>
-                    </b-button>
-                    <b-button
-                        :pill="float"
-                        :disabled="!artefact"
-                        :pressed="mode === 'scale'"
-                        @click="setMode('scale')"
-                    >
-                        <span v-if="!float">
-                            <u>S</u>cale
-                        </span>
-                        <font-awesome-icon v-if="float" icon="search" size="xs"></font-awesome-icon>
-                    </b-button>
-                    <b-button
-                        :pill="float"
-                        :disabled="!artefact"
-                        :pressed="mode === 'rotate'"
-                        @click="setMode('rotate')"
-                    >
-                        <span v-if="!float">
-                            <u>R</u>otate
-                        </span>
-                        <font-awesome-icon v-if="float" icon="sync" size="xs"></font-awesome-icon>
-                    </b-button>
-                </b-button-group>
-            </b-card-header>
-            <b-collapse
-                id="accordion-actions"
-                style="display:block;"
-                accordion="my-accordion-side"
-                role="tabpanel"
-            >
-                <b-card-body class="card-body-cancel">
-                    <section class="center-btn">
-                        <b-row v-if="mode === 'move'" no-gutters align-v="end">
-                            <div>
-                                <table>
-                                    <tr>
-                                        <td></td>
-                                        <td>
-                                            <b-button
-                                                :class="[float ? 'btn-xs' : 'btn-xs', 'mt-1']"
-                                                size="sm"
-                                                :disabled="!artefact"
-                                                @click="dragArtefact(0,-1)"
-                                            >
-                                                <i class="fa fa-arrow-up"></i>
-                                            </b-button>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <b-button
-                                                :class="[float ? 'btn-xs' : 'btn-xs', ' ml-2 mb-2']"
-                                                size="sm"
-                                                :disabled="!artefact"
-                                                @click="dragArtefact(-1,0)"
-                                            >
-                                                <i class="fa fa-arrow-left"></i>
-                                            </b-button>
-                                        </td>
-                                        <td>
-                                            <b-button
-                                                :class="[float ? 'btn-xs' : 'btn-xs', 'mb-2']"
-                                                size="sm"
-                                                :disabled="!artefact"
-                                                @click="dragArtefact(0,1)"
-                                            >
-                                                <i class="fa fa-arrow-down"></i>
-                                            </b-button>
-                                        </td>
-                                        <td>
-                                            <b-button
-                                                :class="[float ? 'btn-xs' : 'btn-xs', 'mb-2']"
-                                                size="sm"
-                                                :disabled="!artefact"
-                                                @click="dragArtefact(1,0)"
-                                            >
-                                                <i class="fa fa-arrow-right"></i>
-                                            </b-button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <b-col cols="4" class="mb-2">
-                                <b-form-input
-                                    id="input-small"
-                                    size="sm"
-                                    type="number"
-                                    v-model="params.move"
-                                ></b-form-input>
-                            </b-col>
-                        </b-row>
-                        <b-row v-if="mode === 'scale'" no-gutters align-v="end">
-                            <b-button-group>
-                                <b-button
-                                    :class="[float ? 'btn-xs' : 'btn-xs',  'ml-2 mb-2']"
-                                    size="sm"
-                                    @click="zoomArtefact(1)"
-                                >
-                                    <i class="fa fa-plus"></i>
-                                </b-button>
-                                <b-button
-                                    :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
-                                    size="sm"
-                                    @click="zoomArtefact(-1)"
-                                >
-                                    <i class="fa fa-minus"></i>
-                                </b-button>
-                            </b-button-group>
-                            <b-col cols="4" class="mb-1 mt-3  ml-2">
-                                <b-form-input
-                                    id="input-small"
-                                    size="sm"
-                                    type="number"
-                                    v-model="params.scale"
-                                ></b-form-input>
-                            </b-col>
-                        </b-row>
-                        <b-row v-if="mode === 'rotate'" no-gutters align-v="end">
-                            <b-button-group>
-                                <b-button
-                                    :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
-                                    size="sm"
-                                    @click="rotateArtefact(-1)"
-                                >
-                                    <font-awesome-icon icon="undo"></font-awesome-icon>
-                                </b-button>
-                                <b-button
-                                    :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
-                                    size="sm"
-                                    @click="rotateArtefact(1)"
-                                >
-                                    <font-awesome-icon icon="redo"></font-awesome-icon>
-                                </b-button>
-                                <!-- <b-button class="m-2" @click="resetRotationArtefact()">Reset</b-button> -->
-                            </b-button-group>
-                            <b-col cols="4" class="mb-1  mt-3 ml-2">
-                                <b-form-input
-                                    id="input-small"
-                                    size="sm"
-                                    type="number"
-                                    v-model="params.rotate"
-                                ></b-form-input>
-                            </b-col>
-                        </b-row>
-                    </section>
-                </b-card-body>
-            </b-collapse>
-        </b-card>
-        <b-button-group size="sm" class="mb-1  mt-2">
-            <b-button
-                v-if="!float"
-                :pill="float"
-                :disabled="!artefact && selectedGroup.artefactIds.length === 0"
-                :pressed="mode === 'manageGroup'"
-                @click="setMode('manageGroup')"
-            >
-                <span>
-                    Ma<u>n</u>age group
-                </span>
-                <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
-            </b-button>
-        </b-button-group>
-        <b-row no-gutters align-v="end">
-            <b-button-group>
-                <b-button
-                    v-if="!float"
-                    :disabled="selectedGroup.artefactIds.length <= 1"
-                    class="m-1"
-                    size="sm"
-                    @click="saveGroup()"
-                >save Group</b-button>
+        <section class="mb-2">
+            <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                    <b-button-group size="sm" class="m-1">
+                        <b-button
+                            :pill="float"
+                            :disabled="!artefact"
+                            :pressed="mode === 'move'"
+                            @click="setMode('move')"
+                        >
+                            <span v-if="!float">
+                                <u>M</u>ove
+                            </span>
+                            <font-awesome-icon v-if="float" icon="arrows-alt" size="xs"></font-awesome-icon>
+                        </b-button>
+                        <b-button
+                            :pill="float"
+                            :disabled="!artefact"
+                            :pressed="mode === 'scale'"
+                            @click="setMode('scale')"
+                        >
+                            <span v-if="!float">
+                                <u>S</u>cale
+                            </span>
+                            <font-awesome-icon v-if="float" icon="search" size="xs"></font-awesome-icon>
+                        </b-button>
+                        <b-button
+                            :pill="float"
+                            :disabled="!artefact"
+                            :pressed="mode === 'rotate'"
+                            @click="setMode('rotate')"
+                        >
+                            <span v-if="!float">
+                                <u>R</u>otate
+                            </span>
+                            <font-awesome-icon v-if="float" icon="sync" size="xs"></font-awesome-icon>
+                        </b-button>
+                    </b-button-group>
+                </b-card-header>
+                <b-collapse
+                    id="accordion-actions"
+                    style="display:block;"
+                    accordion="my-accordion-side-actions"
+                    role="tabpanel"
+                >
+                    <b-card-body class="card-body-cancel">
+                        <section class="center-btn">
+                            <b-row v-if="mode === 'move'" no-gutters align-v="end">
+                                <div>
+                                    <table>
+                                        <tr>
+                                            <td></td>
+                                            <td>
+                                                <b-button
+                                                    :class="[float ? 'btn-xs' : 'btn-xs', 'mt-1']"
+                                                    size="sm"
+                                                    :disabled="!artefact"
+                                                    @click="dragArtefact(0,-1)"
+                                                >
+                                                    <i class="fa fa-arrow-up"></i>
+                                                </b-button>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b-button
+                                                    :class="[float ? 'btn-xs' : 'btn-xs', ' ml-2 mb-2']"
+                                                    size="sm"
+                                                    :disabled="!artefact"
+                                                    @click="dragArtefact(-1,0)"
+                                                >
+                                                    <i class="fa fa-arrow-left"></i>
+                                                </b-button>
+                                            </td>
+                                            <td>
+                                                <b-button
+                                                    :class="[float ? 'btn-xs' : 'btn-xs', 'mb-2']"
+                                                    size="sm"
+                                                    :disabled="!artefact"
+                                                    @click="dragArtefact(0,1)"
+                                                >
+                                                    <i class="fa fa-arrow-down"></i>
+                                                </b-button>
+                                            </td>
+                                            <td>
+                                                <b-button
+                                                    :class="[float ? 'btn-xs' : 'btn-xs', 'mb-2']"
+                                                    size="sm"
+                                                    :disabled="!artefact"
+                                                    @click="dragArtefact(1,0)"
+                                                >
+                                                    <i class="fa fa-arrow-right"></i>
+                                                </b-button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <b-col cols="4" class="mb-2">
+                                    <b-form-input
+                                        id="input-small"
+                                        size="sm"
+                                        type="number"
+                                        v-model="params.move"
+                                    ></b-form-input>
+                                </b-col>
+                            </b-row>
+                            <b-row v-if="mode === 'scale'" no-gutters align-v="end">
+                                <b-button-group>
+                                    <b-button
+                                        :class="[float ? 'btn-xs' : 'btn-xs',  'ml-2 mb-2']"
+                                        size="sm"
+                                        @click="zoomArtefact(1)"
+                                    >
+                                        <i class="fa fa-plus"></i>
+                                    </b-button>
+                                    <b-button
+                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
+                                        size="sm"
+                                        @click="zoomArtefact(-1)"
+                                    >
+                                        <i class="fa fa-minus"></i>
+                                    </b-button>
+                                    <b-button
+                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
+                                        size="sm"
+                                        @click="resetZoom()"
+                                    >reset</b-button>
+                                </b-button-group>
+                                <b-col cols="4" class="mb-1 mt-3 ml-2">
+                                    <b-form-input
+                                        id="input-small"
+                                        size="sm"
+                                        type="number"
+                                        v-model="params.scale"
+                                    ></b-form-input>
+                                </b-col>%
+                            </b-row>
+                            <b-row v-if="mode === 'rotate'" no-gutters align-v="end">
+                                <b-button-group>
+                                    <b-button
+                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
+                                        size="sm"
+                                        @click="rotateArtefact(-1)"
+                                    >
+                                        <font-awesome-icon icon="undo"></font-awesome-icon>
+                                    </b-button>
+                                    <b-button
+                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
+                                        size="sm"
+                                        @click="rotateArtefact(1)"
+                                    >
+                                        <font-awesome-icon icon="redo"></font-awesome-icon>
+                                    </b-button>
+                                    <!-- <b-button class="m-2" @click="resetRotationArtefact()">Reset</b-button> -->
+                                </b-button-group>
+                                <b-col cols="4" class="mb-1 mt-3 ml-2">
+                                    <b-form-input
+                                        id="input-small"
+                                        size="sm"
+                                        type="number"
+                                        v-model="params.rotate"
+                                    ></b-form-input>
+                                </b-col>
+                            </b-row>
+                        </section>
+                    </b-card-body>
+                </b-collapse>
+            </b-card>
+        </section>
+        <section v-if="!float" class="mb-2">
+            <b-card no-body>
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                    <b-button-group size="sm" class="mb-1">
+                        <b-button
+                            :pill="float"
+                            :disabled="!artefact && selectedGroup.artefactIds.length === 0"
+                            :pressed="mode === 'manageGroup'"
+                            @click="setMode('manageGroup')"
+                        >
+                            <span>
+                                Ma
+                                <u>n</u>age group
+                            </span>
+                            <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
+                        </b-button>
+                    </b-button-group>
+                </b-card-header>
+                <b-collapse
+                    id="accordion-actions-group"
+                    style="display:block;"
+                    accordion="my-accordion-side-actions"
+                    role="tabpanel"
+                >
+                    <b-card-body class="card-body-cancel">
+                        <section class="center-btn">
+                            <b-row no-gutters align-v="end">
+                                <b-button-group>
+                                    <b-button
+                                        v-if="!float"
+                                        :disabled="selectedGroup.artefactIds.length <= 1"
+                                        class="m-1"
+                                        size="sm"
+                                        @click="saveGroup()"
+                                    >save Group</b-button>
 
-                <b-button
-                    v-if="!float"
-                    size="sm"
-                    class="m-1"
-                    :disabled="selectedGroup.artefactIds.length<=1"
-                    @click="cancelGroup()"
-                >cancel</b-button>
-            </b-button-group>
-        </b-row>
-        <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
-            <b-button :disabled="!artefact" @click="setZIndex(1)" v-if="!float">
-                <span v-if="!float">top</span>
-            </b-button>
-            <b-button :disabled="!artefact" @click="setZIndex(-1)" v-if="!float">
-                <span v-if="!float">down</span>
-            </b-button>
-        </b-button-group>
+                                    <b-button
+                                        v-if="!float"
+                                        size="sm"
+                                        class="m-1"
+                                        :disabled="selectedGroup.artefactIds.length<=1"
+                                        @click="cancelGroup()"
+                                    >cancel</b-button>
+                                </b-button-group>
+                            </b-row>
+                        </section>
+                    </b-card-body>
+                </b-collapse>
+            </b-card>
+        </section>
+        <section class="center-btn mb-2" v-if="!float">
+            <b-card no-body>
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                    <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
+                        <b-button :disabled="!artefact" @click="setZIndex(1)">
+                            <span>top</span>
+                        </b-button>
+                        <b-button :disabled="!artefact" @click="setZIndex(-1)">
+                            <span>down</span>
+                        </b-button>
+                    </b-button-group>
+                </b-card-header>
+            </b-card>
+        </section>
     </div>
 </template>
 
@@ -221,7 +251,8 @@ import {
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    PlacementOperation
+    PlacementOperation,
+    GroupPlacementOperations
 } from './operations';
 import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '@/models/edition';
@@ -250,6 +281,7 @@ export default class ArtefactToolbox extends Vue {
     private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
 
     private reset!: number;
+    private zoomDelta!: number;
     public mounted() {
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
@@ -264,6 +296,12 @@ export default class ArtefactToolbox extends Vue {
         return this.$state.artefacts.find(this.artefactId);
     }
 
+    private get selectedArtefacts(): Array<Artefact | undefined> {
+        return this.selectedGroup.artefactIds.map((x: number) =>
+            this.$state.artefacts.find(x)
+        );
+    }
+
     public destroyed() {
         if (this.keyboardInput) {
             window.removeEventListener('keydown', this.onKeyPress);
@@ -271,48 +309,125 @@ export default class ArtefactToolbox extends Vue {
     }
 
     public dragArtefact(dirX: number, dirY: number) {
-        const placement = this.artefact!.placement.clone();
-        const jump = parseInt(this.params.move.toString());
-        placement!.translate.x! += jump * dirX;
-        placement!.translate.y! += jump * dirY;
-        this.setPlacement('translate', placement);
+        const operations: ScrollEditorOperation[] = [];
+        this.selectedArtefacts.forEach(art => {
+            const placement = art!.placement.clone();
+            const jump = parseInt(this.params.move.toString());
+            placement!.translate.x! += jump * dirX;
+            placement!.translate.y! += jump * dirY;
+            operations.push(this.createOperation('translate', placement, art));
+        });
+        const groupPlacementOperations = new GroupPlacementOperations(
+            this.selectedGroup.groupId,
+            operations
+        );
+        this.newOperation(groupPlacementOperations);
     }
 
     public rotateArtefact(direction: number) {
-        const placement = this.artefact!.placement.clone();
-        if (!placement.rotate) {
-            placement.rotate = 0;
-        }
-        const deltaAngle = direction * this.params.rotate;
-        const oldAngle = placement.rotate!;
-        const newAngle = oldAngle + deltaAngle;
-        const normalizedAngle = ((newAngle % 360) + 360) % 360;
-        placement.rotate = normalizedAngle;
+        const operations: ScrollEditorOperation[] = [];
+        const artBoudingBoxX = this.selectedArtefacts.map(
+            art => ({xLeft: art!.boundingBox.x, xRight: art!.boundingBox.x + art!.boundingBox.width})
+        );
+        const artBoudingBoxY = this.selectedArtefacts.map(
+            art => ({yTop: art!.boundingBox.y, yBottom: art!.boundingBox.y + art!.boundingBox.height})
+        );
+        const allX = artBoudingBoxX.sort((a, b) => {
+            return a.xLeft > b.xLeft ? 1 : -1;
+        });
+        const allY = artBoudingBoxY.sort((a, b) => {
+            return a.yTop > b.yTop ? 1 : -1;
+        });
+        const minX = allX[0].xLeft;
+        const maxX = allX[allX.length - 1].xRight;
 
-        this.setPlacement('rotate', placement);
+        const minY = allY[0].yTop;
+        const maxY = allY[allY.length - 1].yBottom;
+
+        const midXGroup = (maxX - minX) / 2 + minX;
+        const midYGroup = (maxY - minY) / 2 + minY;
+
+        const deltaAngle = direction * this.params.rotate;
+        const normalizedAngle = (deltaAngle ) * (Math.PI / 180);
+
+        this.selectedArtefacts.forEach(art => {
+            const oldAngle = art!.placement.rotate!;
+            const newAngle = oldAngle + deltaAngle;
+            const normalizedAngle2 = ((newAngle % 360) + 360) % 360;
+            art!.placement.rotate = normalizedAngle2;
+
+            const midXArt = art!.boundingBox.x + (art!.boundingBox.width / 2);
+            const midYArt = art!.boundingBox.y + (art!.boundingBox.height / 2);
+
+            const sin = Math.sin(normalizedAngle);
+            const cos = Math.cos(normalizedAngle);
+
+            const X = midXArt - midXGroup;
+            const Y = midYGroup - midYArt;
+
+            const newMidXArt = (sin * X + cos * Y) + midXGroup;
+            const newMidYArt = (sin * Y - cos * X) + midYGroup;
+
+            // // rotate point
+            // const newMidXArt = X * cos - Y * sin;
+            // const newMidYArt = X * sin + Y * cos;
+            const dX = newMidXArt - midXArt;
+            const dY = newMidYArt - midYArt;
+
+            art!.placement.translate.x = art!.placement.translate.x! + dX;
+            art!.placement.translate.y = art!.placement.translate.y! + dY;
+        });
+
     }
 
     public zoomArtefact(direction: number) {
-        const trans = this.artefact!.placement.clone();
-        const zoomDelta = (direction * this.params.scale) / 100;
-        if (!trans.scale) {
+        const operations: ScrollEditorOperation[] = [];
+        this.selectedArtefacts.forEach(art => {
+            const trans = art!.placement.clone();
+            if (direction === 1) {
+                this.zoomDelta = trans.scale + this.params.scale / 100;
+            } else {
+                this.zoomDelta = trans.scale - this.params.scale / 100;
+            }
+            if (!trans.scale) {
+                trans.scale = 1;
+            }
+            trans.scale = this.zoomDelta;
+            trans.scale = +trans.scale.toFixed(4);
+            operations.push(this.createOperation('scale', trans, art));
+        });
+        const groupPlacementOperations = new GroupPlacementOperations(
+            this.selectedGroup.groupId,
+            operations
+        );
+        this.newOperation(groupPlacementOperations);
+        // this.setPlacement('scale', trans, this.artefact);
+    }
+
+    public resetZoom() {
+        const operations: ScrollEditorOperation[] = [];
+        this.selectedArtefacts.forEach(art => {
+            const trans = art!.placement.clone();
             trans.scale = 1;
-        }
-        trans.scale += zoomDelta;
-        trans.scale = +trans.scale.toFixed(4);
-        this.setPlacement('scale', trans);
+            operations.push(this.createOperation('scale', trans, art));
+        });
+        const groupPlacementOperations = new GroupPlacementOperations(
+            this.selectedGroup.groupId,
+            operations
+        );
+        this.newOperation(groupPlacementOperations);
     }
 
     public resetRotationArtefact() {
         const placement = this.artefact!.placement.clone();
         placement.rotate = 0;
-        this.setPlacement('rotate', placement);
+        this.setPlacement('rotate', placement, this.artefact);
     }
 
     public resetScaleArtefact() {
         const placement = this.artefact!.placement.clone();
         placement.scale = 1;
-        this.setPlacement('scale', placement);
+        this.setPlacement('scale', placement, this.artefact);
     }
 
     private setZIndex(zIndexDirection: number) {
@@ -329,20 +444,31 @@ export default class ArtefactToolbox extends Vue {
         const placement = this.artefact!.placement.clone();
         placement.zIndex = zIndex;
 
-        this.setPlacement('z-index', placement);
+        this.setPlacement('z-index', placement, this.artefact);
+    }
+
+    private createOperation(
+        opType: ScrollEditorOperationType,
+        newPlacement: Placement,
+        artefact: Artefact | undefined
+    ): PlacementOperation {
+        const op = new PlacementOperation(
+            artefact!.id,
+            opType,
+            artefact!.placement,
+            newPlacement
+        );
+        artefact!.placement = newPlacement;
+        return op;
     }
 
     private setPlacement(
         opType: ScrollEditorOperationType,
-        newPlacement: Placement
+        newPlacement: Placement,
+        artefact: Artefact | undefined
     ) {
-        const op = new PlacementOperation(
-            this.artefact!.id,
-            opType,
-            this.artefact!.placement,
-            newPlacement
-        );
-        this.artefact!.placement = newPlacement;
+        const op = this.createOperation(opType, newPlacement, artefact);
+
         this.newOperation(op);
     }
 
@@ -413,7 +539,7 @@ export default class ArtefactToolbox extends Vue {
         return true;
     }
     @Emit()
-    private newOperation(op: ScrollEditorOperation) {
+    private newOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
         return op;
     }
     @Emit()
@@ -436,7 +562,7 @@ export default class ArtefactToolbox extends Vue {
 .btn-menu {
     background: #e3e7ea;
 }
-.card-body-cancel{
-  padding: 0rem!important;  
+.card-body-cancel {
+    padding: 0rem !important;
 }
 </style>
