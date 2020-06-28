@@ -98,7 +98,7 @@ class EditionInfo {
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit?: Date;
-    public artefactGroup: ArtefactGroup[];
+    public artefactGroups: ArtefactGroup[];
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -120,7 +120,7 @@ class EditionInfo {
         this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
-        this.artefactGroup = [];
+        this.artefactGroups = [];
         if (dto.lastEdit) {
             this.lastEdit = new Date(Date.parse(dto.lastEdit));
         }

@@ -129,7 +129,7 @@ export default class ScrollArea extends Vue {
     }
 
     private artefactGroup(artefact: Artefact | undefined) {
-        return this.edition!.artefactGroup.find(
+        return this.edition!.artefactGroups.find(
             x => artefact && x.artefactIds.includes(artefact!.id)
         );
     }
