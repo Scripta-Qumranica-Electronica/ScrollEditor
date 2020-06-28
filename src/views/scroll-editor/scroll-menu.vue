@@ -176,18 +176,19 @@ export default class ScrollMenu extends Vue {
 
     public removeArtefact() {
         const operations: ScrollEditorOperation[] = [];
-        
+
         this.selectedArtefacts.forEach(art => {
             art!.isPlaced = false;
             operations.push(
                 this.createOperation('delete', Placement.empty, art)
             );
-            const groupPlacementOperations = new GroupPlacementOperations(
-                this.selectedGroup.groupId,
-                operations
-            );
-            this.newOperation(groupPlacementOperations);
         });
+        const groupPlacementOperations = new GroupPlacementOperations(
+            this.selectedGroup.groupId,
+            operations,
+            'delete'
+        );
+        this.newOperation(groupPlacementOperations);
 
         // this.setPlacement('delete', Placement.empty);
         this.cancelGroup();
@@ -204,6 +205,13 @@ export default class ScrollMenu extends Vue {
 
     public mounted() {
         this.zoom = 0.1;
+    }
+    protected created() {
+        this.$state.eventBus.$on('cancel-group', this.cancelGroup);
+    }
+
+    protected destroyed() {
+        this.$state.eventBus.$off('cancel-group', this.cancelGroup);
     }
 
     private get canUndo(): boolean {

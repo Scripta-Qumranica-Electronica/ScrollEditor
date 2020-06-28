@@ -3,6 +3,8 @@ import { Artefact } from '@/models/artefact';
 import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
 import ScrollArea from './scroll-area.vue';
+import { group } from 'console';
+import { ArtefactGroup, EditionInfo } from '@/models/edition';
 
 function state() {
     return StateManager.instance;
@@ -90,17 +92,24 @@ export class PlacementOperation extends ScrollEditorOperation {
     }
 
 }
+export type GroupPlacementOperationType = 'delete' | 'placement' | 'edit';
 
 export class GroupPlacementOperations implements Operation<GroupPlacementOperations> {
     public operations: ScrollEditorOperation[];
-    public type: string = 'group';
+    public type: GroupPlacementOperationType;
 
+    private get group(): ArtefactGroup | undefined {
+
+        return state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
+    }
     public constructor(
         public groupId: number,
         operations: ScrollEditorOperation[],
+        type: GroupPlacementOperationType = 'placement'
 
     ) {
         this.operations = operations;
+        this.type = type;
     }
 
 
@@ -108,16 +117,22 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         this.operations.forEach(
             op => op.undo()
         );
+        if (this.type === 'delete' && this.group) {
+            state().eventBus.$emit('select-group', this.group);
+        }
     }
 
     public redo(): void {
         this.operations.forEach(
             op => op.redo()
         );
+        if (this.type === 'delete') {
+            state().eventBus.$emit('cancel-group');
+        }
     }
 
     public uniteWith(op: PlacementOperation | GroupPlacementOperations): GroupPlacementOperations | undefined {
-        if (op.type === 'group') {
+        if (op.type === 'placement') {
             (op as GroupPlacementOperations).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
             this.operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
 
@@ -153,4 +168,66 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 
 }
 
+// const group = this.edition!.artefactGroups.find(
+//     x => x.groupId === this.selectedGroup.groupId
+// );
+
+export class EditGroupOperation implements Operation<EditGroupOperation> {
+
+    private get group(): ArtefactGroup | undefined {
+
+        return state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
+    }
+
+
+    public prev: number[];
+    public next: number[];
+    public type: string = 'edit';
+
+    public constructor(
+        public groupId: number,
+        prev: number[],
+        next: number[]
+
+    ) {
+        this.prev = prev;
+        this.next = next;
+    }
+
+
+    public undo(): void {
+        this.group!.artefactIds = [...this.prev];
+        state().eventBus.$emit('select-group',
+            {
+                groupId: this.groupId,
+                artefactIds: [...this.prev]
+            } as ArtefactGroup);
+    }
+
+    public redo(): void {
+        this.group!.artefactIds = [...this.next];
+        state().eventBus.$emit('select-group',
+            {
+                groupId: this.groupId,
+                artefactIds: [...this.next]
+            } as ArtefactGroup);
+    }
+
+
+    public uniteWith(op: EditGroupOperation): EditGroupOperation | undefined {
+        return undefined;
+        // if (this.groupId === op.groupId) {
+        //     return new EditGroupOperation(
+        //         this.groupId,
+        //         op.prev,
+        //         this.next
+        //     );
+        // }
+    }
+
+
+    public getId() {
+        return this.groupId;
+    }
+}
 

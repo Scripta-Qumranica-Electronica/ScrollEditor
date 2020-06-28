@@ -64,7 +64,12 @@ import {
 } from '../artefact-editor/types';
 import ArtefactService from '@/services/artefact';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { ScrollEditorOperation, PlacementOperation, GroupPlacementOperations } from './operations';
+import {
+    ScrollEditorOperation,
+    PlacementOperation,
+    GroupPlacementOperations,
+    EditGroupOperation
+} from './operations';
 import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '../../models/edition';
@@ -86,12 +91,15 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private editionService = new EditionService();
     private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
     // Shaindel - what happens if only one artefact is selected?
-    private operationsManager = new OperationsManager<ScrollEditorOperation | GroupPlacementOperations>(
-        this
-    );
+    private operationsManager = new OperationsManager<
+        ScrollEditorOperation | GroupPlacementOperations | EditGroupOperation
+    >(this);
 
+    public selectGroup(group: ArtefactGroup) {
+        this.selectedGroup = { ...group };
+    }
     public selectArtefact(artefact: Artefact | undefined) {
-        const existingGroup = this.edition!.artefactGroup.find(
+        const existingGroup = this.edition!.artefactGroups.find(
             x => artefact && x.artefactIds.includes(artefact!.id)
         );
 
@@ -103,7 +111,10 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             if (isSelectedIndex > -1) {
                 // remove artefact from current group
                 this.selectedGroup.artefactIds.splice(isSelectedIndex, 1);
-            } else if (!existingGroup || existingGroup.groupId === this.selectedGroup.groupId) {
+            } else if (
+                !existingGroup ||
+                existingGroup.groupId === this.selectedGroup.groupId
+            ) {
                 // if artefact not in any group or in this group but was unselected
                 this.selectedGroup.artefactIds.push(artefact!.id!);
             }
@@ -113,7 +124,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 this.selectedGroup.groupId = existingGroup.groupId;
                 this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
             } else if (!artefact) {
-                this.cancelGroup();
+            // / this.cancelGroup();
             } else {
                 this.selectedGroup = new ArtefactGroup([artefact!.id!]);
             }
@@ -126,10 +137,10 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             x => this.$state.artefacts.find(x) as Artefact
         );
         try {
-            await this.editionService.updateArtefactDTOs(
-                this.editionId,
-                artefacts
-            );
+            // await this.editionService.updateArtefactDTOs(
+            //     this.editionId,
+            //     artefacts
+            // );
         } catch (error) {
             console.error("Can't save arterfacts to server", error);
             // Shaindel: Report save error to user in Toast
@@ -137,6 +148,13 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         }
 
         return true;
+    }
+    protected created() {
+        this.$state.eventBus.$on('select-group', this.selectGroup);
+    }
+
+    protected destroyed() {
+        this.$state.eventBus.$off('select-group', this.selectGroup);
     }
 
     private sidebarClicked() {
@@ -215,13 +233,20 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
 
     private saveGroupArtefacts() {
-        const group = this.edition!.artefactGroup.find(
+        const group = this.edition!.artefactGroups.find(
             x => x.groupId === this.selectedGroup.groupId
+        );
+        this.operationsManager.addOperation(
+            new EditGroupOperation(
+                this.selectedGroup.groupId,
+                group ? group.artefactIds : [],
+                this.selectedGroup.artefactIds
+            )
         );
         if (group) {
             group.artefactIds = [...this.selectedGroup.artefactIds];
         } else {
-            this.edition!.artefactGroup.push({ ...this.selectedGroup });
+            this.edition!.artefactGroups.push({ ...this.selectedGroup });
         }
 
         this.cancelGroup();
@@ -231,7 +256,9 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         this.operationsManager.save();
     }
 
-    private onNewOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
+    private onNewOperation(
+        op: ScrollEditorOperation | GroupPlacementOperations
+    ) {
         if (op.type === 'delete') {
             this.cancelGroup();
         }
