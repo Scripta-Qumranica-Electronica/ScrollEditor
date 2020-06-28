@@ -297,10 +297,15 @@ export default class ArtefactToolbox extends Vue {
         return this.$state.artefacts.find(this.artefactId);
     }
 
-    private get selectedArtefacts(): Array<Artefact | undefined> {
-        return this.selectedGroup.artefactIds.map((x: number) =>
-            this.$state.artefacts.find(x)
-        );
+    private get selectedArtefacts(): Artefact[] {
+        return this.selectedGroup.artefactIds.map((x: number) => {
+            const artefact = this.$state.artefacts.find(x);
+            if (!artefact) {
+                throw new Error(`Can't find artefact ${x}`);
+                return {} as Artefact;
+            }
+            return artefact;
+        });
     }
 
     public destroyed() {
@@ -312,7 +317,7 @@ export default class ArtefactToolbox extends Vue {
     public dragArtefact(dirX: number, dirY: number) {
         const operations: ScrollEditorOperation[] = [];
         this.selectedArtefacts.forEach(art => {
-            const placement = art!.placement.clone();
+            const placement = art.placement.clone();
             const jump = parseInt(this.params.move.toString());
             placement!.translate.x! += jump * dirX;
             placement!.translate.y! += jump * dirY;
@@ -327,12 +332,12 @@ export default class ArtefactToolbox extends Vue {
 
     public getGroupCenter(): Point {
         const artBoudingBoxX = this.selectedArtefacts.map(art => ({
-            xLeft: art!.boundingBox.x,
-            xRight: art!.boundingBox.x + art!.boundingBox.width
+            xLeft: art.boundingBox.x,
+            xRight: art.boundingBox.x + art.boundingBox.width
         }));
         const artBoudingBoxY = this.selectedArtefacts.map(art => ({
-            yTop: art!.boundingBox.y,
-            yBottom: art!.boundingBox.y + art!.boundingBox.height
+            yTop: art.boundingBox.y,
+            yBottom: art.boundingBox.y + art.boundingBox.height
         }));
         const allX = artBoudingBoxX.sort((a, b) => {
             return a.xLeft > b.xLeft ? 1 : -1;
@@ -352,9 +357,9 @@ export default class ArtefactToolbox extends Vue {
         return { x, y };
     }
 
-    public getArtefactCenter(art: Artefact | undefined): Point {
-        const x = art!.boundingBox.x + art!.boundingBox.width / 2;
-        const y = art!.boundingBox.y + art!.boundingBox.height / 2;
+    public getArtefactCenter(art: Artefact): Point {
+        const x = art.boundingBox.x + art.boundingBox.width / 2;
+        const y = art.boundingBox.y + art.boundingBox.height / 2;
 
         return { x, y };
     }
@@ -380,19 +385,16 @@ export default class ArtefactToolbox extends Vue {
         });
     }
 
-    public rotateArtefact(
-        artefact: Artefact | undefined,
-        deltaAngleDegrees: number
-    ) {
-        const oldAngle = artefact!.placement.rotate!;
+    public rotateArtefact(artefact: Artefact, deltaAngleDegrees: number) {
+        const oldAngle = artefact.placement.rotate!;
 
         const newAngle = oldAngle + deltaAngleDegrees;
         const normalizedAngle = ((newAngle % 360) + 360) % 360;
-        artefact!.placement.rotate = normalizedAngle;
+        artefact.placement.rotate = normalizedAngle;
     }
 
     public translateArtefactAfterGroupRotation(
-        art: Artefact | undefined,
+        art: Artefact,
         groupCenterPoint: Point,
         deltaAngleRadians: number
     ) {
@@ -409,14 +411,14 @@ export default class ArtefactToolbox extends Vue {
         const deltaX = newMidXArt - xFromOrigin;
         const deltaY = newMidYArt - yFromOrigin;
 
-        art!.placement.translate.x = art!.placement.translate.x! + deltaX;
-        art!.placement.translate.y = art!.placement.translate.y! + deltaY;
+        art.placement.translate.x = art.placement.translate.x! + deltaX;
+        art.placement.translate.y = art.placement.translate.y! + deltaY;
     }
 
     public zoomArtefact(direction: number) {
         const operations: ScrollEditorOperation[] = [];
         this.selectedArtefacts.forEach(art => {
-            const trans = art!.placement.clone();
+            const trans = art.placement.clone();
             if (direction === 1) {
                 this.zoomDelta = trans.scale + this.params.scale / 100;
             } else {
@@ -440,7 +442,7 @@ export default class ArtefactToolbox extends Vue {
     public resetZoom() {
         const operations: ScrollEditorOperation[] = [];
         this.selectedArtefacts.forEach(art => {
-            const trans = art!.placement.clone();
+            const trans = art.placement.clone();
             trans.scale = 1;
             operations.push(this.createOperation('scale', trans, art));
         });
@@ -452,15 +454,19 @@ export default class ArtefactToolbox extends Vue {
     }
 
     public resetRotationArtefact() {
-        const placement = this.artefact!.placement.clone();
-        placement.rotate = 0;
-        this.setPlacement('rotate', placement, this.artefact);
+        if (this.artefact) {
+            const placement = this.artefact.placement.clone();
+            placement.rotate = 0;
+            this.setPlacement('rotate', placement, this.artefact);
+        }
     }
 
     public resetScaleArtefact() {
-        const placement = this.artefact!.placement.clone();
-        placement.scale = 1;
-        this.setPlacement('scale', placement, this.artefact);
+        if (this.artefact) {
+            const placement = this.artefact.placement.clone();
+            placement.scale = 1;
+            this.setPlacement('scale', placement, this.artefact);
+        }
     }
 
     private setZIndex(zIndexDirection: number) {
@@ -478,7 +484,7 @@ export default class ArtefactToolbox extends Vue {
                     ? Math.min(...artefactsZOrders) - 1
                     : Math.max(...artefactsZOrders) + 1;
 
-            const placement = art!.placement.clone();
+            const placement = art.placement.clone();
             placement.zIndex = zIndex;
             operations.push(this.createOperation('z-index', placement, art));
         });
@@ -492,22 +498,22 @@ export default class ArtefactToolbox extends Vue {
     private createOperation(
         opType: ScrollEditorOperationType,
         newPlacement: Placement,
-        artefact: Artefact | undefined
+        artefact: Artefact
     ): PlacementOperation {
         const op = new PlacementOperation(
-            artefact!.id,
+            artefact.id,
             opType,
-            artefact!.placement,
+            artefact.placement,
             newPlacement
         );
-        artefact!.placement = newPlacement;
+        artefact.placement = newPlacement;
         return op;
     }
 
     private setPlacement(
         opType: ScrollEditorOperationType,
         newPlacement: Placement,
-        artefact: Artefact | undefined
+        artefact: Artefact
     ) {
         const op = this.createOperation(opType, newPlacement, artefact);
 
@@ -519,7 +525,7 @@ export default class ArtefactToolbox extends Vue {
     }
 
     private onKeyPress(event: KeyboardEvent) {
-        if (!this.artefact) {
+        if (this.artefact) {
             return;
         }
 
