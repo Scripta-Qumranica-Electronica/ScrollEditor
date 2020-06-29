@@ -354,8 +354,7 @@ export default class ArtefactToolbox extends Vue {
         const groupCenterPoint = this.getGroupCenter();
 
         const deltaAngleDegrees = direction * this.params.rotate;
-        const deltaAngleRadians =
-            direction * deltaAngleDegrees * (Math.PI / 180);
+        const deltaAngleRadians = deltaAngleDegrees * (Math.PI / 180);
 
         this.selectedArtefacts.forEach(art => {
             // Rotate each artefact by deltaAngleDegrees
