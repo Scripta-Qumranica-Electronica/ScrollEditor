@@ -330,25 +330,10 @@ export default class ArtefactToolbox extends Vue {
     }
 
     public getGroupCenter(): Point {
-        const artBoudingBoxX = this.selectedArtefacts.map(art => ({
-            xLeft: art.boundingBox.x,
-            xRight: art.boundingBox.x + art.boundingBox.width
-        }));
-        const artBoudingBoxY = this.selectedArtefacts.map(art => ({
-            yTop: art.boundingBox.y,
-            yBottom: art.boundingBox.y + art.boundingBox.height
-        }));
-        const allX = artBoudingBoxX.sort((a, b) => {
-            return a.xLeft > b.xLeft ? 1 : -1;
-        });
-        const allY = artBoudingBoxY.sort((a, b) => {
-            return a.yTop > b.yTop ? 1 : -1;
-        });
-        const minX = allX[0].xLeft;
-        const maxX = allX[allX.length - 1].xRight;
-
-        const minY = allY[0].yTop;
-        const maxY = allY[allY.length - 1].yBottom;
+        const minX = Math.min(...this.selectedArtefacts.map(art => art.placement.translate.x!));
+        const minY = Math.min(...this.selectedArtefacts.map(art => art.placement.translate.y!));
+        const maxX = Math.max(...this.selectedArtefacts.map(art => art.placement.translate.x! + art.boundingBox.width));
+        const maxY = Math.max(...this.selectedArtefacts.map(art => art.placement.translate.y! + art.boundingBox.height));
 
         const x = (maxX - minX) / 2 + minX;
         const y = (maxY - minY) / 2 + minY;
@@ -357,8 +342,9 @@ export default class ArtefactToolbox extends Vue {
     }
 
     public getArtefactCenter(art: Artefact): Point {
-        const x = art.boundingBox.x + art.boundingBox.width / 2;
-        const y = art.boundingBox.y + art.boundingBox.height / 2;
+        // The artefact's center is the translate (x,y) + the bounding box's center
+        const x = art.placement.translate.x! + art.boundingBox.width / 2;
+        const y = art.placement.translate.y! + art.boundingBox.height / 2;
 
         return { x, y };
     }
@@ -405,7 +391,7 @@ export default class ArtefactToolbox extends Vue {
         const yFromOrigin = artefactCenterPoint.y - groupCenterPoint.y;
 
         const newMidXArt = cos * xFromOrigin - sin * yFromOrigin;
-        const newMidYArt = sin * xFromOrigin + cos * xFromOrigin;
+        const newMidYArt = cos * yFromOrigin + sin * xFromOrigin;
 
         const deltaX = newMidXArt - xFromOrigin;
         const deltaY = newMidYArt - yFromOrigin;
