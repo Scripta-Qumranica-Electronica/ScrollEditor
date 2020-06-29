@@ -181,8 +181,7 @@
                             @click="setMode('manageGroup')"
                         >
                             <span>
-                                Ma
-                                <u>n</u>age group
+                                Ma<u>n</u>age group
                             </span>
                             <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
                         </b-button>

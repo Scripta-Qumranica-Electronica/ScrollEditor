@@ -168,10 +168,6 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 
 }
 
-// const group = this.edition!.artefactGroups.find(
-//     x => x.groupId === this.selectedGroup.groupId
-// );
-
 export class EditGroupOperation implements Operation<EditGroupOperation> {
 
     private get group(): ArtefactGroup | undefined {

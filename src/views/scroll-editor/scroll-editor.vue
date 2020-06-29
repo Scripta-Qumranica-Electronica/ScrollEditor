@@ -17,7 +17,6 @@
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onManageGroup="manageGroup()"
             ></scroll-menu>
-            <!-- aa {{artefact && artefact.id}} -->
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
             <div class="row">
@@ -33,7 +32,7 @@
                     </b-button>
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
-                    {{selectedGroup}}
+                    <!-- {{selectedGroup}} -->
                     <scroll-area
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
@@ -313,7 +312,6 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 }
 .artefact-container {
     overflow: auto;
-    // position: relative;
     padding: 0;
     height: calc(100vh - 63px);
     width: calc(100vw - 290px);

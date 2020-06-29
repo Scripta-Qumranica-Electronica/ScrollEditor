@@ -167,9 +167,6 @@ export default class ScrollMenu extends Vue {
     public openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
-    // public onSave() {
-    //     this.$emit('saveArt');
-    // }
     public onNewOperation(operation: ScrollEditorOperation) {
         this.newOperation(operation);
     }
@@ -189,8 +186,6 @@ export default class ScrollMenu extends Vue {
             'delete'
         );
         this.newOperation(groupPlacementOperations);
-
-        // this.setPlacement('delete', Placement.empty);
         this.cancelGroup();
     }
 
