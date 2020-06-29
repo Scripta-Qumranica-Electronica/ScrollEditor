@@ -23,6 +23,7 @@
         <!-- {{selectedArtefactsList}} -->
         <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
             <svg
+                id="the-scroll"
                 :width="actualWidth"
                 :height="actualHeight"
                 :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
@@ -217,4 +218,7 @@ export default class ScrollArea extends Vue {
 </script>
 
 <style lang="scss">
+#the-scroll {
+    background: #7bb6e0;
+}
 </style>
