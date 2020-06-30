@@ -180,9 +180,7 @@
                             :pressed="mode === 'manageGroup'"
                             @click="setMode('manageGroup')"
                         >
-                            <span>
-                                Ma<u>n</u>age group
-                            </span>
+                            <span>Manage group</span>
                             <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
                         </b-button>
                     </b-button-group>
@@ -330,10 +328,22 @@ export default class ArtefactToolbox extends Vue {
     }
 
     public getGroupCenter(): Point {
-        const minX = Math.min(...this.selectedArtefacts.map(art => art.placement.translate.x!));
-        const minY = Math.min(...this.selectedArtefacts.map(art => art.placement.translate.y!));
-        const maxX = Math.max(...this.selectedArtefacts.map(art => art.placement.translate.x! + art.boundingBox.width));
-        const maxY = Math.max(...this.selectedArtefacts.map(art => art.placement.translate.y! + art.boundingBox.height));
+        const minX = Math.min(
+            ...this.selectedArtefacts.map(art => art.placement.translate.x!)
+        );
+        const minY = Math.min(
+            ...this.selectedArtefacts.map(art => art.placement.translate.y!)
+        );
+        const maxX = Math.max(
+            ...this.selectedArtefacts.map(
+                art => art.placement.translate.x! + art.boundingBox.width
+            )
+        );
+        const maxY = Math.max(
+            ...this.selectedArtefacts.map(
+                art => art.placement.translate.y! + art.boundingBox.height
+            )
+        );
 
         const x = (maxX - minX) / 2 + minX;
         const y = (maxY - minY) / 2 + minY;
@@ -358,30 +368,44 @@ export default class ArtefactToolbox extends Vue {
 
         this.selectedArtefacts.forEach(art => {
             // Rotate each artefact by deltaAngleDegrees
-            this.rotateArtefact(art, deltaAngleDegrees);
+            const newRotate = this.rotateArtefact(art, deltaAngleDegrees);
 
             // Translate each artefact
-            this.translateArtefactAfterGroupRotation(
+            const newTranslate = this.translateArtefactAfterGroupRotation(
                 art,
                 groupCenterPoint,
                 deltaAngleRadians
             );
+
+            const newPlacement = art.placement.clone();
+            newPlacement.rotate = newRotate;
+            newPlacement.translate = newTranslate;
+
+            operations.push(this.createOperation('rotate', newPlacement, art));
         });
+        const groupPlacementOperations = new GroupPlacementOperations(
+            this.selectedGroup.groupId,
+            operations
+        );
+        this.newOperation(groupPlacementOperations);
     }
 
-    public rotateArtefact(artefact: Artefact, deltaAngleDegrees: number) {
+    public rotateArtefact(
+        artefact: Artefact,
+        deltaAngleDegrees: number
+    ): number {
         const oldAngle = artefact.placement.rotate!;
 
         const newAngle = oldAngle + deltaAngleDegrees;
         const normalizedAngle = ((newAngle % 360) + 360) % 360;
-        artefact.placement.rotate = normalizedAngle;
+        return normalizedAngle;
     }
 
     public translateArtefactAfterGroupRotation(
         art: Artefact,
         groupCenterPoint: Point,
         deltaAngleRadians: number
-    ) {
+    ): Point {
         const sin = Math.sin(deltaAngleRadians);
         const cos = Math.cos(deltaAngleRadians);
         const artefactCenterPoint = this.getArtefactCenter(art);
@@ -395,8 +419,10 @@ export default class ArtefactToolbox extends Vue {
         const deltaX = newMidXArt - xFromOrigin;
         const deltaY = newMidYArt - yFromOrigin;
 
-        art.placement.translate.x = art.placement.translate.x! + deltaX;
-        art.placement.translate.y = art.placement.translate.y! + deltaY;
+        return {
+            x: art.placement.translate.x! + deltaX,
+            y: art.placement.translate.y! + deltaY
+        } as Point;
     }
 
     public zoomArtefact(direction: number) {
@@ -420,7 +446,6 @@ export default class ArtefactToolbox extends Vue {
             operations
         );
         this.newOperation(groupPlacementOperations);
-        // this.setPlacement('scale', trans, this.artefact);
     }
 
     public resetZoom() {
@@ -437,13 +462,13 @@ export default class ArtefactToolbox extends Vue {
         this.newOperation(groupPlacementOperations);
     }
 
-    public resetRotationArtefact() {
-        if (this.artefact) {
-            const placement = this.artefact.placement.clone();
-            placement.rotate = 0;
-            this.setPlacement('rotate', placement, this.artefact);
-        }
-    }
+    // public resetRotationArtefact() {
+    //     if (this.artefact) {
+    //         const placement = this.artefact.placement.clone();
+    //         placement.rotate = 0;
+    //         this.setPlacement('rotate', placement, this.artefact);
+    //     }
+    // }
 
     public resetScaleArtefact() {
         if (this.artefact) {
