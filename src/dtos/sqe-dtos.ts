@@ -27,6 +27,14 @@ export interface ArtefactDataListDTO {
     artefacts: ArtefactDataDTO[];
 }
 
+export interface ArtefactGroupDTO extends UpdateArtefactGroupDTO {
+    id: number;
+}
+
+export interface ArtefactGroupListDTO {
+    artefactGroups: ArtefactGroupDTO[];
+}
+
 export interface UpdateArtefactDTO {
     mask: string;
     placement: PlacementDTO;
@@ -51,9 +59,16 @@ export interface BatchUpdatedArtefactTransformDTO {
     artefactPlacements: UpdatedArtefactPlacementDTO[];
 }
 
+export interface UpdateArtefactGroupDTO extends CreateArtefactGroupDTO {
+}
+
 export interface CreateArtefactDTO extends UpdateArtefactDTO {
     masterImageId: number;
     mask: string;
+}
+export interface CreateArtefactGroupDTO {
+    name: string;
+    artefacts: number[];
 }
 
 export interface EditionDTO {
@@ -141,10 +156,11 @@ export interface DeleteEditionEntityDTO {
 export enum EditionEntities {
     edition = 0,
     artefact = 1,
-    textFragment = 2,
-    line = 3,
-    signInterpretation = 4,
-    roi = 5
+    artefactGroup = 2,
+    textFragment = 3,
+    line = 4,
+    signInterpretation = 5,
+    roi = 6
 }
 
 export interface DeleteDTO {

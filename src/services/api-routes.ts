@@ -122,4 +122,13 @@ export namespace ApiRoutes {
     export function batchUpdateArtefactDTOs(editionId: number) {
         return `/${baseUrl}/${editions}/${editionId}/${artefacts}/batch-transformation`;
     }
+
+    export function artefactGroupUrl(editionId: number, groupId?: number) {
+        let url = `/${baseUrl}/${editions}/${editionId}/${artefacts}-group`;
+        if (groupId) {
+            url += `/${groupId}`;
+        }
+
+        return url;
+    }
 }
