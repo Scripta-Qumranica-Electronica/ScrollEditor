@@ -227,6 +227,7 @@ class EditionService {
     }
 
     public newGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+        // POST to ApiRoutes.artefactGroup(editionId) with CreateArtefactDTO
         const edition = this.stateManager.editions.find(editionId);
         if (!edition) {
             throw new Error(`Can't find non-existing edition ${editionId}`);
@@ -237,11 +238,11 @@ class EditionService {
 
     }
     public updateGroup(editionId: number, artefactsGroup: ArtefactGroup) {
-
+        // PUT to ApiRoutes.artefactGroup(editionId, groupId) with UpdateArtefactGroupDTO
     }
 
     public deleteGroup(editionId: number, groupId: number) {
-
+        // DELETE to ApiRoutes.rtefactGroup(editionId, groupId) with no body
     }
 }
 
