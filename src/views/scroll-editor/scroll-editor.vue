@@ -16,6 +16,7 @@
                 @onCancelGroup="cancelGroup()"
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onManageGroup="manageGroup()"
+                @onDeleteGroup="deleteGroup($event)"
             ></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
@@ -32,7 +33,8 @@
                     </b-button>
                 </div>
                 <div class="artefact-container" :class="{active: isActive}">
-                    <!-- {{selectedGroup}} -->
+                    {{edition.artefactGroups}}
+                    {{selectedGroup}}
                     <scroll-area
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
@@ -123,7 +125,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 this.selectedGroup.groupId = existingGroup.groupId;
                 this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
             } else if (!artefact) {
-            // / this.cancelGroup();
+                // / this.cancelGroup();
             } else {
                 this.selectedGroup = new ArtefactGroup([artefact!.id!]);
             }
@@ -131,15 +133,26 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         }
     }
 
-    public async saveEntities(artefactIds: number[]): Promise<boolean> {
-        const artefacts = artefactIds.map(
-            x => this.$state.artefacts.find(x) as Artefact
-        );
+    public async saveEntities(artefactsGroupIds: number[]): Promise<boolean> {
         try {
-            // await this.editionService.updateArtefactDTOs(
-            //     this.editionId,
-            //     artefacts
-            // );
+            artefactsGroupIds.forEach(x => {
+                if (x < 0) {
+                    const artefactGroup = this.edition!.artefactGroups.find(
+                        ag => ag.groupId === x
+                    );
+                    if (artefactGroup) {
+                        const savedGroup = this.editionService.newGroup(
+                            this.editionId,
+                            artefactGroup
+                        );
+                        artefactGroup.groupId = savedGroup.groupId;
+                        this.operationsManager.updateStackIds(
+                            x,
+                            savedGroup.groupId
+                        );
+                    }
+                }
+            });
         } catch (error) {
             console.error("Can't save arterfacts to server", error);
             // Shaindel: Report save error to user in Toast
@@ -150,10 +163,12 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     }
     protected created() {
         this.$state.eventBus.$on('select-group', this.selectGroup);
+        this.$state.eventBus.$on('delete-group', this.deleteGroup);
     }
 
     protected destroyed() {
         this.$state.eventBus.$off('select-group', this.selectGroup);
+        this.$state.eventBus.$off('delete-group', this.deleteGroup);
     }
 
     private sidebarClicked() {
@@ -243,12 +258,28 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             )
         );
         if (group) {
-            group.artefactIds = [...this.selectedGroup.artefactIds];
+            if (
+                !this.selectedGroup.artefactIds ||
+                !this.selectedGroup.artefactIds.length
+            ) {
+                this.deleteGroup(group.groupId);
+            } else {
+                group.artefactIds = [...this.selectedGroup.artefactIds];
+            }
         } else {
             this.edition!.artefactGroups.push({ ...this.selectedGroup });
         }
 
         this.cancelGroup();
+    }
+
+    private deleteGroup(groupId: number) {
+        const index = this.edition!.artefactGroups.findIndex(
+            x => x.groupId === groupId
+        );
+        if (index > -1) {
+            this.edition!.artefactGroups.splice(index, 1);
+        }
     }
 
     private onSave() {

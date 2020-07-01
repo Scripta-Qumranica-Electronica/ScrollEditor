@@ -138,7 +138,6 @@ export default class ScrollMenu extends Vue {
     public statusIndicator!: OperationsManagerStatus;
     @Prop()
     private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
-
     private params: ScrollEditorParams = new ScrollEditorParams();
 
     private get zoom(): any {
@@ -187,6 +186,7 @@ export default class ScrollMenu extends Vue {
         );
         this.newOperation(groupPlacementOperations);
         this.cancelGroup();
+        this.$emit('onDeleteGroup', this.selectedGroup.groupId);
     }
 
     public notifyChange(paramName: string, paramValue: any) {

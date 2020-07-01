@@ -1,4 +1,4 @@
-import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, UserInfo } from '@/models/edition';
+import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, UserInfo, ArtefactGroup } from '@/models/edition';
 import { CommHelper } from './comm-helper';
 import {
     EditionListDTO,
@@ -224,6 +224,24 @@ class EditionService {
 
         // Return value
         return response.data;
+    }
+
+    public newGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+        const artefactsGroupCopy = { ...artefactsGroup };
+        artefactsGroupCopy.groupId = Math.abs(artefactsGroup.groupId);
+        return artefactsGroupCopy;
+
+    }
+    public updateGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+
+    }
+
+    public deleteGroup(editionId: number, groupId: number) {
+
     }
 }
 

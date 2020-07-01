@@ -4,6 +4,8 @@
 // Since it is generic, specifics are provided by by implementation of the operations classes, as well as
 // the save helper interface
 
+import { xgcd } from 'mathjs';
+
 export interface Operation<T extends Operation<T, K>, K = number> {
     // Unite with a previous operation - returns undefined if the operations can't be united
     uniteWith(prev: T): T | undefined;
@@ -11,6 +13,7 @@ export interface Operation<T extends Operation<T, K>, K = number> {
     undo(): void;  // Undo the operation
     redo(): void;  // Redo the operation
     getId(): K;    // Gets the ID of the affected entity
+    replaceEntityId(newId: K): void; // Update the id of the entity
 }
 
 // Pass this interface to components that implement the undo/redo/save buttons, so they can
@@ -121,6 +124,13 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
             }
             console.warn('Saving failed');
         }
+    }
+
+    public updateStackIds(oldId: K, newId: K) {
+        const entityOperations = this.undoStack.filter(
+            x => x.getId() === oldId
+        );
+        entityOperations.forEach(x => x.replaceEntityId(newId));
     }
 
     private setDirty(op: Operation<OP, K>) {

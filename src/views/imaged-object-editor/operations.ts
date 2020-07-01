@@ -37,6 +37,9 @@ export class ImagedObjectEditorOperation implements Operation<ImagedObjectEditor
     public getId(): number {
         return this.artefact.id;
     }
+    public replaceEntityId(newId: number) {
+        this.artefact.id = newId;
+    }
 
     public undo(): void {
         this.artefact.mask = new Polygon(this.prev.svg);

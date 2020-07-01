@@ -26,6 +26,9 @@ export abstract class ArtefactEditorOperation implements Operation<ArtefactEdito
     public getId(): number {
         return this.artefact.id;
     }
+    public replaceEntityId(newId: number) {
+        this.artefact.id = newId;
+    }
 
     protected get artefact(): Artefact {
         const artefact = state().artefacts.current;
@@ -80,6 +83,7 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
             // this.artefactEditorInstance,
         );
     }
+
 
 }
 

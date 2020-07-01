@@ -23,7 +23,11 @@ export abstract class ScrollEditorOperation implements Operation<ScrollEditorOpe
     public abstract uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined;
 
     public getId(): number {
-        return this.artefact.id;
+        return this.artefactId;
+    }
+
+    public replaceEntityId(newId: number) {
+        this.artefactId = newId;
     }
 
     protected get artefact(): Artefact {
@@ -117,7 +121,14 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         this.operations.forEach(
             op => op.undo()
         );
-        if (this.type === 'delete' && this.group) {
+        if (this.type === 'delete') {
+            // recreate the group with id 'this.groupId'
+            const artefactIds = this.operations.map(artOp => artOp.getId());
+            const removedGroup = new ArtefactGroup(artefactIds);
+            removedGroup.groupId = this.groupId;
+            // add the created group in store
+            state().editions.current!.artefactGroups.push(removedGroup);
+
             state().eventBus.$emit('select-group', this.group);
         }
     }
@@ -127,6 +138,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             op => op.redo()
         );
         if (this.type === 'delete') {
+            // delete group - eventBus deleteGroup
             state().eventBus.$emit('cancel-group');
         }
     }
@@ -164,6 +176,10 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 
     public getId() {
         return this.groupId;
+    }
+
+    public replaceEntityId(newId: number) {
+        this.groupId = newId;
     }
 
 }
@@ -212,18 +228,14 @@ export class EditGroupOperation implements Operation<EditGroupOperation> {
 
     public uniteWith(op: EditGroupOperation): EditGroupOperation | undefined {
         return undefined;
-        // if (this.groupId === op.groupId) {
-        //     return new EditGroupOperation(
-        //         this.groupId,
-        //         op.prev,
-        //         this.next
-        //     );
-        // }
     }
-
 
     public getId() {
         return this.groupId;
+    }
+
+    public replaceEntityId(newId: number) {
+        this.groupId = newId;
     }
 }
 
