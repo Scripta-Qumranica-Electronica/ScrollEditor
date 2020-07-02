@@ -49,7 +49,7 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
+    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroups';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -65,6 +65,7 @@ export default class StateService {
     private textFragmentsProcess: ProcessTracking | undefined;
     private textFragmentProcess: ProcessTracking | undefined;
     private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
+    // TODO: Add process for artefactGroups
 
     public constructor(state: StateManager) {
         if (StateService.alreadyCreated) {
@@ -92,6 +93,10 @@ export default class StateService {
 
     public async textFragments(editionId: number): Promise<void> {
         return this.wrapInternal('textFragmentsProcess', editionId, (id: number) => this.textFragmentsInternal(id));
+    }
+
+    public async artefactGroups(editionId: number): Promise<void> {
+        // Get the artefact groups
     }
 
     public imagedObjects(editionId: number) {
@@ -178,6 +183,7 @@ export default class StateService {
         this._state.editions.current = edition;
 
         // Clear data from the previous edition
+        // TODO: process the artefactGroups, too (clear, prepare, wait in Promise.all)
         this._state.textFragments.clear();
         this._state.interpretationRois.clear();
         this._state.signInterpretations.clear();
@@ -195,10 +201,18 @@ export default class StateService {
     }
 
     private async textFragmentsInternal(editionId: number) {
+        if (this._state.editions.current?.id !== editionId) {
+            throw new Error(`Can't fetch text fragments for non-current edition ${editionId}`);
+        }
         this._state.editions.current!.textFragments = [];
         const svc = new TextService();
         const fragments = await svc.getEditionTextFragments(editionId);
         this._state.editions.current!.textFragments = fragments;
+    }
+
+    private async artefactGroupsInternal(editionId: number) {
+        // TODO: Call EditionService.getArtefactGroups and fill the groups of the edition.
+        // very similar to textFragmentsInternal above
     }
 
     private async imagedObjectsInternal(editionId: number) {

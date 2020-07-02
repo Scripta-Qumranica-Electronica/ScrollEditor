@@ -226,6 +226,7 @@ class EditionService {
         return response.data;
     }
 
+    // Rename all functions: newArtefactGroup, updateArtefactGroup, etc...
     public newGroup(editionId: number, artefactsGroup: ArtefactGroup) {
         // POST to ApiRoutes.artefactGroup(editionId) with CreateArtefactDTO
         const edition = this.stateManager.editions.find(editionId);
@@ -243,6 +244,11 @@ class EditionService {
 
     public deleteGroup(editionId: number, groupId: number) {
         // DELETE to ApiRoutes.rtefactGroup(editionId, groupId) with no body
+    }
+
+    public getGroups(editonId: number) {
+        // GET from ApiRout3s.artefactGroup(edtionId) , returning ArtefactGroupListDTO
+        // function shloud return a List<ArtefactGroup>
     }
 }
 
