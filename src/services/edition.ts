@@ -230,7 +230,9 @@ class EditionService {
         return response.data;
     }
 
+    // Rename all functions: newArtefactGroup, updateArtefactGroup, etc...
     public async newGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+
 
         const dto: CreateArtefactGroupDTO = {
             name: artefactsGroup.groupId.toString(), /*check ?*/
@@ -259,6 +261,11 @@ class EditionService {
 
     public async deleteGroup(editionId: number, groupId: number) {
         await CommHelper.delete(ApiRoutes.artefactGroupUrl(editionId, groupId));
+    }
+
+    public getGroups(editonId: number) {
+        // GET from ApiRout3s.artefactGroup(edtionId) , returning ArtefactGroupListDTO
+        // function shloud return a List<ArtefactGroup>
     }
 }
 
