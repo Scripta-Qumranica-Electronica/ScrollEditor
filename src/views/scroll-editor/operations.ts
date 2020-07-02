@@ -127,7 +127,10 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             const removedGroup = new ArtefactGroup(artefactIds);
             removedGroup.groupId = this.groupId;
             // add the created group in store
-            state().editions.current!.artefactGroups.push(removedGroup);
+            const group = state().editions.current!.artefactGroups.find(group => group.groupId === this.groupId);
+            if (group) {
+                group.artefactIds = [...artefactIds];
+            }
 
             state().eventBus.$emit('select-group', this.group);
         }
@@ -138,7 +141,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             op => op.redo()
         );
         if (this.type === 'delete') {
-            // delete group - eventBus deleteGroup
+            state().eventBus.$emit('delete-group', this.groupId);
             state().eventBus.$emit('cancel-group');
         }
     }

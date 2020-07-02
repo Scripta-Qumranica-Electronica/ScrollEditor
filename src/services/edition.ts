@@ -10,7 +10,11 @@ import {
     AdminEditorRequestListDTO,
     DetailedEditorRightsDTO,
     UpdateArtefactPlacementDTO,
-    BatchUpdateArtefactPlacementDTO
+    BatchUpdateArtefactPlacementDTO,
+    CreateArtefactDTO,
+    UpdateArtefactGroupDTO,
+    CreateArtefactGroupDTO,
+    ArtefactGroupDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -226,23 +230,35 @@ class EditionService {
         return response.data;
     }
 
-    public newGroup(editionId: number, artefactsGroup: ArtefactGroup) {
-        // POST to ApiRoutes.artefactGroup(editionId) with CreateArtefactDTO
-        const edition = this.stateManager.editions.find(editionId);
-        if (!edition) {
-            throw new Error(`Can't find non-existing edition ${editionId}`);
-        }
-        const artefactsGroupCopy = { ...artefactsGroup };
-        artefactsGroupCopy.groupId = Math.abs(artefactsGroup.groupId);
-        return artefactsGroupCopy;
+    public async newGroup(editionId: number, artefactsGroup: ArtefactGroup) {
 
-    }
-    public updateGroup(editionId: number, artefactsGroup: ArtefactGroup) {
-        // PUT to ApiRoutes.artefactGroup(editionId, groupId) with UpdateArtefactGroupDTO
+        const dto: CreateArtefactGroupDTO = {
+            name: artefactsGroup.groupId.toString(), /*check ?*/
+            artefacts: artefactsGroup.artefactIds
+        };
+
+        const response = await CommHelper.post<ArtefactGroupDTO>(ApiRoutes.artefactGroupUrl(editionId), dto);
+
+        return response.data;
     }
 
-    public deleteGroup(editionId: number, groupId: number) {
-        // DELETE to ApiRoutes.rtefactGroup(editionId, groupId) with no body
+    public async updateGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+
+        const dto: UpdateArtefactGroupDTO = {
+            name: artefactsGroup.groupId.toString(),
+            artefacts: artefactsGroup.artefactIds
+        };
+
+        const response = await CommHelper.put<UpdateArtefactGroupDTO>(
+            ApiRoutes.artefactGroupUrl(editionId, artefactsGroup.groupId),
+            dto
+        );
+
+        return response.data;
+    }
+
+    public async deleteGroup(editionId: number, groupId: number) {
+        await CommHelper.delete(ApiRoutes.artefactGroupUrl(editionId, groupId));
     }
 }
 

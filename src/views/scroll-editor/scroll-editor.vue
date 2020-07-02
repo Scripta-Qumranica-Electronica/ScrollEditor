@@ -113,7 +113,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 // remove artefact from current group
                 this.selectedGroup.artefactIds.splice(isSelectedIndex, 1);
             } else if (
-                !existingGroup ||
+                !existingGroup || (existingGroup && existingGroup.artefactIds.length === 1) ||
                 existingGroup.groupId === this.selectedGroup.groupId
             ) {
                 // if artefact not in any group or in this group but was unselected
@@ -124,9 +124,10 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 // if artefact already in group
                 this.selectedGroup.groupId = existingGroup.groupId;
                 this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
-            } else if (!artefact) {
-                // / this.cancelGroup();
-            } else {
+            }
+            // else if (!artefact) {
+            // / this.cancelGroup();}
+            else {
                 this.selectedGroup = new ArtefactGroup([artefact!.id!]);
             }
             this.artefact = artefact;
@@ -135,20 +136,52 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
     public async saveEntities(artefactsGroupIds: number[]): Promise<boolean> {
         try {
-            artefactsGroupIds.forEach(x => {
-                if (x < 0) {
-                    const artefactGroup = this.edition!.artefactGroups.find(
-                        ag => ag.groupId === x
-                    );
+            artefactsGroupIds.forEach(async x => {
+                const artefactGroup = this.edition!.artefactGroups.find(
+                    ag => ag.groupId === x
+                );
+                // if temporary group and artefacts number > 2 : create new group
+                if (x < 0 && artefactGroup!.artefactIds.length >= 2) {
                     if (artefactGroup) {
-                        const savedGroup = this.editionService.newGroup(
+                        const savedGroup = await this.editionService.newGroup(
                             this.editionId,
                             artefactGroup
                         );
-                        artefactGroup.groupId = savedGroup.groupId;
-                        this.operationsManager.updateStackIds(
-                            x,
-                            savedGroup.groupId
+                        artefactGroup.groupId = savedGroup.id;
+                        this.operationsManager.updateStackIds(x, savedGroup.id);
+                    }
+                // if existing group and artefacts number > 2 : update group and its artefacts
+                } else if (x > 0 && artefactGroup!.artefactIds.length >= 2) {
+                    if (artefactGroup) {
+                        const artefacts = artefactGroup.artefactIds.map(
+                            id => this.$state.artefacts.find(id) as Artefact
+                        );
+                        await this.editionService.updateArtefactDTOs(
+                            this.editionId,
+                            artefacts
+                        );
+                        const savedGroup = await this.editionService.updateGroup(
+                            this.editionId,
+                            artefactGroup
+                        );
+                    }
+                // if existing group and artefacts number === 0 : delete group from edition
+                } else if (x > 0 && !artefactGroup!.artefactIds.length) {
+                    if (artefactGroup) {
+                        const savedGroup = await this.editionService.deleteGroup(
+                            this.editionId,
+                            artefactGroup.groupId
+                        );
+                    }
+                // if temporary group and artefacts number === 1 : editing single artefact placement
+                } else if (x < 0 && artefactGroup!.artefactIds.length === 1) {
+                    if (artefactGroup) {
+                        const artefacts = artefactGroup.artefactIds.map(
+                            id => this.$state.artefacts.find(id) as Artefact
+                        );
+                        await this.editionService.updateArtefactDTOs(
+                            this.editionId,
+                            artefacts
                         );
                     }
                 }
@@ -235,14 +268,20 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             });
 
             artefact.placeOnScroll(placement);
-            this.operationsManager.addOperation(
-                new PlacementOperation(
+            this.selectedGroup = new ArtefactGroup([artefact.id]);
+            const operation = new PlacementOperation(
                     artefact.id,
                     'add',
                     Placement.empty,
                     placement
+                );
+            this.operationsManager.addOperation(
+                new GroupPlacementOperations(
+                    this.selectedGroup.groupId,
+                    [operation]
                 )
             );
+            this.edition!.artefactGroups.push({ ...this.selectedGroup });
         }
     }
 
@@ -272,13 +311,13 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
         this.cancelGroup();
     }
-
+    // delete the artefacts in the artefactGroups
     private deleteGroup(groupId: number) {
-        const index = this.edition!.artefactGroups.findIndex(
+        const groupArtefact = this.edition!.artefactGroups.find(
             x => x.groupId === groupId
         );
-        if (index > -1) {
-            this.edition!.artefactGroups.splice(index, 1);
+        if (groupArtefact) {
+            groupArtefact.artefactIds = [];
         }
     }
 

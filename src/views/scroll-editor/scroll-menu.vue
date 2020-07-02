@@ -66,7 +66,7 @@
                                         <b-button
                                             size="sm"
                                             :disabled="!artefact"
-                                            @click="removeArtefact()"
+                                            @click="removeArtefactOrGroup()"
                                         >{{$t('misc.remove')}} artefact</b-button>
                                     </b-button-group>
                                 </b-card-header>
@@ -170,7 +170,7 @@ export default class ScrollMenu extends Vue {
         this.newOperation(operation);
     }
 
-    public removeArtefact() {
+    public removeArtefactOrGroup() {
         const operations: ScrollEditorOperation[] = [];
 
         this.selectedArtefacts.forEach(art => {
@@ -185,8 +185,12 @@ export default class ScrollMenu extends Vue {
             'delete'
         );
         this.newOperation(groupPlacementOperations);
+
+        // if it's a real group, empty it by calling onDeleteGroup
+        if (this.selectedArtefacts.length > 1) {
+            this.$emit('onDeleteGroup', this.selectedGroup.groupId);
+        }
         this.cancelGroup();
-        this.$emit('onDeleteGroup', this.selectedGroup.groupId);
     }
 
     public notifyChange(paramName: string, paramValue: any) {

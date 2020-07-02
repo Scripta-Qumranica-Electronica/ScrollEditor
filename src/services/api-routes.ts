@@ -124,7 +124,7 @@ export namespace ApiRoutes {
     }
 
     export function artefactGroupUrl(editionId: number, groupId?: number) {
-        let url = `/${baseUrl}/${editions}/${editionId}/${artefacts}-group`;
+        let url = `/${baseUrl}/${editions}/${editionId}/artefact-groups`;/* correct the api-route in the backend*/
         if (groupId) {
             url += `/${groupId}`;
         }

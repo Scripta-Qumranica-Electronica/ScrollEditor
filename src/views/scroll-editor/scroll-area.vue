@@ -129,9 +129,9 @@ export default class ScrollArea extends Vue {
         return this.$state.artefacts.items || [];
     }
 
-    private artefactGroup(artefact: Artefact | undefined) {
+    private getArtefactGroup(artefact: Artefact | undefined) {
         return this.edition!.artefactGroups.find(
-            x => artefact && x.artefactIds.includes(artefact!.id)
+            x => artefact && x.artefactIds.includes(artefact!.id) && x.artefactIds.length > 1
         );
     }
 
@@ -188,7 +188,7 @@ export default class ScrollArea extends Vue {
     }
 
     private isArtefactDisabled(artefact: Artefact | undefined): boolean {
-        const artefactGroup = this.artefactGroup(artefact);
+        const artefactGroup = this.getArtefactGroup(artefact);
         return (
             this.params.mode === 'manageGroup' &&
             !!artefactGroup &&

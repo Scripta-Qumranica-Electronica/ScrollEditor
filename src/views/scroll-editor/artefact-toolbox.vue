@@ -197,7 +197,7 @@
                                 <b-button-group>
                                     <b-button
                                         v-if="!float"
-                                        :disabled=" params.mode !== 'manageGroup'"
+                                        :disabled="params.mode !== 'manageGroup' || selectedArtefacts.length < 2"
                                         class="m-1"
                                         size="sm"
                                         @click="saveGroup()"
