@@ -1,5 +1,5 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
@@ -98,7 +98,7 @@ class EditionInfo {
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit?: Date;
-    public artefactGroups: ArtefactGroup[];
+    public metrics: EditionManuscriptMetricsDTO;
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -107,12 +107,27 @@ class EditionInfo {
 
     // The following are loaded when necessary
     public textFragments: TextFragmentData[] = [];
+    public artefactGroups: ArtefactGroup[];
+
+    public get ppm(): number {  // Pixels per milimeter
+        return this.metrics.ppi / 25.4;
+    }
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;
         this.name = dto.name;
         this.permission = new Permissions(dto.permission); // isAdmin, mayWrite
         this.owner = new UserInfo(dto.owner);
+        this.metrics = dto.metrics;
+
+        // Update metrics so we have no zero-sized scrolls
+        if (!this.metrics.width) {
+            this.metrics.width = 1000;  // One meter wide
+        }
+        if (!this.metrics.height) {
+            this.metrics.height = 500; // 50 centimiters high
+        }
+
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }

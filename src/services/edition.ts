@@ -267,6 +267,9 @@ class EditionService {
         // GET from ApiRout3s.artefactGroup(edtionId) , returning ArtefactGroupListDTO
         // function shloud return a List<ArtefactGroup>
     }
+
+    // TODO: Add an updateMetrics method that gets an editionId and edition-metrics-dto and updates
+    // Call the same update endpoint as renameEdition, but pass the metrics and not a name.
 }
 
 export default EditionService;

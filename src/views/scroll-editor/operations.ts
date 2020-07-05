@@ -127,7 +127,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             const removedGroup = new ArtefactGroup(artefactIds);
             removedGroup.groupId = this.groupId;
             // add the created group in store
-            const group = state().editions.current!.artefactGroups.find(group => group.groupId === this.groupId);
+            const group = state().editions.current!.artefactGroups.find(g => g.groupId === this.groupId);
             if (group) {
                 group.artefactIds = [...artefactIds];
             }
@@ -151,8 +151,8 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             (op as GroupPlacementOperations).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
             this.operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
 
-            const prevIds = (op as GroupPlacementOperations).operations.map(op => op.getId());
-            const nextIds = this.operations.map(op => op.getId());
+            const prevIds = (op as GroupPlacementOperations).operations.map(o => o.getId());
+            const nextIds = this.operations.map(o => o.getId());
 
             const areSameArrays = prevIds.length === nextIds.length
                 && prevIds.every((value, index) => value === nextIds[index]);
