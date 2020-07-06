@@ -26,7 +26,7 @@
                 id="the-scroll"
                 :width="actualWidth"
                 :height="actualHeight"
-                :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
+                :viewBox="`${actualXOrigin} ${actualYOrigin} ${actualWidth} ${actualHeight}`"
             >
                 <g id="root" :transform="transform">
                     <artefact-image-group
@@ -91,8 +91,6 @@ export default class ScrollArea extends Vue {
     public params!: ScrollEditorParams;
     @Prop()
     private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
-    private imageWidth = 10000;
-    private imageHeight = 10000;
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
     private selectedArtefact: Artefact | undefined = {} as Artefact;
@@ -122,7 +120,7 @@ export default class ScrollArea extends Vue {
     }
 
     private get edition() {
-        return this.$state.editions.current;
+        return this.$state.editions.current!;
     }
 
     private get artefacts() {
@@ -136,15 +134,25 @@ export default class ScrollArea extends Vue {
     }
 
     private get actualWidth(): number {
-        return this.imageWidth * this.zoomLevel;
+        return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
     }
 
     private get actualHeight(): number {
-        return this.imageHeight * this.zoomLevel;
+        return this.edition.metrics.height * this.edition.ppm * this.zoomLevel;
     }
+
+    private get actualXOrigin(): number {
+        return this.edition.metrics.xOrigin * this.edition.ppm * this.zoomLevel;
+    }
+
+    private get actualYOrigin(): number {
+        return this.edition.metrics.yOrigin * this.edition.ppm * this.zoomLevel;
+    }
+
     private get positionX(): number {
         return this.actualWidth / 2;
     }
+
     private get positionY(): number {
         return this.actualHeight / 2;
     }

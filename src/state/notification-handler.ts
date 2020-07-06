@@ -35,7 +35,7 @@ export class NotificationHandler {
 
         if (storedEdition) {
             const editionInfo = new EditionInfo(edition);
-            const newEdition = { ...storedEdition, ...editionInfo };
+            const newEdition = { ...storedEdition, ...editionInfo } as EditionInfo;
             state().editions.update(newEdition);
         }
     }

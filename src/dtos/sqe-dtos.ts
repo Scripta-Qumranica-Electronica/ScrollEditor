@@ -79,6 +79,7 @@ export interface EditionDTO {
     owner: UserDTO;
     thumbnailUrl: string;
     shares: DetailedEditorRightsDTO[];
+    metrics: EditionManuscriptMetricsDTO;
     locked: boolean;
     isPublic: boolean;
     lastEdit: string;
@@ -167,13 +168,25 @@ export interface DeleteDTO {
     entity: EditionEntities;
     ids: number[];
 }
-export interface EditionUpdateRequestDTO {
+
+export interface EditionUpdateRequestDTO extends EditionCopyDTO {
+    metrics: UpdateEditionManuscriptMetricsDTO;
+}
+export interface EditionCopyDTO {
     name: string;
     copyrightHolder: string;
     collaborators: string;
 }
+export interface UpdateEditionManuscriptMetricsDTO {
+    width: number;
+    height: number;
+    xOrigin: number;
+    yOrigin: number;
+}
 
-export interface EditionCopyDTO extends EditionUpdateRequestDTO {
+export interface EditionManuscriptMetricsDTO extends UpdateEditionManuscriptMetricsDTO {
+    ppi: number;
+    editorId: number;
 }
 
 export interface ImageDTO {

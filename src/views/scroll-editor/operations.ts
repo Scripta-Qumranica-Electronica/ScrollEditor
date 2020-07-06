@@ -125,8 +125,6 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             // recreate the group with id 'this.groupId'
             const artefactIds = this.operations.map(artOp => artOp.getId());
             const removedGroup = ArtefactGroup.generateGroup(artefactIds);
-
-            
             // removedGroup.groupId = this.groupId;
             // add the created group in store
             // const group = state().editions.current!.artefactGroups.find(group => group.groupId === this.groupId);
@@ -134,7 +132,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             //     group.artefactIds = [...artefactIds];
             // }
             state().editions.current!.artefactGroups.push(removedGroup);
-                this.groupId = removedGroup.id;
+            this.groupId = removedGroup.id;
             state().eventBus.$emit('update-operation-id', this.groupId, removedGroup.id);
             state().eventBus.$emit('select-group', removedGroup);
         }
@@ -155,8 +153,8 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             (op as GroupPlacementOperations).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
             this.operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
 
-            const prevIds = (op as GroupPlacementOperations).operations.map(op => op.getId());
-            const nextIds = this.operations.map(op => op.getId());
+            const prevIds = (op as GroupPlacementOperations).operations.map(o => o.getId());
+            const nextIds = this.operations.map(o => o.getId());
 
             const areSameArrays = prevIds.length === nextIds.length
                 && prevIds.every((value, index) => value === nextIds[index]);

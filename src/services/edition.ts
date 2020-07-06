@@ -259,10 +259,11 @@ class EditionService {
         return response.data.artefactGroups.map(
             artGroupDto => new ArtefactGroup(artGroupDto));
     }
-    // public async updateMetrics(editionId: number, metrics: EditionManuscriptMetricsDTO) {
-    //     const response = this.renameEdition(editionId, metrics);
-    //     return response;
-    // }
+
+
+    // TODO: Add an updateMetrics method that gets an editionId and edition-metrics-dto and updates
+    // Call the same update endpoint as renameEdition, but pass the metrics and not a name.
+
 }
 
 export default EditionService;
