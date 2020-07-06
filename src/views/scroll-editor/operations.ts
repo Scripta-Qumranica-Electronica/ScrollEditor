@@ -124,15 +124,19 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         if (this.type === 'delete') {
             // recreate the group with id 'this.groupId'
             const artefactIds = this.operations.map(artOp => artOp.getId());
-            const removedGroup = new ArtefactGroup(artefactIds);
-            removedGroup.groupId = this.groupId;
-            // add the created group in store
-            const group = state().editions.current!.artefactGroups.find(group => group.groupId === this.groupId);
-            if (group) {
-                group.artefactIds = [...artefactIds];
-            }
+            const removedGroup = ArtefactGroup.generateGroup(artefactIds);
 
-            state().eventBus.$emit('select-group', this.group);
+            
+            // removedGroup.groupId = this.groupId;
+            // add the created group in store
+            // const group = state().editions.current!.artefactGroups.find(group => group.groupId === this.groupId);
+            // if (group) {
+            //     group.artefactIds = [...artefactIds];
+            // }
+            state().editions.current!.artefactGroups.push(removedGroup);
+                this.groupId = removedGroup.id;
+            state().eventBus.$emit('update-operation-id', this.groupId, removedGroup.id);
+            state().eventBus.$emit('select-group', removedGroup);
         }
     }
 

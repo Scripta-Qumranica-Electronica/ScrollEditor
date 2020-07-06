@@ -79,7 +79,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     public disabled!: boolean;
     @Prop() public readonly transformRootId!: string;
     @Prop()
-    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
+    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private mouseOrigin?: Point;
     private loaded = false;
     private pointerId: number = -1;

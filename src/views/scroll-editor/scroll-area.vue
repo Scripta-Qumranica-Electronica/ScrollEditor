@@ -90,7 +90,7 @@ export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
     @Prop()
-    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
+    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private imageWidth = 10000;
     private imageHeight = 10000;
     private imageSettings!: ImageSetting;

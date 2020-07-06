@@ -276,7 +276,7 @@ export default class ArtefactToolbox extends Vue {
     @Prop({ default: true })
     public keyboardInput!: boolean;
     @Prop()
-    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
+    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
 
     private reset!: number;
     private zoomDelta!: number;

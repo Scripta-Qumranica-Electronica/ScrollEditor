@@ -14,7 +14,8 @@ import {
     CreateArtefactDTO,
     UpdateArtefactGroupDTO,
     CreateArtefactGroupDTO,
-    ArtefactGroupDTO
+    ArtefactGroupDTO,
+    ArtefactGroupListDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -123,29 +124,19 @@ class EditionService {
             throw new Error(`Can't find non-existing edition ${editionId}`);
         }
 
-        // TODO:
-        // We need to call the server using the endpoint v1/editions/<edition-id>/add-editor-request
-        // We need to supply a CreateEditorsRightDTO object for this.
-        //
-        // step 1: get the URL
         const url = ApiRoutes.editionRequestEditor(editionId);
 
-        // Step 2: Fill the DTO
-        // Fill the fields: mayRead, isAdmin, mayLock (same as isAdmin), mayWrite and email
         const rights = Permissions.extractPermission(permission);
         const dto = {
             email,
             ...rights
         } as InviteEditorDTO;
 
-        // Step 3: Call the backend using CommHelper.post - the server does not return a DTO in response
         await CommHelper.post<EditionDTO>(
             url,
             dto
         );
 
-        // Step 4: update the edition to include the new invitation - if there is already an
-        // invitation for this editor, overwrite it instead of adding the same one.
         const invitationIdx = edition.invitations.findIndex(i => i.email === email);
         const permissionsDTO = new Permissions({
             mayWrite: rights.mayWrite,
@@ -220,18 +211,15 @@ class EditionService {
             artefactPlacements
         } as BatchUpdateArtefactPlacementDTO;
 
-        // Call server: CommHelper.post<BatchUpdatedArtefactTrasnformDTO>...
         const response = await CommHelper.post<BatchUpdateArtefactPlacementDTO>(
             ApiRoutes.batchUpdateArtefactDTOs(editionId),
             dto
         );
 
-        // Return value
         return response.data;
     }
 
-    // Rename all functions: newArtefactGroup, updateArtefactGroup, etc...
-    public async newGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+    public async newArtefactGroup(editionId: number, artefactsGroup: ArtefactGroup) {
 
 
         const dto: CreateArtefactGroupDTO = {
@@ -244,7 +232,7 @@ class EditionService {
         return response.data;
     }
 
-    public async updateGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+    public async updateArtefactGroup(editionId: number, artefactsGroup: ArtefactGroup) {
 
         const dto: UpdateArtefactGroupDTO = {
             name: artefactsGroup.groupId.toString(),
@@ -259,14 +247,22 @@ class EditionService {
         return response.data;
     }
 
-    public async deleteGroup(editionId: number, groupId: number) {
+    public async deleteArtefactGroup(editionId: number, groupId: number) {
         await CommHelper.delete(ApiRoutes.artefactGroupUrl(editionId, groupId));
     }
 
-    public getGroups(editonId: number) {
-        // GET from ApiRout3s.artefactGroup(edtionId) , returning ArtefactGroupListDTO
-        // function shloud return a List<ArtefactGroup>
+    public async getArtefactGroups(editionId: number): Promise<ArtefactGroup[]> {
+        const response = await CommHelper.get<ArtefactGroupListDTO>(
+            ApiRoutes.artefactGroupUrl(editionId)
+        );
+
+        return response.data.artefactGroups.map(
+            artGroupDto => new ArtefactGroup(artGroupDto));
     }
+    // public async updateMetrics(editionId: number, metrics: EditionManuscriptMetricsDTO) {
+    //     const response = this.renameEdition(editionId, metrics);
+    //     return response;
+    // }
 }
 
 export default EditionService;

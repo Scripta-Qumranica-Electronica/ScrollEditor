@@ -1,5 +1,5 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO, ArtefactGroupDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
@@ -127,13 +127,42 @@ class EditionInfo {
     }
 }
 class ArtefactGroup {
+
+    public static generateGroup(artefactsIds: number[]): ArtefactGroup {
+        const dto: ArtefactGroupDTO = {
+            id: Math.floor(Math.random() * -10),
+            artefacts: [...artefactsIds],
+            name: ''
+        }
+        return new ArtefactGroup(dto);
+    }
+
     public groupId: number = 0;
+    public name: string = '';
     public artefactIds: number[] = [];
 
-    constructor(artefactsIds: number[]) {
-        this.groupId = Math.floor(Math.random() * -10);
-        this.artefactIds.push(...artefactsIds);
+    public get id() {
+        // State collections require an id field (look for ItemWithId)
+        return this.groupId;
     }
+
+    constructor(dto: ArtefactGroupDTO) {
+        // this.groupId = Math.floor(Math.random() * -10);
+        // this.artefactIds.push(...artefactsIds);
+        this.groupId = dto.id;
+        this.name = dto.name;
+        this.artefactIds = [...dto.artefacts];
+    }
+
+    public clone() {
+        const dto: ArtefactGroupDTO = {
+            id: this.groupId,
+            artefacts: [...this.artefactIds],
+            name: this.name
+        };
+        return new ArtefactGroup(dto);
+    }
+
 }
 
 export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, ArtefactGroup };

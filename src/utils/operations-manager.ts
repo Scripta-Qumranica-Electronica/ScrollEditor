@@ -127,7 +127,12 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     }
 
     public updateStackIds(oldId: K, newId: K) {
-        const entityOperations = this.undoStack.filter(
+        let entityOperations = this.undoStack.filter(
+            x => x.getId() === oldId
+        );
+        entityOperations.forEach(x => x.replaceEntityId(newId));
+
+        entityOperations = this.redoStack.filter(
             x => x.getId() === oldId
         );
         entityOperations.forEach(x => x.replaceEntityId(newId));
