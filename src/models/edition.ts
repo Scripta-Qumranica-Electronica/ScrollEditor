@@ -5,7 +5,7 @@ import { TextFragmentData } from './text';
 
 type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
-class UserInfo { // TODO: add fields like UserDTO ?
+class UserInfo {
     public email: string;
     public userId: number;
     public forename: string;
@@ -14,7 +14,7 @@ class UserInfo { // TODO: add fields like UserDTO ?
     constructor(dto: UserDTO) {
         this.email = dto.email;
         this.userId = dto.userId;
-        this.forename = ''; // TODO - do we even need this? dto.forename;
+        this.forename = '';
     }
 }
 
@@ -145,10 +145,12 @@ class ArtefactGroup {
 
     public static generateGroup(artefactsIds: number[]): ArtefactGroup {
         const dto: ArtefactGroupDTO = {
-            id: Math.floor(Math.random() * -10),
+            id: Math.floor(Math.random() * -10), 
+            // Shaindel: This is bad. Add a static variable called 'nextGroupId' which starts with -1.
+            // Use that when creating a new group, and decrease it, so nextGroupId becomes -2 for the next group
             artefacts: [...artefactsIds],
             name: ''
-        }
+        };
         return new ArtefactGroup(dto);
     }
 

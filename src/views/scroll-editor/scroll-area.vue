@@ -90,15 +90,15 @@ export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
     @Prop()
-    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
+    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]); // Shaindel - why is this not of type ArtefactGroup | undefined?
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
     private selectedArtefact: Artefact | undefined = {} as Artefact;
     private draggableOptions: DraggableValue = {};
 
     public selectArtefact(artefact: Artefact | undefined) {
-        this.selectedArtefact = artefact;
-        this.$emit('onSelectArtefact', this.selectedArtefact);
+        this.selectedArtefact = artefact; // Shaindel - you don't clear selectedGroup here
+        this.$emit('onSelectArtefact', this.selectedArtefact);  // Shaindel - why isn't the selected group transmitted to scroll-editor?
     }
 
     private created() {
@@ -112,7 +112,7 @@ export default class ScrollArea extends Vue {
     }
 
     private mounted() {
-        this.selectedArtefact = undefined;
+        this.selectedArtefact = undefined; // Shaindel - what about selectedGroup?
 
         this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
         this.draggableOptions.boundingElement = this.$refs
@@ -128,6 +128,7 @@ export default class ScrollArea extends Vue {
     }
 
     private getArtefactGroup(artefact: Artefact | undefined) {
+        // Shaindel: Will someone call this with an undefined artefact?
         return this.edition!.artefactGroups.find(
             x => artefact && x.artefactIds.includes(artefact!.id) && x.artefactIds.length > 1
         );
@@ -196,6 +197,7 @@ export default class ScrollArea extends Vue {
     }
 
     private isArtefactDisabled(artefact: Artefact | undefined): boolean {
+        // Shaindel - will someone call this with an undefined artefact?
         const artefactGroup = this.getArtefactGroup(artefact);
         return (
             this.params.mode === 'manageGroup' &&

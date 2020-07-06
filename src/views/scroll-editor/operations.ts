@@ -40,7 +40,7 @@ export abstract class ScrollEditorOperation implements Operation<ScrollEditorOpe
     }
 }
 
-export class PlacementOperation extends ScrollEditorOperation {
+export class PlacementOperation extends ScrollEditorOperation {  // Shaindel: Rename to ArtefactPlacementOperation
     public prev: Placement;
     public next: Placement;
 
@@ -103,9 +103,10 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
     public type: GroupPlacementOperationType;
 
     private get group(): ArtefactGroup | undefined {
-
+        // Shaindel: Do not return undefined - if the group is undefined this is a bug (so throw an exception)
         return state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
     }
+
     public constructor(
         public groupId: number,
         operations: ScrollEditorOperation[],
@@ -132,7 +133,14 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             //     group.artefactIds = [...artefactIds];
             // }
             state().editions.current!.artefactGroups.push(removedGroup);
-            this.groupId = removedGroup.id;
+            this.groupId = removedGroup.id; 
+            // Shaindel: what happens if the group has an ID of 3, I delete the group and then
+            // undo the deletion before saveEntities is called? The server will still have a group
+            // ID of 3, and also try to save a new group with the same artefact IDs.
+            // I think this should be different - do not change the group's ID at all here, instead, change
+            // it from a positive number to a negative number after deleting the group in the server
+            // so the delete operation will fire an `update-operation-id` event, to change the ID to
+            // a negative number
             state().eventBus.$emit('update-operation-id', this.groupId, removedGroup.id);
             state().eventBus.$emit('select-group', removedGroup);
         }
@@ -142,8 +150,10 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         this.operations.forEach(
             op => op.redo()
         );
-        
+
         if (this.type === 'delete') {
+            // Shaindel: Is there a place that documents all these events? There should be a list of
+            // all the events, their parameters and what they are used for.
             state().eventBus.$emit('delete-group', this.groupId);
             state().eventBus.$emit('cancel-group');
         }
@@ -158,6 +168,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 
     public uniteWith(op: PlacementOperation | GroupPlacementOperations): GroupPlacementOperations | undefined {
         if (op.type === 'placement') {
+            // Shaindel - add comments, it's not clear what this does.
             (op as GroupPlacementOperations).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
             this.operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
 
@@ -183,7 +194,6 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             }
 
             return undefined;
-
         }
     }
 
@@ -198,9 +208,12 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 }
 
 export class EditGroupOperation implements Operation<EditGroupOperation> {
-
+    // Shaindel - add a comment - which kind of operation is this? How is this
+    // different from GroupPlacementOperation with a type of edit?
+    
     private get group(): ArtefactGroup | undefined {
-
+        // Shaindel - this, too, shouldn't return undefined ever. It should throw an exception if
+        // the group is not found, as this is glearly a bug
         return state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
     }
 
