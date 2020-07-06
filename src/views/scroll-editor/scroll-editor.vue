@@ -35,7 +35,7 @@
                 <div class="artefact-container" :class="{active: isActive}">
                     <!-- {{edition.artefactGroups}}
                     {{selectedGroup}} -->
-                    <scroll-area
+                    <scroll-area v-if="edition"
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
                         @onSaveGroupArtefacts="saveGroupArtefacts()"
@@ -139,10 +139,14 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
     public async saveEntities(artefactsGroupIds: number[]): Promise<boolean> {
         try {
+            let artefactGroup: ArtefactGroup | undefined;
             artefactsGroupIds.forEach(async x => {
-                const artefactGroup = this.edition!.artefactGroups.find(
+                artefactGroup = this.edition!.artefactGroups.find(
                     ag => ag.groupId === x
                 );
+                // if not artefactGroup in store :
+                artefactGroup = this.selectedGroup;
+
                 // if temporary group and artefacts number > 2 : create new group
                 if (x < 0 && artefactGroup!.artefactIds.length >= 2) {
                     if (artefactGroup) {
@@ -280,7 +284,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
             });
 
             artefact.placeOnScroll(placement);
-            this.selectedGroup = ArtefactGroup.generateGroup(artefact.id);
+            this.selectedGroup = ArtefactGroup.generateGroup([artefact.id]);
             const operation = new PlacementOperation(
                 artefact.id,
                 'add',
@@ -292,7 +296,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                     operation
                 ])
             );
-            this.edition!.artefactGroups.push({ ...this.selectedGroup });
+            this.edition!.artefactGroups.push(this.selectedGroup.clone());
         }
     }
 
@@ -317,7 +321,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 group.artefactIds = [...this.selectedGroup.artefactIds];
             }
         } else {
-            this.edition!.artefactGroups.push({ ...this.selectedGroup });
+            this.edition!.artefactGroups.push(this.selectedGroup.clone());
         }
 
         this.cancelGroup();
@@ -339,9 +343,9 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private onNewOperation(
         op: ScrollEditorOperation | GroupPlacementOperations
     ) {
-        if (op.type === 'delete') {
-            this.cancelGroup();
-        }
+        // if (op.type === 'delete') {
+        //     this.cancelGroup();
+        // }
         this.operationsManager.addOperation(op);
     }
 

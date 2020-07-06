@@ -142,9 +142,17 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         this.operations.forEach(
             op => op.redo()
         );
+        
         if (this.type === 'delete') {
             state().eventBus.$emit('delete-group', this.groupId);
             state().eventBus.$emit('cancel-group');
+        }
+
+        const artefactIds = this.operations.map(artOp => artOp.getId());
+        // if the edit was on an artefact, select the artefact
+        if (artefactIds.length < 2) {
+            const group = ArtefactGroup.generateGroup(artefactIds);
+            state().eventBus.$emit('select-group', group);
         }
     }
 
