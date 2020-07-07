@@ -10,7 +10,7 @@ function state() {
     return StateManager.instance;
 }
 
-export type ScrollEditorOperationCategory = 'artefact' | 'group' | 'edit-group' | 'edition-size';
+export type ScrollEditorOperationCategory = 'artefact' | 'group' | 'edit-group' | 'edition-metrics';
 
 export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
     public constructor(public category: ScrollEditorOperationCategory) {}
@@ -274,3 +274,10 @@ export class EditGroupOperation extends ScrollEditorOperation {
     }
 }
 
+// Shaindel - you can add an EditionMetricsOperation class that extends ScrollEditorOperation.
+// In its constructor call super('edition-metrics').
+// In its uniteWith function just return undefined. The argument to uniteWith should be a ScrollEditorOperation.
+
+/*export class EditionMetricOperation extends ScrollEditorOperation {
+
+} */

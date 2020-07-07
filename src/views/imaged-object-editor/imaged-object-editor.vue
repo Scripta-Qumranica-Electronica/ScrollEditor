@@ -155,7 +155,7 @@ import { ImagedObjectEditorOperation } from './operations';
         'edition-icons': EditionIcons
     }
 })
-export default class ImagedObjectEditor extends Vue implements SavingAgent {
+export default class ImagedObjectEditor extends Vue implements SavingAgent<ImagedObjectEditorOperation> {
     private static colors = [
         'purple',
         'blue',
@@ -185,16 +185,15 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent {
     private isActive = false;
     private masterImage?: IIIFImage;
     private side: Side = 'recto';
-    private operationsManager = new OperationsManager<
-        ImagedObjectEditorOperation
-    >(this);
+    private operationsManager = new OperationsManager<ImagedObjectEditorOperation>(this);
 
-    public async saveEntities(ids: number[]): Promise<boolean> {
+    public async saveEntities(ops: ImagedObjectEditorOperation[]): Promise<boolean> {
         // if (!this.artefact) {
         //     throw new Error("Can't save if there is no artefact");
         // }
 
-        for (const id of ids) {
+        for (const op of ops) {
+            const id = op.getId();
             const artefact = this.artefacts.find(x => x.id === id);
             if (!artefact) {
                 console.warn(`Can't find artefact ${id} for saving`);

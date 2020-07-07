@@ -84,7 +84,7 @@ import { ArtefactGroup } from '../../models/edition';
         'scroll-area': ScrollArea
     }
 })
-export default class ScrollEditor extends Vue implements SavingAgent {
+export default class ScrollEditor extends Vue implements SavingAgent<ScrollEditorOperation> {
     private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
     private metricsHasChanged: boolean = false;
@@ -142,7 +142,19 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         }
     }
 
-    public async saveEntities(artefactsGroupIds: number[]): Promise<boolean> {
+    public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
+        // Shaindel: ops is an array of all the operations that need to be saved.
+        // you can check their type:
+        //
+        // if (op instanceof ArtefactPlacementOperation) ... is for artefact placements operations
+        // To get all the group operations, you can do ops.filter(op => op instanceof GroupPlacementOperation)
+        //
+        // This should make the logic simpler.
+        // First you get all the artefacts (from the artefact operations and the group operations) and save them in bulk.
+        // Then you take all the EditGroup operations and update the groups.
+        // When you add the EditionMetricsOperation - if you find any of these, you just save the edition's current metrics.
+
+        const artefactsGroupIds = ops.map(op => op.getId());
         try {
             let artefactGroup: ArtefactGroup | undefined;
             artefactsGroupIds.forEach(async x => {
