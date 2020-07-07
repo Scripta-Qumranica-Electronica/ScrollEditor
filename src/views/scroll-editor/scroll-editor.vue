@@ -69,7 +69,7 @@ import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import {
     ScrollEditorOperation,
     ArtefactPlacementOperation,
-    GroupPlacementOperations,
+    GroupPlacementOperation,
     EditGroupOperation
 } from './operations';
 import EditionService from '@/services/edition';
@@ -84,7 +84,7 @@ import { ArtefactGroup } from '../../models/edition';
         'scroll-area': ScrollArea
     }
 })
-export default class ScrollEditor extends Vue implements SavingAgent {
+export default class ScrollEditor extends Vue implements SavingAgent<ScrollEditorOperation> {
     private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
     private metricsHasChanged: boolean = false;
@@ -94,9 +94,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
     private editionService = new EditionService();
     private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     // Shaindel - what happens if only one artefact is selected?
-    private operationsManager = new OperationsManager<
-        ScrollEditorOperation | GroupPlacementOperations | EditGroupOperation
-    >(this);
+    private operationsManager = new OperationsManager<ScrollEditorOperation>(this);
 
     public selectGroup(group: ArtefactGroup) {
         this.selectedGroup = group.clone();
@@ -106,13 +104,17 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         this.metricsHasChanged = true;
     }
     public selectArtefact(artefact: Artefact | undefined) {
+        if (!artefact) {
+            this.artefact = undefined;
+            return;
+        }
         const existingGroup = this.edition!.artefactGroups.find(
-            x => artefact && x.artefactIds.includes(artefact!.id)
+            x => artefact && x.artefactIds.includes(artefact.id)
         );
 
         if (this.params.mode === 'manageGroup') {
             const isSelectedIndex = this.selectedGroup.artefactIds.findIndex(
-                a => a === artefact!.id
+                a => a === artefact.id
             );
 
             if (isSelectedIndex > -1) {
@@ -124,26 +126,35 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 existingGroup.groupId === this.selectedGroup.groupId
             ) {
                 // if artefact not in any group or in this group but was unselected
-                this.selectedGroup.artefactIds.push(artefact!.id!);
+                this.selectedGroup.artefactIds.push(artefact.id);
             }
         } else {
             if (existingGroup) {
                 // if artefact already in group
                 this.selectedGroup.groupId = existingGroup.groupId;
                 this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
-            }
-            // else if (!artefact) {
-            // / this.cancelGroup();}
-            else {
+            } else {
                 this.selectedGroup = ArtefactGroup.generateGroup([
-                    artefact!.id!
+                    artefact.id
                 ]);
             }
             this.artefact = artefact;
         }
     }
 
-    public async saveEntities(artefactsGroupIds: number[]): Promise<boolean> {
+    public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
+        // Shaindel: ops is an array of all the operations that need to be saved.
+        // you can check their type:
+        //
+        // if (op instanceof ArtefactPlacementOperation) ... is for artefact placements operations
+        // To get all the group operations, you can do ops.filter(op => op instanceof GroupPlacementOperation)
+        //
+        // This should make the logic simpler.
+        // First you get all the artefacts (from the artefact operations and the group operations) and save them in bulk.
+        // Then you take all the EditGroup operations and update the groups.
+        // When you add the EditionMetricsOperation - if you find any of these, you just save the edition's current metrics.
+
+        const artefactsGroupIds = ops.map(op => op.getId());
         try {
             let artefactGroup: ArtefactGroup | undefined;
             artefactsGroupIds.forEach(async x => {
@@ -186,7 +197,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                             artefactGroup.groupId
                         );
                         const groupIdx = this.edition!.artefactGroups.findIndex(
-                            g => g.id === artefactGroup.id
+                            g => g.id === artefactGroup!.id
                         );
                         this.edition!.artefactGroups.splice(groupIdx, 1);
                     }
@@ -303,7 +314,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 placement
             );
             this.operationsManager.addOperation(
-                new GroupPlacementOperations(this.selectedGroup.groupId, [
+                new GroupPlacementOperation(this.selectedGroup.groupId, [
                     operation
                 ])
             );
@@ -351,9 +362,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
         this.operationsManager.save();
     }
 
-    private onNewOperation(
-        op: ScrollEditorOperation | GroupPlacementOperations
-    ) {
+    private onNewOperation(op: ScrollEditorOperation) {
         // if (op.type === 'delete') {
         //     this.cancelGroup();
         // }

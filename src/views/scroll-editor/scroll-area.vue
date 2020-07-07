@@ -78,7 +78,7 @@ import { ArtefactGroup } from '@/models/edition';
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -90,7 +90,7 @@ export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
     @Prop()
-    private selectedGroup: ArtefactGroup | undefined // Shaindel - why is this not of type ArtefactGroup | undefined?
+    private selectedGroup: ArtefactGroup | undefined; // Shaindel - why is this not of type ArtefactGroup | undefined?
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
     private selectedArtefact: Artefact | undefined = {} as Artefact;

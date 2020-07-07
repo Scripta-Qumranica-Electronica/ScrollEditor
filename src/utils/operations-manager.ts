@@ -25,30 +25,39 @@ export interface OperationsManagerStatus {
     isSaving: boolean;
 }
 
-export interface SavingAgent<K = number> {
-    saveEntities(ids: K[]): Promise<boolean>;  // Saves elements, returns false if saving failed, true if succeeded
+export interface SavingAgent<OP extends Operation<OP, K>, K = number> {
+    saveEntities(ids: OP[]): Promise<boolean>;  // Saves elements, returns false if saving failed, true if succeeded
 }
 
 export class OperationsManager<OP extends Operation<OP, K>, K = number> implements OperationsManagerStatus {
     private undoStack: OP[] = [];
     private redoStack: OP[] = [];
-    private dirty: Set<K> = new Set<K>();
+    private dirty: Set<OP> = new Set<OP>();
     private _isDirty: boolean = false;
     private saveInProgress: boolean = false;
     private autoSaveTimer?: number;
 
     // Set autoSaveInterval to 0 to disable autoSave
-    constructor(private savingAgent: SavingAgent<K>, public autoSaveInterval = 3000) { }
+    constructor(private savingAgent: SavingAgent<OP, K>, public autoSaveInterval = 3000) { }
 
     // Add operation to the undo stack, uniting operations if applicable
     public addOperation(op: OP) {
         this.redoStack = [];
+        // Check if two operations can be united. Two operations can be united if:
+        // 1. They are of the same type.
+        // 2. op1.uniteWith(op2) returns an operation
+        // 3. The dirty flag is set. If the dirty flag is clear, we must have a new operation, otherwise
+        //    undoing can cause issues with saving.
         if (this.undoStack.length > 0 && this.dirty.size) {
             const lastIndex = this.undoStack.length - 1;
-            const united = op.uniteWith(this.undoStack[lastIndex]);
-            if (united) {
-                this.undoStack[lastIndex] = united;
-                return;
+            const lastOp = this.undoStack[lastIndex];
+
+            if (typeof op === typeof lastOp) {
+                const united = op.uniteWith(lastOp);
+                if (united) {
+                    this.undoStack[lastIndex] = united;
+                    return;
+                }
             }
         }
 
@@ -118,8 +127,8 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
 
         if (!saveOk) {
             // Saving failed, add all dirty elements back
-            for (const id of preSaveDirty) {
-                this.dirty.add(id);
+            for (const op of preSaveDirty) {
+                this.dirty.add(op);
                 this._isDirty = true;
             }
             console.warn('Saving failed');
@@ -127,19 +136,25 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     }
 
     public updateStackIds(oldId: K, newId: K) {
-        let entityOperations = this.undoStack.filter(
-            x => x.getId() === oldId
-        );
-        entityOperations.forEach(x => x.replaceEntityId(newId));
+        // Fix the ids in the undo-stack
+        for (const op of this.undoStack) {
+            if (op.getId() === oldId) {
+                op.replaceEntityId(newId);
+            }
+        }
 
-        entityOperations = this.redoStack.filter(
-            x => x.getId() === oldId
-        );
-        entityOperations.forEach(x => x.replaceEntityId(newId));
+        // The redo-stack
+        for (const op of this.redoStack) {
+            if (op.getId() === oldId) {
+                op.replaceEntityId(newId);
+            }
+        }
+
+        // Don't go over the dirty set, as it contains objects that are in the undo or redo stacks
     }
 
-    private setDirty(op: Operation<OP, K>) {
-        this.dirty.add(op.getId());
+    private setDirty(op: OP) {
+        this.dirty.add(op);
         this._isDirty = true;
 
         if (this.autoSaveInterval) {

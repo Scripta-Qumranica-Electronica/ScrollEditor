@@ -248,7 +248,7 @@ import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
         'edition-icons': EditionIcons
     }
 })
-export default class ArtefactEditor extends Vue implements SavingAgent {
+export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactEditorOperation> {
     public params = new ArtefactEditorParams();
     private selectedSignInterpretation: SignInterpretation | null = null;
     private selectedInterpretationRoi: InterpretationRoi | null = null;
@@ -276,7 +276,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent {
         return this.$state.artefacts.current!;
     }
 
-    public async saveEntities(ids: number[]): Promise<boolean> {
+    public async saveEntities(ops: ArtefactEditorOperation[]): Promise<boolean> {
         const as = new ArtefactService();
 
         this.saving = true;
