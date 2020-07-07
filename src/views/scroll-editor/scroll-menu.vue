@@ -110,9 +110,9 @@ import ArtefactToolbox from './artefact-toolbox.vue';
 import ArtefactService from '@/services/artefact';
 import {
     ScrollEditorOperation,
-    ScrollEditorOperationType,
+    ArtefactPlacementOperationType,
     ArtefactPlacementOperation,
-    GroupPlacementOperations
+    GroupPlacementOperation
 } from './operations';
 import {
     OperationsManager,
@@ -179,7 +179,7 @@ export default class ScrollMenu extends Vue {
                 this.createOperation('delete', Placement.empty, art)
             );
         });
-        const groupPlacementOperations = new GroupPlacementOperations(
+        const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations,
             'delete'
@@ -228,7 +228,7 @@ export default class ScrollMenu extends Vue {
         this.undo();
     }
     private setPlacement(
-        opType: ScrollEditorOperationType,
+        opType: ArtefactPlacementOperationType,
         newTrans: Placement
     ) {
         const op = new ArtefactPlacementOperation(
@@ -241,7 +241,7 @@ export default class ScrollMenu extends Vue {
         this.newOperation(op);
     }
     private createOperation(
-        opType: ScrollEditorOperationType,
+        opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact | undefined
     ): ArtefactPlacementOperation {
@@ -267,7 +267,7 @@ export default class ScrollMenu extends Vue {
         // Just emit the event
     }
     @Emit()
-    private newOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
+    private newOperation(op: ScrollEditorOperation) {
         return op;
     }
 

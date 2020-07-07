@@ -247,9 +247,9 @@ import {
 } from '../artefact-editor/types';
 import {
     ScrollEditorOperation,
-    ScrollEditorOperationType,
+    ArtefactPlacementOperationType,
     ArtefactPlacementOperation,
-    GroupPlacementOperations
+    GroupPlacementOperation
 } from './operations';
 import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '@/models/edition';
@@ -320,7 +320,7 @@ export default class ArtefactToolbox extends Vue {
             placement!.translate.y! += jump * dirY;
             operations.push(this.createOperation('translate', placement, art));
         });
-        const groupPlacementOperations = new GroupPlacementOperations(
+        const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
         );
@@ -383,7 +383,7 @@ export default class ArtefactToolbox extends Vue {
 
             operations.push(this.createOperation('rotate', newPlacement, art));
         });
-        const groupPlacementOperations = new GroupPlacementOperations(
+        const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
         );
@@ -441,7 +441,7 @@ export default class ArtefactToolbox extends Vue {
             trans.scale = +trans.scale.toFixed(4);
             operations.push(this.createOperation('scale', trans, art));
         });
-        const groupPlacementOperations = new GroupPlacementOperations(
+        const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
         );
@@ -455,7 +455,7 @@ export default class ArtefactToolbox extends Vue {
             trans.scale = 1;
             operations.push(this.createOperation('scale', trans, art));
         });
-        const groupPlacementOperations = new GroupPlacementOperations(
+        const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
         );
@@ -497,7 +497,7 @@ export default class ArtefactToolbox extends Vue {
             placement.zIndex = zIndex;
             operations.push(this.createOperation('z-index', placement, art));
         });
-        const groupPlacementOperations = new GroupPlacementOperations(
+        const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
         );
@@ -505,7 +505,7 @@ export default class ArtefactToolbox extends Vue {
     }
 
     private createOperation(
-        opType: ScrollEditorOperationType,
+        opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact
     ): ArtefactPlacementOperation {
@@ -520,7 +520,7 @@ export default class ArtefactToolbox extends Vue {
     }
 
     private setPlacement(
-        opType: ScrollEditorOperationType,
+        opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact
     ) {
@@ -596,7 +596,7 @@ export default class ArtefactToolbox extends Vue {
         return true;
     }
     @Emit()
-    private newOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
+    private newOperation(op: ScrollEditorOperation) {
         return op;
     }
     @Emit()

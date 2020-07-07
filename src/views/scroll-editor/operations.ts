@@ -10,48 +10,31 @@ function state() {
     return StateManager.instance;
 }
 
-export type ScrollEditorOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete' | 'z-index';
+export type ScrollEditorOperationCategory = 'artefact' | 'group' | 'edit-group' | 'edition-size';
 
 export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
-    public constructor(
-        public artefactId: number,
-        public type: ScrollEditorOperationType
-    ) { }
+    public constructor(public category: ScrollEditorOperationCategory) {}
 
     public abstract undo(): void;
     public abstract redo(): void;
     public abstract uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined;
-
-    public getId(): number {
-        return this.artefactId;
-    }
-
-    public replaceEntityId(newId: number) {
-        this.artefactId = newId;
-    }
-
-    protected get artefact(): Artefact {
-        const artefact = state().artefacts.find(this.artefactId);
-        if (!artefact) {
-            console.error('Couldn\'t find artefact with id: ' + this.artefactId);
-            throw new Error('Couldn\'t find artefact with id: ' + this.artefactId);
-        }
-        return artefact;
-    }
+    public abstract getId(): number;
+    public abstract replaceEntityId(newId: number): void;
 }
 
+export type ArtefactPlacementOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete' | 'z-index';
 export class ArtefactPlacementOperation extends ScrollEditorOperation {
     public prev: Placement;
     public next: Placement;
 
     public constructor(
-        artefactId: number,
-        type: ScrollEditorOperationType,
+        public artefactId: number,
+        public type: ArtefactPlacementOperationType,
         prev: Placement,
         next: Placement
 
     ) {
-        super(artefactId, type);
+        super('artefact');
         this.prev = prev.clone();
         this.next = next.clone();
     }
@@ -81,7 +64,12 @@ export class ArtefactPlacementOperation extends ScrollEditorOperation {
         }
     }
 
-    public uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined {
+    public uniteWith(sop: ScrollEditorOperation): ArtefactPlacementOperation | undefined {
+        if (!(sop instanceof ArtefactPlacementOperation)) {
+            return undefined;
+        }
+        const op = sop as ArtefactPlacementOperation;
+
         // Unite operations of the same type
         if (op.type !== 'translate' && op.type !== 'rotate' && op.type !== 'scale') {
             return undefined;
@@ -96,13 +84,27 @@ export class ArtefactPlacementOperation extends ScrollEditorOperation {
             (op as ArtefactPlacementOperation).prev, this.next);
     }
 
+    public getId(): number {
+        return this.artefactId;
+    }
+
+    public replaceEntityId(newId: number) {
+        this.artefactId = newId;
+    }
+
+    protected get artefact(): Artefact {
+        const artefact = state().artefacts.find(this.artefactId);
+        if (!artefact) {
+            console.error('Couldn\'t find artefact with id: ' + this.artefactId);
+            throw new Error('Couldn\'t find artefact with id: ' + this.artefactId);
+        }
+        return artefact;
+    }
 }
+
 export type GroupPlacementOperationType = 'delete' | 'placement' | 'edit';
 
-export class GroupPlacementOperations implements Operation<GroupPlacementOperations> {
-    public operations: ScrollEditorOperation[];
-    public type: GroupPlacementOperationType;
-
+export class GroupPlacementOperation extends ScrollEditorOperation {
     private get group(): ArtefactGroup {
         const groupArtefacts = state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
         if (!groupArtefacts) {
@@ -113,30 +115,14 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 
     public constructor(
         public groupId: number,
-        operations: ScrollEditorOperation[],
-        type: GroupPlacementOperationType = 'placement'
+        public operations: ScrollEditorOperation[],
+        public type: GroupPlacementOperationType = 'placement'
 
     ) {
+        super('group');
         this.operations = operations;
         this.type = type;
     }
-
-    // List of events:
-
-    // *name*: 'update-operation-id'
-    // *parameters*: (oldId: number, newId: number)
-    // *description*: replace id of all operations with id === oldId by the newId in the undoStack and redoStack
-
-    // *name*: 'select-group'
-    // *parameters*: (group: ArtefactGroup)
-    // *description*: place the emitted group as selected in the editor
-
-    // *name*: 'delete-group'
-    // *parameters*: (groupId: number)
-    // *description*: remove the group with the groupId from the store (empty the artefactIds list)
-
-    // *name*: 'cancel-group'
-    // *description*: exit from 'manageGroup' mode and unselect all artefact / groups
 
 
     public undo(): void {
@@ -181,16 +167,20 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         }
     }
 
-    public uniteWith(op: GroupPlacementOperations): GroupPlacementOperations | undefined {
+    public uniteWith(sop: ScrollEditorOperation): GroupPlacementOperation | undefined {
+        if (!(sop instanceof GroupPlacementOperation)) {
+            return undefined;
+        }
+        const op = sop as GroupPlacementOperation;
         if (op.type === 'placement') {
             // We need to compare the items (artefacts) in current operations to the ones in the previous operations
             // If the artefacts being edited are exactly the same as previous, unit them
 
             // First: sort the 2 arrays of operations by items id
-            (op as GroupPlacementOperations).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
+            (op as GroupPlacementOperation).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
             this.operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
 
-            const prevIds = (op as GroupPlacementOperations).operations.map(o => o.getId());
+            const prevIds = (op as GroupPlacementOperation).operations.map(o => o.getId());
             const nextIds = this.operations.map(o => o.getId());
 
             const areSameArrays = prevIds.length === nextIds.length
@@ -199,9 +189,9 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             // If the items are the same in the current GroupOperations and the prev one
             // Try to unit each current operation with the previous one of the same item
             if (areSameArrays) {
-                const unitedOperations: Array<ScrollEditorOperation | undefined> = [];
+                const unitedOperations: ScrollEditorOperation[] = [];
                 for (let i = 0; i < this.operations.length; i++) {
-                    const united = this.operations[i].uniteWith((op as GroupPlacementOperations).operations[i]);
+                    const united = this.operations[i].uniteWith((op as GroupPlacementOperation).operations[i]);
                     if (!united) {
                         return undefined;
                     }
@@ -209,9 +199,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
                 }
 
                 // if succeed to unit the operations, create a new GroupOperations with all united operations inside
-                return new GroupPlacementOperations(
-                    this.getId(),
-                    unitedOperations as ScrollEditorOperation[]);
+                return new GroupPlacementOperation(this.getId(), unitedOperations);
             }
 
             return undefined;
@@ -230,7 +218,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 
 // This type of operation allow to change items inside the group
 // Undo a newly created group will result of removing all the artefacts in this group
-export class EditGroupOperation implements Operation<EditGroupOperation> {
+export class EditGroupOperation extends ScrollEditorOperation {
 
     private get group(): ArtefactGroup {
         const groupArtefacts = state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
@@ -241,7 +229,6 @@ export class EditGroupOperation implements Operation<EditGroupOperation> {
     }
     public prev: number[];
     public next: number[];
-    public type: string = 'edit';
 
     public constructor(
         public groupId: number,
@@ -249,6 +236,7 @@ export class EditGroupOperation implements Operation<EditGroupOperation> {
         next: number[]
 
     ) {
+        super('edit-group');
         this.prev = prev;
         this.next = next;
     }
@@ -273,7 +261,7 @@ export class EditGroupOperation implements Operation<EditGroupOperation> {
     }
 
 
-    public uniteWith(op: EditGroupOperation): EditGroupOperation | undefined {
+    public uniteWith(op: ScrollEditorOperation): EditGroupOperation | undefined {
         return undefined;
     }
 

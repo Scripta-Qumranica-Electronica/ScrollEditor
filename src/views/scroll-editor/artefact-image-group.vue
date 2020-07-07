@@ -59,8 +59,8 @@ import { Point } from '@/utils/helpers';
 import {
     ScrollEditorOperation,
     ArtefactPlacementOperation,
-    ScrollEditorOperationType,
-    GroupPlacementOperations
+    ArtefactPlacementOperationType,
+    GroupPlacementOperation
 } from './operations';
 import { Placement } from '../../utils/Placement';
 import { ArtefactGroup } from '@/models/edition';
@@ -226,7 +226,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             operations.push(this.createOperation('translate', trans, art));
         });
 
-        const groupPlacementOperations = new GroupPlacementOperations(
+        const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
         );
@@ -240,7 +240,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private createOperation(
-        opType: ScrollEditorOperationType,
+        opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact | undefined
     ): ArtefactPlacementOperation {
@@ -261,7 +261,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     @Emit()
-    private newOperation(op: ScrollEditorOperation | GroupPlacementOperations) {
+    private newOperation(op: ScrollEditorOperation) {
         return op;
     }
 }
