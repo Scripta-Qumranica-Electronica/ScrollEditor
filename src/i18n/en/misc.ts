@@ -14,6 +14,7 @@ export default {
     up: 'Switch Up',
     down: 'Switch Down',
     actions: 'Actions',
+    metrics: 'Metrics',
     save: 'Save',
     load: 'Load',
     add: 'Add',

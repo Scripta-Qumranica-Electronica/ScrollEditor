@@ -14,6 +14,7 @@ export default {
     up: 'Vers le haut',
     down: 'Vers le bas',
     actions: 'Actions',
+    metrics: 'Métrique',
     save: 'Enregistrer',
     load: 'Charge',
     auto: 'Auto',

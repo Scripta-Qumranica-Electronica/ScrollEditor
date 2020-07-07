@@ -92,6 +92,40 @@
                 </b-collapse>
             </b-card>
         </section>
+        <section v-show="!readOnly">
+            <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                    <b-button
+                        block
+                        href="#"
+                        v-b-toggle.accordion-metrics
+                        variant="info"
+                    >{{$t('misc.metrics')}}</b-button>
+                </b-card-header>
+                <b-collapse id="accordion-metrics" accordion="my-accordion-side" role="tabpanel">
+                    <b-card-body>
+                        <section>
+                            <div>{{edition.metrics.width}} X {{edition.metrics.height}}</div>
+                            <b-form-select
+                                v-model="selectedSide"
+                                :options="sidesOptions"
+                                size="sm"
+                                class="ml-2 filtering"
+                            ></b-form-select>
+                            <b-form-input
+                                id="input-small"
+                                size="sm"
+                                min="1"
+                                type="number"
+                                v-model="metricsInput"
+                            ></b-form-input>
+                            <b-button class="m-1" size="sm" @click="resizeScroll(1)">add</b-button>
+                            <b-button class="m-1" size="sm" @click="resizeScroll(-1)">cut</b-button>
+                        </section>
+                    </b-card-body>
+                </b-collapse>
+            </b-card>
+        </section>
         <add-artefact-modal></add-artefact-modal>
     </div>
 </template>
@@ -111,7 +145,7 @@ import ArtefactService from '@/services/artefact';
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    PlacementOperation,
+    ArtefactPlacementOperation,
     GroupPlacementOperations
 } from './operations';
 import {
@@ -120,7 +154,9 @@ import {
 } from '@/utils/operations-manager';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
-import { ArtefactGroup } from '../../models/edition';
+import { ArtefactGroup, EditionInfo } from '../../models/edition';
+import { DropdownOption } from '@/utils/helpers';
+import { UpdateEditionManuscriptMetricsDTO, EditionManuscriptMetricsDTO } from '../../dtos/sqe-dtos';
 
 @Component({
     name: 'scroll-menu',
@@ -137,9 +173,16 @@ export default class ScrollMenu extends Vue {
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
     @Prop()
-    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
+    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private params: ScrollEditorParams = new ScrollEditorParams();
-
+    private sidesOptions: { text: string; value: string }[] = [
+        { text: 'Left', value: 'left' },
+        { text: 'Right', value: 'right' },
+        { text: 'Top', value: 'top' },
+        { text: 'Down', value: 'down' }
+    ];
+    private selectedSide: string = 'left';
+    private metricsInput: number = 1;
     private get zoom(): any {
         return this.params.zoom;
     }
@@ -159,6 +202,9 @@ export default class ScrollMenu extends Vue {
             this.$state.artefacts.find(x)
         );
     }
+    // public positionScrollChanged(position: DropdownOption) {
+    //     this.positionScroll = position;
+    // }
 
     public formatTooltip(): string {
         return (this.zoom * 100).toFixed(0) + '%';
@@ -190,7 +236,6 @@ export default class ScrollMenu extends Vue {
         if (this.selectedArtefacts.length > 1) {
             this.$emit('onDeleteGroup', this.selectedGroup.groupId);
         }
-        this.cancelGroup();
     }
 
     public notifyChange(paramName: string, paramValue: any) {
@@ -224,6 +269,14 @@ export default class ScrollMenu extends Vue {
         return this.statusIndicator.isDirty;
     }
 
+    private get artefacts() {
+        return this.$state.artefacts.items || [];
+    }
+
+    private get placedArtefacts() {
+        return this.artefacts.filter(x => x.isPlaced);
+    }
+
     private onUndo() {
         this.undo();
     }
@@ -231,7 +284,7 @@ export default class ScrollMenu extends Vue {
         opType: ScrollEditorOperationType,
         newTrans: Placement
     ) {
-        const op = new PlacementOperation(
+        const op = new ArtefactPlacementOperation(
             this.artefact!.id,
             opType,
             this.artefact!.placement,
@@ -244,8 +297,8 @@ export default class ScrollMenu extends Vue {
         opType: ScrollEditorOperationType,
         newPlacement: Placement,
         artefact: Artefact | undefined
-    ): PlacementOperation {
-        const op = new PlacementOperation(
+    ): ArtefactPlacementOperation {
+        const op = new ArtefactPlacementOperation(
             artefact!.id,
             opType,
             artefact!.placement,
@@ -254,6 +307,83 @@ export default class ScrollMenu extends Vue {
         artefact!.placement = newPlacement;
         return op;
     }
+
+    private resizeScroll(direction: number) {
+        const newMetrics: EditionManuscriptMetricsDTO = { ...this.edition.metrics };
+
+        switch (this.selectedSide) {
+            case 'left':
+            case 'right':
+                newMetrics.width += +this.metricsInput * direction;
+                if (this.selectedSide === 'left') {
+                    newMetrics.xOrigin +=
+                        +this.metricsInput * direction * -1;
+                }
+                break;
+
+            case 'top':
+            case 'down':
+                newMetrics.height += +this.metricsInput * direction;
+                if (this.selectedSide === 'top') {
+                    newMetrics.yOrigin +=
+                        +this.metricsInput * direction * -1;
+                }
+                break;
+        }
+        if (direction === -1 && !this.allowResizing(this.selectedSide, newMetrics)) {
+            this.$toasted.error(
+                'Cannot resize scroll because artefacts will be cropped'
+            , {duration: 3000});
+
+        } else {
+            this.edition.metrics = {...newMetrics};
+        }
+        this.$emit('metricsChange');
+    }
+
+    private allowResizing(
+        side: string,
+        newMetrics: EditionManuscriptMetricsDTO
+    ): boolean {
+        // left : XOrigin <= Xmin
+        if (side === 'left') {
+            const minX = Math.min(
+                ...this.placedArtefacts.map(art => art.placement.translate.x!)
+            ) / this.edition.ppm;
+            return newMetrics.xOrigin <= minX;
+        }
+
+        // right : Xmax <= width
+        if (side === 'right') {
+            const maxX = Math.max(
+                ...this.placedArtefacts.map(
+                    art => art.placement.translate.x! + art.boundingBox.width
+                )
+            ) / this.edition.ppm;
+            return maxX <= newMetrics.width;
+        }
+
+        // top : YOrigin <= Ymin
+        if (side === 'top') {
+            const minY = Math.min(
+                ...this.placedArtefacts.map(art => art.placement.translate.y!)
+            ) / this.edition.ppm;
+            return newMetrics.yOrigin <= minY;
+        }
+
+        // down : Ymax <= height
+        if (side === 'down') {
+            const maxY = Math.max(
+                ...this.placedArtefacts.map(
+                    art => art.placement.translate.y! + art.boundingBox.height
+                )
+            ) / this.edition.ppm;
+            return maxY <= newMetrics.height;
+        }
+
+        return true;
+    }
+
     @Emit()
     private undo() {
         // Just emit the event
