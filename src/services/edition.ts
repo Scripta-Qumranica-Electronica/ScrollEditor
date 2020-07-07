@@ -15,7 +15,9 @@ import {
     UpdateArtefactGroupDTO,
     CreateArtefactGroupDTO,
     ArtefactGroupDTO,
-    ArtefactGroupListDTO
+    ArtefactGroupListDTO,
+    EditionManuscriptMetricsDTO,
+    UpdateEditionManuscriptMetricsDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -260,10 +262,24 @@ class EditionService {
             artGroupDto => new ArtefactGroup(artGroupDto));
     }
 
+    public async updateMetrics(editionId: number, metrics: UpdateEditionManuscriptMetricsDTO) {
 
-    // TODO: Add an updateMetrics method that gets an editionId and edition-metrics-dto and updates
-    // Call the same update endpoint as renameEdition, but pass the metrics and not a name.
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
 
+        const dto = {
+            metrics
+        } as EditionUpdateRequestDTO;
+        const response = await CommHelper.put<EditionDTO>(
+            ApiRoutes.editionUrl(editionId),
+            dto
+        );
+
+        edition.metrics = response.data.metrics;
+        return edition;
+    }
 }
 
 export default EditionService;

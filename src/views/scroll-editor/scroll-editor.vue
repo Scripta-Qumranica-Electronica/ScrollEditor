@@ -17,6 +17,7 @@
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onManageGroup="manageGroup()"
                 @onDeleteGroup="deleteGroup($event)"
+                @metricsChange="onMetricsChange()"
             ></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
@@ -67,7 +68,7 @@ import ArtefactService from '@/services/artefact';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import {
     ScrollEditorOperation,
-    PlacementOperation,
+    ArtefactPlacementOperation,
     GroupPlacementOperations,
     EditGroupOperation
 } from './operations';
@@ -86,6 +87,7 @@ import { ArtefactGroup } from '../../models/edition';
 export default class ScrollEditor extends Vue implements SavingAgent {
     private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
+    private metricsHasChanged: boolean = false;
     private editionId: number = 0;
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
@@ -98,6 +100,10 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
     public selectGroup(group: ArtefactGroup) {
         this.selectedGroup = group.clone();
+    }
+    public onMetricsChange() {
+        this.operationsManager.save();
+        this.metricsHasChanged = true;
     }
     public selectArtefact(artefact: Artefact | undefined) {
         const existingGroup = this.edition!.artefactGroups.find(
@@ -197,6 +203,11 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                     }
                 }
             });
+
+            if (this.metricsHasChanged) {
+                await this.editionService.updateMetrics(this.editionId, this.edition!.metrics);
+                this.metricsHasChanged = false;
+            }
         } catch (error) {
             console.error("Can't save arterfacts to server", error);
             // Shaindel: Report save error to user in Toast
@@ -285,7 +296,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
 
             artefact.placeOnScroll(placement);
             this.selectedGroup = ArtefactGroup.generateGroup([artefact.id]);
-            const operation = new PlacementOperation(
+            const operation = new ArtefactPlacementOperation(
                 artefact.id,
                 'add',
                 Placement.empty,

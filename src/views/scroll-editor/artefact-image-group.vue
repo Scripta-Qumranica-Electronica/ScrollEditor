@@ -58,7 +58,7 @@ import { Polygon } from '@/utils/Polygons';
 import { Point } from '@/utils/helpers';
 import {
     ScrollEditorOperation,
-    PlacementOperation,
+    ArtefactPlacementOperation,
     ScrollEditorOperationType,
     GroupPlacementOperations
 } from './operations';
@@ -243,8 +243,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         opType: ScrollEditorOperationType,
         newPlacement: Placement,
         artefact: Artefact | undefined
-    ): PlacementOperation {
-        const op = new PlacementOperation(
+    ): ArtefactPlacementOperation {
+        const op = new ArtefactPlacementOperation(
             artefact!.id,
             opType,
             this.previousPlacement.find(x => x.artefactId === artefact!.id).placement,

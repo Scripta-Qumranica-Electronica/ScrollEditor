@@ -40,7 +40,7 @@ export abstract class ScrollEditorOperation implements Operation<ScrollEditorOpe
     }
 }
 
-export class PlacementOperation extends ScrollEditorOperation {  // Shaindel: Rename to ArtefactPlacementOperation
+export class ArtefactPlacementOperation extends ScrollEditorOperation {
     public prev: Placement;
     public next: Placement;
 
@@ -92,7 +92,7 @@ export class PlacementOperation extends ScrollEditorOperation {  // Shaindel: Re
         }
 
         // Operations are of the same type on the same artefact, we can unite them
-        return new PlacementOperation(this.artefactId, this.type, (op as PlacementOperation).prev, this.next);
+        return new ArtefactPlacementOperation(this.artefactId, this.type, (op as ArtefactPlacementOperation).prev, this.next);
     }
 
 }
@@ -102,9 +102,12 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
     public operations: ScrollEditorOperation[];
     public type: GroupPlacementOperationType;
 
-    private get group(): ArtefactGroup | undefined {
-        // Shaindel: Do not return undefined - if the group is undefined this is a bug (so throw an exception)
-        return state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
+    private get group(): ArtefactGroup {
+        const groupArtefacts = state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
+        if (!groupArtefacts) {
+            throw new Error('Couldn\'t find group with id:' + this.groupId);
+        }
+        return groupArtefacts;
     }
 
     public constructor(
@@ -117,6 +120,23 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         this.type = type;
     }
 
+    // List of events:
+
+    // *name*: 'update-operation-id'
+    // *parameters*: (oldId: number, newId: number)
+    // *description*: replace id of all operations with id === oldId by the newId in the undoStack and redoStack
+
+    // *name*: 'select-group'
+    // *parameters*: (group: ArtefactGroup)
+    // *description*: place the emitted group as selected in the editor
+
+    // *name*: 'delete-group'
+    // *parameters*: (groupId: number)
+    // *description*: remove the group with the groupId from the store (empty the artefactIds list)
+
+    // *name*: 'cancel-group'
+    // *description*: exit from 'manageGroup' mode and unselect all artefact / groups
+
 
     public undo(): void {
         this.operations.forEach(
@@ -126,14 +146,8 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             // recreate the group with id 'this.groupId'
             const artefactIds = this.operations.map(artOp => artOp.getId());
             const removedGroup = ArtefactGroup.generateGroup(artefactIds);
-            // removedGroup.groupId = this.groupId;
-            // add the created group in store
-            // const group = state().editions.current!.artefactGroups.find(group => group.groupId === this.groupId);
-            // if (group) {
-            //     group.artefactIds = [...artefactIds];
-            // }
             state().editions.current!.artefactGroups.push(removedGroup);
-            this.groupId = removedGroup.id; 
+            this.groupId = removedGroup.id;
             // Shaindel: what happens if the group has an ID of 3, I delete the group and then
             // undo the deletion before saveEntities is called? The server will still have a group
             // ID of 3, and also try to save a new group with the same artefact IDs.
@@ -166,9 +180,12 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         }
     }
 
-    public uniteWith(op: PlacementOperation | GroupPlacementOperations): GroupPlacementOperations | undefined {
+    public uniteWith(op: GroupPlacementOperations): GroupPlacementOperations | undefined {
         if (op.type === 'placement') {
-            // Shaindel - add comments, it's not clear what this does.
+            // We need to compare the items (artefacts) in current operations to the ones in the previous operations
+            // If the artefacts being edited are exactly the same as previous, unit them
+
+            // First: sort the 2 arrays of operations by items id
             (op as GroupPlacementOperations).operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
             this.operations.sort((a, b) => a.getId() > b.getId() ? 1 : -1);
 
@@ -178,6 +195,8 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
             const areSameArrays = prevIds.length === nextIds.length
                 && prevIds.every((value, index) => value === nextIds[index]);
 
+            // If the items are the same in the current GroupOperations and the prev one
+            // Try to unit each current operation with the previous one of the same item
             if (areSameArrays) {
                 const unitedOperations: Array<ScrollEditorOperation | undefined> = [];
                 for (let i = 0; i < this.operations.length; i++) {
@@ -188,6 +207,7 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
                     unitedOperations.push(united);
                 }
 
+                // if succeed to unit the operations, create a new GroupOperations with all united operations inside
                 return new GroupPlacementOperations(
                     this.getId(),
                     unitedOperations as ScrollEditorOperation[]);
@@ -207,17 +227,17 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
 
 }
 
+// This type of operation allow to change items inside the group
+// Undo a newly created group will result of removing all the artefacts in this group
 export class EditGroupOperation implements Operation<EditGroupOperation> {
-    // Shaindel - add a comment - which kind of operation is this? How is this
-    // different from GroupPlacementOperation with a type of edit?
-    
-    private get group(): ArtefactGroup | undefined {
-        // Shaindel - this, too, shouldn't return undefined ever. It should throw an exception if
-        // the group is not found, as this is glearly a bug
-        return state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
+
+    private get group(): ArtefactGroup {
+        const groupArtefacts = state().editions.current!.artefactGroups.find(x => x.groupId === this.groupId);
+        if (!groupArtefacts) {
+            throw new Error('Couldn\'t find group with id:' + this.groupId);
+        }
+        return groupArtefacts;
     }
-
-
     public prev: number[];
     public next: number[];
     public type: string = 'edit';

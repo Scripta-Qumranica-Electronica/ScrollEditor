@@ -78,7 +78,7 @@ import { ArtefactGroup } from '@/models/edition';
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -90,15 +90,15 @@ export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
     @Prop()
-    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]); // Shaindel - why is this not of type ArtefactGroup | undefined?
+    private selectedGroup: ArtefactGroup | undefined // Shaindel - why is this not of type ArtefactGroup | undefined?
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
     private selectedArtefact: Artefact | undefined = {} as Artefact;
     private draggableOptions: DraggableValue = {};
 
     public selectArtefact(artefact: Artefact | undefined) {
-        this.selectedArtefact = artefact; // Shaindel - you don't clear selectedGroup here
-        this.$emit('onSelectArtefact', this.selectedArtefact);  // Shaindel - why isn't the selected group transmitted to scroll-editor?
+        this.selectedArtefact = artefact;
+        this.$emit('onSelectArtefact', this.selectedArtefact);
     }
 
     private created() {
@@ -112,7 +112,7 @@ export default class ScrollArea extends Vue {
     }
 
     private mounted() {
-        this.selectedArtefact = undefined; // Shaindel - what about selectedGroup?
+        this.selectedArtefact = undefined;
 
         this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
         this.draggableOptions.boundingElement = this.$refs
@@ -127,10 +127,12 @@ export default class ScrollArea extends Vue {
         return this.$state.artefacts.items || [];
     }
 
-    private getArtefactGroup(artefact: Artefact | undefined) {
-        // Shaindel: Will someone call this with an undefined artefact?
+    private getArtefactGroup(artefact: Artefact) {
         return this.edition!.artefactGroups.find(
-            x => artefact && x.artefactIds.includes(artefact!.id) && x.artefactIds.length > 1
+            x =>
+                artefact &&
+                x.artefactIds.includes(artefact!.id) &&
+                x.artefactIds.length > 1
         );
     }
 
@@ -174,6 +176,7 @@ export default class ScrollArea extends Vue {
         const zoom = `scale(${this.zoomLevel})`;
         return zoom;
     }
+
     private get placedArtefacts() {
         return this.artefacts
             .filter(x => x.isPlaced)
@@ -181,29 +184,32 @@ export default class ScrollArea extends Vue {
     }
 
     private isArtefactSelected(artefact: Artefact): boolean {
-        let res: boolean;
-        if (this.selectedGroup.artefactIds.length) {
-            res =
-                this.selectedGroup.artefactIds.findIndex(
-                    i => i === artefact.id
-                ) > -1;
-        } else {
-            res =
-                artefact.id ===
-                (this.selectedArtefact && this.selectedArtefact.id);
+        let res: boolean = false;
+        if (this.selectedGroup) {
+            if (this.selectedGroup.artefactIds.length) {
+                res =
+                    this.selectedGroup.artefactIds.findIndex(
+                        i => i === artefact.id
+                    ) > -1;
+            } else {
+                res =
+                    artefact.id ===
+                    (this.selectedArtefact && this.selectedArtefact.id);
+            }
         }
-
         return res;
     }
 
-    private isArtefactDisabled(artefact: Artefact | undefined): boolean {
-        // Shaindel - will someone call this with an undefined artefact?
+    private isArtefactDisabled(artefact: Artefact): boolean {
         const artefactGroup = this.getArtefactGroup(artefact);
-        return (
-            this.params.mode === 'manageGroup' &&
-            !!artefactGroup &&
-            artefactGroup.groupId !== this.selectedGroup.groupId
-        );
+        if (this.selectedGroup) {
+            return (
+                this.params.mode === 'manageGroup' &&
+                !!artefactGroup &&
+                artefactGroup.groupId !== this.selectedGroup.groupId
+            );
+        }
+        return false;
     }
 
     private onNewOperation(op: ScrollEditorOperation) {

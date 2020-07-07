@@ -248,7 +248,7 @@ import {
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    PlacementOperation,
+    ArtefactPlacementOperation,
     GroupPlacementOperations
 } from './operations';
 import { Placement } from '@/utils/Placement';
@@ -508,8 +508,8 @@ export default class ArtefactToolbox extends Vue {
         opType: ScrollEditorOperationType,
         newPlacement: Placement,
         artefact: Artefact
-    ): PlacementOperation {
-        const op = new PlacementOperation(
+    ): ArtefactPlacementOperation {
+        const op = new ArtefactPlacementOperation(
             artefact.id,
             opType,
             artefact.placement,

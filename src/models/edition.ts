@@ -142,12 +142,11 @@ class EditionInfo {
     }
 }
 class ArtefactGroup {
-
+    public static nextGroupId: number = -1;
     public static generateGroup(artefactsIds: number[]): ArtefactGroup {
+
         const dto: ArtefactGroupDTO = {
-            id: Math.floor(Math.random() * -10), 
-            // Shaindel: This is bad. Add a static variable called 'nextGroupId' which starts with -1.
-            // Use that when creating a new group, and decrease it, so nextGroupId becomes -2 for the next group
+            id: ArtefactGroup.nextGroupId --,
             artefacts: [...artefactsIds],
             name: ''
         };
@@ -164,8 +163,6 @@ class ArtefactGroup {
     }
 
     constructor(dto: ArtefactGroupDTO) {
-        // this.groupId = Math.floor(Math.random() * -10);
-        // this.artefactIds.push(...artefactsIds);
         this.groupId = dto.id;
         this.name = dto.name;
         this.artefactIds = [...dto.artefacts];
