@@ -111,7 +111,7 @@ import ArtefactService from '@/services/artefact';
 import {
     ScrollEditorOperation,
     ScrollEditorOperationType,
-    PlacementOperation,
+    ArtefactPlacementOperation,
     GroupPlacementOperations
 } from './operations';
 import {
@@ -137,7 +137,7 @@ export default class ScrollMenu extends Vue {
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
     @Prop()
-    private selectedGroup: ArtefactGroup = new ArtefactGroup([]);
+    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private params: ScrollEditorParams = new ScrollEditorParams();
 
     private get zoom(): any {
@@ -231,7 +231,7 @@ export default class ScrollMenu extends Vue {
         opType: ScrollEditorOperationType,
         newTrans: Placement
     ) {
-        const op = new PlacementOperation(
+        const op = new ArtefactPlacementOperation(
             this.artefact!.id,
             opType,
             this.artefact!.placement,
@@ -244,8 +244,8 @@ export default class ScrollMenu extends Vue {
         opType: ScrollEditorOperationType,
         newPlacement: Placement,
         artefact: Artefact | undefined
-    ): PlacementOperation {
-        const op = new PlacementOperation(
+    ): ArtefactPlacementOperation {
+        const op = new ArtefactPlacementOperation(
             artefact!.id,
             opType,
             artefact!.placement,

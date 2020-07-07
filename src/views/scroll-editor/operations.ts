@@ -92,7 +92,8 @@ export class ArtefactPlacementOperation extends ScrollEditorOperation {
         }
 
         // Operations are of the same type on the same artefact, we can unite them
-        return new ArtefactPlacementOperation(this.artefactId, this.type, (op as ArtefactPlacementOperation).prev, this.next);
+        return new ArtefactPlacementOperation(this.artefactId, this.type,
+            (op as ArtefactPlacementOperation).prev, this.next);
     }
 
 }
@@ -175,8 +176,8 @@ export class GroupPlacementOperations implements Operation<GroupPlacementOperati
         const artefactIds = this.operations.map(artOp => artOp.getId());
         // if the edit was on an artefact, select the artefact
         if (artefactIds.length < 2) {
-            const group = ArtefactGroup.generateGroup(artefactIds);
-            state().eventBus.$emit('select-group', group);
+            const grp = ArtefactGroup.generateGroup(artefactIds);
+            state().eventBus.$emit('select-group', grp);
         }
     }
 

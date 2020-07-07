@@ -131,10 +131,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                 // if artefact already in group
                 this.selectedGroup.groupId = existingGroup.groupId;
                 this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
-            }
-            // else if (!artefact) {
-            // / this.cancelGroup();}
-            else {
+            } else {
                 this.selectedGroup = ArtefactGroup.generateGroup([
                     artefact!.id!
                 ]);
@@ -186,7 +183,7 @@ export default class ScrollEditor extends Vue implements SavingAgent {
                             artefactGroup.groupId
                         );
                         const groupIdx = this.edition!.artefactGroups.findIndex(
-                            g => g.id === artefactGroup.id
+                            g => g.id === artefactGroup!.id
                         );
                         this.edition!.artefactGroups.splice(groupIdx, 1);
                     }
