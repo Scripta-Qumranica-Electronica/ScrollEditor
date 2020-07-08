@@ -5,6 +5,7 @@ import { StateManager } from '@/state';
 import ScrollArea from './scroll-area.vue';
 import { group } from 'console';
 import { ArtefactGroup, EditionInfo } from '@/models/edition';
+import { UpdateEditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 
 function state() {
     return StateManager.instance;
@@ -13,7 +14,7 @@ function state() {
 export type ScrollEditorOperationCategory = 'artefact' | 'group' | 'edit-group' | 'edition-metrics';
 
 export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
-    public constructor(public category: ScrollEditorOperationCategory) {}
+    public constructor(public category: ScrollEditorOperationCategory) { }
 
     public abstract undo(): void;
     public abstract redo(): void;
@@ -278,6 +279,41 @@ export class EditGroupOperation extends ScrollEditorOperation {
 // In its constructor call super('edition-metrics').
 // In its uniteWith function just return undefined. The argument to uniteWith should be a ScrollEditorOperation.
 
-/*export class EditionMetricOperation extends ScrollEditorOperation {
+export class EditionMetricOperation extends ScrollEditorOperation {
+    private get edition(): EditionInfo {
 
-} */
+        const edition = state().editions!.current;
+        if (!edition) {
+            throw new Error('Couldn\'t find editon with id:' + this.editionId);
+        }
+        return edition;
+    }
+
+    public prev: UpdateEditionManuscriptMetricsDTO;
+    public next: UpdateEditionManuscriptMetricsDTO;
+    public constructor(
+        public editionId: number,
+        prev: UpdateEditionManuscriptMetricsDTO,
+        next: UpdateEditionManuscriptMetricsDTO
+
+    ) {
+        super('edition-metrics');
+        this.prev = prev;
+        this.next = next;
+    }
+    public uniteWith(op: ScrollEditorOperation): EditionMetricOperation | undefined {
+        return undefined;
+    }
+    public getId() {
+        return this.editionId;
+    }
+
+    public replaceEntityId(newId: number) { }
+
+    public undo(): void {
+        this.edition.metrics = { ...this.edition.metrics, ...this.prev };
+    }
+    public redo(): void {
+        this.edition.metrics = { ...this.edition.metrics, ...this.next };
+    }
+}

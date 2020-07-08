@@ -36,7 +36,8 @@
                 <div class="artefact-container" :class="{active: isActive}">
                     <!-- {{edition.artefactGroups}}
                     {{selectedGroup}} -->
-                    <scroll-area v-if="edition"
+                    <scroll-area
+                        v-if="edition"
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
                         @onSaveGroupArtefacts="saveGroupArtefacts()"
@@ -70,7 +71,8 @@ import {
     ScrollEditorOperation,
     ArtefactPlacementOperation,
     GroupPlacementOperation,
-    EditGroupOperation
+    EditGroupOperation,
+    EditionMetricOperation
 } from './operations';
 import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
@@ -84,7 +86,8 @@ import { ArtefactGroup } from '../../models/edition';
         'scroll-area': ScrollArea
     }
 })
-export default class ScrollEditor extends Vue implements SavingAgent<ScrollEditorOperation> {
+export default class ScrollEditor extends Vue
+    implements SavingAgent<ScrollEditorOperation> {
     private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
     private metricsHasChanged: boolean = false;
@@ -94,15 +97,14 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
     private editionService = new EditionService();
     private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     // Shaindel - what happens if only one artefact is selected?
-    private operationsManager = new OperationsManager<ScrollEditorOperation>(this);
+    private operationsManager = new OperationsManager<ScrollEditorOperation>(
+        this
+    );
 
     public selectGroup(group: ArtefactGroup) {
         this.selectedGroup = group.clone();
     }
-    public onMetricsChange() {
-        this.operationsManager.save();
-        this.metricsHasChanged = true;
-    }
+
     public selectArtefact(artefact: Artefact | undefined) {
         if (!artefact) {
             this.artefact = undefined;
@@ -134,9 +136,7 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
                 this.selectedGroup.groupId = existingGroup.groupId;
                 this.selectedGroup.artefactIds = [...existingGroup.artefactIds];
             } else {
-                this.selectedGroup = ArtefactGroup.generateGroup([
-                    artefact.id
-                ]);
+                this.selectedGroup = ArtefactGroup.generateGroup([artefact.id]);
             }
             this.artefact = artefact;
         }
@@ -150,83 +150,97 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
         // To get all the group operations, you can do ops.filter(op => op instanceof GroupPlacementOperation)
         //
         // This should make the logic simpler.
-        // First you get all the artefacts (from the artefact operations and the group operations) and save them in bulk.
-        // Then you take all the EditGroup operations and update the groups.
-        // When you add the EditionMetricsOperation - if you find any of these, you just save the edition's current metrics.
+        // First you get all the artefacts (from the artefact operations and the group operations).
+        const allMovedArtefactsIds = new Set<number>();
+        const allEditedGroupsIds = new Set<number>();
+        const allDeletedGroupsIds = new Set<number>();
+        let saveMetrics = false;
 
-        const artefactsGroupIds = ops.map(op => op.getId());
-        try {
-            let artefactGroup: ArtefactGroup | undefined;
-            artefactsGroupIds.forEach(async x => {
-                artefactGroup = this.edition!.artefactGroups.find(
-                    ag => ag.groupId === x
+        ops.forEach(op => {
+            // Take artefact placements operations
+            if (op instanceof ArtefactPlacementOperation) {
+                allMovedArtefactsIds.add(op.artefactId);
+            } else if (op instanceof GroupPlacementOperation) {
+                op.operations.forEach(artOp =>
+                    allMovedArtefactsIds.add(artOp.getId())
                 );
-                // if not artefactGroup in store :
-                artefactGroup = this.selectedGroup;
+                if (op.type === 'delete') {
+                    allDeletedGroupsIds.add(op.groupId);
+                }
+                // Take EditGroup operations
+            } else if (op instanceof EditGroupOperation) {
+                allEditedGroupsIds.add(op.groupId);
+            } else if (op instanceof EditionMetricOperation) {
+                saveMetrics = true;
+            }
+        });
 
-                // if temporary group and artefacts number > 2 : create new group
-                if (x < 0 && artefactGroup!.artefactIds.length >= 2) {
-                    if (artefactGroup) {
+        try {
+            // save artefacts in bulk
+            if (allMovedArtefactsIds.size) {
+                const artefacts = Array.from(allMovedArtefactsIds).map(
+                    artId => this.$state.artefacts.find(artId) as Artefact
+                );
+                await this.editionService.updateArtefactDTOs(
+                    this.editionId,
+                    artefacts
+                );
+            }
+
+            // save groups
+            if (allEditedGroupsIds.size) {
+                allEditedGroupsIds.forEach(async groupId => {
+                    const group = this.edition!.artefactGroups.find(
+                        artGroup => artGroup.id === groupId
+                    );
+                    if (!group) {
+                        console.error(
+                            'Cannot find group in edition with id: ' + groupId
+                        );
+                        return;
+                    }
+                    // Save new group with id < 0
+                    if (group.id < 0) {
                         const savedGroup = await this.editionService.newArtefactGroup(
                             this.editionId,
-                            artefactGroup
+                            group
                         );
-                        artefactGroup.groupId = savedGroup.id;
-                        this.updateOperationId(x, savedGroup.id);
-                    }
-                    // if existing group and artefacts number > 2 : update group and its artefacts
-                } else if (x > 0 && artefactGroup!.artefactIds.length >= 2) {
-                    if (artefactGroup) {
-                        const artefacts = artefactGroup.artefactIds.map(
-                            id => this.$state.artefacts.find(id) as Artefact
-                        );
-                        await this.editionService.updateArtefactDTOs(
-                            this.editionId,
-                            artefacts
-                        );
+                        group.groupId = savedGroup.id;
+                        this.updateOperationId(groupId, savedGroup.id);
+
+                        // Save edited group
+                    } else if (group.id > 0) {
                         const savedGroup = await this.editionService.updateArtefactGroup(
                             this.editionId,
-                            artefactGroup
+                            group
                         );
                     }
-                    // if existing group and artefacts number === 0 : delete group from edition
-                } else if (x > 0 && !artefactGroup!.artefactIds.length) {
-                    if (artefactGroup) {
-                        await this.editionService.deleteArtefactGroup(
-                            this.editionId,
-                            artefactGroup.groupId
-                        );
-                        const groupIdx = this.edition!.artefactGroups.findIndex(
-                            g => g.id === artefactGroup!.id
-                        );
-                        this.edition!.artefactGroups.splice(groupIdx, 1);
-                    }
-                    // if temporary group and artefacts number === 1 : editing single artefact placement
-                } else if (x < 0 && artefactGroup!.artefactIds.length === 1) {
-                    if (artefactGroup) {
-                        const artefacts = artefactGroup.artefactIds.map(
-                            id => this.$state.artefacts.find(id) as Artefact
-                        );
-                        await this.editionService.updateArtefactDTOs(
-                            this.editionId,
-                            artefacts
-                        );
-                    }
-                }
+                });
+            }
+
+            // delete groups
+            allDeletedGroupsIds.forEach(async groupId => {
+                await this.editionService.deleteArtefactGroup(
+                    this.editionId,
+                    groupId
+                );
             });
 
-            if (this.metricsHasChanged) {
-                await this.editionService.updateMetrics(this.editionId, this.edition!.metrics);
-                this.metricsHasChanged = false;
+            // save metrics
+            if (saveMetrics) {
+                await this.editionService.updateMetrics(
+                    this.editionId,
+                    this.edition!.metrics
+                );
             }
-        } catch (error) {
-            console.error("Can't save arterfacts to server", error);
-            // Shaindel: Report save error to user in Toast
-            return false;
-        }
 
-        return true;
+            return true;
+        } catch (error) {
+            console.error(error);
+            this.$toasted.error(error, {duration: 3000});
+        }
     }
+
     protected created() {
         this.$state.eventBus.$on('select-group', this.selectGroup);
         this.$state.eventBus.$on('delete-group', this.deleteGroup);
@@ -236,7 +250,10 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
     protected destroyed() {
         this.$state.eventBus.$off('select-group', this.selectGroup);
         this.$state.eventBus.$off('delete-group', this.deleteGroup);
-        this.$state.eventBus.$off('update-operation-id', this.updateOperationId);
+        this.$state.eventBus.$off(
+            'update-operation-id',
+            this.updateOperationId
+        );
     }
 
     private sidebarClicked() {
@@ -306,7 +323,6 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
             });
 
             artefact.placeOnScroll(placement);
-            this.selectedGroup = ArtefactGroup.generateGroup([artefact.id]);
             const operation = new ArtefactPlacementOperation(
                 artefact.id,
                 'add',

@@ -67,7 +67,7 @@
                                             size="sm"
                                             :disabled="!artefact"
                                             @click="removeArtefactOrGroup()"
-                                        >{{$t('misc.remove')}} artefact</b-button>
+                                        >{{$t('misc.remove')}}</b-button>
                                     </b-button-group>
                                 </b-card-header>
                             </b-card>
@@ -146,7 +146,8 @@ import {
     ScrollEditorOperation,
     ArtefactPlacementOperationType,
     ArtefactPlacementOperation,
-    GroupPlacementOperation
+    GroupPlacementOperation,
+    EditionMetricOperation
 } from './operations';
 import {
     OperationsManager,
@@ -156,7 +157,10 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
 import { ArtefactGroup, EditionInfo } from '../../models/edition';
 import { DropdownOption } from '@/utils/helpers';
-import { UpdateEditionManuscriptMetricsDTO, EditionManuscriptMetricsDTO } from '../../dtos/sqe-dtos';
+import {
+    UpdateEditionManuscriptMetricsDTO,
+    EditionManuscriptMetricsDTO
+} from '../../dtos/sqe-dtos';
 
 @Component({
     name: 'scroll-menu',
@@ -225,16 +229,23 @@ export default class ScrollMenu extends Vue {
                 this.createOperation('delete', Placement.empty, art)
             );
         });
-        const groupPlacementOperations = new GroupPlacementOperation(
-            this.selectedGroup.groupId,
-            operations,
-            'delete'
-        );
-        this.newOperation(groupPlacementOperations);
 
-        // if it's a real group, empty it by calling onDeleteGroup
+        // Delete group
         if (this.selectedArtefacts.length > 1) {
-            this.$emit('onDeleteGroup', this.selectedGroup.groupId);
+            const groupPlacementOperations = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations,
+                'delete'
+            );
+            this.newOperation(groupPlacementOperations);
+
+            // if it's a real group, empty it by calling onDeleteGroup
+            if (this.selectedArtefacts.length > 1) {
+                this.$emit('onDeleteGroup', this.selectedGroup.groupId);
+            }
+        // Delete Artefact
+        } else if (this.selectedArtefacts.length === 1) {
+            this.newOperation(operations[0]);
         }
     }
 
@@ -309,15 +320,16 @@ export default class ScrollMenu extends Vue {
     }
 
     private resizeScroll(direction: number) {
-        const newMetrics: EditionManuscriptMetricsDTO = { ...this.edition.metrics };
+        const newMetrics: EditionManuscriptMetricsDTO = {
+            ...this.edition.metrics
+        };
 
         switch (this.selectedSide) {
             case 'left':
             case 'right':
                 newMetrics.width += +this.metricsInput * direction;
                 if (this.selectedSide === 'left') {
-                    newMetrics.xOrigin +=
-                        +this.metricsInput * direction * -1;
+                    newMetrics.xOrigin += +this.metricsInput * direction * -1;
                 }
                 break;
 
@@ -325,20 +337,27 @@ export default class ScrollMenu extends Vue {
             case 'down':
                 newMetrics.height += +this.metricsInput * direction;
                 if (this.selectedSide === 'top') {
-                    newMetrics.yOrigin +=
-                        +this.metricsInput * direction * -1;
+                    newMetrics.yOrigin += +this.metricsInput * direction * -1;
                 }
                 break;
         }
-        if (direction === -1 && !this.allowResizing(this.selectedSide, newMetrics)) {
+        if (
+            direction === -1 &&
+            !this.allowResizing(this.selectedSide, newMetrics)
+        ) {
             this.$toasted.error(
-                'Cannot resize scroll because artefacts will be cropped'
-            , {duration: 3000});
-
+                'Cannot resize scroll because artefacts will be cropped',
+                { duration: 3000 }
+            );
         } else {
-            this.edition.metrics = {...newMetrics};
+            const metricsOperation = new EditionMetricOperation(
+                this.edition.id,
+                this.edition.metrics,
+                newMetrics
+            );
+            this.edition.metrics = { ...newMetrics };
+            this.newOperation(metricsOperation);
         }
-        this.$emit('metricsChange');
     }
 
     private allowResizing(
@@ -347,37 +366,47 @@ export default class ScrollMenu extends Vue {
     ): boolean {
         // left : XOrigin <= Xmin
         if (side === 'left') {
-            const minX = Math.min(
-                ...this.placedArtefacts.map(art => art.placement.translate.x!)
-            ) / this.edition.ppm;
+            const minX =
+                Math.min(
+                    ...this.placedArtefacts.map(
+                        art => art.placement.translate.x!
+                    )
+                ) / this.edition.ppm;
             return newMetrics.xOrigin <= minX;
         }
 
         // right : Xmax <= width
         if (side === 'right') {
-            const maxX = Math.max(
-                ...this.placedArtefacts.map(
-                    art => art.placement.translate.x! + art.boundingBox.width
-                )
-            ) / this.edition.ppm;
+            const maxX =
+                Math.max(
+                    ...this.placedArtefacts.map(
+                        art =>
+                            art.placement.translate.x! + art.boundingBox.width
+                    )
+                ) / this.edition.ppm;
             return maxX <= newMetrics.width;
         }
 
         // top : YOrigin <= Ymin
         if (side === 'top') {
-            const minY = Math.min(
-                ...this.placedArtefacts.map(art => art.placement.translate.y!)
-            ) / this.edition.ppm;
+            const minY =
+                Math.min(
+                    ...this.placedArtefacts.map(
+                        art => art.placement.translate.y!
+                    )
+                ) / this.edition.ppm;
             return newMetrics.yOrigin <= minY;
         }
 
         // down : Ymax <= height
         if (side === 'down') {
-            const maxY = Math.max(
-                ...this.placedArtefacts.map(
-                    art => art.placement.translate.y! + art.boundingBox.height
-                )
-            ) / this.edition.ppm;
+            const maxY =
+                Math.max(
+                    ...this.placedArtefacts.map(
+                        art =>
+                            art.placement.translate.y! + art.boundingBox.height
+                    )
+                ) / this.edition.ppm;
             return maxY <= newMetrics.height;
         }
 
