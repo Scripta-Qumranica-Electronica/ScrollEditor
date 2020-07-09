@@ -98,14 +98,14 @@
                                         </tr>
                                     </table>
                                 </div>
-                                <b-col cols="4" class="mb-2">
+                                <b-col cols="4" class="m-2">
                                     <b-form-input
                                         id="input-small"
                                         size="sm"
                                         type="number"
                                         v-model="params.move"
-                                    ></b-form-input>
-                                </b-col>
+                                    ></b-form-input> 
+                                </b-col> mm
                             </b-row>
                             <b-row v-if="mode === 'scale'" no-gutters align-v="end">
                                 <b-button-group>
@@ -156,14 +156,14 @@
                                     </b-button>
                                     <!-- <b-button class="m-2" @click="resetRotationArtefact()">Reset</b-button> -->
                                 </b-button-group>
-                                <b-col cols="4" class="mb-1 mt-3 ml-2">
+                                <b-col cols="4" class="mb-1 mt-3 ml-2 mr-1">
                                     <b-form-input
                                         id="input-small"
                                         size="sm"
                                         type="number"
                                         v-model="params.rotate"
                                     ></b-form-input>
-                                </b-col>
+                                </b-col> degree
                             </b-row>
                         </section>
                     </b-card-body>
@@ -197,7 +197,7 @@
                                 <b-button-group>
                                     <b-button
                                         v-if="!float"
-                                        :disabled="params.mode !== 'manageGroup' || selectedArtefacts.length < 2"
+                                        :disabled="params.mode !== 'manageGroup'"
                                         class="m-1"
                                         size="sm"
                                         @click="saveGroup()"
@@ -285,6 +285,9 @@ export default class ArtefactToolbox extends Vue {
             window.addEventListener('keydown', this.onKeyPress);
         }
     }
+    private get edition() {
+        return this.$state.editions.current! || {};
+    }
 
     private get mode(): ScrollEditorMode {
         return this.params!.mode;
@@ -315,7 +318,8 @@ export default class ArtefactToolbox extends Vue {
         const operations: ScrollEditorOperation[] = [];
         this.selectedArtefacts.forEach(art => {
             const placement = art.placement.clone();
-            const jump = parseInt(this.params.move.toString());
+            const jump =
+                parseInt(this.params.move.toString()) * this.edition.ppm;
             placement!.translate.x! += jump * dirX;
             placement!.translate.y! += jump * dirY;
             operations.push(this.createOperation('translate', placement, art));

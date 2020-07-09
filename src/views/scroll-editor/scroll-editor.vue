@@ -354,7 +354,7 @@ export default class ScrollEditor extends Vue
         if (group) {
             if (
                 !this.selectedGroup.artefactIds ||
-                !this.selectedGroup.artefactIds.length
+                this.selectedGroup.artefactIds.length < 2
             ) {
                 this.deleteGroup(group.groupId);
             } else {

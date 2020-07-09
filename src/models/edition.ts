@@ -140,6 +140,19 @@ class EditionInfo {
             this.lastEdit = new Date(Date.parse(dto.lastEdit));
         }
     }
+
+    public copyFrom(other: EditionInfo) {
+        this.name = other.name;
+        this.permission = other.permission;
+        this.owner = other.owner;
+        this.metrics = other.metrics;
+        this.thumbnail = other.thumbnail;
+        this.shares = other.shares;
+        this.invitations = other.invitations;
+        this.locked = other.locked;
+        this.isPublic = other.isPublic;
+        this.lastEdit = other.lastEdit;
+    }
 }
 class ArtefactGroup {
     public static nextGroupId: number = -1;

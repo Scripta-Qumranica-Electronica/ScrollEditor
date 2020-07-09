@@ -35,8 +35,9 @@ export class NotificationHandler {
 
         if (storedEdition) {
             const editionInfo = new EditionInfo(edition);
-            const newEdition = { ...storedEdition, ...editionInfo } as EditionInfo;
-            state().editions.update(newEdition);
+            storedEdition.copyFrom(editionInfo);
+            console.log(storedEdition.ppm, 'PPM')
+            state().editions.update(storedEdition);
         }
     }
 

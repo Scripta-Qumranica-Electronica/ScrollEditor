@@ -47,12 +47,7 @@
                         variant="info"
                     >{{$t('misc.actions')}}</b-button>
                 </b-card-header>
-                <b-collapse
-                    id="accordion-actions"
-                    style="display:block;"
-                    accordion="my-accordion-side"
-                    role="tabpanel"
-                >
+                <b-collapse id="accordion-actions" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
                             <b-card no-body class="mb-1">
@@ -104,23 +99,31 @@
                 </b-card-header>
                 <b-collapse id="accordion-metrics" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
-                        <section>
+                        <section class="center-btn">
                             <div>{{edition.metrics.width}} X {{edition.metrics.height}}</div>
-                            <b-form-select
-                                v-model="selectedSide"
-                                :options="sidesOptions"
-                                size="sm"
-                                class="ml-2 filtering"
-                            ></b-form-select>
-                            <b-form-input
-                                id="input-small"
-                                size="sm"
-                                min="1"
-                                type="number"
-                                v-model="metricsInput"
-                            ></b-form-input>
+                            <b-row>
+                                <b-col cols="6">
+                                    <b-form-select
+                                        v-model="selectedSide"
+                                        :options="sidesOptions"
+                                        size="sm"
+                                       
+                                    ></b-form-select>
+                                </b-col>
+                                <b-col cols="5">
+                                    <b-form-input
+                                        id="input-small"
+                                        size="sm"
+                                        min="1"
+                                        type="number"
+                                        v-model="metricsInput"
+                                    ></b-form-input>
+                                </b-col>
+                            </b-row>
+                            <b-row class="mt-2 ml-1">
                             <b-button class="m-1" size="sm" @click="resizeScroll(1)">add</b-button>
                             <b-button class="m-1" size="sm" @click="resizeScroll(-1)">cut</b-button>
+                            </b-row>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -243,7 +246,7 @@ export default class ScrollMenu extends Vue {
             if (this.selectedArtefacts.length > 1) {
                 this.$emit('onDeleteGroup', this.selectedGroup.groupId);
             }
-        // Delete Artefact
+            // Delete Artefact
         } else if (this.selectedArtefacts.length === 1) {
             this.newOperation(operations[0]);
         }
