@@ -151,25 +151,25 @@ export default class ScrollEditor extends Vue
         //
         // This should make the logic simpler.
         // First you get all the artefacts (from the artefact operations and the group operations).
-        const allMovedArtefactsIds = new Set<number>();
-        const allEditedGroupsIds = new Set<number>();
-        const allDeletedGroupsIds = new Set<number>();
+        const allMovedArtefactIds = new Set<number>();
+        const allEditedGroupIds = new Set<number>();
+        const allDeletedGroupIds = new Set<number>();
         let saveMetrics = false;
 
         ops.forEach(op => {
             // Take artefact placements operations
             if (op instanceof ArtefactPlacementOperation) {
-                allMovedArtefactsIds.add(op.artefactId);
+                allMovedArtefactIds.add(op.artefactId);
             } else if (op instanceof GroupPlacementOperation) {
                 op.operations.forEach(artOp =>
-                    allMovedArtefactsIds.add(artOp.getId())
+                    allMovedArtefactIds.add(artOp.getId())
                 );
                 if (op.type === 'delete') {
-                    allDeletedGroupsIds.add(op.groupId);
+                    allDeletedGroupIds.add(op.groupId);
                 }
                 // Take EditGroup operations
             } else if (op instanceof EditGroupOperation) {
-                allEditedGroupsIds.add(op.groupId);
+                allEditedGroupIds.add(op.groupId);
             } else if (op instanceof EditionMetricOperation) {
                 saveMetrics = true;
             }
@@ -177,19 +177,20 @@ export default class ScrollEditor extends Vue
 
         try {
             // save artefacts in bulk
-            if (allMovedArtefactsIds.size) {
-                const artefacts = Array.from(allMovedArtefactsIds).map(
-                    artId => this.$state.artefacts.find(artId) as Artefact
-                );
+            const allMovedArtefacts = Array.from(allMovedArtefactIds).map(
+                artId => this.$state.artefacts.find(artId)!
+            );
+            allMovedArtefacts.forEach(art => art.prepareForBackend());
+
+            if (allMovedArtefacts) {
                 await this.editionService.updateArtefactDTOs(
-                    this.editionId,
-                    artefacts
+                    this.editionId, allMovedArtefacts
                 );
             }
 
             // save groups
-            if (allEditedGroupsIds.size) {
-                allEditedGroupsIds.forEach(async groupId => {
+            if (allEditedGroupIds.size) {
+                allEditedGroupIds.forEach(async groupId => {
                     const group = this.edition!.artefactGroups.find(
                         artGroup => artGroup.id === groupId
                     );
@@ -219,7 +220,7 @@ export default class ScrollEditor extends Vue
             }
 
             // delete groups
-            allDeletedGroupsIds.forEach(async groupId => {
+            allDeletedGroupIds.forEach(async groupId => {
                 await this.editionService.deleteArtefactGroup(
                     this.editionId,
                     groupId

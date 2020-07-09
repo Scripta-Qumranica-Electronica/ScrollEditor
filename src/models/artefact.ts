@@ -56,6 +56,17 @@ export class Artefact {
         return this.placement.clone();
     }
 
+    public prepareForBackend() {
+        // Gets the artefact ready for saving - round all numbers that are supposed to be integers
+        if (this.placement.translate.x) {
+            this.placement.translate.x = Math.round(this.placement.translate.x);
+        }
+
+        if (this.placement.translate.y) {
+            this.placement.translate.y = Math.round(this.placement.translate.y);
+        }
+    }
+
     private copyFrom(other: Artefact) {
         this.id = other.id;
         this.editionId = other.editionId;

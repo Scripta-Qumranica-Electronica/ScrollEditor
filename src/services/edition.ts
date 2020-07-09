@@ -270,6 +270,7 @@ class EditionService {
         }
 
         const dto = {
+            name: edition.name,
             metrics
         } as EditionUpdateRequestDTO;
         const response = await CommHelper.put<EditionDTO>(
