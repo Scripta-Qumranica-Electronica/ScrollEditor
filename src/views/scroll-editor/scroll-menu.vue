@@ -179,7 +179,7 @@ export default class ScrollMenu extends Vue {
     @Prop()
     private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private params: ScrollEditorParams = new ScrollEditorParams();
-    private sidesOptions: { text: string; value: string }[] = [
+    private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
         { text: 'Right', value: 'right' },
         { text: 'Top', value: 'top' },

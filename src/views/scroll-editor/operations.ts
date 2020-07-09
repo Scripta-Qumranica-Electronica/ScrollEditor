@@ -280,6 +280,8 @@ export class EditGroupOperation extends ScrollEditorOperation {
 // In its uniteWith function just return undefined. The argument to uniteWith should be a ScrollEditorOperation.
 
 export class EditionMetricOperation extends ScrollEditorOperation {
+    private static lastId: number = 1;
+
     private get edition(): EditionInfo {
 
         const edition = state().editions!.current;
@@ -291,6 +293,8 @@ export class EditionMetricOperation extends ScrollEditorOperation {
 
     public prev: UpdateEditionManuscriptMetricsDTO;
     public next: UpdateEditionManuscriptMetricsDTO;
+    private id: number;
+
     public constructor(
         public editionId: number,
         prev: UpdateEditionManuscriptMetricsDTO,
@@ -300,15 +304,19 @@ export class EditionMetricOperation extends ScrollEditorOperation {
         super('edition-metrics');
         this.prev = prev;
         this.next = next;
+        this.id = EditionMetricOperation.lastId++;
     }
     public uniteWith(op: ScrollEditorOperation): EditionMetricOperation | undefined {
         return undefined;
     }
     public getId() {
-        return this.editionId;
+        return this.id;
     }
 
-    public replaceEntityId(newId: number) { }
+    public replaceEntityId(newId: number) {
+        // The IDs are internal only and never get saved to the server. Since they mean nothing,
+        // we never replace them.
+     }
 
     public undo(): void {
         this.edition.metrics = { ...this.edition.metrics, ...this.prev };

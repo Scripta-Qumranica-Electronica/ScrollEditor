@@ -238,6 +238,7 @@ export default class ScrollEditor extends Vue
         } catch (error) {
             console.error(error);
             this.$toasted.error(error, {duration: 3000});
+            return false;
         }
     }
 
