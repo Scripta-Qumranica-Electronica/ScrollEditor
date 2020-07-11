@@ -10,6 +10,7 @@ import { EditionCollection,
 import { Polygon } from '@/utils/Polygons';
 import StateService from './state-service';
 import Vue from 'vue';
+import { ScrollEditorState } from './scroll-editor';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -23,6 +24,7 @@ export class StateManager {
     public interpretationRois: InterpretationRoiMap;
     public signInterpretations: SignInterpretationMap;
     public misc: MiscState;
+    public scrollEditor: ScrollEditorState;
     public eventBus: Vue;
 
     public prepare: StateService;
@@ -35,6 +37,7 @@ export class StateManager {
         this.artefactGroups = new ArtefactGroupsMap();
         this.textFragments = new TextFragmentMap();
         this.misc = new MiscState();
+        this.scrollEditor = new ScrollEditorState();
         this.interpretationRois = new InterpretationRoiMap();
         this.signInterpretations = new SignInterpretationMap();
         this.eventBus = new Vue();
