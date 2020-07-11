@@ -29,7 +29,7 @@
 import Vue from 'vue';
 import { wktPolygonToSvg } from '@/utils/VectorFactory';
 import { ImagedObjectEditorParams } from './types';
-import { ImageStack } from '@/models/image';
+import { ImageStack, Image } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 

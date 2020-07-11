@@ -299,11 +299,11 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
     }
 
     private get imageWidth(): number {
-        return this.masterImage!.manifest.width;
+        return this.masterImage!.width;
     }
 
     private get imageHeight(): number {
-        return this.masterImage!.manifest.height;
+        return this.masterImage!.height;
     }
 
     private get visibleArtefacts(): Artefact[] {

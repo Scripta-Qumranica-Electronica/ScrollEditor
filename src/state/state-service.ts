@@ -242,6 +242,7 @@ export default class StateService {
     private async imageManifestInternal(image: IIIFImage) {
         const svc = new ImageService();
         const manifest = await svc.getImageManifest(image);
+
         image.manifest = manifest;
     }
 

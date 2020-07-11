@@ -464,11 +464,11 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
     // On tablet screen - Active means opened.
 
     private get imageWidth(): number {
-        return this.masterImage.manifest.width;
+        return this.masterImage.width;
     }
 
     private get imageHeight(): number {
-        return this.masterImage.manifest.height;
+        return this.masterImage.height;
     }
 
     private get actualWidth(): number {
