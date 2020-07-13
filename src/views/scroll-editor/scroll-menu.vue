@@ -63,7 +63,6 @@
                                         >{{$t('misc.add')}} artefact</b-button>
                                         <b-button
                                             size="sm"
-                                            :disabled="!artefact"
                                             @click="removeArtefactOrGroup()"
                                         >{{$t('misc.remove')}}</b-button>
                                     </b-button-group>
@@ -72,12 +71,10 @@
 
                             <artefact-toolbox
                                 :params="params"
-                                :artefactId="artefact && artefact.id"
                                 @new-operation="onNewOperation($event)"
                                 @save-group="onSaveGroup()"
                                 @cancel-group="cancelGroup()"
                                 @manageGroup="manageGroup()"
-                                :selectedGroup="selectedGroup"
                             ></artefact-toolbox>
                         </section>
                         <section class="center-btn">
@@ -103,14 +100,13 @@
                 <b-collapse id="accordion-metrics" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
-                            <div>{{edition.metrics.width}} X {{edition.metrics.height}}</div>
+                            <!-- <div>{{edition.metrics.width}} X {{edition.metrics.height}}</div> -->
                             <b-row>
                                 <b-col cols="6">
                                     <b-form-select
                                         v-model="selectedSide"
                                         :options="sidesOptions"
                                         size="sm"
-                                       
                                     ></b-form-select>
                                 </b-col>
                                 <b-col cols="5">
@@ -124,8 +120,8 @@
                                 </b-col>
                             </b-row>
                             <b-row class="mt-2 ml-1">
-                            <b-button class="m-1" size="sm" @click="resizeScroll(1)">add</b-button>
-                            <b-button class="m-1" size="sm" @click="resizeScroll(-1)">cut</b-button>
+                                <b-button class="m-1" size="sm" @click="resizeScroll(1)">add</b-button>
+                                <b-button class="m-1" size="sm" @click="resizeScroll(-1)">cut</b-button>
                             </b-row>
                         </section>
                     </b-card-body>
@@ -180,12 +176,12 @@ import ScrollMap from './scroll-map.vue';
     }
 })
 export default class ScrollMenu extends Vue {
-    @Prop()
-    public artefact: Artefact | undefined = undefined;
+    // @Prop()
+    // public artefact: Artefact | undefined = undefined;
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
-    @Prop()
-    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
+    // @Prop()
+    // private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private params: ScrollEditorParams = new ScrollEditorParams();
     private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
@@ -209,14 +205,18 @@ export default class ScrollMenu extends Vue {
     private get readOnly(): boolean {
         return this.edition.permission && this.edition.permission.readOnly;
     }
+
     private get selectedArtefacts(): Array<Artefact | undefined> {
-        return this.selectedGroup.artefactIds.map((x: number) =>
-            this.$state.artefacts.find(x)
-        );
+        return this.$state.scrollEditor.selectedArtefacts;
     }
-    // public positionScrollChanged(position: DropdownOption) {
-    //     this.positionScroll = position;
-    // }
+
+    public get selectedArtefact(): Artefact | undefined {
+        return this.$state.scrollEditor.selectedArtefact;
+    }
+
+    public get selectedGroup(): ArtefactGroup | undefined {
+        return this.$state.scrollEditor.selectedGroup;
+    }
 
     public formatTooltip(): string {
         return (this.zoom * 100).toFixed(0) + '%';
@@ -229,31 +229,36 @@ export default class ScrollMenu extends Vue {
     }
 
     public removeArtefactOrGroup() {
-        const operations: ScrollEditorOperation[] = [];
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
 
-        this.selectedArtefacts.forEach(art => {
-            art!.isPlaced = false;
-            operations.push(
-                this.createOperation('delete', Placement.empty, art)
+        if (this.selectedArtefact) {
+            operation = this.createOperation(
+                'delete',
+                Placement.empty,
+                this.selectedArtefact
             );
-        });
+        }
+        if (this.selectedGroup) {
+            const operations: ScrollEditorOperation[] = [];
 
-        // Delete group
-        if (this.selectedArtefacts.length > 1) {
-            const groupPlacementOperations = new GroupPlacementOperation(
+            this.selectedArtefacts.forEach(art => {
+                art!.isPlaced = false;
+                operations.push(
+                    this.createOperation('delete', Placement.empty, art)
+                );
+            });
+
+            operation = new GroupPlacementOperation(
                 this.selectedGroup.groupId,
                 operations,
                 'delete'
             );
-            this.newOperation(groupPlacementOperations);
+        }
 
-            // if it's a real group, empty it by calling onDeleteGroup
-            if (this.selectedArtefacts.length > 1) {
-                this.$emit('onDeleteGroup', this.selectedGroup.groupId);
-            }
-            // Delete Artefact
-        } else if (this.selectedArtefacts.length === 1) {
-            this.newOperation(operations[0]);
+        this.newOperation(operation);
+
+        if (this.selectedGroup) {
+            this.$emit('onDeleteGroup', this.selectedGroup.groupId);
         }
     }
 
@@ -299,19 +304,19 @@ export default class ScrollMenu extends Vue {
     private onUndo() {
         this.undo();
     }
-    private setPlacement(
-        opType: ArtefactPlacementOperationType,
-        newTrans: Placement
-    ) {
-        const op = new ArtefactPlacementOperation(
-            this.artefact!.id,
-            opType,
-            this.artefact!.placement,
-            newTrans
-        );
-        this.artefact!.placement = newTrans;
-        this.newOperation(op);
-    }
+    // private setPlacement(
+    //     opType: ArtefactPlacementOperationType,
+    //     newTrans: Placement
+    // ) {
+    //     const op = new ArtefactPlacementOperation(
+    //         this.artefact!.id,
+    //         opType,
+    //         this.artefact!.placement,
+    //         newTrans
+    //     );
+    //     this.artefact!.placement = newTrans;
+    //     this.newOperation(op);
+    // }
     private createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
