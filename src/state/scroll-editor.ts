@@ -6,5 +6,5 @@ export class ScrollEditorState {
     public selectedArtefact?: Artefact;
     public selectedGroup?: ArtefactGroup;
 
-    public viewport?: BoundingBox;  // The viewport in edition coordinates
+    public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
 }
