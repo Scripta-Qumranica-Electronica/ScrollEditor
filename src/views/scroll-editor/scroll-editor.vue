@@ -35,8 +35,8 @@
     
                 
                 <div id="artefact-container" ref="artefactContainer" @scroll="onScroll" :class="{active: isActive}">
-                   artefact: {{selectedArtefact && selectedArtefact.id}}
-                    group: {{selectedGroup}}
+                   <!-- artefact: {{selectedArtefact && selectedArtefact.id}}
+                    group: {{selectedGroup}} -->
                     <scroll-area
                         v-if="edition"
                         ref="scrollAreaRef"
@@ -365,12 +365,8 @@ export default class ScrollEditor extends Vue
                 Placement.empty,
                 placement
             );
-            this.operationsManager.addOperation(
-                new GroupPlacementOperation(this.selectedGroup.groupId, [
-                    operation
-                ])
-            );
-            this.edition.artefactGroups.push(this.selectedGroup.clone());
+            this.onNewOperation(operation);
+            this.selectArtefact(artefact);
         }
     }
 
@@ -395,6 +391,7 @@ export default class ScrollEditor extends Vue
                 this.cancelGroup();
             } else {
                 group.artefactIds = [...this.selectedGroup!.artefactIds];
+                this.params.mode = '';
             }
         } else {
             this.edition!.artefactGroups.push(this.selectedGroup!.clone());
@@ -531,6 +528,9 @@ export default class ScrollEditor extends Vue
     height: calc(100vh - 63px);
     width: calc(100vw - 290px);
     touch-action: none;
+}
+#artefact-container.active{
+  width: calc(100vw - 42px);
 }
 .artefact-container > div {
     height: 100%;

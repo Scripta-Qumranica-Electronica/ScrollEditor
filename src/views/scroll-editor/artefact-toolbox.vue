@@ -178,6 +178,7 @@
                             :pill="float"
                             :pressed="mode === 'manageGroup'"
                             @click="setMode('manageGroup')"
+                            :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                         >
                             <span>Manage group</span>
                             <font-awesome-icon v-if="float" size="xs"></font-awesome-icon>
@@ -507,32 +508,28 @@ export default class ArtefactToolbox extends Vue {
 
     public resetZoom() {
         const operations: ScrollEditorOperation[] = [];
-        this.selectedArtefacts.forEach(art => {
-            const trans = art.placement.clone();
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
+        if (this.selectedArtefact) {
+            const trans = this.selectedArtefact.placement.clone();
             trans.scale = 1;
-            operations.push(this.createOperation('scale', trans, art));
-        });
-        const groupPlacementOperations = new GroupPlacementOperation(
-            this.selectedGroup.groupId,
-            operations
-        );
-        this.newOperation(groupPlacementOperations);
-    }
-
-    // public resetRotationArtefact() {
-    //     if (this.artefact) {
-    //         const placement = this.artefact.placement.clone();
-    //         placement.rotate = 0;
-    //         this.setPlacement('rotate', placement, this.artefact);
-    //     }
-    // }
-
-    public resetScaleArtefact() {
-        if (this.artefact) {
-            const placement = this.artefact.placement.clone();
-            placement.scale = 1;
-            this.setPlacement('scale', placement, this.artefact);
+            operation = this.createOperation(
+                'scale',
+                trans,
+                this.selectedArtefact
+            );
         }
+        if (this.selectedGroup) {
+            this.selectedArtefacts.forEach(art => {
+                const trans = art.placement.clone();
+                trans.scale = 1;
+                operations.push(this.createOperation('scale', trans, art));
+            });
+            operation = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations
+            );
+        }
+        this.newOperation(operation);
     }
 
     private setZIndex(zIndexDirection: number) {

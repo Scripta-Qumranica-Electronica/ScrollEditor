@@ -100,7 +100,7 @@
                 <b-collapse id="accordion-metrics" accordion="my-accordion-side" role="tabpanel">
                     <b-card-body>
                         <section class="center-btn">
-                            <!-- <div>{{edition.metrics.width}} X {{edition.metrics.height}}</div> -->
+                            <div>{{edition.metrics.width}} X {{edition.metrics.height}}</div>
                             <b-row>
                                 <b-col cols="6">
                                     <b-form-select
@@ -176,12 +176,8 @@ import ScrollMap from './scroll-map.vue';
     }
 })
 export default class ScrollMenu extends Vue {
-    // @Prop()
-    // public artefact: Artefact | undefined = undefined;
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
-    // @Prop()
-    // private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private params: ScrollEditorParams = new ScrollEditorParams();
     private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
@@ -304,19 +300,6 @@ export default class ScrollMenu extends Vue {
     private onUndo() {
         this.undo();
     }
-    // private setPlacement(
-    //     opType: ArtefactPlacementOperationType,
-    //     newTrans: Placement
-    // ) {
-    //     const op = new ArtefactPlacementOperation(
-    //         this.artefact!.id,
-    //         opType,
-    //         this.artefact!.placement,
-    //         newTrans
-    //     );
-    //     this.artefact!.placement = newTrans;
-    //     this.newOperation(op);
-    // }
     private createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,

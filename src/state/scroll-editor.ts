@@ -8,13 +8,13 @@ function state() {
     return StateManager.instance;
 }
 export class ScrollEditorState {
-    public selectedArtefact?: Artefact;
-    public selectedGroup?: ArtefactGroup;
+    public selectedArtefact: Artefact | null = null;
+    public selectedGroup: ArtefactGroup| null = null;
 
-    constructor() {
-        this.selectedArtefact = undefined;
-        this.selectedGroup = undefined;
-    }
+    // constructor() {
+    //     this.selectedArtefact = undefined;
+    //     this.selectedGroup = undefined;
+    // }
 
     public get selectedArtefacts(): Array<Artefact | undefined> {
         let artefactsIds: number[] = [];
