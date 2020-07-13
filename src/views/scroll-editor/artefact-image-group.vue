@@ -77,9 +77,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         default: false
     })
     public disabled!: boolean;
+    @Prop({
+        default: undefined
+    })
+    public artefact!: Artefact;
     @Prop() public readonly transformRootId!: string;
-    @Prop()
-    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
     private mouseOrigin?: Point;
     private loaded = false;
     private pointerId: number = -1;
@@ -149,9 +151,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     @Emit()
-    private onSelect(): boolean {
-        return true;
+    private onSelect(): Artefact {
+        return this.artefact;
     }
+
     private eventToPoint($event: PointerEvent): Point {
         // Changing coordinate systems taken from:
         // https://www.sitepoint.com/how-to-translate-from-dom-to-svg-coordinates-and-back-again/
@@ -164,10 +167,17 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         return svgPt;
     }
+
+    public get selectedGroup(): ArtefactGroup | undefined {
+        return this.$state.scrollEditor.selectedGroup;
+    }
+
+    public get selectedArtefact(): Artefact | undefined {
+        return this.$state.scrollEditor.selectedArtefact;
+    }
+
     private get selectedArtefacts(): Array<Artefact | undefined> {
-        return this.selectedGroup.artefactIds.map((x: number) =>
-            this.$state.artefacts.find(x)
-        );
+        return this.$state.scrollEditor.selectedArtefacts;
     }
 
     private pointerDown($event: PointerEvent) {
@@ -221,16 +231,28 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             this.cancelOperation($event.target as HTMLBaseElement);
             return;
         }
-        this.selectedArtefacts.forEach(art => {
-            const trans = art!.placement.clone();
-            operations.push(this.createOperation('translate', trans, art));
-        });
 
-        const groupPlacementOperations = new GroupPlacementOperation(
-            this.selectedGroup.groupId,
-            operations
-        );
-        this.newOperation(groupPlacementOperations);
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
+        if (this.selectedArtefact) {
+            operation = this.createOperation(
+                'translate',
+                this.selectedArtefact.placement.clone(),
+                this.selectedArtefact
+            );
+        }
+        if (this.selectedGroup) {
+            this.selectedArtefacts.forEach(art => {
+                const trans = art!.placement.clone();
+                operations.push(this.createOperation('translate', trans, art));
+            });
+
+            operation = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations
+            );
+        }
+
+        this.newOperation(operation);
 
         this.cancelOperation($event.target as HTMLBaseElement);
     }
@@ -247,7 +269,9 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const op = new ArtefactPlacementOperation(
             artefact!.id,
             opType,
-            this.previousPlacement.find(x => x.artefactId === artefact!.id).placement,
+            this.previousPlacement.find(
+                x => x.artefactId === artefact!.id
+            ).placement,
             newPlacement
         );
         return op;

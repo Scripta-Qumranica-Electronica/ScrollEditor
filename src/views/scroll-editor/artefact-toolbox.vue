@@ -6,7 +6,7 @@
                     <b-button-group size="sm" class="m-1">
                         <b-button
                             :pill="float"
-                            :disabled="!artefact"
+                            :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                             :pressed="mode === 'move'"
                             @click="setMode('move')"
                         >
@@ -17,7 +17,7 @@
                         </b-button>
                         <b-button
                             :pill="float"
-                            :disabled="!artefact"
+                            :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                             :pressed="mode === 'scale'"
                             @click="setMode('scale')"
                         >
@@ -28,7 +28,7 @@
                         </b-button>
                         <b-button
                             :pill="float"
-                            :disabled="!artefact"
+                            :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                             :pressed="mode === 'rotate'"
                             @click="setMode('rotate')"
                         >
@@ -56,7 +56,7 @@
                                                 <b-button
                                                     :class="[float ? 'btn-xs' : 'btn-xs', 'mt-1']"
                                                     size="sm"
-                                                    :disabled="!artefact"
+                                                    :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                                                     @click="dragArtefact(0,-1)"
                                                 >
                                                     <i class="fa fa-arrow-up"></i>
@@ -69,7 +69,7 @@
                                                 <b-button
                                                     :class="[float ? 'btn-xs' : 'btn-xs', ' ml-2 mb-2']"
                                                     size="sm"
-                                                    :disabled="!artefact"
+                                                    :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                                                     @click="dragArtefact(-1,0)"
                                                 >
                                                     <i class="fa fa-arrow-left"></i>
@@ -79,7 +79,7 @@
                                                 <b-button
                                                     :class="[float ? 'btn-xs' : 'btn-xs', 'mb-2']"
                                                     size="sm"
-                                                    :disabled="!artefact"
+                                                    :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                                                     @click="dragArtefact(0,1)"
                                                 >
                                                     <i class="fa fa-arrow-down"></i>
@@ -89,7 +89,7 @@
                                                 <b-button
                                                     :class="[float ? 'btn-xs' : 'btn-xs', 'mb-2']"
                                                     size="sm"
-                                                    :disabled="!artefact"
+                                                    :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                                                     @click="dragArtefact(1,0)"
                                                 >
                                                     <i class="fa fa-arrow-right"></i>
@@ -104,8 +104,8 @@
                                         size="sm"
                                         type="number"
                                         v-model="params.move"
-                                    ></b-form-input> 
-                                </b-col> mm
+                                    ></b-form-input>
+                                </b-col>mm
                             </b-row>
                             <b-row v-if="mode === 'scale'" no-gutters align-v="end">
                                 <b-button-group>
@@ -163,7 +163,7 @@
                                         type="number"
                                         v-model="params.rotate"
                                     ></b-form-input>
-                                </b-col> degree
+                                </b-col>degree
                             </b-row>
                         </section>
                     </b-card-body>
@@ -176,7 +176,6 @@
                     <b-button-group size="sm" class="mb-1">
                         <b-button
                             :pill="float"
-                            :disabled="!artefact && selectedGroup.artefactIds.length === 0"
                             :pressed="mode === 'manageGroup'"
                             @click="setMode('manageGroup')"
                         >
@@ -275,9 +274,6 @@ export default class ArtefactToolbox extends Vue {
 
     @Prop({ default: true })
     public keyboardInput!: boolean;
-    @Prop()
-    private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
-
     private reset!: number;
     private zoomDelta!: number;
     public mounted() {
@@ -297,15 +293,16 @@ export default class ArtefactToolbox extends Vue {
         return this.$state.artefacts.find(this.artefactId);
     }
 
-    private get selectedArtefacts(): Artefact[] {
-        return this.selectedGroup.artefactIds.map((x: number) => {
-            const artefact = this.$state.artefacts.find(x);
-            if (!artefact) {
-                throw new Error(`Can't find artefact ${x}`);
-                return {} as Artefact;
-            }
-            return artefact;
-        });
+    public get selectedArtefact(): Artefact | undefined {
+        return this.$state.scrollEditor.selectedArtefact;
+    }
+
+    public get selectedGroup(): ArtefactGroup | undefined {
+        return this.$state.scrollEditor.selectedGroup;
+    }
+
+    private get selectedArtefacts(): Array<Artefact | undefined> {
+        return this.$state.scrollEditor.selectedArtefacts;
     }
 
     public destroyed() {
@@ -316,19 +313,36 @@ export default class ArtefactToolbox extends Vue {
 
     public dragArtefact(dirX: number, dirY: number) {
         const operations: ScrollEditorOperation[] = [];
-        this.selectedArtefacts.forEach(art => {
-            const placement = art.placement.clone();
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
+        if (this.selectedArtefact) {
+            const placement = this.selectedArtefact.placement.clone();
             const jump =
                 parseInt(this.params.move.toString()) * this.edition.ppm;
             placement!.translate.x! += jump * dirX;
             placement!.translate.y! += jump * dirY;
-            operations.push(this.createOperation('translate', placement, art));
-        });
-        const groupPlacementOperations = new GroupPlacementOperation(
-            this.selectedGroup.groupId,
-            operations
-        );
-        this.newOperation(groupPlacementOperations);
+            operation = this.createOperation(
+                'translate',
+                placement,
+                this.selectedArtefact
+            );
+        }
+        if (this.selectedGroup) {
+            this.selectedArtefacts.forEach(art => {
+                const placement = art.placement.clone();
+                const jump =
+                    parseInt(this.params.move.toString()) * this.edition.ppm;
+                placement!.translate.x! += jump * dirX;
+                placement!.translate.y! += jump * dirY;
+                operations.push(
+                    this.createOperation('translate', placement, art)
+                );
+            });
+            operation = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations
+            );
+        }
+        this.newOperation(operation);
     }
 
     public getGroupCenter(): Point {
@@ -365,33 +379,50 @@ export default class ArtefactToolbox extends Vue {
 
     public rotateGroupArtefact(direction: number) {
         const operations: ScrollEditorOperation[] = [];
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
         const groupCenterPoint = this.getGroupCenter();
 
         const deltaAngleDegrees = direction * this.params.rotate;
         const deltaAngleRadians = deltaAngleDegrees * (Math.PI / 180);
-
-        this.selectedArtefacts.forEach(art => {
-            // Rotate each artefact by deltaAngleDegrees
-            const newRotate = this.rotateArtefact(art, deltaAngleDegrees);
-
-            // Translate each artefact
-            const newTranslate = this.translateArtefactAfterGroupRotation(
-                art,
-                groupCenterPoint,
-                deltaAngleRadians
+        if (this.selectedArtefact) {
+            const newRotate = this.rotateArtefact(
+                this.selectedArtefact,
+                deltaAngleDegrees
             );
-
-            const newPlacement = art.placement.clone();
+            const newPlacement = this.selectedArtefact.placement.clone();
             newPlacement.rotate = newRotate;
-            newPlacement.translate = newTranslate;
+            operation = this.createOperation(
+                'rotate',
+                newPlacement,
+                this.selectedArtefact
+            );
+        }
+        if (this.selectedGroup) {
+            this.selectedArtefacts.forEach(art => {
+                // Rotate each artefact by deltaAngleDegrees
+                const newRotate = this.rotateArtefact(art, deltaAngleDegrees);
 
-            operations.push(this.createOperation('rotate', newPlacement, art));
-        });
-        const groupPlacementOperations = new GroupPlacementOperation(
-            this.selectedGroup.groupId,
-            operations
-        );
-        this.newOperation(groupPlacementOperations);
+                // Translate each artefact
+                const newTranslate = this.translateArtefactAfterGroupRotation(
+                    art,
+                    groupCenterPoint,
+                    deltaAngleRadians
+                );
+
+                const newPlacement = art.placement.clone();
+                newPlacement.rotate = newRotate;
+                newPlacement.translate = newTranslate;
+
+                operations.push(
+                    this.createOperation('rotate', newPlacement, art)
+                );
+            });
+            operation = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations
+            );
+        }
+        this.newOperation(operation);
     }
 
     public rotateArtefact(
@@ -431,8 +462,9 @@ export default class ArtefactToolbox extends Vue {
 
     public zoomArtefact(direction: number) {
         const operations: ScrollEditorOperation[] = [];
-        this.selectedArtefacts.forEach(art => {
-            const trans = art.placement.clone();
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
+        if (this.selectedArtefact) {
+            const trans = this.selectedArtefact.placement.clone();
             if (direction === 1) {
                 this.zoomDelta = trans.scale + this.params.scale / 100;
             } else {
@@ -443,13 +475,34 @@ export default class ArtefactToolbox extends Vue {
             }
             trans.scale = this.zoomDelta;
             trans.scale = +trans.scale.toFixed(4);
-            operations.push(this.createOperation('scale', trans, art));
-        });
-        const groupPlacementOperations = new GroupPlacementOperation(
-            this.selectedGroup.groupId,
-            operations
-        );
-        this.newOperation(groupPlacementOperations);
+            operation = this.createOperation(
+                'scale',
+                trans,
+                this.selectedArtefact
+            );
+        }
+        if (this.selectedGroup) {
+            this.selectedArtefacts.forEach(art => {
+                const trans = art.placement.clone();
+                if (direction === 1) {
+                    this.zoomDelta = trans.scale + this.params.scale / 100;
+                } else {
+                    this.zoomDelta = trans.scale - this.params.scale / 100;
+                }
+                if (!trans.scale) {
+                    trans.scale = 1;
+                }
+                trans.scale = this.zoomDelta;
+                trans.scale = +trans.scale.toFixed(4);
+                operations.push(this.createOperation('scale', trans, art));
+            });
+
+            operation = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations
+            );
+        }
+        this.newOperation(operation);
     }
 
     public resetZoom() {

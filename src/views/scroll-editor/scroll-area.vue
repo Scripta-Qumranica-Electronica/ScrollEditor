@@ -1,6 +1,6 @@
 <template>
     <div ref="scrollArea" id="outer">
-        <div v-draggable="draggableOptions" v-show="selectedArtefact" style="position: absolute;">
+        <div v-draggable="draggableOptions" v-show="selectedArtefact || selectedGroup" style="position: absolute;">
             <div
                 ref="handleTools"
                 style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move"
@@ -11,9 +11,7 @@
             <artefact-toolbox
                 :keyboard-input="false"
                 :params="params"
-                :selectedGroup="selectedGroup"
                 :float="true"
-                :artefactId="selectedArtefact && selectedArtefact.id"
                 @new-operation="onNewOperation($event)"
                 @save-group="onSaveGroup()"
                 @cancel-group="cancelGroup()"
@@ -33,12 +31,11 @@
                         @on-select="selectArtefact(artefact)"
                         @new-operation="onNewOperation($event)"
                         transformRootId="root"
-                        :artefact="artefact"
                         v-for="artefact in placedArtefacts"
+                        :artefact="artefact"
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
-                        :selectedGroup="selectedGroup"
                     />
                 </g>
             </svg>
@@ -78,7 +75,7 @@ import { ArtefactGroup } from '@/models/edition';
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -89,16 +86,12 @@ import { ArtefactGroup } from '@/models/edition';
 export default class ScrollArea extends Vue {
     @Prop()
     public params!: ScrollEditorParams;
-    @Prop()
-    private selectedGroup: ArtefactGroup | undefined; // Shaindel - why is this not of type ArtefactGroup | undefined?
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
-    private selectedArtefact: Artefact | undefined = {} as Artefact;
     private draggableOptions: DraggableValue = {};
 
     public selectArtefact(artefact: Artefact | undefined) {
-        this.selectedArtefact = artefact;
-        this.$emit('onSelectArtefact', this.selectedArtefact);
+        this.$emit('onSelectArtefact', artefact);
     }
 
     private created() {
@@ -112,11 +105,40 @@ export default class ScrollArea extends Vue {
     }
 
     private mounted() {
-        this.selectedArtefact = undefined;
 
         this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
         this.draggableOptions.boundingElement = this.$refs
             .scrollArea as HTMLElement;
+    }
+
+    public get selectedGroup(): ArtefactGroup | undefined {
+        return this.$state.scrollEditor.selectedGroup;
+    }
+
+    public get selectedArtefact(): Artefact | undefined {
+        return this.$state.scrollEditor.selectedArtefact;
+    }
+
+    private isArtefactSelected(artefact: Artefact): boolean {
+        if (this.selectedArtefact) {
+            return this.selectedArtefact === artefact;
+        }
+        if (this.selectedGroup) {
+            return this.selectedGroup.artefactIds.includes(artefact.id);
+        }
+        return false;
+    }
+
+    private isArtefactDisabled(artefact: Artefact): boolean {
+        const artefactGroup = this.getArtefactGroup(artefact);
+        if (this.selectedGroup) {
+            return (
+                this.params.mode === 'manageGroup' &&
+                !!artefactGroup &&
+                artefactGroup.groupId !== this.selectedGroup.groupId
+            );
+        }
+        return false;
     }
 
     private get edition() {
@@ -181,35 +203,6 @@ export default class ScrollArea extends Vue {
         return this.artefacts
             .filter(x => x.isPlaced)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
-    }
-
-    private isArtefactSelected(artefact: Artefact): boolean {
-        let res: boolean = false;
-        if (this.selectedGroup) {
-            if (this.selectedGroup.artefactIds.length) {
-                res =
-                    this.selectedGroup.artefactIds.findIndex(
-                        i => i === artefact.id
-                    ) > -1;
-            } else {
-                res =
-                    artefact.id ===
-                    (this.selectedArtefact && this.selectedArtefact.id);
-            }
-        }
-        return res;
-    }
-
-    private isArtefactDisabled(artefact: Artefact): boolean {
-        const artefactGroup = this.getArtefactGroup(artefact);
-        if (this.selectedGroup) {
-            return (
-                this.params.mode === 'manageGroup' &&
-                !!artefactGroup &&
-                artefactGroup.groupId !== this.selectedGroup.groupId
-            );
-        }
-        return false;
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
