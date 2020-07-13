@@ -8,6 +8,11 @@
         >
             <g id="root" :transform="transform">
                 <rect v-if="viewport" :x="viewport.x" :y="viewport.y" :width="viewport.width" :height="viewport.height" vector-effect="non-scaling-stroke"/>
+                <artefact-sillhouette
+                    :artefact="artefact"
+                    v-for="artefact in placedArtefacts"
+                    :key="artefact.id"
+                />
             </g>
         </svg>
     </div>
@@ -17,8 +22,13 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
 import { BoundingBox } from '@/utils/helpers';
+import ArtefactSillhouette from './artefact-sillhouette.vue';
+
 @Component({
     name: 'scroll-map',
+    components: {
+        'artefact-sillhouette': ArtefactSillhouette,
+    },
 })
 export default class ScrollMap extends Vue {
     private width: number = 0;
@@ -74,6 +84,13 @@ export default class ScrollMap extends Vue {
 
     private get actualYOrigin() {
         return this.edition.metrics.yOrigin * this.edition.ppm * this.scaleFactor;
+    }
+
+    private get placedArtefacts() {
+        const artefacts = this.$state.artefacts.items;
+        return artefacts
+            .filter(x => x.isPlaced)
+            .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
     }
 }
 </script>
