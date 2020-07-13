@@ -105,11 +105,11 @@ export default class ScrollEditor extends Vue
         return this.$state.scrollEditor;
     }
 
-    public get selectedGroup(): ArtefactGroup | undefined {
+    public get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
 
-    public get selectedArtefact(): Artefact | undefined {
+    public get selectedArtefact() {
         return this.scrollEditorState.selectedArtefact;
     }
 
@@ -368,6 +368,8 @@ export default class ScrollEditor extends Vue
                 Placement.empty,
                 placement
             );
+
+            // Shaindel: What if there is no selected group?
             this.operationsManager.addOperation(
                 new GroupPlacementOperation(this.selectedGroup.groupId, [
                     operation
@@ -378,7 +380,7 @@ export default class ScrollEditor extends Vue
     }
 
     private saveGroupArtefacts() {
-
+        // Shaindel - what if there is no selected group? Do we get here in case there is no group?
         const group = this.edition.artefactGroups.find(
             x => x.groupId === this.selectedGroup.groupId
         );

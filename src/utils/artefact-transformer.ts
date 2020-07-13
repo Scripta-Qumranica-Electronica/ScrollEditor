@@ -48,7 +48,6 @@ class ArtefactTransformer {
         // Transformations are performed by SVG from right to left
         const transform = `${translateToPlace} ${rotate} ${scale} ${translateToZero}`;
 
-        console.debug('ArtefactTransformer.artefactTransform ', placement, this.boundingBox, transform);
         return transform;
     }
 }

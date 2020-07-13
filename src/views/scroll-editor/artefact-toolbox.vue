@@ -289,19 +289,19 @@ export default class ArtefactToolbox extends Vue {
         return this.params!.mode;
     }
 
-    private get artefact(): Artefact | undefined {
+    private get artefact() {
         return this.$state.artefacts.find(this.artefactId);
     }
 
-    public get selectedArtefact(): Artefact | undefined {
+    public get selectedArtefact() {
         return this.$state.scrollEditor.selectedArtefact;
     }
 
-    public get selectedGroup(): ArtefactGroup | undefined {
+    public get selectedGroup() {
         return this.$state.scrollEditor.selectedGroup;
     }
 
-    private get selectedArtefacts(): Array<Artefact | undefined> {
+    private get selectedArtefacts() {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 
@@ -512,6 +512,8 @@ export default class ArtefactToolbox extends Vue {
             trans.scale = 1;
             operations.push(this.createOperation('scale', trans, art));
         });
+
+        // Shaindel - what if there is no selected group?
         const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
@@ -519,19 +521,13 @@ export default class ArtefactToolbox extends Vue {
         this.newOperation(groupPlacementOperations);
     }
 
-    // public resetRotationArtefact() {
-    //     if (this.artefact) {
-    //         const placement = this.artefact.placement.clone();
-    //         placement.rotate = 0;
-    //         this.setPlacement('rotate', placement, this.artefact);
-    //     }
-    // }
-
     public resetScaleArtefact() {
         if (this.artefact) {
             const placement = this.artefact.placement.clone();
             placement.scale = 1;
             this.setPlacement('scale', placement, this.artefact);
+
+            // Shaindel - what about undo/redo?
         }
     }
 
@@ -554,6 +550,8 @@ export default class ArtefactToolbox extends Vue {
             placement.zIndex = zIndex;
             operations.push(this.createOperation('z-index', placement, art));
         });
+
+        // Shaindel - what if there is no selected group?
         const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations
