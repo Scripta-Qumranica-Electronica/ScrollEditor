@@ -440,7 +440,8 @@ export default class ScrollEditor extends Vue
         left += this.edition.metrics.xOrigin * this.edition.ppm;
         top += this.edition.metrics.yOrigin * this.edition.ppm;
 
-        this.$state.scrollEditor.viewport = new BoundingBox(left, top, width, height);
+        const viewport = new BoundingBox(left, top, width, height);
+        Vue.set(this.$state.scrollEditor, 'viewport', viewport);
     }
 }
 </script>

@@ -1,11 +1,14 @@
 <template>
     <div id="scroll-side-menu" role="tablist">
+        <section>
+            {{ edition.name }} 
+            <edition-icons :edition="edition" :show-text="true" />
+        </section>
+        <section>
+            <scroll-map />
+        </section>
         <section class="center-btn" v-if="!readOnly">
             <div>{{ saveStatusMessage }}</div>
-        </section>
-        <section v-if="readOnly">
-            {{ edition.name}}
-            <edition-icons :edition="edition" :show-text="true" />
         </section>
         <section>
             <b-card no-body class="mb-1">
@@ -164,6 +167,7 @@ import {
     UpdateEditionManuscriptMetricsDTO,
     EditionManuscriptMetricsDTO
 } from '../../dtos/sqe-dtos';
+import ScrollMap from './scroll-map.vue';
 
 @Component({
     name: 'scroll-menu',
@@ -171,7 +175,8 @@ import {
         Waiting,
         'add-artefact-modal': AddArtefactModal,
         'artefact-toolbox': ArtefactToolbox,
-        'edition-icons': EditionIcons
+        'edition-icons': EditionIcons,
+        'scroll-map': ScrollMap
     }
 })
 export default class ScrollMenu extends Vue {
