@@ -15,6 +15,7 @@
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onDeleteGroup="deleteGroup($event)"
                 @metricsChange="onMetricsChange()"
+                @navigate-to-point="onNavigateToPoint"
             ></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
@@ -30,8 +31,11 @@
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
-                <div class="artefact-container" :class="{active: isActive}">
-                    artefact: {{selectedArtefact && selectedArtefact.id}}
+
+    
+                
+                <div id="artefact-container" ref="artefactContainer" @scroll="onScroll" :class="{active: isActive}">
+                   artefact: {{selectedArtefact && selectedArtefact.id}}
                     group: {{selectedGroup}}
                     <scroll-area
                         v-if="edition"
@@ -73,6 +77,7 @@ import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '../../models/edition';
 import { ScrollEditorState } from '../../state/scroll-editor';
+import { BoundingBox, Point } from '../../utils/helpers';
 
 @Component({
     name: 'scroll-editor',
@@ -91,7 +96,7 @@ export default class ScrollEditor extends Vue
     private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
-    // private selectedGroup: ArtefactGroup = ArtefactGroup.generateGroup([]);
+    private observer?: ResizeObserver;
     private operationsManager = new OperationsManager<ScrollEditorOperation>(
         this
     );
@@ -200,7 +205,7 @@ export default class ScrollEditor extends Vue
             // save groups
             if (allEditedGroupIds.size) {
                 allEditedGroupIds.forEach(async groupId => {
-                    const group = this.edition!.artefactGroups.find(
+                    const group = this.edition.artefactGroups.find(
                         artGroup => artGroup.id === groupId
                     );
                     if (!group) {
@@ -249,7 +254,7 @@ export default class ScrollEditor extends Vue
             if (saveMetrics) {
                 await this.editionService.updateMetrics(
                     this.editionId,
-                    this.edition!.metrics
+                    this.edition.metrics
                 );
             }
 
@@ -265,6 +270,7 @@ export default class ScrollEditor extends Vue
         this.$state.eventBus.$on('select-group', this.selectGroup);
         this.$state.eventBus.$on('delete-group', this.deleteGroup);
         this.$state.eventBus.$on('update-operation-id', this.updateOperationId);
+        this.observer = new ResizeObserver(entries => this.onResize(entries));
     }
 
     protected destroyed() {
@@ -274,6 +280,10 @@ export default class ScrollEditor extends Vue
             'update-operation-id',
             this.updateOperationId
         );
+
+        if (this.observer) {
+            this.observer.disconnect();
+        }
     }
 
     private sidebarClicked() {
@@ -292,6 +302,8 @@ export default class ScrollEditor extends Vue
         });
 
         this.$state.scrollEditor = new ScrollEditorState();
+        this.observer!.observe(this.$refs.artefactContainer as Element);
+        this.calculateViewport();
     }
 
     private get artefacts() {
@@ -299,6 +311,9 @@ export default class ScrollEditor extends Vue
     }
 
     private get edition() {
+        if (!this.$state.editions.current) {
+            throw new Error("Can't edit a scroll with no current edition");
+        }
         return this.$state.editions.current;
     }
 
@@ -314,6 +329,7 @@ export default class ScrollEditor extends Vue
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         this.params = evt.params as ScrollEditorParams;
+        this.calculateViewport();
     }
     private updateOperationId(oldId: number, newId: number) {
         this.operationsManager.updateStackIds(oldId, newId);
@@ -349,12 +365,19 @@ export default class ScrollEditor extends Vue
                 Placement.empty,
                 placement
             );
+            this.operationsManager.addOperation(
+                new GroupPlacementOperation(this.selectedGroup.groupId, [
+                    operation
+                ])
+            );
+            this.edition.artefactGroups.push(this.selectedGroup.clone());
         }
     }
 
     private saveGroupArtefacts() {
-        const group = this.edition!.artefactGroups.find(
-            x => x.groupId === this.selectedGroup!.groupId
+
+        const group = this.edition.artefactGroups.find(
+            x => x.groupId === this.selectedGroup.groupId
         );
         this.operationsManager.addOperation(
             new EditGroupOperation(
@@ -375,12 +398,13 @@ export default class ScrollEditor extends Vue
             }
         } else {
             this.edition!.artefactGroups.push(this.selectedGroup!.clone());
+
         }
 
     }
 
     private deleteGroup(groupId: number) {
-        const groupArtefact = this.edition!.artefactGroups.find(
+        const groupArtefact = this.edition.artefactGroups.find(
             x => x.groupId === groupId
         );
         if (groupArtefact) {
@@ -410,6 +434,62 @@ export default class ScrollEditor extends Vue
     private cancelGroup() {
         this.selectGroup(undefined);
         this.params.mode = '';
+    }
+
+    private onResize(entries: ResizeObserverEntry[]) {
+        this.calculateViewport();
+    }
+
+    private onScroll() {
+        this.calculateViewport();
+    }
+
+    private calculateViewport() {
+        const div = this.$refs.artefactContainer as Element;
+        const zoom = this.params?.zoom || 1;
+
+        // Get the client width and height in edition coordinates from the client rect
+        const pixelRect = div.getBoundingClientRect();
+        const width = pixelRect.width / zoom;
+        const height = pixelRect.height / zoom;
+
+        // Get the scroll offset in edition coordinates from the element itself
+        let top = div.scrollTop / zoom;
+        let left = div.scrollLeft / zoom;
+
+        // Take into account the edition's origin
+        left += this.edition.metrics.xOrigin * this.edition.ppm;
+        top += this.edition.metrics.yOrigin * this.edition.ppm;
+
+        const viewport = new BoundingBox(left, top, width, height);
+        // Vue.set(this.$state.scrollEditor, 'viewport', viewport);
+        this.$state.scrollEditor.viewport = viewport;
+    }
+
+    private onNavigateToPoint(pt: Point) {
+        const div = this.$refs.artefactContainer as Element;
+        const viewport = this.$state.scrollEditor.viewport;
+        const zoom = this.params?.zoom || 1;
+
+        if (!viewport) {
+            console.warn("Can't navigate with a null viewport");
+            return;
+        }
+
+        // First, find the new top-left of the viewport, in edition coordinates
+        let left = pt.x - viewport.width / 2;
+        let top = pt.y - viewport.height / 2;
+
+        // Now adjust the xOrigin, yOrigin offset
+        left -= this.edition.metrics.xOrigin * this.edition.ppm;
+        top -= this.edition.metrics.yOrigin * this.edition.ppm;
+
+        // Take the coom into account
+        left *= zoom;
+        top *= zoom;
+
+        // Finally we can scroll
+        div.scroll(left, top);
     }
 }
 </script>
@@ -444,7 +524,8 @@ export default class ScrollEditor extends Vue
     margin-left: -250px;
     transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
 }
-.artefact-container {
+
+#artefact-container {
     overflow: auto;
     padding: 0;
     height: calc(100vh - 63px);

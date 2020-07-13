@@ -1,6 +1,7 @@
 import { Artefact } from '@/models/artefact';
 import { ArtefactGroup } from '@/models/edition';
 import { StateManager } from '@/state';
+import { BoundingBox } from '@/utils/helpers';
 
 
 function state() {
@@ -37,5 +38,8 @@ export class ScrollEditorState {
         this.selectedGroup = artefactGroup && artefactGroup.clone();
         this.selectedArtefact = undefined;
     }
+
+
+    public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
 
 }

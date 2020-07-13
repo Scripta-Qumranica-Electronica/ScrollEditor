@@ -1,11 +1,14 @@
 <template>
     <div id="scroll-side-menu" role="tablist">
+        <section>
+            {{ edition.name }} 
+            <edition-icons :edition="edition" :show-text="true" />
+        </section>
+        <section>
+            <scroll-map @navigate-to-point="navigateToPoint" />
+        </section>
         <section class="center-btn" v-if="!readOnly">
             <div>{{ saveStatusMessage }}</div>
-        </section>
-        <section v-if="readOnly">
-            {{ edition.name}}
-            <edition-icons :edition="edition" :show-text="true" />
         </section>
         <section>
             <b-card no-body class="mb-1">
@@ -155,11 +158,12 @@ import {
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
 import { ArtefactGroup, EditionInfo } from '../../models/edition';
-import { DropdownOption } from '@/utils/helpers';
+import { DropdownOption, Point } from '@/utils/helpers';
 import {
     UpdateEditionManuscriptMetricsDTO,
     EditionManuscriptMetricsDTO
 } from '../../dtos/sqe-dtos';
+import ScrollMap from './scroll-map.vue';
 
 @Component({
     name: 'scroll-menu',
@@ -167,7 +171,8 @@ import {
         Waiting,
         'add-artefact-modal': AddArtefactModal,
         'artefact-toolbox': ArtefactToolbox,
-        'edition-icons': EditionIcons
+        'edition-icons': EditionIcons,
+        'scroll-map': ScrollMap
     }
 })
 export default class ScrollMenu extends Vue {
@@ -436,6 +441,11 @@ export default class ScrollMenu extends Vue {
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
+    }
+
+    @Emit()
+    private navigateToPoint(pt: Point): Point {
+        return pt;
     }
 
     private get saveStatusMessage(): string {

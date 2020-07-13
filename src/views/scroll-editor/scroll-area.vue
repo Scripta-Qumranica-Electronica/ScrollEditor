@@ -187,7 +187,7 @@ export default class ScrollArea extends Vue {
     }
 
     private get zoomLevel() {
-        return (this.params && this.params.zoom) || 0;
+        return (this.params && this.params.zoom) || 1;
     }
 
     private onNewZoom(event: ZoomEventArgs) {
