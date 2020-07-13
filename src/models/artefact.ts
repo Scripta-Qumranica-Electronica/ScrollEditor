@@ -23,12 +23,7 @@ export class Artefact {
     public textFragments: ArtefactTextFragmentData[] = [];
 
 
-    constructor(obj: Artefact | ArtefactDTO) {
-        if (obj instanceof Artefact) {
-            this.copyFrom(obj as Artefact);
-            return;
-        }
-
+    constructor(obj: ArtefactDTO) {
         this.id = obj.id;
         this.editionId = obj.editionId;
         this.imagedObjectId = obj.imagedObjectId;
@@ -67,7 +62,7 @@ export class Artefact {
         }
     }
 
-    private copyFrom(other: Artefact) {
+    public copyFrom(other: Artefact) {
         this.id = other.id;
         this.editionId = other.editionId;
         this.imagedObjectId = other.imagedObjectId;

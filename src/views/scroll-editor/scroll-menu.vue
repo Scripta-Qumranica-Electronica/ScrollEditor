@@ -202,15 +202,15 @@ export default class ScrollMenu extends Vue {
         return this.edition.permission && this.edition.permission.readOnly;
     }
 
-    private get selectedArtefacts(): Array<Artefact | undefined> {
+    private get selectedArtefacts() {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 
-    public get selectedArtefact(): Artefact | undefined {
+    public get selectedArtefact() {
         return this.$state.scrollEditor.selectedArtefact;
     }
 
-    public get selectedGroup(): ArtefactGroup | undefined {
+    public get selectedGroup() {
         return this.$state.scrollEditor.selectedGroup;
     }
 

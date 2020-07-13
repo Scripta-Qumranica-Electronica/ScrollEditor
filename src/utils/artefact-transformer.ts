@@ -46,7 +46,9 @@ class ArtefactTransformer {
         const translateToPlace = `translate(${translateX}, ${translateY})`;
 
         // Transformations are performed by SVG from right to left
-        return `${translateToPlace} ${rotate} ${scale} ${translateToZero}`;
+        const transform = `${translateToPlace} ${rotate} ${scale} ${translateToZero}`;
+
+        return transform;
     }
 }
 

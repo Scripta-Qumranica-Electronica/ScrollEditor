@@ -168,15 +168,15 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return svgPt;
     }
 
-    public get selectedGroup(): ArtefactGroup | undefined {
+    public get selectedGroup() {
         return this.$state.scrollEditor.selectedGroup;
     }
 
-    public get selectedArtefact(): Artefact | undefined {
+    public get selectedArtefact() {
         return this.$state.scrollEditor.selectedArtefact;
     }
 
-    private get selectedArtefacts(): Array<Artefact | undefined> {
+    private get selectedArtefacts() {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 

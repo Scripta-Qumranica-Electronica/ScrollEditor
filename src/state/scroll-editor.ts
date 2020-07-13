@@ -9,37 +9,38 @@ function state() {
 }
 export class ScrollEditorState {
     public selectedArtefact: Artefact | null = null;
-    public selectedGroup: ArtefactGroup| null = null;
+    public selectedGroup: ArtefactGroup | null = null;
+    public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
 
-    // constructor() {
-    //     this.selectedArtefact = undefined;
-    //     this.selectedGroup = undefined;
-    // }
-
-    public get selectedArtefacts(): Array<Artefact | undefined> {
-        let artefactsIds: number[] = [];
+    public get selectedArtefacts(): Artefact[] {
+        let artefactIds: number[] = [];
         if (this.selectedGroup) {
-            artefactsIds = this.selectedGroup.artefactIds;
+            artefactIds = this.selectedGroup.artefactIds;
         } else if (this.selectedArtefact) {
-            artefactsIds = [this.selectedArtefact.id];
+            artefactIds = [this.selectedArtefact.id];
         }
 
-        return artefactsIds.map((x: number) =>
-            state().artefacts.find(x)
-        );
+        const artefacts: Artefact[] = [];
+        for (const id of artefactIds) {
+            const artefact = state().artefacts.find(id);
+            if (artefact) {
+                artefacts.push(artefact);
+            }
+        }
+        return artefacts;
     }
 
     public selectArtefact(artefact: Artefact) {
         this.selectedArtefact = artefact;
-        this.selectedGroup = undefined;
+        this.selectedGroup = null;
     }
 
     public selectGroup(artefactGroup: ArtefactGroup | undefined) {
-        this.selectedGroup = artefactGroup && artefactGroup.clone();
-        this.selectedArtefact = undefined;
+        if (artefactGroup) {
+            this.selectedGroup = artefactGroup.clone();
+        } else {
+            this.selectedGroup = null;
+        }
+        this.selectedArtefact = null;
     }
-
-
-    public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
-
 }

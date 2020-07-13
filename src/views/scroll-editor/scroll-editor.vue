@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper" id="scroll-editor">
+    <div class="wrapper" id="scroll-editor" v-if="ready">
         <div
             id="sidebar"
             class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
@@ -38,7 +38,6 @@
                    <!-- artefact: {{selectedArtefact && selectedArtefact.id}}
                     group: {{selectedGroup}} -->
                     <scroll-area
-                        v-if="edition"
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
                         @onSaveGroupArtefacts="saveGroupArtefacts()"
@@ -91,6 +90,7 @@ export default class ScrollEditor extends Vue
     implements SavingAgent<ScrollEditorOperation> {
     // private artefact: Artefact | undefined = {} as Artefact;
     private isActive = false;
+    private ready = false;
     private metricsHasChanged: boolean = false;
     private editionId: number = 0;
     private params: ScrollEditorParams = new ScrollEditorParams();
@@ -105,11 +105,11 @@ export default class ScrollEditor extends Vue
         return this.$state.scrollEditor;
     }
 
-    public get selectedGroup(): ArtefactGroup | undefined {
+    public get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
 
-    public get selectedArtefact(): Artefact | undefined {
+    public get selectedArtefact() {
         return this.scrollEditorState.selectedArtefact;
     }
 
@@ -293,7 +293,10 @@ export default class ScrollEditor extends Vue
     private async mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
+        this.$state.editions.current = this.$state.editions.find(this.editionId); // Set the current scroll
+        this.ready = true;
 
+        await this.$nextTick();
         this.$root.$on('bv::modal::hide', (bvEvent: any, modalId: any) => {
             if (modalId === 'addArtefactModal') {
                 const artefactId = bvEvent.trigger;
@@ -371,7 +374,7 @@ export default class ScrollEditor extends Vue
     }
 
     private saveGroupArtefacts() {
-
+        // Shaindel - what if there is no selected group? Do we get here in case there is no group?
         const group = this.edition.artefactGroups.find(
             x => x.groupId === this.selectedGroup.groupId
         );

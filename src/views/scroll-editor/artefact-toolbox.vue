@@ -290,19 +290,19 @@ export default class ArtefactToolbox extends Vue {
         return this.params!.mode;
     }
 
-    private get artefact(): Artefact | undefined {
+    private get artefact() {
         return this.$state.artefacts.find(this.artefactId);
     }
 
-    public get selectedArtefact(): Artefact | undefined {
+    public get selectedArtefact() {
         return this.$state.scrollEditor.selectedArtefact;
     }
 
-    public get selectedGroup(): ArtefactGroup | undefined {
+    public get selectedGroup() {
         return this.$state.scrollEditor.selectedGroup;
     }
 
-    private get selectedArtefacts(): Array<Artefact | undefined> {
+    private get selectedArtefacts() {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 
@@ -551,6 +551,8 @@ export default class ArtefactToolbox extends Vue {
             placement.zIndex = zIndex;
             operations.push(this.createOperation('z-index', placement, art));
         });
+
+        // Shaindel - what if there is no selected group?
         const groupPlacementOperations = new GroupPlacementOperation(
             this.selectedGroup.groupId,
             operations

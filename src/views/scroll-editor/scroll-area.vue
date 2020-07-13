@@ -75,7 +75,7 @@ import { ArtefactGroup } from '@/models/edition';
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -111,11 +111,11 @@ export default class ScrollArea extends Vue {
             .scrollArea as HTMLElement;
     }
 
-    public get selectedGroup(): ArtefactGroup | undefined {
+    public get selectedGroup() {
         return this.$state.scrollEditor.selectedGroup;
     }
 
-    public get selectedArtefact(): Artefact | undefined {
+    public get selectedArtefact() {
         return this.$state.scrollEditor.selectedArtefact;
     }
 

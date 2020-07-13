@@ -39,13 +39,13 @@ import { ArtefactTransformer } from '@/utils/artefact-transformer';
 @Component({
     name: 'artefact-sillhouette'
 })
-export default class ArtefactSillouhett extends Vue {
+export default class ArtefactSillouhette extends Vue {
     @Prop()
     public artefact!: Artefact;
 
     private transformer: ArtefactTransformer | null = null;
 
-    public mounted() {
+    public created() {
         this.transformer = new ArtefactTransformer(this.artefact);
     }
 }
