@@ -5,7 +5,7 @@
             <edition-icons :edition="edition" :show-text="true" />
         </section>
         <section>
-            <scroll-map />
+            <scroll-map @navigate-to-point="navigateToPoint" />
         </section>
         <section class="center-btn" v-if="!readOnly">
             <div>{{ saveStatusMessage }}</div>
@@ -162,7 +162,7 @@ import {
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
 import { ArtefactGroup, EditionInfo } from '../../models/edition';
-import { DropdownOption } from '@/utils/helpers';
+import { DropdownOption, Point } from '@/utils/helpers';
 import {
     UpdateEditionManuscriptMetricsDTO,
     EditionManuscriptMetricsDTO
@@ -436,6 +436,11 @@ export default class ScrollMenu extends Vue {
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
+    }
+
+    @Emit()
+    private navigateToPoint(pt: Point): Point {
+        return pt;
     }
 
     private get saveStatusMessage(): string {

@@ -18,6 +18,7 @@
                 @onManageGroup="manageGroup()"
                 @onDeleteGroup="deleteGroup($event)"
                 @metricsChange="onMetricsChange()"
+                @navigate-to-point="onNavigateToPoint"
             ></scroll-menu>
         </div>
         <div class="container col-xl-12 col-lg-12 col-md-12">
@@ -77,7 +78,7 @@ import {
 import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '../../models/edition';
-import { BoundingBox } from '../../utils/helpers';
+import { BoundingBox, Point } from '../../utils/helpers';
 
 @Component({
     name: 'scroll-editor',
@@ -443,6 +444,32 @@ export default class ScrollEditor extends Vue
         const viewport = new BoundingBox(left, top, width, height);
         // Vue.set(this.$state.scrollEditor, 'viewport', viewport);
         this.$state.scrollEditor.viewport = viewport;
+    }
+
+    private onNavigateToPoint(pt: Point) {
+        const div = this.$refs.artefactContainer as Element;
+        const viewport = this.$state.scrollEditor.viewport;
+        const zoom = this.params?.zoom || 1;
+
+        if (!viewport) {
+            console.warn("Can't navigate with a null viewport");
+            return;
+        }
+
+        // First, find the new top-left of the viewport, in edition coordinates
+        let left = pt.x - viewport.width / 2;
+        let top = pt.y - viewport.height / 2;
+
+        // Now adjust the xOrigin, yOrigin offset
+        left -= this.edition.metrics.xOrigin * this.edition.ppm;
+        top -= this.edition.metrics.yOrigin * this.edition.ppm;
+
+        // Take the coom into account
+        left *= zoom;
+        top *= zoom;
+
+        // Finally we can scroll
+        div.scroll(left, top);
     }
 }
 </script>
