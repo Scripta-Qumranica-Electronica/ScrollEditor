@@ -312,6 +312,9 @@ export default class ScrollMenu extends Vue {
             newPlacement
         );
         artefact!.placement = newPlacement;
+        if (opType === 'delete') {
+            artefact!.isPlaced = false;
+        }
         return op;
     }
 
