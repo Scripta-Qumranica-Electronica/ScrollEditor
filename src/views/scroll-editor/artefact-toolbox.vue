@@ -154,7 +154,6 @@
                                     >
                                         <font-awesome-icon icon="redo"></font-awesome-icon>
                                     </b-button>
-                                    <!-- <b-button class="m-2" @click="resetRotationArtefact()">Reset</b-button> -->
                                 </b-button-group>
                                 <b-col cols="4" class="mb-1 mt-3 ml-2 mr-1">
                                     <b-form-input
@@ -254,6 +253,7 @@ import {
 import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '@/models/edition';
 import { Point } from '../../utils/helpers';
+import { ScrollEditorState } from '../../state/scroll-editor';
 
 @Component({
     name: 'artefact-toolbox',
@@ -268,11 +268,6 @@ export default class ArtefactToolbox extends Vue {
     @Prop({ default: false })
     public float!: boolean;
 
-    @Prop({
-        default: new ScrollEditorParams()
-    })
-    public params!: ScrollEditorParams;
-
     @Prop({ default: true })
     public keyboardInput!: boolean;
     private reset!: number;
@@ -281,6 +276,14 @@ export default class ArtefactToolbox extends Vue {
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
         }
+    }
+
+    private get scrollEditorState(): ScrollEditorState {
+        return this.$state.scrollEditor;
+    }
+
+    private get params(): ScrollEditorParams {
+        return this.scrollEditorState.params || new ScrollEditorParams();
     }
     private get edition() {
         return this.$state.editions.current! || {};
@@ -295,15 +298,15 @@ export default class ArtefactToolbox extends Vue {
     }
 
     public get selectedArtefact() {
-        return this.$state.scrollEditor.selectedArtefact;
+        return this.scrollEditorState.selectedArtefact;
     }
 
     public get selectedGroup() {
-        return this.$state.scrollEditor.selectedGroup;
+        return this.scrollEditorState.selectedGroup;
     }
 
     private get selectedArtefacts() {
-        return this.$state.scrollEditor.selectedArtefacts;
+        return this.scrollEditorState.selectedArtefacts;
     }
 
     public destroyed() {

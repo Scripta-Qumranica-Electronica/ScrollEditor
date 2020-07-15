@@ -275,10 +275,6 @@ export class EditGroupOperation extends ScrollEditorOperation {
     }
 }
 
-// Shaindel - you can add an EditionMetricsOperation class that extends ScrollEditorOperation.
-// In its constructor call super('edition-metrics').
-// In its uniteWith function just return undefined. The argument to uniteWith should be a ScrollEditorOperation.
-
 export class EditionMetricOperation extends ScrollEditorOperation {
     private static lastId: number = 1;
 

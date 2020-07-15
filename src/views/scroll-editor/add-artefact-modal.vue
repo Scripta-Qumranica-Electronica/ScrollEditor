@@ -38,7 +38,6 @@ import ArtefactImage from '@/components/artefact/artefact-image.vue';
 import ArtefactService from '@/services/artefact';
 import { Artefact } from '@/models/artefact';
 import artefactCardVue from '../edition/components/artefact-card.vue';
-// import ErrorService from '@/services/error';
 
 @Component({
     name: 'add-artefact-modal',
@@ -60,10 +59,6 @@ export default class AddArtefactModal extends Vue {
     private get artefacts() {
         return this.$state.artefacts.items || [];
     }
-
-    // private get edition(){
-    //     return this.$state.editions.current;
-    // }
     private get nonPlacedArtefacts() {
         return this.artefacts.filter(x => !x.isPlaced);
     }

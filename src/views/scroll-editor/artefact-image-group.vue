@@ -292,11 +292,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 </script>
 
 <style lang="scss" scoped>
-/* path {
-    stroke-width: 1;
-    stroke: black;
-} */
-
 path.selected {
     stroke-width: 2;
     fill-opacity: 0.3;

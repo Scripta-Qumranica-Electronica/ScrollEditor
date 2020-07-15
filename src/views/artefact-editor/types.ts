@@ -15,6 +15,7 @@ export class ScrollEditorParams extends ArtefactEditorParams {
     public move = 5;
     public scale = 5;
     public rotate = 45;
+    public zoom: number = 0.10;
 }
 
 export interface ArtefactEditorParamsChangedArgs {

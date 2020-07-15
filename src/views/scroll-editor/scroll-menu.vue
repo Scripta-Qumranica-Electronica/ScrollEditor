@@ -1,7 +1,7 @@
 <template>
     <div id="scroll-side-menu" role="tablist">
         <section>
-            {{ edition.name }} 
+            {{ edition.name }}
             <edition-icons :edition="edition" :show-text="true" />
         </section>
         <section>
@@ -70,7 +70,7 @@
                             </b-card>
 
                             <artefact-toolbox
-                                :params="params"
+                                
                                 @new-operation="onNewOperation($event)"
                                 @save-group="onSaveGroup()"
                                 @cancel-group="cancelGroup()"
@@ -137,11 +137,7 @@ import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import AddArtefactModal from './add-artefact-modal.vue';
-import {
-    ArtefactEditorParams,
-    ArtefactEditorParamsChangedArgs,
-    ScrollEditorParams
-} from '../artefact-editor/types';
+import { ScrollEditorParams } from '../artefact-editor/types';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import ArtefactService from '@/services/artefact';
 import {
@@ -164,6 +160,7 @@ import {
     EditionManuscriptMetricsDTO
 } from '../../dtos/sqe-dtos';
 import ScrollMap from './scroll-map.vue';
+import { ScrollEditorState } from '@/state/scroll-editor';
 
 @Component({
     name: 'scroll-menu',
@@ -178,7 +175,7 @@ import ScrollMap from './scroll-map.vue';
 export default class ScrollMenu extends Vue {
     @Prop()
     public statusIndicator!: OperationsManagerStatus;
-    private params: ScrollEditorParams = new ScrollEditorParams();
+
     private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
         { text: 'Right', value: 'right' },
@@ -187,13 +184,22 @@ export default class ScrollMenu extends Vue {
     ];
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
+
+    private get scrollEditorState(): ScrollEditorState {
+        return this.$state.scrollEditor;
+    }
+
+    private get params(): ScrollEditorParams {
+        return this.scrollEditorState.params || new ScrollEditorParams();
+    }
+
     private get zoom(): any {
         return this.params.zoom;
     }
 
     private set zoom(val: any) {
         this.params.zoom = parseFloat(val);
-        this.notifyChange('zoom', val);
+        this.$emit('zoomChanged');
     }
     private get edition() {
         return this.$state.editions.current! || {};
@@ -203,15 +209,15 @@ export default class ScrollMenu extends Vue {
     }
 
     private get selectedArtefacts() {
-        return this.$state.scrollEditor.selectedArtefacts;
+        return this.scrollEditorState.selectedArtefacts;
     }
 
     public get selectedArtefact() {
-        return this.$state.scrollEditor.selectedArtefact;
+        return this.scrollEditorState.selectedArtefact;
     }
 
     public get selectedGroup() {
-        return this.$state.scrollEditor.selectedGroup;
+        return this.scrollEditorState.selectedGroup;
     }
 
     public formatTooltip(): string {
@@ -237,7 +243,7 @@ export default class ScrollMenu extends Vue {
         if (this.selectedGroup) {
             const operations: ScrollEditorOperation[] = [];
 
-            this.selectedArtefacts.forEach(art => {
+            this.selectedArtefacts.forEach((art: Artefact) => {
                 art!.isPlaced = false;
                 operations.push(
                     this.createOperation('delete', Placement.empty, art)
@@ -256,15 +262,6 @@ export default class ScrollMenu extends Vue {
         if (this.selectedGroup) {
             this.$emit('onDeleteGroup', this.selectedGroup.groupId);
         }
-    }
-
-    public notifyChange(paramName: string, paramValue: any) {
-        const args = {
-            property: paramName,
-            value: paramValue,
-            params: this.params
-        } as ArtefactEditorParamsChangedArgs;
-        this.$emit('paramsChanged', args);
     }
 
     public mounted() {

@@ -7,7 +7,6 @@
         >
             <scroll-menu
                 :status-indicator="operationsManager"
-                @paramsChanged="onParamsChanged($event)"
                 @new-operation="onNewOperation($event)"
                 @undo="onUndo()"
                 @redo="onRedo()"
@@ -15,6 +14,7 @@
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onDeleteGroup="deleteGroup($event)"
                 @metricsChange="onMetricsChange()"
+                @zoomChanged="onZoomChanged()"
                 @navigate-to-point="onNavigateToPoint"
             ></scroll-menu>
         </div>
@@ -41,7 +41,6 @@
                         ref="scrollAreaRef"
                         @onSelectArtefact="selectArtefact($event)"
                         @onSaveGroupArtefacts="saveGroupArtefacts()"
-                        :params="params"
                         @new-operation="onNewOperation($event)"
                         @onCancelGroup="cancelGroup()"
                     ></scroll-area>
@@ -58,11 +57,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import ScrollMenu from './scroll-menu.vue';
 import ScrollArea from './scroll-area.vue';
-import {
-    ArtefactEditorParamsChangedArgs,
-    ArtefactEditorParams,
-    ScrollEditorParams
-} from '../artefact-editor/types';
+import { ScrollEditorParams } from '../artefact-editor/types';
 import ArtefactService from '@/services/artefact';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import {
@@ -93,7 +88,6 @@ export default class ScrollEditor extends Vue
     private ready = false;
     private metricsHasChanged: boolean = false;
     private editionId: number = 0;
-    private params: ScrollEditorParams = new ScrollEditorParams();
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
     private observer?: ResizeObserver;
@@ -324,16 +318,20 @@ export default class ScrollEditor extends Vue
         return this.artefacts.filter(x => x.isPlaced);
     }
 
+    private get params(): ScrollEditorParams {
+        return this.scrollEditorState.params || new ScrollEditorParams();
+    }
+
     private async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         next();
     }
 
-    private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
-        this.params = evt.params as ScrollEditorParams;
+    private onZoomChanged() {
         this.calculateViewport();
     }
+
     private updateOperationId(oldId: number, newId: number) {
         this.operationsManager.updateStackIds(oldId, newId);
     }

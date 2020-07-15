@@ -1,16 +1,18 @@
 <template>
     <div ref="scrollArea" id="outer">
-        <div v-draggable="draggableOptions" v-show="selectedArtefact || selectedGroup" style="position: absolute;">
+        <div
+            v-draggable="draggableOptions"
+            v-show="selectedArtefact || selectedGroup"
+            style="position: absolute;"
+        >
             <div
                 ref="handleTools"
                 style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move"
             >
                 <i class="fa fa-ellipsis-v"></i>
             </div>
-            <!-- {{selectedGroup}} -->
             <artefact-toolbox
                 :keyboard-input="false"
-                :params="params"
                 :float="true"
                 @new-operation="onNewOperation($event)"
                 @save-group="onSaveGroup()"
@@ -18,7 +20,6 @@
                 @manageGroup="manageGroup()"
             ></artefact-toolbox>
         </div>
-        <!-- {{selectedArtefactsList}} -->
         <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
             <svg
                 id="the-scroll"
@@ -52,11 +53,7 @@ import Zoomer, {
     ZoomEventArgs,
     RotateEventArgs
 } from '@/components/misc/zoomer.vue';
-import {
-    ArtefactEditorParamsChangedArgs,
-    ArtefactEditorParams,
-    ScrollEditorParams
-} from '../artefact-editor/types';
+import { ScrollEditorParams } from '../artefact-editor/types';
 import { BoundingBox } from '@/utils/helpers';
 import {
     SingleImageSetting,
@@ -70,12 +67,13 @@ import ArtefactToolbox from './artefact-toolbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
 import { ArtefactGroup } from '@/models/edition';
+import { ScrollEditorState } from '@/state/scroll-editor';
 
 @Component({
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -84,8 +82,7 @@ import { ArtefactGroup } from '@/models/edition';
     }
 })
 export default class ScrollArea extends Vue {
-    @Prop()
-    public params!: ScrollEditorParams;
+
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
     private draggableOptions: DraggableValue = {};
@@ -105,18 +102,25 @@ export default class ScrollArea extends Vue {
     }
 
     private mounted() {
-
         this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
         this.draggableOptions.boundingElement = this.$refs
             .scrollArea as HTMLElement;
     }
 
+    private get scrollEditorState(): ScrollEditorState {
+        return this.$state.scrollEditor;
+    }
+
+    private get params() {
+        return this.scrollEditorState.params || new ScrollEditorParams();
+    }
+
     public get selectedGroup() {
-        return this.$state.scrollEditor.selectedGroup;
+        return this.scrollEditorState.selectedGroup;
     }
 
     public get selectedArtefact() {
-        return this.$state.scrollEditor.selectedArtefact;
+        return this.scrollEditorState.selectedArtefact;
     }
 
     private isArtefactSelected(artefact: Artefact): boolean {
