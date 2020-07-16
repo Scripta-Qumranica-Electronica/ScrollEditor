@@ -277,9 +277,13 @@ export default class ScrollEditor extends Vue
     }
 
     private async mounted() {
+        // This code is not in the created method since it's asynchronous, and Vue doesn't wait for
+        // an asynchornous created to finish before calling mounted. Instead of adding a synchronization
+        // between created and mounted, we just moved it to mounted.
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         this.$state.editions.current = this.$state.editions.find(this.editionId); // Set the current scroll
+        // Shaindel - what happens if the scroll doesn't exist (write a wrong ID in the URL and see)
         this.ready = true;
 
         await this.$nextTick();
