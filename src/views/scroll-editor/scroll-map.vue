@@ -9,7 +9,14 @@
             @click="onClick"
         >
             <g ref="group" :transform="transform">
-                <rect v-if="viewport" :x="viewport.x" :y="viewport.y" :width="viewport.width" :height="viewport.height" vector-effect="non-scaling-stroke"/>
+                <rect
+                    v-if="viewport"
+                    :x="viewport.x"
+                    :y="viewport.y"
+                    :width="viewport.width"
+                    :height="viewport.height"
+                    vector-effect="non-scaling-stroke"
+                />
                 <artefact-sillhouette
                     :artefact="artefact"
                     v-for="artefact in placedArtefacts"
@@ -29,8 +36,8 @@ import ArtefactSillhouette from './artefact-sillhouette.vue';
 @Component({
     name: 'scroll-map',
     components: {
-        'artefact-sillhouette': ArtefactSillhouette,
-    },
+        'artefact-sillhouette': ArtefactSillhouette
+    }
 })
 export default class ScrollMap extends Vue {
     private width: number = 0;
@@ -61,23 +68,38 @@ export default class ScrollMap extends Vue {
         return this.$state.editions.current!;
     }
 
-    private onResize() {
+    @Watch('actualWidth')
+    private setScaleFactor() {
         const div = this.$refs.scrollMap as Element;
         const width = div.clientWidth;
 
-        this.scaleFactor = width / (this.edition.metrics.width * this.edition.ppm);
+        this.scaleFactor =
+            width / (this.edition.metrics.width * this.edition.ppm);
+
+            //this.navigateToPoint({x: this.$refs.group.getBBox().x, y: this.$refs.group.getBBox().y});
+            const a = this.$refs.group;
+            debugger;
+            console.log(a)
+    }
+
+    private onResize() {
+        // Move this to a function called setScaleFactor and call it from onResize
+        this.setScaleFactor();
     }
 
     private get viewport() {
         return this.$state.scrollEditor.viewport;
     }
 
+    // Add a watch on `this.edition.metrics.width` - when it changes call setScaleFactor
     private get actualWidth() {
         return this.edition.metrics.width * this.edition.ppm * this.scaleFactor;
     }
 
     private get actualHeight() {
-        return this.edition.metrics.height * this.edition.ppm * this.scaleFactor;
+        return (
+            this.edition.metrics.height * this.edition.ppm * this.scaleFactor
+        );
     }
 
     private get totalWidth() {
@@ -89,11 +111,15 @@ export default class ScrollMap extends Vue {
     }
 
     private get actualXOrigin() {
-        return this.edition.metrics.xOrigin * this.edition.ppm * this.scaleFactor;
+        return (
+            this.edition.metrics.xOrigin * this.edition.ppm * this.scaleFactor
+        );
     }
 
     private get actualYOrigin() {
-        return this.edition.metrics.yOrigin * this.edition.ppm * this.scaleFactor;
+        return (
+            this.edition.metrics.yOrigin * this.edition.ppm * this.scaleFactor
+        );
     }
 
     private get placedArtefacts() {

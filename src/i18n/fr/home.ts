@@ -22,7 +22,9 @@ export default {
     redo: 'Refaire',
     filterArtefacts: "Filtre d'Artefacts",
     both: 'Recto et Verso',
-    editorParameters: "Paramètres d'édition",
+    editionInfo: 'Edition  Info',
+    editionSize: "Taille de l'édition",
+    viewPortSize: "Taille d'affichage",
     lock: 'Lecture seulement',
     shared: 'Partagé',
     admin: "Vos droits d'administrateur ont été révoqués"

@@ -13,7 +13,7 @@
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1">
-                    <b-button block href="#" variant="info">{{$t('home.editorParameters')}}</b-button>
+                    <b-button block href="#" variant="info">{{$t('home.editionInfo')}}</b-button>
                 </b-card-header>
                 <b-collapse
                     style="display:block;"
@@ -22,7 +22,7 @@
                 >
                     <b-card-body>
                         <section>
-                            <div class="row">
+                            <div class="row mb-2">
                                 <div class="col-5">Zoom: {{formatTooltip()}}</div>
                                 <div class="col">
                                     <b-form-input
@@ -35,6 +35,40 @@
                                     ></b-form-input>
                                 </div>
                             </div>
+                            <b-row>
+                                <b-col>
+                                    <div>{{$t('home.editionSize')}}:</div>
+                                    <div>{{edition.metrics.width}} mm X {{edition.metrics.height}} mm</div>
+                                </b-col>
+                            </b-row>
+                            <b-row class="mt-2">
+                                <b-col>
+                                    <div>{{$t('home.viewPortSize')}}:</div>
+                                    <div>{{viewportSizeWidth}} mm X {{viewportSizeHeight}} mm</div>
+                                </b-col>
+                            </b-row>
+                            <b-row class="mt-2">
+                                <b-col cols="5" class="pr-0">
+                                    <b-form-select
+                                        v-model="selectedSide"
+                                        :options="sidesOptions"
+                                        size="sm"
+                                    ></b-form-select>
+                                </b-col>
+                                <b-col cols="5">
+                                    <b-form-input
+                                        id="input-small"
+                                        size="sm"
+                                        min="1"
+                                        type="number"
+                                        v-model="metricsInput"
+                                    ></b-form-input>
+                                </b-col>mm
+                            </b-row>
+                            <b-row class="mt-2 ml-1">
+                                <b-button class="m-1" size="sm" @click="resizeScroll(1)">add</b-button>
+                                <b-button class="m-1" size="sm" @click="resizeScroll(-1)">cut</b-button>
+                            </b-row>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -70,7 +104,6 @@
                             </b-card>
 
                             <artefact-toolbox
-                                
                                 @new-operation="onNewOperation($event)"
                                 @save-group="onSaveGroup()"
                                 @cancel-group="cancelGroup()"
@@ -82,47 +115,6 @@
                                 <b-button @click="onUndo()" size="sm" :disabled="!canUndo">Undo</b-button>
                                 <b-button @click="onRedo()" size="sm" :disabled="!canRedo">Redo</b-button>
                             </b-button-group>
-                        </section>
-                    </b-card-body>
-                </b-collapse>
-            </b-card>
-        </section>
-        <section v-show="!readOnly">
-            <b-card no-body class="mb-1">
-                <b-card-header header-tag="header" class="p-1" role="tab">
-                    <b-button
-                        block
-                        href="#"
-                        v-b-toggle.accordion-metrics
-                        variant="info"
-                    >{{$t('misc.metrics')}}</b-button>
-                </b-card-header>
-                <b-collapse id="accordion-metrics" accordion="my-accordion-side" role="tabpanel">
-                    <b-card-body>
-                        <section class="center-btn">
-                            <div>{{edition.metrics.width}} X {{edition.metrics.height}}</div>
-                            <b-row>
-                                <b-col cols="6">
-                                    <b-form-select
-                                        v-model="selectedSide"
-                                        :options="sidesOptions"
-                                        size="sm"
-                                    ></b-form-select>
-                                </b-col>
-                                <b-col cols="5">
-                                    <b-form-input
-                                        id="input-small"
-                                        size="sm"
-                                        min="1"
-                                        type="number"
-                                        v-model="metricsInput"
-                                    ></b-form-input>
-                                </b-col>
-                            </b-row>
-                            <b-row class="mt-2 ml-1">
-                                <b-button class="m-1" size="sm" @click="resizeScroll(1)">add</b-button>
-                                <b-button class="m-1" size="sm" @click="resizeScroll(-1)">cut</b-button>
-                            </b-row>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -193,6 +185,12 @@ export default class ScrollMenu extends Vue {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
 
+    private get viewportSizeWidth() {
+       return Math.round(this.scrollEditorState.viewport.width / this.edition.ppm);
+    }
+    private get viewportSizeHeight() {
+       return Math.round(this.scrollEditorState.viewport.height / this.edition.ppm);
+    }
     private get zoom(): any {
         return this.params.zoom;
     }
@@ -353,6 +351,7 @@ export default class ScrollMenu extends Vue {
             );
             this.edition.metrics = { ...newMetrics };
             this.newOperation(metricsOperation);
+            this.$emit('onMetricsChange');
         }
     }
 
@@ -380,7 +379,7 @@ export default class ScrollMenu extends Vue {
                             art.placement.translate.x! + art.boundingBox.width
                     )
                 ) / this.edition.ppm;
-            return maxX <= newMetrics.width;
+            return maxX - newMetrics.xOrigin <= newMetrics.width;
         }
 
         // top : YOrigin <= Ymin
@@ -403,7 +402,7 @@ export default class ScrollMenu extends Vue {
                             art.placement.translate.y! + art.boundingBox.height
                     )
                 ) / this.edition.ppm;
-            return maxY <= newMetrics.height;
+            return maxY - newMetrics.yOrigin <= newMetrics.height;
         }
 
         return true;

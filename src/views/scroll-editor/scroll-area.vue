@@ -26,6 +26,7 @@
                 :width="actualWidth"
                 :height="actualHeight"
                 :viewBox="`${actualXOrigin} ${actualYOrigin} ${actualWidth} ${actualHeight}`"
+                @click="onScrollClick"
             >
                 <g id="root" :transform="transform">
                     <artefact-image-group
@@ -221,6 +222,10 @@ export default class ScrollArea extends Vue {
     }
     private manageGroup() {
         this.$emit('onManageGroup');
+    }
+
+    private onScrollClick(event: MouseEvent) {
+        this.scrollEditorState.selectGroup(undefined);
     }
 
     @Emit()

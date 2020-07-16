@@ -17,7 +17,7 @@
                 <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
             </clipPath>
         </defs>
-        <g @click="onSelect()">
+        <g @click="onSelect">
             <g :clip-path="`url(#clip-path-${artefact.id})`">
                 <image
                     :width="boundingBox.width"
@@ -151,7 +151,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     @Emit()
-    private onSelect(): Artefact {
+    private onSelect(event: MouseEvent): Artefact {
+        event.stopPropagation();
         return this.artefact;
     }
 

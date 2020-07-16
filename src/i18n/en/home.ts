@@ -23,7 +23,9 @@ export default {
     redo: 'Redo',
     filterArtefacts: 'Filter Artefacts',
     both: 'Both',
-    editorParameters: 'Editor Parameters',
+    editionInfo: 'Edition  Info',
+    editionSize: 'Edition Size',
+    viewPortSize: 'Viewport Size',
     lock: 'Read Only',
     shared: 'Shared',
     admin: 'Your Admin rights have been revoked'

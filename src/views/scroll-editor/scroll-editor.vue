@@ -13,7 +13,7 @@
                 @onCancelGroup="cancelGroup()"
                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                 @onDeleteGroup="deleteGroup($event)"
-                @metricsChange="onMetricsChange()"
+                @onMetricsChange="onMetricsChange()"
                 @zoomChanged="onZoomChanged()"
                 @navigate-to-point="onNavigateToPoint"
             ></scroll-menu>
@@ -321,6 +321,10 @@ export default class ScrollEditor extends Vue
     }
 
     private onZoomChanged() {
+        this.calculateViewport();
+    }
+
+    private onMetricsChange() {
         this.calculateViewport();
     }
 
