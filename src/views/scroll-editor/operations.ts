@@ -136,13 +136,6 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
             const removedGroup = ArtefactGroup.generateGroup(artefactIds);
             state().editions.current!.artefactGroups.push(removedGroup);
             this.groupId = removedGroup.id;
-            // Shaindel: what happens if the group has an ID of 3, I delete the group and then
-            // undo the deletion before saveEntities is called? The server will still have a group
-            // ID of 3, and also try to save a new group with the same artefact IDs.
-            // I think this should be different - do not change the group's ID at all here, instead, change
-            // it from a positive number to a negative number after deleting the group in the server
-            // so the delete operation will fire an `update-operation-id` event, to change the ID to
-            // a negative number
             state().eventBus.$emit('update-operation-id', this.groupId, removedGroup.id);
             state().eventBus.$emit('select-group', removedGroup);
         }

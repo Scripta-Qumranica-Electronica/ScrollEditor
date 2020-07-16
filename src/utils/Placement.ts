@@ -9,7 +9,7 @@ export class Matrix {
 }
 
 
-export class Placement implements PlacementDTO {  // Shaindel - Rename into Placement
+export class Placement implements PlacementDTO {
     public static get empty() {
         return new Placement({
             rotate: 0,
