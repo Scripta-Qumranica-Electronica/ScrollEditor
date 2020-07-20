@@ -48,6 +48,12 @@
                                 </b-col>
                             </b-row>
                             <b-row class="mt-2">
+                                <b-col>
+                                    <div>Position:</div>
+                                    <div>X: {{pointerPositionX}}, Y: {{pointerPositionY}}</div>
+                                </b-col>
+                            </b-row>
+                            <b-row class="mt-2">
                                 <b-col cols="5" class="pr-0">
                                     <b-form-select
                                         v-model="selectedSide"
@@ -190,6 +196,12 @@ export default class ScrollMenu extends Vue {
     }
     private get viewportSizeHeight() {
        return Math.round(this.scrollEditorState.viewport.height / this.edition.ppm);
+    }
+    private get pointerPositionX() {
+        return (this.scrollEditorState.pointerPosition.x / this.params.zoom / this.edition.ppm).toFixed(2);
+    }
+    private get pointerPositionY() {
+        return (this.scrollEditorState.pointerPosition.y / this.params.zoom / this.edition.ppm).toFixed(2);
     }
     private get zoom(): any {
         return this.params.zoom;

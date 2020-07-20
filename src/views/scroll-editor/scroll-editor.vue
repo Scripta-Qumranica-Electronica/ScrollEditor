@@ -31,19 +31,33 @@
                         <i class="fa fa-align-justify"></i>
                     </b-button>
                 </div>
-
-    
-                
-                <div id="artefact-container" ref="artefactContainer" @scroll="onScroll" :class="{active: isActive}">
-                   <!-- artefact: {{selectedArtefact && selectedArtefact.id}}
-                    group: {{selectedGroup}} -->
-                    <scroll-area
-                        ref="scrollAreaRef"
-                        @onSelectArtefact="selectArtefact($event)"
-                        @onSaveGroupArtefacts="saveGroupArtefacts()"
-                        @new-operation="onNewOperation($event)"
-                        @onCancelGroup="cancelGroup()"
-                    ></scroll-area>
+                <div
+                    style=" position: relative;height: calc(100vh - 63px);width: calc(100vw - 290px);"
+                >
+                    <div
+                        id="artefact-container"
+                        ref="artefactContainer"
+                        @scroll="onScroll"
+                        :class="{active: isActive}"
+                    >
+                        <scroll-ruler
+                            :height="actualHeight"
+                            :width="actualWidth"
+                            :horizontalTicks="editionWidth"
+                            :verticalTicks="editionHeight"
+                            :zoom="params.zoom"
+                            :ppm="edition.ppm"
+                        ></scroll-ruler>
+                        <!-- artefact: {{selectedArtefact && selectedArtefact.id}}
+                        group: {{selectedGroup}}-->
+                        <scroll-area
+                            ref="scrollAreaRef"
+                            @onSelectArtefact="selectArtefact($event)"
+                            @onSaveGroupArtefacts="saveGroupArtefacts()"
+                            @new-operation="onNewOperation($event)"
+                            @onCancelGroup="cancelGroup()"
+                        ></scroll-area>
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,13 +86,15 @@ import { Placement } from '@/utils/Placement';
 import { ArtefactGroup } from '../../models/edition';
 import { ScrollEditorState } from '../../state/scroll-editor';
 import { BoundingBox, Point } from '../../utils/helpers';
+import ScrollRuler from './scroll-ruler.vue';
 
 @Component({
     name: 'scroll-editor',
     components: {
         Waiting,
         'scroll-menu': ScrollMenu,
-        'scroll-area': ScrollArea
+        'scroll-area': ScrollArea,
+        'scroll-ruler': ScrollRuler
     }
 })
 export default class ScrollEditor extends Vue
@@ -105,6 +121,22 @@ export default class ScrollEditor extends Vue
 
     public get selectedArtefact() {
         return this.scrollEditorState.selectedArtefact;
+    }
+
+    public get editionWidth(): number {
+        return this.edition.metrics.width;
+    }
+    public get editionHeight(): number {
+        return this.edition.metrics.height;
+    }
+    private get actualWidth(): number {
+        return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
+    }
+    private get actualHeight(): number {
+        return this.edition.metrics.height * this.edition.ppm * this.zoomLevel;
+    }
+    private get zoomLevel() {
+        return (this.params && this.params.zoom) || 1;
     }
 
     public selectGroup(group: ArtefactGroup | undefined) {
@@ -281,12 +313,13 @@ export default class ScrollEditor extends Vue
         // an asynchornous created to finish before calling mounted. Instead of adding a synchronization
         // between created and mounted, we just moved it to mounted.
         this.editionId = parseInt(this.$route.params.editionId, 10);
+        await this.$state.prepare.edition(this.editionId);
+
         const edition = this.$state.editions.find(this.editionId); // Set the current scroll
         if (!edition) {
-            this.$router.push({path: '/'});
+            this.$router.push({ path: '/' });
         }
         this.$state.editions.current = edition;
-        await this.$state.prepare.edition(this.editionId);
         this.ready = true;
 
         await this.$nextTick();
@@ -399,9 +432,7 @@ export default class ScrollEditor extends Vue
             }
         } else {
             this.edition!.artefactGroups.push(this.selectedGroup!.clone());
-
         }
-
     }
 
     private deleteGroup(groupId: number) {
@@ -527,14 +558,17 @@ export default class ScrollEditor extends Vue
 }
 
 #artefact-container {
+    position: relative;
     overflow: auto;
     padding: 0;
     height: calc(100vh - 63px);
     width: calc(100vw - 290px);
     touch-action: none;
+    // margin-left: 30px;
+    // margin-top: 30px;
 }
-#artefact-container.active{
-  width: calc(100vw - 42px);
+#artefact-container.active {
+    width: calc(100vw - 42px);
 }
 .artefact-container > div {
     height: 100%;

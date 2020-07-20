@@ -78,7 +78,6 @@ export default class ScrollMap extends Vue {
 
             //this.navigateToPoint({x: this.$refs.group.getBBox().x, y: this.$refs.group.getBBox().y});
             const a = this.$refs.group;
-            debugger;
             console.log(a)
     }
 

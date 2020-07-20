@@ -1,9 +1,10 @@
 <template>
+
     <div ref="scrollArea" id="outer">
         <div
             v-draggable="draggableOptions"
             v-show="selectedArtefact || selectedGroup"
-            style="position: absolute;"
+            style="position: fixed;"
         >
             <div
                 ref="handleTools"
@@ -27,6 +28,7 @@
                 :height="actualHeight"
                 :viewBox="`${actualXOrigin} ${actualYOrigin} ${actualWidth} ${actualHeight}`"
                 @click="onScrollClick"
+                @mousemove="onMouseMove"
             >
                 <g id="root" :transform="transform">
                     <artefact-image-group
@@ -43,6 +45,7 @@
             </svg>
         </zoomer>
     </div>
+    
 </template>
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
@@ -74,7 +77,7 @@ import { ScrollEditorState } from '@/state/scroll-editor';
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
@@ -83,7 +86,6 @@ import { ScrollEditorState } from '@/state/scroll-editor';
     }
 })
 export default class ScrollArea extends Vue {
-
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
     private draggableOptions: DraggableValue = {};
@@ -228,6 +230,11 @@ export default class ScrollArea extends Vue {
         this.scrollEditorState.selectGroup(undefined);
     }
 
+    private onMouseMove(event: MouseEvent) {
+        this.scrollEditorState.pointerPosition.x = event.offsetX;
+        this.scrollEditorState.pointerPosition.y = event.offsetY;
+    }
+
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
@@ -236,7 +243,15 @@ export default class ScrollArea extends Vue {
 </script>
 
 <style lang="scss">
+
+
 #the-scroll {
     background: #7bb6e0;
+}
+
+#outer {
+	margin-left: 30px;
+    margin-top: 30px;
+    width: fit-content;
 }
 </style>

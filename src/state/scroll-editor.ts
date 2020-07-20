@@ -1,7 +1,7 @@
 import { Artefact } from '@/models/artefact';
 import { ArtefactGroup } from '@/models/edition';
 import { StateManager } from '@/state';
-import { BoundingBox } from '@/utils/helpers';
+import { BoundingBox, Point } from '@/utils/helpers';
 import { ScrollEditorParams } from '@/views/artefact-editor/types';
 
 
@@ -13,9 +13,11 @@ export class ScrollEditorState {
     public selectedGroup: ArtefactGroup | null = null;
     public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
     public params: ScrollEditorParams| null = null;
+    public pointerPosition: Point| null = null;
 
     public constructor() {
         this.params = new ScrollEditorParams();
+        this.pointerPosition = {x: 0, y: 0};
     }
 
     public get selectedArtefacts(): Artefact[] {
