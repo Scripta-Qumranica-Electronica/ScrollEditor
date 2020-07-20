@@ -77,7 +77,7 @@ import { ScrollEditorState } from '@/state/scroll-editor';
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox
     },
