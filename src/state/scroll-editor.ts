@@ -13,7 +13,7 @@ export class ScrollEditorState {
     public selectedGroup: ArtefactGroup | null = null;
     public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
     public params: ScrollEditorParams| null = null;
-    public pointerPosition: Point| null = null;
+    public pointerPosition: Point;
 
     public constructor() {
         this.params = new ScrollEditorParams();

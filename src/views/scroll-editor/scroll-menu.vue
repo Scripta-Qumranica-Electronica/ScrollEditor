@@ -192,10 +192,10 @@ export default class ScrollMenu extends Vue {
     }
 
     private get viewportSizeWidth() {
-       return Math.round(this.scrollEditorState.viewport.width / this.edition.ppm);
+       return Math.round(this.scrollEditorState.viewport!.width / this.edition.ppm);
     }
     private get viewportSizeHeight() {
-       return Math.round(this.scrollEditorState.viewport.height / this.edition.ppm);
+       return Math.round(this.scrollEditorState.viewport!.height / this.edition.ppm);
     }
     private get pointerPositionX() {
         return (this.scrollEditorState.pointerPosition.x / this.params.zoom / this.edition.ppm).toFixed(2);

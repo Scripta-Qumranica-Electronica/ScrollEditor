@@ -73,12 +73,7 @@ export default class ScrollMap extends Vue {
         const div = this.$refs.scrollMap as Element;
         const width = div.clientWidth;
 
-        this.scaleFactor =
-            width / (this.edition.metrics.width * this.edition.ppm);
-
-            //this.navigateToPoint({x: this.$refs.group.getBBox().x, y: this.$refs.group.getBBox().y});
-            const a = this.$refs.group;
-            console.log(a)
+        this.scaleFactor = width / (this.edition.metrics.width * this.edition.ppm);
     }
 
     private onResize() {
