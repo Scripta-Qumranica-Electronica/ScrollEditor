@@ -408,9 +408,8 @@ export default class ScrollEditor extends Vue
     }
 
     private saveGroupArtefacts() {
-        // Shaindel - what if there is no selected group? Do we get here in case there is no group?
         const group = this.edition.artefactGroups.find(
-            x => x.groupId === this.selectedGroup.groupId
+            x => x.groupId === this.selectedGroup!.groupId
         );
         this.operationsManager.addOperation(
             new EditGroupOperation(
@@ -529,7 +528,7 @@ export default class ScrollEditor extends Vue
 <style lang="scss" scoped>
 .imaged-object-menu-div {
     height: calc(100vh - 63px);
-    overflow: hidden;
+    overflow: auto;
 }
 .sidebarCollapse {
     width: 40px;

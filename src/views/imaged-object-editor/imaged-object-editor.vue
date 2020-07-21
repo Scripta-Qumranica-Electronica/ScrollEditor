@@ -686,7 +686,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
 }
 .imaged-object-menu-div {
     height: calc(100vh - 63px);
-    overflow: hidden;
+    overflow: auto;
 }
 #buttons-div {
     background-color: #eff1f4;

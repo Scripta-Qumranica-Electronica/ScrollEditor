@@ -56,6 +56,7 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
                 const united = op.uniteWith(lastOp);
                 if (united) {
                     this.undoStack[lastIndex] = united;
+                    this.setDirty(united, lastOp);
                     return;
                 }
             }
@@ -153,7 +154,11 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
         // Don't go over the dirty set, as it contains objects that are in the undo or redo stacks
     }
 
-    private setDirty(op: OP) {
+    private setDirty(op: OP, oldOp?: OP) {
+        if (oldOp) {
+            this.dirty.delete(oldOp);
+        }
+
         this.dirty.add(op);
         this._isDirty = true;
 

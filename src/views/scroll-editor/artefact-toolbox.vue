@@ -220,10 +220,10 @@
             <b-card no-body>
                 <b-card-header header-tag="header" class="p-1" role="tab">
                     <b-button-group size="sm" :class="[float ? 'btn-menu': '' ,'mb-1']">
-                        <b-button :disabled="!artefact" @click="setZIndex(1)">
+                        <b-button :disabled="!(selectedArtefacts && selectedArtefacts.length)" @click="setZIndex(1)">
                             <span>top</span>
                         </b-button>
-                        <b-button :disabled="!artefact" @click="setZIndex(-1)">
+                        <b-button :disabled="!(selectedArtefacts && selectedArtefacts.length)" @click="setZIndex(-1)">
                             <span>down</span>
                         </b-button>
                     </b-button-group>
@@ -537,30 +537,38 @@ export default class ArtefactToolbox extends Vue {
 
     private setZIndex(zIndexDirection: number) {
         const operations: ScrollEditorOperation[] = [];
-        this.selectedArtefacts.forEach(art => {
-            const placedArtefacts = this.$state.artefacts.items.filter(
-                x => x.isPlaced
-            );
-            const artefactsZOrders = placedArtefacts.map(
-                x => x.placement.zIndex
-            );
-
-            const zIndex =
-                zIndexDirection < 0
-                    ? Math.min(...artefactsZOrders) - 1
-                    : Math.max(...artefactsZOrders) + 1;
-
-            const placement = art.placement.clone();
-            placement.zIndex = zIndex;
-            operations.push(this.createOperation('z-index', placement, art));
-        });
-
-        // Shaindel - what if there is no selected group?
-        const groupPlacementOperations = new GroupPlacementOperation(
-            this.selectedGroup.groupId,
-            operations
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
+        const placedArtefacts = this.$state.artefacts.items.filter(
+            x => x.isPlaced
         );
-        this.newOperation(groupPlacementOperations);
+        const artefactsZOrders = placedArtefacts.map(x => x.placement.zIndex);
+        const zIndex =
+            zIndexDirection < 0
+                ? Math.min(...artefactsZOrders) - 1
+                : Math.max(...artefactsZOrders) + 1;
+        if (this.selectedArtefact) {
+            const trans = this.selectedArtefact.placement.clone();
+            trans.zIndex = zIndex;
+            operation = this.createOperation(
+                'z-index',
+                trans,
+                this.selectedArtefact
+            );
+        }
+        if (this.selectedGroup) {
+            this.selectedArtefacts.forEach(art => {
+                const trans = art.placement.clone();
+                trans.zIndex = zIndex;
+                operations.push(
+                    this.createOperation('z-index', trans, art)
+                );
+            });
+            operation = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations
+            );
+        }
+        this.newOperation(operation);
     }
 
     private createOperation(
