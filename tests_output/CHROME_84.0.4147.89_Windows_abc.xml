@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites errors="0"
+            failures="0"
+            tests="3">
+
+  <testsuite name="abc"
+    errors="0" failures="0" hostname="" id="" package="abc" skipped="0"
+    tests="3" time="1.615" timestamp="">
+  
+    <testcase name="Select language" classname="abc" time="0.001000" assertions="0">
+    </testcase>
+  
+    <testcase name="English" classname="abc" time="1.080" assertions="4">
+
+    
+
+    
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="Francais" classname="abc" time="0.5340" assertions="4">
+
+    
+
+    
+
+    
+
+    
+    </testcase>
+  
+
+  
+
+    
+
+  
+  </testsuite>
+</testsuites>
