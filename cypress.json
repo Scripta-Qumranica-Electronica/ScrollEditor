@@ -7,6 +7,7 @@
         "imaged_object_spec.js",
         "rename_editor_spec.js",
         "register_spec.js",
-        "language_spec.js"
+        "language_spec.js",
+        "scroll_spec.js"
     ]
 }

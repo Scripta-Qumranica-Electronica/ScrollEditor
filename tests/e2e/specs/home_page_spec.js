@@ -1,6 +1,6 @@
-describe('The Home Page', function () {
+describe('The Home Page', function() {
     beforeEach(() => {
-        cy.visit('/')
+        cy.visit('http://localhost:8080')
     });
 
     const userEmail = 'test@1.com'
@@ -52,8 +52,8 @@ describe('The Home Page', function () {
             expect(resp.status).to.eq(400)
         })
 
-    }) 
-    
+    })
+
     it('Login Sucess', () => { /*check if status equal 200 after Correct values  */
 
         cy.contains('button', 'Login').click()
@@ -84,18 +84,18 @@ describe('The Home Page', function () {
 
 
 
-        // cy.request({
-        //         method: 'POST',
-        //         url: '/v1/users/login', // baseUrl is prepended to url
-        //         // form: true, // indicates the body should be form urlencoded and sets Content-Type: application/x-www-form-urlencoded headers
-        //         body: {
-        //             password: 'test',
-        //             email: 'test@1.com'
-        //         }
-        //     })
-        // .then((resp) => {
-        //     // redirect status code is 302
-        //     expect(resp.status).to.eq(200)
+// cy.request({
+//         method: 'POST',
+//         url: '/v1/users/login', // baseUrl is prepended to url
+//         // form: true, // indicates the body should be form urlencoded and sets Content-Type: application/x-www-form-urlencoded headers
+//         body: {
+//             password: 'test',
+//             email: 'test@1.com'
+//         }
+//     })
+// .then((resp) => {
+//     // redirect status code is 302
+//     expect(resp.status).to.eq(200)
 
 
-        // })
+// })

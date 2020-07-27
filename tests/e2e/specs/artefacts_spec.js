@@ -1,6 +1,6 @@
 describe('Imaged Artefact', function() {
     beforeEach(() => {
-        cy.visit('/')
+        cy.visit('http://localhost:8080')
         cy.contains('button', 'Login').click()
 
         cy.typeLogin({ email: 'test@1.com', password: 'test' })
@@ -45,7 +45,7 @@ describe('Imaged Artefact', function() {
 
     // After Login choose card '1QS990' 
     Cypress.Commands.add('actionAfterLogin', () => {
-        cy.get('ul>li.list-item>.card').contains('1QS990').first()
+        cy.get('ul>li.list-item>.card').contains('1Q7Copy').first()
             .click({ multiple: true })
 
         cy.get('.nav-item>a.nav-link>a.artefacts').click()

@@ -1,6 +1,6 @@
 describe('Rename Editor', function() {
     beforeEach(() => {
-        cy.visit('/')
+        cy.visit('http://localhost:8080')
         cy.contains('button', 'Login').click()
 
         cy.typeLogin({ email: 'test@1.com', password: 'test' })
@@ -29,7 +29,7 @@ describe('Rename Editor', function() {
 
     // After Login choose card '1QS990' 
     it('RenameEditor', () => {
-        cy.get('ul>li.list-item>.card').contains('1QS990').first()
+        cy.get('ul>li.list-item>.card').contains('1Q7Copy').first()
             .click({ multiple: true })
 
         cy.get('.sidebar-header>h5')
@@ -49,7 +49,7 @@ describe('Rename Editor', function() {
             });
         cy.wait(2500)
         cy.get('.sidebar-header>input.new-edition').clear() /* clear the input and rename new name */
-        cy.get('.sidebar-header>input.new-edition').type('1QS555')
+        cy.get('.sidebar-header>input.new-edition').type('1QCopyRename')
         cy.get('.sidebar-header>.btn-save').click()
         cy.get('.sidebar-header>input.new-edition')
             .invoke('val')
