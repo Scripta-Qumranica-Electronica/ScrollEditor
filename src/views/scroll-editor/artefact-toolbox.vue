@@ -98,7 +98,7 @@
                                         </tr>
                                     </table>
                                 </div>
-                                <b-col cols="4" class="m-2">
+                                <b-col cols="4" class="m-1">
                                     <b-form-input
                                         id="input-small"
                                         size="sm"
@@ -110,26 +110,26 @@
                             <b-row v-if="mode === 'scale'" no-gutters align-v="end">
                                 <b-button-group>
                                     <b-button
-                                        :class="[float ? 'btn-xs' : 'btn-xs',  'ml-2 mb-2']"
+                                        :class="[float ? 'btn-xs' : 'btn-xs',  'ml-1 mb-2']"
                                         size="sm"
                                         @click="zoomArtefact(1)"
                                     >
                                         <i class="fa fa-plus"></i>
                                     </b-button>
                                     <b-button
-                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
+                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-1 mb-2']"
                                         size="sm"
                                         @click="zoomArtefact(-1)"
                                     >
                                         <i class="fa fa-minus"></i>
                                     </b-button>
                                     <b-button
-                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-2 mb-2']"
+                                        :class="[float ? 'btn-xs' : 'btn-xs', 'ml-1 mb-2']"
                                         size="sm"
                                         @click="resetZoom()"
                                     >reset</b-button>
                                 </b-button-group>
-                                <b-col cols="4" class="mb-1 mt-3 ml-2">
+                                <b-col cols="4" class="mb-1 mt-3 ml-1">
                                     <b-form-input
                                         id="input-small"
                                         size="sm"
@@ -574,27 +574,30 @@ export default class ArtefactToolbox extends Vue {
     private createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
-        artefact: Artefact
+        artefact: Artefact,
+        newIsPlaced: boolean = true
     ): ArtefactPlacementOperation {
         const op = new ArtefactPlacementOperation(
             artefact.id,
             opType,
             artefact.placement,
-            newPlacement
+            newPlacement,
+            artefact.isPlaced,
+            newIsPlaced
         );
         artefact.placement = newPlacement;
         return op;
     }
 
-    private setPlacement(
-        opType: ArtefactPlacementOperationType,
-        newPlacement: Placement,
-        artefact: Artefact
-    ) {
-        const op = this.createOperation(opType, newPlacement, artefact);
+    // private setPlacement(
+    //     opType: ArtefactPlacementOperationType,
+    //     newPlacement: Placement,
+    //     artefact: Artefact
+    // ) {
+    //     const op = this.createOperation(opType, newPlacement, artefact);
 
-        this.newOperation(op);
-    }
+    //     this.newOperation(op);
+    // }
 
     private setMode(mode: ScrollEditorMode) {
         this.params.mode = mode;

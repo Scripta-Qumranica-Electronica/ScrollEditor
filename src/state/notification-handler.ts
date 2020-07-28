@@ -180,5 +180,5 @@ function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
 }
 
 function notifyRoiChanged() {
-    state().eventBus.$emit('roi-changed');
+    state().eventBus.emit('roi-changed');
 }

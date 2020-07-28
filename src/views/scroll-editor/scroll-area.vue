@@ -95,13 +95,13 @@ export default class ScrollArea extends Vue {
     }
 
     private created() {
-        this.$state.eventBus.$on('select-artefact', (art: Artefact) =>
+        this.$state.eventBus.on('select-artefact', (art: Artefact) =>
             this.selectArtefact(art)
         );
     }
 
     private destroyed() {
-        this.$state.eventBus.$off('select-artefact');
+        this.$state.eventBus.off('select-artefact');
     }
 
     private mounted() {
