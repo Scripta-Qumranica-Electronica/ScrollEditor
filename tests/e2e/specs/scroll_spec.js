@@ -76,36 +76,55 @@ describe('Scroll Edition', function() {
         cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
         cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
         cy.get('.modal-footer > .btn').click()
+            /* btn move*/
+        cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then(
+                (transformBefore) => {
+                    cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.btn-move').click()
+                    cy.get('.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > :nth-child(1) > table > :nth-child(2) > :nth-child(3) > .btn > .fa').click()
+                    cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then((transformAfter) => {
+                        expect(transformAfter).to.not.equal(transformBefore);
+                    })
+                }
 
+            )
+            /* btn scale*/
+        cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then(
+                (transformBefore) => {
+                    cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.btn-scale').click()
+                    cy.get('.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > .btn-group > :nth-child(1) > .fa').click()
+                    cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then((transformAfter) => {
+                        expect(transformAfter).to.not.equal(transformBefore);
+                    })
+                }
+            )
+            /* btn rotate*/
         cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then(
             (transformBefore) => {
-                cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.btn-move').click()
-                cy.get('.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > :nth-child(1) > table > :nth-child(2) > :nth-child(3) > .btn > .fa').click()
+                cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.btn-rotate').click()
+                cy.get('.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > .btn-group > :nth-child(2)').click()
                 cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then((transformAfter) => {
                     expect(transformAfter).to.not.equal(transformBefore);
                 })
-
-
             }
         )
-
-
     })
 
 
     it('Top , Down', function() {
+        /*test for button down*/
         cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
         cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
-        cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
+        cy.get('#custom-select > option').eq(2).then(element => cy.get('#custom-select').select(element.text()))
         cy.get('.modal-footer > .btn').click()
         cy.get('#the-scroll g#root>g').last().then(selected => {
-            cy.get('.center-btn.mb-2 > .card > .card-header > .btn-group > :nth-child(2)').click()
-            cy.get('#the-scroll g#root>g').last().then(
-                lastposition => {
-                    expect(lastposition[0].outerHTML).to.not.equal(selected[0].outerHTML);
-                }
-            )
-        })
+                cy.get('.center-btn.mb-2 > .card > .card-header > .btn-group > :nth-child(2)').click()
+                cy.get('#the-scroll g#root>g').last().then(
+                    lastposition => {
+                        expect(lastposition[0].outerHTML).to.not.equal(selected[0].outerHTML);
+                    }
+                )
+            })
+            /*test for button top*/
         cy.get('#the-scroll g#root>g').last().then(selected => {
             cy.get('.center-btn.mb-2 > .card > .card-header > .btn-group > :nth-child(1)').click()
             cy.get('#the-scroll g#root>g').last().then(
