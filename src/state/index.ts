@@ -25,7 +25,7 @@ export class StateManager {
     public signInterpretations: SignInterpretationMap;
     public misc: MiscState;
     public scrollEditor: ScrollEditorState;
-    public eventBus: Vue;
+    public eventBus: Vue; // TODO: Switch to our eventBus class
 
     public prepare: StateService;
 
