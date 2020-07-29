@@ -1,6 +1,11 @@
 describe('Scroll Edition', function() {
     let artefactsPlacedCountBefore;
     let artefactsPlacedCountAfter;
+    let scrollBeforeAddArtefact;
+    let scrollAfterAddArtefact;
+    let scrollAfterUndo;
+    let scrollAfterRedo;
+    let countArtefacts;
 
     beforeEach(() => {
         cy.on('uncaught:exception', (err, runnable) => {
@@ -32,6 +37,14 @@ describe('Scroll Edition', function() {
         cy.get('button[type=submit]').click()
         cy.wait('@postUser')
     })
+
+    Cypress.Commands.add('PostArtefactGroup', () => {
+        cy.server()
+        cy.route('POST', 'v1/editions/*/artefact-groups').as('postGroup')
+            // cy.get('button[type=submit]').click()
+        cy.wait('@postGroup')
+    })
+
 
     it('Add artefact and Remove artefact', function() {
         if (Cypress.$('#the-scroll g#root>g').length) {
@@ -112,10 +125,19 @@ describe('Scroll Edition', function() {
 
     it('Top , Down', function() {
         /*test for button down*/
+        // add one artefact 
         cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
         cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
-        cy.get('#custom-select > option').eq(2).then(element => cy.get('#custom-select').select(element.text()))
-        cy.get('.modal-footer > .btn').click()
+        cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
+        cy.get('.modal-footer > .btn').click();
+
+        // add second artefact if there is only one
+        if (Cypress.$('#the-scroll g#root>g').length < 2) {
+            cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+            cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
+            cy.get('.modal-footer > .btn').click()
+        }
+
         cy.get('#the-scroll g#root>g').last().then(selected => {
                 cy.get('.center-btn.mb-2 > .card > .card-header > .btn-group > :nth-child(2)').click()
                 cy.get('#the-scroll g#root>g').last().then(
@@ -134,6 +156,57 @@ describe('Scroll Edition', function() {
             )
         })
 
+    })
+
+
+    it('Undo, Redo', function() {
+
+        // Count artefacts (n)
+        scrollBeforeAddArtefact = Cypress.$('#the-scroll g#root>g').length;
+
+        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
+        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+        cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
+
+        // Add artefact (n + 1)
+        cy.get('.modal-footer > .btn').click().then(() => {
+            scrollAfterAddArtefact = Cypress.$('#the-scroll g#root>g').length;
+
+            // Undo ADD (n)
+            cy.get(':nth-child(2) > .m-1 > :nth-child(1)').click().then(() => {
+                scrollAfterUndo = Cypress.$('#the-scroll g#root>g').length;
+                expect(scrollAfterUndo).to.equal(scrollBeforeAddArtefact);
+
+                // Redo ADD (n + 1)
+                cy.get(':nth-child(2) > .m-1 > :nth-child(2)').click().then(() => {
+                    scrollAfterRedo = Cypress.$('#the-scroll g#root>g').length;
+                    expect(scrollAfterRedo).to.equal(scrollAfterAddArtefact);
+                })
+            })
+        })
+    })
+
+    it('Manage Group', function() {
+        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
+        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+        cy.get('#custom-select > option').eq(5).then(element => cy.get('#custom-select').select(element.text()))
+        cy.get('.modal-footer > .btn').click()
+        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+        cy.get('#custom-select > option').eq(4).then(element => cy.get('#custom-select').select(element.text()))
+
+        // Add artefact (n + 1)
+        cy.get('.modal-footer > .btn').click().then(() => {
+            countArtefacts = Cypress.$('#the-scroll g#root>g').length;
+            cy.get(':nth-child(2) > .card > .card-header > .mb-1 > .btn').click()
+
+            cy.get('#the-scroll g#root>g:nth-child(' + (countArtefacts - 1) + ')>g').click({ force: true })
+            cy.get('.row > .btn-group > :nth-child(1)').click()
+            cy.PostArtefactGroup()
+
+            cy.get('@postGroup').should((resp) => {
+                expect(resp.status).to.eq(200)
+            })
+        })
     })
 
 })
