@@ -5,7 +5,7 @@ on:
       - master
       - development
       - predevelopment
-      - test_frontend
+      - tests_frontend
   pull_request:
     branches:
       - master
