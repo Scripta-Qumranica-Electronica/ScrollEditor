@@ -47,12 +47,12 @@
         "@vue/cli-plugin-e2e-cypress": "^4.3.1",
         "@vue/cli-plugin-typescript": "~4.2.2",
         "@vue/cli-service": "~4.2.2",
-        "cypress": "^3.7.0",
+        "cypress": "4.11.0",
+        "mailslurp-client": "^8.7.8",
         "node-sass": "^4.13.0",
         "sass-builder": "^1.0.0",
         "sass-loader": "^8.0.0",
         "typescript": "~3.7.5",
-        "vue-template-compiler": "^2.6.10",
-        "mailslurp-client": "^8.7.8"
+        "vue-template-compiler": "^2.6.10"
     }
 }
