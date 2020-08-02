@@ -6,7 +6,7 @@ on:
             - development
             - predevelopment
             - frontend-tests
-    pull-request:
+    pull_request:
         branches:
             - master
             - development
