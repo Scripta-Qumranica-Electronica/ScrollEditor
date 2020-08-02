@@ -8,7 +8,7 @@
         "test": "cypress run",
         "lint": "vue-cli-service lint",
         "build-staging": "vue-cli-service build --mode staging",
-        "test-travis": "cypress run --config video=false",
+        "test-ci": "cypress run --config video=false",
         "test:e2e": "vue-cli-service test:e2e --mode development "
     },
     "dependencies": {
