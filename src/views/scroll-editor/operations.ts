@@ -138,13 +138,17 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
             op => op.undo()
         );
         if (this.type === 'delete') {
+            this.type = 'placement';
             // recreate the group with id 'this.groupId'
             const artefactIds = this.operations.map(artOp => artOp.getId());
             const removedGroup = ArtefactGroup.generateGroup(artefactIds);
             state().editions.current!.artefactGroups.push(removedGroup);
-            this.groupId = removedGroup.id;
             state().eventBus.emit('update-operation-id', this.groupId, removedGroup.id);
+            this.groupId = removedGroup.id;
+            
             state().eventBus.emit('select-group', removedGroup);
+            state().eventBus.emit('save-group');
+
         }
     }
 
@@ -153,7 +157,8 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
             op => op.redo()
         );
 
-        if (this.type === 'delete') {
+        if (this.type === 'placement' || this.type === 'delete') {
+            this.type = 'delete';
             // Shaindel: Is there a place that documents all these events? There should be a list of
             // all the events, their parameters and what they are used for.
             state().eventBus.emit('delete-group', this.groupId);

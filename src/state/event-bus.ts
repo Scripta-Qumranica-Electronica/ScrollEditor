@@ -7,6 +7,7 @@ export type EventBusEvents =
 | 'change-artefact-rotation'
 | 'select-artefact'
 | 'select-group'
+| 'save-group'
 | 'cancel-group'
 | 'delete-group'
 | 'update-operation-id';

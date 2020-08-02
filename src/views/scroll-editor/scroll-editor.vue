@@ -286,6 +286,7 @@ export default class ScrollEditor extends Vue
 
     protected created() {
         this.$state.eventBus.on('select-group', this.selectGroup);
+        this.$state.eventBus.on('save-group', this.saveGroupArtefacts);
         this.$state.eventBus.on('delete-group', this.deleteGroup);
         this.$state.eventBus.on('update-operation-id', this.updateOperationId);
         this.observer = new ResizeObserver((entries) => this.onResize(entries));
@@ -293,6 +294,7 @@ export default class ScrollEditor extends Vue
 
     protected destroyed() {
         this.$state.eventBus.off('select-group', this.selectGroup);
+        this.$state.eventBus.off('save-group', this.saveGroupArtefacts);
         this.$state.eventBus.off('delete-group', this.deleteGroup);
         this.$state.eventBus.off('update-operation-id', this.updateOperationId);
 
