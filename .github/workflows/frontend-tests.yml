@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v2-beta
       - name: Setup environment
         run: |
-          yarn install --freeze
+          yarn install
           yarn add wait-on
       - name: Run backend
         run: |
