@@ -29,6 +29,7 @@ yarn-error.log*
 docker/run-docker.ps1
 docker/logs/*
 !docker/logs/README.md
-# Cypress files
-cypress/screenshots/
-cypress/videos/
+
+# Cypress output files
+cypress/screenshots
+cypress/videos

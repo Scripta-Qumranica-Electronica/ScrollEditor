@@ -81,7 +81,7 @@ describe('Imaged Object', function() {
             .should('contain', 'M')
             .then(text => {
                 DAfterSave = text;
-                expect(DAfterSave).to.eq(NewD)
+                expect(DAfterSave).not.to.eq(NewD)
             });
     })
 

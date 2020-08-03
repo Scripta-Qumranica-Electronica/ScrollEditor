@@ -5,10 +5,12 @@ import { EditionCollection,
     ArtefactCollection,
     InterpretationRoiMap,
     SignInterpretationMap,
-    TextFragmentMap} from './utilities';
+    TextFragmentMap,
+    ArtefactGroupsMap } from './utilities';
 import { Polygon } from '@/utils/Polygons';
 import StateService from './state-service';
-import Vue from 'vue';
+import { ScrollEditorState } from './scroll-editor';
+import { EventBus } from './event-bus';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -17,11 +19,13 @@ export class StateManager {
     public editions: EditionCollection;
     public imagedObjects: ImagedObjectCollection;   // Imaged objects for the current edition
     public artefacts: ArtefactCollection;           // Artefacts for the current edition or imaged object
+    public artefactGroups: ArtefactGroupsMap;
     public textFragments: TextFragmentMap;
     public interpretationRois: InterpretationRoiMap;
     public signInterpretations: SignInterpretationMap;
     public misc: MiscState;
-    public eventBus: Vue;
+    public scrollEditor: ScrollEditorState;
+    public eventBus: EventBus;
 
     public prepare: StateService;
 
@@ -30,11 +34,13 @@ export class StateManager {
         this.editions = new EditionCollection();
         this.imagedObjects = new ImagedObjectCollection();
         this.artefacts = new ArtefactCollection();
+        this.artefactGroups = new ArtefactGroupsMap();
         this.textFragments = new TextFragmentMap();
         this.misc = new MiscState();
+        this.scrollEditor = new ScrollEditorState();
         this.interpretationRois = new InterpretationRoiMap();
         this.signInterpretations = new SignInterpretationMap();
-        this.eventBus = new Vue();
+        this.eventBus = new EventBus();
         this.prepare = new StateService(this);
     }
 

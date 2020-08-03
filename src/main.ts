@@ -10,11 +10,11 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 // vue media
-import { install as MediaBreakPointsPlugin} from '@yutahaga/vue-media-breakpoints';
+import { install as MediaBreakPointsPlugin } from '@yutahaga/vue-media-breakpoints';
 
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faLanguage, faSpinner, faSearch, faRedo, faUndo } from '@fortawesome/free-solid-svg-icons';
+import { faLanguage, faSpinner, faSearch, faRedo, faUndo, faArrowsAlt, faSync, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Other plugins
@@ -55,11 +55,11 @@ Vue.use(MediaBreakPointsPlugin, {
 });
 
 
-library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo);
+library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);
-const i18n = new VueI18n( {
+const i18n = new VueI18n({
   locale: 'en',
   messages: localizedTexts,
 });
@@ -68,7 +68,7 @@ Vue.use(Toasted);
 Vue.use(VueShortcuts, { prevent: ['input'] });
 Vue.use(RenderingOptimizationPlugin);
 
-Vue.use(VueHammer);
+Vue.use(VueHammer.config);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {
@@ -78,7 +78,7 @@ router.beforeEach((to, from, next) => {
       // We know it's ugly but we do not have a vue instance, and that's how we can know what the value is.
       next();
     } else {
-      next({ path: '/'});
+      next({ path: '/' });
     }
   } else {
     next(); // make sure to always call next()!

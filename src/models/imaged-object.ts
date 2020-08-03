@@ -2,6 +2,7 @@ import { ImageStack } from './image';
 import { Artefact } from './artefact';
 import { ImagedObjectDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
+import { EditionInfo } from './edition';
 
 export class ImagedObject {
     public id: string;
@@ -10,7 +11,7 @@ export class ImagedObject {
 
     public artefacts: Artefact[];
 
-    constructor(obj: ImagedObjectDTO) {
+    constructor(obj: ImagedObjectDTO, edition: EditionInfo) {
         this.id = obj.id;
 
         if (obj.artefacts) {
@@ -20,10 +21,10 @@ export class ImagedObject {
         }
 
         if (obj.recto && obj.recto.id !== undefined) { // For now the backend returns id=null if the side is missing
-            this.recto = new ImageStack(obj.recto);
+            this.recto = new ImageStack(obj.recto, edition);
         }
         if (obj.verso && obj.verso.id) {
-            this.verso = new ImageStack(obj.verso);
+            this.verso = new ImageStack(obj.verso, edition);
         }
     }
 

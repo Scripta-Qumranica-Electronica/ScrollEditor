@@ -29,6 +29,6 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
         this.masterImageManifest = this.imageStack.master.manifest;
-        this.boundingBox = this.artefact.mask.polygon.getBoundingBox();
+        this.boundingBox = this.artefact.mask.getBoundingBox();
     }
 }

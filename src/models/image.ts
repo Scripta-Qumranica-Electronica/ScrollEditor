@@ -2,13 +2,17 @@ import { ImageStackDTO } from '@/dtos/sqe-dtos';
 import { ImageDTO } from '@/dtos/sqe-dtos';
 import { Polygon } from '@/utils/Polygons';
 import { BoundingBox } from '@/utils/helpers';
+import { EditionInfo } from './edition';
 
 export class IIIFImage {
     public url: string;
     public manifest: any; // TODO: Create a Typescript interface for this
+    public ppiAdjustmentFactor: number;
+
 
     constructor(url: string) {
         this.url = url;
+        this.ppiAdjustmentFactor = 1;  // Set by the Image class where applicable
     }
 
     get manifestUrl() {
@@ -32,6 +36,11 @@ export class IIIFImage {
     }
 
     public getScaledAndCroppedUrl(pct: number, x: number, y: number, width: number, height: number, extension = 'jpg') {
+        x /= this.ppiAdjustmentFactor;
+        y /= this.ppiAdjustmentFactor;
+        width /= this.ppiAdjustmentFactor;
+        height /= this.ppiAdjustmentFactor;
+
         return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
     }
 
@@ -46,20 +55,20 @@ export class IIIFImage {
             return 100;
         }
 
-        const width: number = boundingBox ? boundingBox.width : this.manifest.width;
-        const height: number = boundingBox ? boundingBox.height : this.manifest.height;
+        const width: number = boundingBox ? boundingBox.width : this.width;
+        const height: number = boundingBox ? boundingBox.height : this.height;
 
         if (this.manifest.sizes) {
-            const widthFactor = width / this.manifest.width;
-            const heightFactor = height / this.manifest.height;
+            const widthFactor = width / this.width;
+            const heightFactor = height / this.height;
 
             for (const resolution of this.manifest.sizes) {
 
                 if (resolution.width * widthFactor  >= expectedWidth) {
-                    return Math.ceil(100 * resolution.width / this.manifest.width);
+                    return Math.ceil(100 * resolution.width / this.width);
                 }
                 if (resolution.height *  heightFactor >= expectedHeight) {
-                    return Math.ceil(100 * resolution.height / this.manifest.height);
+                    return Math.ceil(100 * resolution.height / this.height);
                 }
             }
         }
@@ -67,6 +76,22 @@ export class IIIFImage {
         // Fallback - round up to the nearest 5%
         const realScale = 100 * Math.min(expectedWidth / width, expectedHeight / height);
         return Math.ceil(realScale / 5) * 5;
+    }
+
+    public get width(): number {
+        if (!this.manifest) {
+            throw new Error("Can't get width of image with no manifest");
+        }
+
+        return (this.manifest.width as number) * this.ppiAdjustmentFactor;
+    }
+
+    public get height(): number {
+        if (!this.manifest) {
+            throw new Error("Can't get height of image with no manifest");
+        }
+
+        return (this.manifest.height as number) * this.ppiAdjustmentFactor;
     }
 
     private append(suffix: string) {
@@ -84,8 +109,9 @@ export class Image extends IIIFImage {
     public master: boolean;
     public catalogNumber: number;
     public id: number;
+    public ppi: number;
 
-    constructor(dto: ImageDTO) {
+    constructor(dto: ImageDTO, edition: EditionInfo) {
         super(dto.url);
         this.type = dto.type;
         this.side = dto.side;
@@ -96,6 +122,10 @@ export class Image extends IIIFImage {
         this.master = dto.master;
         this.catalogNumber = dto.catalogNumber;
         this.id = dto.id;
+        this.ppi = dto.ppi;
+
+        // Calculate the PPI adjustment transform - which brings the image back to the units of the edition
+        this.ppiAdjustmentFactor = edition.metrics.ppi / this.ppi;
     }
 }
 
@@ -106,14 +136,14 @@ export class ImageStack {
     public availableImageTypes: string[];
     private imageMap: Map<string, Image>;
 
-    constructor(dto: ImageStackDTO) {
+    constructor(dto: ImageStackDTO, edition: EditionInfo) {
         if (dto.id === undefined || dto.masterIndex === undefined) {
             // This is just a temporary measure, the DTO will change so that undefined is not allowed
             throw new Error('ImageStack expects id and masterIndex to be set in the dto');
         }
         this.id = dto.id;
         this.masterIndex = dto.masterIndex;
-        this.images = dto.images.map((d) => new Image(d));
+        this.images = dto.images.map((d) => new Image(d, edition));
 
         if (!this.images[this.masterIndex].master) {
             console.warn('ImageDTO conflict of master images: ', dto);

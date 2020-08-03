@@ -14,8 +14,10 @@
                 :artefact="artefact"
                 :params="params"
                 :saving="saving"
-                @params-changed="onParamsChanged($event)"
-                @save="onSave()"
+                :status-indicator="operationsManager"
+                @paramsChanged="onParamsChanged($event)"
+                @undo="onUndo($event)"
+                @redo="onRedo($event)"
             ></artefact-side-menu>
         </div>
 
@@ -41,6 +43,7 @@
                 >
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
+                        <edition-icons :edition="edition" :show-text="true" />
                         <sign-wheel
                             v-if="selectedSignInterpretation"
                             :line="selectedLine"
@@ -58,7 +61,7 @@
                     </b-button>
                     <zoomer
                         :zoom="zoomLevel"
-                        :angle="angle"
+                        :angle="rotationAngle"
                         @new-zoom="onNewZoom($event)"
                         @new-rotate="onNewRotate($event)"
                     >
@@ -77,17 +80,18 @@
                                     :width="imageWidth"
                                     :height="imageHeight"
                                     :params="params"
-                                    :clipping-mask="artefact.mask.polygon"
-                                    :boundingBox="artefact.mask.polygon.getBoundingBox()"
+                                    :clipping-mask="artefact.mask"
+                                    :boundingBox="artefact.mask.getBoundingBox()"
                                 />
                                 <roi-layer
                                     :rois="visibleRois"
+                                    :si="selectedSignInterpretation"
                                     :selected="selectedInterpretationRoi"
                                     @roi-clicked="onRoiClicked($event)"
                                 />
                                 <boundary-drawer
-                                    v-show="isDrawingEnabled"
-                                    :mode="drawingMode"
+                                    v-show="isDrawingEnabled && this.mode !== 'select'"
+                                    :mode="mode"
                                     transformRootId="transform-root"
                                     @new-polygon="onNewPolygon($event)"
                                 />
@@ -107,9 +111,10 @@
                     </b-button>
                     <b-button
                         v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon' ,title: this.$t('misc.draw')}, {icon: 'fa fa-square-o', val: 'box', title: this.$t('misc.box')}]"
+                        v-show="!readOnly"
                         :key="mode.val"
-                        @click="onDrawingModeClick(mode.val)"
-                        :pressed="drawingMode === mode.val"
+                        @click="onModeClick(mode.val)"
+                        :pressed="mode === mode.val"
                         :disabled="!isDrawingEnabled"
                         class="sidebarCollapse"
                         v-b-tooltip.hover.bottom
@@ -118,6 +123,7 @@
                         <i :class="mode.icon"></i>
                     </b-button>
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         class="sidebarCollapse"
                         @click="onDeleteRoi()"
@@ -128,6 +134,7 @@
                         <i class="fa fa-trash"></i>
                     </b-button>
                     <b-button
+                        v-if="!readOnly"
                         type="button"
                         @click="onAuto()"
                         :pressed="autoMode == true"
@@ -135,7 +142,19 @@
                         v-b-tooltip.hover.bottom
                         :title="$t('misc.auto')"
                     >
-                        <i class="fa fa-refresh"></i>
+                        <i class="fa fa-play"></i>
+                    </b-button>
+
+                    <b-button
+                        v-if="!readOnly"
+                        type="button"
+                        @click="onModeClick('select')"
+                        :pressed="mode === 'select'"
+                        class="sidebarCollapse"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.select')"
+                    >
+                        <i class="fa fa-mouse-pointer"></i>
                     </b-button>
                 </div>
             </div>
@@ -195,7 +214,7 @@ import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from '@/views/artefact-editor/image-layer.vue';
 import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
 import BoundaryDrawer, {
-    DrawingMode
+    ActionMode
 } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, {
     ZoomEventArgs,
@@ -203,6 +222,16 @@ import Zoomer, {
 } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
 import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
+import EditionIcons from '@/components/cues/edition-icons.vue';
+import { EditionInfo } from '../../models/edition';
+import {
+    ArtefactEditorOperation,
+    ArtefactEditorOperationType,
+    ArtefactROIOperation,
+    ArtefactRotateOperation
+} from './operations';
+import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
+import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
 
 @Component({
     name: 'artefact-editor',
@@ -215,13 +244,15 @@ import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
         'zoomer': Zoomer,
-        'sign-wheel': SignWheel
+        'sign-wheel': SignWheel,
+        'edition-icons': EditionIcons
     }
 })
-export default class ArtefactEditor extends Vue {
+export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactEditorOperation> {
+    public params = new ArtefactEditorParams();
     private selectedSignInterpretation: SignInterpretation | null = null;
     private selectedInterpretationRoi: InterpretationRoi | null = null;
-    private drawingMode: DrawingMode = 'box';
+    private mode: ActionMode = 'box';
     private autoMode = false;
 
     private errorMessage = '';
@@ -229,13 +260,15 @@ export default class ArtefactEditor extends Vue {
     private saving = false;
     private isActiveSidebar = false;
     private isActiveText = false;
-    private params = new ArtefactEditorParams();
     private imageStack: ImageStack | undefined = undefined;
     private boundingBox = new BoundingBox();
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
 
     private artefactService = new ArtefactService();
     private textService = new TextService();
+    private operationsManager = new OperationsManager<ArtefactEditorOperation>(
+        this
+    );
 
     private visibleRois: InterpretationRoi[] = [];
 
@@ -243,12 +276,130 @@ export default class ArtefactEditor extends Vue {
         return this.$state.artefacts.current!;
     }
 
+    public async saveEntities(ops: ArtefactEditorOperation[]): Promise<boolean> {
+        const as = new ArtefactService();
+
+        this.saving = true;
+        try {
+            const appliedRotation = await this.saveRotation();
+            const appliedROIs = await this.saveROIs();
+        } catch (e) {
+            console.error("Can't save arterfacts to server", e);
+            return false;
+        }
+        this.saving = false;
+
+        return true;
+    }
+
+    public onNewPolygon(poly: Polygon) {
+        if (!this.selectedSignInterpretation) {
+            console.error("Can't add ROI with no selected sign");
+            return;
+        }
+
+        const bbox = poly.getBoundingBox();
+        const normalized = Polygon.offset(poly, -bbox.x, -bbox.y);
+        const roi = InterpretationRoi.new(
+            this.artefact,
+            this.selectedSignInterpretation,
+            normalized,
+            bbox
+        );
+
+        const placedRoi = this.placeRoi(roi);
+
+        const op: ArtefactROIOperation = new ArtefactROIOperation(
+            this.artefact.id,
+            'draw',
+            placedRoi.clone()
+        );
+        this.onNewOperation(op);
+        if (this.autoMode) {
+            // Find the next sign interpretation with a character - that can be mapped.
+            this.playSound('/qumran_hum.mp3');
+            setTimeout(this.nextSign, 1500);
+        }
+    }
+
+    public placeRoi(roi: InterpretationRoi) {
+        let newRoi = this.$state.interpretationRois.get(roi.id);
+        if (!newRoi) {
+            newRoi = roi;
+            this.$state.interpretationRois.put(newRoi);
+            // const roiDTO: SetInterpretationRoiDTO = {
+            //     artefactId: roi.artefactId,
+            //     shape: roi.shape.wkt,
+            //     translate: roi.position,
+            //     stanceRotation: roi.rotation,
+            //     exceptional: roi.exceptional,
+            //     valuesSet: roi.valuesSet,
+            //     signInterpretationId: roi.signInterpretationId
+            // }
+            // newRoi = new InterpretationRoi(roiDTO);
+        }
+        // For now the status 'update' doesn't do the save, we put 'new' to save it
+        newRoi.status = 'new';
+        const si = this.$state.signInterpretations.get(
+            roi.signInterpretationId!
+        );
+        if (si) {
+            si.rois.push(newRoi);
+        }
+        this.visibleRois.push(newRoi);
+        this.selectedInterpretationRoi = newRoi;
+        this.selectedSignInterpretation = si || null;
+
+        return newRoi;
+    }
+
+    public removeRoi(roi: InterpretationRoi) {
+        const roiBbox = roi.shape.getBoundingBox();
+        console.log(roiBbox);
+        const visibleRoi = this.visibleRois.find(
+            vRoi =>
+                vRoi.shape.getBoundingBox().x === roiBbox.x &&
+                vRoi.shape.getBoundingBox().y === roiBbox.y &&
+                vRoi.shape.getBoundingBox().width === roiBbox.width &&
+                vRoi.shape.getBoundingBox().height === roiBbox.height
+        );
+        if (!visibleRoi) {
+            console.error('Cannot find a ROI with the bounding box:', roiBbox);
+            return;
+        }
+        const existedRoi = this.$state.interpretationRois.get(visibleRoi.id);
+        if (existedRoi) {
+            existedRoi.status = 'deleted';
+        }
+        const si = this.$state.signInterpretations.get(
+            roi.signInterpretationId!
+        );
+        if (si) {
+            si.deleteRoi(roi);
+        }
+        const visIndex = this.visibleRois.findIndex(r => r.id === roi.id);
+        this.visibleRois.splice(visIndex, 1);
+        this.statusTextFragment(roi);
+
+        this.selectedInterpretationRoi = null;
+        this.selectedSignInterpretation = null;
+    }
+
     protected created() {
-        this.$state.eventBus.$on('roi-changed', () => this.initVisibleRois());
+        this.$state.eventBus.on('roi-changed', this.initVisibleRois);
+        this.$state.eventBus.on(
+            'change-artefact-rotation',
+            (angle: number) => (this.params.rotationAngle = angle)
+        );
+        this.$state.eventBus.on('remove-roi', this.removeRoi);
+        this.$state.eventBus.on('place-roi', this.placeRoi);
     }
 
     protected destroyed() {
-        this.$state.eventBus.$off('roi-changed', () => this.initVisibleRois());
+        this.$state.eventBus.off('roi-changed', this.initVisibleRois);
+        this.$state.eventBus.off('change-artefact-rotation');
+        this.$state.eventBus.off('remove-roi', this.removeRoi);
+        this.$state.eventBus.off('place-roi', this.placeRoi);
     }
 
     protected async mounted() {
@@ -279,8 +430,7 @@ export default class ArtefactEditor extends Vue {
             );
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
-        this.params.rotationAngle =
-            this.artefact.mask.transformation.rotate || 0;
+        this.params.rotationAngle = this.artefact.placement.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
         await Promise.all(
@@ -295,6 +445,9 @@ export default class ArtefactEditor extends Vue {
         setTimeout(() => this.setFirstZoom(), 0);
     }
 
+    private get edition(): EditionInfo {
+        return this.$state.editions.current!;
+    }
     private get imagedObject(): ImagedObject {
         return this.$state.imagedObjects.current!;
     }
@@ -304,18 +457,18 @@ export default class ArtefactEditor extends Vue {
     private get zoomLevel(): number {
         return this.params.zoom;
     }
-    private get angle(): number {
-        return this.params.rotationAngle;
+    private get readOnly(): boolean {
+        return this.edition.permission.readOnly;
     }
     // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
     // On tablet screen - Active means opened.
 
     private get imageWidth(): number {
-        return this.masterImage.manifest.width;
+        return this.masterImage.width;
     }
 
     private get imageHeight(): number {
-        return this.masterImage.manifest.height;
+        return this.masterImage.height;
     }
 
     private get actualWidth(): number {
@@ -334,9 +487,7 @@ export default class ArtefactEditor extends Vue {
     }
 
     private get isDrawingEnabled() {
-        return (
-            !!this.selectedSignInterpretation && !this.selectedInterpretationRoi
-        );
+        return !!this.selectedSignInterpretation;
     }
 
     private get isDeleteEnabled() {
@@ -345,6 +496,30 @@ export default class ArtefactEditor extends Vue {
 
     private get rotationAngle(): number {
         return this.params.rotationAngle;
+    }
+    private statusTextFragment(roi: InterpretationRoi) {
+        const si = this.$state.signInterpretations.get(
+            roi.signInterpretationId!
+        );
+        if (si) {
+            const tfId = si.sign.line.textFragment.textFragmentId;
+            const visibleSIs = this.visibleRois.map(r =>
+                this.$state.signInterpretations.get(r.signInterpretationId!)
+            );
+            const visiblesTf = visibleSIs.map(
+                s => s!.sign.line.textFragment.textFragmentId
+            );
+
+            const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
+            if (!anyRoiOfSelectedTf) {
+                const tfToMove = this.artefact.textFragments.find(
+                    tf => tf.id === tfId
+                );
+                if (tfToMove) {
+                    tfToMove.certain = false;
+                }
+            }
+        }
     }
 
     private setFirstZoom() {
@@ -357,6 +532,22 @@ export default class ArtefactEditor extends Vue {
         );
     }
 
+    private onDeleteRoi() {
+        const roi = this.selectedInterpretationRoi;
+        const si = this.selectedSignInterpretation;
+        if (!roi || !si) {
+            console.error("Can't delete an ROI if nothing is selected");
+            return;
+        }
+        const op: ArtefactROIOperation = new ArtefactROIOperation(
+            this.artefact.id,
+            'erase',
+            roi.clone()
+        );
+        this.onNewOperation(op);
+
+        this.removeRoi(roi);
+    }
     private onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
     }
@@ -377,6 +568,25 @@ export default class ArtefactEditor extends Vue {
         }
 
         return this.selectedSignInterpretation.sign.line;
+    }
+    private nextSign() {
+        let newIndex = this.selectedSignInterpretation!.sign.indexInLine + 1;
+        while (newIndex < this.selectedLine!.signs.length) {
+            const newSI = this.selectedLine!.signs[newIndex]
+                .signInterpretations[0];
+            if (newSI.character && !newSI.isReconstructed) {
+                this.onSignInterpretationClicked(newSI);
+                break;
+            }
+            newIndex++;
+        }
+    }
+
+    private playSound(sound: string) {
+        if (sound) {
+            const audio = new Audio(sound);
+            audio.play();
+        }
     }
 
     private sidebarClicked() {
@@ -404,6 +614,14 @@ export default class ArtefactEditor extends Vue {
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         this.params = evt.params; // This makes sure a change is triggered in child components
+        if (evt.property === 'rotationAngle') {
+            const op: ArtefactRotateOperation = new ArtefactRotateOperation(
+                this.artefact.id,
+                this.artefact.placement.rotate,
+                evt.value
+            );
+            this.onNewOperation(op);
+        }
     }
 
     private onAuto() {
@@ -444,7 +662,7 @@ export default class ArtefactEditor extends Vue {
         //
         // We ask the server to cut the image at the square, and treat everything as square. That way when we
         // rotate everything is still visible.
-        const bb = this.artefact.mask.polygon.getBoundingBox();
+        const bb = this.artefact.mask.getBoundingBox();
         const diag = Math.sqrt(bb.height * bb.height + bb.width * bb.width);
         const center = (this.boundingBoxCenter = {
             x: bb.x + bb.width / 2,
@@ -489,117 +707,18 @@ export default class ArtefactEditor extends Vue {
         }
     }
 
-    private onDrawingModeClick(newMode: DrawingMode) {
-        this.drawingMode = newMode;
-    }
-
-    private onNewPolygon(poly: Polygon) {
-        if (!this.selectedSignInterpretation) {
-            console.error("Can't add ROI with no selected sign");
-            return;
-        }
-
-        const bbox = poly.getBoundingBox();
-        const normalized = Polygon.offset(poly, -bbox.x, -bbox.y);
-        const roi = InterpretationRoi.new(
-            this.artefact,
-            this.selectedSignInterpretation,
-            normalized,
-            bbox
-        );
-
-        this.selectedSignInterpretation.rois.push(roi);
-        this.$state.interpretationRois.put(roi);
-        this.visibleRois.push(roi);
-        this.selectedInterpretationRoi = roi;
-
-        if (this.autoMode) {
-            // Find the next sign interpretation with a character - that can be mapped.
-            this.playSound('/qumran_hum.mp3');
-            setTimeout(this.nextSign, 1500);
-        }
-    }
-    private nextSign() {
-        let newIndex = this.selectedSignInterpretation!.sign.indexInLine + 1;
-        while (newIndex < this.selectedLine!.signs.length) {
-            const newSI = this.selectedLine!.signs[newIndex]
-                .signInterpretations[0];
-            if (newSI.character) {
-                this.onSignInterpretationClicked(newSI);
-                break;
-            }
-            newIndex++;
-        }
-    }
-
-    private playSound(sound: string) {
-        if (sound) {
-            const audio = new Audio(sound);
-            audio.play();
-        }
-    }
-
-    private onDeleteRoi() {
-        // Delete the selected ROI
-        const roi = this.selectedInterpretationRoi;
-        const si = this.selectedSignInterpretation;
-        if (!roi || !si) {
-            console.error("Can't delete an ROI if nothing is selected");
-            return;
-        }
-        roi.status = 'deleted';
-        si.deleteRoi(roi);
-
-        const visIndex = this.visibleRois.findIndex(r => r.id === roi.id);
-        this.visibleRois.splice(visIndex, 1);
-        const siId = si.signInterpretationId;
-        const tfId = si.sign.line.textFragment.textFragmentId;
-        const visibleSIs = this.visibleRois.map(r =>
-            this.$state.signInterpretations.get(r.signInterpretationId!)
-        );
-        const visiblesTf = visibleSIs.map(
-            s => s!.sign.line.textFragment.textFragmentId
-        );
-
-        const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
-        if (!anyRoiOfSelectedTf) {
-            const tfToMove = this.artefact.textFragments.find(
-                tf => tf.id === tfId
-            );
-            if (tfToMove) {
-                tfToMove.certain = false;
-            }
-        }
-
-        this.selectedInterpretationRoi = null;
-    }
-
-    private async onSave() {
-        const as = new ArtefactService();
-
-        this.saving = true;
-        try {
-            const appliedRotation = await this.saveRotation();
-            const appliedROIs = await this.saveROIs();
-
-            if (!appliedRotation && !appliedROIs) {
-                this.showMessage('No changes to save', 'info');
-            } else {
-                this.showMessage('Artefact Saved', 'success');
-            }
-        } catch (e) {
-            this.showMessage('Saving Artefact Failed', 'error');
-        }
-        this.saving = false;
+    private onModeClick(newMode: ActionMode) {
+        this.mode = newMode;
     }
 
     private async saveRotation() {
-        const rotation = this.rotationAngle % 360;
-        if (rotation === this.artefact.mask.transformation.rotate) {
+        const rotation = (this.rotationAngle % 360) + (360 % 360);
+        if (rotation === this.artefact.placement.rotate) {
             return false;
         }
 
-        this.artefact.mask.transformation.rotate = this.rotationAngle % 360;
+        this.artefact.placement.rotate =
+            (this.rotationAngle % 360) + (360 % 360);
         await this.artefactService.changeArtefact(
             this.artefact.editionId,
             this.artefact
@@ -623,11 +742,23 @@ export default class ArtefactEditor extends Vue {
     }
 
     private showMessage(msg: string, type: string = 'info') {
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
             duration: 7000
         });
+    }
+
+    private onNewOperation(op: ArtefactEditorOperation) {
+        this.operationsManager.addOperation(op);
+    }
+
+    private onUndo() {
+        this.operationsManager.undo();
+    }
+
+    private onRedo() {
+        this.operationsManager.redo();
     }
 }
 </script>

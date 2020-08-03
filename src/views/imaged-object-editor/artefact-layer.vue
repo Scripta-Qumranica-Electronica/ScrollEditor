@@ -31,7 +31,7 @@ export default class ArtefactLayer extends Vue {
     }
 
     private get polygon() {
-        return this.artefact.mask.polygon;
+        return this.artefact.mask;
     }
 }
 </script>

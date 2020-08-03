@@ -1,5 +1,6 @@
 <template>
     <div id="artefact-side-menu" :class="{ 'fixed-header': scrolled }" role="tablist">
+        <div>{{ saveStatusMessage }}</div>
         <section>
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1">
@@ -81,11 +82,8 @@
                             </b-button>
                         </section>
                         <section class="center-btn">
-                            <b-button v-if="!saving" @click="onSave()">{{$t('misc.save')}}</b-button>
-                            <b-button v-if="saving" disabled class="disable">
-                                Saving...
-                                <font-awesome-icon icon="spinner" spin></font-awesome-icon>
-                            </b-button>
+                            <b-button :disabled="!canUndo" @click="undo()">Undo</b-button>
+                            <b-button :disabled="!canRedo" @click="redo()">Redo</b-button>
                         </section>
                     </b-card-body>
                 </b-collapse>
@@ -106,6 +104,7 @@ import {
     SingleImageSetting,
     ImageSetting
 } from '../../components/image-settings/types';
+import { OperationsManagerStatus } from '@/utils/operations-manager';
 
 export default Vue.extend({
     name: 'artefcat-side-menu',
@@ -122,7 +121,7 @@ export default Vue.extend({
     props: {
         artefact: Object as () => Artefact,
         params: Object as () => ArtefactEditorParams,
-        saving: Boolean
+        statusIndicator: Object as () => OperationsManagerStatus
     },
     computed: {
         editionId(): number {
@@ -130,6 +129,17 @@ export default Vue.extend({
         },
         scrolled(): boolean {
             return true;
+        },
+        saveStatusMessage: {
+            get(): string {
+                if (this.statusIndicator.isSaving) {
+                    return 'Saving...';
+                }
+                if (this.statusIndicator.isDirty) {
+                    return 'Save pending';
+                }
+                return 'Scroll Saved';
+            }
         },
         zoom: {
             get(): number {
@@ -147,6 +157,21 @@ export default Vue.extend({
             set(val: any) {
                 this.params.rotationAngle = parseFloat(val);
                 this.notifyChange('rotationAngle', val);
+            }
+        },
+        readOnly: {
+            get(): boolean {
+                return this.$state.editions.current!.permission.readOnly;
+            }
+        },
+        canUndo: {
+            get(): boolean {
+                return this.statusIndicator.canUndo;
+            }
+        },
+        canRedo: {
+            get(): boolean {
+                return this.statusIndicator.canRedo;
             }
         }
     },
@@ -181,8 +206,11 @@ export default Vue.extend({
             this.params.rotationAngle += degrees;
             this.notifyChange('rotationAngle', this.params.rotationAngle);
         },
-        onSave() {
-            this.$emit('save');
+        undo() {
+            this.$emit('undo');
+        },
+        redo() {
+            this.$emit('redo');
         }
     }
 });

@@ -59,7 +59,7 @@ export default Vue.extend({
                 this.sessionService.forgotPassword(this.email);
                 this.close();
 
-                this.$toasted.show('A reset link has been sent to your email', {
+                this.$toasted.show(this.$tc('toasts.reset'), {
                     type: 'info',
                     position: 'top-right',
                     duration: 7000

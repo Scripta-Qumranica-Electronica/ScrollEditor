@@ -13,11 +13,12 @@
                 :imagedObject="imagedObject"
                 :artefacts="visibleArtefacts"
                 :artefact="artefact"
+                :artefactId="artefactId"
                 :params="params"
                 :editable="canEdit"
                 :side="side"
+                :status-indicator="operationsManager"
                 @paramsChanged="onParamsChanged($event)"
-                @save="onSave($event)"
                 @undo="onUndo($event)"
                 @redo="onRedo($event)"
                 @create="onNew($event)"
@@ -40,8 +41,13 @@
             <!-- todo: add external div with the condition -->
             <div class="row">
                 <div id="buttons-div">
-                    <b-button type="button" class="sidebarCollapse" @click="sidebarClicked()"
-                      v-b-tooltip.hover.bottom :title="$t('misc.collapsedsidebarObject')">
+                    <b-button
+                        type="button"
+                        class="sidebarCollapse"
+                        @click="sidebarClicked()"
+                        v-b-tooltip.hover.bottom
+                        :title="$t('misc.collapsedsidebarObject')"
+                    >
                         <i class="fa fa-align-justify"></i>
                     </b-button>
 
@@ -51,12 +57,19 @@
                         @click="editingModeChanged(mode.val)"
                         :pressed="modeChosen(mode.val)"
                         class="sidebarCollapse"
-                         v-b-tooltip.hover.bottom :title="mode.title"
+                        v-b-tooltip.hover.bottom
+                        :title="mode.title"
                     >
                         <i :class="mode.icon"></i>
                     </b-button>
                 </div>
+
                 <div class="imaged-object-container" :class="{active: isActive}">
+                    <div id="imaged-object-title">
+                        {{ imagedObject.id }}
+                        <edition-icons :edition="edition" :show-text="true" />
+                    </div>
+
                     <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
                         <svg
                             class="overlay"
@@ -73,7 +86,7 @@
                                     :height="imageHeight"
                                     :params="params"
                                     :editable="canEdit"
-                                    :clipping-mask="artefact.mask.polygon"
+                                    :clipping-mask="artefact.mask"
                                 />
                                 <artefact-layer
                                     :selected="art.id === artefact.id"
@@ -127,7 +140,9 @@ import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { normalizeOpacity } from '@/components/image-settings/types';
 import { addToArray } from '@/utils/collection-utils';
-
+import EditionIcons from '@/components/cues/edition-icons.vue';
+import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import { ImagedObjectEditorOperation } from './operations';
 @Component({
     name: 'imaged-object-editor',
     components: {
@@ -136,10 +151,11 @@ import { addToArray } from '@/utils/collection-utils';
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer
+        'zoomer': Zoomer,
+        'edition-icons': EditionIcons
     }
 })
-export default class ImagedObjectEditor extends Vue {
+export default class ImagedObjectEditor extends Vue implements SavingAgent<ImagedObjectEditorOperation> {
     private static colors = [
         'purple',
         'blue',
@@ -157,28 +173,70 @@ export default class ImagedObjectEditor extends Vue {
     private artefactService = new ArtefactService();
     private editionService = new EditionService();
     private waiting = true;
-    private artefact: Artefact | null = null;
+    private artefactId: number = -1;
     private initialMask = new Polygon();
     private params = new ImagedObjectEditorParams();
     private saving = false;
     private renaming = false;
     private renameInputActive: Artefact | null = null;
     private nonSelectedMask = new Polygon();
-    private artefactEditingDataList: ArtefactEditingData[] = [];
-    private artefactEditingData = new ArtefactEditingData();
+    // private artefactEditingDataList: ArtefactEditingData[] = [];
+    // private artefactEditingData = new ArtefactEditingData();
     private isActive = false;
     private masterImage?: IIIFImage;
     private side: Side = 'recto';
+    private operationsManager = new OperationsManager<ImagedObjectEditorOperation>(this);
+
+    public async saveEntities(ops: ImagedObjectEditorOperation[]): Promise<boolean> {
+        // if (!this.artefact) {
+        //     throw new Error("Can't save if there is no artefact");
+        // }
+
+        for (const op of ops) {
+            const id = op.getId();
+            const artefact = this.artefacts.find(x => x.id === id);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${id} for saving`);
+                continue;
+            }
+            try {
+                await this.artefactService.changeArtefact(
+                    this.editionId,
+                    artefact
+                );
+                this.showMessage('toasts.imagedObjectSaved', 'success');
+            } catch (error) {
+                console.error("Can't save arterfact to server", error);
+                this.showMessage('toasts.imagedObjectFailed', 'error');
+                continue;
+            }
+        }
+
+        return true;
+    }
+
+    private get artefact(): Artefact | undefined {
+        const artefact = this.artefacts.find(x => x.id === this.artefactId);
+        return artefact;
+    }
+
     private get editList(): any[] {
         if (this.canEdit) {
             return [
-                { icon: 'fa fa-pencil', val: 'DRAW', title: this.$t('misc.draw')},
-                { icon: 'fa fa-trash', val: 'ERASE', title: this.$t('misc.cancel')}
+                {
+                    icon: 'fa fa-pencil',
+                    val: 'DRAW',
+                    title: this.$t('misc.draw')
+                },
+                {
+                    icon: 'fa fa-trash',
+                    val: 'ERASE',
+                    title: this.$t('misc.cancel')
+                }
             ];
         }
         return [];
     }
-
     private get zoomLevel(): number {
         return this.params.zoom;
     }
@@ -191,10 +249,12 @@ export default class ImagedObjectEditor extends Vue {
         return parseInt(this.$route.params.editionId);
     }
 
+    private get edition() {
+        return this.$state.editions.current!;
+    }
+
     private get canEdit(): boolean {
-        return this.$state.editions.current
-            ? this.$state.editions.current.permission.mayWrite
-            : false;
+        return this.$state.editions.current?.permission.mayWrite || false;
     }
 
     private get actualWidth(): number {
@@ -239,21 +299,23 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private get imageWidth(): number {
-        return this.masterImage!.manifest.width;
+        return this.masterImage!.width;
     }
 
     private get imageHeight(): number {
-        return this.masterImage!.manifest.height;
+        return this.masterImage!.height;
     }
 
     private get visibleArtefacts(): Artefact[] {
         return this.artefacts.filter(item => item.side === this.side);
     }
 
-     private get artefacts(): Artefact[] {
-      return this.imagedObject!.artefacts || [];
+    private get artefacts(): Artefact[] {
+        return this.imagedObject!.artefacts || [];
     }
-
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
     private async mounted() {
         try {
             this.waiting = true;
@@ -287,22 +349,12 @@ export default class ImagedObjectEditor extends Vue {
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {
-                this.artefacts.forEach(element => {
-                    this.artefactEditingDataList.push(
-                        new ArtefactEditingData()
-                    );
-                });
                 this.onArtefactChanged(this.visibleArtefacts[0]);
-                this.artefacts.forEach(element => {
-                    this.artefactEditingDataList.push(
-                        new ArtefactEditingData()
-                    );
-                });
+
                 // Remove this because it will happen in onArtefactChanged function.
-                // this.artefactEditingData = this.getArtefactEditingData(0);
-                this.initialMask = this.artefact!.mask.polygon;
+                this.initialMask = this.artefact!.mask;
             } else {
-                this.artefact = null;
+                this.artefactId = -1;
                 this.initialMask = new Polygon();
             }
         } finally {
@@ -317,17 +369,15 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private confirmLeaving(e: BeforeUnloadEvent) {
-        this.artefactEditingDataList.forEach(art => {
-            if (art.dirty) {
-                // check if there unsaved changes
-                const confirmationMessage =
-                    'It looks like you have been editing something. ' +
-                    'If you leave before saving, your changes will be lost.';
+        if (this.operationsManager.isDirty) {
+            // check if there unsaved changes
+            const confirmationMessage =
+                'It looks like you have been editing something. ' +
+                'If you leave before saving, your changes will be lost.';
 
-                (e || window.event).returnValue = confirmationMessage;
-                return confirmationMessage;
-            }
-        });
+            (e || window.event).returnValue = confirmationMessage;
+            return confirmationMessage;
+        }
     }
 
     private fillImageSettings() {
@@ -375,95 +425,71 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onNewZoom(event: ZoomEventArgs) {
-        console.log(`imaged-object-editor setting zoom to ${event.zoom}`);
         this.params.zoom = event.zoom;
     }
 
-    private showSaveMsg(savedFlag: boolean, errorFlag: boolean) {
-        this.saving = false;
+    // private onSave() {
+    //     if (!this.operationsManager.isDirty) {
+    //         this.showMessage('toasts.NoChangesDetected');
+    //         return;
+    //     }
+    //     this.operationsManager.save();
+    // }
+    // private onSave() {
+    //     if (!this.artefact) {
+    //         throw new Error("Can't save if there is no artefact");
+    //     }
+    //     this.saving = true;
+    //     let savedFlag = false;
+    //     let errorFlag = false;
 
-        if (!savedFlag) {
-            this.showMessage('No changes detected');
-        } else if (errorFlag) {
-            this.showMessage('Imaged Object Save Failed', 'error');
-        } else {
-            this.showMessage('Imaged Object Saved', 'success');
-        }
-    }
+    //     this.artefacts.forEach(async (art, index) => {
+    //         if (this.artefactEditingDataList[index].dirty) {
+    //             savedFlag = true;
 
-    private onSave() {
-        if (!this.artefact) {
-            throw new Error("Can't save if there is no artefact");
-        }
-        this.saving = true;
-        let savedFlag = false;
-        let errorFlag = false;
-
-        this.artefacts.forEach(async (art, index) => {
-            if (this.artefactEditingDataList[index].dirty) {
-                savedFlag = true;
-
-                await this.artefactService
-                    .changeArtefact(this.editionId, art)
-                    .catch(() => {
-                        errorFlag = true;
-                    })
-                    .finally(() => {
-                        if (index === this.artefacts.length - 1) {
-                            this.showSaveMsg(savedFlag, errorFlag);
-                        }
-                    });
-                this.artefactEditingDataList[index].dirty = false;
-            } else {
-                setTimeout(() => {
-                    if (index === this.artefacts.length - 1) {
-                        this.showSaveMsg(savedFlag, errorFlag);
-                    }
-                }, 1000);
-            }
-        });
-    }
+    //             await this.artefactService
+    //                 .changeArtefact(this.editionId, art)
+    //                 .catch(() => {
+    //                     errorFlag = true;
+    //                 })
+    //                 .finally(() => {
+    //                     if (index === this.artefacts.length - 1) {
+    //                         this.showSaveMsg(savedFlag, errorFlag);
+    //                     }
+    //                 });
+    //             this.artefactEditingDataList[index].dirty = false;
+    //         } else {
+    //             setTimeout(() => {
+    //                 if (index === this.artefacts.length - 1) {
+    //                     this.showSaveMsg(savedFlag, errorFlag);
+    //                 }
+    //             }, 1000);
+    //         }
+    //     });
+    // }
 
     private onUndo() {
-        if (!this.artefact) {
-            throw new Error("Can't undo mask if there is no artefact");
-        }
-        if (this.artefactEditingData.undoList.length) {
-            this.artefactEditingData.dirty = true;
-
-            const toUndo: MaskChangeOperation = this.artefactEditingData.undoList.pop()!;
-            this.artefactEditingData.redoList.push(toUndo);
-
-            this.artefact.mask.polygon = toUndo.prevMask;
-        }
+        this.operationsManager.undo();
     }
 
     private onRedo() {
-        if (!this.artefact) {
-            throw new Error("Can't redo mask if there is no artefact");
-        }
-        if (this.artefactEditingData.redoList.length) {
-            const toRedo: MaskChangeOperation = this.artefactEditingData.redoList.pop()!;
-            this.artefactEditingData.undoList.push(toRedo);
-
-            this.artefact.mask.polygon = toRedo.newMask;
-        }
+        this.operationsManager.redo();
     }
 
-    private async onNew(art: Artefact) {
+    private onNew(art: Artefact) {
         addToArray(art, this.imagedObject!.artefacts);
 
-        this.artefact = art;
+        this.artefactId = art.id;
         if (!this.artefact) {
             throw new Error("Can't create if there is no artefact");
         }
         this.saving = true;
         try {
-            this.artefactEditingData = new ArtefactEditingData();
-            this.artefactEditingDataList.push(this.artefactEditingData);
-            this.showMessage('Artefact Created', 'success');
+            // this.artefactEditingData = new ArtefactEditingData();
+            // this.artefactEditingDataList.push(this.artefactEditingData);
+            this.showMessage('toasts.artefactCreated', 'success');
         } catch (err) {
-            this.showMessage('Artefact creation failed', 'error');
+            this.showMessage('toasts.artefactCreatedFailed', 'error');
         } finally {
             this.saving = false;
         }
@@ -479,11 +505,11 @@ export default class ImagedObjectEditor extends Vue {
                 this.editionId,
                 this.artefact
             );
-            this.showMessage('Artefact renamed', 'success');
+            this.showMessage('toasts.artefactRenamed', 'success');
             // this.renameInputActive = {};
             this.inputRenameChanged(undefined);
         } catch (err) {
-            this.showMessage('Artefact rename failed', 'error');
+            this.showMessage('toasts.artefactRenameFailed', 'error');
         } finally {
             this.renaming = false;
         }
@@ -492,21 +518,19 @@ export default class ImagedObjectEditor extends Vue {
     private async onDeleteArtefact(art: Artefact) {
         try {
             await this.artefactService.deleteArtefact(art);
-            this.showMessage('Artefact deleted', 'success');
+            this.showMessage('toasts.artefactDeleted', 'success');
             const index = this.artefacts.indexOf(art);
-           // this.artefacts.splice(index, 1);
-            this.artefactEditingDataList.splice(index, 1);
+
 
             if (this.artefacts[0]) {
-                this.artefact = this.artefacts[0];
-                this.artefactEditingData = this.artefactEditingDataList[0];
+                this.artefactId = this.artefacts[0].id;
             } else {
-                this.artefact = null;
+                this.artefactId = 0;
                 this.initialMask = new Polygon();
             }
         } catch (err) {
             console.error(err);
-            this.showMessage('Delete artefact failed', 'error');
+            this.showMessage('toasts.deleteArtefactFailed', 'error');
         }
     }
 
@@ -515,17 +539,16 @@ export default class ImagedObjectEditor extends Vue {
     }
 
     private onArtefactChanged(art: Artefact) {
-        console.log(`onArtefactChanged to ${art.name} (${art.id})`);
-        this.artefact = art;
-        const index = this.artefacts.indexOf(art); // index artefact in artefact list.
-        this.artefactEditingData = this.getArtefactEditingData(index);
+        this.artefactId = art.id;
+        // const index = this.artefacts.indexOf(art); // index artefact in artefact list.
+        // this.artefactEditingData = this.getArtefactEditingData(index);
 
         this.nonSelectedMask = new Polygon();
         for (const artefact of this.visibleArtefacts) {
-            if (artefact !== art) {
+            if (artefact.id !== art.id) {
                 this.nonSelectedMask = Polygon.add(
                     this.nonSelectedMask,
-                    artefact.mask.polygon
+                    artefact.mask
                 );
             }
         }
@@ -539,12 +562,12 @@ export default class ImagedObjectEditor extends Vue {
         this.fillImageSettings();
     }
 
-    private getArtefactEditingData(index: number) {
-        return this.artefactEditingDataList[index];
-    }
+    // private getArtefactEditingData(index: number) {
+    //     return this.artefactEditingDataList[index];
+    // }
 
     private showMessage(msg: string, type: string = 'info') {
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
             duration: 7000
@@ -576,16 +599,17 @@ export default class ImagedObjectEditor extends Vue {
     private get isErasing() {
         return this.params.drawingMode === DrawingMode.ERASE;
     }
-   private get removeColor() {
+    private get removeColor() {
         return this.params.highLight === false;
     }
+
     private onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;
 
         if (this.isErasing) {
-            newPolygon = Polygon.subtract(this.artefact!.mask.polygon, poly);
+            newPolygon = Polygon.subtract(this.artefact!.mask, poly);
         } else {
-            newPolygon = Polygon.add(this.artefact!.mask.polygon, poly);
+            newPolygon = Polygon.add(this.artefact!.mask, poly);
         }
 
         // Check if the new mask intersects with a non selected artefact mask
@@ -594,7 +618,7 @@ export default class ImagedObjectEditor extends Vue {
             this.nonSelectedMask
         );
         if (!intersection.empty) {
-            this.$toasted.show("Artefact can't overlap other artefacts", {
+            this.$toasted.show(this.$tc('toasts.artefactCantOverlap'), {
                 type: 'info',
                 position: 'top-center',
                 duration: 5000
@@ -602,22 +626,20 @@ export default class ImagedObjectEditor extends Vue {
             return;
         }
 
-        const changeOperation = {
-            prevMask: this.artefact!.mask.polygon
-        } as MaskChangeOperation;
-
-        // Calculate the new masks (the unoptimized mask is used by the ROI Canvas)
-        this.artefact!.mask.polygon = newPolygon;
-        this.artefactEditingData.dirty = true;
-
-        changeOperation.newMask = this.artefact!.mask.polygon;
-
-        if (this.artefactEditingData.undoList.length >= 50) {
-            this.artefactEditingData.undoList.slice(1);
-        }
-
-        this.artefactEditingData.undoList.push(changeOperation);
-        this.artefactEditingData.redoList = [];
+        console.log(
+            this.artefact!.mask.svg,
+            newPolygon.svg,
+            'hasChanged'
+        );
+        this.operationsManager.addOperation(
+            new ImagedObjectEditorOperation(
+                this.artefact!.id,
+                this.isErasing ? 'erase' : 'draw',
+                this.artefact!.mask,
+                newPolygon
+            )
+        );
+        this.artefact!.mask = newPolygon;
     }
 }
 
@@ -634,6 +656,9 @@ export default class ImagedObjectEditor extends Vue {
 
 <style lang="scss" scoped>
 // @import '~sass-vars';
+.readOnly {
+    text-align: center;
+}
 .overlay {
     position: absolute;
     transform-origin: top left;
@@ -661,7 +686,7 @@ export default class ImagedObjectEditor extends Vue {
 }
 .imaged-object-menu-div {
     height: calc(100vh - 63px);
-    overflow: hidden;
+    overflow: auto;
 }
 #buttons-div {
     background-color: #eff1f4;
@@ -678,6 +703,10 @@ export default class ImagedObjectEditor extends Vue {
     display: flex;
     align-items: stretch;
     perspective: 1500px;
+}
+
+#imaged-object-title {
+    margin-left: 80px;
 }
 
 #sidebar {

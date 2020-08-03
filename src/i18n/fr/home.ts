@@ -21,6 +21,11 @@ export default {
     undo: 'Annuler',
     redo: 'Refaire',
     filterArtefacts: "Filtre d'Artefacts",
-    both : 'Recto et Verso',
-    editorParameters : "Paramètres d'édition"
+    both: 'Recto et Verso',
+    editionInfo: 'Edition  Info',
+    editionSize: "Taille de l'édition",
+    viewPortSize: "Taille d'affichage",
+    lock: 'Lecture seulement',
+    shared: 'Partagé',
+    admin: "Vos droits d'administrateur ont été révoqués"
 };

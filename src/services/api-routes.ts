@@ -1,6 +1,7 @@
 export namespace ApiRoutes {
     const baseUrl = 'v1';
     const editions = 'editions';
+    const utils = 'utils';
     const artefacts = 'artefacts';
     const imagedObjects = 'imaged-objects';
     const textFragments = 'text-fragments';
@@ -11,7 +12,8 @@ export namespace ApiRoutes {
     const changeForgottenPassword = 'change-forgotten-password';
     const confirmRegistration = 'confirm-registration';
     const optionalArtefact = 'optional=artefacts&optional=masks';
-
+    const confirmAddEditionEditor = 'confirm-editorship';
+    const listInvitationEdition = 'admin-share-requests';
 
     export function allEditionsUrl() {
         return `${baseUrl}/${editions}`;
@@ -25,6 +27,22 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}`;
     }
 
+    export function editionRequestEditor(editionId: number) {
+        return `${baseUrl}/${editions}/${editionId}/add-editor-request`;
+    }
+
+    export function confirmAddEditionEditorUrl(token: string) {
+        return `${baseUrl}/${editions}/${confirmAddEditionEditor}/${token}`;
+    }
+
+    export function editionUpdateEditor(editionId: number, email: string) {
+        return `${baseUrl}/${editions}/${editionId}/editors/${email}`;
+    }
+
+    export function listInvitationEditionUrl() {
+        return `${baseUrl}/${editions}/${listInvitationEdition}`;
+    }
+
     export function allEditionArtefactsUrl(editionId: number, option: boolean = false) {
         if (option) {
             return `/${baseUrl}/${editions}/${editionId}/${artefacts}?${optionalArtefact}`;
@@ -32,8 +50,10 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/${artefacts}`;
     }
 
-    export function editionImagedObjectUrl(editionId: number, imagedObjectId: string,
-                                           includeArtefacts: boolean = false) {
+    export function editionImagedObjectUrl(
+        editionId: number,
+        imagedObjectId: string,
+        includeArtefacts: boolean = false) {
         if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}?${optionalArtefact}`;
         }
@@ -93,5 +113,22 @@ export namespace ApiRoutes {
 
     export function roiUrl(editionId: number, roiId: number) {
         return `/${baseUrl}/${editions}/${editionId}/rois/${roiId}`;
+    }
+
+    export function repairPolygonUrl() {
+        return `/${baseUrl}/${utils}/repair-wkt-polygon`;
+    }
+
+    export function batchUpdateArtefactDTOs(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/${artefacts}/batch-transformation`;
+    }
+
+    export function artefactGroupUrl(editionId: number, groupId?: number) {
+        let url = `/${baseUrl}/${editions}/${editionId}/artefact-groups`; /* correct the api-route in the backend*/
+        if (groupId) {
+            url += `/${groupId}`;
+        }
+
+        return url;
     }
 }

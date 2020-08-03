@@ -26,5 +26,8 @@ export default {
     changeForgottenPassword: 'Changer votre mot de passe oublié',
 
     activateUser: 'Utilisateur Activé',
-    activate: 'Activer'
+    activate: 'Activer',
+
+    confirmInvitation: 'Confirmation de  l\'invitation',
+    accept: 'Accepter'
 };

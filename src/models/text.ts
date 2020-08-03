@@ -9,7 +9,8 @@ import {
     InterpretationRoiDTO,
     NextSignInterpretationDTO,
     SetInterpretationRoiDTO,
-    ArtefactTextFragmentMatchDTO
+    ArtefactTextFragmentMatchDTO,
+    TranslateDTO
 } from '@/dtos/sqe-dtos';
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
@@ -190,6 +191,10 @@ class SignInterpretation {
             this.rois.splice(index, 1);
         }
     }
+
+    public get isReconstructed(): boolean {
+        return !!this.attributes.find(attr => attr.attributeValueString === 'is-reconstructed-true');
+    }
 }
 
 type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future
@@ -239,7 +244,7 @@ class InterpretationRoi {
         this.artefactId = obj.artefactId;
         this.signInterpretationId = obj.signInterpretationId;
         this.shape = Polygon.fromWkt(obj.shape);
-        this.position = obj.translate;
+        this.position = {...obj.translate} as Position;
         this.rotation = obj.stanceRotation;
         this.exceptional = obj.exceptional;
         this.valuesSet = obj.valuesSet;
@@ -256,6 +261,24 @@ class InterpretationRoi {
 
     public get id() {
         return (this.interpretationRoiId || this.internalId)!;
+    }
+
+    public clone() {
+        const copy = new InterpretationRoi(
+            {
+                artefactId: this.artefactId,
+                signInterpretationId: this.signInterpretationId,
+                shape: this.shape.wkt,
+                translate: {...this.position} as TranslateDTO,
+                stanceRotation: this.rotation,
+                exceptional: this.exceptional,
+                valuesSet: this.valuesSet,
+            } as InterpretationRoiDTO
+        );
+        copy.internalId = this.internalId;
+        copy.interpretationRoiId = this.interpretationRoiId;
+
+        return copy;
     }
 }
 

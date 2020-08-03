@@ -7,18 +7,20 @@
                     class="badge badge-success"
                     v-if="isNew"
                 >{{ $t('misc.new') }}</span>
+                <edition-icons :edition="edition" :show-text="false" />
             </h5>
+
             <b-btn
                 v-if="canRename && !renaming"
                 @click="openRename()"
-                class="btn btn-sm"
+                class="btn btn-sm btn-rename"
             >{{ $t('misc.rename') }}</b-btn>
 
-            <input v-if="renaming" v-model="newEditionName" />
+            <input class="new-edition" v-if="renaming" v-model="newEditionName" />
             <b-btn
                 v-if="renaming"
                 @click="onRename(newEditionName)"
-                class="btn btn-sm"
+                class="btn btn-sm btn-save"
             >{{ $t('misc.save') }}</b-btn>
         </div>
 
@@ -38,6 +40,13 @@
                     replace
                 >{{ $t('home.imagedObjects') }}: {{ imagedObjects }}</router-link>
             </b-nav-item>
+              <b-nav-item>
+                <router-link
+                    :class="{ bold: page === 'scroll' }"
+                    :to="`/editions/${current.id}/scroll-editor`"
+                    replace
+                >{{ $t('home.scroll') }}</router-link>
+            </b-nav-item>
             <!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item
@@ -54,6 +63,12 @@
                 v-b-modal.modal="'copyModal'"
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.copy') }}</b-btn>
+            <!-- v-b-modal.permissionModal -->
+            <b-btn
+                v-if="isAdmin"
+                @click="openPermissionModal()"
+                class="btn btn-sm btn-outline btn-permission"
+            >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
 
         <b-modal
@@ -90,17 +105,24 @@
                 <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
             </form>
         </b-modal>
+        <permission-modal></permission-modal>
     </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { EditionInfo } from '@/models/edition';
+import { EditionInfo, ShareInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
+import PermissionModal from './permission-modal.vue';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 
 export default Vue.extend({
     name: 'edition-ver-sidebar',
+    components: {
+        PermissionModal,
+        EditionIcons,
+    },
     props: {
         page: String
     },
@@ -115,6 +137,12 @@ export default Vue.extend({
         };
     },
     computed: {
+        readOnly(): boolean {
+            return this.current!.permission.readOnly;
+        },
+        isAdmin(): boolean {
+            return this.current!.permission.isAdmin;
+        },
         canRename(): boolean {
             return this.current!.permission.mayWrite;
         },
@@ -139,6 +167,9 @@ export default Vue.extend({
             }
             return 0;
         },
+        edition(): EditionInfo {
+            return this.$state.editions.current!;
+        },
         artefacts(): number {
             if (this.$state.imagedObjects.items) {
                 let artLen = 0;
@@ -152,13 +183,17 @@ export default Vue.extend({
             return 0;
         }
     },
+
     methods: {
+        openPermissionModal() {
+            this.$root.$emit('bv::show::modal', 'permissionModal');
+        },
         openRename() {
             this.renaming = true;
             this.newEditionName = this.current!.name;
         },
         showMessage(msg: string, type: string = 'info') {
-            this.$toasted.show(msg, {
+            this.$toasted.show(this.$tc(msg), {
                 type,
                 position: 'top-right',
                 duration: 7000
@@ -209,9 +244,9 @@ export default Vue.extend({
                     this.current!.id,
                     newName
                 );
-                this.showMessage('edition renamed', 'success');
+                this.showMessage('toasts.editionSuccess', 'success');
             } catch (err) {
-                this.showMessage('edition rename failed', 'error');
+                this.showMessage('toasts.editionError', 'error');
             } finally {
                 this.renaming = false;
             }

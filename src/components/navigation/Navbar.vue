@@ -2,7 +2,11 @@
     <div>
         <b-navbar toggleable="md" type="dark" variant="dark">
             <b-navbar-brand to="/">Scrollery</b-navbar-brand>
-
+            <b-nav-item
+                class="editionId"
+                v-if="currentEdition"
+                :to="{ path:`/editions/${currentEdition.id}` }"
+            >{{ currentEdition.name}}</b-nav-item>
             <b-navbar-nav class="ml-auto">
                 <!-- Current user -->
                 <b-nav-item right v-if="!userName">
@@ -16,8 +20,8 @@
                         >{{ $t('navbar.register') }}</router-link>
                     </b-btn>
                 </b-nav-item>
-                <b-nav-item-dropdown v-if="userName" right :text="userName">
-                    <b-dropdown-item-button @click="logout()">{{ $t('navbar.logout') }}</b-dropdown-item-button>
+                <b-nav-item-dropdown v-if="userName" right :text="userName" id="register">
+                    <b-dropdown-item-button @click="logout()" class="logout">{{ $t('navbar.logout') }}</b-dropdown-item-button>
                     <b-dropdown-item-button
                         v-if="isActive"
                         @click="changePassword()"
@@ -33,11 +37,11 @@
                     <template slot="button-content">
                         <font-awesome-icon icon="language" />
                     </template>
-                    <b-dropdown-item-button class="select-lang"
+                    <b-dropdown-item-button
+                        class="select-lang"
                         v-for="(texts, language) in allTexts"
                         :key="language"
                         @click="changeLanguage(language)"
-                                                       
                     >
                         {{ texts.display }}
                         <span v-if="language===currentLanguage">&#x2714;</span>
@@ -57,6 +61,7 @@ import SessionService from '@/services/session';
 import Login from './Login.vue';
 import router from '@/router';
 import { StateManager } from '@/state';
+import { EditionInfo } from '../../models/edition';
 
 @Component({
     name: 'navbar',
@@ -83,6 +88,9 @@ export default class Navbar extends Vue {
             ? this.$state.session.user.activated
             : false;
     }
+    private get currentEdition(): EditionInfo | undefined {
+        return this.$state.editions.current;
+    }
 
     private changeLanguage(language: string) {
         this.$i18n.locale = language;
@@ -103,6 +111,7 @@ export default class Navbar extends Vue {
 
     private logout() {
         this.sessionService.logout();
+        router.push('/');
         location.reload();
     }
 
@@ -120,5 +129,12 @@ export default class Navbar extends Vue {
 .white-link {
     color: white;
     text-decoration: none;
+}
+.editionId{
+
+list-style: none;
+}
+.editionId>a{
+    color: white;
 }
 </style>
