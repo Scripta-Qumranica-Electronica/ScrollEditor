@@ -1,4 +1,4 @@
-import { EditionInfo } from '@/models/edition';
+import { EditionInfo, ArtefactGroup } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
@@ -177,6 +177,8 @@ export class EditionCollection extends StateCollection<EditionInfo> { }
 export class ImagedObjectCollection extends StateCollection<ImagedObject, string> { }
 
 export class ArtefactCollection extends StateCollection<Artefact> { }
+
+export class ArtefactGroupsMap extends StateMap<ArtefactGroup> { }
 
 export class TextFragmentMap extends StateMap<TextFragment> { }
 

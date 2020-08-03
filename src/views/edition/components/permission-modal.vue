@@ -1,6 +1,7 @@
 <template>
     <div>
         <b-modal id="permissionModal" hide-footer @shown="shown">
+           <div v-if="isAdmin">
             <form>
                 <!-- editor invitation row -->
                 <b-list-group class="mb-3">
@@ -12,6 +13,7 @@
                                 size="sm"
                                 class="col-6"
                                 @keydown="errorMessage = ''"
+                                type="email"
                             ></b-form-input>
                             <b-form-select
                                 size="sm"
@@ -26,7 +28,7 @@
                             <b-button
                                 variant="primary"
                                 size="sm"
-                                class="flex-fill ml-2"
+                                class="flex-fill ml-2 btn-invite"
                                 @click="invite"
                                 :disabled="invitationRow.email === '' || !invitationRow.permission"
                             >
@@ -74,11 +76,10 @@
                 </b-card>
                 <!-- invitations rows -->
                 <b-card no-body header="Invitations">
-                    <b-list-group flush>
+                    <b-list-group flush id="invitations-list">
                         <b-list-group-item
                             v-for="invit in invitationsRows"
-                            v-bind:key="invit.email"
-                        >
+                            v-bind:key="invit.email">
                             <div class="row">
                                 <span class="col-6">{{invit.email}}</span>
                                 <b-form-select
@@ -107,6 +108,8 @@
                     </b-list-group>
                 </b-card>
             </form>
+           </div>
+           <div v-if="!isAdmin" class="text-danger">Ad</div>
         </b-modal>
     </div>
 </template>
@@ -165,13 +168,13 @@ export default class PermissionModal extends Vue {
                 share.email,
                 share.permission
             );
-            msg = `Invitation sent to ${share.email}`;
+            msg = 'toasts.invitationSent';
         } else if (share.type === 'share') {
             await this.editionService.updateSharePermissions(this.current!.id, share.email, share.permission);
-            msg = `Permissions of ${share.email} updated`;
+            msg = 'toasts.permissionsUpdated';
         }
 
-        this.$toasted.show(msg, {
+        this.$toasted.show(this.$tc(msg, undefined, {email: share.email}), {
             type: 'info',
             position: 'top-right',
             duration: 5000,

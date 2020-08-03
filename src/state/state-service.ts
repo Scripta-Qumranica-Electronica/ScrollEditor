@@ -49,7 +49,7 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess';
+    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -65,6 +65,8 @@ export default class StateService {
     private textFragmentsProcess: ProcessTracking | undefined;
     private textFragmentProcess: ProcessTracking | undefined;
     private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
+    private artefactGroupsProcess: ProcessTracking | undefined;
+    // TODO: Add process for artefactGroups
 
     public constructor(state: StateManager) {
         if (StateService.alreadyCreated) {
@@ -92,6 +94,10 @@ export default class StateService {
 
     public async textFragments(editionId: number): Promise<void> {
         return this.wrapInternal('textFragmentsProcess', editionId, (id: number) => this.textFragmentsInternal(id));
+    }
+
+    public async artefactGroups(editionId: number): Promise<void> {
+        return this.wrapInternal('artefactGroupsProcess', editionId, (id: number) => this.artefactGroupsInternal(id));
     }
 
     public imagedObjects(editionId: number) {
@@ -178,27 +184,45 @@ export default class StateService {
         this._state.editions.current = edition;
 
         // Clear data from the previous edition
+        // TODO: process the artefactGroups, too (clear, prepare, wait in Promise.all)
         this._state.textFragments.clear();
         this._state.interpretationRois.clear();
         this._state.signInterpretations.clear();
+        this._state.artefactGroups.clear();
 
         // Load the new data
         this.imagedObjects(editionId);
         this.artefacts(editionId);
         this.textFragments(editionId);
+        this.artefactGroups(editionId);
         await Promise.all([
             this.imagedObjectsProcess!.promise,
             this.artefactsProcess!.promise,
             this.textFragmentsProcess!.promise,
+            this.artefactGroupsProcess!.promise,
         ]);
         SignalRWrapper.instance.subscribeEdition(editionId);
     }
 
     private async textFragmentsInternal(editionId: number) {
+        if (this._state.editions.current?.id !== editionId) {
+            throw new Error(`Can't fetch text fragments for non-current edition ${editionId}`);
+        }
         this._state.editions.current!.textFragments = [];
         const svc = new TextService();
         const fragments = await svc.getEditionTextFragments(editionId);
         this._state.editions.current!.textFragments = fragments;
+    }
+
+    private async artefactGroupsInternal(editionId: number) {
+        if (this._state.editions.current?.id !== editionId) {
+            throw new Error(`Can't fetch artefact Groups for non-current edition ${editionId}`);
+        }
+        this._state.editions.current!.artefactGroups = [];
+
+        const svc = new EditionService();
+        const artefactGroups = await svc.getArtefactGroups(editionId);
+        this._state.editions.current!.artefactGroups = artefactGroups;
     }
 
     private async imagedObjectsInternal(editionId: number) {
@@ -218,6 +242,7 @@ export default class StateService {
     private async imageManifestInternal(image: IIIFImage) {
         const svc = new ImageService();
         const manifest = await svc.getImageManifest(image);
+
         image.manifest = manifest;
     }
 

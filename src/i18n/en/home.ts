@@ -6,6 +6,7 @@ export default {
     personalVersionCount: ' | personal edition | personal editions',
     shares: ' | share | shares',
     artefacts: 'Artefacts',
+    scroll: 'Scroll',
     versions: 'Versions',
     columns: 'Columns',
     imagedObjects: 'Imaged Objects',
@@ -22,7 +23,10 @@ export default {
     redo: 'Redo',
     filterArtefacts: 'Filter Artefacts',
     both: 'Both',
-    editorParameters: 'Editor Parameters',
+    editionInfo: 'Edition  Info',
+    editionSize: 'Edition Size',
+    viewPortSize: 'Viewport Size',
     lock: 'Read Only',
-    shared: 'Shared'
+    shared: 'Shared',
+    admin: 'Your Admin rights have been revoked'
 };

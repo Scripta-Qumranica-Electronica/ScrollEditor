@@ -29,16 +29,14 @@ class ArtefactService {
         }
         const body = {
             masterImageId: masterImage.id,
-            polygon: {
-                mask: '',
-                transformation: {
-                    rotate: 0,
-                    scale: 0,
-                    translate: {
-                        x: 0,
-                        y: 0,
-                    }
-                },
+            mask: '',
+            placement: {
+                rotate: 0,
+                scale: 0,
+                translate: {
+                    x: 0,
+                    y: 0,
+                }
             },
             name: artefactName,
         } as CreateArtefactDTO;
@@ -56,10 +54,11 @@ class ArtefactService {
     public async changeArtefact(editionId: number, artefact: Artefact):
         Promise<ArtefactDTO> {
         const body = {
-            polygon: {
-                mask: artefact.mask.polygon.wkt,
-                transformation: artefact.mask.transformation,
-            },
+                mask: artefact.mask.wkt,
+                placement: artefact.placement,
+                maskEditorId: 0,
+                positionEditorId: 0,
+            // zOrder: artefact.zOrder,
             name: artefact.name,
             statusMessage: '',
         } as UpdateArtefactDTO;

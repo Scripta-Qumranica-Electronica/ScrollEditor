@@ -42,6 +42,7 @@
  * Here are the various sizes we have:
  *
  * masterImageManifest.width, masterImageManifest.height : dimensions of the full resolution image on the server
+ * masterImage.width, masterImage.height: dimension of full resolution image in edition coordinates
  * scaledImageWidth, scaledImageHeight: dimension of the <svg> image (original image scaled down by the scale property)
  * divWidth: width of the HTML element we can fill
  * secondaryScale: Second scale factor so the image fits in the HTML element.
@@ -58,7 +59,7 @@ import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
 import ArtefactService from '@/services/artefact';
 import { ImagedObject } from '@/models/imaged-object';
-import { IIIFImage, ImageStack } from '@/models/image';
+import { Image, ImageStack } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { Position } from '@/models/misc';
 import { ArtefactEditorParams } from './types';
@@ -78,22 +79,22 @@ export default Vue.extend({
             artefactService: new ArtefactService(),
             imagedObjectService: new ImagedObjectService(),
             imageStack: undefined as ImageStack | undefined,
-            masterImageManifest: undefined as any,
+            masterImage: undefined as Image | undefined,
             scaledMask: {} as Polygon,
         };
     },
     computed: {
         scaledImageWidth(): number {
-            if (this.masterImageManifest) {
-                return this.masterImageManifest.width * this.scale;
+            if (this.masterImage) {
+                return this.masterImage.width * this.scale;
             }
 
             return 200;
         },
 
         scaledImageHeight(): number {
-            if (this.masterImageManifest) {
-                return this.masterImageManifest.height * this.scale;
+            if (this.masterImage) {
+                return this.masterImage.height * this.scale;
             }
 
             return 150;
@@ -124,8 +125,8 @@ export default Vue.extend({
         }
         await this.$state.prepare.imageManifest(this.imageStack.master);
 
-        this.scaledMask = Polygon.scale(this.artefact.mask.polygon, this.scale);
-        this.masterImageManifest = this.imageStack.master.manifest;
+        this.scaledMask = Polygon.scale(this.artefact.mask, this.scale);
+        this.masterImage = this.imageStack.master;
     },
     methods: {
         getImageUrl(imageSetting: SingleImageSetting) {

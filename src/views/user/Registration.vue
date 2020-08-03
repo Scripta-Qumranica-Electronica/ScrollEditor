@@ -8,14 +8,14 @@
             <b-row class="mb-3">
                 <b-col cols="2">{{ $t('navbar.forename') }}</b-col>
                 <b-col cols="3">
-                    <b-form-input v-model="forename" size="sm"></b-form-input>
+                    <b-form-input v-model="forename"  name="forename" size="sm"></b-form-input>
                 </b-col>
             </b-row>
 
             <b-row class="mb-3">
                 <b-col cols="2">{{ $t('navbar.surname') }}</b-col>
                 <b-col cols="3">
-                    <b-form-input v-model="surname" size="sm"></b-form-input>
+                    <b-form-input v-model="surname"  name="surname" size="sm"></b-form-input>
                 </b-col>
             </b-row>
 
@@ -29,14 +29,14 @@
             <b-row class="mb-3">
                 <b-col cols="2">{{ $t('navbar.password') }}</b-col>
                 <b-col cols="3">
-                    <b-form-input v-model="password" type="password" size="sm"></b-form-input>
+                    <b-form-input v-model="password" type="password" name="password" size="sm"></b-form-input>
                 </b-col>
             </b-row>
 
             <b-row class="mb-3">
                 <b-col cols="2">{{ $t('navbar.repassword') }}</b-col>
                 <b-col cols="3">
-                    <b-form-input v-model="repassword" type="password" size="sm"></b-form-input>
+                    <b-form-input v-model="repassword" type="password"  name="repassword" size="sm"></b-form-input>
                 </b-col>
             </b-row>
 
@@ -48,7 +48,7 @@
             </b-row>
 
             <div>
-                <b-button @click="register" variant="primary" :disabled="disabledReg" size="sm">
+                <b-button @click="register" variant="primary" :disabled="disabledReg" class="btn-register" size="sm">
                     {{ $t('navbar.register') }}
                     <span v-if="waiting">
                         <font-awesome-icon icon="spinner" spin></font-awesome-icon>
@@ -123,7 +123,7 @@ export default Vue.extend({
                 const user = await this.sessionService.register(data);
                 router.push('/');
                 this.$toasted.show(
-                    'An activation link has been sent to your email',
+                   this.$tc('toasts.activationLink'),
                     {
                         type: 'info',
                         position: 'top-right',

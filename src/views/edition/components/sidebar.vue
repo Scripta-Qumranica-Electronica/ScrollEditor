@@ -13,14 +13,14 @@
             <b-btn
                 v-if="canRename && !renaming"
                 @click="openRename()"
-                class="btn btn-sm"
+                class="btn btn-sm btn-rename"
             >{{ $t('misc.rename') }}</b-btn>
 
-            <input v-if="renaming" v-model="newEditionName" />
+            <input class="new-edition" v-if="renaming" v-model="newEditionName" />
             <b-btn
                 v-if="renaming"
                 @click="onRename(newEditionName)"
-                class="btn btn-sm"
+                class="btn btn-sm btn-save"
             >{{ $t('misc.save') }}</b-btn>
         </div>
 
@@ -39,6 +39,13 @@
                     :to="`/editions/${current.id}/imaged-objects`"
                     replace
                 >{{ $t('home.imagedObjects') }}: {{ imagedObjects }}</router-link>
+            </b-nav-item>
+              <b-nav-item>
+                <router-link
+                    :class="{ bold: page === 'scroll' }"
+                    :to="`/editions/${current.id}/scroll-editor`"
+                    replace
+                >{{ $t('home.scroll') }}</router-link>
             </b-nav-item>
             <!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
             <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
@@ -60,7 +67,7 @@
             <b-btn
                 v-if="isAdmin"
                 @click="openPermissionModal()"
-                class="btn btn-sm btn-outline btn-copy"
+                class="btn btn-sm btn-outline btn-permission"
             >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
 
@@ -186,7 +193,7 @@ export default Vue.extend({
             this.newEditionName = this.current!.name;
         },
         showMessage(msg: string, type: string = 'info') {
-            this.$toasted.show(msg, {
+            this.$toasted.show(this.$tc(msg), {
                 type,
                 position: 'top-right',
                 duration: 7000
@@ -237,9 +244,9 @@ export default Vue.extend({
                     this.current!.id,
                     newName
                 );
-                this.showMessage('edition renamed', 'success');
+                this.showMessage('toasts.editionSuccess', 'success');
             } catch (err) {
-                this.showMessage('edition rename failed', 'error');
+                this.showMessage('toasts.editionError', 'error');
             } finally {
                 this.renaming = false;
             }

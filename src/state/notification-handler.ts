@@ -35,8 +35,8 @@ export class NotificationHandler {
 
         if (storedEdition) {
             const editionInfo = new EditionInfo(edition);
-            const newEdition = { ...storedEdition, ...editionInfo };
-            state().editions.update(newEdition);
+            storedEdition.copyFrom(editionInfo);
+            state().editions.update(storedEdition);
         }
     }
 
@@ -59,14 +59,25 @@ export class NotificationHandler {
         }
     }
 
-    public handleUpdatedArtefact(artefact: ArtefactDTO): void {
-        const changed = new Artefact(artefact);
-        state().artefacts.update(changed, false);
+    public handleUpdatedArtefact(dto: ArtefactDTO): void {
+        /*if (!artefact.mask) {
+            const oldArtefact = state().artefacts.find(artefact.id);
+            if (oldArtefact) {
+                artefact.mask = oldArtefact.mask.wkt;
+            }
 
-        if (state().imagedObjects.current?.id === artefact.imagedObjectId) {
-            // Updates of array elements do not cause a refresh, we need
-            updateInArray(changed, state().imagedObjects.current?.artefacts);
+        } */
+
+        const existingArtefact = state().artefacts.find(dto.id);
+        if (!existingArtefact) {
+            // We don't have this aretfact, no need to update it
+            return;
         }
+        if (!dto.mask) {
+            dto.mask = existingArtefact.mask.wkt;
+        }
+        const newArtefact = new Artefact(dto);
+        existingArtefact.copyFrom(newArtefact);
     }
 
     public handleCreatedRoi(roi: InterpretationRoiDTO): void {
@@ -169,5 +180,5 @@ function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
 }
 
 function notifyRoiChanged() {
-    state().eventBus.$emit('roi-changed');
+    state().eventBus.emit('roi-changed');
 }

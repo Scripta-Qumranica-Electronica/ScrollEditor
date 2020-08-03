@@ -5,7 +5,7 @@
             <h4>{{ $t('navbar.activateUser') }}</h4>
         </b-row>
         
-        <b-button @click="change" variant="primary">
+        <b-button @click="change" variant="primary" class="btn-activate">
             {{ $t('navbar.activate') }}
             <span v-if="waiting">
                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>

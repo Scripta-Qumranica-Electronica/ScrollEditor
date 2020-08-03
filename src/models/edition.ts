@@ -1,11 +1,11 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO, ArtefactGroupDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
 type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
-class UserInfo { // TODO: add fields like UserDTO ?
+class UserInfo {
     public email: string;
     public userId: number;
     public forename: string;
@@ -14,7 +14,7 @@ class UserInfo { // TODO: add fields like UserDTO ?
     constructor(dto: UserDTO) {
         this.email = dto.email;
         this.userId = dto.userId;
-        this.forename = ''; // TODO - do we even need this? dto.forename;
+        this.forename = '';
     }
 }
 
@@ -98,6 +98,7 @@ class EditionInfo {
     public locked: boolean;
     public isPublic: boolean;
     public lastEdit?: Date;
+    public metrics: EditionManuscriptMetricsDTO;
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -106,12 +107,27 @@ class EditionInfo {
 
     // The following are loaded when necessary
     public textFragments: TextFragmentData[] = [];
+    public artefactGroups: ArtefactGroup[];
+
+    public get ppm(): number {  // Pixels per milimeter
+        return this.metrics.ppi / 25.4;
+    }
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;
         this.name = dto.name;
         this.permission = new Permissions(dto.permission); // isAdmin, mayWrite
         this.owner = new UserInfo(dto.owner);
+        this.metrics = dto.metrics;
+
+        // Update metrics so we have no zero-sized scrolls
+        if (!this.metrics.width) {
+            this.metrics.width = 1000;  // One meter wide
+        }
+        if (!this.metrics.height) {
+            this.metrics.height = 500; // 50 centimiters high
+        }
+
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
@@ -119,10 +135,61 @@ class EditionInfo {
         this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
+        this.artefactGroups = [];
         if (dto.lastEdit) {
             this.lastEdit = new Date(Date.parse(dto.lastEdit));
         }
     }
+
+    public copyFrom(other: EditionInfo) {
+        this.name = other.name;
+        this.permission = other.permission;
+        this.owner = other.owner;
+        this.metrics = other.metrics;
+        this.thumbnail = other.thumbnail;
+        this.shares = other.shares;
+        this.invitations = other.invitations;
+        this.locked = other.locked;
+        this.isPublic = other.isPublic;
+        this.lastEdit = other.lastEdit;
+    }
+}
+class ArtefactGroup {
+    public static nextGroupId: number = -1;
+    public static generateGroup(artefactsIds: number[]): ArtefactGroup {
+
+        const dto: ArtefactGroupDTO = {
+            id: ArtefactGroup.nextGroupId --,
+            artefacts: [...artefactsIds],
+            name: ''
+        };
+        return new ArtefactGroup(dto);
+    }
+
+    public groupId: number = 0;
+    public name: string = '';
+    public artefactIds: number[] = [];
+
+    public get id() {
+        // State collections require an id field (look for ItemWithId)
+        return this.groupId;
+    }
+
+    constructor(dto: ArtefactGroupDTO) {
+        this.groupId = dto.id;
+        this.name = dto.name;
+        this.artefactIds = [...dto.artefacts];
+    }
+
+    public clone() {
+        const dto: ArtefactGroupDTO = {
+            id: this.groupId,
+            artefacts: [...this.artefactIds],
+            name: this.name
+        };
+        return new ArtefactGroup(dto);
+    }
+
 }
 
-export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo };
+export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, ArtefactGroup };

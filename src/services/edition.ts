@@ -1,4 +1,4 @@
-import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, UserInfo } from '@/models/edition';
+import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, UserInfo, ArtefactGroup } from '@/models/edition';
 import { CommHelper } from './comm-helper';
 import {
     EditionListDTO,
@@ -8,11 +8,21 @@ import {
     InviteEditorDTO,
     PermissionDTO,
     AdminEditorRequestListDTO,
-    UpdateEditorRightsDTO,
-    DetailedEditorRightsDTO
+    DetailedEditorRightsDTO,
+    UpdateArtefactPlacementDTO,
+    BatchUpdateArtefactPlacementDTO,
+    CreateArtefactDTO,
+    UpdateArtefactGroupDTO,
+    CreateArtefactGroupDTO,
+    ArtefactGroupDTO,
+    ArtefactGroupListDTO,
+    EditionManuscriptMetricsDTO,
+    UpdateEditionManuscriptMetricsDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
+import { Artefact } from '@/models/artefact';
+import { Placement } from '@/utils/Placement';
 
 class EditionService {
     public stateManager: StateManager;
@@ -116,29 +126,19 @@ class EditionService {
             throw new Error(`Can't find non-existing edition ${editionId}`);
         }
 
-        // TODO:
-        // We need to call the server using the endpoint v1/editions/<edition-id>/add-editor-request
-        // We need to supply a CreateEditorsRightDTO object for this.
-        //
-        // step 1: get the URL
         const url = ApiRoutes.editionRequestEditor(editionId);
 
-        // Step 2: Fill the DTO
-        // Fill the fields: mayRead, isAdmin, mayLock (same as isAdmin), mayWrite and email
         const rights = Permissions.extractPermission(permission);
         const dto = {
             email,
             ...rights
         } as InviteEditorDTO;
 
-        // Step 3: Call the backend using CommHelper.post - the server does not return a DTO in response
         await CommHelper.post<EditionDTO>(
             url,
             dto
         );
 
-        // Step 4: update the edition to include the new invitation - if there is already an
-        // invitation for this editor, overwrite it instead of adding the same one.
         const invitationIdx = edition.invitations.findIndex(i => i.email === email);
         const permissionsDTO = new Permissions({
             mayWrite: rights.mayWrite,
@@ -193,6 +193,95 @@ class EditionService {
         return response.data;
     }
 
+    public async updateArtefactDTOs(editionId: number, updateArtefacts: Artefact[])
+        : Promise<BatchUpdateArtefactPlacementDTO> {
+        // TODO: Fill BatchUpdateArtefactTransformDTO and access server
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+
+        const artefactPlacements: UpdateArtefactPlacementDTO[] = updateArtefacts.map(
+            (x: Artefact) => ({
+                artefactId: x.id,
+                placement: x.placement,
+                isPlaced: x.isPlaced
+            })
+        );
+
+        // Fill dto with data
+        const dto = {
+            artefactPlacements
+        } as BatchUpdateArtefactPlacementDTO;
+
+        const response = await CommHelper.post<BatchUpdateArtefactPlacementDTO>(
+            ApiRoutes.batchUpdateArtefactDTOs(editionId),
+            dto
+        );
+
+        return response.data;
+    }
+
+    public async newArtefactGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+
+
+        const dto: CreateArtefactGroupDTO = {
+            name: artefactsGroup.groupId.toString(), /*check ?*/
+            artefacts: artefactsGroup.artefactIds
+        };
+
+        const response = await CommHelper.post<ArtefactGroupDTO>(ApiRoutes.artefactGroupUrl(editionId), dto);
+
+        return response.data;
+    }
+
+    public async updateArtefactGroup(editionId: number, artefactsGroup: ArtefactGroup) {
+
+        const dto: UpdateArtefactGroupDTO = {
+            name: artefactsGroup.groupId.toString(),
+            artefacts: artefactsGroup.artefactIds
+        };
+
+        const response = await CommHelper.put<UpdateArtefactGroupDTO>(
+            ApiRoutes.artefactGroupUrl(editionId, artefactsGroup.groupId),
+            dto
+        );
+
+        return response.data;
+    }
+
+    public async deleteArtefactGroup(editionId: number, groupId: number) {
+        await CommHelper.delete(ApiRoutes.artefactGroupUrl(editionId, groupId));
+    }
+
+    public async getArtefactGroups(editionId: number): Promise<ArtefactGroup[]> {
+        const response = await CommHelper.get<ArtefactGroupListDTO>(
+            ApiRoutes.artefactGroupUrl(editionId)
+        );
+
+        return response.data.artefactGroups.map(
+            artGroupDto => new ArtefactGroup(artGroupDto));
+    }
+
+    public async updateMetrics(editionId: number, metrics: UpdateEditionManuscriptMetricsDTO) {
+
+        const edition = this.stateManager.editions.find(editionId);
+        if (!edition) {
+            throw new Error(`Can't find non-existing edition ${editionId}`);
+        }
+
+        const dto = {
+            name: edition.name,
+            metrics
+        } as EditionUpdateRequestDTO;
+        const response = await CommHelper.put<EditionDTO>(
+            ApiRoutes.editionUrl(editionId),
+            dto
+        );
+
+        edition.metrics = response.data.metrics;
+        return edition;
+    }
 }
 
 export default EditionService;

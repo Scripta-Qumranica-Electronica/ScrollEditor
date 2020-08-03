@@ -13,13 +13,20 @@ import {
 	ArtefactDTO,
 	ArtefactListDTO,
 	ArtefactDataListDTO,
+	ArtefactGroupDTO,
+	ArtefactGroupListDTO,
 	UpdateArtefactDTO,
+	UpdateArtefactPlacementDTO,
+	BatchUpdateArtefactPlacementDTO,
+	UpdatedArtefactPlacementDTO,
+	BatchUpdatedArtefactTransformDTO,
+	UpdateArtefactGroupDTO,
 	CreateArtefactDTO,
+	CreateArtefactGroupDTO,
 	EditionDTO,
 	EditionGroupDTO,
 	EditionListDTO,
 	PermissionDTO,
-	MinimalEditorRights,
 	UpdateEditorRightsDTO,
 	InviteEditorDTO,
 	DetailedEditorRightsDTO,
@@ -31,17 +38,17 @@ import {
 	TextEditionDTO,
 	DeleteTokenDTO,
 	DeleteEditionEntityDTO,
-	EditionScriptCollectionDTO,
 	DeleteDTO,
 	EditionUpdateRequestDTO,
 	EditionCopyDTO,
+	UpdateEditionManuscriptMetricsDTO,
+	EditionManuscriptMetricsDTO,
 	ImageDTO,
 	ImageInstitutionDTO,
 	ImageInstitutionListDTO,
 	ImageStackDTO,
 	ImagedObjectDTO,
 	ImagedObjectListDTO,
-	PolygonDTO,
 	WktPolygonDTO,
 	SetInterpretationRoiDTO,
 	InterpretationRoiDTO,
@@ -51,11 +58,16 @@ import {
 	UpdatedInterpretationRoiDTOList,
 	BatchEditRoiDTO,
 	BatchEditRoiResponseDTO,
-	LetterDTO,
 	SignDTO,
 	NextSignInterpretationDTO,
 	SignInterpretationDTO,
 	InterpretationAttributeDTO,
+	EditionScriptCollectionDTO,
+	EditionScriptLinesDTO,
+	CharacterShapeDTO,
+	ScriptTextFragmentDTO,
+	ScriptLineDTO,
+	ScriptArtefactCharactersDTO,
 	TextFragmentDataDTO,
 	ArtefactTextFragmentMatchDTO,
 	ImagedObjectTextFragmentMatchDTO,
@@ -68,7 +80,7 @@ import {
 	LineTextDTO,
 	UpdateTextFragmentDTO,
 	CreateTextFragmentDTO,
-	TransformationDTO,
+	PlacementDTO,
 	TranslateDTO,
 	LoginRequestDTO,
 	UserUpdateRequestDTO,
@@ -350,6 +362,17 @@ export class SignalRUtilities {
     }
 
     /**
+	 * Provides spatial data for all letters in the edition organized and oriented
+	 * by lines.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 *
+	 */
+    public async getV1EditionsEditionIdScriptLines(editionId: number): Promise<EditionScriptLinesDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdScriptLines', editionId);
+    }
+
+    /**
 	 * Creates a new text fragment in the given edition of a scroll
 	 *
 	 * @param createFragment - A JSON object with the details of the new text fragment to be created
@@ -588,6 +611,12 @@ export class SignalRUtilities {
 
     /**
 	 * Creates a new artefact with the provided data.
+	 * 
+	 * If no mask is provided, a placeholder mask will be created with the values:
+	 * "POLYGON((0 0,1 1,1 0,0 0))" (the system requires a valid WKT polygon mask for
+	 * every artefact). It is not recommended to leave the mask, name, or work status
+	 * blank or null. It will often be advantageous to leave the transformation null
+	 * when first creating a new artefact.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param payload - A CreateArtefactDTO with the data for the new artefact
@@ -657,7 +686,17 @@ export class SignalRUtilities {
     }
 
     /**
-	 * Updates the specified artefact
+	 * Updates the specified artefact.
+	 * 
+	 * There are many possible attributes that can be changed for
+	 * an artefact. The caller should only input only those that
+	 * should be changed. Attributes with a null value will be ignored.
+	 * For instance, setting the mask to null or "" will result in
+	 * no changes to the current mask, and no value for the mask will
+	 * be returned (or broadcast). Likewise, the transformation, name,
+	 * or status message may be set to null and no change will be made
+	 * to those entities (though any unchanged values will be returned
+	 * along with the changed values and also broadcast to co-editors).
 	 *
 	 * @param artefactId - Unique Id of the desired artefact
 	 * @param editionId - Unique Id of the desired edition
@@ -666,6 +705,76 @@ export class SignalRUtilities {
 	 */
     public async putV1EditionsEditionIdArtefactsArtefactId(editionId: number, artefactId: number, payload: UpdateArtefactDTO): Promise<ArtefactDTO> {
         return await this._connection.invoke('PutV1EditionsEditionIdArtefactsArtefactId', editionId, artefactId, payload);
+    }
+
+    /**
+	 * Updates the positional data for a batch of artefacts
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param payload - A BatchUpdateArtefactTransformDTO with a list of the desired updates
+	 *
+	 */
+    public async postV1EditionsEditionIdArtefactsBatchTransformation(editionId: number, payload: BatchUpdateArtefactPlacementDTO): Promise<BatchUpdatedArtefactTransformDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdArtefactsBatchTransformation', editionId, payload);
+    }
+
+    /**
+	 * Gets a listing of all artefact groups in the edition
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 *
+	 */
+    public async getV1EditionsEditionIdArtefactGroups(editionId: number): Promise<ArtefactGroupListDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdArtefactGroups', editionId);
+    }
+
+    /**
+	 * Gets the details of a specific artefact group in the edition
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param artefactGroupId - Id of the desired artefact group
+	 *
+	 */
+    public async getV1EditionsEditionIdArtefactGroupsArtefactGroupId(editionId: number, artefactGroupId: number): Promise<ArtefactGroupDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdArtefactGroupsArtefactGroupId', editionId, artefactGroupId);
+    }
+
+    /**
+	 * Creates a new artefact group with the submitted data.
+	 * The new artefact must have a list of artefacts that belong to the group.
+	 * It is not necessary to give the group a name.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param payload - Parameters of the new artefact group
+	 *
+	 */
+    public async postV1EditionsEditionIdArtefactGroups(editionId: number, payload: CreateArtefactGroupDTO): Promise<ArtefactGroupDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdArtefactGroups', editionId, payload);
+    }
+
+    /**
+	 * Updates the details of an artefact group.
+	 * The artefact group will now only contain the artefacts listed in the JSON payload.
+	 * If the name is null, no change will be made, otherwise the name will also be updated.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param artefactGroupId - Id of the artefact group to be updated
+	 * @param payload - Parameters that the artefact group should be changed to
+	 *
+	 */
+    public async putV1EditionsEditionIdArtefactGroupsArtefactGroupId(editionId: number, artefactGroupId: number, payload: UpdateArtefactGroupDTO): Promise<ArtefactGroupDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdArtefactGroupsArtefactGroupId', editionId, artefactGroupId, payload);
+    }
+
+    /**
+	 * Deletes the specified artefact group.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param artefactGroupId - Unique Id of the artefact group to be deleted
+	 *
+	 */
+    public async deleteV1EditionsEditionIdArtefactGroupsArtefactGroupId(editionId: number, artefactGroupId: number): Promise<DeleteDTO> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdArtefactGroupsArtefactGroupId', editionId, artefactGroupId);
     }
 
     /*
@@ -958,6 +1067,74 @@ export class SignalRUtilities {
 	 */
     public disconnectUpdatedArtefact(handler: (msg: ArtefactDTO) => void): void {
         this._connection.off('UpdatedArtefact', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts an artefact group has been created
+	 *
+	 */
+    public connectCreatedArtefactGroup(handler: (msg: ArtefactGroupDTO) => void): void {
+        this._connection.on('CreatedArtefactGroup', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts an artefact group has been created
+	 *
+	 */
+    public disconnectCreatedArtefactGroup(handler: (msg: ArtefactGroupDTO) => void): void {
+        this._connection.off('CreatedArtefactGroup', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts and artefact group has been updated
+	 *
+	 */
+    public connectUpdatedArtefactGroup(handler: (msg: ArtefactGroupDTO) => void): void {
+        this._connection.on('UpdatedArtefactGroup', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts and artefact group has been updated
+	 *
+	 */
+    public disconnectUpdatedArtefactGroup(handler: (msg: ArtefactGroupDTO) => void): void {
+        this._connection.off('UpdatedArtefactGroup', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts an artefact group has been deleted
+	 *
+	 */
+    public connectDeletedArtefactGroup(handler: (msg: DeleteDTO) => void): void {
+        this._connection.on('DeletedArtefactGroup', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts an artefact group has been deleted
+	 *
+	 */
+    public disconnectDeletedArtefactGroup(handler: (msg: DeleteDTO) => void): void {
+        this._connection.off('DeletedArtefactGroup', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the transform details for a batch of artefacts has been updated
+	 *
+	 */
+    public connectBatchUpdatedArtefactTransform(handler: (msg: BatchUpdatedArtefactTransformDTO) => void): void {
+        this._connection.on('BatchUpdatedArtefactTransform', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the transform details for a batch of artefacts has been updated
+	 *
+	 */
+    public disconnectBatchUpdatedArtefactTransform(handler: (msg: BatchUpdatedArtefactTransformDTO) => void): void {
+        this._connection.off('BatchUpdatedArtefactTransform', handler)
     }
 
 } 

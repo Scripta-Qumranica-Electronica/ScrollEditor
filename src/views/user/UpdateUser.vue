@@ -107,14 +107,14 @@ export default Vue.extend({
                 const userInfo = await this.sessionService.updateUser(data);
                 router.push('/');
 
-                this.$toasted.show('Your details changed', {
+                this.$toasted.show(this.$tc('toasts.detailsChanged'), {
                     type: 'info',
                     position: 'top-right',
                     duration: 7000
                 });
                 if (emailChanged) {
                     this.$toasted.show(
-                        'An activation link has been sent to your new email',
+                       this.$tc('toasts.activationLink'),
                         {
                             type: 'info',
                             position: 'top-right',

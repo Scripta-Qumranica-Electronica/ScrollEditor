@@ -118,4 +118,17 @@ export namespace ApiRoutes {
     export function repairPolygonUrl() {
         return `/${baseUrl}/${utils}/repair-wkt-polygon`;
     }
+
+    export function batchUpdateArtefactDTOs(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/${artefacts}/batch-transformation`;
+    }
+
+    export function artefactGroupUrl(editionId: number, groupId?: number) {
+        let url = `/${baseUrl}/${editions}/${editionId}/artefact-groups`; /* correct the api-route in the backend*/
+        if (groupId) {
+            url += `/${groupId}`;
+        }
+
+        return url;
+    }
 }

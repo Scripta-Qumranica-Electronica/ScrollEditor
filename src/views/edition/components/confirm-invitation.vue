@@ -7,7 +7,7 @@
 
             <b-row>
                 <b-col cols="2">
-                    <b-button @click="change" variant="primary" :disabled="!isLogged">
+                    <b-button @click="change" variant="primary" :disabled="!isLogged" class="btn-confirm">
                         {{ $t('navbar.accept') }}
                         <span v-if="waiting">
                             <font-awesome-icon icon="spinner" spin></font-awesome-icon>

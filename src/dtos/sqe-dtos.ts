@@ -10,8 +10,11 @@ export interface ArtefactDTO extends ArtefactDataDTO {
     imagedObjectId: string;
     imageId: number;
     artefactDataEditorId: number;
-    mask: PolygonDTO;
-    zOrder: number;
+    mask: string;
+    artefactMaskEditorId: number;
+    isPlaced: boolean;
+    placement: PlacementDTO;
+    artefactPlacementEditorId?: number;
     side: string;
     statusMessage: string;
 }
@@ -24,15 +27,49 @@ export interface ArtefactDataListDTO {
     artefacts: ArtefactDataDTO[];
 }
 
+export interface ArtefactGroupDTO extends UpdateArtefactGroupDTO {
+    id: number;
+}
+
+export interface ArtefactGroupListDTO {
+    artefactGroups: ArtefactGroupDTO[];
+}
+
 export interface UpdateArtefactDTO {
-    polygon: PolygonDTO;
+    mask: string;
+    placement: PlacementDTO;
     name: string;
     statusMessage: string;
 }
 
+export interface UpdateArtefactPlacementDTO {
+    artefactId: number;
+    isPlaced: boolean;
+    placement: PlacementDTO;
+}
+
+export interface BatchUpdateArtefactPlacementDTO {
+    artefactPlacements: UpdateArtefactPlacementDTO[];
+}
+
+export interface UpdatedArtefactPlacementDTO extends UpdateArtefactPlacementDTO {
+    placementEditorId: number;
+}
+
+export interface BatchUpdatedArtefactTransformDTO {
+    artefactPlacements: UpdatedArtefactPlacementDTO[];
+}
+
+export interface UpdateArtefactGroupDTO extends CreateArtefactGroupDTO {
+}
+
 export interface CreateArtefactDTO extends UpdateArtefactDTO {
     masterImageId: number;
-    polygon: PolygonDTO;
+    mask: string;
+}
+export interface CreateArtefactGroupDTO {
+    name: string;
+    artefacts: number[];
 }
 
 export interface EditionDTO {
@@ -43,6 +80,7 @@ export interface EditionDTO {
     owner: UserDTO;
     thumbnailUrl: string;
     shares: DetailedEditorRightsDTO[];
+    metrics: EditionManuscriptMetricsDTO;
     locked: boolean;
     isPublic: boolean;
     lastEdit: string;
@@ -63,15 +101,11 @@ export interface PermissionDTO {
     isAdmin: boolean;
 }
 
-export interface MinimalEditorRights extends PermissionDTO {
+export interface UpdateEditorRightsDTO extends PermissionDTO {
     mayLock: boolean;
 }
 
-export interface UpdateEditorRightsDTO extends MinimalEditorRights {
-    mayRead: boolean;
-}
-
-export interface InviteEditorDTO extends MinimalEditorRights {
+export interface InviteEditorDTO extends UpdateEditorRightsDTO {
     email: string;
 }
 
@@ -121,30 +155,39 @@ export interface DeleteEditionEntityDTO {
     entityId: number;
     editorId: number;
 }
-
-export interface EditionScriptCollectionDTO {
-    letters: LetterDTO[];
-}
 export enum EditionEntities {
     edition = 0,
     artefact = 1,
-    textFragment = 2,
-    line = 3,
-    signInterpretation = 4,
-    roi = 5
+    artefactGroup = 2,
+    textFragment = 3,
+    line = 4,
+    signInterpretation = 5,
+    roi = 6
 }
 
 export interface DeleteDTO {
     entity: EditionEntities;
     ids: number[];
 }
-export interface EditionUpdateRequestDTO {
+
+export interface EditionUpdateRequestDTO extends EditionCopyDTO {
+    metrics: UpdateEditionManuscriptMetricsDTO;
+}
+export interface EditionCopyDTO {
     name: string;
     copyrightHolder: string;
     collaborators: string;
 }
+export interface UpdateEditionManuscriptMetricsDTO {
+    width: number;
+    height: number;
+    xOrigin: number;
+    yOrigin: number;
+}
 
-export interface EditionCopyDTO extends EditionUpdateRequestDTO {
+export interface EditionManuscriptMetricsDTO extends UpdateEditionManuscriptMetricsDTO {
+    ppi: number;
+    editorId: number;
 }
 
 export interface ImageDTO {
@@ -156,6 +199,7 @@ export interface ImageDTO {
     waveLength: string[];
     type: string;
     side: string;
+    ppi: number;
     regionInMasterImage: string;
     regionInImage: string;
     transformToMaster: string;
@@ -185,13 +229,6 @@ export interface ImagedObjectDTO {
 
 export interface ImagedObjectListDTO {
     imagedObjects: ImagedObjectDTO[];
-}
-
-export interface PolygonDTO {
-    mask: string;
-    maskEditorId: number;
-    transformation: TransformationDTO;
-    positionEditorId: number;
 }
 export interface WktPolygonDTO {
     wktPolygon: string;
@@ -239,13 +276,6 @@ export interface BatchEditRoiResponseDTO {
     updateRois: UpdatedInterpretationRoiDTO[];
     deleteRois: number[];
 }
-export interface LetterDTO {
-    id: number;
-    letter: string;
-    polygon: string;
-    imageURL: string;
-    rotation: number;
-}
 
 export interface SignDTO {
     signInterpretations: SignInterpretationDTO[];
@@ -269,6 +299,41 @@ export interface InterpretationAttributeDTO {
     attributeValueString: string;
     editorId: number;
     value: number;
+}
+
+export interface EditionScriptCollectionDTO {
+    letters: CharacterShapeDTO[];
+}
+
+export interface EditionScriptLinesDTO {
+    textFragments: ScriptTextFragmentDTO[];
+}
+export interface CharacterShapeDTO {
+    id: number;
+    character: string;
+    polygon: string;
+    imageURL: string;
+    rotation: number;
+    attributes: string[];
+}
+
+export interface ScriptTextFragmentDTO {
+    textFragmentName: string;
+    textFragmentId: number;
+    lines: ScriptLineDTO[];
+}
+
+export interface ScriptLineDTO {
+    lineName: string;
+    lineId: number;
+    artefacts: ScriptArtefactCharactersDTO[];
+}
+
+export interface ScriptArtefactCharactersDTO {
+    artefactName: string;
+    artefactId: number;
+    placement: PlacementDTO;
+    characters: SignInterpretationDTO[];
 }
 export interface TextFragmentDataDTO {
     id: number;
@@ -331,9 +396,10 @@ export interface CreateTextFragmentDTO extends UpdateTextFragmentDTO {
     name: string;
 }
 
-export interface TransformationDTO {
-    scale?: number;
-    rotate?: number;
+export interface PlacementDTO {
+    scale: number;
+    rotate: number;
+    zIndex: number;
     translate: TranslateDTO;
 }
 export interface TranslateDTO {
