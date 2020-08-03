@@ -4,13 +4,13 @@ on:
     branches:
       - master
       - development
-      - predevelopment
+      - pre-development
       - tests_frontend
   pull_request:
     branches:
       - master
       - development
-      - predevelopment
+      - pre-development
 
 jobs:
   frontend-tests:
