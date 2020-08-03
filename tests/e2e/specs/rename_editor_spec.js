@@ -51,8 +51,8 @@ describe('Rename Editor', function() {
         cy.get('.sidebar-header>input.new-edition').clear() /* clear the input and rename new name */
         cy.get('.sidebar-header>input.new-edition').type('1QCopyRename')
         cy.get('.sidebar-header>.btn-save').click()
-        cy.get('.sidebar-header>input.new-edition')
-            .invoke('val')
+        cy.get('.navbar-dark>li.editionId>a')
+            .invoke('text')
             .then(text => {
                 newRename = text;
                 expect(newRename).to.not.equal(name)
