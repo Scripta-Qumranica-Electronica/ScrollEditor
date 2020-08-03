@@ -51,6 +51,7 @@ describe('Rename Editor', function() {
         cy.get('.sidebar-header>input.new-edition').clear() /* clear the input and rename new name */
         cy.get('.sidebar-header>input.new-edition').type('1QCopyRename')
         cy.get('.sidebar-header>.btn-save').click()
+        cy.wait(1000)
         cy.get('.navbar-dark>li.editionId>a')
             .invoke('text')
             .then(text => {
