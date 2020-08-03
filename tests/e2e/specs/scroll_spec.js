@@ -1,11 +1,9 @@
 describe('Scroll Edition', function() {
-    let artefactsPlacedCountBefore;
-    let artefactsPlacedCountAfter;
-    let scrollBeforeAddArtefact;
-    let scrollAfterAddArtefact;
+    let artefactsPlacedCountBefore; //count of artefacts before do "add"
+    let artefactsPlacedCountAfter; //count of artefacts after do "add"
     let scrollAfterUndo;
     let scrollAfterRedo;
-    let countArtefacts;
+
 
     beforeEach(() => {
         cy.on('uncaught:exception', (err, runnable) => {
@@ -45,22 +43,48 @@ describe('Scroll Edition', function() {
         cy.wait('@postGroup')
     })
 
+    Cypress.Commands.add('AccordionActions', () => {
+        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
+        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+    })
+
+    Cypress.Commands.add('TopDownAction', (btnIndex) => {
+        cy.get('#the-scroll g#root>g').last().then(selected => {
+            cy.get('.center-btn.mb-2 > .card > .card-header > .btn-group > :nth-child(' + btnIndex + ')').click()
+            cy.get('#the-scroll g#root>g').last().then(
+                lastposition => {
+                    expect(lastposition[0].outerHTML).to.not.equal(selected[0].outerHTML);
+                }
+            )
+        })
+    })
+
+    Cypress.Commands.add('GroupButtons', (actionsButton, selector) => {
+
+        cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then(
+            (transformBefore) => {
+                cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.' + actionsButton).click()
+                cy.get(selector).click()
+                cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then((transformAfter) => {
+                    expect(transformAfter).to.not.equal(transformBefore);
+                })
+            }
+        )
+    })
 
     it('Add artefact and Remove artefact', function() {
+        // checking the status of the scroll before add or remove artefact
         if (Cypress.$('#the-scroll g#root>g').length) {
             cy.get('#the-scroll g#root>g').then((g) => {
                 artefactsPlacedCountBefore = g.length;
-                cy.log(artefactsPlacedCountBefore)
             });
 
         } else {
             artefactsPlacedCountBefore = 0;
         }
 
-        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
 
-
+        cy.AccordionActions()
         cy.get('#custom-select option').should('have.length.greaterThan', 1)
         cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
         cy.get('.modal-footer > .btn').click()
@@ -74,7 +98,6 @@ describe('Scroll Edition', function() {
         if (Cypress.$('#the-scroll g#root>g').length) {
             cy.get('#the-scroll g#root>g').then((g) => {
                 artefactsPlacedCountAfter = g.length;
-                cy.log(artefactsPlacedCountAfter)
             });
 
         } else {
@@ -85,49 +108,19 @@ describe('Scroll Edition', function() {
 
     it('Scale, Move,Rotate', function() {
 
-        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+        cy.AccordionActions()
         cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
         cy.get('.modal-footer > .btn').click()
-            /* btn move*/
-        cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then(
-                (transformBefore) => {
-                    cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.btn-move').click()
-                    cy.get('.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > :nth-child(1) > table > :nth-child(2) > :nth-child(3) > .btn > .fa').click()
-                    cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then((transformAfter) => {
-                        expect(transformAfter).to.not.equal(transformBefore);
-                    })
-                }
-
-            )
-            /* btn scale*/
-        cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then(
-                (transformBefore) => {
-                    cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.btn-scale').click()
-                    cy.get('.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > .btn-group > :nth-child(1) > .fa').click()
-                    cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then((transformAfter) => {
-                        expect(transformAfter).to.not.equal(transformBefore);
-                    })
-                }
-            )
-            /* btn rotate*/
-        cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then(
-            (transformBefore) => {
-                cy.get('#accordion-actions .card-body section:nth-child(1) div:nth-child(2)>section>div>header>div>button.btn-rotate').click()
-                cy.get('.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > .btn-group > :nth-child(2)').click()
-                cy.get('#the-scroll g#root>g:last-of-type').invoke('attr', 'transform').then((transformAfter) => {
-                    expect(transformAfter).to.not.equal(transformBefore);
-                })
-            }
-        )
+        cy.GroupButtons('btn-move', '.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > :nth-child(1) > table > :nth-child(2) > :nth-child(3) > .btn')
+        cy.GroupButtons('btn-scale', '.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > .btn-group > :nth-child(1)')
+        cy.GroupButtons('btn-rotate', '.mt-2 > :nth-child(1) > .card > #accordion-actions > .card-body > .center-btn > .row > .btn-group > :nth-child(2)')
     })
 
 
     it('Top , Down', function() {
         /*test for button down*/
         // add one artefact 
-        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+        cy.AccordionActions()
         cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
         cy.get('.modal-footer > .btn').click();
 
@@ -137,24 +130,9 @@ describe('Scroll Edition', function() {
             cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
             cy.get('.modal-footer > .btn').click()
         }
-
-        cy.get('#the-scroll g#root>g').last().then(selected => {
-                cy.get('.center-btn.mb-2 > .card > .card-header > .btn-group > :nth-child(2)').click()
-                cy.get('#the-scroll g#root>g').last().then(
-                    lastposition => {
-                        expect(lastposition[0].outerHTML).to.not.equal(selected[0].outerHTML);
-                    }
-                )
-            })
+        cy.TopDownAction(2)
             /*test for button top*/
-        cy.get('#the-scroll g#root>g').last().then(selected => {
-            cy.get('.center-btn.mb-2 > .card > .card-header > .btn-group > :nth-child(1)').click()
-            cy.get('#the-scroll g#root>g').last().then(
-                lastposition => {
-                    expect(lastposition[0].outerHTML).to.not.equal(selected[0].outerHTML);
-                }
-            )
-        })
+        cy.TopDownAction(1)
 
     })
 
@@ -162,44 +140,42 @@ describe('Scroll Edition', function() {
     it('Undo, Redo', function() {
 
         // Count artefacts (n)
-        scrollBeforeAddArtefact = Cypress.$('#the-scroll g#root>g').length;
+        artefactsPlacedCountBefore = Cypress.$('#the-scroll g#root>g').length;
 
-        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+        cy.AccordionActions()
         cy.get('#custom-select > option').eq(1).then(element => cy.get('#custom-select').select(element.text()))
 
         // Add artefact (n + 1)
         cy.get('.modal-footer > .btn').click().then(() => {
-            scrollAfterAddArtefact = Cypress.$('#the-scroll g#root>g').length;
+            artefactsPlacedCountAfter = Cypress.$('#the-scroll g#root>g').length;
 
             // Undo ADD (n)
             cy.get(':nth-child(2) > .m-1 > :nth-child(1)').click().then(() => {
                 scrollAfterUndo = Cypress.$('#the-scroll g#root>g').length;
-                expect(scrollAfterUndo).to.equal(scrollBeforeAddArtefact);
+                expect(scrollAfterUndo).to.equal(artefactsPlacedCountBefore);
 
                 // Redo ADD (n + 1)
                 cy.get(':nth-child(2) > .m-1 > :nth-child(2)').click().then(() => {
                     scrollAfterRedo = Cypress.$('#the-scroll g#root>g').length;
-                    expect(scrollAfterRedo).to.equal(scrollAfterAddArtefact);
+                    expect(scrollAfterRedo).to.equal(artefactsPlacedCountAfter);
                 })
             })
         })
     })
 
     it('Manage Group', function() {
-        cy.get('#scroll-side-menu section:nth-child(5) div header a').click()
-        cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
+        cy.AccordionActions()
+            //add two artefacts for create group
         cy.get('#custom-select > option').eq(5).then(element => cy.get('#custom-select').select(element.text()))
         cy.get('.modal-footer > .btn').click()
         cy.get('#accordion-actions .card-body section:nth-child(1) div header div button.mr-2').click()
         cy.get('#custom-select > option').eq(4).then(element => cy.get('#custom-select').select(element.text()))
 
-        // Add artefact (n + 1)
         cy.get('.modal-footer > .btn').click().then(() => {
-            countArtefacts = Cypress.$('#the-scroll g#root>g').length;
+            artefactsPlacedCountBefore = Cypress.$('#the-scroll g#root>g').length;
             cy.get(':nth-child(2) > .card > .card-header > .mb-1 > .btn').click()
 
-            cy.get('#the-scroll g#root>g:nth-child(' + (countArtefacts - 1) + ')>g').click({ force: true })
+            cy.get('#the-scroll g#root>g:nth-child(' + (artefactsPlacedCountBefore - 1) + ')>g').click({ force: true })
             cy.get('.row > .btn-group > :nth-child(1)').click()
             cy.PostArtefactGroup()
 
