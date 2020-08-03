@@ -56,6 +56,7 @@ describe('Rename Editor', function() {
             .then(text => {
                 newRename = text;
                 expect(newRename).to.not.equal(name)
+                expect(newRename).to.equal('1QCopyRename')
             })
 
     })
