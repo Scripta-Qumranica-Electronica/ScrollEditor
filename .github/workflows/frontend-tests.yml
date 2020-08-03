@@ -22,8 +22,10 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v2-beta
       - name: Setup environment
+        env:
+          CHILD_CONCURRENCY: 1   # Otherwise Cypress installation fails, due to multiple versions specified
         run: |
-          yarn install
+          yarn install --frozen-lockfile
           yarn add wait-on
       - name: Run backend
         run: |
