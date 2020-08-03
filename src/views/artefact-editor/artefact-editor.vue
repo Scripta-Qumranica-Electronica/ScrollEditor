@@ -386,20 +386,20 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
     }
 
     protected created() {
-        this.$state.eventBus.$on('roi-changed', this.initVisibleRois);
-        this.$state.eventBus.$on(
+        this.$state.eventBus.on('roi-changed', this.initVisibleRois);
+        this.$state.eventBus.on(
             'change-artefact-rotation',
             (angle: number) => (this.params.rotationAngle = angle)
         );
-        this.$state.eventBus.$on('remove-roi', this.removeRoi);
-        this.$state.eventBus.$on('place-roi', this.placeRoi);
+        this.$state.eventBus.on('remove-roi', this.removeRoi);
+        this.$state.eventBus.on('place-roi', this.placeRoi);
     }
 
     protected destroyed() {
-        this.$state.eventBus.$off('roi-changed', this.initVisibleRois);
-        this.$state.eventBus.$off('change-artefact-rotation');
-        this.$state.eventBus.$off('remove-roi', this.removeRoi);
-        this.$state.eventBus.$off('place-roi', this.placeRoi);
+        this.$state.eventBus.off('roi-changed', this.initVisibleRois);
+        this.$state.eventBus.off('change-artefact-rotation');
+        this.$state.eventBus.off('remove-roi', this.removeRoi);
+        this.$state.eventBus.off('place-roi', this.placeRoi);
     }
 
     protected async mounted() {

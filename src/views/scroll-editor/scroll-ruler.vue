@@ -29,18 +29,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import Waiting from '@/components/misc/Waiting.vue';
-import { ScrollEditorParams } from '../artefact-editor/types';
-import {
-    ScrollEditorOperation,
-    ArtefactPlacementOperation,
-    GroupPlacementOperation,
-    EditGroupOperation,
-    EditionMetricOperation
-} from './operations';
-import EditionService from '@/services/edition';
-import { ScrollEditorState } from '../../state/scroll-editor';
-import { BoundingBox, Point } from '../../utils/helpers';
 
 @Component({
     name: 'scroll-ruler'

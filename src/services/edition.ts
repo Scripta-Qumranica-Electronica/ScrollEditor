@@ -204,7 +204,8 @@ class EditionService {
         const artefactPlacements: UpdateArtefactPlacementDTO[] = updateArtefacts.map(
             (x: Artefact) => ({
                 artefactId: x.id,
-                placement: x.placement
+                placement: x.placement,
+                isPlaced: x.isPlaced
             })
         );
 

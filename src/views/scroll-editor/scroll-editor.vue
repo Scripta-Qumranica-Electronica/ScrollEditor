@@ -79,7 +79,7 @@ import {
     ArtefactPlacementOperation,
     GroupPlacementOperation,
     EditGroupOperation,
-    EditionMetricOperation
+    EditionMetricOperation,
 } from './operations';
 import EditionService from '@/services/edition';
 import { Placement } from '@/utils/Placement';
@@ -94,8 +94,8 @@ import ScrollRuler from './scroll-ruler.vue';
         Waiting,
         'scroll-menu': ScrollMenu,
         'scroll-area': ScrollArea,
-        'scroll-ruler': ScrollRuler
-    }
+        'scroll-ruler': ScrollRuler,
+    },
 })
 export default class ScrollEditor extends Vue
     implements SavingAgent<ScrollEditorOperation> {
@@ -149,19 +149,19 @@ export default class ScrollEditor extends Vue
         }
 
         const existingGroup = this.edition!.artefactGroups.find(
-            x => artefact && x.artefactIds.includes(artefact.id)
+            (x) => artefact && x.artefactIds.includes(artefact.id)
         );
 
         if (this.params.mode === 'manageGroup') {
             if (!this.selectedGroup) {
                 const newGroup = ArtefactGroup.generateGroup([
-                    this.selectedArtefact!.id
+                    this.selectedArtefact!.id,
                 ]);
                 this.scrollEditorState.selectGroup(newGroup);
             }
 
             const isSelectedIndex = this.selectedGroup!.artefactIds.findIndex(
-                a => a === artefact!.id
+                (a) => a === artefact!.id
             );
 
             if (isSelectedIndex > -1) {
@@ -187,12 +187,12 @@ export default class ScrollEditor extends Vue
         const allDeletedGroupIds = new Set<number>();
         let saveMetrics = false;
 
-        ops.forEach(op => {
+        ops.forEach((op) => {
             // Take artefact placements operations
             if (op instanceof ArtefactPlacementOperation) {
                 allMovedArtefactIds.add(op.artefactId);
             } else if (op instanceof GroupPlacementOperation) {
-                op.operations.forEach(artOp =>
+                op.operations.forEach((artOp) =>
                     allMovedArtefactIds.add(artOp.getId())
                 );
                 if (op.type === 'delete') {
@@ -209,9 +209,9 @@ export default class ScrollEditor extends Vue
         try {
             // save artefacts in bulk
             const allMovedArtefacts = Array.from(allMovedArtefactIds).map(
-                artId => this.$state.artefacts.find(artId)!
+                (artId) => this.$state.artefacts.find(artId)!
             );
-            allMovedArtefacts.forEach(art => art.prepareForBackend());
+            allMovedArtefacts.forEach((art) => art.prepareForBackend());
 
             if (allMovedArtefacts) {
                 await this.editionService.updateArtefactDTOs(
@@ -222,9 +222,9 @@ export default class ScrollEditor extends Vue
 
             // save groups
             if (allEditedGroupIds.size) {
-                allEditedGroupIds.forEach(async groupId => {
+                allEditedGroupIds.forEach(async (groupId) => {
                     const group = this.edition.artefactGroups.find(
-                        artGroup => artGroup.id === groupId
+                        (artGroup) => artGroup.id === groupId
                     );
                     if (!group) {
                         console.error(
@@ -261,7 +261,7 @@ export default class ScrollEditor extends Vue
             }
 
             // delete groups
-            allDeletedGroupIds.forEach(async groupId => {
+            allDeletedGroupIds.forEach(async (groupId) => {
                 await this.editionService.deleteArtefactGroup(
                     this.editionId,
                     groupId
@@ -285,19 +285,18 @@ export default class ScrollEditor extends Vue
     }
 
     protected created() {
-        this.$state.eventBus.$on('select-group', this.selectGroup);
-        this.$state.eventBus.$on('delete-group', this.deleteGroup);
-        this.$state.eventBus.$on('update-operation-id', this.updateOperationId);
-        this.observer = new ResizeObserver(entries => this.onResize(entries));
+        this.$state.eventBus.on('select-group', this.selectGroup);
+        this.$state.eventBus.on('save-group', this.saveGroupArtefacts);
+        this.$state.eventBus.on('delete-group', this.deleteGroup);
+        this.$state.eventBus.on('update-operation-id', this.updateOperationId);
+        this.observer = new ResizeObserver((entries) => this.onResize(entries));
     }
 
     protected destroyed() {
-        this.$state.eventBus.$off('select-group', this.selectGroup);
-        this.$state.eventBus.$off('delete-group', this.deleteGroup);
-        this.$state.eventBus.$off(
-            'update-operation-id',
-            this.updateOperationId
-        );
+        this.$state.eventBus.off('select-group', this.selectGroup);
+        this.$state.eventBus.off('save-group', this.saveGroupArtefacts);
+        this.$state.eventBus.off('delete-group', this.deleteGroup);
+        this.$state.eventBus.off('update-operation-id', this.updateOperationId);
 
         if (this.observer) {
             this.observer.disconnect();
@@ -347,7 +346,7 @@ export default class ScrollEditor extends Vue
     }
 
     private get placedArtefacts() {
-        return this.artefacts.filter(x => x.isPlaced);
+        return this.artefacts.filter((x) => x.isPlaced);
     }
 
     private get params(): ScrollEditorParams {
@@ -375,33 +374,36 @@ export default class ScrollEditor extends Vue
     private onAddArtefactModalClose(artId: number) {
         const artefact = this.$state.artefacts.find(artId);
         if (artefact) {
-            const numberOfPlaced = this.artefacts.filter(x => x.isPlaced)
+            const numberOfPlaced = this.artefacts.filter((x) => x.isPlaced)
                 .length;
 
             const orderedArtefacts = this.artefacts
-                .filter(x => x.isPlaced)
-                .map(x => x.placement.zIndex);
+                .filter((x) => x.isPlaced)
+                .map((x) => x.placement.zIndex);
             const maxZindex = orderedArtefacts.length
                 ? Math.max(...orderedArtefacts)
-                : -1;
+                : 0;
 
             const placement = new Placement({
                 translate: {
                     x: 800 * numberOfPlaced,
-                    y: 400
+                    y: 400,
                 },
                 scale: 1,
                 rotate: 0,
-                zIndex: maxZindex + 1
+                zIndex: maxZindex + 1,
             });
 
-            artefact.placeOnScroll(placement);
             const operation = new ArtefactPlacementOperation(
                 artefact.id,
                 'add',
                 Placement.empty,
-                placement
+                placement,
+                artefact.isPlaced,
+                true
             );
+            artefact.placeOnScroll(placement);
+
             this.onNewOperation(operation);
             this.selectArtefact(artefact);
         }
@@ -409,7 +411,7 @@ export default class ScrollEditor extends Vue
 
     private saveGroupArtefacts() {
         const group = this.edition.artefactGroups.find(
-            x => x.groupId === this.selectedGroup!.groupId
+            (x) => x.groupId === this.selectedGroup!.groupId
         );
         this.operationsManager.addOperation(
             new EditGroupOperation(
@@ -431,12 +433,13 @@ export default class ScrollEditor extends Vue
             }
         } else {
             this.edition!.artefactGroups.push(this.selectedGroup!.clone());
+            this.params.mode = '';
         }
     }
 
     private deleteGroup(groupId: number) {
         const groupArtefact = this.edition.artefactGroups.find(
-            x => x.groupId === groupId
+            (x) => x.groupId === groupId
         );
         if (groupArtefact) {
             groupArtefact.artefactIds = [];

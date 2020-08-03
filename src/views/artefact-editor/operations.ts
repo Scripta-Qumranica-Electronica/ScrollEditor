@@ -55,12 +55,12 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
     }
 
     public undo(): void {
-        state().eventBus.$emit('change-artefact-rotation', this.prev);
+        state().eventBus.emit('change-artefact-rotation', this.prev);
         // this.artefactEditorInstance.params.rotationAngle = this.prev;
     }
 
     public redo(): void {
-        state().eventBus.$emit('change-artefact-rotation', this.next);
+        state().eventBus.emit('change-artefact-rotation', this.next);
 
         // this.artefactEditorInstance.params.rotationAngle = this.next;
     }
@@ -103,23 +103,23 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
 
     public undo(): void {
         if (this.type === 'draw') {
-            state().eventBus.$emit('remove-roi', this.roi);
+            state().eventBus.emit('remove-roi', this.roi);
             // this.artefactEditorInstance.removeRoi(this.roi);
         } else {
             // Restore status to previous status - it should no longer be deleted
-            state().eventBus.$emit('place-roi', this.roi);
+            state().eventBus.emit('place-roi', this.roi);
             // this.artefactEditorInstance.placeRoi(this.roi);
         }
     }
 
     public redo(): void {
         if (this.type === 'draw') {
-            state().eventBus.$emit('place-roi', this.roi);
+            state().eventBus.emit('place-roi', this.roi);
             //  this.artefactEditorInstance.placeRoi(this.roi);
         } else {
             // Restore status to previous status - it should no longer be deleted
             // this.artefactEditorInstance.removeRoi(this.roi);
-            state().eventBus.$emit('remove-roi', this.roi);
+            state().eventBus.emit('remove-roi', this.roi);
         }
     }
 

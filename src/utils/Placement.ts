@@ -14,7 +14,7 @@ export class Placement implements PlacementDTO {
         return new Placement({
             rotate: 0,
             scale: 1,
-            translate: { x: undefined, y: undefined },
+            translate: { x: 0, y: 0 },
             zIndex: 0
         } as PlacementDTO);
     }

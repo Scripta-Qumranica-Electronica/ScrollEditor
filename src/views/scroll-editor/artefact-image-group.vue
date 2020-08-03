@@ -265,7 +265,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
-        artefact: Artefact | undefined
+        artefact: Artefact | undefined,
+        newIsPlaced: boolean = true
     ): ArtefactPlacementOperation {
         const op = new ArtefactPlacementOperation(
             artefact!.id,
@@ -273,7 +274,9 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             this.previousPlacement.find(
                 x => x.artefactId === artefact!.id
             ).placement,
-            newPlacement
+            newPlacement,
+            artefact!.isPlaced,
+            newIsPlaced
         );
         return op;
     }

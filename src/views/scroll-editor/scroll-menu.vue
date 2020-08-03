@@ -260,16 +260,16 @@ export default class ScrollMenu extends Vue {
             operation = this.createOperation(
                 'delete',
                 Placement.empty,
-                this.selectedArtefact
+                this.selectedArtefact,
+                false
             );
         }
         if (this.selectedGroup) {
             const operations: ScrollEditorOperation[] = [];
 
             this.selectedArtefacts.forEach((art: Artefact) => {
-                art!.isPlaced = false;
                 operations.push(
-                    this.createOperation('delete', Placement.empty, art)
+                    this.createOperation('delete', Placement.empty, art, false)
                 );
             });
 
@@ -291,11 +291,11 @@ export default class ScrollMenu extends Vue {
         this.zoom = 0.1;
     }
     protected created() {
-        this.$state.eventBus.$on('cancel-group', this.cancelGroup);
+        this.$state.eventBus.on('cancel-group', this.cancelGroup);
     }
 
     protected destroyed() {
-        this.$state.eventBus.$off('cancel-group', this.cancelGroup);
+        this.$state.eventBus.off('cancel-group', this.cancelGroup);
     }
 
     private get canUndo(): boolean {
@@ -320,21 +320,24 @@ export default class ScrollMenu extends Vue {
     private onUndo() {
         this.undo();
     }
+
     private createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
-        artefact: Artefact | undefined
+        artefact: Artefact | undefined,
+        newIsPlaced: boolean
     ): ArtefactPlacementOperation {
         const op = new ArtefactPlacementOperation(
             artefact!.id,
             opType,
             artefact!.placement,
-            newPlacement
+            newPlacement,
+            artefact!.isPlaced,
+            newIsPlaced
         );
         artefact!.placement = newPlacement;
-        if (opType === 'delete') {
-            artefact!.isPlaced = false;
-        }
+        artefact!.isPlaced = newIsPlaced;
+
         return op;
     }
 
