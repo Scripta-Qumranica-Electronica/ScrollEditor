@@ -1,6 +1,7 @@
-describe('Copy Artefact', function() {
+describe('Copy Edition', function() {
+
     beforeEach(() => {
-        cy.visit('/')
+        cy.visit('http://localhost:8080')
     });
 
     Cypress.Commands.add('typeLogin', (user) => {
@@ -20,14 +21,14 @@ describe('Copy Artefact', function() {
 
     Cypress.Commands.add('PostCopyArtefact', () => {
         cy.server()
-        cy.route('POST', '/v1/editions/1').as('postCopy')
+        cy.route('POST', '/v1/editions/*').as('postCopy')
         cy.get('#copyModal___BV_modal_footer_>button:nth-child(2)').click()
         cy.wait('@postCopy')
     })
 
     it('CopyNotLogin', function() {
         let valueText
-        cy.get('ul>li.list-item>.card').contains('1QS').click()
+        cy.get('ul li.list-item .card').contains('1Q7 ').click()
         cy.get('.no-vers')
             .invoke('text')
             .then(text => {
@@ -49,7 +50,7 @@ describe('Copy Artefact', function() {
 
         let name /* create variable  to be equal to artefact id  */
 
-        cy.get('ul#all-search-results>li.list-item>.card').contains('1QS').click()
+        cy.get('ul#all-search-results>li.list-item>.card').contains('1Q7 ').click()
 
         cy.get('.sidebar-header>h5')
             .invoke('text')
@@ -68,10 +69,10 @@ describe('Copy Artefact', function() {
             });
         cy.wait(2500)
         cy.get('#newName').clear() /* clear the input and create new name */
-        cy.get('#newName').type('1QS990')
+        cy.get('#newName').type('1Q7Copy')
         cy.PostCopyArtefact()
-        cy.get('@postCopy').should((respon) => {
-            expect(respon.status).to.eq(200) /* check if statut equal 200  */
+        cy.get('@postCopy').should((response) => {
+            expect(response.status).to.eq(200) /* check if statut equal 200  */
         })
     })
 

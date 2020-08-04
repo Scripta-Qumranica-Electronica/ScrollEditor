@@ -31,5 +31,6 @@ docker/logs/*
 !docker/logs/README.md
 
 # Cypress output files
+tests/e2e/screenshots
 cypress/screenshots
 cypress/videos

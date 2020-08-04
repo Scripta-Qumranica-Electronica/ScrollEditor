@@ -1,6 +1,6 @@
 describe('Select language', function() {
     beforeEach(() => {
-        cy.visit('/')
+        cy.visit('http://localhost:8080')
     });
     it('English', function() {
         cy.get('#language').click()

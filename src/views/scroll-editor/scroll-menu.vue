@@ -102,6 +102,7 @@
                                             @click="openAddArtefactModal()"
                                         >{{$t('misc.add')}} artefact</b-button>
                                         <b-button
+                                            class="btn-remove"
                                             size="sm"
                                             @click="removeArtefactOrGroup()"
                                         >{{$t('misc.remove')}}</b-button>
@@ -143,11 +144,11 @@ import {
     ArtefactPlacementOperationType,
     ArtefactPlacementOperation,
     GroupPlacementOperation,
-    EditionMetricOperation
+    EditionMetricOperation,
 } from './operations';
 import {
     OperationsManager,
-    OperationsManagerStatus
+    OperationsManagerStatus,
 } from '@/utils/operations-manager';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
@@ -155,7 +156,7 @@ import { ArtefactGroup, EditionInfo } from '../../models/edition';
 import { DropdownOption, Point } from '@/utils/helpers';
 import {
     UpdateEditionManuscriptMetricsDTO,
-    EditionManuscriptMetricsDTO
+    EditionManuscriptMetricsDTO,
 } from '../../dtos/sqe-dtos';
 import ScrollMap from './scroll-map.vue';
 import { ScrollEditorState } from '@/state/scroll-editor';
@@ -167,8 +168,8 @@ import { ScrollEditorState } from '@/state/scroll-editor';
         'add-artefact-modal': AddArtefactModal,
         'artefact-toolbox': ArtefactToolbox,
         'edition-icons': EditionIcons,
-        'scroll-map': ScrollMap
-    }
+        'scroll-map': ScrollMap,
+    },
 })
 export default class ScrollMenu extends Vue {
     @Prop()
@@ -178,7 +179,7 @@ export default class ScrollMenu extends Vue {
         { text: 'Left', value: 'left' },
         { text: 'Right', value: 'right' },
         { text: 'Top', value: 'top' },
-        { text: 'Down', value: 'down' }
+        { text: 'Down', value: 'down' },
     ];
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
@@ -192,16 +193,28 @@ export default class ScrollMenu extends Vue {
     }
 
     private get viewportSizeWidth() {
-       return Math.round(this.scrollEditorState.viewport!.width / this.edition.ppm);
+        return Math.round(
+            this.scrollEditorState.viewport!.width / this.edition.ppm
+        );
     }
     private get viewportSizeHeight() {
-       return Math.round(this.scrollEditorState.viewport!.height / this.edition.ppm);
+        return Math.round(
+            this.scrollEditorState.viewport!.height / this.edition.ppm
+        );
     }
     private get pointerPositionX() {
-        return (this.scrollEditorState.pointerPosition.x / this.params.zoom / this.edition.ppm).toFixed(2);
+        return (
+            this.scrollEditorState.pointerPosition.x /
+            this.params.zoom /
+            this.edition.ppm
+        ).toFixed(2);
     }
     private get pointerPositionY() {
-        return (this.scrollEditorState.pointerPosition.y / this.params.zoom / this.edition.ppm).toFixed(2);
+        return (
+            this.scrollEditorState.pointerPosition.y /
+            this.params.zoom /
+            this.edition.ppm
+        ).toFixed(2);
     }
     private get zoom(): any {
         return this.params.zoom;
@@ -301,7 +314,7 @@ export default class ScrollMenu extends Vue {
     }
 
     private get placedArtefacts() {
-        return this.artefacts.filter(x => x.isPlaced);
+        return this.artefacts.filter((x) => x.isPlaced);
     }
 
     private onUndo() {
@@ -330,7 +343,7 @@ export default class ScrollMenu extends Vue {
 
     private resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
-            ...this.edition.metrics
+            ...this.edition.metrics,
         };
 
         switch (this.selectedSide) {
@@ -379,7 +392,7 @@ export default class ScrollMenu extends Vue {
             const minX =
                 Math.min(
                     ...this.placedArtefacts.map(
-                        art => art.placement.translate.x!
+                        (art) => art.placement.translate.x!
                     )
                 ) / this.edition.ppm;
             return newMetrics.xOrigin <= minX;
@@ -390,7 +403,7 @@ export default class ScrollMenu extends Vue {
             const maxX =
                 Math.max(
                     ...this.placedArtefacts.map(
-                        art =>
+                        (art) =>
                             art.placement.translate.x! + art.boundingBox.width
                     )
                 ) / this.edition.ppm;
@@ -402,7 +415,7 @@ export default class ScrollMenu extends Vue {
             const minY =
                 Math.min(
                     ...this.placedArtefacts.map(
-                        art => art.placement.translate.y!
+                        (art) => art.placement.translate.y!
                     )
                 ) / this.edition.ppm;
             return newMetrics.yOrigin <= minY;
@@ -413,7 +426,7 @@ export default class ScrollMenu extends Vue {
             const maxY =
                 Math.max(
                     ...this.placedArtefacts.map(
-                        art =>
+                        (art) =>
                             art.placement.translate.y! + art.boundingBox.height
                     )
                 ) / this.edition.ppm;
