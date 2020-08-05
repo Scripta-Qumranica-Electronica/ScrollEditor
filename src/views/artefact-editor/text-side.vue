@@ -75,7 +75,7 @@ import {
     TextFragmentData,
     TextFragment,
     SignInterpretation,
-    ArtefactTextFragmentData
+    ArtefactTextFragmentData,
 } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import { EditionInfo } from '@/models/edition';
@@ -83,8 +83,8 @@ import { EditionInfo } from '@/models/edition';
 @Component({
     name: 'text-side',
     components: {
-        'text-fragment': TextFragmentComponent
-    }
+        'text-fragment': TextFragmentComponent,
+    },
 })
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
@@ -105,11 +105,11 @@ export default class TextSide extends Vue {
     }
 
     private get dropdownTextFragmentsData() {
-        return this.allTextFragmentsData.filter(x => !x.certain);
+        return this.allTextFragmentsData.filter((x) => !x.certain);
     }
 
     private get displayedTextFragmentsData() {
-        return this.allTextFragmentsData.filter(x => x.certain);
+        return this.allTextFragmentsData.filter((x) => x.certain);
     }
 
     private isTfShown(tfId: number) {
@@ -118,15 +118,15 @@ export default class TextSide extends Vue {
 
     private get allTextFragmentsData() {
         const textFragments = this.$state.editions.current!.textFragments.map(
-            tf => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
+            (tf) => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
         );
         const textFragmentsArtefact =
             this.$state.artefacts.current!.textFragments || [];
 
-        textFragments.forEach(editionTf => {
+        textFragments.forEach((editionTf) => {
             editionTf.certain =
                 textFragmentsArtefact.findIndex(
-                    artefactTf =>
+                    (artefactTf) =>
                         artefactTf.id === editionTf.id && artefactTf.certain
                 ) > -1;
         });
@@ -151,7 +151,7 @@ export default class TextSide extends Vue {
         const target = event.target as HTMLInputElement;
         this.errorMessage = '';
         const textFragmentData = this.allTextFragmentsData.find(
-            obj => obj.name === target.value
+            (obj) => obj.name === target.value
         );
         if (target.value) {
             if (!textFragmentData) {
@@ -159,10 +159,11 @@ export default class TextSide extends Vue {
                 return;
             }
 
-            const index = this.displayedTextFragments.findIndex(x => {
+            const index = this.displayedTextFragments.findIndex((x) => {
                 return (
-                    this.dropdownTextFragmentsData.find(y => y.id === x.id) !==
-                    undefined
+                    this.dropdownTextFragmentsData.find(
+                        (y) => y.id === x.id
+                    ) !== undefined
                 );
             });
             if (index > -1) {
@@ -175,7 +176,7 @@ export default class TextSide extends Vue {
             if (tf) {
                 this.displayedTextFragments = [
                     tf,
-                    ...this.displayedTextFragments
+                    ...this.displayedTextFragments,
                 ];
             }
         }
@@ -206,14 +207,14 @@ export default class TextSide extends Vue {
     private onSignInterpretationClicked(si: SignInterpretation) {
         const siTextFragment = si.sign.line.textFragment;
         const tf = this.$state.artefacts.current!.textFragments.find(
-            x => x.id === siTextFragment.textFragmentId
+            (x) => x.id === siTextFragment.textFragmentId
         );
         if (!tf) {
             this.$state.artefacts.current!.textFragments.push({
                 id: siTextFragment.textFragmentId,
                 name: siTextFragment.textFragmentName,
                 editorId: siTextFragment.editorId,
-                certain: true
+                certain: true,
             });
         } else {
             tf.certain = true;
@@ -241,8 +242,10 @@ export default class TextSide extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 #text-side {
-    margin: 30px 15px 20px 30px;
+    padding: 30px 15px 20px 30px;
     touch-action: pan-y;
+    height: 90%;
+    overflow: auto;
 }
 
 button {

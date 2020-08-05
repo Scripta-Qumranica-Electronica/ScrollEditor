@@ -64,7 +64,7 @@ span.selected {
 } 
 
 .is-reconstructed-true {
-    color: rgba(0, 0, 0, 0);
+    color: #dee2e6;
     user-select: none;
 }
 .readability-incomplete-but-clear {

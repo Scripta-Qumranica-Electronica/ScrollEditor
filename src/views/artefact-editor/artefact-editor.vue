@@ -172,6 +172,7 @@
                 @text-fragment-selected="initVisibleRois()"
                 @text-fragments-loaded="initVisibleRois()"
             ></text-side>
+             <si-attributes :selectedSignInterpretation="selectedSignInterpretation"></si-attributes>
         </div>
     </div>
 </template>
@@ -232,6 +233,7 @@ import {
 } from './operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
 import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
+import SiAttributes from './si-attributes.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -245,7 +247,8 @@ import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
         'boundary-drawer': BoundaryDrawer,
         'zoomer': Zoomer,
         'sign-wheel': SignWheel,
-        'edition-icons': EditionIcons
+        'edition-icons': EditionIcons,
+        'si-attributes': SiAttributes
     }
 })
 export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactEditorOperation> {
@@ -847,7 +850,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
 #text-right-sidebar {
     height: calc(100vh - 63px);
     width: calc((100vw - 330px) / 2);
-    overflow: scroll;
+    // overflow: scroll;
 }
 
 #text-right-sidebar.sidebar.text {
