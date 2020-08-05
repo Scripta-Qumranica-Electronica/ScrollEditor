@@ -27,7 +27,7 @@ export class Placement implements PlacementDTO {
     public constructor(dto: PlacementDTO) {
         this.scale = dto.scale;
         this.rotate = dto.rotate;
-        this.translate = dto.translate;
+        this.translate = dto.translate || { x: 0, y: 0 };
         this.zIndex = dto.zIndex;
     }
 

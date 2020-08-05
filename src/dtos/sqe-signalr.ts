@@ -9,6 +9,37 @@
  */
 
 import { 
+	EditionScriptCollectionDTO,
+	EditionScriptLinesDTO,
+	CharacterShapeDTO,
+	ScriptTextFragmentDTO,
+	ScriptLineDTO,
+	ScriptArtefactCharactersDTO,
+	TextFragmentDataDTO,
+	ArtefactTextFragmentMatchDTO,
+	ImagedObjectTextFragmentMatchDTO,
+	TextFragmentDataListDTO,
+	ArtefactTextFragmentMatchListDTO,
+	TextFragmentDTO,
+	LineDataDTO,
+	LineDataListDTO,
+	LineDTO,
+	LineTextDTO,
+	UpdateTextFragmentDTO,
+	CreateTextFragmentDTO,
+	SignDTO,
+	NextSignInterpretationDTO,
+	SignInterpretationDTO,
+	InterpretationAttributeDTO,
+	PlacementDTO,
+	TranslateDTO,
+	SimpleImageDTO,
+	ImageDTO,
+	SimpleImageListDTO,
+	ImageInstitutionDTO,
+	ImageInstitutionListDTO,
+	InstitutionalImageDTO,
+	InstitutionalImageListDTO,
 	ArtefactDataDTO,
 	ArtefactDTO,
 	ArtefactListDTO,
@@ -20,8 +51,8 @@ import {
 	BatchUpdateArtefactPlacementDTO,
 	UpdatedArtefactPlacementDTO,
 	BatchUpdatedArtefactTransformDTO,
-	UpdateArtefactGroupDTO,
 	CreateArtefactDTO,
+	UpdateArtefactGroupDTO,
 	CreateArtefactGroupDTO,
 	EditionDTO,
 	EditionGroupDTO,
@@ -43,45 +74,6 @@ import {
 	EditionCopyDTO,
 	UpdateEditionManuscriptMetricsDTO,
 	EditionManuscriptMetricsDTO,
-	ImageDTO,
-	ImageInstitutionDTO,
-	ImageInstitutionListDTO,
-	ImageStackDTO,
-	ImagedObjectDTO,
-	ImagedObjectListDTO,
-	WktPolygonDTO,
-	SetInterpretationRoiDTO,
-	InterpretationRoiDTO,
-	UpdatedInterpretationRoiDTO,
-	SetInterpretationRoiDTOList,
-	InterpretationRoiDTOList,
-	UpdatedInterpretationRoiDTOList,
-	BatchEditRoiDTO,
-	BatchEditRoiResponseDTO,
-	SignDTO,
-	NextSignInterpretationDTO,
-	SignInterpretationDTO,
-	InterpretationAttributeDTO,
-	EditionScriptCollectionDTO,
-	EditionScriptLinesDTO,
-	CharacterShapeDTO,
-	ScriptTextFragmentDTO,
-	ScriptLineDTO,
-	ScriptArtefactCharactersDTO,
-	TextFragmentDataDTO,
-	ArtefactTextFragmentMatchDTO,
-	ImagedObjectTextFragmentMatchDTO,
-	TextFragmentDataListDTO,
-	ArtefactTextFragmentMatchListDTO,
-	TextFragmentDTO,
-	LineDataDTO,
-	LineDataListDTO,
-	LineDTO,
-	LineTextDTO,
-	UpdateTextFragmentDTO,
-	CreateTextFragmentDTO,
-	PlacementDTO,
-	TranslateDTO,
 	LoginRequestDTO,
 	UserUpdateRequestDTO,
 	NewUserRequestDTO,
@@ -95,7 +87,21 @@ import {
 	DetailedUserDTO,
 	DetailedUserTokenDTO,
 	EditorDTO,
-	ArtefactSide,
+	ImageStackDTO,
+	ImagedObjectDTO,
+	ImagedObjectListDTO,
+	WktPolygonDTO,
+	SetInterpretationRoiDTO,
+	InterpretationRoiDTO,
+	UpdatedInterpretationRoiDTO,
+	SetInterpretationRoiDTOList,
+	InterpretationRoiDTOList,
+	UpdatedInterpretationRoiDTOList,
+	BatchEditRoiDTO,
+	BatchEditRoiResponseDTO,
+	CatalogueMatchInputDTO,
+	CatalogueMatchDTO,
+	CatalogueMatchListDTO,
 } from "@/dtos/sqe-dtos"
 
 import { HubConnection } from '@microsoft/signalr'; 
@@ -565,6 +571,16 @@ export class SignalRUtilities {
     }
 
     /**
+	 * Provides information for the specified imaged object.
+	 *
+	 * @param imagedObjectId - Unique Id of the desired object from the imaging Institution
+	 *
+	 */
+    public async getV1ImagedObjectsImagedObjectId(imagedObjectId: string): Promise<SimpleImageListDTO> {
+        return await this._connection.invoke('GetV1ImagedObjectsImagedObjectId', imagedObjectId);
+    }
+
+    /**
 	 * Provides information for the specified imaged object related to the specified edition, can include images and also
 	 * their masks with optional.
 	 *
@@ -600,6 +616,16 @@ export class SignalRUtilities {
     }
 
     /**
+	 * Provides a list of all institutional image providers.
+	 *
+	 *
+	 *
+	 */
+    public async getV1ImagedObjectsInstitutionsInstitution(institution: string): Promise<InstitutionalImageListDTO> {
+        return await this._connection.invoke('GetV1ImagedObjectsInstitutionsInstitution', institution);
+    }
+
+    /**
 	 * Provides a list of all text fragments that should correspond to the imaged object.
 	 *
 	 * @param imagedObjectId - Id of the imaged object
@@ -610,8 +636,77 @@ export class SignalRUtilities {
     }
 
     /**
+	 * Get a listing of all text fragments matches that correspond to an imaged object
+	 *
+	 * @param imagedObjectId - Id of imaged object to search for transcription matches
+	 *
+	 */
+    public async getV1CatalogueImagedObjectsImagedObjectIdTextFragments(imagedObjectId: string): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueImagedObjectsImagedObjectIdTextFragments', imagedObjectId);
+    }
+
+    /**
+	 * Get a listing of all imaged objects that matches that correspond to a transcribed text fragment
+	 *
+	 * @param textFragmentId - Unique Id of the text fragment to search for imaged object matches
+	 *
+	 */
+    public async getV1CatalogueTextFragmentsTextFragmentIdImagedObjects(textFragmentId: number): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueTextFragmentsTextFragmentIdImagedObjects', textFragmentId);
+    }
+
+    /**
+	 * Get a listing of all corresponding imaged objects and transcribed text fragment in a specified edition
+	 *
+	 * @param editionId - Unique Id of the edition to search for imaged objects to text fragment matches
+	 *
+	 */
+    public async getV1CatalogueEditionsEditionIdImagedObjectTextFragmentMatches(editionId: number): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueEditionsEditionIdImagedObjectTextFragmentMatches', editionId);
+    }
+
+    /**
+	 * Get a listing of all corresponding imaged objects and transcribed text fragment in a specified edition
+	 *
+	 * @param manuscriptId - Unique Id of the edition to search for imaged objects to text fragment matches
+	 *
+	 */
+    public async getV1CatalogueManuscriptManuscriptIdImagedObjectTextFragmentMatches(manuscriptId: number): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueManuscriptManuscriptIdImagedObjectTextFragmentMatches', manuscriptId);
+    }
+
+    /**
+	 * Create a new matched pair for an imaged object and a text fragment along with the edition princeps information
+	 *
+	 * @param newMatch - The details of the new match
+	 *
+	 */
+    public async postV1Catalogue(newMatch: CatalogueMatchInputDTO): Promise<void> {
+        return await this._connection.invoke('PostV1Catalogue', newMatch);
+    }
+
+    /**
+	 * Confirm the correctness of an existing imaged object and text fragment match
+	 *
+	 * @param iaaEditionCatalogToTextFragmentId - The unique id of the match to confirm
+	 *
+	 */
+    public async postV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId(iaaEditionCatalogToTextFragmentId: number): Promise<void> {
+        return await this._connection.invoke('PostV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId', iaaEditionCatalogToTextFragmentId);
+    }
+
+    /**
+	 * Remove an existing imaged object and text fragment match, which is not correct
+	 *
+	 * @param iaaEditionCatalogToTextFragmentId - The unique id of the match to confirm
+	 *
+	 */
+    public async deleteV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId(iaaEditionCatalogToTextFragmentId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId', iaaEditionCatalogToTextFragmentId);
+    }
+
+    /**
 	 * Creates a new artefact with the provided data.
-	 * 
 	 * If no mask is provided, a placeholder mask will be created with the values:
 	 * "POLYGON((0 0,1 1,1 0,0 0))" (the system requires a valid WKT polygon mask for
 	 * every artefact). It is not recommended to leave the mask, name, or work status
@@ -687,7 +782,6 @@ export class SignalRUtilities {
 
     /**
 	 * Updates the specified artefact.
-	 * 
 	 * There are many possible attributes that can be changed for
 	 * an artefact. The caller should only input only those that
 	 * should be changed. Attributes with a null value will be ignored.

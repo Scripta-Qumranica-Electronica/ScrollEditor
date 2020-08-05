@@ -155,7 +155,7 @@ class Sign {
 
 class SignInterpretation {
     public signInterpretationId: number;
-    public character: string;
+    public character?: string;
     public attributes: InterpretationAttributeDTO[]; // InterpretationAttributeDTO[];
     public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
     public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
