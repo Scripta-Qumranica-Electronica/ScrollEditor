@@ -105,7 +105,7 @@ export class Image extends IIIFImage {
     public waveLength: string[];
     public regionInMaster?: Polygon;
     public regionOfMaster?: Polygon;
-    public transformToMaster: string;
+    public transformToMaster?: string;
     public master: boolean;
     public catalogNumber: number;
     public id: number;

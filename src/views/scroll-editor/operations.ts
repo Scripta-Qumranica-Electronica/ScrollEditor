@@ -145,7 +145,7 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
             state().editions.current!.artefactGroups.push(removedGroup);
             state().eventBus.emit('update-operation-id', this.groupId, removedGroup.id);
             this.groupId = removedGroup.id;
-            
+
             state().eventBus.emit('select-group', removedGroup);
             state().eventBus.emit('save-group');
 
