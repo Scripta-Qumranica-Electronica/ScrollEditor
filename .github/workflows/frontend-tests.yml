@@ -1,0 +1,43 @@
+name: Frontend Tests
+on:
+  push:
+    branches:
+      - master
+      - development
+      - pre-development
+      - tests_frontend
+  pull_request:
+    branches:
+      - master
+      - development
+      - pre-development
+
+jobs:
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2-beta
+      - name: Setup environment
+        env:
+          CHILD_CONCURRENCY: 1   # Otherwise Cypress installation fails, due to multiple versions specified
+        run: |
+          yarn install --frozen-lockfile
+          yarn add wait-on
+      - name: Run backend
+        env:
+          MAILER_EMAIL_ADDRESS: ${{ secrets.MAILER_EMAIL_ADDRESS }}
+          MAILER_EMAIL_PASSWORD: ${{ secrets.MAILER_EMAIL_PASSWORD }}
+          MAILER_EMAIL_SMTP_PORT: ${{ secrets.MAILER_EMAIL_SMTP_PORT }}
+          MAILER_EMAIL_SMTP_URL: ${{ secrets.MAILER_EMAIL_SMTP_URL }}
+          MAILER_EMAIL_USERNAME: ${{ secrets.MAILER_EMAIL_USERNAME }}
+        run: |
+          docker-compose -f docker/docker-compose.yml pull
+          docker-compose -f docker/docker-compose.yml build
+          COMPOSE_HTTP_TIMEOUT=600 docker-compose -f docker/docker-compose.yml up -d
+          yarn serve & npx wait-on http://localhost:8080
+      - name: Run tests
+        run: yarn test-ci

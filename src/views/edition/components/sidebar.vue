@@ -42,6 +42,7 @@
             </b-nav-item>
               <b-nav-item>
                 <router-link
+                    class="scroll"
                     :class="{ bold: page === 'scroll' }"
                     :to="`/editions/${current.id}/scroll-editor`"
                     replace

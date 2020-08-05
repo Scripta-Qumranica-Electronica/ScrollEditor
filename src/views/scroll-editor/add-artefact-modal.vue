@@ -8,7 +8,7 @@
         >
             <div>
                 <form>
-                    <b-form-select class="mb-3" @change="selectArtefact($event)">
+                    <b-form-select id="custom-select" class="mb-3" @change="selectArtefact($event)">
                         <option
                             :value="art"
                             v-bind:key="art.id"

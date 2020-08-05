@@ -5,6 +5,7 @@
                 <b-card-header header-tag="header" class="p-1" role="tab">
                     <b-button-group size="sm" class="m-1">
                         <b-button
+                        class="btn-move"
                             :pill="float"
                             :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                             :pressed="mode === 'move'"
@@ -16,6 +17,7 @@
                             <font-awesome-icon v-if="float" icon="arrows-alt" size="xs"></font-awesome-icon>
                         </b-button>
                         <b-button
+                         class="btn-scale"
                             :pill="float"
                             :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                             :pressed="mode === 'scale'"
@@ -27,6 +29,7 @@
                             <font-awesome-icon v-if="float" icon="search" size="xs"></font-awesome-icon>
                         </b-button>
                         <b-button
+                         class="btn-rotate"
                             :pill="float"
                             :disabled="!(selectedArtefacts && selectedArtefacts.length)"
                             :pressed="mode === 'rotate'"
