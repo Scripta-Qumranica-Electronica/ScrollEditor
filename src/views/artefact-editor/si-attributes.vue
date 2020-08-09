@@ -2,7 +2,7 @@
     <div class="attributes">
         <ul class="row">
             <li class="pr-2"
-                v-for="attribute in selectedSignInterpretation.attributes"
+                v-for="attribute in attributes"
                 :key="attribute.interpretationAttributeId"
             >
                 <b-badge variant="secondary">{{attribute.attributeValueString}}</b-badge>
@@ -22,12 +22,35 @@ import {
 } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import { EditionInfo } from '@/models/edition';
+import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 
 @Component({
     name: 'si-attributes',
 })
 export default class SiAttributes extends Vue {
-    @Prop() public selectedSignInterpretation!: SignInterpretation | null;
+
+    public get artefactEditor() {
+        return this.$state.artefactEditor;
+    }
+    public get selectedSignsInterpretation(): SignInterpretation[] {
+         return this.artefactEditor.selectedSignsInterpretation;
+    }
+
+    public get attributes(): InterpretationAttributeDTO[] {
+        const attributes: InterpretationAttributeDTO[] = [];
+        this.selectedSignsInterpretation.forEach(
+            si => {
+                si.attributes.forEach(
+                    attr => {
+                        if (!attributes.some(x => attr.attributeValueId === x.attributeValueId)) {
+                            attributes.push(attr);
+                        }
+                    }
+                );
+            }
+        );
+        return attributes;
+    }
 }
 </script>
 

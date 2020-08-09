@@ -1,7 +1,7 @@
 <template>
     <span
-        :class="[{ selected: chosenSI === selectedSignInterpretation}, cssStrings(chosenSI)]"
-        @click="signInterpretationClicked(chosenSI)"
+        :class="[{ selected: isSelected(chosenSI)}, cssStrings(chosenSI)]"
+        @click="onSignInterpretationClicked(chosenSI)"
     >{{ chosenSI.character || '&nbsp;' }}</span>
 </template>
 
@@ -14,31 +14,27 @@ import { SignInterpretation, Sign } from '@/models/text';
 })
 export default class SignComponent extends Vue {
     @Prop() public sign!: Sign;
-    @Prop() public selectedSignInterpretation!: SignInterpretation | null;
+    // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
 
     // Each sign offers alternative readings. For now we always show the first suggestion
     private get chosenSI() {
         return this.sign.signInterpretations[0];
     }
-
+    
     private onSignInterpretationClicked(si: SignInterpretation) {
-        if (this.clickable(si)) {
-            this.signInterpretationClicked(si);
-        }
+        this.$state.artefactEditor.toggleSelectSign(si);
     }
 
-    @Emit()
-    private signInterpretationClicked(si: SignInterpretation) {
-        return si;
+    private isSelected(si: SignInterpretation) {
+        return this.$state.artefactEditor.isSiSelected(si);
     }
+
 
     private cssStrings(si: SignInterpretation): string {
         return si.attributes.map(x => x.attributeValueString).join(' ');
     }
 
-    private clickable(si: SignInterpretation) {
-        return si.character && !si.isReconstructed;
-    }
+  
 }
 </script>
 

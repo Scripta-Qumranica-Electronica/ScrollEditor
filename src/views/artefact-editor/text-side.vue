@@ -56,11 +56,7 @@
                 role="tabpanel"
             >
                 <text-fragment
-                    :selectedSignInterpretation="selectedSignInterpretation"
                     :fragment="textFragment"
-                    @sign-interpretation-clicked="
-                        onSignInterpretationClicked($event)
-                    "
                     id="text-box"
                 ></text-fragment>
             </b-collapse>
@@ -89,7 +85,7 @@ import { EditionInfo } from '@/models/edition';
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
 
-    @Prop() public selectedSignInterpretation!: SignInterpretation | null;
+    // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
     private textFragmentId = 0;
@@ -204,28 +200,11 @@ export default class TextSide extends Vue {
         // this.textFragmentSelected(this.textFragmentId);
     }
 
-    private onSignInterpretationClicked(si: SignInterpretation) {
-        const siTextFragment = si.sign.line.textFragment;
-        const tf = this.$state.artefacts.current!.textFragments.find(
-            (x) => x.id === siTextFragment.textFragmentId
-        );
-        if (!tf) {
-            this.$state.artefacts.current!.textFragments.push({
-                id: siTextFragment.textFragmentId,
-                name: siTextFragment.textFragmentName,
-                editorId: siTextFragment.editorId,
-                certain: true,
-            });
-        } else {
-            tf.certain = true;
-        }
-        this.signInterpretationClicked(si);
-    }
 
-    @Emit()
-    private signInterpretationClicked(si: SignInterpretation) {
-        return si;
-    }
+    // @Emit()
+    // private signInterpretationClicked(si: SignInterpretation) {
+    //     return si;
+    // }
 
     @Emit()
     private textFragmentSelected(textFragmentId: number) {

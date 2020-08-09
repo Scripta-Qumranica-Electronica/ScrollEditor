@@ -1,12 +1,10 @@
 <template>
     <div class="text-line" :dir="direction">
         <span class="line-name">{{line.lineName}}</span>
-        <text-sign
-            :selectedSignInterpretation="selectedSignInterpretation"
+        <text-sign            
             v-for="sign in line.signs"
             :key="sign.signId"
             :sign="sign"
-            @sign-interpretation-clicked="onSignInterpretationClicked($event)"
         ></text-sign>
     </div>
 </template>
@@ -28,16 +26,7 @@ export default class TextLineComponent extends Vue {
         default: 'rtl'
     })
     public direction!: TextDirection;
-    @Prop() public selectedSignInterpretation!: SignInterpretation | null;
-
-    private onSignInterpretationClicked(si: SignInterpretation) {
-        this.signInterpretationClicked(si);
-    }
-
-    @Emit()
-    private signInterpretationClicked(si: SignInterpretation) {
-        return si;
-    }
+    
 }
 </script>
 

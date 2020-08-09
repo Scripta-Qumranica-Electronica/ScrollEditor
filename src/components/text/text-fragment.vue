@@ -3,9 +3,7 @@
         <text-line
             v-for="line in fragment.lines"
             :key="line.lineId"
-            :selectedSignInterpretation="selectedSignInterpretation"
             :line="line"
-            @sign-interpretation-clicked="onSignInterpretationClicked($event)"
             direction="rtl"
         ></text-line>
     </div>
@@ -24,16 +22,6 @@ import TextLine from '@/components/text/text-line.vue';
 })
 export default class TextFragmentComponent extends Vue {
     @Prop() public fragment!: TextFragment;
-    @Prop() public selectedSignInterpretation!: SignInterpretation | null;
-
-    private onSignInterpretationClicked(si: SignInterpretation) {
-        this.signInterpretationClicked(si);
-    }
-
-    @Emit()
-    private signInterpretationClicked(si: SignInterpretation) {
-        return si;
-    }
 }
 </script>
 

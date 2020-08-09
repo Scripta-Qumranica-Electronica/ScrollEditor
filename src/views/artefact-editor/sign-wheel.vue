@@ -5,8 +5,6 @@
             :class="signInfo.class"
             :key="signInfo.sign.signId"
             :sign="signInfo.sign"
-            :selectedSignInterpretation="selectedSignInterpretation"
-            @sign-interpretation-clicked="onSignInterpretationClicked($event)"
         ></text-sign>
     </div>
 </template>
@@ -35,7 +33,6 @@ export default class SignWheel extends Vue {
         default: 'rtl'
     })
     public direction!: TextDirection;
-    @Prop() public selectedSignInterpretation!: SignInterpretation;
     @Prop({
         default: 5
     })
@@ -48,16 +45,16 @@ export default class SignWheel extends Vue {
         this.fillWheel();
     }
 
-    private onSignInterpretationClicked(si: SignInterpretation) {
-        this.signInterpretationClicked(si);
+
+
+    public get artefactEditor() {
+        return this.$state.artefactEditor;
+    }
+    public get selectedSignsInterpretation(): SignInterpretation[] {
+        return this.artefactEditor.selectedSignsInterpretation;
     }
 
-    @Emit()
-    private signInterpretationClicked(si: SignInterpretation) {
-        return si;
-    }
-
-    @Watch('selectedSignInterpretation')
+    @Watch('selectedSignsInterpretation')
     private onSelectedSignInterpretationChanged(
         curSign: SignInterpretation,
         oldSign: SignInterpretation
@@ -67,6 +64,9 @@ export default class SignWheel extends Vue {
 
     private fillWheel() {
         this.selectedIndex = this.findSignIndex();
+        if (this.selectedIndex === -1) {
+            return;
+        }
         let firstIndex = 0;
         let lastIndex = 0;
 
@@ -94,7 +94,7 @@ export default class SignWheel extends Vue {
     }
 
     private findSignIndex() {
-        if (!this.selectedSignInterpretation) {
+        if (!this.artefactEditor.singleSelectedSi) {
             return -1;
         }
 
@@ -102,7 +102,7 @@ export default class SignWheel extends Vue {
         for (let i = 0; i < this.line.signs.length; i++) {
             const sign = this.line.signs[i];
             const siIndex = sign.signInterpretations.findIndex(
-                si => si.id === this.selectedSignInterpretation.id
+                si => si.id === this.artefactEditor.singleSelectedSi!.id
             );
             if (siIndex !== -1) {
                 return i;
