@@ -8,10 +8,9 @@ function state() {
 }
 export class ArtefactEditorState {
     public selectedSignsInterpretation: SignInterpretation[];
-    public selectedInterpretationRois: InterpretationRoi[];
+    public selectedInterpretationRoi: InterpretationRoi | null = null;
     constructor() {
         this.selectedSignsInterpretation = [];
-        this.selectedInterpretationRois = [];
     }
     public get singleSelectedSi(): SignInterpretation | null {
         if (this.selectedSignsInterpretation.length === 1) {
@@ -19,10 +18,13 @@ export class ArtefactEditorState {
         }
         return null;
     }
+    protected get artefact() {
+        return state().artefacts.current!;
+    }
 
     public toggleSelectSign(si: SignInterpretation | undefined, removeIfExist: boolean = true) {
         if (si && si.character) {
-
+            
             const existingIdx = this.selectedSignsInterpretation.findIndex(x => x.id === si.id);
             if (existingIdx === -1) {
                 this.selectedSignsInterpretation.push(si);
@@ -31,10 +33,16 @@ export class ArtefactEditorState {
                 this.selectedSignsInterpretation.splice(existingIdx, 1);
                 this.removeTextFragementToArtefact(si);
             }
+            this.onSignInterpretationClicked();
         }
     }
     public isSiSelected(si: SignInterpretation): boolean {
         return this.selectedSignsInterpretation.some(x => x.id === si.id);
+    }
+
+    public selectRoi(roi: InterpretationRoi | null) {
+        this.selectedInterpretationRoi = roi;
+
     }
 
     private addTextFragementToArtefact(si: SignInterpretation) {
@@ -63,5 +71,16 @@ export class ArtefactEditorState {
             state().artefacts.current!.textFragments[tfIndex].certain = false;
             state().artefacts.current!.textFragments.splice(tfIndex, 1);
         }
+    }
+
+
+    private onSignInterpretationClicked() {
+
+        if (!this.singleSelectedSi) {
+            this.selectRoi(null);
+        } else if(this.selectedInterpretationRoi === null){
+            this.selectRoi(this.singleSelectedSi.artefactRoi(this.artefact));
+        }
+
     }
 }

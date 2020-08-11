@@ -51,14 +51,12 @@
 
             <b-collapse
                 :id="'accordion-' + index"
-                :visible="index === 0"
+                :visible="index === openedTextFragement"
                 accordion="my-accordion"
                 role="tabpanel"
+                @show="emptySelectedState()"
             >
-                <text-fragment
-                    :fragment="textFragment"
-                    id="text-box"
-                ></text-fragment>
+                <text-fragment :fragment="textFragment" id="text-box"></text-fragment>
             </b-collapse>
         </div>
     </div>
@@ -106,6 +104,17 @@ export default class TextSide extends Vue {
 
     private get displayedTextFragmentsData() {
         return this.allTextFragmentsData.filter((x) => x.certain);
+    }
+
+    private get openedTextFragement() {
+        if (this.$state.artefactEditor.singleSelectedSi) {
+            const tfId = this.$state.artefactEditor.singleSelectedSi.sign.line
+                .textFragment.textFragmentId;
+            return this.displayedTextFragments.findIndex(
+                (tf) => tf.id === tfId
+            );
+        }
+        return 0;
     }
 
     private isTfShown(tfId: number) {
@@ -175,9 +184,13 @@ export default class TextSide extends Vue {
                     ...this.displayedTextFragments,
                 ];
             }
+            this.emptySelectedState()
         }
     }
-
+    private emptySelectedState() {
+        this.$state.artefactEditor.selectedSignsInterpretation = [];
+        this.$state.artefactEditor.selectRoi(null);
+    }
     private changePosition(index: number, up: boolean) {
         const indexToChange = up ? index - 1 : index + 1;
         const isInBoudaries = up
@@ -199,12 +212,6 @@ export default class TextSide extends Vue {
         this.loading = false;
         // this.textFragmentSelected(this.textFragmentId);
     }
-
-
-    // @Emit()
-    // private signInterpretationClicked(si: SignInterpretation) {
-    //     return si;
-    // }
 
     @Emit()
     private textFragmentSelected(textFragmentId: number) {

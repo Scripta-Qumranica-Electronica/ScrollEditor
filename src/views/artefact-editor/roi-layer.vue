@@ -5,7 +5,7 @@
             :key="roi.id"
             :d="roi.shape.svg"
             :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="{ shine: roi.shiny, selected: roi === selected, highlighted: highlighted(roi) }"
+            :class="{ shine: roi.shiny, selected: isSelectedRoi(roi), highlighted: highlighted(roi) }"
             @click="onPathClicked(roi)"
             vector-effect="non-scaling-stroke"
         />
@@ -13,25 +13,36 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
 import { InterpretationRoi, SignInterpretation } from '@/models/text';
+import { i } from 'mathjs';
 
 @Component({
     name: 'roi-layer',
-    components: {}
+    components: {},
 })
 export default class RoiLayer extends Vue {
     @Prop() public rois!: Iterator<InterpretationRoi>;
-    @Prop() public si!: SignInterpretation;
-    @Prop({
-        default: null
-    })
-    public selected!: InterpretationRoi | null;
 
     public highlighted(roi: InterpretationRoi) {
         if (this.si) {
             return roi.signInterpretationId === this.si.signInterpretationId;
         }
+    }
+    public isSelectedRoi(roi: InterpretationRoi) {
+        console.log(this.selectedInterpretationRoi)
+        return (
+            this.selectedInterpretationRoi &&
+            this.selectedInterpretationRoi.interpretationRoiId === roi.interpretationRoiId
+        );
+    }
+
+    public get selectedInterpretationRoi(): InterpretationRoi | null {
+        return this.$state.artefactEditor.selectedInterpretationRoi;
+    }
+
+    private get si() {
+        return this.$state.artefactEditor.singleSelectedSi;
     }
 
     private onPathClicked(roi: InterpretationRoi) {

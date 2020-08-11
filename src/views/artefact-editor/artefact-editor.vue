@@ -44,11 +44,7 @@
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
                         <edition-icons :edition="edition" :show-text="true" />
-                        <sign-wheel
-                            v-if="selectedSignsInterpretation.length"
-                            :line="selectedLine"
-                           
-                        />
+                        <sign-wheel v-if="selectedSignsInterpretation.length" :line="selectedLine" />
                     </div>
                     <b-button
                         type="button"
@@ -82,12 +78,7 @@
                                     :clipping-mask="artefact.mask"
                                     :boundingBox="artefact.mask.getBoundingBox()"
                                 />
-                                <roi-layer
-                                    :rois="visibleRois"
-                                    :si="selectedSignInterpretation"
-                                    :selected="selectedInterpretationRoi"
-                                    @roi-clicked="onRoiClicked($event)"
-                                />
+                                <roi-layer :rois="visibleRois" @roi-clicked="onRoiClicked($event)" />
                                 <boundary-drawer
                                     v-show="isDrawingEnabled && this.mode !== 'select'"
                                     :mode="mode"
@@ -158,7 +149,6 @@
                 </div>
             </div>
         </div>
-
         <div
             id="text-right-sidebar"
             v-if="!waiting && artefact"
@@ -253,7 +243,7 @@ export default class ArtefactEditor extends Vue
     implements SavingAgent<ArtefactEditorOperation> {
     public params = new ArtefactEditorParams();
     // private selectedSignInterpretation: SignInterpretation | null = null;
-    private selectedInterpretationRoi: InterpretationRoi | null = null;
+    // private selectedInterpretationRoi: InterpretationRoi | null = null;
     private mode: ActionMode = 'box';
     private autoMode = false;
 
@@ -282,6 +272,10 @@ export default class ArtefactEditor extends Vue
     }
     public get selectedSignsInterpretation(): SignInterpretation[] {
         return this.artefactEditor.selectedSignsInterpretation;
+    }
+
+    public get selectedInterpretationRoi(): InterpretationRoi | null {
+        return this.artefactEditor.selectedInterpretationRoi;
     }
 
     public async saveEntities(
@@ -357,8 +351,8 @@ export default class ArtefactEditor extends Vue
             si.rois.push(newRoi);
         }
         this.visibleRois.push(newRoi);
-        this.selectedInterpretationRoi = newRoi;
-        this.onSignInterpretationClicked(si, false);
+        this.$state.artefactEditor.selectRoi(newRoi);
+        // this.artefactEditorState.toggleSelectSign(si, false);
 
         return newRoi;
     }
@@ -368,7 +362,6 @@ export default class ArtefactEditor extends Vue
 
     public removeRoi(roi: InterpretationRoi) {
         const roiBbox = roi.shape.getBoundingBox();
-        console.log(roiBbox);
         const visibleRoi = this.visibleRois.find(
             (vRoi) =>
                 vRoi.shape.getBoundingBox().x === roiBbox.x &&
@@ -394,7 +387,7 @@ export default class ArtefactEditor extends Vue
         this.visibleRois.splice(visIndex, 1);
         this.statusTextFragment(roi);
 
-        this.selectedInterpretationRoi = null;
+        this.artefactEditorState.selectRoi(null);
         this.artefactEditorState.selectedSignsInterpretation = [];
     }
 
@@ -591,7 +584,7 @@ export default class ArtefactEditor extends Vue
             const newSI = this.selectedLine!.signs[newIndex]
                 .signInterpretations[0];
             if (newSI.character && !newSI.isReconstructed) {
-                this.onSignInterpretationClicked(newSI, false);
+                this.artefactEditorState.toggleSelectSign(newSI, false);
                 break;
             }
             newIndex++;
@@ -621,8 +614,9 @@ export default class ArtefactEditor extends Vue
             );
             if (index !== -1) {
                 const nextLine = linesArray[index + 1];
-                this.onSignInterpretationClicked(
-                    nextLine.signs[1].signInterpretations[0], false
+                this.artefactEditorState.toggleSelectSign(
+                    nextLine.signs[1].signInterpretations[0],
+                    false
                 );
             }
         }
@@ -705,26 +699,15 @@ export default class ArtefactEditor extends Vue
         }
     }
 
-    private onSignInterpretationClicked(si: SignInterpretation, removeIfExist: boolean = true) {
-        this.$state.artefactEditor.toggleSelectSign(si, removeIfExist);
-        debugger;
-        if (!this.artefactEditorState.singleSelectedSi) {
-            this.selectedInterpretationRoi = null;
-        } else {
-            this.selectedInterpretationRoi =
-                si.artefactRoi(this.artefact) || null;
-        }
-    }
-
-    private onRoiClicked(ir: InterpretationRoi) {
-        this.selectedInterpretationRoi = ir;
+    private onRoiClicked(roi: InterpretationRoi) {
+        this.artefactEditorState.selectRoi(roi);
         this.artefactEditorState.selectedSignsInterpretation = [];
 
-        if (!ir.signInterpretationId) {
+        if (!roi.signInterpretationId) {
             this.artefactEditorState.selectedSignsInterpretation = [];
         } else {
             const si = this.$state.signInterpretations.get(
-                ir.signInterpretationId
+                roi.signInterpretationId
             );
             this.artefactEditorState.toggleSelectSign(si, false);
         }
@@ -756,10 +739,10 @@ export default class ArtefactEditor extends Vue
             this.artefact
         );
         this.initVisibleRois();
-        if (selected) {
-            // Make sure we select again, as the ROIs might have changed
-            this.onSignInterpretationClicked(selected, false);
-        }
+        // if (selected) {
+        //     // Make sure we select again, as the ROIs might have changed
+        //     this.artefactEditorState.onSignInterpretationClicked(selected, false);
+        // }
 
         return updated > 0;
     }
