@@ -1,11 +1,7 @@
 <template>
     <div class="text-line" :dir="direction">
         <span class="line-name">{{line.lineName}}</span>
-        <text-sign            
-            v-for="sign in line.signs"
-            :key="sign.signId"
-            :sign="sign"
-        ></text-sign>
+        <text-sign v-for="sign in line.signs" :key="sign.signId" :sign="sign"></text-sign>
     </div>
 </template>
 
@@ -17,19 +13,17 @@ import TextSign from '@/components/text/text-sign.vue';
 @Component({
     name: 'text-line',
     components: {
-        'text-sign': TextSign
-    }
+        'text-sign': TextSign,
+    },
 })
 export default class TextLineComponent extends Vue {
     @Prop() public line!: Line;
     @Prop({
-        default: 'rtl'
+        default: 'rtl',
     })
     public direction!: TextDirection;
-    
 }
 </script>
-
 <style lang="scss" scoped>
 div.text-line {
     display: flex;

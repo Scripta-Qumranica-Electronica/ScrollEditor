@@ -24,7 +24,6 @@ export class ArtefactEditorState {
 
     public toggleSelectSign(si: SignInterpretation | undefined, removeIfExist: boolean = true) {
         if (si && si.character) {
-            
             const existingIdx = this.selectedSignsInterpretation.findIndex(x => x.id === si.id);
             if (existingIdx === -1) {
                 this.selectedSignsInterpretation.push(si);
@@ -78,7 +77,7 @@ export class ArtefactEditorState {
 
         if (!this.singleSelectedSi) {
             this.selectRoi(null);
-        } else if(this.selectedInterpretationRoi === null){
+        } else if (this.selectedInterpretationRoi === null) {
             this.selectRoi(this.singleSelectedSi.artefactRoi(this.artefact));
         }
 

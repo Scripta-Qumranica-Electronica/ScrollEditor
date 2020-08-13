@@ -10,7 +10,7 @@ import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 
 @Component({
-    name: 'text-sign'
+    name: 'text-sign',
 })
 export default class SignComponent extends Vue {
     @Prop() public sign!: Sign;
@@ -20,7 +20,6 @@ export default class SignComponent extends Vue {
     private get chosenSI() {
         return this.sign.signInterpretations[0];
     }
-    
     private onSignInterpretationClicked(si: SignInterpretation) {
         this.$state.artefactEditor.toggleSelectSign(si);
     }
@@ -29,19 +28,16 @@ export default class SignComponent extends Vue {
         return this.$state.artefactEditor.isSiSelected(si);
     }
 
-
     private cssStrings(si: SignInterpretation): string {
-        return si.attributes.map(x => x.attributeValueString).join(' ');
+        return si.attributes.map((x) => x.attributeValueString).join(' ');
     }
-
-  
 }
 </script>
-
 <style lang="scss" scoped>
-@import "@/assets/styles/_variables.scss";
+
+@import '@/assets/styles/_variables.scss';
 div {
-  display: inline;
+    display: inline;
 }
 
 span {
@@ -50,14 +46,13 @@ span {
 }
 
 span.selected {
-  
     color: $red;
     font-weight: bold;
     text-shadow: 0 0 2px $black;
     transition: 0.6s;
-    font-size:17px;
-    margin:1px
-} 
+    font-size: 17px;
+    margin: 1px;
+}
 
 .is-reconstructed-true {
     color: #dee2e6;
@@ -67,21 +62,20 @@ span.selected {
     color: green;
 }
 .readability-incomplete-but-clear:after {
-    content: "\05C4";
+    content: '\05C4';
 }
 .readability-incomplete-and-not-clear:after {
-    content: "\05AF";
+    content: '\05AF';
 }
 .readability-incomplete-and-not-clear {
     color: blue;
 }
 .relative-position-above-line {
-     vertical-align: super;
-     font-size: 80%;
+    vertical-align: super;
+    font-size: 80%;
 }
 .relative-position-below-line {
-     vertical-align: sub;
-     font-size: 80%;
+    vertical-align: sub;
+    font-size: 80%;
 }
-
 </style>

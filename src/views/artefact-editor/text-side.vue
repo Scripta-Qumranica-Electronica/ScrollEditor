@@ -184,7 +184,7 @@ export default class TextSide extends Vue {
                     ...this.displayedTextFragments,
                 ];
             }
-            this.emptySelectedState()
+            this.emptySelectedState();
         }
     }
     private emptySelectedState() {

@@ -30,10 +30,10 @@ export default class RoiLayer extends Vue {
         }
     }
     public isSelectedRoi(roi: InterpretationRoi) {
-        console.log(this.selectedInterpretationRoi)
         return (
             this.selectedInterpretationRoi &&
-            this.selectedInterpretationRoi.interpretationRoiId === roi.interpretationRoiId
+            this.selectedInterpretationRoi.interpretationRoiId ===
+                roi.interpretationRoiId
         );
     }
 
