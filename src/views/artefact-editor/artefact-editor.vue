@@ -226,14 +226,14 @@ import SiAttributes from './si-attributes.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'si-attributes': SiAttributes,
@@ -584,6 +584,7 @@ export default class ArtefactEditor extends Vue
             const newSI = this.selectedLine!.signs[newIndex]
                 .signInterpretations[0];
             if (newSI.character && !newSI.isReconstructed) {
+                this.artefactEditorState.selectedSignsInterpretation = [];
                 this.artefactEditorState.toggleSelectSign(newSI, false);
                 break;
             }
@@ -635,7 +636,15 @@ export default class ArtefactEditor extends Vue
     }
 
     private onAuto() {
-        this.autoMode = !this.autoMode;
+        if (this.artefactEditorState.selectedSignsInterpretation.length > 1) {
+            this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
+                type: 'info',
+                position: 'top-right',
+                duration: 7000,
+            });
+        } else {
+            this.autoMode = !this.autoMode;
+        }
     }
 
     private fillImageSettings() {
