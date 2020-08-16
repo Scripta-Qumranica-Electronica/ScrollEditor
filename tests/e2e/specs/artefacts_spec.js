@@ -10,6 +10,9 @@ describe('Imaged Artefact', function() {
     });
     let afterChoice;
     let beforeChoice;
+    let classSelected; /* var for Count .selected items number*/
+    let classUnSelected; /*var for check that the selected count has decreased */
+    let buttonDisabled; /* var for check if btn disabled */
 
     Cypress.Commands.add('typeLogin', (user) => {
         cy.get('input[type=email]')
@@ -35,7 +38,7 @@ describe('Imaged Artefact', function() {
     })
 
 
-    it('Artefact textFragment ', () => {
+    it('Artefact textFragment', () => {
         cy.actionAfterLogin();
         cy.wait(2500)
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-align-justify').click()
@@ -56,7 +59,7 @@ describe('Imaged Artefact', function() {
             expect(beforeChoice).to.be.greaterThan(afterChoice);
         })
 
-        // cy.get('[data-original-title="Menu TextFragment"] > .fa').click()
+
         cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-square-o').click() /*Create the shape*/
 
         cy.get('svg.overlay')
@@ -111,7 +114,43 @@ describe('Imaged Artefact', function() {
         cy.route('POST', '/v1/editions/1646/rois/batch-edit').as('postPath')
         cy.wait('@postPath')
         cy.get('@postPath').should((resp) => {
-            expect(resp.status).to.eq(200)
+            expect(resp.status).to.eq(200) /*check if save worker */
+        })
+
+    })
+
+    it('selected signs and enabled/disabled buttons', () => {
+        cy.actionAfterLogin();
+        cy.wait(2500)
+            /* choose textFragmant num 4*/
+        cy.get('.buttons-div.btn-tf>button.sidebarCollapse>i.fa-align-justify').click()
+        cy.server()
+        cy.route('GET', '/v1/editions/**/text-fragments/**').as('textFragmentReq')
+        cy.get('input.select-text').type('col. 4').blur()
+
+        cy.wait('@textFragmentReq')
+            /*Count .selected items number */
+        classSelected = Cypress.$('#text-box div span.selected').length
+            /* Select 2 signs by click */
+        cy.get(':nth-child(3) > :nth-child(15)').click()
+        cy.get(':nth-child(4) > :nth-child(38)').click().then(() => {
+            classSelected = Cypress.$('#text-box div span.selected').length
+                /* When more than 1 sign is selected, check that actions buttons are disabled */
+            cy.get('.buttons-div button.disabled').then((g) => {
+                buttonDisabled = g.length;
+                expect(buttonDisabled).to.equal(3)
+            })
+
+        })
+
+        /* Unselect one letter and then check that the selected count has decreased */
+        cy.get(':nth-child(3) > :nth-child(15)').click().then(() => {
+            classUnSelected = Cypress.$('#text-box div span.selected').length;
+            cy.get('.buttons-div button.disabled').then((g) => {
+                buttonDisabled = g.length;
+                expect(buttonDisabled).to.equal(1)
+            })
+            expect(classSelected).to.be.greaterThan(classUnSelected);
         })
 
     })
