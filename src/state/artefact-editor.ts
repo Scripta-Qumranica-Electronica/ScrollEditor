@@ -78,7 +78,7 @@ export class ArtefactEditorState {
         if (!this.singleSelectedSi) {
             this.selectRoi(null);
         } else if (this.selectedInterpretationRoi === null) {
-            this.selectRoi(this.singleSelectedSi.artefactRoi(this.artefact));
+            this.selectRoi(this.singleSelectedSi.artefactRoi(this.artefact) || null);
         }
 
     }

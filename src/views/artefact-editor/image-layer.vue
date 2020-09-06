@@ -44,7 +44,7 @@ export default class ImagedObjectEditor extends Vue {
     @Prop() public width!: number;
     @Prop() public height!: number;
     @Prop() public params!: BaseEditorParams;
-    @Prop() public editable!: boolean;
+    // @Prop() public editable!: boolean;
     @Prop() public clippingMask!: Polygon;
     @Prop() public boundingBox!: BoundingBox;
 

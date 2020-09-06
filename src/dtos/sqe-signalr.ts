@@ -18,6 +18,7 @@ import {
 	TextFragmentDataDTO,
 	ArtefactTextFragmentMatchDTO,
 	ImagedObjectTextFragmentMatchDTO,
+	ImagedObjectTextFragmentMatchListDTO,
 	TextFragmentDataListDTO,
 	ArtefactTextFragmentMatchListDTO,
 	TextFragmentDTO,
@@ -29,8 +30,23 @@ import {
 	CreateTextFragmentDTO,
 	SignDTO,
 	NextSignInterpretationDTO,
+	SignInterpretationBaseDTO,
+	SignInterpretationCreateDTO,
 	SignInterpretationDTO,
+	SignInterpretationListDTO,
+	InterpretationAttributeBaseDTO,
+	InterpretationAttributeCreateDTO,
 	InterpretationAttributeDTO,
+	InterpretationAttributeCreateListDTO,
+	InterpretationAttributeListDTO,
+	CreateAttributeValueDTO,
+	UpdateAttributeValueDTO,
+	AttributeValueDTO,
+	AttributeBaseDTO,
+	CreateAttributeDTO,
+	UpdateAttributeDTO,
+	AttributeDTO,
+	AttributeListDTO,
 	PlacementDTO,
 	TranslateDTO,
 	SimpleImageDTO,
@@ -69,6 +85,8 @@ import {
 	TextEditionDTO,
 	DeleteTokenDTO,
 	DeleteEditionEntityDTO,
+	CommentaryCreateDTO,
+	CommentaryDTO,
 	DeleteDTO,
 	EditionUpdateRequestDTO,
 	EditionCopyDTO,
@@ -621,8 +639,8 @@ export class SignalRUtilities {
 	 *
 	 *
 	 */
-    public async getV1ImagedObjectsInstitutionsInstitution(institution: string): Promise<InstitutionalImageListDTO> {
-        return await this._connection.invoke('GetV1ImagedObjectsInstitutionsInstitution', institution);
+    public async getV1ImagedObjectsInstitutionsInstitutionName(institutionName: string): Promise<InstitutionalImageListDTO> {
+        return await this._connection.invoke('GetV1ImagedObjectsInstitutionsInstitutionName', institutionName);
     }
 
     /**
@@ -631,7 +649,7 @@ export class SignalRUtilities {
 	 * @param imagedObjectId - Id of the imaged object
 	 *
 	 */
-    public async getV1ImagedObjectsImagedObjectIdTextFragments(imagedObjectId: string): Promise<ImagedObjectTextFragmentMatchDTO[]> {
+    public async getV1ImagedObjectsImagedObjectIdTextFragments(imagedObjectId: string): Promise<ImagedObjectTextFragmentMatchListDTO> {
         return await this._connection.invoke('GetV1ImagedObjectsImagedObjectIdTextFragments', imagedObjectId);
     }
 
@@ -666,13 +684,13 @@ export class SignalRUtilities {
     }
 
     /**
-	 * Get a listing of all corresponding imaged objects and transcribed text fragment in a specified edition
+	 * Get a listing of all corresponding imaged objects and transcribed text fragment in a specified manuscript
 	 *
-	 * @param manuscriptId - Unique Id of the edition to search for imaged objects to text fragment matches
+	 * @param manuscriptId - Unique Id of the manuscript to search for imaged objects to text fragment matches
 	 *
 	 */
-    public async getV1CatalogueManuscriptManuscriptIdImagedObjectTextFragmentMatches(manuscriptId: number): Promise<CatalogueMatchListDTO> {
-        return await this._connection.invoke('GetV1CatalogueManuscriptManuscriptIdImagedObjectTextFragmentMatches', manuscriptId);
+    public async getV1CatalogueManuscriptsManuscriptIdImagedObjectTextFragmentMatches(manuscriptId: number): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueManuscriptsManuscriptIdImagedObjectTextFragmentMatches', manuscriptId);
     }
 
     /**
@@ -703,6 +721,158 @@ export class SignalRUtilities {
 	 */
     public async deleteV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId(iaaEditionCatalogToTextFragmentId: number): Promise<void> {
         return await this._connection.invoke('DeleteV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId', iaaEditionCatalogToTextFragmentId);
+    }
+
+    /**
+	 * Retrieve a list of all possible attributes for an edition
+	 *
+	 * @param editionId - The ID of the edition being searched
+	 * @returns - A list of and edition's attributes and their details
+	 */
+    public async getV1EditionsEditionIdSignInterpretationsAttributes(editionId: number): Promise<AttributeListDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdSignInterpretationsAttributes', editionId);
+    }
+
+    /**
+	 * Retrieve the details of a sign interpretation in an edition
+	 *
+	 * @param editionId - The ID of the edition being searched
+	 * @param signInterpretationId - The desired sign interpretation id
+	 * @returns - The details of the desired sign interpretation
+	 */
+    public async getV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId);
+    }
+
+    /**
+	 * Create a new attribute for an edition
+	 *
+	 * @param editionId - The ID of the edition being edited
+	 * @param newAttribute - The details of the new attribute
+	 * @returns - The details of the newly created attribute
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsAttributes(editionId: number, newAttribute: CreateAttributeDTO): Promise<AttributeDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsAttributes', editionId, newAttribute);
+    }
+
+    /**
+	 * Delete an attribute from an edition
+	 *
+	 * @param editionId - The ID of the edition being edited
+	 * @param attributeId - The ID of the attribute to delete
+	 *
+	 */
+    public async deleteV1EditionsEditionIdSignInterpretationsAttributesAttributeId(editionId: number, attributeId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsAttributesAttributeId', editionId, attributeId);
+    }
+
+    /**
+	 * Change the details of an attribute in an edition
+	 *
+	 * @param editionId - The ID of the edition being edited
+	 * @param attributeId - The ID of the attribute to update
+	 * @param updatedAttribute - The details of the updated attribute
+	 *
+	 */
+    public async putV1EditionsEditionIdSignInterpretationsAttributesAttributeId(editionId: number, attributeId: number, updatedAttribute: UpdateAttributeDTO): Promise<AttributeDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdSignInterpretationsAttributesAttributeId', editionId, attributeId, updatedAttribute);
+    }
+
+    /**
+	 * Creates a new sign interpretation
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param newSignInterpretation - New sign interpretation data to be added
+	 * @returns - The new sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretations(editionId: number, newSignInterpretation: SignInterpretationCreateDTO): Promise<SignInterpretationListDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretations', editionId, newSignInterpretation);
+    }
+
+    /**
+	 * Deletes the sign interpretation in the route. The endpoint automatically manages the sign stream
+	 * by connecting all the deleted sign's next and previous nodes.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation being deleted
+	 * @returns - Ok or Error
+	 */
+    public async deleteV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId);
+    }
+
+    /**
+	 * Links two sign interpretations in the edition's sign stream
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - The sign interpretation to be linked to the nextSignInterpretationId
+	 * @param nextSignInterpretationId - The sign interpretation to become the new next sign interpretation
+	 * @returns - The updated sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationIdLinkToNextSignInterpretationId(editionId: number, signInterpretationId: number, nextSignInterpretationId: number): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationIdLinkToNextSignInterpretationId', editionId, signInterpretationId, nextSignInterpretationId);
+    }
+
+    /**
+	 * Links two sign interpretations in the edition's sign stream
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - The sign interpretation to be unlinked from the nextSignInterpretationId
+	 * @param nextSignInterpretationId - The sign interpretation to removed as next sign interpretation
+	 * @returns - The updated sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationIdUnlinkFromNextSignInterpretationId(editionId: number, signInterpretationId: number, nextSignInterpretationId: number): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationIdUnlinkFromNextSignInterpretationId', editionId, signInterpretationId, nextSignInterpretationId);
+    }
+
+    /**
+	 * Updates the commentary of a sign interpretation
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation whose commentary is being changed
+	 * @param commentary - The new commentary for the sign interpretation
+	 * @returns - Ok or Error
+	 */
+    public async putV1EditionsEditionIdSignInterpretationsSignInterpretationIdCommentary(editionId: number, signInterpretationId: number, commentary: CommentaryCreateDTO): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdSignInterpretationsSignInterpretationIdCommentary', editionId, signInterpretationId, commentary);
+    }
+
+    /**
+	 * This adds a new attribute to the specified sign interpretation.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation for adding a new attribute
+	 * @param newSignInterpretationAttributes - Details of the attribute to be added
+	 * @returns - The updated sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributes(editionId: number, signInterpretationId: number, newSignInterpretationAttributes: InterpretationAttributeCreateDTO): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributes', editionId, signInterpretationId, newSignInterpretationAttributes);
+    }
+
+    /**
+	 * This changes the values of the specified sign interpretation attribute,
+	 * mainly used to change commentary.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation being altered
+	 * @param attributeValueId - Id of the attribute value to be altered
+	 * @param alteredSignInterpretationAttribute - New details of the attribute
+	 * @returns - The updated sign interpretation
+	 */
+    public async putV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId(editionId: number, signInterpretationId: number, attributeValueId: number, alteredSignInterpretationAttribute: InterpretationAttributeCreateDTO): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId', editionId, signInterpretationId, attributeValueId, alteredSignInterpretationAttribute);
+    }
+
+    /**
+	 * This deletes the specified attribute value from the specified sign interpretation.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation being altered
+	 * @param attributeValueId - Id of the attribute being removed
+	 * @returns - Ok or Error
+	 */
+    public async deleteV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId(editionId: number, signInterpretationId: number, attributeValueId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId', editionId, signInterpretationId, attributeValueId);
     }
 
     /**
@@ -1012,23 +1182,6 @@ export class SignalRUtilities {
 
 
     /**
-	 * Add a listener for when the server broadcasts a new ROI has been created
-	 *
-	 */
-    public connectCreatedRoi(handler: (msg: InterpretationRoiDTO) => void): void {
-        this._connection.on('CreatedRoi', handler)
-    }
-
-    /**
-	 * Remove an existing listener that triggers when the server broadcasts a new ROI has been created
-	 *
-	 */
-    public disconnectCreatedRoi(handler: (msg: InterpretationRoiDTO) => void): void {
-        this._connection.off('CreatedRoi', handler)
-    }
-
-
-    /**
 	 * Add a listener for when the server broadcasts one or more new ROI's have been created
 	 *
 	 */
@@ -1059,23 +1212,6 @@ export class SignalRUtilities {
 	 */
     public disconnectEditedRoisBatch(handler: (msg: BatchEditRoiResponseDTO) => void): void {
         this._connection.off('EditedRoisBatch', handler)
-    }
-
-
-    /**
-	 * Add a listener for when the server broadcasts a ROI has been updated
-	 *
-	 */
-    public connectUpdatedRoi(handler: (msg: UpdatedInterpretationRoiDTO) => void): void {
-        this._connection.on('UpdatedRoi', handler)
-    }
-
-    /**
-	 * Remove an existing listener that triggers when the server broadcasts a ROI has been updated
-	 *
-	 */
-    public disconnectUpdatedRoi(handler: (msg: UpdatedInterpretationRoiDTO) => void): void {
-        this._connection.off('UpdatedRoi', handler)
     }
 
 
@@ -1229,6 +1365,108 @@ export class SignalRUtilities {
 	 */
     public disconnectBatchUpdatedArtefactTransform(handler: (msg: BatchUpdatedArtefactTransformDTO) => void): void {
         this._connection.off('BatchUpdatedArtefactTransform', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the create of a sign interpretation
+	 *
+	 */
+    public connectCreatedSignInterpretation(handler: (msg: SignInterpretationListDTO) => void): void {
+        this._connection.on('CreatedSignInterpretation', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the create of a sign interpretation
+	 *
+	 */
+    public disconnectCreatedSignInterpretation(handler: (msg: SignInterpretationListDTO) => void): void {
+        this._connection.off('CreatedSignInterpretation', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of a sign interpretation
+	 *
+	 */
+    public connectUpdatedSignInterpretation(handler: (msg: SignInterpretationDTO) => void): void {
+        this._connection.on('UpdatedSignInterpretation', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of a sign interpretation
+	 *
+	 */
+    public disconnectUpdatedSignInterpretation(handler: (msg: SignInterpretationDTO) => void): void {
+        this._connection.off('UpdatedSignInterpretation', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the delete of a sign interpretation
+	 *
+	 */
+    public connectDeletedSignInterpretation(handler: (msg: DeleteDTO) => void): void {
+        this._connection.on('DeletedSignInterpretation', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the delete of a sign interpretation
+	 *
+	 */
+    public disconnectDeletedSignInterpretation(handler: (msg: DeleteDTO) => void): void {
+        this._connection.off('DeletedSignInterpretation', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the creation of an attribute
+	 *
+	 */
+    public connectCreatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.on('CreatedAttribute', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the creation of an attribute
+	 *
+	 */
+    public disconnectCreatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.off('CreatedAttribute', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of an attribute
+	 *
+	 */
+    public connectUpdatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.on('UpdatedAttribute', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of an attribute
+	 *
+	 */
+    public disconnectUpdatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.off('UpdatedAttribute', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the delete of an attribute
+	 *
+	 */
+    public connectDeletedAttribute(handler: (msg: DeleteDTO) => void): void {
+        this._connection.on('DeletedAttribute', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the delete of an attribute
+	 *
+	 */
+    public disconnectDeletedAttribute(handler: (msg: DeleteDTO) => void): void {
+        this._connection.off('DeletedAttribute', handler)
     }
 
 } 
