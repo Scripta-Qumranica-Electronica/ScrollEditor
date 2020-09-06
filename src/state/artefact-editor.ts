@@ -35,6 +35,11 @@ export class ArtefactEditorState {
             this.onSignInterpretationClicked();
         }
     }
+
+    public selectSign(si?: SignInterpretation) {
+        this.selectedSignsInterpretation = si ? [si] : [];
+    }
+
     public isSiSelected(si: SignInterpretation): boolean {
         return this.selectedSignsInterpretation.some(x => x.id === si.id);
     }

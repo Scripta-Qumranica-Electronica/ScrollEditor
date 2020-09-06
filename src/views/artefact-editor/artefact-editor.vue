@@ -44,7 +44,7 @@
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
                         <edition-icons :edition="edition" :show-text="true" />
-                        <sign-wheel v-if="selectedSignsInterpretation.length" :line="selectedLine" />
+                        <sign-wheel v-if="selectedSignsInterpretation.length==1" :line="selectedLine" />
                     </div>
                     <b-button
                         type="button"
@@ -352,7 +352,6 @@ export default class ArtefactEditor extends Vue
         }
         this.visibleRois.push(newRoi);
         this.$state.artefactEditor.selectRoi(newRoi);
-        // this.artefactEditorState.toggleSelectSign(si, false);
 
         return newRoi;
     }
@@ -584,8 +583,7 @@ export default class ArtefactEditor extends Vue
             const newSI = this.selectedLine!.signs[newIndex]
                 .signInterpretations[0];
             if (newSI.character && !newSI.isReconstructed) {
-                this.artefactEditorState.selectedSignsInterpretation = [];
-                this.artefactEditorState.toggleSelectSign(newSI, false);
+                this.artefactEditorState.selectSign(newSI);
                 break;
             }
             newIndex++;
@@ -615,10 +613,8 @@ export default class ArtefactEditor extends Vue
             );
             if (index !== -1) {
                 const nextLine = linesArray[index + 1];
-                this.artefactEditorState.toggleSelectSign(
-                    nextLine.signs[1].signInterpretations[0],
-                    false
-                );
+                const newSI = nextLine.signs[1].signInterpretations[0];
+                this.artefactEditorState.selectSign(newSI);
             }
         }
     }
@@ -718,7 +714,7 @@ export default class ArtefactEditor extends Vue
             const si = this.$state.signInterpretations.get(
                 roi.signInterpretationId
             );
-            this.artefactEditorState.toggleSelectSign(si, false);
+            this.artefactEditorState.selectSign(si);
         }
     }
 

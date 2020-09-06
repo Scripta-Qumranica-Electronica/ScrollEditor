@@ -1,7 +1,7 @@
 <template>
     <span
         :class="[{ selected: isSelected(chosenSI)}, cssStrings(chosenSI)]"
-        @click="onSignInterpretationClicked(chosenSI)"
+        @click="onSignInterpretationClicked($event, chosenSI)"
     >{{ chosenSI.character || '&nbsp;' }}</span>
 </template>
 
@@ -20,8 +20,12 @@ export default class SignComponent extends Vue {
     private get chosenSI() {
         return this.sign.signInterpretations[0];
     }
-    private onSignInterpretationClicked(si: SignInterpretation) {
-        this.$state.artefactEditor.toggleSelectSign(si);
+    private onSignInterpretationClicked(event: MouseEvent, si: SignInterpretation) {
+        if (event.ctrlKey || event.metaKey) {
+            this.$state.artefactEditor.toggleSelectSign(si);
+        } else {
+            this.$state.artefactEditor.selectSign(si);
+        }
     }
 
     private isSelected(si: SignInterpretation) {
