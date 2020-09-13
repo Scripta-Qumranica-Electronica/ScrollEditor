@@ -160,7 +160,7 @@
                 @text-fragment-selected="initVisibleRois()"
                 @text-fragments-loaded="initVisibleRois()"
             ></text-side>
-            <si-attributes></si-attributes>
+            <sign-attribute-pane />
         </div>
     </div>
 </template>
@@ -221,7 +221,7 @@ import {
 } from './operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
 import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
-import SiAttributes from './si-attributes.vue';
+import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -236,7 +236,7 @@ import SiAttributes from './si-attributes.vue';
         'zoomer': Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
-        'si-attributes': SiAttributes,
+        'sign-attribute-pane': SignAttributePane,
     },
 })
 export default class ArtefactEditor extends Vue

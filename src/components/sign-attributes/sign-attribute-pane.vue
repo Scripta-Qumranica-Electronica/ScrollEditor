@@ -1,13 +1,17 @@
 <template>
     <div class="attributes">
         <ul class="row">
+            <li class="pr-1">
+                <b-button @click="onAddAttribute"><i class="fa fa-plus"/></b-button>
+            </li>
             <li class="pr-2"
                 v-for="attribute in attributes"
                 :key="attribute.interpretationAttributeId"
             >
-                <b-badge variant="secondary">{{attribute.attributeValueString}}</b-badge>
+                <sign-attribute :attribute="attribute" @attribute-click="onAttributeClick(attribute)" />
             </li>
         </ul>
+        <attribute-modal />
     </div>
 </template>
 
@@ -23,11 +27,17 @@ import {
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import { EditionInfo } from '@/models/edition';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import SignAttribute from './sign-attribute.vue';
+import AttributeModal from './attribute-modal.vue';
 
 @Component({
-    name: 'si-attributes',
+    name: 'sign-attribute-pane',
+    components: {
+        'attribute-modal': AttributeModal,
+        'sign-attribute': SignAttribute,
+    }
 })
-export default class SiAttributes extends Vue {
+export default class SignAttributePane extends Vue {
 
     public get artefactEditor() {
         return this.$state.artefactEditor;
@@ -51,6 +61,17 @@ export default class SiAttributes extends Vue {
         );
         return attributes;
     }
+
+    private onAttributeClick(attribute: InterpretationAttributeDTO) {
+        this.$state.artefactEditor.selectedAttribute = attribute;
+        this.$root.$emit('bv::show::modal', 'attribute-modal');
+    }
+
+    private onAddAttribute() {
+        console.debug('onAddAttribute called, pop up context menu');
+
+        // Use the Bootstrap Doprdown menu to show all attribute classes. Clicking on classes with values will open a second dropdown menu with these options.
+    }
 }
 </script>
 
@@ -61,10 +82,6 @@ export default class SiAttributes extends Vue {
     padding: 10px;
     ul {
         list-style: none;
-
-        li{
-
-        }
     }
 }
 </style>

@@ -1,4 +1,4 @@
-
+import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import { SignInterpretation, InterpretationRoi } from '@/models/text';
 import { StateManager } from '.';
 
@@ -9,6 +9,7 @@ function state() {
 export class ArtefactEditorState {
     public selectedSignsInterpretation: SignInterpretation[];
     public selectedInterpretationRoi: InterpretationRoi | null = null;
+    public selectedAttribute: InterpretationAttributeDTO | null = null;
     constructor() {
         this.selectedSignsInterpretation = [];
     }
