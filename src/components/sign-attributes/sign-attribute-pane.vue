@@ -69,8 +69,6 @@ export default class SignAttributePane extends Vue {
 
     private onAddAttribute() {
         console.debug('onAddAttribute called, pop up context menu');
-
-        // Use the Bootstrap Doprdown menu to show all attribute classes. Clicking on classes with values will open a second dropdown menu with these options.
     }
 }
 </script>

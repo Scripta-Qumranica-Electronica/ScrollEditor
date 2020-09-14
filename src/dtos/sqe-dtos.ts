@@ -154,7 +154,6 @@ export interface InterpretationAttributeBaseDTO {
     sequence?: number;
     attributeId: number;
     attributeValueId: number;
-    value?: number;
 }
 
 export interface InterpretationAttributeCreateDTO extends InterpretationAttributeBaseDTO {
@@ -163,6 +162,7 @@ export interface InterpretationAttributeCreateDTO extends InterpretationAttribut
 
 export interface InterpretationAttributeDTO extends InterpretationAttributeBaseDTO {
     interpretationAttributeId: number;
+    attributeString: string;
     attributeValueString: string;
     creatorId: number;
     editorId: number;
@@ -194,6 +194,10 @@ export interface AttributeValueDTO extends UpdateAttributeValueDTO {
 
 export interface AttributeBaseDTO {
     description?: string;
+    editable: boolean;
+    removable: boolean;
+    repeatable: boolean;
+    batchEditable: boolean;
 }
 
 export interface CreateAttributeDTO extends AttributeBaseDTO {
@@ -205,6 +209,10 @@ export interface UpdateAttributeDTO {
     createValues: Array<CreateAttributeValueDTO>;
     updateValues: Array<UpdateAttributeValueDTO>;
     deleteValues: Array<number>;
+    editable: boolean;
+    removable: boolean;
+    repeatable: boolean;
+    batchEditable: boolean;
 }
 
 export interface AttributeDTO extends AttributeBaseDTO {

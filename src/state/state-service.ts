@@ -49,7 +49,7 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess';
+    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess' | 'attributeMetadataProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -66,6 +66,7 @@ export default class StateService {
     private textFragmentProcess: ProcessTracking | undefined;
     private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
     private artefactGroupsProcess: ProcessTracking | undefined;
+    private attributeMetadataProcess: ProcessTracking | undefined;
     // TODO: Add process for artefactGroups
 
     public constructor(state: StateManager) {
@@ -115,6 +116,11 @@ export default class StateService {
     public textFragment(editionId: number, textFragmentId: number): Promise<void> {
         return this.wrapInternal(
             'textFragmentProcess', textFragmentId, (id) => this.textFragmentInternal(editionId, id));
+    }
+
+    public async attributeMetadata(editionId: number): Promise<void> {
+        return this.wrapInternal(
+            'attributeMetadataProcess', editionId, (id: number) => this.attributeMetadata(id));
     }
 
     public async imageManifest(image: IIIFImage): Promise<void> {
@@ -195,11 +201,13 @@ export default class StateService {
         this.artefacts(editionId);
         this.textFragments(editionId);
         this.artefactGroups(editionId);
+        this.attributeMetadata(editionId);
         await Promise.all([
             this.imagedObjectsProcess!.promise,
             this.artefactsProcess!.promise,
             this.textFragmentsProcess!.promise,
             this.artefactGroupsProcess!.promise,
+            this.attributeMetadataProcess!.promise,
         ]);
         SignalRWrapper.instance.subscribeEdition(editionId);
     }
@@ -237,6 +245,17 @@ export default class StateService {
         const svc = new ArtefactService();
         const artefacts = await svc.getEditionArtefacts(editionId);
         this._state.artefacts.items = artefacts;
+    }
+
+    private async attributeMetadataInternal(editionId: number) {
+        if (!this._state.editions.current || this._state.editions.current.id !== editionId) {
+            console.error("Can't load atribute metadata without the right edition being in the store");
+            throw Error("Can't load atribute metadata without the right edition being in the store");
+        }
+
+        const svc = new EditionService();
+        const metadata = await svc.getAllAttributeMetadata(editionId);
+        this._state.editions.current.attributeMetadata = metadata.attributes;
     }
 
     private async imageManifestInternal(image: IIIFImage) {

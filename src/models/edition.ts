@@ -1,5 +1,6 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO, ArtefactGroupDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO, 
+    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
@@ -99,6 +100,7 @@ class EditionInfo {
     public isPublic: boolean;
     public lastEdit?: Date;
     public metrics: EditionManuscriptMetricsDTO;
+    public attributeMetadata: AttributeDTO[] = [];
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -159,7 +161,7 @@ class ArtefactGroup {
     public static generateGroup(artefactsIds: number[]): ArtefactGroup {
 
         const dto: ArtefactGroupDTO = {
-            id: ArtefactGroup.nextGroupId --,
+            id: ArtefactGroup.nextGroupId--,
             artefacts: [...artefactsIds],
             name: ''
         };

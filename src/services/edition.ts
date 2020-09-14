@@ -17,7 +17,7 @@ import {
     ArtefactGroupDTO,
     ArtefactGroupListDTO,
     EditionManuscriptMetricsDTO,
-    UpdateEditionManuscriptMetricsDTO
+    UpdateEditionManuscriptMetricsDTO, AttributeListDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -281,6 +281,14 @@ class EditionService {
 
         edition.metrics = response.data.metrics;
         return edition;
+    }
+
+    public async getAllAttributeMetadata(editionId: number): Promise<AttributeListDTO> {
+        const response = await CommHelper.get<AttributeListDTO>(
+            ApiRoutes.editionAttributeMetadataUrl(editionId)
+        );
+
+        return response.data;
     }
 }
 
