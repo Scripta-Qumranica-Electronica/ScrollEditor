@@ -1,5 +1,5 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO, 
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO,
     ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';

@@ -120,7 +120,7 @@ export default class StateService {
 
     public async attributeMetadata(editionId: number): Promise<void> {
         return this.wrapInternal(
-            'attributeMetadataProcess', editionId, (id: number) => this.attributeMetadata(id));
+            'attributeMetadataProcess', editionId, (id: number) => this.attributeMetadataInternal(id));
     }
 
     public async imageManifest(image: IIIFImage): Promise<void> {
@@ -256,6 +256,7 @@ export default class StateService {
         const svc = new EditionService();
         const metadata = await svc.getAllAttributeMetadata(editionId);
         this._state.editions.current.attributeMetadata = metadata.attributes;
+        console.log('attribute metadata ', metadata);
     }
 
     private async imageManifestInternal(image: IIIFImage) {
