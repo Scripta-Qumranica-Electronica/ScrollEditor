@@ -1,5 +1,5 @@
 <template>
-    <b-modal id="sign-attribute-modal" hide-header @hide="onHide">
+    <b-modal id="sign-attribute-modal" hide-header hide-footer @hide="onHide">
         <div v-if="attribute">
             <b-row>
                 <b-col cols="2" />
@@ -14,16 +14,20 @@
                 </b-col>
             </b-row>
             <b-row>
-                <b-col cols="2" text-right>Comment:</b-col>
+                <b-col cols="2">
+                    <label for="comment">Comment</label>
+                </b-col>
                 <b-col cols="7">
                     <b-form-input
+                        id="comment"
+                        class="inputsm"
                         type="search"
                         v-model="attribute.commentary"
                         @update="onCommentUpdated"
                         placeholder="Comment"
                     />
                 </b-col>
-                <b-col cols="3" />
+                <b-col cols="3"/>
             </b-row>
         </div>
 
@@ -59,6 +63,10 @@ export default class SignAttributeModal extends Vue {
 
     private get deleteAllowed() {
         return true;
+    }
+
+    private get isMultiSelect() {
+        return this.$state.artefactEditor.selectedSignsInterpretation.length !== 1;
     }
 
     private get description(): string {
@@ -97,6 +105,7 @@ export default class SignAttributeModal extends Vue {
     }
 
     private onCommentUpdated() {
+        // this.attribute!.commentary = {}
         console.debug('Comment changed to ', this.comment);
     }
 
