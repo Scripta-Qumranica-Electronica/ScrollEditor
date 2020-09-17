@@ -4,7 +4,7 @@
             <b-row>
                 <b-col cols="2" />
                 <b-col cols="7">
-                    <sign-attribute-badge :attribute="attribute"/>
+                    <sign-attribute-badge :attribute="attribute" />
                     <span class="description small">{{description}}</span>
                 </b-col>
                 <b-col cols="3">
@@ -16,7 +16,12 @@
             <b-row>
                 <b-col cols="2" text-right>Comment:</b-col>
                 <b-col cols="7">
-                    <b-form-input type="search" v-model="attribute.commentary" @update="onCommentUpdated" placeholder="Comment" />
+                    <b-form-input
+                        type="search"
+                        v-model="attribute.commentary"
+                        @update="onCommentUpdated"
+                        placeholder="Comment"
+                    />
                 </b-col>
                 <b-col cols="3" />
             </b-row>
@@ -24,7 +29,7 @@
 
         <!-- <template v-slot:modal-footer>
             <b-button size="sm" @click="onSave">Save</b-button>
-        </template> -->
+        </template>-->
     </b-modal>
 </template>
 
@@ -66,13 +71,17 @@ export default class SignAttributeModal extends Vue {
 
         let description = attrMetadata.description || '';
 
-        if (this.attribute!.attributeValueString !== 'TRUE') { // A non-boolean attribute
-            const valueMetadata = metadata.getAttributeValue(this.attribute!.attributeId, this.attribute!.attributeValueId);
+        if (this.attribute!.attributeValueString !== 'TRUE') {
+            // A non-boolean attribute
+            const valueMetadata = metadata.getAttributeValue(
+                this.attribute!.attributeId,
+                this.attribute!.attributeValueId
+            );
             if (valueMetadata && valueMetadata.description) {
                 description += valueMetadata.description;
             }
         }
-        
+
         return description;
     }
 
