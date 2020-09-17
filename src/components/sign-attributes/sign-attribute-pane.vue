@@ -11,7 +11,7 @@
                 <sign-attribute :attribute="attribute" @attribute-click="onAttributeClick(attribute)" />
             </li>
         </ul>
-        <attribute-modal />
+        <sign-attribute-modal />
     </div>
 </template>
 
@@ -28,12 +28,12 @@ import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import { EditionInfo } from '@/models/edition';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
-import AttributeModal from './attribute-modal.vue';
+import SignAttributeModal from './sign-attribute-modal.vue';
 
 @Component({
     name: 'sign-attribute-pane',
     components: {
-        'attribute-modal': AttributeModal,
+        'sign-attribute-modal': SignAttributeModal,
         'sign-attribute': SignAttribute,
     }
 })
@@ -64,7 +64,7 @@ export default class SignAttributePane extends Vue {
 
     private onAttributeClick(attribute: InterpretationAttributeDTO) {
         this.$state.artefactEditor.selectedAttribute = attribute;
-        this.$root.$emit('bv::show::modal', 'attribute-modal');
+        this.$root.$emit('bv::show::modal', 'sign-attribute-modal');
     }
 
     private onAddAttribute() {

@@ -1,11 +1,11 @@
 <template>
-    <b-modal id="attribute-modal" hide-header @hide="onHide">
+    <b-modal id="sign-attribute-modal" hide-header @hide="onHide">
         <div v-if="attribute">
             <b-row>
                 <b-col cols="2" />
                 <b-col cols="7">
-                    <b-badge variant="secondary">{{attribute.attributeValueString}}</b-badge>
-                    <span class="description">{{attribute.description}}</span>
+                    <sign-attribute-badge :attribute="attribute"/>
+                    <span class="description small">{{description}}</span>
                 </b-col>
                 <b-col cols="3">
                     <b-button :disabled="!deleteAllowed" click="onDeleteAttribute">
@@ -32,24 +32,48 @@
 import { AttributeValueDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import { BvModalEvent } from 'bootstrap-vue';
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
+import SignAttributeBadge from './sign-attribute-badge.vue';
 // import ErrorService from '@/services/error';
 
 @Component({
-    name: 'attribute-modal',
-    components: {},
+    name: 'sign-attribute-modal',
+    components: {
+        'sign-attribute-badge': SignAttributeBadge,
+    },
 })
-export default class AttributeModal extends Vue {
+export default class SignAttributeModal extends Vue {
     private comment: string = '';
 
     private mounted() {
         this.setComment(this.attribute);
     }
+
     private get attribute() {
         return this.$state.artefactEditor.selectedAttribute;
     }
 
     private get deleteAllowed() {
         return true;
+    }
+
+    private get description(): string {
+        const metadata = this.$state.editions.current!.attributeMetadata!;
+        const attrMetadata = metadata.getAttribute(this.attribute!.attributeId);
+
+        if (!attrMetadata) {
+            return '';
+        }
+
+        let description = attrMetadata.description || '';
+
+        if (this.attribute!.attributeValueString !== 'TRUE') { // A non-boolean attribute
+            const valueMetadata = metadata.getAttributeValue(this.attribute!.attributeId, this.attribute!.attributeValueId);
+            if (valueMetadata && valueMetadata.description) {
+                description += valueMetadata.description;
+            }
+        }
+        
+        return description;
     }
 
     @Watch('attribute')

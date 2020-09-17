@@ -1,6 +1,6 @@
 <template>
     <div class="attribute" @click="onClick">
-        <b-badge variant="secondary">{{attribute.attributeValueString}}</b-badge>
+        <sign-attribute-badge :attribute="attribute"/>
     </div>
 </template>
 
@@ -13,15 +13,14 @@ import {
     SignInterpretation,
     ArtefactTextFragmentData,
 } from '@/models/text';
-import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import { EditionInfo } from '@/models/edition';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
-import AttributeModal from './attribute-modal.vue';
+import SignAttributeBadge from './sign-attribute-badge.vue';
 
 @Component({
     name: 'sign-attribute',
     components: {
-        'attribute-modal': AttributeModal,
+        'sign-attribute-badge': SignAttributeBadge,
     }
 })
 export default class SignAttribute extends Vue {
@@ -30,9 +29,8 @@ export default class SignAttribute extends Vue {
     @Prop({ default: false })
     public multipleSigns!: boolean;
 
-    private openModal() {
-        console.debug('openModal called');
-        this.$root.$emit('bv::show::modal', 'attribute-modal');
+    private get isBoolean(): boolean {
+        return this.attribute!.attributeValueString === 'TRUE';
     }
 
     private onClick() {

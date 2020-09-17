@@ -7,7 +7,7 @@ import ImageService from '@/services/image';
 import TextService from '@/services/text';
 import { SignalRWrapper } from './signalr-connection';
 import { NotificationHandler } from './notification-handler';
-import { ShareInfo, Permissions } from '@/models/edition';
+import { ShareInfo, Permissions, AttributeMetadata } from '@/models/edition';
 import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
 
 /*
@@ -254,9 +254,8 @@ export default class StateService {
         }
 
         const svc = new EditionService();
-        const metadata = await svc.getAllAttributeMetadata(editionId);
-        this._state.editions.current.attributeMetadata = metadata.attributes;
-        console.log('attribute metadata ', metadata);
+        const dto = await svc.getAllAttributeMetadata(editionId);
+        this._state.editions.current.attributeMetadata = new AttributeMetadata(dto);
     }
 
     private async imageManifestInternal(image: IIIFImage) {

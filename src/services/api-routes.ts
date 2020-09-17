@@ -133,11 +133,11 @@ export namespace ApiRoutes {
     }
 
     export function editionAttributeMetadataUrl(editionId: number) {
-        return `/${baseUrl}/${editions}/${editionId}/sign-interpretation-attributes`;
+        return `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes`;
     }
 
     export function editionAttribute(editionId: number, signInterpretationId: number, attributeId?: number) {
-        let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretation-attributes/${signInterpretationId}/attributes`;
+        let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes/${signInterpretationId}/attributes`;
 
         if (attributeId) {
             url += `/${attributeId}`;
