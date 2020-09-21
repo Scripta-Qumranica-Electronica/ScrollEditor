@@ -314,7 +314,6 @@ export default class ArtefactEditor extends Vue
         const placedRoi = this.placeRoi(roi);
 
         const op: ArtefactROIOperation = new ArtefactROIOperation(
-            this.artefact.id,
             'draw',
             placedRoi.clone()
         );
@@ -546,7 +545,6 @@ export default class ArtefactEditor extends Vue
             return;
         }
         const op: ArtefactROIOperation = new ArtefactROIOperation(
-            this.artefact.id,
             'erase',
             roi.clone()
         );
@@ -623,7 +621,6 @@ export default class ArtefactEditor extends Vue
         this.params = evt.params; // This makes sure a change is triggered in child components
         if (evt.property === 'rotationAngle') {
             const op: ArtefactRotateOperation = new ArtefactRotateOperation(
-                this.artefact.id,
                 this.artefact.placement.rotate,
                 evt.value
             );

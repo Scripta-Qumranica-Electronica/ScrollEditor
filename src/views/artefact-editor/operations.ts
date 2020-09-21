@@ -5,17 +5,17 @@ import { StateManager } from '@/state';
 import { Polygon } from '@/utils/Polygons';
 import { InterpretationRoi, SignInterpretation } from '@/models/text';
 import ArtefactEditor from './artefact-editor.vue';
+import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 
 function state() {
     return StateManager.instance;
 }
 
-export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase';
+export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr';
 
 
 export abstract class ArtefactEditorOperation implements Operation<ArtefactEditorOperation> {
     public constructor(
-        public artefactId: number,
         public type: ArtefactEditorOperationType
     ) { }
 
@@ -33,8 +33,8 @@ export abstract class ArtefactEditorOperation implements Operation<ArtefactEdito
     protected get artefact(): Artefact {
         const artefact = state().artefacts.current;
         if (!artefact) {
-            console.error('Couldn\'t find artefact with id: ' + this.artefactId);
-            throw new Error('Couldn\'t find artefact with id: ' + this.artefactId);
+            console.error("There is no current artefact - can't perform artefact operation!");
+            throw new Error("There is no current artefact - can't perform artefact operation!");
         }
         return artefact;
     }
@@ -45,11 +45,10 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
     public next: number;
 
     public constructor(
-        artefactId: number,
         prev: number,
         next: number
     ) {
-        super(artefactId, 'rotate');
+        super('rotate');
         this.prev = prev;
         this.next = next;
     }
@@ -71,16 +70,14 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
             return undefined;
         }
 
-        if (op.artefactId !== this.artefactId || op.type !== this.type) {
+        if (op.type !== this.type) {
             return undefined;
         }
 
         // Operations are of the same type on the same artefact, we can unite them
         return new ArtefactRotateOperation(
-            this.artefactId,
             (op as ArtefactRotateOperation).prev,
             this.next
-            // this.artefactEditorInstance,
         );
     }
 
@@ -90,14 +87,13 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
 export class ArtefactROIOperation extends ArtefactEditorOperation {
 
     public constructor(
-        artefactId: number,
         type: ArtefactEditorOperationType,
         public roi: InterpretationRoi
         // public artefactEditorInstance: ArtefactEditor
         // public prev: ArtefactEditorStatus,
         // public next: ArtefactEditorStatus
     ) {
-        super(artefactId, type);
+        super(type);
         this.roi = roi.clone();
     }
 
@@ -129,4 +125,14 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
 
 }
 
+/* export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
+    public constructor(
+        artefactId: number,
+        public signInterpretationId: number,
+        public attributeValueId: number,
+        public attribute?: InterpretationAttributeDTO
+    ) {
+        super(artefactId, 'attr');
+    }
+} */
 
