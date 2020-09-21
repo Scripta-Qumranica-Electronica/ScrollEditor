@@ -51,7 +51,7 @@ export default class SignAttributePane extends Vue {
         let attributeValues: number[] = [];
         let first = true;
 
-        if (!this.artefactEditor.selectedSignsInterpretation.length) {
+        if (!this.$state.artefactEditor.selectedSignsInterpretation.length) {
             return [];
         }
 

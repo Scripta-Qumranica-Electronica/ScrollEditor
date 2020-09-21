@@ -117,7 +117,7 @@ export default class SignAttributeModal extends Vue {
         newAttr.commentary =  this.comment ? { commentary: this.comment } as CommentaryDTO : undefined;
 
         // Create an operation that will be added to the undo/redo management of the artefact editor
-        const op = new TextFragmentAttributeOperation(si, this.attribute!.attributeValueId, newAttr);
+        const op = new TextFragmentAttributeOperation(si.id, this.attribute!.attributeValueId, newAttr);
 
         op.redo(); // Apply change
         this.$state.eventBus.emit('new-operation', op);
@@ -125,7 +125,7 @@ export default class SignAttributeModal extends Vue {
 
     private onDeleteAttribute() {
         for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-            const op = new TextFragmentAttributeOperation(si, this.attribute!.attributeValueId, undefined);
+            const op = new TextFragmentAttributeOperation(si.id, this.attribute!.attributeValueId, undefined);
             op.redo();
             this.$state.eventBus.emit('new-operation', op);
         }

@@ -758,7 +758,12 @@ export default class ArtefactEditor extends Vue
     private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
         for (const op of ops) {
             const opType = op.attributeOperationType;
-            const existingIndex = op.signInterpretation.findAttributeIndex(op.attributeValueId);
+            const si = this.$state.signInterpretations.get(op.signInterpretationId);
+            if (!si) {
+                console.warn("Can't save attributes of non existing sign interpretation");
+                continue;
+            }
+            const existingIndex = si.findAttributeIndex(op.attributeValueId);
 
             // Determine the actual operation that needs to be performed on the server.
             // If the original operation is an update, this is also an update.
@@ -780,13 +785,13 @@ export default class ArtefactEditor extends Vue
 
             switch (actualOpType) {
                 case 'create':
-                    await this.signInterpretationService.createAttribute(this.edition!, op.signInterpretation, op.signInterpretation.attributes[existingIndex]);
+                    await this.signInterpretationService.createAttribute(this.edition!, si, si.attributes[existingIndex]);
                     break;
                 case 'update':
-                    await this.signInterpretationService.updateAttribute(this.edition!, op.signInterpretation, op.signInterpretation.attributes[existingIndex]);
+                    await this.signInterpretationService.updateAttribute(this.edition!, si, si.attributes[existingIndex]);
                     break;
                 case 'delete':
-                    await this.signInterpretationService.deleteAttribute(this.edition!, op.signInterpretation, op.attributeValueId);
+                    await this.signInterpretationService.deleteAttribute(this.edition!, si, op.attributeValueId);
                     break;
             }
         }
@@ -802,7 +807,6 @@ export default class ArtefactEditor extends Vue
 
     private onNewOperation(op: ArtefactEditorOperation) {
         this.operationsManager.addOperation(op);
-        console.debug('artefact-editor onNewOperation ', op);
     }
 
     private onUndo() {
