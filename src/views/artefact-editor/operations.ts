@@ -6,6 +6,7 @@ import { Polygon } from '@/utils/Polygons';
 import { InterpretationRoi, SignInterpretation } from '@/models/text';
 import ArtefactEditor from './artefact-editor.vue';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import Vue from 'vue';
 
 function state() {
     return StateManager.instance;
@@ -125,14 +126,64 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
 
 }
 
-/* export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
+export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
+    public prev?: InterpretationAttributeDTO;
+
     public constructor(
-        artefactId: number,
-        public signInterpretationId: number,
+        public signInterpretation: SignInterpretation,
         public attributeValueId: number,
-        public attribute?: InterpretationAttributeDTO
+        public next?: InterpretationAttributeDTO
     ) {
-        super(artefactId, 'attr');
+        super('attr');
+        this.prev = signInterpretation.attributes.find(attr => attr.attributeValueId === attributeValueId);
     }
-} */
+
+    public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+        if (op.type !== 'attr') {
+            return undefined;
+        }
+
+        const other = op as TextFragmentAttributeOperation;
+        if (other.signInterpretation.id !== this.signInterpretation.id || other.attributeValueId !== this.attributeValueId) {
+            return undefined;
+        }
+
+        const united = new TextFragmentAttributeOperation(this.signInterpretation, this.attributeValueId, this.next);
+        united.prev = other.prev;
+
+        return united;
+    }
+
+    public undo() {
+        const existingIndex = this.signInterpretation.attributes.findIndex(attr => this.attributeValueId === this.attributeValueId);
+
+        if (!this.prev) {
+            if (existingIndex !== -1) {
+                this.signInterpretation.attributes.splice(existingIndex, 1);
+            }
+        } else {
+            if (existingIndex) {
+                Vue.set(this.signInterpretation.attributes, existingIndex, this.prev);
+            } else {
+                this.signInterpretation.attributes.push(this.prev);
+            }
+        }
+    }
+
+    public redo() {
+        const existingIndex = this.signInterpretation.attributes.findIndex(attr => this.attributeValueId === this.attributeValueId);
+
+        if (this.next) {
+            if (existingIndex !== -1) {
+                Vue.set(this.signInterpretation.attributes, existingIndex, this.next);
+            } else {
+                this.signInterpretation.attributes.push(this.next);
+            }
+        } else {
+            if (existingIndex !== -1) {
+                this.signInterpretation.attributes.splice(existingIndex, 1);
+            }
+        }
+    }
+}
 

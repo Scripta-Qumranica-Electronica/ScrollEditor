@@ -5,7 +5,7 @@ import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
 import { AttributeDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
 
-export class SignInterpretationService {
+export default class SignInterpretationService {
     public stateManager: StateManager;
 
     /*
@@ -26,6 +26,7 @@ export class SignInterpretationService {
         };
 
         const siDto = await CommHelper.put<SignInterpretationDTO>(url, dto);
+        console.debug('sign-interpretation service updated attribute', dto);
         return siDto;
     }
 
@@ -33,6 +34,7 @@ export class SignInterpretationService {
         const url = ApiRoutes.attributeUrl(edition.id, signInterpretation.id, attributeValueId);
 
         await CommHelper.delete(url);
+        console.debug('sign-interpretation service deleted attribute', attributeValueId);
     }
 
     public async createAttribute(edition: EditionInfo, signInterpretation: SignInterpretation, attribute: InterpretationAttributeDTO) {

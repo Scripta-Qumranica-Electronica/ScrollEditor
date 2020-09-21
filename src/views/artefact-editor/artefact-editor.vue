@@ -172,6 +172,7 @@ import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
+import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import SignCanvas from './SignCanvas.vue';
@@ -218,6 +219,7 @@ import {
     ArtefactEditorOperationType,
     ArtefactROIOperation,
     ArtefactRotateOperation,
+    TextFragmentAttributeOperation,
 } from './operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
 import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
@@ -258,6 +260,7 @@ export default class ArtefactEditor extends Vue
 
     private artefactService = new ArtefactService();
     private textService = new TextService();
+    private signInterpretationService = new SignInterpretationService();
     private operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
@@ -287,6 +290,7 @@ export default class ArtefactEditor extends Vue
         try {
             const appliedRotation = await this.saveRotation();
             const appliedROIs = await this.saveROIs();
+            await this.saveAttributes(ops.filter(op => op.type === 'attr') as TextFragmentAttributeOperation[]);
         } catch (e) {
             console.error("Can't save arterfacts to server", e);
             return false;
@@ -397,6 +401,7 @@ export default class ArtefactEditor extends Vue
         );
         this.$state.eventBus.on('remove-roi', this.removeRoi);
         this.$state.eventBus.on('place-roi', this.placeRoi);
+        this.$state.eventBus.on('new-operation', this.onNewOperation);
     }
 
     protected destroyed() {
@@ -404,6 +409,7 @@ export default class ArtefactEditor extends Vue
         this.$state.eventBus.off('change-artefact-rotation');
         this.$state.eventBus.off('remove-roi', this.removeRoi);
         this.$state.eventBus.off('place-roi', this.placeRoi);
+        this.$state.eventBus.off('new-operation', this.onNewOperation);
     }
 
     protected async mounted() {
@@ -749,6 +755,16 @@ export default class ArtefactEditor extends Vue
         return updated > 0;
     }
 
+    private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
+        for (const op of ops) {
+            if (op.next) {
+                await this.signInterpretationService.updateAttribute(this.edition!, op.signInterpretation, op.next);
+            } else {
+                await this.signInterpretationService.deleteAttribute(this.edition!, op.signInterpretation, op.attributeValueId);
+            }
+        }
+    }
+
     private showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(this.$tc(msg), {
             type,
@@ -759,6 +775,7 @@ export default class ArtefactEditor extends Vue
 
     private onNewOperation(op: ArtefactEditorOperation) {
         this.operationsManager.addOperation(op);
+        console.debug('artefact-editor onNewOperation ', op);
     }
 
     private onUndo() {

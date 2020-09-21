@@ -137,7 +137,7 @@ export namespace ApiRoutes {
     }
 
     export function attributeUrl(editionId: number, signInterpretationId: number, attributeValueId?: number) {
-        let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes/${signInterpretationId}/attributes`;
+        let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretations/${signInterpretationId}/attributes`;
 
         if (attributeValueId) {
             url += `/${attributeValueId}`;

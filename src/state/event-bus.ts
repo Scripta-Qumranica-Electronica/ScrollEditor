@@ -10,7 +10,8 @@ export type EventBusEvents =
 | 'save-group'
 | 'cancel-group'
 | 'delete-group'
-| 'update-operation-id';
+| 'update-operation-id'
+| 'new-operation';
 
 export class EventBus {
     private eventBus: Vue;

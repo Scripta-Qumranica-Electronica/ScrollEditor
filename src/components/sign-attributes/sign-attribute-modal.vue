@@ -8,12 +8,12 @@
                     <span class="description small">{{description}}</span>
                 </b-col>
                 <b-col cols="3">
-                    <b-button :disabled="!deleteAllowed" click="onDeleteAttribute">
+                    <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
                         <i class="fa fa-trash"></i>
                     </b-button>
                 </b-col>
             </b-row>
-            <b-row>
+            <b-row v-if="!isMultiSelect">
                 <b-col cols="2">
                     <label for="comment">Comment</label>
                 </b-col>
@@ -22,7 +22,7 @@
                         id="comment"
                         class="inputsm"
                         type="search"
-                        v-model="attribute.commentary"
+                        v-model="comment"
                         @update="onCommentUpdated"
                         placeholder="Comment"
                     />
@@ -38,7 +38,8 @@
 </template>
 
 <script lang="ts">
-import { AttributeValueDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import { AttributeValueDTO, CommentaryDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
 import { BvModalEvent } from 'bootstrap-vue';
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
 import SignAttributeBadge from './sign-attribute-badge.vue';
@@ -105,12 +106,32 @@ export default class SignAttributeModal extends Vue {
     }
 
     private onCommentUpdated() {
-        // this.attribute!.commentary = {}
-        console.debug('Comment changed to ', this.comment);
+        if (this.isMultiSelect) {
+            console.warn("Can't update a comment when multiple signs are selected");
+            return;
+        }
+
+        const si = this.$state.artefactEditor.selectedSignsInterpretation[0]; // Only one element, since !isMultiSelect
+        const newAttr: InterpretationAttributeDTO = {...this.attribute!};
+
+        newAttr.commentary =  this.comment ? { commentary: this.comment } as CommentaryDTO : undefined;
+
+        // Create an operation that will be added to the undo/redo management of the artefact editor
+        const op = new TextFragmentAttributeOperation(si, this.attribute!.attributeValueId, newAttr);
+
+        op.redo(); // Apply change
+        this.$state.eventBus.emit('new-operation', op);
+
+        console.debug('sign-attribute-modal comment updated: ', op, this.comment);
     }
 
     private onDeleteAttribute() {
-        console.debug('Attribute deleted');
+        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
+            const op = new TextFragmentAttributeOperation(si, this.attribute!.attributeValueId, undefined);
+            op.redo();
+            console.debug('sign-attribute-modal deleting sign-interpretation attribute');
+            this.$state.eventBus.emit('new-operation', op);
+        }
     }
 
     private onHide() {
