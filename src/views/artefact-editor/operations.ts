@@ -181,10 +181,10 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
             }
         } else {
             if (existingIndex !== -1) {
-                console.debug('Undoing change, setting index ', existingIndex, ' to ', this.prev);
+                console.debug('Undoing change, setting index ', existingIndex, ' to ', this.prev, this.prev.commentary?.commentary);
                 Vue.set(this.signInterpretation.attributes, existingIndex, this.prev);
             } else {
-                console.debug('Undoing deletion, pushing ', this.prev);
+                console.debug('Undoing deletion, pushing ', this.prev, this.prev.commentary?.commentary);
                 this.signInterpretation.attributes.push(this.prev);
             }
         }
@@ -195,8 +195,10 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
 
         if (this.next) {
             if (existingIndex !== -1) {
+                console.debug('Redoing update ', this.next, this.next.commentary?.commentary);
                 Vue.set(this.signInterpretation.attributes, existingIndex, this.next);
             } else {
+                console.debug('Redoing create ', this.next, this.next.commentary?.commentary);
                 this.signInterpretation.attributes.push(this.next);
             }
         } else {

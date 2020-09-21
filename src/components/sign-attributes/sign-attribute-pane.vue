@@ -47,7 +47,6 @@ export default class SignAttributePane extends Vue {
     }
 
     public get attributes(): InterpretationAttributeDTO[] {
-        console.debug('sign-attribute-pane calculating attributes');
         let attributeValues: number[] = [];
         let first = true;
 

@@ -134,7 +134,6 @@ export class NotificationHandler {
     }
 
     public handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
-        console.debug('Updating sign interpretation ', dto);
         const existingSI = state().signInterpretations.get(dto.signInterpretationId);
 
         if (!existingSI) {
