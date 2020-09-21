@@ -47,18 +47,25 @@ export default class SignAttributePane extends Vue {
     }
 
     public get attributes(): InterpretationAttributeDTO[] {
-        const attributes: InterpretationAttributeDTO[] = [];
-        this.selectedSignsInterpretation.forEach(
-            si => {
-                si.attributes.forEach(
-                    attr => {
-                        if (!attributes.some(x => attr.attributeValueId === x.attributeValueId)) {
-                            attributes.push(attr);
-                        }
-                    }
-                );
+        console.debug('sign-attribute-pane calculating attributes');
+        let attributeValues: number[] = [];
+        let first = true;
+
+        if (!this.artefactEditor.selectedSignsInterpretation.length) {
+            return [];
+        }
+
+        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
+            const siValues = [...si.attributes.map(attr => attr.attributeValueId)];
+            if (first) {
+                first = false;
+                attributeValues = siValues;
+            } else {
+                attributeValues = attributeValues.filter(val => siValues.includes(val));
             }
-        );
+        }
+
+        const attributes = this.$state.artefactEditor.selectedSignsInterpretation[0].attributes.filter(attr => attributeValues.includes(attr.attributeValueId));
         return attributes;
     }
 

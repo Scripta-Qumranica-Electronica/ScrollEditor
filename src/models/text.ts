@@ -193,7 +193,11 @@ class SignInterpretation {
     }
 
     public get isReconstructed(): boolean {
-        return !!this.attributes.find(attr => attr.attributeValueString === 'is-reconstructed-true');
+        return !!this.attributes.find(attr => attr.attributeString === 'is_reconstructed');
+    }
+
+    public findAttributeIndex(attributeValueId: number) {
+        return this.attributes.findIndex(attr => attr.attributeValueId === attributeValueId);
     }
 }
 

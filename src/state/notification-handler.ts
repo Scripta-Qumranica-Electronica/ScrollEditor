@@ -142,15 +142,24 @@ export class NotificationHandler {
             return;
         }
 
+        // Update the sign interpretations map
         const newSI = new SignInterpretation(dto, existingSI.sign);
+        state().signInterpretations.put(newSI);
+
+        // Update the sign containing the sign interpretation
         const sign = newSI.sign;
         const index = sign.signInterpretations.findIndex(si => si.id === newSI.id);
 
-        state().signInterpretations.put(newSI);
         if (index < 0) {
             console.warn("Can't locate sign interpretation in sign!");
         } else {
             Vue.set(sign.signInterpretations, index, newSI);
+        }
+
+        // Update the selected sign interpretations
+        const selectedIndex = state().artefactEditor.selectedSignsInterpretation.findIndex(si => si.id === newSI.id);
+        if (selectedIndex !== -1) {
+            Vue.set(state().artefactEditor.selectedSignsInterpretation, selectedIndex, newSI);
         }
     }
 }

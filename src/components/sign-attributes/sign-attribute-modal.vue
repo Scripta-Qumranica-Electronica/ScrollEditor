@@ -1,5 +1,5 @@
 <template>
-    <b-modal id="sign-attribute-modal" hide-header hide-footer @hide="onHide">
+    <b-modal id="sign-attribute-modal" hide-header hide-footer @hide="onHide" ref="signAttributeModalRef">
         <div v-if="attribute">
             <b-row>
                 <b-col cols="2" />
@@ -129,8 +129,12 @@ export default class SignAttributeModal extends Vue {
             op.redo();
             this.$state.eventBus.emit('new-operation', op);
         }
+        this.hide();
     }
 
+    private hide() {
+        (this.$refs.signAttributeModalRef as any).hide();
+    }
     private onHide() {
         this.$state.artefactEditor.selectedAttribute = null;
     }

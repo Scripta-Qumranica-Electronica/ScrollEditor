@@ -757,10 +757,37 @@ export default class ArtefactEditor extends Vue
 
     private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
         for (const op of ops) {
-            if (op.next) {
-                await this.signInterpretationService.updateAttribute(this.edition!, op.signInterpretation, op.next);
-            } else {
-                await this.signInterpretationService.deleteAttribute(this.edition!, op.signInterpretation, op.attributeValueId);
+            const opType = op.attributeOperationType;
+            const existingIndex = op.signInterpretation.findAttributeIndex(op.attributeValueId);
+
+            // Determine the actual operation that needs to be performed on the server.
+            // If the original operation is an update, this is also an update.
+            // However, if the original operation is create/delete, which can be undone or redone, we delete
+            // the attribute if it is not in the state, or recreate it if it is in the state
+            let actualOpType = 'update';
+
+            switch (opType) {
+                case 'create':
+                    actualOpType = existingIndex === -1 ? 'delete' : 'create';
+                    break;
+                case 'delete':
+                    actualOpType = existingIndex === -1 ? 'delete' : 'create';
+                    break;
+                case 'update':
+                    actualOpType = 'update';
+                    break;
+            }
+
+            switch (actualOpType) {
+                case 'create':
+                    await this.signInterpretationService.createAttribute(this.edition!, op.signInterpretation, op.signInterpretation.attributes[existingIndex]);
+                    break;
+                case 'update':
+                    await this.signInterpretationService.updateAttribute(this.edition!, op.signInterpretation, op.signInterpretation.attributes[existingIndex]);
+                    break;
+                case 'delete':
+                    await this.signInterpretationService.deleteAttribute(this.edition!, op.signInterpretation, op.attributeValueId);
+                    break;
             }
         }
     }

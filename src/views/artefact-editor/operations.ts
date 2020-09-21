@@ -126,6 +126,8 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
 
 }
 
+export type TextFragmentAttributeOperationType = 'create' | 'update' | 'delete';
+
 export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     public prev?: InterpretationAttributeDTO;
 
@@ -138,6 +140,15 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
         this.prev = signInterpretation.attributes.find(attr => attr.attributeValueId === attributeValueId);
     }
 
+    public get attributeOperationType(): TextFragmentAttributeOperationType {
+        if (this.prev && this.next) {
+            return 'update';
+        } else if (this.prev) {
+            return 'delete';
+        } else {
+            return 'create';
+        }
+    }
     public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
         if (op.type !== 'attr') {
             return undefined;
@@ -155,23 +166,28 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     }
 
     public undo() {
-        const existingIndex = this.signInterpretation.attributes.findIndex(attr => this.attributeValueId === this.attributeValueId);
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeValueId);
 
         if (!this.prev) {
+            console.debug('Undoing new attribute');
             if (existingIndex !== -1) {
+                console.debug('Removing from existing list');
                 this.signInterpretation.attributes.splice(existingIndex, 1);
             }
         } else {
-            if (existingIndex) {
+            if (existingIndex !== -1) {
+                console.debug('Undoing change');
                 Vue.set(this.signInterpretation.attributes, existingIndex, this.prev);
             } else {
+                console.debug('Undoing deletion, pushing ', this.prev);
                 this.signInterpretation.attributes.push(this.prev);
+                console.debug(this.signInterpretation.attributes);
             }
         }
     }
 
     public redo() {
-        const existingIndex = this.signInterpretation.attributes.findIndex(attr => this.attributeValueId === this.attributeValueId);
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeValueId);
 
         if (this.next) {
             if (existingIndex !== -1) {
@@ -180,7 +196,9 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
                 this.signInterpretation.attributes.push(this.next);
             }
         } else {
+            console.debug('Redoing deletion');
             if (existingIndex !== -1) {
+                console.debug('Deleting from index ', existingIndex);
                 this.signInterpretation.attributes.splice(existingIndex, 1);
             }
         }

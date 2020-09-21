@@ -26,7 +26,6 @@ export default class SignInterpretationService {
         };
 
         const siDto = await CommHelper.put<SignInterpretationDTO>(url, dto);
-        console.debug('sign-interpretation service updated attribute', dto);
         return siDto;
     }
 
@@ -34,11 +33,10 @@ export default class SignInterpretationService {
         const url = ApiRoutes.attributeUrl(edition.id, signInterpretation.id, attributeValueId);
 
         await CommHelper.delete(url);
-        console.debug('sign-interpretation service deleted attribute', attributeValueId);
     }
 
     public async createAttribute(edition: EditionInfo, signInterpretation: SignInterpretation, attribute: InterpretationAttributeDTO) {
-        const url = ApiRoutes.attributeUrl(edition.id, signInterpretation.id, attribute.attributeValueId);
+        const url = ApiRoutes.attributeUrl(edition.id, signInterpretation.id);
         const dto: InterpretationAttributeCreateDTO = {
             attributeId: attribute.attributeId,
             attributeValueId: attribute.attributeValueId,
