@@ -33,7 +33,7 @@ export default class SignComponent extends Vue {
     }
 
     private cssStrings(si: SignInterpretation): string {
-        return si.attributes.map((x) => x.attributeValueString).join(' ');
+        return si.attributes.map((x) => x.attributeValueString === 'TRUE' ? x.attributeString : x.attributeValueString).join(' ');
     }
 }
 </script>

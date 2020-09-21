@@ -136,11 +136,11 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes`;
     }
 
-    export function editionAttribute(editionId: number, signInterpretationId: number, attributeId?: number) {
+    export function attributeUrl(editionId: number, signInterpretationId: number, attributeValueId?: number) {
         let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes/${signInterpretationId}/attributes`;
 
-        if (attributeId) {
-            url += `/${attributeId}`;
+        if (attributeValueId) {
+            url += `/${attributeValueId}`;
         }
 
         return url;
