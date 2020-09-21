@@ -11,7 +11,8 @@ export type EventBusEvents =
 | 'cancel-group'
 | 'delete-group'
 | 'update-operation-id'
-| 'new-operation';
+| 'new-operation'         // New operaton for the active operations manager
+| 'new-bulk-operations';  // New bulk operations for the active operations manager
 
 export class EventBus {
     private eventBus: Vue;

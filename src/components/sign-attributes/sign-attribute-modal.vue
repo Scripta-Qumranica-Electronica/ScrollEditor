@@ -3,9 +3,16 @@
         <div v-if="attribute">
             <b-row>
                 <b-col cols="2" />
-                <b-col cols="7">
-                    <sign-attribute-badge :attribute="attribute" />
-                    <span class="description small">{{description}}</span>
+                <b-col cols="7" class="attribute">
+                    <div>
+                        <sign-attribute-badge :attribute="attribute" />
+                        <b-dropdown size="sm" v-if="editAllowed">
+                            <b-dropdown-item-button v-for="attrVal in possibleAttributeValues" :key="attrVal.attributeValueId" @click="onAttributeValueChanged(attrVal)">
+                                {{ attrVal.value }}
+                            </b-dropdown-item-button>
+                        </b-dropdown>
+                    </div>
+                    <div><span class="description small">{{description}}</span></div>
                 </b-col>
                 <b-col cols="3">
                     <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
@@ -63,7 +70,43 @@ export default class SignAttributeModal extends Vue {
     }
 
     private get deleteAllowed() {
-        return true;
+        return this.attributeMetadata?.removable || false;
+    }
+
+    private get editAllowed() {
+        if (this.attribute?.attributeValueString === 'TRUE') {
+            return false;
+        }
+
+        if (this.isMultiSelect) {
+            return this.attributeMetadata?.batchEditable || false;
+        } else {
+            return this.attributeMetadata?.editable || false;
+        }
+    }
+
+    private get attributeMetadata() {
+        if (!this.attribute) {
+            return undefined;
+        }
+        return this.$state.editions.current?.attributeMetadata?.getAttribute(this.attribute.attributeId);
+    }
+
+    private get possibleAttributeValues() {
+        if (!this.attribute || !this.attributeMetadata) {
+            console.warn("Can't return possible values if there is no attribute or metedata");
+            return [];
+        }
+        let values = this.attributeMetadata.values;
+
+        // Remove the values that are selected by other attributes of the same id
+        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
+            for (const attr of si.attributes.filter(a => a.attributeId === this.attribute!.attributeId)) {
+                values = values.filter(v => v.id !== attr.attributeValueId);
+            }
+        }
+
+        return values;
     }
 
     private get isMultiSelect() {
@@ -101,6 +144,10 @@ export default class SignAttributeModal extends Vue {
         this.setComment(newAttribute);
     }
 
+/*    private onAttributeValueChanged(newVal: ) {
+        for (const si of this.$state.artefactEditor
+    } */
+
     private setComment(newAttribute: InterpretationAttributeDTO | null) {
         this.comment = newAttribute?.commentary?.commentary || '';
     }
@@ -124,12 +171,29 @@ export default class SignAttributeModal extends Vue {
     }
 
     private onDeleteAttribute() {
+        const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
             const op = new TextFragmentAttributeOperation(si.id, this.attribute!.attributeValueId, undefined);
             op.redo();
-            this.$state.eventBus.emit('new-operation', op);
+            ops.push(op);
         }
+        this.$state.eventBus.emit('new-bulk-operations', ops);
         this.hide();
+    }
+
+    private onAttributeValueChanged(attrVal: AttributeValueDTO) {
+        const ops: TextFragmentAttributeOperation[] = [];
+        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
+            for (const attr of si.attributes.filter(a => a.attributeValueId === this.attribute!.attributeValueId)) {
+                const newAttr: InterpretationAttributeDTO =  {...attr};
+                newAttr.attributeValueId = attrVal.id;
+                newAttr.attributeValueString = attrVal.value;
+                const op = new TextFragmentAttributeOperation(si.id, attr.attributeValueId, newAttr);
+                op.redo();
+                ops.push(op);
+            }
+        }
+        this.$state.eventBus.emit('new-bulk-operations', ops);
     }
 
     private hide() {
@@ -148,5 +212,9 @@ export default class SignAttributeModal extends Vue {
     flex-direction: row;
     /* flex-wrap: wrap; */
     justify-content: space-between;
+}
+
+.attribute {
+    display: inline;
 }
 </style>

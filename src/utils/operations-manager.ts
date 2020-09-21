@@ -30,8 +30,8 @@ export interface SavingAgent<OP extends Operation<OP, K>, K = number> {
 }
 
 export class OperationsManager<OP extends Operation<OP, K>, K = number> implements OperationsManagerStatus {
-    private undoStack: OP[] = [];
-    private redoStack: OP[] = [];
+    private undoStack: OP[][] = [];
+    private redoStack: OP[][] = [];
     private dirty: Set<OP> = new Set<OP>();
     private _isDirty: boolean = false;
     private saveInProgress: boolean = false;
@@ -50,20 +50,31 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
         //    undoing can cause issues with saving.
         if (this.undoStack.length > 0 && this.dirty.size) {
             const lastIndex = this.undoStack.length - 1;
-            const lastOp = this.undoStack[lastIndex];
+            const lastOps = this.undoStack[lastIndex];
+            if (lastOps.length === 1)  {
+                const lastOp = lastOps[0];
 
-            if (typeof op === typeof lastOp) {
-                const united = op.uniteWith(lastOp);
-                if (united) {
-                    this.undoStack[lastIndex] = united;
-                    this.setDirty(united, lastOp);
-                    return;
+                if (typeof op === typeof lastOp) {
+                    const united = op.uniteWith(lastOp);
+                    if (united) {
+                        this.undoStack[lastIndex] = [united];
+                        this.setDirty(united, lastOp);
+                        return;
+                    }
                 }
             }
         }
 
         this.setDirty(op);
-        this.undoStack.push(op);
+        this.undoStack.push([op]);
+    }
+
+    public addBulkOperations(ops: OP[]) {
+        this.redoStack = [];
+        for (const op of ops) {
+            this.setDirty(op);
+        }
+        this.undoStack.push(ops);
     }
 
     public get canUndo(): boolean {
@@ -85,25 +96,31 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
     }
 
     public undo() {
-        const op = this.undoStack.pop();
-        if (!op) {
+        const ops = this.undoStack.pop();
+        if (!ops || !ops.length) {
             console.warn('UndoRedoManager.undo called with an empty undo stack');
             return;
         }
-        op.undo();
-        this.redoStack.push(op);
-        this.setDirty(op);
+
+        for (const op of ops) {
+            op.undo();
+            this.setDirty(op);
+        }
+        this.redoStack.push(ops);
     }
 
     public redo() {
-        const op = this.redoStack.pop();
-        if (!op) {
+        const ops = this.redoStack.pop();
+        if (!ops || !ops.length) {
             console.warn('UndoRedoManager.redo called with an empty redo stack');
             return;
         }
-        op.redo();
-        this.undoStack.push(op);
-        this.setDirty(op);
+
+        for (const op of ops) {
+            op.redo();
+            this.setDirty(op);
+        }
+        this.undoStack.push(ops);
     }
 
     public async save() {
@@ -138,16 +155,20 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
 
     public updateStackIds(oldId: K, newId: K) {
         // Fix the ids in the undo-stack
-        for (const op of this.undoStack) {
-            if (op.getId() === oldId) {
-                op.replaceEntityId(newId);
+        for (const ops of this.undoStack) {
+            for (const op of ops) {
+                if (op.getId() === oldId) {
+                    op.replaceEntityId(newId);
+                }
             }
         }
 
         // The redo-stack
-        for (const op of this.redoStack) {
-            if (op.getId() === oldId) {
-                op.replaceEntityId(newId);
+        for (const ops of this.redoStack) {
+            for (const op of ops) {
+                if (op.getId() === oldId) {
+                    op.replaceEntityId(newId);
+                }
             }
         }
 

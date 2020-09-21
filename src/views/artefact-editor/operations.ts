@@ -131,6 +131,16 @@ export type TextFragmentAttributeOperationType = 'create' | 'update' | 'delete';
 export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     public prev?: InterpretationAttributeDTO;
 
+    public get interpretationAttributeId() {
+        const id = this.prev?.interpretationAttributeId || this.next?.interpretationAttributeId;
+        if (!id) {
+            console.error("Can't find interpretationAttributeId - it's neither in prev not in next");
+            return -1;
+        }
+
+        return id;
+    }
+
     public constructor(
         public signInterpretationId: number,
         public attributeValueId: number,
@@ -170,7 +180,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     }
 
     public undo() {
-        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeValueId);
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.interpretationAttributeId);
 
         if (!this.prev) {
             if (existingIndex !== -1) {
@@ -191,7 +201,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     }
 
     public redo() {
-        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeValueId);
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.interpretationAttributeId);
 
         if (this.next) {
             if (existingIndex !== -1) {

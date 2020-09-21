@@ -37,5 +37,6 @@ export default class SignAttributeBadge extends Vue {
 <style lang="scss" scoped>
 .sign-attribute {
     cursor: default;
+    display: inline;    
 }
 </style>

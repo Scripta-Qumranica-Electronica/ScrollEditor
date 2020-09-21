@@ -402,6 +402,7 @@ export default class ArtefactEditor extends Vue
         this.$state.eventBus.on('remove-roi', this.removeRoi);
         this.$state.eventBus.on('place-roi', this.placeRoi);
         this.$state.eventBus.on('new-operation', this.onNewOperation);
+        this.$state.eventBus.on('new-bulk-operations', this.onNewBulkOperations);
     }
 
     protected destroyed() {
@@ -410,6 +411,7 @@ export default class ArtefactEditor extends Vue
         this.$state.eventBus.off('remove-roi', this.removeRoi);
         this.$state.eventBus.off('place-roi', this.placeRoi);
         this.$state.eventBus.off('new-operation', this.onNewOperation);
+        this.$state.eventBus.off('new-bulk-operations', this.onNewBulkOperations);
     }
 
     protected async mounted() {
@@ -763,7 +765,7 @@ export default class ArtefactEditor extends Vue
                 console.warn("Can't save attributes of non existing sign interpretation");
                 continue;
             }
-            const existingIndex = si.findAttributeIndex(op.attributeValueId);
+            const existingIndex = si.findAttributeIndex(op.interpretationAttributeId);
 
             // Determine the actual operation that needs to be performed on the server.
             // If the original operation is an update, this is also an update.
@@ -807,6 +809,10 @@ export default class ArtefactEditor extends Vue
 
     private onNewOperation(op: ArtefactEditorOperation) {
         this.operationsManager.addOperation(op);
+    }
+
+    private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
+        this.operationsManager.addBulkOperations(ops);
     }
 
     private onUndo() {
