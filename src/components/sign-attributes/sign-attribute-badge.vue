@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="sign-attribute">
         <span v-if="isBoolean">
             <b-badge variant="secondary">{{attribute.attributeString}}</b-badge>
         </span>
@@ -35,4 +35,7 @@ export default class SignAttributeBadge extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.sign-attribute {
+    cursor: default;
+}
 </style>
