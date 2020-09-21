@@ -121,15 +121,12 @@ export default class SignAttributeModal extends Vue {
 
         op.redo(); // Apply change
         this.$state.eventBus.emit('new-operation', op);
-
-        console.debug('sign-attribute-modal comment updated: ', op, this.comment);
     }
 
     private onDeleteAttribute() {
         for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
             const op = new TextFragmentAttributeOperation(si, this.attribute!.attributeValueId, undefined);
             op.redo();
-            console.debug('sign-attribute-modal deleting sign-interpretation attribute');
             this.$state.eventBus.emit('new-operation', op);
         }
     }

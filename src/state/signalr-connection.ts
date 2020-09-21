@@ -77,13 +77,12 @@ export class SignalRWrapper {
             this._utils.disconnectCreatedArtefact(this._currentHandler.handleCreatedArtefact);
             this._utils.disconnectDeletedArtefact(this._currentHandler.handleDeletedArtefact);
             this._utils.disconnectUpdatedArtefact(this._currentHandler.handleUpdatedArtefact);
-            // this._utils.disconnectCreatedRoi(this._currentHandler.handleCreatedRoi);
             this._utils.disconnectCreatedRoisBatch(this._currentHandler.handleCreatedRoisBatch);
             this._utils.disconnectEditedRoisBatch(this._currentHandler.handleEditedRoisBatch);
-            // this._utils.disconnectUpdatedRoi(this._currentHandler.handleUpdatedRoi);
             this._utils.disconnectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
             this._utils.disconnectDeletedRoi(this._currentHandler.handleDeletedRoi);
             this._utils.disconnectCreatedEditor(this._currentHandler.handleCreatedEditor);
+            this._utils.disconnectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
         }
         this._currentHandler = undefined;
     }
@@ -94,13 +93,12 @@ export class SignalRWrapper {
             this._utils.connectCreatedArtefact(this._currentHandler. handleCreatedArtefact);
             this._utils.connectDeletedArtefact(this._currentHandler.handleDeletedArtefact);
             this._utils.connectUpdatedArtefact(this._currentHandler.handleUpdatedArtefact);
-            // this._utils.connectCreatedRoi(this._currentHandler.handleCreatedRoi);
             this._utils.connectCreatedRoisBatch(this._currentHandler.handleCreatedRoisBatch);
             this._utils.connectEditedRoisBatch(this._currentHandler.handleEditedRoisBatch);
-            // this._utils.connectUpdatedRoi(this._currentHandler.handleUpdatedRoi);
             this._utils.connectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
             this._utils.connectDeletedRoi(this._currentHandler.handleDeletedRoi);
             this._utils.connectCreatedEditor(this._currentHandler.handleCreatedEditor);
+            this._utils.connectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
         }
     }
 
