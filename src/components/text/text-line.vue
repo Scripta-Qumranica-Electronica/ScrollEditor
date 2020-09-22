@@ -26,7 +26,9 @@ export default class TextLineComponent extends Vue {
 </script>
 <style lang="scss" scoped>
 div.text-line {
-    display: flex;
+  display: table;
+    text-align: right;
+    white-space: nowrap;
 }
 
 span.line-name {

@@ -1,30 +1,38 @@
 <template>
-    <b-modal id="sign-attribute-modal" hide-header hide-footer @hide="onHide" ref="signAttributeModalRef">
+    <b-modal
+        id="sign-attribute-modal"
+        @hide="onHide"
+        ref="signAttributeModalRef"
+        title="Edit Attribute"
+    >
         <div v-if="attribute">
             <b-row>
-                <b-col cols="2" />
-                <b-col cols="7" class="attribute">
-                    <div>
-                        <sign-attribute-badge :attribute="attribute" />
-                        <b-dropdown size="sm" v-if="editAllowed">
-                            <b-dropdown-item-button v-for="attrVal in possibleAttributeValues" :key="attrVal.attributeValueId" @click="onAttributeValueChanged(attrVal)">
-                                {{ attrVal.value }}
-                            </b-dropdown-item-button>
-                        </b-dropdown>
-                    </div>
-                    <div><span class="description small">{{description}}</span></div>
-                </b-col>
                 <b-col cols="3">
-                    <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
-                        <i class="fa fa-trash"></i>
-                    </b-button>
+                    <label for="selectAttr">{{attribute.attributeString}}</label>
+                </b-col>
+                <b-col cols="9">
+                    <b-form-select id="selectAttr" v-model="selected" @change="onAttributeValueChanged($event)">
+                        <option
+                            :disabled="true"
+                            :value="null"
+                         >{{attribute.attributeValueString}}</option>
+                        <option
+                            v-for="attrVal in possibleAttributeValues"
+                            :key="attrVal.attributeValueId"
+                            :value="attrVal"
+                        >{{ attrVal.value }}</option>
+                    </b-form-select>
+                   <div class="mb-2">
+                        <span class="description small">{{description}}</span>
+                    </div>
                 </b-col>
             </b-row>
-            <b-row v-if="!isMultiSelect">
-                <b-col cols="2">
+
+            <b-row v-if="!isMultiSelect" class="mt-3">
+                <b-col cols="3">
                     <label for="comment">Comment</label>
                 </b-col>
-                <b-col cols="7">
+                <b-col cols="9">
                     <b-form-input
                         id="comment"
                         class="inputsm"
@@ -34,10 +42,15 @@
                         placeholder="Comment"
                     />
                 </b-col>
-                <b-col cols="3"/>
             </b-row>
         </div>
+        <template v-slot:modal-footer>
+          
 
+            <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
+                <i class="fa fa-trash"></i>
+            </b-button>
+        </template>
         <!-- <template v-slot:modal-footer>
             <b-button size="sm" @click="onSave">Save</b-button>
         </template>-->
@@ -45,7 +58,11 @@
 </template>
 
 <script lang="ts">
-import { AttributeValueDTO, CommentaryDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import {
+    AttributeValueDTO,
+    CommentaryDTO,
+    InterpretationAttributeDTO,
+} from '@/dtos/sqe-dtos';
 import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
 import { BvModalEvent } from 'bootstrap-vue';
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
@@ -60,6 +77,7 @@ import SignAttributeBadge from './sign-attribute-badge.vue';
 })
 export default class SignAttributeModal extends Vue {
     private comment: string = '';
+    private selected: string | null = null;
 
     private mounted() {
         this.setComment(this.attribute);
@@ -89,20 +107,27 @@ export default class SignAttributeModal extends Vue {
         if (!this.attribute) {
             return undefined;
         }
-        return this.$state.editions.current?.attributeMetadata?.getAttribute(this.attribute.attributeId);
+        return this.$state.editions.current?.attributeMetadata?.getAttribute(
+            this.attribute.attributeId
+        );
     }
 
     private get possibleAttributeValues() {
         if (!this.attribute || !this.attributeMetadata) {
-            console.warn("Can't return possible values if there is no attribute or metedata");
+            console.warn(
+                "Can't return possible values if there is no attribute or metedata"
+            );
             return [];
         }
         let values = this.attributeMetadata.values;
 
         // Remove the values that are selected by other attributes of the same id
-        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-            for (const attr of si.attributes.filter(a => a.attributeId === this.attribute!.attributeId)) {
-                values = values.filter(v => v.id !== attr.attributeValueId);
+        for (const si of this.$state.artefactEditor
+            .selectedSignsInterpretation) {
+            for (const attr of si.attributes.filter(
+                (a) => a.attributeId === this.attribute!.attributeId
+            )) {
+                values = values.filter((v) => v.id !== attr.attributeValueId);
             }
         }
 
@@ -110,7 +135,9 @@ export default class SignAttributeModal extends Vue {
     }
 
     private get isMultiSelect() {
-        return this.$state.artefactEditor.selectedSignsInterpretation.length !== 1;
+        return (
+            this.$state.artefactEditor.selectedSignsInterpretation.length !== 1
+        );
     }
 
     private get description(): string {
@@ -144,7 +171,7 @@ export default class SignAttributeModal extends Vue {
         this.setComment(newAttribute);
     }
 
-/*    private onAttributeValueChanged(newVal: ) {
+    /*    private onAttributeValueChanged(newVal: ) {
         for (const si of this.$state.artefactEditor
     } */
 
@@ -154,17 +181,25 @@ export default class SignAttributeModal extends Vue {
 
     private onCommentUpdated() {
         if (this.isMultiSelect) {
-            console.warn("Can't update a comment when multiple signs are selected");
+            console.warn(
+                "Can't update a comment when multiple signs are selected"
+            );
             return;
         }
 
         const si = this.$state.artefactEditor.selectedSignsInterpretation[0]; // Only one element, since !isMultiSelect
-        const newAttr: InterpretationAttributeDTO = {...this.attribute!};
+        const newAttr: InterpretationAttributeDTO = { ...this.attribute! };
 
-        newAttr.commentary =  this.comment ? { commentary: this.comment } as CommentaryDTO : undefined;
+        newAttr.commentary = this.comment
+            ? ({ commentary: this.comment } as CommentaryDTO)
+            : undefined;
 
         // Create an operation that will be added to the undo/redo management of the artefact editor
-        const op = new TextFragmentAttributeOperation(si.id, this.attribute!.attributeValueId, newAttr);
+        const op = new TextFragmentAttributeOperation(
+            si.id,
+            this.attribute!.attributeValueId,
+            newAttr
+        );
 
         op.redo(); // Apply change
         this.$state.eventBus.emit('new-operation', op);
@@ -172,8 +207,13 @@ export default class SignAttributeModal extends Vue {
 
     private onDeleteAttribute() {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-            const op = new TextFragmentAttributeOperation(si.id, this.attribute!.attributeValueId, undefined);
+        for (const si of this.$state.artefactEditor
+            .selectedSignsInterpretation) {
+            const op = new TextFragmentAttributeOperation(
+                si.id,
+                this.attribute!.attributeValueId,
+                undefined
+            );
             op.redo();
             ops.push(op);
         }
@@ -183,17 +223,26 @@ export default class SignAttributeModal extends Vue {
 
     private onAttributeValueChanged(attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-            for (const attr of si.attributes.filter(a => a.attributeValueId === this.attribute!.attributeValueId)) {
-                const newAttr: InterpretationAttributeDTO =  {...attr};
+        for (const si of this.$state.artefactEditor
+            .selectedSignsInterpretation) {
+            for (const attr of si.attributes.filter(
+                (a) => a.attributeValueId === this.attribute!.attributeValueId
+            )) {
+                const newAttr: InterpretationAttributeDTO = { ...attr };
                 newAttr.attributeValueId = attrVal.id;
                 newAttr.attributeValueString = attrVal.value;
-                const op = new TextFragmentAttributeOperation(si.id, attr.attributeValueId, newAttr);
+                this.$state.artefactEditor.selectedAttribute = newAttr;
+                const op = new TextFragmentAttributeOperation(
+                    si.id,
+                    attr.attributeValueId,
+                    newAttr
+                );
                 op.redo();
                 ops.push(op);
             }
         }
         this.$state.eventBus.emit('new-bulk-operations', ops);
+        this.selected = null;
     }
 
     private hide() {
@@ -214,7 +263,7 @@ export default class SignAttributeModal extends Vue {
     justify-content: space-between;
 }
 
-.attribute {
-    display: inline;
-}
+// .attribute {
+//     display: inline;
+// }
 </style>
