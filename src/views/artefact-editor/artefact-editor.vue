@@ -800,7 +800,6 @@ export default class ArtefactEditor extends Vue
                         urlValueId = nextValueId;
                     }
                     
-                    debugger;
                     await this.signInterpretationService.updateAttribute(this.edition!, si, urlValueId, si.attributes[existingIndex]);
                     break;
                 case 'delete':
