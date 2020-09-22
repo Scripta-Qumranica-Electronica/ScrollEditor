@@ -790,7 +790,18 @@ export default class ArtefactEditor extends Vue
                     await this.signInterpretationService.createAttribute(this.edition!, si, si.attributes[existingIndex]);
                     break;
                 case 'update':
-                    await this.signInterpretationService.updateAttribute(this.edition!, si, si.attributes[existingIndex]);
+                    // Figure out the attributeValueId of the URL - if there are two attributeValueIds in prev and next,
+                    // we should take that one that is not currently in the store
+                    const existing = si.attributes[existingIndex!]
+                    const prevValueId = op.prev!.attributeValueId;  // In update, both prev and next exist
+                    const nextValueId = op.next!.attributeValueId;
+                    let urlValueId = prevValueId;
+                    if (prevValueId !== nextValueId && prevValueId === existing.attributeValueId) {
+                        urlValueId = nextValueId;
+                    }
+                    
+                    debugger;
+                    await this.signInterpretationService.updateAttribute(this.edition!, si, urlValueId, si.attributes[existingIndex]);
                     break;
                 case 'delete':
                     await this.signInterpretationService.deleteAttribute(this.edition!, si, op.attributeValueId);

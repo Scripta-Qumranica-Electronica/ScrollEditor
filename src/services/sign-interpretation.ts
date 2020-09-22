@@ -17,8 +17,8 @@ export default class SignInterpretationService {
         this.stateManager = StateManager.instance;
     }
 
-    public async updateAttribute(edition: EditionInfo, signInterpretation: SignInterpretation, attribute: InterpretationAttributeDTO) {
-        const url = ApiRoutes.attributeUrl(edition.id, signInterpretation.id, attribute.attributeValueId);
+    public async updateAttribute(edition: EditionInfo, signInterpretation: SignInterpretation, oldValueId: number, attribute: InterpretationAttributeDTO) {
+        const url = ApiRoutes.attributeUrl(edition.id, signInterpretation.id, oldValueId);
         const dto: InterpretationAttributeCreateDTO = {
             attributeId: attribute.attributeId,
             attributeValueId: attribute.attributeValueId,
