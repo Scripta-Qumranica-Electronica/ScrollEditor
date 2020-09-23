@@ -33,6 +33,8 @@ export default class SignComponent extends Vue {
     }
 
     private cssStrings(si: SignInterpretation): string {
+        // Use cssAttr = `${attributeString}-${attributeValueString}` and replace spaces with _, make everything lowercase
+        // TODO: use x.attribteString-x.attributeValueString
         return si.attributes.map((x) => x.attributeValueString === 'TRUE' ? x.attributeString : x.attributeValueString).join(' ');
     }
 }
@@ -58,11 +60,12 @@ span.selected {
     margin: 1px;
 }
 
-.is-reconstructed-true {
+.is-reconstructed-true {  /* is_reconstructed-true */
     color: #dee2e6;
     user-select: none;
+    /* Add a dot above the character */
 }
-.readability-incomplete-but-clear {
+.readability-incomplete-but-clear { /* readability-incomplete_but_clear */
     color: green;
 }
 .readability-incomplete-but-clear:after {
