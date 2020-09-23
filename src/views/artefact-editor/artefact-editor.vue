@@ -44,7 +44,10 @@
                     <div class="sign-wheel sign-wheel-position">
                         {{artefact.name}}
                         <edition-icons :edition="edition" :show-text="true" />
-                        <sign-wheel v-if="selectedSignsInterpretation.length==1" :line="selectedLine" />
+                        <sign-wheel
+                            v-if="selectedSignsInterpretation.length==1"
+                            :line="selectedLine"
+                        />
                     </div>
                     <b-button
                         type="button"
@@ -228,20 +231,21 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-image': ArtefactImage,
         'artefact-side-menu': ArtefactSideMenu,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
     },
 })
-export default class ArtefactEditor extends Vue
+export default class ArtefactEditor
+    extends Vue
     implements SavingAgent<ArtefactEditorOperation> {
     public params = new ArtefactEditorParams();
     // private selectedSignInterpretation: SignInterpretation | null = null;
@@ -290,7 +294,11 @@ export default class ArtefactEditor extends Vue
         try {
             const appliedRotation = await this.saveRotation();
             const appliedROIs = await this.saveROIs();
-            await this.saveAttributes(ops.filter(op => op.type === 'attr') as TextFragmentAttributeOperation[]);
+            await this.saveAttributes(
+                ops.filter(
+                    (op) => op.type === 'attr'
+                ) as TextFragmentAttributeOperation[]
+            );
         } catch (e) {
             console.error("Can't save arterfacts to server", e);
             return false;
@@ -402,7 +410,10 @@ export default class ArtefactEditor extends Vue
         this.$state.eventBus.on('remove-roi', this.removeRoi);
         this.$state.eventBus.on('place-roi', this.placeRoi);
         this.$state.eventBus.on('new-operation', this.onNewOperation);
-        this.$state.eventBus.on('new-bulk-operations', this.onNewBulkOperations);
+        this.$state.eventBus.on(
+            'new-bulk-operations',
+            this.onNewBulkOperations
+        );
     }
 
     protected destroyed() {
@@ -411,7 +422,10 @@ export default class ArtefactEditor extends Vue
         this.$state.eventBus.off('remove-roi', this.removeRoi);
         this.$state.eventBus.off('place-roi', this.placeRoi);
         this.$state.eventBus.off('new-operation', this.onNewOperation);
-        this.$state.eventBus.off('new-bulk-operations', this.onNewBulkOperations);
+        this.$state.eventBus.off(
+            'new-bulk-operations',
+            this.onNewBulkOperations
+        );
     }
 
     protected async mounted() {
@@ -500,7 +514,10 @@ export default class ArtefactEditor extends Vue
     }
 
     private get isDrawingEnabled() {
-        return !!this.artefactEditorState.singleSelectedSi;
+        return (
+            !!this.artefactEditorState.singleSelectedSi &&
+            !this.artefactEditorState.singleSelectedSi.isReconstructed
+        );
     }
 
     private get isDeleteEnabled() {
@@ -760,12 +777,18 @@ export default class ArtefactEditor extends Vue
     private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
         for (const op of ops) {
             const opType = op.attributeOperationType;
-            const si = this.$state.signInterpretations.get(op.signInterpretationId);
+            const si = this.$state.signInterpretations.get(
+                op.signInterpretationId
+            );
             if (!si) {
-                console.warn("Can't save attributes of non existing sign interpretation");
+                console.warn(
+                    "Can't save attributes of non existing sign interpretation"
+                );
                 continue;
             }
-            const existingIndex = si.findAttributeIndex(op.interpretationAttributeId);
+            const existingIndex = si.findAttributeIndex(
+                op.interpretationAttributeId
+            );
 
             // Determine the actual operation that needs to be performed on the server.
             // If the original operation is an update, this is also an update.
@@ -787,23 +810,39 @@ export default class ArtefactEditor extends Vue
 
             switch (actualOpType) {
                 case 'create':
-                    await this.signInterpretationService.createAttribute(this.edition!, si, si.attributes[existingIndex]);
+                    await this.signInterpretationService.createAttribute(
+                        this.edition!,
+                        si,
+                        si.attributes[existingIndex]
+                    );
                     break;
                 case 'update':
                     // Figure out the attributeValueId of the URL - if there are two attributeValueIds in prev and next,
                     // we should take that one that is not currently in the store
                     const existing = si.attributes[existingIndex!];
-                    const prevValueId = op.prev!.attributeValueId;  // In update, both prev and next exist
+                    const prevValueId = op.prev!.attributeValueId; // In update, both prev and next exist
                     const nextValueId = op.next!.attributeValueId;
                     let urlValueId = prevValueId;
-                    if (prevValueId !== nextValueId && prevValueId === existing.attributeValueId) {
+                    if (
+                        prevValueId !== nextValueId &&
+                        prevValueId === existing.attributeValueId
+                    ) {
                         urlValueId = nextValueId;
                     }
 
-                    await this.signInterpretationService.updateAttribute(this.edition!, si, urlValueId, si.attributes[existingIndex]);
+                    await this.signInterpretationService.updateAttribute(
+                        this.edition!,
+                        si,
+                        urlValueId,
+                        si.attributes[existingIndex]
+                    );
                     break;
                 case 'delete':
-                    await this.signInterpretationService.deleteAttribute(this.edition!, si, op.attributeValueId);
+                    await this.signInterpretationService.deleteAttribute(
+                        this.edition!,
+                        si,
+                        op.attributeValueId
+                    );
                     break;
             }
         }

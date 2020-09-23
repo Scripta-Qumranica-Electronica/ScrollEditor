@@ -11,18 +11,19 @@
                     <label for="selectAttr">{{attribute.attributeString}}</label>
                 </b-col>
                 <b-col cols="9">
-                    <b-form-select id="selectAttr" v-model="selected" @change="onAttributeValueChanged($event)">
-                        <option
-                            :disabled="true"
-                            :value="null"
-                         >{{attribute.attributeValueString}}</option>
+                    <b-form-select
+                        id="selectAttr"
+                        v-model="selected"
+                        @change="onAttributeValueChanged($event)"
+                    >
+                        <option :disabled="true" :value="null">{{attribute.attributeValueString}}</option>
                         <option
                             v-for="attrVal in possibleAttributeValues"
                             :key="attrVal.attributeValueId"
                             :value="attrVal"
                         >{{ attrVal.value }}</option>
                     </b-form-select>
-                   <div class="mb-2">
+                    <div class="mb-2">
                         <span class="description small">{{description}}</span>
                     </div>
                 </b-col>
@@ -45,8 +46,6 @@
             </b-row>
         </div>
         <template v-slot:modal-footer>
-          
-
             <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
                 <i class="fa fa-trash"></i>
             </b-button>
@@ -92,10 +91,6 @@ export default class SignAttributeModal extends Vue {
     }
 
     private get editAllowed() {
-        if (this.attribute?.attributeValueString === 'TRUE') {
-            return false;
-        }
-
         if (this.isMultiSelect) {
             return this.attributeMetadata?.batchEditable || false;
         } else {

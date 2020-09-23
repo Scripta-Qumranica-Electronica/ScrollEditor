@@ -20,7 +20,10 @@ export default class SignComponent extends Vue {
     private get chosenSI() {
         return this.sign.signInterpretations[0];
     }
-    private onSignInterpretationClicked(event: MouseEvent, si: SignInterpretation) {
+    private onSignInterpretationClicked(
+        event: MouseEvent,
+        si: SignInterpretation
+    ) {
         if (event.ctrlKey || event.metaKey) {
             this.$state.artefactEditor.toggleSelectSign(si);
         } else {
@@ -33,14 +36,17 @@ export default class SignComponent extends Vue {
     }
 
     private cssStrings(si: SignInterpretation): string {
-        // Use cssAttr = `${attributeString}-${attributeValueString}` and replace spaces with _, make everything lowercase
-        // TODO: use x.attribteString-x.attributeValueString
-        return si.attributes.map((x) => x.attributeValueString === 'TRUE' ? x.attributeString : x.attributeValueString).join(' ');
+        return si.attributes
+            .map((x) =>
+                `${x.attributeString}-${x.attributeValueString}`
+                    .toLowerCase()
+                    .replace('_', '-')
+            )
+            .join(' ');
     }
 }
 </script>
 <style lang="scss" scoped>
-
 @import '@/assets/styles/_variables.scss';
 div {
     display: inline;
@@ -60,12 +66,17 @@ span.selected {
     margin: 1px;
 }
 
-.is-reconstructed-true {  /* is_reconstructed-true */
-    color: #dee2e6;
+.is-reconstructed-true {
+    /* is_reconstructed-true */
+    color: #bcbec0;
     user-select: none;
+}
+.is-reconstructed-true:after {
+    content: '\05C4';
     /* Add a dot above the character */
 }
-.readability-incomplete-but-clear { /* readability-incomplete_but_clear */
+.readability-incomplete-but-clear {
+    /* readability-incomplete_but_clear */
     color: green;
 }
 .readability-incomplete-but-clear:after {

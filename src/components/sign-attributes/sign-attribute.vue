@@ -29,10 +29,6 @@ export default class SignAttribute extends Vue {
     @Prop({ default: false })
     public multipleSigns!: boolean;
 
-    private get isBoolean(): boolean {
-        return this.attribute!.attributeValueString === 'TRUE';
-    }
-
     private onClick() {
         this.attributeClick();
     }

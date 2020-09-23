@@ -1,9 +1,6 @@
 <template>
     <div class="sign-attribute">
-        <span v-if="isBoolean">
-            <b-badge variant="secondary">{{attribute.attributeString}}</b-badge>
-        </span>
-        <span v-else>
+        <span>
             <b-badge variant="secondary">{{attribute.attributeString}}: {{attribute.attributeValueString}}</b-badge>
         </span>
     </div>
@@ -27,10 +24,6 @@ import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 export default class SignAttributeBadge extends Vue {
     @Prop()
     public attribute!: InterpretationAttributeDTO;
-
-    private get isBoolean(): boolean {
-        return this.attribute!.attributeValueString === 'TRUE';
-    }
 }
 </script>
 
