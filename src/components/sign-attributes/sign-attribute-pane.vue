@@ -2,23 +2,28 @@
     <div class="attributes">
         <ul class="row">
             <li class="pr-1">
-                <b-dropdown :disabled="!selectedSignsInterpretation.length" size="sm" no-caret @hide="$event.preventDefault()">
+                <b-dropdown
+                    ref="attributesMenu"
+                    :disabled="!selectedSignsInterpretation.length"
+                    size="sm"
+                    no-caret
+                    @hide="onAttributesMenuHide($event)"
+                >
                     <template v-slot:button-content>
                         <i class="fa fa-plus" />
                     </template>
 
                     <b-dropdown
-                        v-for="attr in attributesMetadata"
+                        v-for="attr in prepareAttributesMenu()"
                         :key="attr.attributeId"
                         variant="link"
-                        class="dd"
+                        class="dropdown-attr"
                         dropright
-                        :id="attr.attributeId"
+                        @show="onValuesMenuShow()"
+                        @hide="onValuesMenuHide()"
                     >
                         <template v-slot:button-content>
-                            <span
-                                style="width: 100%;display: inline-block;font-size:14px;"
-                            >{{attr.attributeName}}</span>
+                            <span class="attr-name">{{attr.attributeName}}</span>
                         </template>
                         <b-dropdown-item
                             v-for="attrValue in attr.values"
@@ -54,10 +59,11 @@ import {
 } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import { EditionInfo } from '@/models/edition';
-import { AttributeValueDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import { AttributeDTO, AttributeValueDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
 import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
+import { BDropdown, BvEvent } from 'bootstrap-vue';
 
 @Component({
     name: 'sign-attribute-pane',
@@ -67,6 +73,7 @@ import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operatio
     },
 })
 export default class SignAttributePane extends Vue {
+    private keepOpen = false;
     public get artefactEditor() {
         return this.$state.artefactEditor;
     }
@@ -84,12 +91,11 @@ export default class SignAttributePane extends Vue {
         let attributeValues: number[] = [];
         let first = true;
 
-        if (!this.$state.artefactEditor.selectedSignsInterpretation.length) {
+        if (!this.selectedSignsInterpretation.length) {
             return [];
         }
 
-        for (const si of this.$state.artefactEditor
-            .selectedSignsInterpretation) {
+        for (const si of this.selectedSignsInterpretation) {
             const siValues = [
                 ...si.attributes.map((attr) => attr.attributeValueId),
             ];
@@ -103,7 +109,7 @@ export default class SignAttributePane extends Vue {
             }
         }
 
-        const attributes = this.$state.artefactEditor.selectedSignsInterpretation[0].attributes.filter(
+        const attributes = this.selectedSignsInterpretation[0].attributes.filter(
             (attr) => attributeValues.includes(attr.attributeValueId)
         );
         return attributes;
@@ -114,20 +120,85 @@ export default class SignAttributePane extends Vue {
         this.$root.$emit('bv::show::modal', 'sign-attribute-modal');
     }
 
+    private onAddAttribute(attrVal: AttributeValueDTO) {
+        console.log('attribute added', attrVal);
+        // const ops: TextFragmentAttributeOperation[] = [];
+        // for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
+        //         const op = new TextFragmentAttributeOperation(
+        //             si.id,
+        //             attrVal.id,
+        //             {}
+        //         );
+        //         op.redo();
+        //         ops.push(op);
+        // }
+        // this.$state.eventBus.emit('new-bulk-operations', ops);
+    }
 
-    // private onAddAttribute(attrVal: AttributeValueDTO) {
-    //     const ops: TextFragmentAttributeOperation[] = [];
-    //     for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-    //             const op = new TextFragmentAttributeOperation(
-    //                 si.id,
-    //                 attrVal.id,
-    //                 {}
-    //             );
-    //             op.redo();
-    //             ops.push(op);
-    //     }
-    //     this.$state.eventBus.emit('new-bulk-operations', ops);
-    // }
+    private prepareAttributesMenu(): AttributeDTO[] {
+        if (!this.selectedSignsInterpretation.length) {
+            return [];
+        }
+
+        const filteredAttributes: AttributeDTO[] = [];
+        const attributesSet: Set<number> = new Set<number>();
+        const attributesValuesSet: Set<number> = new Set<number>();
+
+        for (const si of this.selectedSignsInterpretation) {
+            for (const attribute of si.attributes) {
+                attributesSet.add(attribute.attributeId);
+                attributesValuesSet.add(attribute.attributeValueId);
+            }
+        }
+
+        for (const attributeMeta of this.attributesMetadata) {
+
+            const attributeCopy = {...attributeMeta};
+            // check repeatable
+            if (attributesSet.has(attributeMeta.attributeId) && !attributeMeta.repeatable) {
+                continue;
+            }
+
+            // multiple: only batchEditable
+            if (this.selectedSignsInterpretation.length > 1 && !attributeMeta.batchEditable) {
+                continue;
+            }
+
+            // single: only editable
+            if (this.selectedSignsInterpretation.length === 1 && !attributeMeta.editable) {
+                continue;
+            }
+
+            // repeatable: remove existing values
+            if (attributesSet.has(attributeMeta.attributeId) && attributeMeta.repeatable) {
+                for (const attributeValue of attributeMeta.values) {
+                    if (attributesValuesSet.has(attributeValue.id)) {
+                        const idx = attributeCopy.values.findIndex(value => value.id === attributeValue.id);
+                        attributeCopy.values.splice(idx, 1);
+                    }
+                }
+            }
+
+            filteredAttributes.push(attributeCopy);
+        }
+
+        return filteredAttributes;
+    }
+
+    private onValuesMenuShow() {
+        this.keepOpen = true;
+    }
+
+    private onValuesMenuHide() {
+        this.keepOpen = false;
+        // (this.$refs.attributesMenu as BDropdown).hide();
+    }
+
+    private onAttributesMenuHide(event: BvEvent) {
+        if (this.keepOpen) {
+            event.preventDefault();
+        }
+    }
 }
 </script>
 
@@ -152,9 +223,13 @@ export default class SignAttributePane extends Vue {
 }
 </style>
 <style lang="scss">
-.dd {
+.dropdown-attr {
     width: 100%;
-
+    .attr-name {
+        width: 100%;
+        display: inline-block;
+        font-size: 14px;
+    }
     .btn-link {
         font-weight: 400;
         // color: #007bff;
