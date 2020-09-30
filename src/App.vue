@@ -52,6 +52,13 @@ export default {
     font-style: normal;
 }
 
+@font-face {
+  font-family: 'AvenirLTStd-Light';
+  src: url('./assets/fonts/AvenirLTStd-Light.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #main-container {
   max-height: calc(100vh - 56px);   /* Navbar is 56 pixels high */
   padding: 0px;

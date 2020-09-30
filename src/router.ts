@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
+import Welcome from './components/welcome/welcome.vue';
 import Edition from './views/edition/Edition.vue';
 import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
@@ -22,6 +23,11 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'welcome',
+      component: Welcome,
+    },
+    {
+      path: '/home',
       name: 'home',
       component: Home,
     },

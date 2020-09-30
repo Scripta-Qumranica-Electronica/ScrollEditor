@@ -22,7 +22,7 @@ export default {
     updateUserDetails: 'Update User Details',
     update: 'Update',
 
-    forgotPassword: 'Forgot Password',
+    forgotPassword: 'Forgot Password?',
     changeForgottenPassword: 'Change Forgotten Password',
 
     activateUser: 'Activate User',
