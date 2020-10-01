@@ -12,34 +12,35 @@
                     }}</b-btn>
                 </b-nav-item>
                 <b-nav-item v-if="!userName">
-                    <b-btn size="sm">
-                        <router-link
-                            :to="{ path: `/registration` }"
-                            class="white-link"
-                            >{{ $t('navbar.register') }}</router-link
-                        >
+                    <b-btn @click="register" size="sm">
+                        {{ $t('navbar.register') }}
                     </b-btn>
                 </b-nav-item>
             </b-nav>
         </div>
 
         <login></login>
+        <register></register>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import Login from '../navigation/Login.vue';
+import Registration from '@/views/user/Registration.vue';
 import SessionService from '@/services/session';
 import router from '@/router';
 @Component({
     name: 'welcome',
-    components: { login: Login },
+    components: { login: Login, register: Registration }
 })
 export default class Welcome extends Vue {
     private sessionService = new SessionService();
     private login() {
         this.$root.$emit('bv::show::modal', 'loginModal');
+    }
+    private register() {
+        this.$root.$emit('bv::show::modal', 'registerModal');
     }
     private get userName(): string | undefined {
         if (this.$state.session.user) {
