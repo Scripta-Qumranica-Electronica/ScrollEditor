@@ -33,9 +33,9 @@
                     </b-col>
                 </b-row>
                 <b-row class="justify-content-end">
-                    <button @click="forgotPassword" class="btn btn-link">
+                    <b-link @click="forgotPassword" class="sign-link">
                         {{ $t('navbar.forgotPassword') }}
-                    </button>
+                    </b-link>
                 </b-row>
                 <b-row>
                     <b-col class="text-danger">{{ errorMessage }}</b-col>
@@ -58,10 +58,9 @@
                             ></font-awesome-icon>
                         </span>
                     </b-button>
-                     <p>Can’t login? <router-link
-                        :to="{ path: `/registration` }"
-                        class="white-link"
-                        >Sign up</router-link
+                     <p class="sign-link">Can’t login? <b-link
+                        @click="register"
+                        >Sign up</b-link
                     > for an account here</p> 
                 </div> 
                 
@@ -79,11 +78,13 @@ import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
 import { StateManager } from '@/state';
+import Registration from '@/views/user/Registration.vue';
 
 export default Vue.extend({
     name: 'login',
     components: {
         ForgotPassword,
+
     },
     data() {
         return {
@@ -132,7 +133,10 @@ export default Vue.extend({
         forgotPassword() {
             this.$root.$emit('bv::show::modal', 'passwordModal');
         },
-    },
+        register() {
+        this.$root.$emit('bv::show::modal', 'registerModal');
+    }
+    }
 });
 </script>
 
@@ -159,17 +163,17 @@ button.btn.btn-login-modal.btn-primary.btn-block {
     font-style: normal;
     font-size: 14px;
 }
-.btn-link{
-    font-weight: 500!important;
-    font-size: 14px!important;
-    color: #145af3!important;
-    font-family: AvenirLTStd-Light;
-}
 ::placeholder {
     color: #adb4c5 !important;
     font-size: 14px;
 }
 .modal-content{
     border-radius:0px!important;
+}
+.sign-link{
+    font-size: 14px;
+    font-weight:500;
+    padding-top: 5px;
+
 }
 </style>

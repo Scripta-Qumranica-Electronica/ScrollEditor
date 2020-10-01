@@ -82,7 +82,7 @@
                         block
                         variant="primary"
                         class="btn-login-modal"
-                        :disabled="disabledLogin"
+                       :disabled="disabledReg"
                     >
                         {{ $t('navbar.register') }}
                         <span v-if="waiting">
