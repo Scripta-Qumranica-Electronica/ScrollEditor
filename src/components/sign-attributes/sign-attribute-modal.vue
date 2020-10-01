@@ -229,7 +229,7 @@ export default class SignAttributeModal extends Vue {
                 this.$state.artefactEditor.selectedAttribute = newAttr;
                 const op = new TextFragmentAttributeOperation(
                     si.id,
-                    attr.attributeValueId,
+                    attr.attributeValueId, // This is the old ID of the attribute
                     newAttr
                 );
                 op.redo();

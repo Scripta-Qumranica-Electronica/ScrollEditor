@@ -786,9 +786,7 @@ export default class ArtefactEditor
                 );
                 continue;
             }
-            const existingIndex = si.findAttributeIndex(
-                op.interpretationAttributeId
-            );
+            const existingIndex = si.findAttributeIndex(op.attributeValueId);
 
             // Determine the actual operation that needs to be performed on the server.
             // If the original operation is an update, this is also an update.
@@ -808,6 +806,8 @@ export default class ArtefactEditor
                     break;
             }
 
+            console.debug(`opType: ${opType}, existingIndex: ${existingIndex}, actualOpType: ${actualOpType}`);
+
             switch (actualOpType) {
                 case 'create':
                     await this.signInterpretationService.createAttribute(
@@ -817,25 +817,34 @@ export default class ArtefactEditor
                     );
                     break;
                 case 'update':
-                    // Figure out the attributeValueId of the URL - if there are two attributeValueIds in prev and next,
-                    // we should take that one that is not currently in the store
-                    const existing = si.attributes[existingIndex!];
-                    const prevValueId = op.prev!.attributeValueId; // In update, both prev and next exist
-                    const nextValueId = op.next!.attributeValueId;
-                    let urlValueId = prevValueId;
-                    if (
-                        prevValueId !== nextValueId &&
-                        prevValueId === existing.attributeValueId
-                    ) {
-                        urlValueId = nextValueId;
+                    if (!op.prev || !op.next) {
+                        console.error('Found an update operation without both next and prev', op);
+                        throw new Error('Found an update operation without both next and prev');
                     }
 
-                    await this.signInterpretationService.updateAttribute(
-                        this.edition!,
-                        si,
-                        urlValueId,
-                        si.attributes[existingIndex]
-                    );
+                    if (op.prev.attributeValueId === op.next.attributeValueId) {
+                        // This is an update operation of a comment, we can use the update API
+                        await this.signInterpretationService.updateAttribute(this.edition!, si, op.next.attributeValueId, si.attributes[existingIndex]);
+                        return;
+                    }
+
+                    console.debug(`Detected an update of an attributeValueId from ${op.prev.attributeValueId} to ${op.next.attributeValueId}`);
+                    const prevIndex = si.findAttributeIndex(op.prev.attributeValueId);
+                    const nextIndex = si.findAttributeIndex(op.next.attributeValueId);
+                    console.debug(`prevIndex ${prevIndex}, nextIndex ${nextIndex}`);
+
+                    if (prevIndex !== -1 && nextIndex !== -1) {
+                        console.error('In an attribute value update, we have both prev and next in the current attributes', op);
+                        throw new Error('In an attribute value update, we have both prev and next in the current attributes');
+                    }
+
+                    // See if we delete prev and create next or vice versa
+                    const prevIsCurrent = prevIndex !== -1;
+                    const toDeleteAttributeValueId = prevIsCurrent ? op.next.attributeValueId : op.prev.attributeValueId;
+                    const toCreateAttribute = prevIsCurrent ? op.prev : op.next;
+
+                    await this.signInterpretationService.deleteAttribute(this.edition!, si, toDeleteAttributeValueId);
+                    await this.signInterpretationService.createAttribute(this.edition!, si, toCreateAttribute);
                     break;
                 case 'delete':
                     await this.signInterpretationService.deleteAttribute(

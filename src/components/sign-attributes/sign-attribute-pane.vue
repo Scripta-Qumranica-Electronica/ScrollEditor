@@ -28,7 +28,7 @@
                         <b-dropdown-item
                             v-for="attrValue in attr.values"
                             :key="attrValue.id"
-                            @click="onAddAttribute(attrValue)"
+                            @click="onAddAttribute(attr, attrValue)"
                         >{{attrValue.value}}</b-dropdown-item>
                     </b-dropdown>
                 </b-dropdown>
@@ -120,19 +120,23 @@ export default class SignAttributePane extends Vue {
         this.$root.$emit('bv::show::modal', 'sign-attribute-modal');
     }
 
-    private onAddAttribute(attrVal: AttributeValueDTO) {
-        console.log('attribute added', attrVal);
-        // const ops: TextFragmentAttributeOperation[] = [];
-        // for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-        //         const op = new TextFragmentAttributeOperation(
-        //             si.id,
-        //             attrVal.id,
-        //             {}
-        //         );
-        //         op.redo();
-        //         ops.push(op);
-        // }
-        // this.$state.eventBus.emit('new-bulk-operations', ops);
+    private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
+        const ops: TextFragmentAttributeOperation[] = [];
+        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
+            const op = new TextFragmentAttributeOperation(
+                si.id,
+                attrVal.id,
+                {
+                    attributeId: attr.attributeId,
+                    attributeString: attr.attributeName,
+                    attributeValueId: attrVal.id,
+                    attributeValueString: attrVal.value,
+                } as InterpretationAttributeDTO
+            );
+            op.redo();
+            ops.push(op);
+        }
+        this.$state.eventBus.emit('new-bulk-operations', ops);
     }
 
     private prepareAttributesMenu(): AttributeDTO[] {
