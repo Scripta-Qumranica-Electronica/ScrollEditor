@@ -169,4 +169,7 @@ button.btn.btn-login-modal.btn-primary.btn-block {
     color: #adb4c5 !important;
     font-size: 14px;
 }
+.modal-content{
+    border-radius:0px!important;
+}
 </style>

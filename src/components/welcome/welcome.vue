@@ -67,7 +67,7 @@ export default class Welcome extends Vue {
 <style lang="scss" scoped>
 .welcome {
     height: 480px;
-    background-image: url(/img/welcome.90ebd31c.jpg);
+    background-image: url('~@/assets/images/welcome.jpg');
     position: relative;
 
     .welcome-wrapper {
