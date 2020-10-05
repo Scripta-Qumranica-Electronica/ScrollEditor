@@ -66,7 +66,7 @@
 
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import ScrollMenu from './scroll-menu.vue';

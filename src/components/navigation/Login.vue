@@ -38,11 +38,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
-import { StateManager } from '@/state';
 
 export default Vue.extend({
     name: 'login',

@@ -10,11 +10,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import { ImagedObjectEditorParams } from './types';
-import { ImageStack } from '@/models/image';
-import { Polygon } from '@/utils/Polygons';
-import { SingleImageSetting } from '../../components/image-settings/types';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 
 @Component({

@@ -88,13 +88,6 @@ class TextFragment {
         // State collections require an id field (look for ItemWithId)
         return this.textFragmentId;
     }
-
-    private copyFrom(other: TextFragment) {
-        this.textFragmentId = other.textFragmentId;
-        this.textFragmentName = other.textFragmentName;
-        this.editorId = other.editorId;
-        this.lines = other.lines;
-    }
 }
 
 class TextEdition {

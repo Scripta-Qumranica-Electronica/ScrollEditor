@@ -33,7 +33,6 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import ArtefactCard from './artefact-card.vue';
-import { countIf } from '@/utils/helpers';
 import ImagedObjectService from '@/services/imaged-object';
 import ArtefactService from '@/services/artefact';
 import { DropdownOption } from '@/utils/helpers';

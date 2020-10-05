@@ -10,7 +10,10 @@
                     @hide="onAttributesMenuHide($event)"
                 >
                     <template v-slot:button-content>
-                        <i class="fa fa-plus" @click="onAddAttributesMenuOpen()"/>
+                        <i
+                            class="fa fa-plus"
+                            @click="onAddAttributesMenuOpen()"
+                        />
                     </template>
 
                     <b-dropdown
@@ -23,13 +26,16 @@
                         @hide="onValuesMenuHide()"
                     >
                         <template v-slot:button-content>
-                            <span class="attr-name">{{attr.attributeName}}</span>
+                            <span class="attr-name">{{
+                                attr.attributeName
+                            }}</span>
                         </template>
                         <b-dropdown-item
                             v-for="attrValue in attr.values"
                             :key="attrValue.id"
                             @click="onAddAttribute(attr, attrValue)"
-                        >{{attrValue.value}}</b-dropdown-item>
+                            >{{ attrValue.value }}</b-dropdown-item
+                        >
                     </b-dropdown>
                 </b-dropdown>
             </li>
@@ -49,17 +55,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import { Artefact } from '@/models/artefact';
+import { Component, Vue } from 'vue-property-decorator';
+import { SignInterpretation } from '@/models/text';
 import {
-    TextFragmentData,
-    TextFragment,
-    SignInterpretation,
-    ArtefactTextFragmentData,
-} from '@/models/text';
-import TextFragmentComponent from '@/components/text/text-fragment.vue';
-import { EditionInfo } from '@/models/edition';
-import { AttributeDTO, AttributeValueDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+    AttributeDTO,
+    AttributeValueDTO,
+    InterpretationAttributeDTO,
+} from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
 import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
@@ -124,17 +126,14 @@ export default class SignAttributePane extends Vue {
 
     private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-            const op = new TextFragmentAttributeOperation(
-                si.id,
-                attrVal.id,
-                {
-                    attributeId: attr.attributeId,
-                    attributeString: attr.attributeName,
-                    attributeValueId: attrVal.id,
-                    attributeValueString: attrVal.value,
-                } as InterpretationAttributeDTO
-            );
+        for (const si of this.$state.artefactEditor
+            .selectedSignsInterpretation) {
+            const op = new TextFragmentAttributeOperation(si.id, attrVal.id, {
+                attributeId: attr.attributeId,
+                attributeString: attr.attributeName,
+                attributeValueId: attrVal.id,
+                attributeValueString: attrVal.value,
+            } as InterpretationAttributeDTO);
             op.redo();
             ops.push(op);
         }
@@ -164,28 +163,41 @@ export default class SignAttributePane extends Vue {
         }
 
         for (const attributeMeta of this.attributesMetadata) {
-
-            const attributeCopy = {...attributeMeta};
+            const attributeCopy = { ...attributeMeta };
             // check repeatable
-            if (attributesSet.has(attributeMeta.attributeId) && !attributeMeta.repeatable) {
+            if (
+                attributesSet.has(attributeMeta.attributeId) &&
+                !attributeMeta.repeatable
+            ) {
                 continue;
             }
 
             // multiple: only batchEditable
-            if (this.selectedSignsInterpretation.length > 1 && !attributeMeta.batchEditable) {
+            if (
+                this.selectedSignsInterpretation.length > 1 &&
+                !attributeMeta.batchEditable
+            ) {
                 continue;
             }
 
             // single: only editable
-            if (this.selectedSignsInterpretation.length === 1 && !attributeMeta.editable) {
+            if (
+                this.selectedSignsInterpretation.length === 1 &&
+                !attributeMeta.editable
+            ) {
                 continue;
             }
 
             // repeatable: remove existing values
-            if (attributesSet.has(attributeMeta.attributeId) && attributeMeta.repeatable) {
+            if (
+                attributesSet.has(attributeMeta.attributeId) &&
+                attributeMeta.repeatable
+            ) {
                 for (const attributeValue of attributeMeta.values) {
                     if (attributesValuesSet.has(attributeValue.id)) {
-                        const idx = attributeCopy.values.findIndex(value => value.id === attributeValue.id);
+                        const idx = attributeCopy.values.findIndex(
+                            (value) => value.id === attributeValue.id
+                        );
                         attributeCopy.values.splice(idx, 1);
                     }
                 }

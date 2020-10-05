@@ -7,7 +7,6 @@ import { EditionCollection,
     SignInterpretationMap,
     TextFragmentMap,
     ArtefactGroupsMap } from './utilities';
-import { Polygon } from '@/utils/Polygons';
 import StateService from './state-service';
 import { ScrollEditorState } from './scroll-editor';
 import { EventBus } from './event-bus';

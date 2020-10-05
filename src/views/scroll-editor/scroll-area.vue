@@ -50,27 +50,21 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Vue, Emit } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import ScrollMenu from './scroll-menu.vue';
 import Zoomer, {
     ZoomEventArgs,
-    RotateEventArgs
 } from '@/components/misc/zoomer.vue';
 import { ScrollEditorParams } from '../artefact-editor/types';
 import { BoundingBox } from '@/utils/helpers';
 import {
-    SingleImageSetting,
     ImageSetting
 } from '@/components/image-settings/types';
-import { ImageStack } from '@/models/image';
 import { Artefact } from '@/models/artefact';
-import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
-import { ArtefactGroup } from '@/models/edition';
 import { ScrollEditorState } from '@/state/scroll-editor';
 
 @Component({

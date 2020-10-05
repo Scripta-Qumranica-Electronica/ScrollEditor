@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import { TextFragment, SignInterpretation } from '@/models/text';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { TextFragment } from '@/models/text';
 import TextLine from '@/components/text/text-line.vue';
 
 @Component({

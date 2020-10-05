@@ -29,15 +29,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
-import { EditionInfo, ShareInfo, SimplifiedPermission } from '@/models/edition';
-import EditionService from '@/services/edition';
-import { ImagedObject } from '@/models/imaged-object';
-import { BvModalEvent } from 'bootstrap-vue';
+import { Component, Vue } from 'vue-property-decorator';
 import ArtefactImage from '@/components/artefact/artefact-image.vue';
-import ArtefactService from '@/services/artefact';
 import { Artefact } from '@/models/artefact';
-import artefactCardVue from '../edition/components/artefact-card.vue';
 
 @Component({
     name: 'add-artefact-modal',
@@ -47,7 +41,6 @@ import artefactCardVue from '../edition/components/artefact-card.vue';
 })
 export default class AddArtefactModal extends Vue {
     private artefact: Artefact | undefined = {} as Artefact;
-    private artefactService = new ArtefactService();
 
     private isLoaded = false;
 

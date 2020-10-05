@@ -93,15 +93,13 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue';
-import { ImagedObject } from '@/models/imaged-object';
+import Vue from 'vue';
 import { Artefact } from '@/models/artefact';
 import { ArtefactEditorParams, ArtefactEditorParamsChangedArgs } from './types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '../../services/imaged-object';
 import { ImageStack } from '../../models/image';
 import {
-    SingleImageSetting,
     ImageSetting
 } from '../../components/image-settings/types';
 import { OperationsManagerStatus } from '@/utils/operations-manager';

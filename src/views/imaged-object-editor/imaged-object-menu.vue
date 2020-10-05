@@ -218,7 +218,6 @@ import {
 import SingleImageSettingComponent from '@/components/image-settings/SingleImageSetting.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import {
-    SingleImageSetting,
     ImageSetting
 } from '@/components/image-settings/types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';

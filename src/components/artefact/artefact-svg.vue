@@ -23,12 +23,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
-import { Artefact } from '@/models/artefact';
-import { ImageStack, IIIFImage } from '@/models/image';
-import { Polygon } from '@/utils/Polygons';
-import { BoundingBox } from '@/utils/helpers';
-import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
+import { Component, Prop, Mixins } from 'vue-property-decorator';
+import { IIIFImage } from '@/models/image';
 import ArtefactDataMixin from './artefact-data-mixin';
 
 @Component({

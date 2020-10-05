@@ -27,7 +27,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 

@@ -13,7 +13,7 @@ import {
 import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
-import { updateInArray, removeFromArray, addToArray } from '@/utils/collection-utils';
+import { removeFromArray, addToArray } from '@/utils/collection-utils';
 import { InterpretationRoi, SignInterpretation } from '@/models/text';
 import Vue from 'vue';
 

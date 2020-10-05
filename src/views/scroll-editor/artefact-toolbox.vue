@@ -239,11 +239,8 @@
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 import {
-    ArtefactEditorParamsChangedArgs,
-    ArtefactEditorParams,
     ScrollEditorParams,
     ScrollEditorMode
 } from '../artefact-editor/types';
@@ -254,7 +251,6 @@ import {
     GroupPlacementOperation
 } from './operations';
 import { Placement } from '@/utils/Placement';
-import { ArtefactGroup } from '@/models/edition';
 import { Point } from '../../utils/helpers';
 import { ScrollEditorState } from '../../state/scroll-editor';
 

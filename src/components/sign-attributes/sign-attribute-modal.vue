@@ -63,8 +63,7 @@ import {
     InterpretationAttributeDTO,
 } from '@/dtos/sqe-dtos';
 import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
-import { BvModalEvent } from 'bootstrap-vue';
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import SignAttributeBadge from './sign-attribute-badge.vue';
 // import ErrorService from '@/services/error';
 

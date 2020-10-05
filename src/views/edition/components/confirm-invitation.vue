@@ -33,7 +33,6 @@ import {
     DetailedUserDTO
 } from '@/dtos/sqe-dtos';
 import EditionService from '@/services/edition';
-import { UserInfo } from '@/models/edition';
 
 export default Vue.extend({
     name: 'confirm-invitation',

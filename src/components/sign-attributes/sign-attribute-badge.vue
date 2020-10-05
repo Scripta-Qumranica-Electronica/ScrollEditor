@@ -8,14 +8,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Artefact } from '@/models/artefact';
-import {
-    TextFragmentData,
-    TextFragment,
-    SignInterpretation,
-    ArtefactTextFragmentData,
-} from '@/models/text';
-import { EditionInfo } from '@/models/edition';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 
 @Component({

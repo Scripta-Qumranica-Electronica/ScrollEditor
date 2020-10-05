@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { AttributeDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
+import { InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;

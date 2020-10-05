@@ -10,8 +10,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
-import { Artefact } from '@/models/artefact';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { Line, SignInterpretation, TextDirection, Sign } from '@/models/text';
 import TextSign from '@/components/text/text-sign.vue';
 

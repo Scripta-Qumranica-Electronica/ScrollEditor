@@ -66,13 +66,10 @@
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import {
-    TextFragmentData,
     TextFragment,
-    SignInterpretation,
     ArtefactTextFragmentData,
 } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
-import { EditionInfo } from '@/models/edition';
 
 @Component({
     name: 'text-side',

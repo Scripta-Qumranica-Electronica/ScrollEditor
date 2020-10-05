@@ -1,10 +1,7 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
-import { Polygon } from '@/utils/Polygons';
-import { InterpretationRoi, SignInterpretation } from '@/models/text';
-import ArtefactEditor from './artefact-editor.vue';
+import { InterpretationRoi } from '@/models/text';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import Vue from 'vue';
 

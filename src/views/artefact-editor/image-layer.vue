@@ -30,8 +30,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { wktPolygonToSvg } from '@/utils/VectorFactory';
-import { ImageStack, IIIFImage } from '@/models/image';
+import { IIIFImage } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';

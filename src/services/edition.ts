@@ -1,28 +1,24 @@
-import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, UserInfo, ArtefactGroup } from '@/models/edition';
+import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, ArtefactGroup } from '@/models/edition';
 import { CommHelper } from './comm-helper';
 import {
     EditionListDTO,
     EditionUpdateRequestDTO,
     EditionDTO,
-    EditionGroupDTO,
     InviteEditorDTO,
     PermissionDTO,
     AdminEditorRequestListDTO,
     DetailedEditorRightsDTO,
     UpdateArtefactPlacementDTO,
     BatchUpdateArtefactPlacementDTO,
-    CreateArtefactDTO,
     UpdateArtefactGroupDTO,
     CreateArtefactGroupDTO,
     ArtefactGroupDTO,
     ArtefactGroupListDTO,
-    EditionManuscriptMetricsDTO,
     UpdateEditionManuscriptMetricsDTO, AttributeListDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
-import { Placement } from '@/utils/Placement';
 
 class EditionService {
     public stateManager: StateManager;

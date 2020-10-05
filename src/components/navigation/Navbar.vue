@@ -55,12 +55,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
 import router from '@/router';
-import { StateManager } from '@/state';
 import { EditionInfo } from '../../models/edition';
 
 @Component({

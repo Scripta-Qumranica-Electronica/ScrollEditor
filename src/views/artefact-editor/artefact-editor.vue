@@ -169,40 +169,31 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
-import { Artefact } from '@/models/artefact';
-import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
-import SignCanvas from './SignCanvas.vue';
-import SignOverlay from './SignOverlay.vue';
 import {
     ArtefactEditorParams,
     ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
-import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
 import { ArtefactTextFragmentData } from '@/models/text';
 
 import {
-    ImageSetting,
-    SingleImageSetting,
     normalizeOpacity,
 } from '@/components/image-settings/types';
 import {
     SignInterpretation,
     InterpretationRoi,
     Line,
-    TextFragment,
 } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
-import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from '@/views/artefact-editor/image-layer.vue';
 import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
@@ -219,13 +210,11 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 import { EditionInfo } from '../../models/edition';
 import {
     ArtefactEditorOperation,
-    ArtefactEditorOperationType,
     ArtefactROIOperation,
     ArtefactRotateOperation,
     TextFragmentAttributeOperation,
 } from './operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
-import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 
 @Component({
