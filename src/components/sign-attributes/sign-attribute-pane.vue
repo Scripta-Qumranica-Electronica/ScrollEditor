@@ -10,11 +10,11 @@
                     @hide="onAttributesMenuHide($event)"
                 >
                     <template v-slot:button-content>
-                        <i class="fa fa-plus" @click="onAddAttributeMenuOpen()"/>
+                        <i class="fa fa-plus" @click="onAddAttributesMenuOpen()"/>
                     </template>
 
                     <b-dropdown
-                        v-for="attr in attributeMenu"
+                        v-for="attr in attributesMenu"
                         :key="attr.attributeId"
                         variant="link"
                         class="dropdown-attr"
@@ -74,7 +74,7 @@ import { BDropdown, BvEvent } from 'bootstrap-vue';
 })
 export default class SignAttributePane extends Vue {
     private keepOpen = false;
-    private attributeMenu: AttributeDTO[] = [];
+    private attributesMenu: AttributeDTO[] = [];
 
     public get artefactEditor() {
         return this.$state.artefactEditor;
@@ -139,10 +139,12 @@ export default class SignAttributePane extends Vue {
             ops.push(op);
         }
         this.$state.eventBus.emit('new-bulk-operations', ops);
+        this.keepOpen = false;
+        (this.$refs.attributesMenu as BDropdown).hide();
     }
 
-    private onAddAttributeMenuOpen() {
-        this.attributeMenu = this.prepareAttributesMenu();
+    private onAddAttributesMenuOpen() {
+        this.attributesMenu = this.prepareAttributesMenu();
     }
 
     private prepareAttributesMenu(): AttributeDTO[] {
