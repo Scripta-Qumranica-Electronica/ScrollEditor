@@ -9,11 +9,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import SingleImageSettingComponent from '@/components/image-settings/SingleImageSetting.vue';
-import { ImagedObject } from '@/models/imaged-object';
 import { ImageStack } from '@/models/image';
-import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { SingleImageSetting, normalizeOpacity } from './types';
-import { ArtefactEditorParams } from '@/views/artefact-editor/types';
 import { BaseEditorParams } from '@/models/editor-params';
 
 export default Vue.extend({

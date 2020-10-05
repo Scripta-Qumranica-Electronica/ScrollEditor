@@ -1,10 +1,7 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
-import { Polygon } from '@/utils/Polygons';
-import { InterpretationRoi, SignInterpretation } from '@/models/text';
-import ArtefactEditor from './artefact-editor.vue';
+import { InterpretationRoi } from '@/models/text';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import Vue from 'vue';
 
@@ -131,19 +128,9 @@ export type TextFragmentAttributeOperationType = 'create' | 'update' | 'delete';
 export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     public prev?: InterpretationAttributeDTO;
 
-    public get interpretationAttributeId() {
-        const id = this.prev?.interpretationAttributeId || this.next?.interpretationAttributeId;
-        if (!id) {
-            console.error("Can't find interpretationAttributeId - it's neither in prev not in next");
-            return -1;
-        }
-
-        return id;
-    }
-
     public constructor(
         public signInterpretationId: number,
-        public attributeValueId: number,
+        public attributeValueId: number, // In case of an update of the valueId, this holds the valueId before the change
         public next?: InterpretationAttributeDTO
     ) {
         super('attr');
@@ -180,7 +167,9 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     }
 
     public undo() {
-        const existingIndex = this.signInterpretation.findAttributeIndex(this.interpretationAttributeId);
+        // In an update, the attributeValueId might change. In that case, we get the *next* attributeValueId, which is the new ID.
+        // In other cases, there is only one attributeValueId, so we can take it from `this`.
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeOperationType === 'update' ? this.next!.attributeValueId : this.attributeValueId);
 
         if (!this.prev) {
             if (existingIndex !== -1) {
@@ -191,7 +180,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
             }
         } else {
             if (existingIndex !== -1) {
-                console.debug('Undoing change, setting index ', existingIndex, ' to ', this.prev, this.prev.commentary?.commentary);
+                console.debug('Undoing update, setting index ', existingIndex, ' to ', this.prev, this.prev.commentary?.commentary);
                 Vue.set(this.signInterpretation.attributes, existingIndex, this.prev);
             } else {
                 console.debug('Undoing deletion, pushing ', this.prev, this.prev.commentary?.commentary);
@@ -201,7 +190,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     }
 
     public redo() {
-        const existingIndex = this.signInterpretation.findAttributeIndex(this.interpretationAttributeId);
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeValueId); // In case of an update, this finds the previous attribute
 
         if (this.next) {
             if (existingIndex !== -1) {

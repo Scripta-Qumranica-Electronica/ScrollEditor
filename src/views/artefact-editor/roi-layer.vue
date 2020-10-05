@@ -13,9 +13,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
-import { InterpretationRoi, SignInterpretation } from '@/models/text';
-import { i } from 'mathjs';
+import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { InterpretationRoi } from '@/models/text';
 
 @Component({
     name: 'roi-layer',

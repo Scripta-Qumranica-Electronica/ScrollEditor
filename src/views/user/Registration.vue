@@ -157,7 +157,7 @@ export default Vue.extend({
             this.waiting = true;
 
             try {
-                const user = await this.sessionService.register(data);
+                await this.sessionService.register(data);
                 router.push('/');
                 this.$toasted.show(this.$tc('toasts.activationLink'), {
                     type: 'info',

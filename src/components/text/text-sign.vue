@@ -1,12 +1,12 @@
 <template>
     <span
-        :class="[{ selected: isSelected(chosenSI)}, cssStrings(chosenSI)]"
-        @click="onSignInterpretationClicked($event, chosenSI)"
-    >{{ chosenSI.character || '&nbsp;' }}</span>
+        :class="[{ selected: isSelected}, cssStrings]"
+        @click="onSignInterpretationClicked($event)"
+    >{{ si.character || '&nbsp;' }}</span>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 
 @Component({
@@ -17,26 +17,27 @@ export default class SignComponent extends Vue {
     // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
 
     // Each sign offers alternative readings. For now we always show the first suggestion
-    private get chosenSI() {
+    private get si() {
         return this.sign.signInterpretations[0];
     }
+
     private onSignInterpretationClicked(
         event: MouseEvent,
         si: SignInterpretation
     ) {
         if (event.ctrlKey || event.metaKey) {
-            this.$state.artefactEditor.toggleSelectSign(si);
+            this.$state.artefactEditor.toggleSelectSign(this.si);
         } else {
-            this.$state.artefactEditor.selectSign(si);
+            this.$state.artefactEditor.selectSign(this.si);
         }
     }
 
-    private isSelected(si: SignInterpretation) {
-        return this.$state.artefactEditor.isSiSelected(si);
+    private get isSelected() {
+        return this.$state.artefactEditor.isSiSelected(this.si);
     }
 
-    private cssStrings(si: SignInterpretation): string {
-        return si.attributes
+    private get cssStrings(): string {
+        return this.si.attributes
             .map((x) =>
                 `${x.attributeString}-${x.attributeValueString}`
                     .toLowerCase()

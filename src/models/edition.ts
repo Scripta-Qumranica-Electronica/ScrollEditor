@@ -1,9 +1,8 @@
 import { IIIFImage } from './image';
 import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO,
-    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO, DeleteTokenDTO } from '@/dtos/sqe-dtos';
+    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
-import { dot } from 'mathjs';
 
 type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 

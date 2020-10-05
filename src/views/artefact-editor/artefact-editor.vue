@@ -169,40 +169,31 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
-import { Artefact } from '@/models/artefact';
-import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
-import SignCanvas from './SignCanvas.vue';
-import SignOverlay from './SignOverlay.vue';
 import {
     ArtefactEditorParams,
     ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
-import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
 import { ArtefactTextFragmentData } from '@/models/text';
 
 import {
-    ImageSetting,
-    SingleImageSetting,
     normalizeOpacity,
 } from '@/components/image-settings/types';
 import {
     SignInterpretation,
     InterpretationRoi,
     Line,
-    TextFragment,
 } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
-import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from '@/views/artefact-editor/image-layer.vue';
 import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
@@ -219,13 +210,11 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 import { EditionInfo } from '../../models/edition';
 import {
     ArtefactEditorOperation,
-    ArtefactEditorOperationType,
     ArtefactROIOperation,
     ArtefactRotateOperation,
     TextFragmentAttributeOperation,
 } from './operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
-import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 
 @Component({
@@ -786,9 +775,7 @@ export default class ArtefactEditor
                 );
                 continue;
             }
-            const existingIndex = si.findAttributeIndex(
-                op.interpretationAttributeId
-            );
+            const existingIndex = si.findAttributeIndex(op.attributeValueId);
 
             // Determine the actual operation that needs to be performed on the server.
             // If the original operation is an update, this is also an update.
@@ -808,6 +795,8 @@ export default class ArtefactEditor
                     break;
             }
 
+            console.debug(`opType: ${opType}, existingIndex: ${existingIndex}, actualOpType: ${actualOpType}`);
+
             switch (actualOpType) {
                 case 'create':
                     await this.signInterpretationService.createAttribute(
@@ -817,25 +806,34 @@ export default class ArtefactEditor
                     );
                     break;
                 case 'update':
-                    // Figure out the attributeValueId of the URL - if there are two attributeValueIds in prev and next,
-                    // we should take that one that is not currently in the store
-                    const existing = si.attributes[existingIndex!];
-                    const prevValueId = op.prev!.attributeValueId; // In update, both prev and next exist
-                    const nextValueId = op.next!.attributeValueId;
-                    let urlValueId = prevValueId;
-                    if (
-                        prevValueId !== nextValueId &&
-                        prevValueId === existing.attributeValueId
-                    ) {
-                        urlValueId = nextValueId;
+                    if (!op.prev || !op.next) {
+                        console.error('Found an update operation without both next and prev', op);
+                        throw new Error('Found an update operation without both next and prev');
                     }
 
-                    await this.signInterpretationService.updateAttribute(
-                        this.edition!,
-                        si,
-                        urlValueId,
-                        si.attributes[existingIndex]
-                    );
+                    if (op.prev.attributeValueId === op.next.attributeValueId) {
+                        // This is an update operation of a comment, we can use the update API
+                        await this.signInterpretationService.updateAttribute(this.edition!, si, op.next.attributeValueId, si.attributes[existingIndex]);
+                        return;
+                    }
+
+                    console.debug(`Detected an update of an attributeValueId from ${op.prev.attributeValueId} to ${op.next.attributeValueId}`);
+                    const prevIndex = si.findAttributeIndex(op.prev.attributeValueId);
+                    const nextIndex = si.findAttributeIndex(op.next.attributeValueId);
+                    console.debug(`prevIndex ${prevIndex}, nextIndex ${nextIndex}`);
+
+                    if (prevIndex !== -1 && nextIndex !== -1) {
+                        console.error('In an attribute value update, we have both prev and next in the current attributes', op);
+                        throw new Error('In an attribute value update, we have both prev and next in the current attributes');
+                    }
+
+                    // See if we delete prev and create next or vice versa
+                    const prevIsCurrent = prevIndex !== -1;
+                    const toDeleteAttributeValueId = prevIsCurrent ? op.next.attributeValueId : op.prev.attributeValueId;
+                    const toCreateAttribute = prevIsCurrent ? op.prev : op.next;
+
+                    await this.signInterpretationService.deleteAttribute(this.edition!, si, toDeleteAttributeValueId);
+                    await this.signInterpretationService.createAttribute(this.edition!, si, toCreateAttribute);
                     break;
                 case 'delete':
                     await this.signInterpretationService.deleteAttribute(

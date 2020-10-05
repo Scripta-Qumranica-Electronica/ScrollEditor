@@ -111,8 +111,8 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue';
-import { EditionInfo, ShareInfo } from '@/models/edition';
+import Vue from 'vue';
+import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import PermissionModal from './permission-modal.vue';

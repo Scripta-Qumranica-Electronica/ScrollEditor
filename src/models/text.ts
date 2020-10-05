@@ -88,13 +88,6 @@ class TextFragment {
         // State collections require an id field (look for ItemWithId)
         return this.textFragmentId;
     }
-
-    private copyFrom(other: TextFragment) {
-        this.textFragmentId = other.textFragmentId;
-        this.textFragmentName = other.textFragmentName;
-        this.editorId = other.editorId;
-        this.lines = other.lines;
-    }
 }
 
 class TextEdition {
@@ -196,8 +189,8 @@ class SignInterpretation {
         return !!this.attributes.find(attr => attr.attributeString === 'is_reconstructed');
     }
 
-    public findAttributeIndex(interpretationAttributeId: number) {
-        return this.attributes.findIndex(attr => attr.interpretationAttributeId === interpretationAttributeId);
+    public findAttributeIndex(attributeValueId: number) {
+        return this.attributes.findIndex(attr => attr.attributeValueId === attributeValueId);
     }
 }
 

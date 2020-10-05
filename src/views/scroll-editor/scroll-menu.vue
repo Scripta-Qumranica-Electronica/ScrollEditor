@@ -138,7 +138,6 @@ import { Artefact } from '@/models/artefact';
 import AddArtefactModal from './add-artefact-modal.vue';
 import { ScrollEditorParams } from '../artefact-editor/types';
 import ArtefactToolbox from './artefact-toolbox.vue';
-import ArtefactService from '@/services/artefact';
 import {
     ScrollEditorOperation,
     ArtefactPlacementOperationType,
@@ -147,15 +146,12 @@ import {
     EditionMetricOperation,
 } from './operations';
 import {
-    OperationsManager,
     OperationsManagerStatus,
 } from '@/utils/operations-manager';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { Placement } from '../../utils/Placement';
-import { ArtefactGroup, EditionInfo } from '../../models/edition';
-import { DropdownOption, Point } from '@/utils/helpers';
+import { Point } from '@/utils/helpers';
 import {
-    UpdateEditionManuscriptMetricsDTO,
     EditionManuscriptMetricsDTO,
 } from '../../dtos/sqe-dtos';
 import ScrollMap from './scroll-map.vue';
