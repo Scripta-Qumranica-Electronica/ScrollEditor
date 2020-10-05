@@ -92,6 +92,8 @@ export default class SignAttributePane extends Vue {
     }
 
     public get attributes(): InterpretationAttributeDTO[] {
+        // Get the common attributes from all the selected sign interpretations -
+        // only attributes that appear in all sign interpretations are shown.
         let attributeValues: number[] = [];
         let first = true;
 
@@ -99,10 +101,9 @@ export default class SignAttributePane extends Vue {
             return [];
         }
 
+        // Calculate the intersection of the attributes of all the sign interpretations
         for (const si of this.selectedSignsInterpretation) {
-            const siValues = [
-                ...si.attributes.map((attr) => attr.attributeValueId),
-            ];
+            const siValues = si.attributes.map((attr) => attr.attributeValueId);
             if (first) {
                 first = false;
                 attributeValues = siValues;
@@ -113,6 +114,7 @@ export default class SignAttributePane extends Vue {
             }
         }
 
+        // selectedSignsInterpretations has at least one element
         const attributes = this.selectedSignsInterpretation[0].attributes.filter(
             (attr) => attributeValues.includes(attr.attributeValueId)
         );
@@ -245,8 +247,6 @@ export default class SignAttributePane extends Vue {
     color: black;
     border: 0px;
 }
-</style>
-<style lang="scss">
 .dropdown-attr {
     width: 100%;
     .attr-name {
