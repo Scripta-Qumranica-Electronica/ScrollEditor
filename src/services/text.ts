@@ -3,9 +3,6 @@ import { StateManager } from '@/state';
 import {
     TextFragmentDataListDTO,
     TextEditionDTO,
-    SetInterpretationRoiDTO,
-    InterpretationRoiDTOList,
-    SetInterpretationRoiDTOList,
     BatchEditRoiDTO,
     InterpretationRoiDTO,
     BatchEditRoiResponseDTO,
@@ -14,7 +11,6 @@ import {
 import {
     TextFragmentData,
     TextEdition,
-    SignInterpretation,
     ArtefactTextFragmentData
 } from '@/models/text';
 import { ApiRoutes } from '@/services/api-routes';
@@ -107,8 +103,6 @@ class TextService {
     private updateStateCreatedROIs(artefact: Artefact,
                                    preSaveROIs: InterpretationRoi[],
                                    listDTO: InterpretationRoiDTO[]) {
-        const postSaveROIs = listDTO.map(dto => new InterpretationRoi(dto));
-
         // First, remove the preSave ROIs
         for (const preSave of preSaveROIs) {
             if (preSave.signInterpretationId) {

@@ -1,6 +1,5 @@
 import { Polygon } from '@/utils/Polygons';
-import { ImagedObject } from './imaged-object';
-import { ArtefactDTO, PlacementDTO} from '@/dtos/sqe-dtos';
+import { ArtefactDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
 import { ArtefactTextFragmentData } from './text';
 import { BoundingBox } from '@/utils/helpers';

@@ -7,10 +7,10 @@ import { EditionCollection,
     SignInterpretationMap,
     TextFragmentMap,
     ArtefactGroupsMap } from './utilities';
-import { Polygon } from '@/utils/Polygons';
 import StateService from './state-service';
 import { ScrollEditorState } from './scroll-editor';
 import { EventBus } from './event-bus';
+import { ArtefactEditorState } from './artefact-editor';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -25,6 +25,7 @@ export class StateManager {
     public signInterpretations: SignInterpretationMap;
     public misc: MiscState;
     public scrollEditor: ScrollEditorState;
+    public artefactEditor: ArtefactEditorState;
     public eventBus: EventBus;
 
     public prepare: StateService;
@@ -38,6 +39,7 @@ export class StateManager {
         this.textFragments = new TextFragmentMap();
         this.misc = new MiscState();
         this.scrollEditor = new ScrollEditorState();
+        this.artefactEditor = new ArtefactEditorState();
         this.interpretationRois = new InterpretationRoiMap();
         this.signInterpretations = new SignInterpretationMap();
         this.eventBus = new EventBus();

@@ -58,11 +58,8 @@ import Vue from 'vue';
 
 import { Artefact } from '@/models/artefact';
 import ArtefactService from '@/services/artefact';
-import { ImagedObject } from '@/models/imaged-object';
 import { Image, ImageStack } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
-import { Position } from '@/models/misc';
-import { ArtefactEditorParams } from './types';
 import { SingleImageSetting, ImageSetting } from '@/components/image-settings/types';
 import ImagedObjectService from '@/services/imaged-object';
 

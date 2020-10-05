@@ -2,8 +2,6 @@ import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
 import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
-import ScrollArea from './scroll-area.vue';
-import { group } from 'console';
 import { ArtefactGroup, EditionInfo } from '@/models/edition';
 import { UpdateEditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 
@@ -145,7 +143,7 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
             state().editions.current!.artefactGroups.push(removedGroup);
             state().eventBus.emit('update-operation-id', this.groupId, removedGroup.id);
             this.groupId = removedGroup.id;
-            
+
             state().eventBus.emit('select-group', removedGroup);
             state().eventBus.emit('save-group');
 

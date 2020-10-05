@@ -1,5 +1,6 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO, ArtefactGroupDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
+import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO,
+    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
@@ -87,6 +88,35 @@ class ShareInfo {
     }
 }
 
+class AttributeMetadata {
+    private attributes: AttributeDTO[];
+
+    constructor(dto: AttributeListDTO) {
+        this.attributes = dto.attributes;
+    }
+
+    public get allAttributes() {
+        return this.attributes;
+    }
+
+    public get multiSelectAttributes() {
+        return this.attributes.filter(attr => attr.batchEditable);
+    }
+
+    public getAttribute(id: number) {
+        return this.attributes.find(attr => attr.attributeId === id);
+    }
+
+    public getAttributeValue(attributeId: number, valueId: number) {
+        const attr = this.getAttribute(attributeId);
+        if (!attr) {
+            return undefined;
+        }
+        const value = attr.values.find(val => val.id === valueId);
+        return value;
+    }
+}
+
 class EditionInfo {
     public id: number;
     public name: string;
@@ -99,6 +129,7 @@ class EditionInfo {
     public isPublic: boolean;
     public lastEdit?: Date;
     public metrics: EditionManuscriptMetricsDTO;
+    public attributeMetadata?: AttributeMetadata;
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -159,7 +190,7 @@ class ArtefactGroup {
     public static generateGroup(artefactsIds: number[]): ArtefactGroup {
 
         const dto: ArtefactGroupDTO = {
-            id: ArtefactGroup.nextGroupId --,
+            id: ArtefactGroup.nextGroupId--,
             artefacts: [...artefactsIds],
             name: ''
         };
@@ -192,4 +223,4 @@ class ArtefactGroup {
 
 }
 
-export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, ArtefactGroup };
+export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, ArtefactGroup, AttributeMetadata };

@@ -1,11 +1,8 @@
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
-import ArtefactService from '@/services/artefact';
 import { ImageStack } from '@/models/image';
 import { BoundingBox } from '@/utils/helpers';
 import AsyncMountedMixinBase from './async-mounted-mixin-base';
-import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
-import ImagedObjectService from '@/services/imaged-object';
 
 @Component
 export default class ArtefactDataMixin extends AsyncMountedMixinBase {

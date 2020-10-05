@@ -1,6 +1,5 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
 import { Polygon } from '@/utils/Polygons';
 

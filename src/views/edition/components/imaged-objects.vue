@@ -21,7 +21,6 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectCard from './imaged-object-card.vue';
 import { ImagedObject } from '@/models/imaged-object';
-import ImagedObjectService from '@/services/imaged-object';
 
 export default Vue.extend({
     components: {

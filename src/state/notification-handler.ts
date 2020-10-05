@@ -8,13 +8,13 @@ import {
     UpdatedInterpretationRoiDTO,
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
-    DetailedEditorRightsDTO,
+    DetailedEditorRightsDTO, SignInterpretationDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
-import { updateInArray, removeFromArray, addToArray } from '@/utils/collection-utils';
-import { InterpretationRoi } from '@/models/text';
+import { removeFromArray, addToArray } from '@/utils/collection-utils';
+import { InterpretationRoi, SignInterpretation } from '@/models/text';
 import Vue from 'vue';
 
 /* This file contains the implementation of all the incoming events from SignalR */
@@ -130,6 +130,35 @@ export class NotificationHandler {
             if (dto.email === state().session?.user?.email) {
                 edition.permission = new Permissions(dto);
             }
+        }
+    }
+
+    public handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
+        const existingSI = state().signInterpretations.get(dto.signInterpretationId);
+
+        if (!existingSI) {
+            console.warn('Receive an updated for a non-existant sign interpretation ', dto.signInterpretationId);
+            return;
+        }
+
+        // Update the sign interpretations map
+        const newSI = new SignInterpretation(dto, existingSI.sign);
+        state().signInterpretations.put(newSI);
+
+        // Update the sign containing the sign interpretation
+        const sign = newSI.sign;
+        const index = sign.signInterpretations.findIndex(si => si.id === newSI.id);
+
+        if (index < 0) {
+            console.warn("Can't locate sign interpretation in sign!");
+        } else {
+            Vue.set(sign.signInterpretations, index, newSI);
+        }
+
+        // Update the selected sign interpretations
+        const selectedIndex = state().artefactEditor.selectedSignsInterpretation.findIndex(si => si.id === newSI.id);
+        if (selectedIndex !== -1) {
+            Vue.set(state().artefactEditor.selectedSignsInterpretation, selectedIndex, newSI);
         }
     }
 }

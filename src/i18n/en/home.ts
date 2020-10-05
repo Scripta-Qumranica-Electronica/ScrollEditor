@@ -28,5 +28,6 @@ export default {
     viewPortSize: 'Viewport Size',
     lock: 'Read Only',
     shared: 'Shared',
-    admin: 'Your Admin rights have been revoked'
+    admin: 'Your Admin rights have been revoked',
+    editorParameters: 'Editor Parameters',
 };

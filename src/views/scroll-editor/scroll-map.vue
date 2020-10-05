@@ -29,8 +29,8 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
-import { BoundingBox, Point } from '@/utils/helpers';
+import { Component, Vue, Emit, Watch } from 'vue-property-decorator';
+import { Point } from '@/utils/helpers';
 import ArtefactSillhouette from './artefact-sillhouette.vue';
 
 @Component({

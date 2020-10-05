@@ -4,6 +4,7 @@
 // Version 2.1.0
 
 import Vue, { DirectiveOptions, VNodeDirective, VNode } from 'vue';
+import { DirectiveBinding } from 'vue/types/options';
 
 export type HandleType = Vue | HTMLElement;
 export type MouseOrTouchEvent = MouseEvent | TouchEvent;
@@ -91,10 +92,10 @@ function getPosWithBoundaries(
 }
 
 export const Draggable: DirectiveOptions = {
-    bind(el: HTMLElement, binding: DraggableBindings, vnode: VNode, oldVnode: VNode) {
+    bind(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode) {
         Draggable.update!(el, binding, vnode, oldVnode);
     },
-    update(el: HTMLElement, binding: DraggableBindings, vnode: VNode, oldVnode: VNode) {
+    update(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode) {
         if (binding.value && binding.value.stopDragging) {
             return;
         }

@@ -8,6 +8,7 @@ export default {
     artefactInfo: 'No changes to save',
     artefactSuccess: 'Artefact Saved',
     artefactError: 'Saving Artefact Failed',
+    artefactsAutoModeError: 'Auto mode is not possible when more than one letter is selected',
 
     editionSuccess: 'edition renamed',
     editionError: 'edition rename failed',

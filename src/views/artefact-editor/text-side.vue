@@ -51,18 +51,12 @@
 
             <b-collapse
                 :id="'accordion-' + index"
-                :visible="index === 0"
+                :visible="index === openedTextFragement"
                 accordion="my-accordion"
                 role="tabpanel"
+                @show="emptySelectedState()"
             >
-                <text-fragment
-                    :selectedSignInterpretation="selectedSignInterpretation"
-                    :fragment="textFragment"
-                    @sign-interpretation-clicked="
-                        onSignInterpretationClicked($event)
-                    "
-                    id="text-box"
-                ></text-fragment>
+                <text-fragment :fragment="textFragment" id="text-box"></text-fragment>
             </b-collapse>
         </div>
     </div>
@@ -72,24 +66,21 @@
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import {
-    TextFragmentData,
     TextFragment,
-    SignInterpretation,
-    ArtefactTextFragmentData
+    ArtefactTextFragmentData,
 } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
-import { EditionInfo } from '@/models/edition';
 
 @Component({
     name: 'text-side',
     components: {
-        'text-fragment': TextFragmentComponent
-    }
+        'text-fragment': TextFragmentComponent,
+    },
 })
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
 
-    @Prop() public selectedSignInterpretation!: SignInterpretation | null;
+    // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
     private textFragmentId = 0;
@@ -105,11 +96,22 @@ export default class TextSide extends Vue {
     }
 
     private get dropdownTextFragmentsData() {
-        return this.allTextFragmentsData.filter(x => !x.certain);
+        return this.allTextFragmentsData.filter((x) => !x.certain);
     }
 
     private get displayedTextFragmentsData() {
-        return this.allTextFragmentsData.filter(x => x.certain);
+        return this.allTextFragmentsData.filter((x) => x.certain);
+    }
+
+    private get openedTextFragement() {
+        if (this.$state.artefactEditor.singleSelectedSi) {
+            const tfId = this.$state.artefactEditor.singleSelectedSi.sign.line
+                .textFragment.textFragmentId;
+            return this.displayedTextFragments.findIndex(
+                (tf) => tf.id === tfId
+            );
+        }
+        return 0;
     }
 
     private isTfShown(tfId: number) {
@@ -118,15 +120,15 @@ export default class TextSide extends Vue {
 
     private get allTextFragmentsData() {
         const textFragments = this.$state.editions.current!.textFragments.map(
-            tf => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
+            (tf) => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
         );
         const textFragmentsArtefact =
             this.$state.artefacts.current!.textFragments || [];
 
-        textFragments.forEach(editionTf => {
+        textFragments.forEach((editionTf) => {
             editionTf.certain =
                 textFragmentsArtefact.findIndex(
-                    artefactTf =>
+                    (artefactTf) =>
                         artefactTf.id === editionTf.id && artefactTf.certain
                 ) > -1;
         });
@@ -151,7 +153,7 @@ export default class TextSide extends Vue {
         const target = event.target as HTMLInputElement;
         this.errorMessage = '';
         const textFragmentData = this.allTextFragmentsData.find(
-            obj => obj.name === target.value
+            (obj) => obj.name === target.value
         );
         if (target.value) {
             if (!textFragmentData) {
@@ -159,10 +161,11 @@ export default class TextSide extends Vue {
                 return;
             }
 
-            const index = this.displayedTextFragments.findIndex(x => {
+            const index = this.displayedTextFragments.findIndex((x) => {
                 return (
-                    this.dropdownTextFragmentsData.find(y => y.id === x.id) !==
-                    undefined
+                    this.dropdownTextFragmentsData.find(
+                        (y) => y.id === x.id
+                    ) !== undefined
                 );
             });
             if (index > -1) {
@@ -175,12 +178,16 @@ export default class TextSide extends Vue {
             if (tf) {
                 this.displayedTextFragments = [
                     tf,
-                    ...this.displayedTextFragments
+                    ...this.displayedTextFragments,
                 ];
             }
+            this.emptySelectedState();
         }
     }
-
+    private emptySelectedState() {
+        this.$state.artefactEditor.selectedSignsInterpretation = [];
+        this.$state.artefactEditor.selectRoi(null);
+    }
     private changePosition(index: number, up: boolean) {
         const indexToChange = up ? index - 1 : index + 1;
         const isInBoudaries = up
@@ -203,29 +210,6 @@ export default class TextSide extends Vue {
         // this.textFragmentSelected(this.textFragmentId);
     }
 
-    private onSignInterpretationClicked(si: SignInterpretation) {
-        const siTextFragment = si.sign.line.textFragment;
-        const tf = this.$state.artefacts.current!.textFragments.find(
-            x => x.id === siTextFragment.textFragmentId
-        );
-        if (!tf) {
-            this.$state.artefacts.current!.textFragments.push({
-                id: siTextFragment.textFragmentId,
-                name: siTextFragment.textFragmentName,
-                editorId: siTextFragment.editorId,
-                certain: true
-            });
-        } else {
-            tf.certain = true;
-        }
-        this.signInterpretationClicked(si);
-    }
-
-    @Emit()
-    private signInterpretationClicked(si: SignInterpretation) {
-        return si;
-    }
-
     @Emit()
     private textFragmentSelected(textFragmentId: number) {
         return textFragmentId;
@@ -241,8 +225,10 @@ export default class TextSide extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 #text-side {
-    margin: 30px 15px 20px 30px;
+    padding: 30px 15px 20px 30px;
     touch-action: pan-y;
+    height: 90%;
+    overflow: auto;
 }
 
 button {

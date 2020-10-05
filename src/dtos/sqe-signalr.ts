@@ -9,6 +9,53 @@
  */
 
 import { 
+	EditionScriptCollectionDTO,
+	EditionScriptLinesDTO,
+	CharacterShapeDTO,
+	ScriptTextFragmentDTO,
+	ScriptLineDTO,
+	ScriptArtefactCharactersDTO,
+	TextFragmentDataDTO,
+	ArtefactTextFragmentMatchDTO,
+	ImagedObjectTextFragmentMatchDTO,
+	ImagedObjectTextFragmentMatchListDTO,
+	TextFragmentDataListDTO,
+	ArtefactTextFragmentMatchListDTO,
+	TextFragmentDTO,
+	LineDataDTO,
+	LineDataListDTO,
+	LineDTO,
+	LineTextDTO,
+	UpdateTextFragmentDTO,
+	CreateTextFragmentDTO,
+	SignDTO,
+	NextSignInterpretationDTO,
+	SignInterpretationBaseDTO,
+	SignInterpretationCreateDTO,
+	SignInterpretationDTO,
+	SignInterpretationListDTO,
+	InterpretationAttributeBaseDTO,
+	InterpretationAttributeCreateDTO,
+	InterpretationAttributeDTO,
+	InterpretationAttributeCreateListDTO,
+	InterpretationAttributeListDTO,
+	CreateAttributeValueDTO,
+	UpdateAttributeValueDTO,
+	AttributeValueDTO,
+	AttributeBaseDTO,
+	CreateAttributeDTO,
+	UpdateAttributeDTO,
+	AttributeDTO,
+	AttributeListDTO,
+	PlacementDTO,
+	TranslateDTO,
+	SimpleImageDTO,
+	ImageDTO,
+	SimpleImageListDTO,
+	ImageInstitutionDTO,
+	ImageInstitutionListDTO,
+	InstitutionalImageDTO,
+	InstitutionalImageListDTO,
 	ArtefactDataDTO,
 	ArtefactDTO,
 	ArtefactListDTO,
@@ -20,8 +67,8 @@ import {
 	BatchUpdateArtefactPlacementDTO,
 	UpdatedArtefactPlacementDTO,
 	BatchUpdatedArtefactTransformDTO,
-	UpdateArtefactGroupDTO,
 	CreateArtefactDTO,
+	UpdateArtefactGroupDTO,
 	CreateArtefactGroupDTO,
 	EditionDTO,
 	EditionGroupDTO,
@@ -38,50 +85,13 @@ import {
 	TextEditionDTO,
 	DeleteTokenDTO,
 	DeleteEditionEntityDTO,
+	CommentaryCreateDTO,
+	CommentaryDTO,
 	DeleteDTO,
 	EditionUpdateRequestDTO,
 	EditionCopyDTO,
 	UpdateEditionManuscriptMetricsDTO,
 	EditionManuscriptMetricsDTO,
-	ImageDTO,
-	ImageInstitutionDTO,
-	ImageInstitutionListDTO,
-	ImageStackDTO,
-	ImagedObjectDTO,
-	ImagedObjectListDTO,
-	WktPolygonDTO,
-	SetInterpretationRoiDTO,
-	InterpretationRoiDTO,
-	UpdatedInterpretationRoiDTO,
-	SetInterpretationRoiDTOList,
-	InterpretationRoiDTOList,
-	UpdatedInterpretationRoiDTOList,
-	BatchEditRoiDTO,
-	BatchEditRoiResponseDTO,
-	SignDTO,
-	NextSignInterpretationDTO,
-	SignInterpretationDTO,
-	InterpretationAttributeDTO,
-	EditionScriptCollectionDTO,
-	EditionScriptLinesDTO,
-	CharacterShapeDTO,
-	ScriptTextFragmentDTO,
-	ScriptLineDTO,
-	ScriptArtefactCharactersDTO,
-	TextFragmentDataDTO,
-	ArtefactTextFragmentMatchDTO,
-	ImagedObjectTextFragmentMatchDTO,
-	TextFragmentDataListDTO,
-	ArtefactTextFragmentMatchListDTO,
-	TextFragmentDTO,
-	LineDataDTO,
-	LineDataListDTO,
-	LineDTO,
-	LineTextDTO,
-	UpdateTextFragmentDTO,
-	CreateTextFragmentDTO,
-	PlacementDTO,
-	TranslateDTO,
 	LoginRequestDTO,
 	UserUpdateRequestDTO,
 	NewUserRequestDTO,
@@ -95,7 +105,21 @@ import {
 	DetailedUserDTO,
 	DetailedUserTokenDTO,
 	EditorDTO,
-	ArtefactSide,
+	ImageStackDTO,
+	ImagedObjectDTO,
+	ImagedObjectListDTO,
+	WktPolygonDTO,
+	SetInterpretationRoiDTO,
+	InterpretationRoiDTO,
+	UpdatedInterpretationRoiDTO,
+	SetInterpretationRoiDTOList,
+	InterpretationRoiDTOList,
+	UpdatedInterpretationRoiDTOList,
+	BatchEditRoiDTO,
+	BatchEditRoiResponseDTO,
+	CatalogueMatchInputDTO,
+	CatalogueMatchDTO,
+	CatalogueMatchListDTO,
 } from "@/dtos/sqe-dtos"
 
 import { HubConnection } from '@microsoft/signalr'; 
@@ -565,6 +589,16 @@ export class SignalRUtilities {
     }
 
     /**
+	 * Provides information for the specified imaged object.
+	 *
+	 * @param imagedObjectId - Unique Id of the desired object from the imaging Institution
+	 *
+	 */
+    public async getV1ImagedObjectsImagedObjectId(imagedObjectId: string): Promise<SimpleImageListDTO> {
+        return await this._connection.invoke('GetV1ImagedObjectsImagedObjectId', imagedObjectId);
+    }
+
+    /**
 	 * Provides information for the specified imaged object related to the specified edition, can include images and also
 	 * their masks with optional.
 	 *
@@ -600,18 +634,249 @@ export class SignalRUtilities {
     }
 
     /**
+	 * Provides a list of all institutional image providers.
+	 *
+	 *
+	 *
+	 */
+    public async getV1ImagedObjectsInstitutionsInstitutionName(institutionName: string): Promise<InstitutionalImageListDTO> {
+        return await this._connection.invoke('GetV1ImagedObjectsInstitutionsInstitutionName', institutionName);
+    }
+
+    /**
 	 * Provides a list of all text fragments that should correspond to the imaged object.
 	 *
 	 * @param imagedObjectId - Id of the imaged object
 	 *
 	 */
-    public async getV1ImagedObjectsImagedObjectIdTextFragments(imagedObjectId: string): Promise<ImagedObjectTextFragmentMatchDTO[]> {
+    public async getV1ImagedObjectsImagedObjectIdTextFragments(imagedObjectId: string): Promise<ImagedObjectTextFragmentMatchListDTO> {
         return await this._connection.invoke('GetV1ImagedObjectsImagedObjectIdTextFragments', imagedObjectId);
     }
 
     /**
+	 * Get a listing of all text fragments matches that correspond to an imaged object
+	 *
+	 * @param imagedObjectId - Id of imaged object to search for transcription matches
+	 *
+	 */
+    public async getV1CatalogueImagedObjectsImagedObjectIdTextFragments(imagedObjectId: string): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueImagedObjectsImagedObjectIdTextFragments', imagedObjectId);
+    }
+
+    /**
+	 * Get a listing of all imaged objects that matches that correspond to a transcribed text fragment
+	 *
+	 * @param textFragmentId - Unique Id of the text fragment to search for imaged object matches
+	 *
+	 */
+    public async getV1CatalogueTextFragmentsTextFragmentIdImagedObjects(textFragmentId: number): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueTextFragmentsTextFragmentIdImagedObjects', textFragmentId);
+    }
+
+    /**
+	 * Get a listing of all corresponding imaged objects and transcribed text fragment in a specified edition
+	 *
+	 * @param editionId - Unique Id of the edition to search for imaged objects to text fragment matches
+	 *
+	 */
+    public async getV1CatalogueEditionsEditionIdImagedObjectTextFragmentMatches(editionId: number): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueEditionsEditionIdImagedObjectTextFragmentMatches', editionId);
+    }
+
+    /**
+	 * Get a listing of all corresponding imaged objects and transcribed text fragment in a specified manuscript
+	 *
+	 * @param manuscriptId - Unique Id of the manuscript to search for imaged objects to text fragment matches
+	 *
+	 */
+    public async getV1CatalogueManuscriptsManuscriptIdImagedObjectTextFragmentMatches(manuscriptId: number): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueManuscriptsManuscriptIdImagedObjectTextFragmentMatches', manuscriptId);
+    }
+
+    /**
+	 * Create a new matched pair for an imaged object and a text fragment along with the edition princeps information
+	 *
+	 * @param newMatch - The details of the new match
+	 *
+	 */
+    public async postV1Catalogue(newMatch: CatalogueMatchInputDTO): Promise<void> {
+        return await this._connection.invoke('PostV1Catalogue', newMatch);
+    }
+
+    /**
+	 * Confirm the correctness of an existing imaged object and text fragment match
+	 *
+	 * @param iaaEditionCatalogToTextFragmentId - The unique id of the match to confirm
+	 *
+	 */
+    public async postV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId(iaaEditionCatalogToTextFragmentId: number): Promise<void> {
+        return await this._connection.invoke('PostV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId', iaaEditionCatalogToTextFragmentId);
+    }
+
+    /**
+	 * Remove an existing imaged object and text fragment match, which is not correct
+	 *
+	 * @param iaaEditionCatalogToTextFragmentId - The unique id of the match to confirm
+	 *
+	 */
+    public async deleteV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId(iaaEditionCatalogToTextFragmentId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId', iaaEditionCatalogToTextFragmentId);
+    }
+
+    /**
+	 * Retrieve a list of all possible attributes for an edition
+	 *
+	 * @param editionId - The ID of the edition being searched
+	 * @returns - A list of and edition's attributes and their details
+	 */
+    public async getV1EditionsEditionIdSignInterpretationsAttributes(editionId: number): Promise<AttributeListDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdSignInterpretationsAttributes', editionId);
+    }
+
+    /**
+	 * Retrieve the details of a sign interpretation in an edition
+	 *
+	 * @param editionId - The ID of the edition being searched
+	 * @param signInterpretationId - The desired sign interpretation id
+	 * @returns - The details of the desired sign interpretation
+	 */
+    public async getV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId);
+    }
+
+    /**
+	 * Create a new attribute for an edition
+	 *
+	 * @param editionId - The ID of the edition being edited
+	 * @param newAttribute - The details of the new attribute
+	 * @returns - The details of the newly created attribute
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsAttributes(editionId: number, newAttribute: CreateAttributeDTO): Promise<AttributeDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsAttributes', editionId, newAttribute);
+    }
+
+    /**
+	 * Delete an attribute from an edition
+	 *
+	 * @param editionId - The ID of the edition being edited
+	 * @param attributeId - The ID of the attribute to delete
+	 *
+	 */
+    public async deleteV1EditionsEditionIdSignInterpretationsAttributesAttributeId(editionId: number, attributeId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsAttributesAttributeId', editionId, attributeId);
+    }
+
+    /**
+	 * Change the details of an attribute in an edition
+	 *
+	 * @param editionId - The ID of the edition being edited
+	 * @param attributeId - The ID of the attribute to update
+	 * @param updatedAttribute - The details of the updated attribute
+	 *
+	 */
+    public async putV1EditionsEditionIdSignInterpretationsAttributesAttributeId(editionId: number, attributeId: number, updatedAttribute: UpdateAttributeDTO): Promise<AttributeDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdSignInterpretationsAttributesAttributeId', editionId, attributeId, updatedAttribute);
+    }
+
+    /**
+	 * Creates a new sign interpretation
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param newSignInterpretation - New sign interpretation data to be added
+	 * @returns - The new sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretations(editionId: number, newSignInterpretation: SignInterpretationCreateDTO): Promise<SignInterpretationListDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretations', editionId, newSignInterpretation);
+    }
+
+    /**
+	 * Deletes the sign interpretation in the route. The endpoint automatically manages the sign stream
+	 * by connecting all the deleted sign's next and previous nodes.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation being deleted
+	 * @returns - Ok or Error
+	 */
+    public async deleteV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId);
+    }
+
+    /**
+	 * Links two sign interpretations in the edition's sign stream
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - The sign interpretation to be linked to the nextSignInterpretationId
+	 * @param nextSignInterpretationId - The sign interpretation to become the new next sign interpretation
+	 * @returns - The updated sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationIdLinkToNextSignInterpretationId(editionId: number, signInterpretationId: number, nextSignInterpretationId: number): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationIdLinkToNextSignInterpretationId', editionId, signInterpretationId, nextSignInterpretationId);
+    }
+
+    /**
+	 * Links two sign interpretations in the edition's sign stream
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - The sign interpretation to be unlinked from the nextSignInterpretationId
+	 * @param nextSignInterpretationId - The sign interpretation to removed as next sign interpretation
+	 * @returns - The updated sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationIdUnlinkFromNextSignInterpretationId(editionId: number, signInterpretationId: number, nextSignInterpretationId: number): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationIdUnlinkFromNextSignInterpretationId', editionId, signInterpretationId, nextSignInterpretationId);
+    }
+
+    /**
+	 * Updates the commentary of a sign interpretation
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation whose commentary is being changed
+	 * @param commentary - The new commentary for the sign interpretation
+	 * @returns - Ok or Error
+	 */
+    public async putV1EditionsEditionIdSignInterpretationsSignInterpretationIdCommentary(editionId: number, signInterpretationId: number, commentary: CommentaryCreateDTO): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdSignInterpretationsSignInterpretationIdCommentary', editionId, signInterpretationId, commentary);
+    }
+
+    /**
+	 * This adds a new attribute to the specified sign interpretation.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation for adding a new attribute
+	 * @param newSignInterpretationAttributes - Details of the attribute to be added
+	 * @returns - The updated sign interpretation
+	 */
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributes(editionId: number, signInterpretationId: number, newSignInterpretationAttributes: InterpretationAttributeCreateDTO): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributes', editionId, signInterpretationId, newSignInterpretationAttributes);
+    }
+
+    /**
+	 * This changes the values of the specified sign interpretation attribute,
+	 * mainly used to change commentary.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation being altered
+	 * @param attributeValueId - Id of the attribute value to be altered
+	 * @param alteredSignInterpretationAttribute - New details of the attribute
+	 * @returns - The updated sign interpretation
+	 */
+    public async putV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId(editionId: number, signInterpretationId: number, attributeValueId: number, alteredSignInterpretationAttribute: InterpretationAttributeCreateDTO): Promise<SignInterpretationDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId', editionId, signInterpretationId, attributeValueId, alteredSignInterpretationAttribute);
+    }
+
+    /**
+	 * This deletes the specified attribute value from the specified sign interpretation.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation being altered
+	 * @param attributeValueId - Id of the attribute being removed
+	 * @returns - Ok or Error
+	 */
+    public async deleteV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId(editionId: number, signInterpretationId: number, attributeValueId: number): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsSignInterpretationIdAttributesAttributeValueId', editionId, signInterpretationId, attributeValueId);
+    }
+
+    /**
 	 * Creates a new artefact with the provided data.
-	 * 
 	 * If no mask is provided, a placeholder mask will be created with the values:
 	 * "POLYGON((0 0,1 1,1 0,0 0))" (the system requires a valid WKT polygon mask for
 	 * every artefact). It is not recommended to leave the mask, name, or work status
@@ -687,7 +952,6 @@ export class SignalRUtilities {
 
     /**
 	 * Updates the specified artefact.
-	 * 
 	 * There are many possible attributes that can be changed for
 	 * an artefact. The caller should only input only those that
 	 * should be changed. Attributes with a null value will be ignored.
@@ -918,23 +1182,6 @@ export class SignalRUtilities {
 
 
     /**
-	 * Add a listener for when the server broadcasts a new ROI has been created
-	 *
-	 */
-    public connectCreatedRoi(handler: (msg: InterpretationRoiDTO) => void): void {
-        this._connection.on('CreatedRoi', handler)
-    }
-
-    /**
-	 * Remove an existing listener that triggers when the server broadcasts a new ROI has been created
-	 *
-	 */
-    public disconnectCreatedRoi(handler: (msg: InterpretationRoiDTO) => void): void {
-        this._connection.off('CreatedRoi', handler)
-    }
-
-
-    /**
 	 * Add a listener for when the server broadcasts one or more new ROI's have been created
 	 *
 	 */
@@ -965,23 +1212,6 @@ export class SignalRUtilities {
 	 */
     public disconnectEditedRoisBatch(handler: (msg: BatchEditRoiResponseDTO) => void): void {
         this._connection.off('EditedRoisBatch', handler)
-    }
-
-
-    /**
-	 * Add a listener for when the server broadcasts a ROI has been updated
-	 *
-	 */
-    public connectUpdatedRoi(handler: (msg: UpdatedInterpretationRoiDTO) => void): void {
-        this._connection.on('UpdatedRoi', handler)
-    }
-
-    /**
-	 * Remove an existing listener that triggers when the server broadcasts a ROI has been updated
-	 *
-	 */
-    public disconnectUpdatedRoi(handler: (msg: UpdatedInterpretationRoiDTO) => void): void {
-        this._connection.off('UpdatedRoi', handler)
     }
 
 
@@ -1135,6 +1365,108 @@ export class SignalRUtilities {
 	 */
     public disconnectBatchUpdatedArtefactTransform(handler: (msg: BatchUpdatedArtefactTransformDTO) => void): void {
         this._connection.off('BatchUpdatedArtefactTransform', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the create of a sign interpretation
+	 *
+	 */
+    public connectCreatedSignInterpretation(handler: (msg: SignInterpretationListDTO) => void): void {
+        this._connection.on('CreatedSignInterpretation', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the create of a sign interpretation
+	 *
+	 */
+    public disconnectCreatedSignInterpretation(handler: (msg: SignInterpretationListDTO) => void): void {
+        this._connection.off('CreatedSignInterpretation', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of a sign interpretation
+	 *
+	 */
+    public connectUpdatedSignInterpretation(handler: (msg: SignInterpretationDTO) => void): void {
+        this._connection.on('UpdatedSignInterpretation', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of a sign interpretation
+	 *
+	 */
+    public disconnectUpdatedSignInterpretation(handler: (msg: SignInterpretationDTO) => void): void {
+        this._connection.off('UpdatedSignInterpretation', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the delete of a sign interpretation
+	 *
+	 */
+    public connectDeletedSignInterpretation(handler: (msg: DeleteDTO) => void): void {
+        this._connection.on('DeletedSignInterpretation', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the delete of a sign interpretation
+	 *
+	 */
+    public disconnectDeletedSignInterpretation(handler: (msg: DeleteDTO) => void): void {
+        this._connection.off('DeletedSignInterpretation', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the creation of an attribute
+	 *
+	 */
+    public connectCreatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.on('CreatedAttribute', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the creation of an attribute
+	 *
+	 */
+    public disconnectCreatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.off('CreatedAttribute', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of an attribute
+	 *
+	 */
+    public connectUpdatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.on('UpdatedAttribute', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of an attribute
+	 *
+	 */
+    public disconnectUpdatedAttribute(handler: (msg: AttributeDTO) => void): void {
+        this._connection.off('UpdatedAttribute', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the delete of an attribute
+	 *
+	 */
+    public connectDeletedAttribute(handler: (msg: DeleteDTO) => void): void {
+        this._connection.on('DeletedAttribute', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the delete of an attribute
+	 *
+	 */
+    public disconnectDeletedAttribute(handler: (msg: DeleteDTO) => void): void {
+        this._connection.off('DeletedAttribute', handler)
     }
 
 } 

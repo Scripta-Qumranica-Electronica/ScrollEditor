@@ -131,4 +131,18 @@ export namespace ApiRoutes {
 
         return url;
     }
+
+    export function editionAttributeMetadataUrl(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes`;
+    }
+
+    export function attributeUrl(editionId: number, signInterpretationId: number, attributeValueId?: number) {
+        let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretations/${signInterpretationId}/attributes`;
+
+        if (attributeValueId) {
+            url += `/${attributeValueId}`;
+        }
+
+        return url;
+    }
 }

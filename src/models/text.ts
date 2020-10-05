@@ -88,13 +88,6 @@ class TextFragment {
         // State collections require an id field (look for ItemWithId)
         return this.textFragmentId;
     }
-
-    private copyFrom(other: TextFragment) {
-        this.textFragmentId = other.textFragmentId;
-        this.textFragmentName = other.textFragmentName;
-        this.editorId = other.editorId;
-        this.lines = other.lines;
-    }
 }
 
 class TextEdition {
@@ -155,7 +148,7 @@ class Sign {
 
 class SignInterpretation {
     public signInterpretationId: number;
-    public character: string;
+    public character?: string;
     public attributes: InterpretationAttributeDTO[]; // InterpretationAttributeDTO[];
     public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
     public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
@@ -193,7 +186,11 @@ class SignInterpretation {
     }
 
     public get isReconstructed(): boolean {
-        return !!this.attributes.find(attr => attr.attributeValueString === 'is-reconstructed-true');
+        return !!this.attributes.find(attr => attr.attributeString === 'is_reconstructed');
+    }
+
+    public findAttributeIndex(attributeValueId: number) {
+        return this.attributes.findIndex(attr => attr.attributeValueId === attributeValueId);
     }
 }
 

@@ -1,4 +1,3 @@
-import Vue from '*.vue';
 import { BreakPointManager } from '@yutahaga/vue-media-breakpoints/lib';
 
 export const GRID_BREAKPOINTS = {

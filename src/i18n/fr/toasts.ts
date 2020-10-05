@@ -8,6 +8,7 @@ export default {
     artefactInfo: 'Aucune modification à enregistrer',
     artefactSuccess: 'Artefact sauvegardé',
     artefactError: 'La sauvegarde de l\'artefact à echoué',
+    artefactsAutoModeError: 'Le mode automatique n\'est pas possible lorsque plus d\'une lettre est sélectionnée',
 
     editionSuccess: 'Edition renommée',
     editionError: 'Le renommage de l\'édition à échoué',

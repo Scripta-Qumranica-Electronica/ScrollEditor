@@ -45,10 +45,8 @@
                         {{artefact.name}}
                         <edition-icons :edition="edition" :show-text="true" />
                         <sign-wheel
-                            v-if="selectedSignInterpretation"
+                            v-if="selectedSignsInterpretation.length==1"
                             :line="selectedLine"
-                            :selectedSignInterpretation="selectedSignInterpretation"
-                            @sign-interpretation-clicked="onSignInterpretationClicked"
                         />
                     </div>
                     <b-button
@@ -83,12 +81,7 @@
                                     :clipping-mask="artefact.mask"
                                     :boundingBox="artefact.mask.getBoundingBox()"
                                 />
-                                <roi-layer
-                                    :rois="visibleRois"
-                                    :si="selectedSignInterpretation"
-                                    :selected="selectedInterpretationRoi"
-                                    @roi-clicked="onRoiClicked($event)"
-                                />
+                                <roi-layer :rois="visibleRois" @roi-clicked="onRoiClicked($event)" />
                                 <boundary-drawer
                                     v-show="isDrawingEnabled && this.mode !== 'select'"
                                     :mode="mode"
@@ -159,66 +152,57 @@
                 </div>
             </div>
         </div>
-
         <div
             id="text-right-sidebar"
             v-if="!waiting && artefact"
             :class="{ sidebar: isActiveSidebar, text: isActiveText }"
         >
             <text-side
-                :selectedSignInterpretation="selectedSignInterpretation"
                 :artefact="artefact"
                 @sign-interpretation-clicked="onSignInterpretationClicked($event)"
                 @text-fragment-selected="initVisibleRois()"
                 @text-fragments-loaded="initVisibleRois()"
             ></text-side>
+            <sign-attribute-pane />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
-import { Artefact } from '@/models/artefact';
-import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
+import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
-import SignCanvas from './SignCanvas.vue';
-import SignOverlay from './SignOverlay.vue';
 import {
     ArtefactEditorParams,
-    ArtefactEditorParamsChangedArgs
+    ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
-import { ZoomRequestEventArgs } from '@/models/editor-params';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
 import { ArtefactTextFragmentData } from '@/models/text';
 
 import {
-    ImageSetting,
-    SingleImageSetting,
-    normalizeOpacity
+    normalizeOpacity,
 } from '@/components/image-settings/types';
 import {
     SignInterpretation,
     InterpretationRoi,
     Line,
-    TextFragment
 } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
-import ImagedObjectService from '@/services/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
 import ImageLayer from '@/views/artefact-editor/image-layer.vue';
 import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
 import BoundaryDrawer, {
-    ActionMode
+    ActionMode,
 } from '@/components/polygons/boundary-drawer.vue';
 import Zoomer, {
     ZoomEventArgs,
-    RotateEventArgs
+    RotateEventArgs,
 } from '@/components/misc/zoomer.vue';
 import TextService from '@/services/text';
 import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
@@ -226,12 +210,12 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 import { EditionInfo } from '../../models/edition';
 import {
     ArtefactEditorOperation,
-    ArtefactEditorOperationType,
     ArtefactROIOperation,
-    ArtefactRotateOperation
+    ArtefactRotateOperation,
+    TextFragmentAttributeOperation,
 } from './operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
-import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
+import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -245,13 +229,16 @@ import { SetInterpretationRoiDTO } from '../../dtos/sqe-dtos';
         'boundary-drawer': BoundaryDrawer,
         'zoomer': Zoomer,
         'sign-wheel': SignWheel,
-        'edition-icons': EditionIcons
-    }
+        'edition-icons': EditionIcons,
+        'sign-attribute-pane': SignAttributePane,
+    },
 })
-export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactEditorOperation> {
+export default class ArtefactEditor
+    extends Vue
+    implements SavingAgent<ArtefactEditorOperation> {
     public params = new ArtefactEditorParams();
-    private selectedSignInterpretation: SignInterpretation | null = null;
-    private selectedInterpretationRoi: InterpretationRoi | null = null;
+    // private selectedSignInterpretation: SignInterpretation | null = null;
+    // private selectedInterpretationRoi: InterpretationRoi | null = null;
     private mode: ActionMode = 'box';
     private autoMode = false;
 
@@ -266,6 +253,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
 
     private artefactService = new ArtefactService();
     private textService = new TextService();
+    private signInterpretationService = new SignInterpretationService();
     private operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
@@ -275,14 +263,31 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
     protected get artefact() {
         return this.$state.artefacts.current!;
     }
+    public get artefactEditor() {
+        return this.$state.artefactEditor;
+    }
+    public get selectedSignsInterpretation(): SignInterpretation[] {
+        return this.artefactEditor.selectedSignsInterpretation;
+    }
 
-    public async saveEntities(ops: ArtefactEditorOperation[]): Promise<boolean> {
+    public get selectedInterpretationRoi(): InterpretationRoi | null {
+        return this.artefactEditor.selectedInterpretationRoi;
+    }
+
+    public async saveEntities(
+        ops: ArtefactEditorOperation[]
+    ): Promise<boolean> {
         const as = new ArtefactService();
 
         this.saving = true;
         try {
             const appliedRotation = await this.saveRotation();
             const appliedROIs = await this.saveROIs();
+            await this.saveAttributes(
+                ops.filter(
+                    (op) => op.type === 'attr'
+                ) as TextFragmentAttributeOperation[]
+            );
         } catch (e) {
             console.error("Can't save arterfacts to server", e);
             return false;
@@ -293,7 +298,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
     }
 
     public onNewPolygon(poly: Polygon) {
-        if (!this.selectedSignInterpretation) {
+        if (!this.selectedSignsInterpretation.length) {
             console.error("Can't add ROI with no selected sign");
             return;
         }
@@ -302,7 +307,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         const normalized = Polygon.offset(poly, -bbox.x, -bbox.y);
         const roi = InterpretationRoi.new(
             this.artefact,
-            this.selectedSignInterpretation,
+            this.artefactEditorState.singleSelectedSi!,
             normalized,
             bbox
         );
@@ -310,7 +315,6 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         const placedRoi = this.placeRoi(roi);
 
         const op: ArtefactROIOperation = new ArtefactROIOperation(
-            this.artefact.id,
             'draw',
             placedRoi.clone()
         );
@@ -347,17 +351,18 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
             si.rois.push(newRoi);
         }
         this.visibleRois.push(newRoi);
-        this.selectedInterpretationRoi = newRoi;
-        this.selectedSignInterpretation = si || null;
+        this.$state.artefactEditor.selectRoi(newRoi);
 
         return newRoi;
+    }
+    public get artefactEditorState() {
+        return this.$state.artefactEditor;
     }
 
     public removeRoi(roi: InterpretationRoi) {
         const roiBbox = roi.shape.getBoundingBox();
-        console.log(roiBbox);
         const visibleRoi = this.visibleRois.find(
-            vRoi =>
+            (vRoi) =>
                 vRoi.shape.getBoundingBox().x === roiBbox.x &&
                 vRoi.shape.getBoundingBox().y === roiBbox.y &&
                 vRoi.shape.getBoundingBox().width === roiBbox.width &&
@@ -377,12 +382,12 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         if (si) {
             si.deleteRoi(roi);
         }
-        const visIndex = this.visibleRois.findIndex(r => r.id === roi.id);
+        const visIndex = this.visibleRois.findIndex((r) => r.id === roi.id);
         this.visibleRois.splice(visIndex, 1);
         this.statusTextFragment(roi);
 
-        this.selectedInterpretationRoi = null;
-        this.selectedSignInterpretation = null;
+        this.artefactEditorState.selectRoi(null);
+        this.artefactEditorState.selectedSignsInterpretation = [];
     }
 
     protected created() {
@@ -393,6 +398,11 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         );
         this.$state.eventBus.on('remove-roi', this.removeRoi);
         this.$state.eventBus.on('place-roi', this.placeRoi);
+        this.$state.eventBus.on('new-operation', this.onNewOperation);
+        this.$state.eventBus.on(
+            'new-bulk-operations',
+            this.onNewBulkOperations
+        );
     }
 
     protected destroyed() {
@@ -400,6 +410,11 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         this.$state.eventBus.off('change-artefact-rotation');
         this.$state.eventBus.off('remove-roi', this.removeRoi);
         this.$state.eventBus.off('place-roi', this.placeRoi);
+        this.$state.eventBus.off('new-operation', this.onNewOperation);
+        this.$state.eventBus.off(
+            'new-bulk-operations',
+            this.onNewBulkOperations
+        );
     }
 
     protected async mounted() {
@@ -481,13 +496,17 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
 
     private get actualBoundingBox(): string {
         return (
-            `${this.boundingBox.x * this.zoomLevel} ${this.boundingBox.y *
-                this.zoomLevel} ` + `${this.actualWidth} ${this.actualHeight}`
+            `${this.boundingBox.x * this.zoomLevel} ${
+                this.boundingBox.y * this.zoomLevel
+            } ` + `${this.actualWidth} ${this.actualHeight}`
         );
     }
 
     private get isDrawingEnabled() {
-        return !!this.selectedSignInterpretation;
+        return (
+            !!this.artefactEditorState.singleSelectedSi &&
+            !this.artefactEditorState.singleSelectedSi.isReconstructed
+        );
     }
 
     private get isDeleteEnabled() {
@@ -503,17 +522,17 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         );
         if (si) {
             const tfId = si.sign.line.textFragment.textFragmentId;
-            const visibleSIs = this.visibleRois.map(r =>
+            const visibleSIs = this.visibleRois.map((r) =>
                 this.$state.signInterpretations.get(r.signInterpretationId!)
             );
             const visiblesTf = visibleSIs.map(
-                s => s!.sign.line.textFragment.textFragmentId
+                (s) => s!.sign.line.textFragment.textFragmentId
             );
 
-            const anyRoiOfSelectedTf = visiblesTf.some(tf => tf === tfId);
+            const anyRoiOfSelectedTf = visiblesTf.some((tf) => tf === tfId);
             if (!anyRoiOfSelectedTf) {
                 const tfToMove = this.artefact.textFragments.find(
-                    tf => tf.id === tfId
+                    (tf) => tf.id === tfId
                 );
                 if (tfToMove) {
                     tfToMove.certain = false;
@@ -534,13 +553,12 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
 
     private onDeleteRoi() {
         const roi = this.selectedInterpretationRoi;
-        const si = this.selectedSignInterpretation;
+        const si = this.selectedSignsInterpretation;
         if (!roi || !si) {
             console.error("Can't delete an ROI if nothing is selected");
             return;
         }
         const op: ArtefactROIOperation = new ArtefactROIOperation(
-            this.artefact.id,
             'erase',
             roi.clone()
         );
@@ -563,19 +581,21 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
     }
 
     private get selectedLine(): Line | null {
-        if (!this.selectedSignInterpretation) {
+        if (!this.artefactEditorState.singleSelectedSi) {
             return null;
         }
 
-        return this.selectedSignInterpretation.sign.line;
+        return this.artefactEditorState.singleSelectedSi!.sign.line;
     }
+
     private nextSign() {
-        let newIndex = this.selectedSignInterpretation!.sign.indexInLine + 1;
+        let newIndex =
+            this.artefactEditorState.singleSelectedSi!.sign.indexInLine + 1;
         while (newIndex < this.selectedLine!.signs.length) {
             const newSI = this.selectedLine!.signs[newIndex]
                 .signInterpretations[0];
             if (newSI.character && !newSI.isReconstructed) {
-                this.onSignInterpretationClicked(newSI);
+                this.artefactEditorState.selectSign(newSI);
                 break;
             }
             newIndex++;
@@ -601,13 +621,12 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         if (this.selectedLine) {
             const linesArray = this.selectedLine.textFragment.lines;
             const index = linesArray.findIndex(
-                k => k.lineId === this.selectedLine!.lineId
+                (k) => k.lineId === this.selectedLine!.lineId
             );
             if (index !== -1) {
                 const nextLine = linesArray[index + 1];
-                this.onSignInterpretationClicked(
-                    nextLine.signs[1].signInterpretations[0]
-                );
+                const newSI = nextLine.signs[1].signInterpretations[0];
+                this.artefactEditorState.selectSign(newSI);
             }
         }
     }
@@ -616,7 +635,6 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         this.params = evt.params; // This makes sure a change is triggered in child components
         if (evt.property === 'rotationAngle') {
             const op: ArtefactRotateOperation = new ArtefactRotateOperation(
-                this.artefact.id,
                 this.artefact.placement.rotate,
                 evt.value
             );
@@ -625,7 +643,15 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
     }
 
     private onAuto() {
-        this.autoMode = !this.autoMode;
+        if (this.artefactEditorState.selectedSignsInterpretation.length > 1) {
+            this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
+                type: 'info',
+                position: 'top-right',
+                duration: 7000,
+            });
+        } else {
+            this.autoMode = !this.autoMode;
+        }
     }
 
     private fillImageSettings() {
@@ -644,7 +670,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
                     type: imageType,
                     visible: isMaster,
                     opacity: 1,
-                    normalizedOpacity: 1
+                    normalizedOpacity: 1,
                 };
                 // Make sure this object is tracked by Vue
                 this.$set(this.params.imageSettings, imageType, imageSetting);
@@ -666,14 +692,14 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         const diag = Math.sqrt(bb.height * bb.height + bb.width * bb.width);
         const center = (this.boundingBoxCenter = {
             x: bb.x + bb.width / 2,
-            y: bb.y + bb.height / 2
+            y: bb.y + bb.height / 2,
         } as Position);
 
         this.boundingBox = {
             x: center.x - diag / 2,
             y: center.y - diag / 2,
             width: diag,
-            height: diag
+            height: diag,
         };
     }
 
@@ -689,21 +715,17 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
         }
     }
 
-    private onSignInterpretationClicked(si: SignInterpretation) {
-        this.selectedSignInterpretation = si;
-        this.selectedInterpretationRoi = si.artefactRoi(this.artefact) || null;
-    }
+    private onRoiClicked(roi: InterpretationRoi) {
+        this.artefactEditorState.selectRoi(roi);
+        this.artefactEditorState.selectedSignsInterpretation = [];
 
-    private onRoiClicked(ir: InterpretationRoi) {
-        this.selectedInterpretationRoi = ir;
-
-        if (!ir.signInterpretationId) {
-            this.selectedSignInterpretation = null;
+        if (!roi.signInterpretationId) {
+            this.artefactEditorState.selectedSignsInterpretation = [];
         } else {
             const si = this.$state.signInterpretations.get(
-                ir.signInterpretationId
+                roi.signInterpretationId
             );
-            this.selectedSignInterpretation = si || null;
+            this.artefactEditorState.selectSign(si);
         }
     }
 
@@ -727,30 +749,117 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
     }
 
     private async saveROIs() {
-        const selected = this.selectedSignInterpretation;
+        const selected = this.artefactEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
             this.artefact
         );
         this.initVisibleRois();
-        if (selected) {
-            // Make sure we select again, as the ROIs might have changed
-            this.onSignInterpretationClicked(selected);
-        }
+        // if (selected) {
+        //     // Make sure we select again, as the ROIs might have changed
+        //     this.artefactEditorState.onSignInterpretationClicked(selected, false);
+        // }
 
         return updated > 0;
+    }
+
+    private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
+        for (const op of ops) {
+            const opType = op.attributeOperationType;
+            const si = this.$state.signInterpretations.get(
+                op.signInterpretationId
+            );
+            if (!si) {
+                console.warn(
+                    "Can't save attributes of non existing sign interpretation"
+                );
+                continue;
+            }
+            const existingIndex = si.findAttributeIndex(op.attributeValueId);
+
+            // Determine the actual operation that needs to be performed on the server.
+            // If the original operation is an update, this is also an update.
+            // However, if the original operation is create/delete, which can be undone or redone, we delete
+            // the attribute if it is not in the state, or recreate it if it is in the state
+            let actualOpType = 'update';
+
+            switch (opType) {
+                case 'create':
+                    actualOpType = existingIndex === -1 ? 'delete' : 'create';
+                    break;
+                case 'delete':
+                    actualOpType = existingIndex === -1 ? 'delete' : 'create';
+                    break;
+                case 'update':
+                    actualOpType = 'update';
+                    break;
+            }
+
+            console.debug(`opType: ${opType}, existingIndex: ${existingIndex}, actualOpType: ${actualOpType}`);
+
+            switch (actualOpType) {
+                case 'create':
+                    await this.signInterpretationService.createAttribute(
+                        this.edition!,
+                        si,
+                        si.attributes[existingIndex]
+                    );
+                    break;
+                case 'update':
+                    if (!op.prev || !op.next) {
+                        console.error('Found an update operation without both next and prev', op);
+                        throw new Error('Found an update operation without both next and prev');
+                    }
+
+                    if (op.prev.attributeValueId === op.next.attributeValueId) {
+                        // This is an update operation of a comment, we can use the update API
+                        await this.signInterpretationService.updateAttribute(this.edition!, si, op.next.attributeValueId, si.attributes[existingIndex]);
+                        return;
+                    }
+
+                    console.debug(`Detected an update of an attributeValueId from ${op.prev.attributeValueId} to ${op.next.attributeValueId}`);
+                    const prevIndex = si.findAttributeIndex(op.prev.attributeValueId);
+                    const nextIndex = si.findAttributeIndex(op.next.attributeValueId);
+                    console.debug(`prevIndex ${prevIndex}, nextIndex ${nextIndex}`);
+
+                    if (prevIndex !== -1 && nextIndex !== -1) {
+                        console.error('In an attribute value update, we have both prev and next in the current attributes', op);
+                        throw new Error('In an attribute value update, we have both prev and next in the current attributes');
+                    }
+
+                    // See if we delete prev and create next or vice versa
+                    const prevIsCurrent = prevIndex !== -1;
+                    const toDeleteAttributeValueId = prevIsCurrent ? op.next.attributeValueId : op.prev.attributeValueId;
+                    const toCreateAttribute = prevIsCurrent ? op.prev : op.next;
+
+                    await this.signInterpretationService.deleteAttribute(this.edition!, si, toDeleteAttributeValueId);
+                    await this.signInterpretationService.createAttribute(this.edition!, si, toCreateAttribute);
+                    break;
+                case 'delete':
+                    await this.signInterpretationService.deleteAttribute(
+                        this.edition!,
+                        si,
+                        op.attributeValueId
+                    );
+                    break;
+            }
+        }
     }
 
     private showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
-            duration: 7000
+            duration: 7000,
         });
     }
 
     private onNewOperation(op: ArtefactEditorOperation) {
         this.operationsManager.addOperation(op);
+    }
+
+    private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
+        this.operationsManager.addBulkOperations(ops);
     }
 
     private onUndo() {
@@ -847,7 +956,7 @@ export default class ArtefactEditor extends Vue implements SavingAgent<ArtefactE
 #text-right-sidebar {
     height: calc(100vh - 63px);
     width: calc((100vw - 330px) / 2);
-    overflow: scroll;
+    // overflow: scroll;
 }
 
 #text-right-sidebar.sidebar.text {

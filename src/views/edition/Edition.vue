@@ -20,7 +20,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import EditionSidebar from './components/sidebar.vue';
-import EditionService from '@/services/edition';
 import { EditionInfo } from '@/models/edition.js';
 import Waiting from '@/components/misc/Waiting.vue';
 
