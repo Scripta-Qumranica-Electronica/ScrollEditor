@@ -9,7 +9,7 @@ function state() {
     return StateManager.instance;
 }
 
-export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr';
+export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary';
 
 
 export abstract class ArtefactEditorOperation implements Operation<ArtefactEditorOperation> {
@@ -208,6 +208,47 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
                 console.warn("Can't redo operation with no next and no existingIndex");
             }
         }
+    }
+}
+
+export class SignInterpretationCommentOperation extends ArtefactEditorOperation {
+    public signInterpretationId: number;
+    public prevComment: string | null;
+    public nextComment: string | null;
+
+    public constructor(signInterpretationId: number, comment: string | null) {
+        super('commentary');
+        this.signInterpretationId = signInterpretationId;
+        this.nextComment = comment;
+        this.prevComment = this.signInterpretation.commentary;
+    }
+
+    private get signInterpretation() {
+        return state().signInterpretations.get(this.signInterpretationId)!;
+    }
+
+    public undo() {
+        this.signInterpretation.commentary = this.prevComment;
+    }
+
+    public redo() {
+        this.signInterpretation.commentary = this.nextComment;
+    }
+
+    public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+        if (op.type !== 'commentary') {
+            return undefined;
+        }
+
+        const other = op as SignInterpretationCommentOperation;
+        if (other.signInterpretationId !== this.signInterpretationId) {
+            return undefined;
+        }
+
+        const united = new SignInterpretationCommentOperation(this.signInterpretationId, this.nextComment);
+        united.prevComment = other.prevComment;
+
+        return united;
     }
 }
 

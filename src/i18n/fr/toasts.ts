@@ -30,5 +30,6 @@ export default {
     deleteArtefactFailed: "Échec de la suppression de l'artefact",
     artefactCantOverlap: "L'artefact ne peut pas superposer d'autres artefacts"
 
+    // TODO: Translate attributeDeletedBySomeoneElse to French
 };
 

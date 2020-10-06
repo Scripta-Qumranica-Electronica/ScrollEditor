@@ -212,6 +212,7 @@ import {
     ArtefactEditorOperation,
     ArtefactROIOperation,
     ArtefactRotateOperation,
+    SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
 } from './operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
@@ -287,6 +288,9 @@ export default class ArtefactEditor
                 ops.filter(
                     (op) => op.type === 'attr'
                 ) as TextFragmentAttributeOperation[]
+            );
+            await this.saveCommentaries(
+                ops.filter(op => op.type === 'commentary') as SignInterpretationCommentOperation[]
             );
         } catch (e) {
             console.error("Can't save arterfacts to server", e);
@@ -843,6 +847,17 @@ export default class ArtefactEditor
                     );
                     break;
             }
+        }
+    }
+
+    private async saveCommentaries(ops: SignInterpretationCommentOperation[]) {
+        for (const op of ops) {
+            const si = this.$state.signInterpretations.get(op.signInterpretationId);
+            if (!si) {
+                console.warn("Can't save commentary for non existing sign interpretation id ", op.signInterpretationId);
+                continue;
+            }
+            await this.signInterpretationService.updateCommentary(this.$state.editions.current!, si);
         }
     }
 
