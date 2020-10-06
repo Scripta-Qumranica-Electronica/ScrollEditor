@@ -64,6 +64,7 @@ import SignAttributeBadge from './sign-attribute-badge.vue';
 })
 export default class SignAttributeModal extends Vue {
     private selected: string | null = null;
+    private hidingStarted = false;
 
     private get attribute() {
         return this.$state.artefactEditor.selectedAttribute;
@@ -216,17 +217,20 @@ export default class SignAttributeModal extends Vue {
     private hide() {
         (this.$refs.signAttributeModalRef as any).hide();
     }
+
     private onHide() {
+        this.hidingStarted = true;
         this.$state.artefactEditor.selectedAttribute = null;
     }
 
     @Watch('attribute')
     private onAttributeChanged() {
         // The attribute can be deleted by another user
-        if (!this.attribute) {
+        if (!this.attribute && !this.hidingStarted) {
             this.hide();
             this.$toasted.info(this.$tc('toasts.attributeDeletedBySomeoneElse'));
         }
+        this.hidingStarted = false;
     }
 }
 </script>

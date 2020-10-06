@@ -105,7 +105,6 @@ export default class SignAttributePane extends Vue {
 
     // The comment in the state.
     private get comment(): string {
-        console.debug('comment getter called');
         if (this.selectedSignsInterpretation.length !== 1) {
             return '';
         }
@@ -114,7 +113,6 @@ export default class SignAttributePane extends Vue {
     }
 
     private set comment(val: string) {
-        console.debug('comment setter called', val);
         if (this.selectedSignsInterpretation.length !== 1) {
             console.warn("Can't change ta comment without one selected sign interperation");
             return;

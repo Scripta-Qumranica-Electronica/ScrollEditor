@@ -3,16 +3,34 @@
         <b-col cols="3">
             <label for="comment">Comment</label>
         </b-col>
-        <b-col cols="9">
-            <b-form-input
-                id="comment"
-                class="inputsm"
-                type="search"
-                v-model="comment"
-                @update="onCommentUpdated"
-                placeholder="Comment"
-            />
+        <b-col cols="5">
+            <span class="sm" @click="onViewComment()">{{ commentDisplay }}</span>
         </b-col>
+        <b-col cols="4">
+            <b-button @click="onViewComment()" title="View Comment" :disabled="!comment">
+                <i class="fa fa-eye"/>
+            </b-button>
+            <b-button @click="onEditComment()" title="Edit Comment">
+                <i class="fa fa-edit"/>
+            </b-button>
+            <b-button @click="onDeleteComment()" title="Delete Comment" :disabled="!comment">
+                <i class="fa fa-trash"/>
+            </b-button>
+        </b-col>
+        <b-modal ref="viewCommentModalRef" id="viewCommentModal" title="Comment" hide-footer hide-header>
+            <div id="comment-view" v-html="comment">
+            </div>
+        </b-modal>
+        <b-modal ref="editCommentModalRef" id="editCommentModal" title="Comment" hide-footer hide-header>
+            <div id="comment-edit">
+                <b-form-textarea
+                    id="comment"
+                    v-model="comment"
+                    @update="onCommentUpdated"
+                    placeholder="Enter the comment..."
+                />
+            </div>
+        </b-modal>
     </b-row>
 </template>
 
@@ -31,6 +49,18 @@ export default class CommentComponent extends Vue {
 
     private comment: string = ''; // Use v-model to bind here, we can't use v-model to bind to the value property
 
+    private get commentDisplay() {
+        if (!this.comment) {
+            return 'None';
+        }
+
+        let shortened = this.comment.substring(0, 10);
+        if (this.comment.length > 10) {
+            shortened += '...';
+        }
+        return shortened;
+    }
+
     private mounted() {
         this.comment = this.value || '';
     }
@@ -43,5 +73,36 @@ export default class CommentComponent extends Vue {
     private onValueChanged() {
         this.comment = this.value || '';
     }
+
+    private onDeleteComment() {
+        this.comment = '';
+        this.onCommentUpdated();
+    }
+
+    private onViewComment() {
+        (this.$refs.viewCommentModalRef as any).show();
+        // this.$bvModal.show('viewCommentModal');
+    }
+
+    private onEditComment() {
+        (this.$refs.viewEditModalRef as any).show();
+        // this.$bvModal.show('editCommentModal');
+    }
 }
 </script>
+
+<style lang="scss" scoped>
+#comment-view {
+    min-height: 250px;
+}
+
+#comment-edit {
+    min-height: 300px;
+
+    #comment {
+        display: block;
+        box-sizing: border-box;
+        height: 100%;
+    }
+}
+</style>
