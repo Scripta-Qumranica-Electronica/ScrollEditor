@@ -1033,6 +1033,11 @@
     error-stack-parser "^2.0.0"
     string-width "^2.0.0"
 
+"@tinymce/tinymce-vue@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-vue/-/tinymce-vue-3.2.3.tgz#9fdde71bb00d37b9f53400047ff30a73803e598d"
+  integrity sha512-SMjpAQg2BLtYmnx4s3rKiAFxgXCx4uKWu8XmcvsZoYl5kvF4yaoqx70ovYJvT83ucpO7n6pewnQL3O4lR2WF3Q==
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
