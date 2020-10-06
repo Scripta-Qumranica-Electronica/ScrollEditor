@@ -230,6 +230,15 @@ export default class SignAttributeModal extends Vue {
     private onHide() {
         this.$state.artefactEditor.selectedAttribute = null;
     }
+
+    @Watch('attribute')
+    private onAttributeChanged() {
+        // The attribute can be deleted by another user
+        if (!this.attribute) {
+            this.hide();
+            this.$toasted.info(this.$tc('toasts.attributeDeletedBySomeoneElse'));
+        }
+    }
 }
 </script>
 
