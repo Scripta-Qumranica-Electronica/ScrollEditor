@@ -23,12 +23,7 @@
         </b-modal>
         <b-modal ref="editCommentModalRef" id="editCommentModal" title="Comment" hide-footer hide-header>
             <div id="comment-edit">
-                <b-form-textarea
-                    id="comment"
-                    v-model="comment"
-                    @update="onCommentUpdated"
-                    placeholder="Enter the comment..."
-                />
+                <ckeditor :editor="editor" v-model="comment" @input="onCommentUpdated" />
             </div>
         </b-modal>
     </b-row>
@@ -36,6 +31,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+
+// tslint:disable-next-line
+const ClassicEditor = require('@ckeditor/ckeditor5-build-classic');
 
 @Component({
     name: 'comment',
@@ -48,6 +46,7 @@ export default class CommentComponent extends Vue {
     public value!: string;
 
     private comment: string = ''; // Use v-model to bind here, we can't use v-model to bind to the value property
+    private editor = ClassicEditor;
 
     private get commentDisplay() {
         if (!this.comment) {
@@ -85,7 +84,7 @@ export default class CommentComponent extends Vue {
     }
 
     private onEditComment() {
-        (this.$refs.viewEditModalRef as any).show();
+        (this.$refs.editCommentModalRef as any).show();
         // this.$bvModal.show('editCommentModal');
     }
 }

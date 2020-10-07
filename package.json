@@ -11,6 +11,8 @@
         "test": "cypress open"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-build-classic": "^23.0.0",
+        "@ckeditor/ckeditor5-vue": "^1.0.3",
         "@fortawesome/fontawesome-svg-core": "^1.2.7",
         "@fortawesome/free-brands-svg-icons": "^5.4.2",
         "@fortawesome/free-regular-svg-icons": "^5.4.2",
@@ -41,7 +43,6 @@
     "devDependencies": {
         "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
         "@babel/plugin-proposal-optional-chaining": "^7.8.3",
-        "@tinymce/tinymce-vue": "^3.2.3",
         "@types/vue2-hammer": "^2.1.0",
         "@vue/cli-plugin-babel": "~4.2.2",
         "@vue/cli-plugin-typescript": "~4.2.2",
