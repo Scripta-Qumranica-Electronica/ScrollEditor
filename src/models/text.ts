@@ -152,6 +152,7 @@ class SignInterpretation {
     public attributes: InterpretationAttributeDTO[]; // InterpretationAttributeDTO[];
     public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
     public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
+    public commentary: string | null;
 
     public sign: Sign;
 
@@ -160,6 +161,7 @@ class SignInterpretation {
         this.character = obj.character;
         this.attributes = obj.attributes;
         this.nextSignInterpretations = obj.nextSignInterpretations;
+        this.commentary = obj.commentary?.commentary || null;
 
         if (obj.rois) {
             this.rois = obj.rois.map(roi => new InterpretationRoi(roi));

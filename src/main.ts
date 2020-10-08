@@ -31,6 +31,10 @@ import { StateManager } from './state';
 // vue2-hammer
 import { VueHammer } from 'vue2-hammer';
 
+// tslint:disable-next-line
+const CKEditor = require('@ckeditor/ckeditor5-vue');
+
+
 // import AsyncComputed from 'vue-async-computed';
 
 Vue.config.productionTip = false;
@@ -69,6 +73,7 @@ Vue.use(VueShortcuts, { prevent: ['input'] });
 Vue.use(RenderingOptimizationPlugin);
 
 Vue.use(VueHammer);
+Vue.use(CKEditor);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {

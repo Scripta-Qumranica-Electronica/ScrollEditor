@@ -145,4 +145,10 @@ export namespace ApiRoutes {
 
         return url;
     }
+
+    export function signInterpretationCommentaryUrl(editionId: number, signInterpretationId: number) {
+        const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}/commentary`;
+
+        return url;
+    }
 }

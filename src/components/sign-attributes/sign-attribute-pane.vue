@@ -50,12 +50,27 @@
                 />
             </li>
         </ul>
+        <!-- <b-row v-if="!isMultiSelect" class="mt-3">
+            <b-col cols="3">
+                <label for="comment">Comment</label>
+            </b-col>
+            <b-col cols="9">
+                <b-form-input
+                    id="comment"
+                    class="inputsm"
+                    type="search"
+                    v-model="comment"
+                    placeholder="Comment"
+                />
+            </b-col>
+        </b-row> -->
+        <comment v-model="comment" v-if="!isMultiSelect" class="mt-3" />
         <sign-attribute-modal />
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { SignInterpretation } from '@/models/text';
 import {
     AttributeDTO,
@@ -64,14 +79,16 @@ import {
 } from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
-import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
+import { SignInterpretationCommentOperation, TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
 import { BDropdown, BvEvent } from 'bootstrap-vue';
+import CommentComponent from '../comment/comment.vue';
 
 @Component({
     name: 'sign-attribute-pane',
     components: {
         'sign-attribute-modal': SignAttributeModal,
         'sign-attribute': SignAttribute,
+        'comment': CommentComponent,
     },
 })
 export default class SignAttributePane extends Vue {
@@ -81,8 +98,29 @@ export default class SignAttributePane extends Vue {
     public get artefactEditor() {
         return this.$state.artefactEditor;
     }
+
     public get selectedSignsInterpretation(): SignInterpretation[] {
         return this.artefactEditor.selectedSignsInterpretation;
+    }
+
+    // The comment in the state.
+    private get comment(): string {
+        if (this.selectedSignsInterpretation.length !== 1) {
+            return '';
+        }
+
+        return this.selectedSignsInterpretation[0].commentary || '';
+    }
+
+    private set comment(val: string) {
+        if (this.selectedSignsInterpretation.length !== 1) {
+            console.warn("Can't change ta comment without one selected sign interperation");
+            return;
+        }
+
+        const op = new SignInterpretationCommentOperation(this.selectedSignsInterpretation[0].id, val);
+        op.redo();
+        this.$state.eventBus.emit('new-operation', op);
     }
 
     private get attributesMetadata() {
@@ -119,6 +157,12 @@ export default class SignAttributePane extends Vue {
             (attr) => attributeValues.includes(attr.attributeValueId)
         );
         return attributes;
+    }
+
+    private get isMultiSelect() {
+        return (
+            this.$state.artefactEditor.selectedSignsInterpretation.length !== 1
+        );
     }
 
     private onAttributeClick(attribute: InterpretationAttributeDTO) {

@@ -29,21 +29,7 @@
                 </b-col>
             </b-row>
 
-            <b-row v-if="!isMultiSelect" class="mt-3">
-                <b-col cols="3">
-                    <label for="comment">Comment</label>
-                </b-col>
-                <b-col cols="9">
-                    <b-form-input
-                        id="comment"
-                        class="inputsm"
-                        type="search"
-                        v-model="comment"
-                        @update="onCommentUpdated"
-                        placeholder="Comment"
-                    />
-                </b-col>
-            </b-row>
+            <comment v-if="!isMultiSelect" v-model="comment" class="mt-3" />
         </div>
         <template v-slot:modal-footer>
             <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
@@ -63,7 +49,9 @@ import {
     InterpretationAttributeDTO,
 } from '@/dtos/sqe-dtos';
 import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
+import { BvModalEvent } from 'bootstrap-vue';
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import CommentComponent from '../comment/comment.vue';
 import SignAttributeBadge from './sign-attribute-badge.vue';
 // import ErrorService from '@/services/error';
 
@@ -71,18 +59,46 @@ import SignAttributeBadge from './sign-attribute-badge.vue';
     name: 'sign-attribute-modal',
     components: {
         'sign-attribute-badge': SignAttributeBadge,
+        'comment': CommentComponent,
     },
 })
 export default class SignAttributeModal extends Vue {
-    private comment: string = '';
     private selected: string | null = null;
-
-    private mounted() {
-        this.setComment(this.attribute);
-    }
+    private hidingStarted = false;
 
     private get attribute() {
         return this.$state.artefactEditor.selectedAttribute;
+    }
+
+    private get comment() {
+        if (this.isMultiSelect) {
+            return '';
+        }
+        return this.attribute?.commentary?.commentary || '';
+    }
+
+    private set comment(val: string) {
+        if (!this.attribute || this.isMultiSelect) {
+            console.warn("Can't set comment without an attribute or with multi selection");
+            return;
+        }
+
+        const si = this.$state.artefactEditor.selectedSignsInterpretation[0]; // Only one element, since !isMultiSelect
+        const newAttr: InterpretationAttributeDTO = { ...this.attribute! };
+
+        newAttr.commentary = val
+            ? ({ commentary: val } as CommentaryDTO)
+            : undefined;
+
+        // Create an operation that will be added to the undo/redo management of the artefact editor
+        const op = new TextFragmentAttributeOperation(
+            si.id,
+            this.attribute!.attributeValueId,
+            newAttr
+        );
+
+        op.redo(); // Apply change
+        this.$state.eventBus.emit('new-operation', op);
     }
 
     private get deleteAllowed() {
@@ -158,47 +174,6 @@ export default class SignAttributeModal extends Vue {
         return description;
     }
 
-    @Watch('attribute')
-    private onAttributeChanged(
-        newAttribute: InterpretationAttributeDTO | null
-    ) {
-        this.setComment(newAttribute);
-    }
-
-    /*    private onAttributeValueChanged(newVal: ) {
-        for (const si of this.$state.artefactEditor
-    } */
-
-    private setComment(newAttribute: InterpretationAttributeDTO | null) {
-        this.comment = newAttribute?.commentary?.commentary || '';
-    }
-
-    private onCommentUpdated() {
-        if (this.isMultiSelect) {
-            console.warn(
-                "Can't update a comment when multiple signs are selected"
-            );
-            return;
-        }
-
-        const si = this.$state.artefactEditor.selectedSignsInterpretation[0]; // Only one element, since !isMultiSelect
-        const newAttr: InterpretationAttributeDTO = { ...this.attribute! };
-
-        newAttr.commentary = this.comment
-            ? ({ commentary: this.comment } as CommentaryDTO)
-            : undefined;
-
-        // Create an operation that will be added to the undo/redo management of the artefact editor
-        const op = new TextFragmentAttributeOperation(
-            si.id,
-            this.attribute!.attributeValueId,
-            newAttr
-        );
-
-        op.redo(); // Apply change
-        this.$state.eventBus.emit('new-operation', op);
-    }
-
     private onDeleteAttribute() {
         const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.artefactEditor
@@ -242,8 +217,20 @@ export default class SignAttributeModal extends Vue {
     private hide() {
         (this.$refs.signAttributeModalRef as any).hide();
     }
+
     private onHide() {
+        this.hidingStarted = true;
         this.$state.artefactEditor.selectedAttribute = null;
+    }
+
+    @Watch('attribute')
+    private onAttributeChanged() {
+        // The attribute can be deleted by another user
+        if (!this.attribute && !this.hidingStarted) {
+            this.hide();
+            this.$toasted.info(this.$tc('toasts.attributeDeletedBySomeoneElse'));
+        }
+        this.hidingStarted = false;
     }
 }
 </script>
