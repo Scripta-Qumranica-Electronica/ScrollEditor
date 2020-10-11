@@ -4,8 +4,6 @@
 // Since it is generic, specifics are provided by by implementation of the operations classes, as well as
 // the save helper interface
 
-import { xgcd } from 'mathjs';
-
 export interface Operation<T extends Operation<T, K>, K = number> {
     // Unite with a previous operation - returns undefined if the operations can't be united
     uniteWith(prev: T): T | undefined;

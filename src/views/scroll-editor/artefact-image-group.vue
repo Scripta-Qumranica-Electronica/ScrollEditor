@@ -51,10 +51,9 @@ Finally we translate the image to its place.
 -->
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins, Emit } from 'vue-property-decorator';
+import { Component, Prop, Mixins, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import ArtefactDataMixin from '@/components/artefact/artefact-data-mixin';
-import { Polygon } from '@/utils/Polygons';
 import { Point } from '@/utils/helpers';
 import {
     ScrollEditorOperation,
@@ -63,7 +62,6 @@ import {
     GroupPlacementOperation
 } from './operations';
 import { Placement } from '../../utils/Placement';
-import { ArtefactGroup } from '@/models/edition';
 
 @Component({
     name: 'artefact-image-group'

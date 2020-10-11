@@ -15,8 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
-import { Artefact } from '@/models/artefact';
+import { Component, Prop, Mixins } from 'vue-property-decorator';
 import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
 import ArtefactDataMixin from './artefact-data-mixin';
 import ArtefactSvg from './artefact-svg.vue';

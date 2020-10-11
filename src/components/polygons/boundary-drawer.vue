@@ -20,7 +20,6 @@ import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
 import { Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 import UtilsService from '@/services/utils';
-import misc from '../../i18n/he/misc';
 export type ActionMode = 'select' | 'polygon' | 'box';
 type InternalMode =
     | 'before-polygon'

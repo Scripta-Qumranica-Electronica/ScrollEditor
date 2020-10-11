@@ -10,11 +10,14 @@
                     @hide="onAttributesMenuHide($event)"
                 >
                     <template v-slot:button-content>
-                        <i class="fa fa-plus" />
+                        <i
+                            class="fa fa-plus"
+                            @click="onAddAttributesMenuOpen()"
+                        />
                     </template>
 
                     <b-dropdown
-                        v-for="attr in prepareAttributesMenu()"
+                        v-for="attr in attributesMenu"
                         :key="attr.attributeId"
                         variant="link"
                         class="dropdown-attr"
@@ -23,13 +26,16 @@
                         @hide="onValuesMenuHide()"
                     >
                         <template v-slot:button-content>
-                            <span class="attr-name">{{attr.attributeName}}</span>
+                            <span class="attr-name">{{
+                                attr.attributeName
+                            }}</span>
                         </template>
                         <b-dropdown-item
                             v-for="attrValue in attr.values"
                             :key="attrValue.id"
-                            @click="onAddAttribute(attrValue)"
-                        >{{attrValue.value}}</b-dropdown-item>
+                            @click="onAddAttribute(attr, attrValue)"
+                            >{{ attrValue.value }}</b-dropdown-item
+                        >
                     </b-dropdown>
                 </b-dropdown>
             </li>
@@ -44,41 +50,77 @@
                 />
             </li>
         </ul>
+        <!-- <b-row v-if="!isMultiSelect" class="mt-3">
+            <b-col cols="3">
+                <label for="comment">Comment</label>
+            </b-col>
+            <b-col cols="9">
+                <b-form-input
+                    id="comment"
+                    class="inputsm"
+                    type="search"
+                    v-model="comment"
+                    placeholder="Comment"
+                />
+            </b-col>
+        </b-row> -->
+        <comment v-model="comment" v-if="!isMultiSelect" class="mt-3" />
         <sign-attribute-modal />
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import { Artefact } from '@/models/artefact';
+import { Component, Vue, Watch } from 'vue-property-decorator';
+import { SignInterpretation } from '@/models/text';
 import {
-    TextFragmentData,
-    TextFragment,
-    SignInterpretation,
-    ArtefactTextFragmentData,
-} from '@/models/text';
-import TextFragmentComponent from '@/components/text/text-fragment.vue';
-import { EditionInfo } from '@/models/edition';
-import { AttributeDTO, AttributeValueDTO, InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+    AttributeDTO,
+    AttributeValueDTO,
+    InterpretationAttributeDTO,
+} from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
-import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
+import { SignInterpretationCommentOperation, TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
 import { BDropdown, BvEvent } from 'bootstrap-vue';
+import CommentComponent from '../comment/comment.vue';
 
 @Component({
     name: 'sign-attribute-pane',
     components: {
         'sign-attribute-modal': SignAttributeModal,
         'sign-attribute': SignAttribute,
+        'comment': CommentComponent,
     },
 })
 export default class SignAttributePane extends Vue {
     private keepOpen = false;
+    private attributesMenu: AttributeDTO[] = [];
+
     public get artefactEditor() {
         return this.$state.artefactEditor;
     }
+
     public get selectedSignsInterpretation(): SignInterpretation[] {
         return this.artefactEditor.selectedSignsInterpretation;
+    }
+
+    // The comment in the state.
+    private get comment(): string {
+        if (this.selectedSignsInterpretation.length !== 1) {
+            return '';
+        }
+
+        return this.selectedSignsInterpretation[0].commentary || '';
+    }
+
+    private set comment(val: string) {
+        if (this.selectedSignsInterpretation.length !== 1) {
+            console.warn("Can't change ta comment without one selected sign interperation");
+            return;
+        }
+
+        const op = new SignInterpretationCommentOperation(this.selectedSignsInterpretation[0].id, val);
+        op.redo();
+        this.$state.eventBus.emit('new-operation', op);
     }
 
     private get attributesMetadata() {
@@ -88,6 +130,8 @@ export default class SignAttributePane extends Vue {
     }
 
     public get attributes(): InterpretationAttributeDTO[] {
+        // Get the common attributes from all the selected sign interpretations -
+        // only attributes that appear in all sign interpretations are shown.
         let attributeValues: number[] = [];
         let first = true;
 
@@ -95,10 +139,9 @@ export default class SignAttributePane extends Vue {
             return [];
         }
 
+        // Calculate the intersection of the attributes of all the sign interpretations
         for (const si of this.selectedSignsInterpretation) {
-            const siValues = [
-                ...si.attributes.map((attr) => attr.attributeValueId),
-            ];
+            const siValues = si.attributes.map((attr) => attr.attributeValueId);
             if (first) {
                 first = false;
                 attributeValues = siValues;
@@ -109,10 +152,17 @@ export default class SignAttributePane extends Vue {
             }
         }
 
+        // selectedSignsInterpretations has at least one element
         const attributes = this.selectedSignsInterpretation[0].attributes.filter(
             (attr) => attributeValues.includes(attr.attributeValueId)
         );
         return attributes;
+    }
+
+    private get isMultiSelect() {
+        return (
+            this.$state.artefactEditor.selectedSignsInterpretation.length !== 1
+        );
     }
 
     private onAttributeClick(attribute: InterpretationAttributeDTO) {
@@ -120,19 +170,26 @@ export default class SignAttributePane extends Vue {
         this.$root.$emit('bv::show::modal', 'sign-attribute-modal');
     }
 
-    private onAddAttribute(attrVal: AttributeValueDTO) {
-        console.log('attribute added', attrVal);
-        // const ops: TextFragmentAttributeOperation[] = [];
-        // for (const si of this.$state.artefactEditor.selectedSignsInterpretation) {
-        //         const op = new TextFragmentAttributeOperation(
-        //             si.id,
-        //             attrVal.id,
-        //             {}
-        //         );
-        //         op.redo();
-        //         ops.push(op);
-        // }
-        // this.$state.eventBus.emit('new-bulk-operations', ops);
+    private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
+        const ops: TextFragmentAttributeOperation[] = [];
+        for (const si of this.$state.artefactEditor
+            .selectedSignsInterpretation) {
+            const op = new TextFragmentAttributeOperation(si.id, attrVal.id, {
+                attributeId: attr.attributeId,
+                attributeString: attr.attributeName,
+                attributeValueId: attrVal.id,
+                attributeValueString: attrVal.value,
+            } as InterpretationAttributeDTO);
+            op.redo();
+            ops.push(op);
+        }
+        this.$state.eventBus.emit('new-bulk-operations', ops);
+        this.keepOpen = false;
+        (this.$refs.attributesMenu as BDropdown).hide();
+    }
+
+    private onAddAttributesMenuOpen() {
+        this.attributesMenu = this.prepareAttributesMenu();
     }
 
     private prepareAttributesMenu(): AttributeDTO[] {
@@ -152,28 +209,41 @@ export default class SignAttributePane extends Vue {
         }
 
         for (const attributeMeta of this.attributesMetadata) {
-
-            const attributeCopy = {...attributeMeta};
+            const attributeCopy = { ...attributeMeta };
             // check repeatable
-            if (attributesSet.has(attributeMeta.attributeId) && !attributeMeta.repeatable) {
+            if (
+                attributesSet.has(attributeMeta.attributeId) &&
+                !attributeMeta.repeatable
+            ) {
                 continue;
             }
 
             // multiple: only batchEditable
-            if (this.selectedSignsInterpretation.length > 1 && !attributeMeta.batchEditable) {
+            if (
+                this.selectedSignsInterpretation.length > 1 &&
+                !attributeMeta.batchEditable
+            ) {
                 continue;
             }
 
             // single: only editable
-            if (this.selectedSignsInterpretation.length === 1 && !attributeMeta.editable) {
+            if (
+                this.selectedSignsInterpretation.length === 1 &&
+                !attributeMeta.editable
+            ) {
                 continue;
             }
 
             // repeatable: remove existing values
-            if (attributesSet.has(attributeMeta.attributeId) && attributeMeta.repeatable) {
+            if (
+                attributesSet.has(attributeMeta.attributeId) &&
+                attributeMeta.repeatable
+            ) {
                 for (const attributeValue of attributeMeta.values) {
                     if (attributesValuesSet.has(attributeValue.id)) {
-                        const idx = attributeCopy.values.findIndex(value => value.id === attributeValue.id);
+                        const idx = attributeCopy.values.findIndex(
+                            (value) => value.id === attributeValue.id
+                        );
                         attributeCopy.values.splice(idx, 1);
                     }
                 }
@@ -221,8 +291,6 @@ export default class SignAttributePane extends Vue {
     color: black;
     border: 0px;
 }
-</style>
-<style lang="scss">
 .dropdown-attr {
     width: 100%;
     .attr-name {

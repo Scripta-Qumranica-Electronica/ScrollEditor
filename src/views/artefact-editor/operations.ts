@@ -1,10 +1,7 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { Placement } from '@/utils/Placement';
 import { StateManager } from '@/state';
-import { Polygon } from '@/utils/Polygons';
-import { InterpretationRoi, SignInterpretation } from '@/models/text';
-import ArtefactEditor from './artefact-editor.vue';
+import { InterpretationRoi } from '@/models/text';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import Vue from 'vue';
 
@@ -12,7 +9,7 @@ function state() {
     return StateManager.instance;
 }
 
-export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr';
+export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary';
 
 
 export abstract class ArtefactEditorOperation implements Operation<ArtefactEditorOperation> {
@@ -131,19 +128,9 @@ export type TextFragmentAttributeOperationType = 'create' | 'update' | 'delete';
 export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     public prev?: InterpretationAttributeDTO;
 
-    public get interpretationAttributeId() {
-        const id = this.prev?.interpretationAttributeId || this.next?.interpretationAttributeId;
-        if (!id) {
-            console.error("Can't find interpretationAttributeId - it's neither in prev not in next");
-            return -1;
-        }
-
-        return id;
-    }
-
     public constructor(
         public signInterpretationId: number,
-        public attributeValueId: number,
+        public attributeValueId: number, // In case of an update of the valueId, this holds the valueId before the change
         public next?: InterpretationAttributeDTO
     ) {
         super('attr');
@@ -180,45 +167,82 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
     }
 
     public undo() {
-        const existingIndex = this.signInterpretation.findAttributeIndex(this.interpretationAttributeId);
+        // In an update, the attributeValueId might change. In that case, we get the *next* attributeValueId, which is the new ID.
+        // In other cases, there is only one attributeValueId, so we can take it from `this`.
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeOperationType === 'update' ? this.next!.attributeValueId : this.attributeValueId);
 
         if (!this.prev) {
             if (existingIndex !== -1) {
-                console.debug('Undoing new attribute, removing item from index ', existingIndex);
                 this.signInterpretation.attributes.splice(existingIndex, 1);
             } else {
                 console.warn("Can't undo operation with no prev and no existing index");
             }
         } else {
             if (existingIndex !== -1) {
-                console.debug('Undoing change, setting index ', existingIndex, ' to ', this.prev, this.prev.commentary?.commentary);
                 Vue.set(this.signInterpretation.attributes, existingIndex, this.prev);
             } else {
-                console.debug('Undoing deletion, pushing ', this.prev, this.prev.commentary?.commentary);
                 this.signInterpretation.attributes.push(this.prev);
             }
         }
     }
 
     public redo() {
-        const existingIndex = this.signInterpretation.findAttributeIndex(this.interpretationAttributeId);
+        const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeValueId); // In case of an update, this finds the previous attribute
 
         if (this.next) {
             if (existingIndex !== -1) {
-                console.debug('Redoing update ', this.next, this.next.commentary?.commentary);
                 Vue.set(this.signInterpretation.attributes, existingIndex, this.next);
             } else {
-                console.debug('Redoing create ', this.next, this.next.commentary?.commentary);
                 this.signInterpretation.attributes.push(this.next);
             }
         } else {
             if (existingIndex !== -1) {
-                console.debug('Redoing deletion, Deleting from index ', existingIndex);
                 this.signInterpretation.attributes.splice(existingIndex, 1);
             } else {
                 console.warn("Can't redo operation with no next and no existingIndex");
             }
         }
+    }
+}
+
+export class SignInterpretationCommentOperation extends ArtefactEditorOperation {
+    public signInterpretationId: number;
+    public prevComment: string | null;
+    public nextComment: string | null;
+
+    public constructor(signInterpretationId: number, comment: string | null) {
+        super('commentary');
+        this.signInterpretationId = signInterpretationId;
+        this.nextComment = comment;
+        this.prevComment = this.signInterpretation.commentary;
+    }
+
+    private get signInterpretation() {
+        return state().signInterpretations.get(this.signInterpretationId)!;
+    }
+
+    public undo() {
+        this.signInterpretation.commentary = this.prevComment;
+    }
+
+    public redo() {
+        this.signInterpretation.commentary = this.nextComment;
+    }
+
+    public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+        if (op.type !== 'commentary') {
+            return undefined;
+        }
+
+        const other = op as SignInterpretationCommentOperation;
+        if (other.signInterpretationId !== this.signInterpretationId) {
+            return undefined;
+        }
+
+        const united = new SignInterpretationCommentOperation(this.signInterpretationId, this.nextComment);
+        united.prevComment = other.prevComment;
+
+        return united;
     }
 }
 

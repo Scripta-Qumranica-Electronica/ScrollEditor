@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { AttributeDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
+import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;
@@ -43,7 +43,15 @@ export default class SignInterpretationService {
             commentary: attribute.commentary?.commentary
         };
 
-        const siDto = await CommHelper.post<SignInterpretationDTO>(url, dto);
-        return siDto;
+        const response = await CommHelper.post<SignInterpretationDTO>(url, dto);
+        return response.data;
+    }
+
+    public async updateCommentary(edition: EditionInfo, signInterpretation: SignInterpretation) {
+        const url = ApiRoutes.signInterpretationCommentaryUrl(edition.id, signInterpretation.id);
+        const dto: CommentaryCreateDTO = { commentary: signInterpretation.commentary || undefined };
+
+        const response = await CommHelper.put<SignInterpretationDTO>(url, dto);
+        return response.data;
     }
 }

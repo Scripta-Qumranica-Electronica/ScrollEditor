@@ -304,73 +304,6 @@ export function geoJSONPolygonToWKT(geoJSON: any) {
 }
 
 /*
- * This function expects the transform matrix
- * to be in a 2D array: [[a,c,tx],[b,d,ty]].
- * It returns a transform matrix which can be
- * used in an SVG element.
- */
-export function dbMatrixToSVG(matrix: any) {
-  if (matrix.constructor === String && isJSON(matrix)) {
-    matrix = JSON.parse(matrix).matrix;
-  }
-  return matrix.length === 2 && matrix[0].length === 3 && matrix[1].length === 3
-    ? [matrix[0][0], matrix[1][0], matrix[0][1], matrix[1][1], matrix[0][2], matrix[1][2]]
-    : undefined;
-}
-
-/*
- * This function converts the 6 element SVG
- * transform matrix to a JSON string for the
- * 2D transform matrix as stored in the database.
- */
-export function svgMatrixToDB(matrix: any) {
-  return Array.isArray(matrix) && matrix.length === 6
-    ? `{"matrix": [[${matrix[0]},${matrix[2]},${matrix[4]}],[${matrix[1]},${matrix[3]},${
-        matrix[5]
-      }]]}`
-    : undefined;
-}
-
-/*
- * This function converts the 16 element 3D
- * SVG transform matrix to a 6 element 2D SVG
- * transform matrix.
- */
-export function matrix6To16(matrix: any) {
-  return Array.isArray(matrix) && matrix.length === 6
-    ? [
-        matrix[0],
-        matrix[1],
-        0,
-        0,
-        matrix[2],
-        matrix[3],
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        matrix[4],
-        matrix[5],
-        0,
-        1,
-      ]
-    : undefined;
-}
-
-/*
- * This function converts the 6 element 2D
- * SVG transform matrix to a 16 element 3D SVG
- * transform matrix.
- */
-export function matrix16To6(matrix: any) {
-  return Array.isArray(matrix) && matrix.length === 16
-    ? [matrix[0], matrix[1], matrix[4], matrix[5], matrix[12], matrix[13]]
-    : undefined;
-}
-
-/*
  * This function receives an HTML5 canvas
  * along with a svg path for the clipping mask
  * It then draws the svg path onto the canvas.
@@ -399,12 +332,4 @@ export function clipCanvas(canvas: HTMLCanvasElement, svgClipPath: string, fillC
   });
   ctx.closePath();
   ctx.fill();
-}
-
-function isJSON(str: string) {
-  try {
-    return JSON.parse(str) && !!str;
-  } catch (e) {
-    return false;
-  }
 }

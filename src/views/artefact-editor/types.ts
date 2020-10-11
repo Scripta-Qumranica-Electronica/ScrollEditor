@@ -1,6 +1,5 @@
 import { ImageSetting } from '@/components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
-import { Polygon } from '@/utils/Polygons';
 
 export type ScrollEditorMode = '' | 'move'| 'scale' |'rotate' | 'manageGroup';
 

@@ -28,7 +28,8 @@ export default {
 
     artefactDeleted: 'Artefact deleted',
     deleteArtefactFailed: 'Delete artefact failed',
-    artefactCantOverlap: "Artefact can't overlap other artefacts"
+    artefactCantOverlap: "Artefact can't overlap other artefacts",
 
+    attributeDeletedBySomeoneElse: 'Attribute was deleted by another user'
 };
 

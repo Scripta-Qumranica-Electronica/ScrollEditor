@@ -13,7 +13,7 @@ import {
 import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
-import { updateInArray, removeFromArray, addToArray } from '@/utils/collection-utils';
+import { removeFromArray, addToArray } from '@/utils/collection-utils';
 import { InterpretationRoi, SignInterpretation } from '@/models/text';
 import Vue from 'vue';
 
@@ -159,6 +159,18 @@ export class NotificationHandler {
         const selectedIndex = state().artefactEditor.selectedSignsInterpretation.findIndex(si => si.id === newSI.id);
         if (selectedIndex !== -1) {
             Vue.set(state().artefactEditor.selectedSignsInterpretation, selectedIndex, newSI);
+
+            // Update the selected attribute, too
+            const selectedAttribute = state().artefactEditor.selectedAttribute;
+            if (selectedAttribute) {
+                // Find the attribute in the new sign interpretation
+                const attrInNewSI = newSI.attributes.filter(attr => attr.attributeValueId === selectedAttribute.attributeValueId);
+                if (attrInNewSI.length === 1) {
+                    state().artefactEditor.selectedAttribute = attrInNewSI[0];
+                } else {
+                    state().artefactEditor.selectedAttribute = null;
+                }
+            }
         }
     }
 }

@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import { Line, TextDirection, SignInterpretation } from '@/models/text';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Line, TextDirection } from '@/models/text';
 import TextSign from '@/components/text/text-sign.vue';
 
 @Component({
