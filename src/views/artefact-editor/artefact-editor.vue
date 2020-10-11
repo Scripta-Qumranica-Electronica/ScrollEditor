@@ -967,7 +967,7 @@ export default class ArtefactEditor
 #text-right-sidebar {
     height: calc(100vh - 63px);
     width: calc((100vw - 330px) / 2);
-    // overflow: scroll;
+    overflow-y: auto;
 }
 
 #text-right-sidebar.sidebar.text {

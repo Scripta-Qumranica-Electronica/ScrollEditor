@@ -1,10 +1,10 @@
 <template>
     <b-row>
-        <b-col cols="3">
-            <label for="comment">Comment</label>
+        <b-col cols="3" class="align-self-center">
+            <label class="m-0" for="comment">Comment</label>
         </b-col>
-        <b-col cols="5">
-            <span class="sm" @click="onViewComment()">{{ commentDisplay }}</span>
+        <b-col cols="5" class="comment-preview align-self-center">
+            <p class="sm" v-html="comment" @click="onViewComment()"></p>
         </b-col>
         <b-col cols="4">
             <b-button @click="onViewComment()" title="View Comment" :disabled="!comment">
@@ -91,18 +91,24 @@ export default class CommentComponent extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 #comment-view {
-    min-height: 250px;
+    max-height: 200px;
+    overflow: auto;
 }
 
-#comment-edit {
-    min-height: 300px;
+.ck-editor__editable {
+    max-height: 250px;
+    overflow: auto;
+}
 
-    #comment {
-        display: block;
-        box-sizing: border-box;
-        height: 100%;
+.comment-preview {
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    * {
+        display: inline;
+        padding-left: 3px;
     }
 }
 </style>

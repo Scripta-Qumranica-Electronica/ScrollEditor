@@ -243,7 +243,8 @@ button {
     font-family: 'SBL Hebrew';
     font-size: 18px;
     margin-top: 30px;
-    overflow: auto;
+    overflow-x: overlay;
+    padding-bottom: 16px;
     display: grid;
     direction: rtl;
 }
