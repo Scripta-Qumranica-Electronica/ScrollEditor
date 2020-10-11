@@ -1,7 +1,7 @@
 <template>
     <b-row>
         <b-col cols="3" class="align-self-center">
-            <label class="m-0" for="comment">Comment</label>
+            <label class="m-0 p-3" for="comment">Comment:</label>
         </b-col>
         <b-col cols="5" class="comment-preview align-self-center">
             <p class="sm" v-html="comment" @click="onViewComment()"></p>
