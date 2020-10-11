@@ -18,7 +18,9 @@
                         </b-btn>
                     </b-nav-item>
                 </b-nav>
-                   <p class="link">Enter the scrollery as a guest</p>
+                   <p class="link"><router-link
+                        :to="{ path: `/home` }"
+                        >Enter the scrollery as a guest</router-link></p>
             </div>
 
             <login></login>
@@ -155,6 +157,7 @@ export default class Welcome extends Vue {
         text-transform: inherit;
         padding-top: 20px;
         font-style:normal;
+        
     }
 }
 
