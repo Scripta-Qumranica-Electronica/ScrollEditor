@@ -32,6 +32,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
+// We use require because with imports webpack complains a lot.
 // tslint:disable-next-line
 const ClassicEditor = require('@ckeditor/ckeditor5-build-classic');
 
