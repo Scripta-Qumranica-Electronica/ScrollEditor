@@ -799,8 +799,6 @@ export default class ArtefactEditor
                     break;
             }
 
-            console.debug(`opType: ${opType}, existingIndex: ${existingIndex}, actualOpType: ${actualOpType}`);
-
             switch (actualOpType) {
                 case 'create':
                     await this.signInterpretationService.createAttribute(
@@ -821,10 +819,8 @@ export default class ArtefactEditor
                         return;
                     }
 
-                    console.debug(`Detected an update of an attributeValueId from ${op.prev.attributeValueId} to ${op.next.attributeValueId}`);
                     const prevIndex = si.findAttributeIndex(op.prev.attributeValueId);
                     const nextIndex = si.findAttributeIndex(op.next.attributeValueId);
-                    console.debug(`prevIndex ${prevIndex}, nextIndex ${nextIndex}`);
 
                     if (prevIndex !== -1 && nextIndex !== -1) {
                         console.error('In an attribute value update, we have both prev and next in the current attributes', op);

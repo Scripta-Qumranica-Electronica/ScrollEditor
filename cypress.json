@@ -6,6 +6,6 @@
         "scroll_spec.js",
         "rename_editor_spec.js",
         "language_spec.js"
-
-    ]
+    ],
+    "defaultCommandTimeout": 10000
 }

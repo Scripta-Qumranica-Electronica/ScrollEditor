@@ -29,20 +29,7 @@
                 </b-col>
             </b-row>
 
-            <b-row v-if="!isMultiSelect" class="mt-3">
-                <b-col cols="3">
-                    <label for="comment">Comment</label>
-                </b-col>
-                <b-col cols="9">
-                    <b-form-input
-                        id="comment"
-                        class="inputsm"
-                        type="search"
-                        v-model="comment"
-                        placeholder="Comment"
-                    />
-                </b-col>
-            </b-row>
+            <comment v-if="!isMultiSelect" v-model="comment" class="mt-3" />
         </div>
         <template v-slot:modal-footer>
             <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
@@ -64,6 +51,7 @@ import {
 import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
 import { BvModalEvent } from 'bootstrap-vue';
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import CommentComponent from '../comment/comment.vue';
 import SignAttributeBadge from './sign-attribute-badge.vue';
 // import ErrorService from '@/services/error';
 
@@ -71,10 +59,12 @@ import SignAttributeBadge from './sign-attribute-badge.vue';
     name: 'sign-attribute-modal',
     components: {
         'sign-attribute-badge': SignAttributeBadge,
+        'comment': CommentComponent,
     },
 })
 export default class SignAttributeModal extends Vue {
     private selected: string | null = null;
+    private hidingStarted = false;
 
     private get attribute() {
         return this.$state.artefactEditor.selectedAttribute;
@@ -227,17 +217,20 @@ export default class SignAttributeModal extends Vue {
     private hide() {
         (this.$refs.signAttributeModalRef as any).hide();
     }
+
     private onHide() {
+        this.hidingStarted = true;
         this.$state.artefactEditor.selectedAttribute = null;
     }
 
     @Watch('attribute')
     private onAttributeChanged() {
         // The attribute can be deleted by another user
-        if (!this.attribute) {
+        if (!this.attribute && !this.hidingStarted) {
             this.hide();
             this.$toasted.info(this.$tc('toasts.attributeDeletedBySomeoneElse'));
         }
+        this.hidingStarted = false;
     }
 }
 </script>

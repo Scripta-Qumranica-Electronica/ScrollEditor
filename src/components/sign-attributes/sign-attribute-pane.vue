@@ -50,7 +50,7 @@
                 />
             </li>
         </ul>
-        <b-row v-if="!isMultiSelect" class="mt-3">
+        <!-- <b-row v-if="!isMultiSelect" class="mt-3">
             <b-col cols="3">
                 <label for="comment">Comment</label>
             </b-col>
@@ -63,7 +63,8 @@
                     placeholder="Comment"
                 />
             </b-col>
-        </b-row>
+        </b-row> -->
+        <comment v-model="comment" v-if="!isMultiSelect" class="mt-3" />
         <sign-attribute-modal />
     </div>
 </template>
@@ -80,12 +81,14 @@ import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
 import { SignInterpretationCommentOperation, TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
 import { BDropdown, BvEvent } from 'bootstrap-vue';
+import CommentComponent from '../comment/comment.vue';
 
 @Component({
     name: 'sign-attribute-pane',
     components: {
         'sign-attribute-modal': SignAttributeModal,
         'sign-attribute': SignAttribute,
+        'comment': CommentComponent,
     },
 })
 export default class SignAttributePane extends Vue {
