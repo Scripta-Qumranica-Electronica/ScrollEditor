@@ -1,7 +1,7 @@
 export default {
     filter: "Filtre d'éditions",
-    publicEditionGroupCount: "Pas d'éditions publiques | Une édition publique | {count} éditions publiques",
-    personalEditionGroupCount: 'Aucune édition personnelle | Une édition personnelle | {count} éditions personnelles',
+    publicEditionGroupCount: "Pas d'éditions publiques | Une édition publique |  éditions publiques ({count})",
+    personalEditionGroupCount: 'Aucune édition personnelle | Une édition personnelle | éditions personnelles ({count}) ',
     publicEditionCount: ' | édition publique | éditions publiques',
     personalVersionCount: ' | édition personnelle | éditions personnelles',
     shares: ' | partage | partages',

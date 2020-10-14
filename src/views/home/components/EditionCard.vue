@@ -1,35 +1,53 @@
 <template>
-    <div class="card">
-        <router-link tag="a" :to="{  path:`/editions/${edition.id}` }">
-            <!--TODO do not hardcode the image proxy server-->
-            <img
-                class="card-img-top"
-                v-if="thumbnailSource"
-                v-lazy="thumbnailSource"
-                :alt="edition.name"
-            />
-            <img
-                class="card-img-top"
-                v-else
-                src="@/assets/images/if_scroll_1375614.svg"
-                :alt="edition.name"
-            />
-        </router-link>
-        <div class="card-body">
-            <router-link tag="div" :to="{  path:`/editions/${edition.id}` }">
-                <h5 class="cart-title">
-                    {{ edition.name }}
-                    <edition-icons :edition="edition"/>
-                </h5>
-                
-                <!--  <p v-if="shareCount">
-          <b-btn v-b-popover.hover="shareNames" title="Shares" class="share">
-            <span class="badge badge-info mr-1">{{ shareCount }}</span>{{ $tc('home.shares', shareCount)}}
-          </b-btn>
-                </p>-->
-            </router-link>
-        </div>
-    </div>
+    <router-link
+        class="cart-decoration"
+        :to="{ path: `/editions/${edition.id}` }"
+    >
+        <b-row>
+            <b-col class="col-4">
+                <img
+                    class="card-img-top"
+                    v-if="thumbnailSource"
+                    v-lazy="thumbnailSource"
+                    :alt="edition.name"
+                />
+                <img
+                    class="card-img-top"
+                    v-else
+                    src="@/assets/images/if_scroll_1375614.svg"
+                    :alt="edition.name"
+                />
+            </b-col>
+            <b-col class="col-8">
+                <div>
+                    <p class=" card-font cart-title">
+                        {{ edition.name }}
+                        <edition-icons :edition="edition" />
+                    </p>
+                    <div>
+                        <p class=" card-font card-label">
+                            Last edit:
+                            <span class=" card-font card-date">{{
+                                edition.lastEdit.toDateString()
+                            }}</span>
+                        </p>
+                        <p class="card-font card-label">
+                            Status:
+                            <b-badge
+                                :class="
+                                    edition.isPublic
+                                        ? ['status-badge' ,'status-badge-Published']
+                                        : ['status-badge' ,'status-badge-Draft']"
+                                >{{
+                                    edition.isPublic ? 'Published' : 'Draft'
+                                }}</b-badge
+                            >
+                        </p>
+                    </div>
+                </div>
+            </b-col>
+        </b-row>
+    </router-link>
 </template>
 
 <script lang="ts">
@@ -38,68 +56,60 @@ import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
-    name: 'edition-version-card',
-    components: { 'edition-icons': EditionIcons },
+    name: 'edition-card',
+    components: { EditionIcons },
 })
-export default class EditionVersionCard extends Vue {
+export default class EditionCard extends Vue {
     @Prop() public edition!: EditionInfo;
 
-    // data() becomes data members
-    //
-    // data {
-    //        return {
-    //          element: 5;
-    //      }
-    // }
-    //
-    // private element = 5;
-
-    // Computed becomes getters
-    //   private get lockEdition(): EditionInfo[] {
-    //         return this.$state.editions.items.filter(
-    //             ed => ed.permission.readOnly
-    //         );
-    //     }
     private get thumbnailSource(): string | undefined {
         return this.edition.thumbnail
             ? this.edition.thumbnail.thumbnailUrl
             : undefined;
-    }
-    private get lockEdition(): boolean {
-        return this.edition.permission.readOnly;
-    }
-
-    private get shareCount(): number {
-        return this.edition.shares.length - 1; // One is the current user
-    }
-
-    private get shareNames(): string {
-        const names = this.edition.shares.map(share => share.email);
-        return names.join(', ');
     }
 }
 </script>
 
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
-.card:hover,
-.list-item .card:hover {
-    transform: scale(0.95, 0.95);
-    box-shadow: 5px 5px 20px 5px rgba(0, 0, 0, 0),
-        -5px -5px 20px 5px rgba(0, 0, 0, 0.22);
-}
-img.card-img-top {
-    display: block;
-    height: 100px;
-    max-height: 100px;
-    object-fit: cover;
-}
-h5 {
-    cursor: pointer;
+@import '@/assets/styles/_fonts.scss';
+
+.cart-title {
+    font-weight: $font-weight-3!important;
+    color: $black;
+    margin-bottom: 1px;
 }
 
-.share {
+.cart-decoration:hover {
+    text-decoration: none;
+}
+ .card-font{
+    font-style: $font-style;
+    font-weight: $font-weight-1;
+    font-size: $font-size-2;
+    font-family: $font-family;
+}
+.card-label {
+    color: $grey;
+    margin-bottom: 1px;
+}
+.card-date {
     color: $black;
-    background-color: white;
+}
+.status-badge {
+    font-family: $font-family;
+    text-align: center;
+    font-size: $font-size-1;
+    width: 68px;
+    height: 29.58px;
+    line-height: 20px;
+}
+.status-badge-Draft {
+    background-color: $light-orange;
+    color: $orange;
+}
+.status-badge-Published {
+    background-color: $light-greend;
+    color: $green;
 }
 </style>

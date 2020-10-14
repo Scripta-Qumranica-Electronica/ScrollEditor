@@ -1,95 +1,54 @@
 <template>
-    <div class="col-sm-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
-        <b-row>
-            <b-col>
-                <b-form inline class="mt-2" @submit.prevent>
-                    <label for="filter" class="filter">{{ $t('home.filter') }}:</label>
-                    <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
-                </b-form>
-            </b-col>
-        </b-row>
-        <div class="row">
-            <div class="col">
-                <small>{{ $tc('home.personalEditionGroupCount', numberOfMyEditions)}}</small>
-            </div>
+        <div class="mt-5">
+            <b-tabs nav-wrapper-class="tabs">
+                <b-tab
+                    :title-item-class="'tab-title-class'"
+                    :title="
+                        $tc(
+                            'home.personalEditionGroupCount',
+                            personalEditionsCount
+                        )
+                    "
+                    active
+                >
+                    <personal-editions
+                        @on-personal-editions-load="onPersonalEditionsLoad($event)"
+                    ></personal-editions>
+                </b-tab>
+                <b-tab
+                    :title="$tc('home.publicEditionGroupCount', publicEditionsCount)"
+                    :title-item-class="'tab-title-class'"
+                >
+                    <public-editions 
+                        @on-public-editions-load="onPublicEditionsLoad($event)"
+                    ></public-editions>
+                </b-tab>
+            </b-tabs>
         </div>
-        <ul
-            class="list-unstyled row mt-2"
-            id="my-search-results"
-            :class="{afterlogin: this.myEditions.length > 0 }"
-            v-if="myEditions.length"
-        >
-            <li
-                class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
-                v-for="edition in myEditions"
-                v-show="filter === '' || edition.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1"
-                :key="edition.versionId"
-            >
-                <edition-card :edition="edition"></edition-card>
-            </li>
-        </ul>
-        <div class="row">
-            <div class="col">
-                <small>{{ $tc('home.publicEditionGroupCount', numberOfEditions)}}</small>
-            </div>
-        </div>
-
-        <ul
-            class="list-unstyled row mt-2"
-            id="all-search-results"
-            :class="{afterlogin: this.myEditions.length > 0 }"
-            v-if="publicEditions.length"
-        >
-            <li
-                class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3 list-item"
-                v-for="edition in publicEditions"
-                v-show="filter === '' || edition.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1"
-                :key="edition.id"
-            >
-                <edition-group-card :edition="edition"></edition-group-card>
-            </li>
-        </ul>
-    </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionGroupCard from './components/EditionGroupCard.vue';
-import EditionCard from './components/EditionCard.vue';
 import { EditionInfo } from '@/models/edition';
-import { countIf } from '@/utils/helpers';
+import PersonalEditions from './components/PersonalEditions.vue';
+import PublicEditions from './components/PublicEditions.vue';
 
 export default Vue.extend({
     name: 'home',
     components: {
         Waiting,
-        EditionGroupCard,
-        EditionCard
+        PersonalEditions,
+        PublicEditions
     },
     data() {
         return {
-            filter: ''
+            filter: '',
+            personalEditionsCount: 0,
+            publicEditionsCount: 0,
         };
     },
-    computed: {
-        publicEditions(): EditionInfo[] {
-            return this.$state.editions.items.filter(ed => ed.isPublic);
-        },
-        myEditions(): EditionInfo[] {
-            return this.$state.editions.items.filter(ed => ed.mine);
-        },
-        numberOfEditions(): number {
-            return countIf(this.publicEditions, edition =>
-                this.nameMatch(edition.name)
-            );
-        },
-        numberOfMyEditions(): number {
-            return countIf(this.myEditions, edition =>
-                this.nameMatch(edition.name)
-            );
-        }
-    },
+
     created() {
         this.$state.prepare.allEditions();
 
@@ -98,27 +57,41 @@ export default Vue.extend({
     methods: {
         nameMatch(name: string): boolean {
             return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
-        }
-    }
+        },
+        onPersonalEditionsLoad(count: number) {
+            this.personalEditionsCount = count;
+        },
+        onPublicEditionsLoad(count: number) {
+            this.publicEditionsCount = count;
+        },
+    },
 });
 </script>
+<style lang="scss">
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 
-<style scoped>
-.active-language {
-    font-weight: bold;
+.tab-pane{
+    background: $light-grey;
+    padding:  0 15%;
 }
-
-ul#my-search-results.afterlogin,
-ul#all-search-results.afterlogin {
-    height: calc(50vh - 95px);
-    overflow: auto;
-    padding-top: 20px;
-    padding-bottom: 20px;
+.tab-title-class > a.nav-link {
+    font-family: $font-family;
+    font-size: $font-size-2;
+    font-style: $font-style;
+    font-weight: $font-weight-3;
+    text-align: left;
+    color: $grey;
 }
-ul#all-search-results {
-    height: calc(50vh - -278px);
-    overflow: auto;
-    padding-top: 20px;
-    padding-bottom: 20px;
+.nav-tabs {
+    margin: 0 220px;
+    border-bottom: none!important;
+    
+}
+.nav-tabs .tab-title-class > .nav-link.active,
+.nav-tabs .tab-title-class > .nav-link.focus {
+    color: $blue;
+    border-bottom: 2px solid $blue;
+    border-color: transparent transparent $blue;
 }
 </style>
