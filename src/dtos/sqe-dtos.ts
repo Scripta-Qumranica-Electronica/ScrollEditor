@@ -531,6 +531,10 @@ export interface EditorDTO {
     organization?: string;
 }
 
+export interface UserDataStoreDTO {
+    data: string;
+}
+
 export interface ImageStackDTO {
     id?: number;
     images: Array<ImageDTO>;
