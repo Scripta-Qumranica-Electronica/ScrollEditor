@@ -1,12 +1,24 @@
 <template>
-    <div class="wrapper">
-        <div class="col-xl-2 col-lg-3 col-md-4" id="sidebar">
-           <edition-sidebar :page="this.page" />
+    <div>
+        <div>
+            <span>
+            Rule of Blessings 1Q28 - 1Qsn
+            </span>
+            <div>
+                <span>Collaborqtors</span>
+                <span>Publish</span>
+            </div>
         </div>
-        <div v-if="waiting" class="row">
-            <div class="col"><waiting></waiting></div>
+        <div v-if="!waiting">
+            <p>Heqder</p>
+            <div>
+                <b-button-group>
+                    <b-button :to="`/editions/${edition.id}/artefacts`">Artefacts {{artefactsLength}}</b-button>
+                    <b-button :to="`/editions/${edition.id}/imaged-objects`">Imaged Objects {{imagedObjectsLength}}</b-button>
+                </b-button-group>
+            </div>
         </div>
-        <div class="col-xl-10 col-lg-9 col-md-8" id="fragments">
+        <div>
             <div v-if="!waiting" class="row">
                 <div class="col" v-if="waiting"><waiting></waiting></div>
                 <div class="col" v-if="!waiting">
@@ -14,6 +26,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -41,7 +54,15 @@ export default Vue.extend({
         },
         waiting(): boolean {
             return !this.edition;
+        },
+        artefactsLength(): number {
+            return this.$state.artefacts.items.length;
+        },
+        imagedObjectsLength(): number {
+            return this.$state.imagedObjects.items.length;
         }
+
+        
     },
     mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);

@@ -1,14 +1,36 @@
 <template>
     <b-form inline class="" @submit.prevent>
         <b-form-group>
-            <label for="filter" class="search-bar">{{ $t('home.filter') }}</label>
+            <label for="filter" class="search-bar">{{
+                $t('home.filter')
+            }}</label>
             <b-form-input
                 id="filter"
                 @change="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
         <b-form-group>
-            <label for="sort" class="search-bar ml-2">{{ $t('home.sort') }}</label>
+            <label for="view" class="search-bar ml-2">{{
+                $t('home.view')
+            }}</label>
+            <b-form-select
+                name="view"
+                class="ml-2"
+                @change="onViewChange($event)"
+            >
+                <b-form-select-option value="recto and verso"
+                    >Both</b-form-select-option
+                >
+                <b-form-select-option value="recto"
+                    >Recto</b-form-select-option
+                >
+                <b-form-select-option value="verso">Verso</b-form-select-option>
+            </b-form-select>
+        </b-form-group>
+        <b-form-group>
+            <label for="sort" class="search-bar ml-2">{{
+                $t('home.sort')
+            }}</label>
             <b-form-select
                 name="sort"
                 class="ml-2"
@@ -55,10 +77,15 @@ export default class SearchBar extends Vue {
         }),
     })
     public params!: SearchBarParams;
-
+ 
     public onFilterChange(inputEvent) {
         console.log(inputEvent);
         this.searchValue.filter = inputEvent;
+        this.onSearch();
+    }
+
+    public onViewChange(viewEvent) {
+         this.searchValue.view = viewEvent;
         this.onSearch();
     }
 
@@ -77,6 +104,7 @@ export default class SearchBar extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
+
 .search-bar {
     font-style: $font-style;
     font-weight: $font-weight-1;

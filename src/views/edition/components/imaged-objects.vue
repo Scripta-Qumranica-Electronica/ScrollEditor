@@ -1,10 +1,17 @@
 <template>
     <div>
-        <div class="row" v-if="!imagedObjects"><div class="col ml-auto"><Waiting></Waiting></div></div>
-        <div v-if="imagedObjects">
-            <div class="row"><div class="col">
-                <small>{{ $t('home.imagedObjects') }}: {{ imagedObjects.length }}</small>
-            </div></div>
+        <div class="header">
+            <b-row>
+                <b-col class="mt-4 mb-5">
+                    <search-bar
+                        class="direction"
+                        :params="searchBarParams"
+                        @on-search="onImagedObjectsSearch($event)"
+                    ></search-bar>
+                </b-col>
+            </b-row>
+        </div>
+        <div>
             <ul class="list-unstyled row mt-2"  v-if="imagedObjects.length">
                 <li class="col-sm-12 col-md-6 col-xl-4 list-item"
                     v-for="imagedObject in imagedObjects"
@@ -21,15 +28,23 @@ import Vue from 'vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectCard from './imaged-object-card.vue';
 import { ImagedObject } from '@/models/imaged-object';
+import SearchBar from '@/components/search-bar.vue';
+import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 
 export default Vue.extend({
     components: {
         ImagedObjectCard,
         Waiting,
+        SearchBar,
     },
     computed: {
         imagedObjects(): ImagedObject[] {
             return this.$state.imagedObjects.items;
+        }
+    },
+    methods:{
+        onImagedObjectsSearch(event) {
+
         }
     },
     created() {

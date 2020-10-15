@@ -1,88 +1,66 @@
 <template>
     <div>
-        <div v-if="!artefacts"><div class="col ml-auto"><Waiting></Waiting></div></div>
-        <div v-if="artefacts">
-            <div class="flex">
-                <b-form inline class="mt-2 filtering" @submit.prevent="">
-                    <label for="filter">{{ $t('home.filterArtefacts') }}:</label>
-                    <b-form-input v-model="filter" name="filter" class="ml-2"></b-form-input>
-                </b-form>
-                    
-                <b-dropdown :text="sideFilter.displayName" size="sm" class="ml-2 filtering">
-                    <b-dropdown-item 
-                    v-for="filter in sideOptions" 
-                    :key="filter.displayName"
-                    @click="sideFilterChanged(filter)">{{filter.displayName}}</b-dropdown-item>
-                </b-dropdown>
-                <small class="mt-3">{{ $t('home.artefacts') }}: {{ numberOfArtefacts }}</small>
-            </div>
-            <ul class="list-unstyled row mt-2"  v-if="artefacts.length">
-                <li class="col-sm-6 col-md-4 col-xl-2 list-item"
-                    v-for="art in artefacts"
-                    v-show="filteredArtefact.indexOf(art.id) !== -1"
-                    :key="art.id">
-                    <artefact-card :artefact="art"></artefact-card>
-                </li>
-            </ul>
+        <div class="header">
+            <b-row>
+                <b-col class="mt-4 mb-5">
+                    <search-bar
+                        class="direction"
+                        :params="searchBarParams"
+                        @on-search="onArtefactsSearch($event)"
+                    ></search-bar>
+                </b-col>
+            </b-row>
+        </div>
+        <div
+            class="card"
+            v-for="artefact in artefacts"
+            :key="artefact.versionId"
+        >
+            <artefact-card :artefact="artefact"></artefact-card>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { EditionInfo } from '@/models/edition';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import { Artefact } from '@/models/artefact';
+import EditionCard from './EditionCard.vue';
 import ArtefactCard from './artefact-card.vue';
-import ImagedObjectService from '@/services/imaged-object';
-import ArtefactService from '@/services/artefact';
-import { DropdownOption } from '@/utils/helpers';
+import { Artefact } from '@/models/artefact';
+import SearchBar from '@/components/search-bar.vue';
+import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 
-export default Vue.extend({
-    data() {
-        return {
-            artefactService: new ArtefactService(),
-            imagedObjectService: new ImagedObjectService(),
-            sideOptions: [
-                {displayName: 'Recto', name: 'recto'},
-                {displayName: 'Verso', name: 'verso'},
-                {displayName: this.$t('home.both'), name: 'recto and verso'}] as DropdownOption[],
-            sideFilter: {} as DropdownOption,
-            filter: '',
-        };
-    },
+@Component({
+    name: 'edition-artefacts',
     components: {
-        ArtefactCard,
         Waiting,
+        ArtefactCard,
+        SearchBar
     },
-    computed: {
-        artefacts(): Artefact[] {
-            return this.$state.artefacts.items;
-        },
-        numberOfArtefacts(): number {
-            return( this.filteredArtefact && this.filteredArtefact.length) ;
-        },
-        filteredArtefact(): number[] {
-            return this.$state.artefacts.items.filter((x) => ( this.filter === ''
-                    || this.nameMatch(x.name) ) // Filter for user input
-                    && ( this.sideFilter.name && this.sideFilter.name.indexOf(x.side) !== -1 ) // Filter for side
-                ).map((x) => x.id);
-        },
-    },
-    created() {
-        this.$state.prepare.edition(this.$state.editions.current!.id);
-        this.sideFilter = this.sideOptions[2];
-    },
-    methods: {
-        sideFilterChanged(filter: DropdownOption) {
-            this.sideFilter = filter;
-        },
-        nameMatch(name: string): boolean {
-          return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
-      }
-    }
-});
-</script>
+})
+export default class EditionArtefacts extends Vue {
 
+    private searchValue: SearchBarValue = {};
+    private searchBarParams: SearchBarParams = {
+        filter: true,
+        sort: true,
+        view: true
+    };
+
+    public get artefacts(): Artefact[] {
+            return this.$state.artefacts.items.filter((art: Artefact) => art.side === this.searchValue.view
+            && art.name.toLowerCase().includes(this.searchValue.filter.toLowerCase()));
+        }
+
+    public onArtefactsSearch(searchEvent: SearchBarValue) {
+        this.searchValue = searchEvent;
+    }
+
+        
+}
+</script>
 <style scoped>
 .filtering {
     margin: 10px 10px 10px 0px;
@@ -92,7 +70,7 @@ export default Vue.extend({
     display: flex;
 }
 ul.list-unstyled {
-       height: calc(100vh - 123px);
+    height: calc(100vh - 123px);
     overflow: auto;
 }
 </style>
