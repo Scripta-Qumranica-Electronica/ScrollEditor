@@ -20,15 +20,17 @@
             </b-col>
             <b-col class="col-8">
                 <div>
-                    <p class=" card-font cart-title">
+                    <p class="card-font cart-title">
                         {{ edition.name }}
                         <edition-icons :edition="edition" />
                     </p>
                     <div>
-                        <p class=" card-font card-label">
+                        <p class="card-font card-label">
                             Last edit:
-                            <span class=" card-font card-date">{{
-                                edition.lastEdit.toDateString()
+                            <span class="card-font card-date">{{
+                                edition.lastEdit
+                                    ? edition.lastEdit.toDateString()
+                                    : 'N/A'
                             }}</span>
                         </p>
                         <p class="card-font card-label">
@@ -36,8 +38,12 @@
                             <b-badge
                                 :class="
                                     edition.isPublic
-                                        ? ['status-badge' ,'status-badge-Published']
-                                        : ['status-badge' ,'status-badge-Draft']"
+                                        ? [
+                                              'status-badge',
+                                              'status-badge-Published',
+                                          ]
+                                        : ['status-badge', 'status-badge-Draft']
+                                "
                                 >{{
                                     edition.isPublic ? 'Published' : 'Draft'
                                 }}</b-badge
@@ -75,7 +81,7 @@ export default class EditionCard extends Vue {
 @import '@/assets/styles/_fonts.scss';
 
 .cart-title {
-    font-weight: $font-weight-3!important;
+    font-weight: $font-weight-3 !important;
     color: $black;
     margin-bottom: 1px;
 }
@@ -83,7 +89,7 @@ export default class EditionCard extends Vue {
 .cart-decoration:hover {
     text-decoration: none;
 }
- .card-font{
+.card-font {
     font-style: $font-style;
     font-weight: $font-weight-1;
     font-size: $font-size-2;
