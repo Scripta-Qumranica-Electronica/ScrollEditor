@@ -1,6 +1,7 @@
 export default {
     home: 'Scripta Qumranica Electronica',
     filter: 'Filter by',
+    show: 'Show',
     sort: 'Sort by',
     publicEditionGroupCount: 'No public editions | One public edition |  public editions ({count})',
     personalEditionGroupCount: 'No personal editions | One personal edition |  personal editions ({count})',

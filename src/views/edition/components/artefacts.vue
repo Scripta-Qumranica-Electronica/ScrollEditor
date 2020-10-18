@@ -50,8 +50,9 @@ export default class EditionArtefacts extends Vue {
     };
 
     public get artefacts(): Artefact[] {
-            return this.$state.artefacts.items.filter((art: Artefact) => art.side === this.searchValue.view
-            && art.name.toLowerCase().includes(this.searchValue.filter.toLowerCase()));
+        return this.$state.artefacts.items;
+            // return this.$state.artefacts.items.filter((art: Artefact) => art.side === this.searchValue.view
+            // && art.name.toLowerCase().includes(this.searchValue.filter.toLowerCase()));
         }
 
     public onArtefactsSearch(searchEvent: SearchBarValue) {
@@ -62,6 +63,14 @@ export default class EditionArtefacts extends Vue {
 }
 </script>
 <style scoped>
+.card{
+    display: inline-block;
+    width: calc(25% - 20px);
+    margin: 10px;
+}
+.direction{
+    float: right;
+}
 .filtering {
     margin: 10px 10px 10px 0px;
 }

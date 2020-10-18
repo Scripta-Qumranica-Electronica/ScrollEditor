@@ -1,20 +1,36 @@
 <template>
-    <div>
+    <div class="container" style="background: grey">
         <div>
-            <span>
-            Rule of Blessings 1Q28 - 1Qsn
-            </span>
-            <div>
-                <span>Collaborqtors</span>
-                <span>Publish</span>
-            </div>
+            <b-row>
+                <b-col class="col-4 mt-4 mb-3">
+                    <span class="name-edition">
+                        Rule of Blessings {{ versionString(edition) }}
+                    </span>
+                </b-col>
+                <b-col class="col-8 mt-4 mb-3">
+                    <div style="float: right">
+                        <b-button>Colloborator</b-button>
+                        <b-button>Publish</b-button>
+                    </div>
+                </b-col>
+            </b-row>
         </div>
         <div v-if="!waiting">
-            <p>Heqder</p>
+            <b-row>
+                <b-col class="col-4">
+                    <label for="showr" class="search-bar">{{
+                        $t('home.show')
+                    }}</label>
+                </b-col>
+            </b-row>
             <div>
-                <b-button-group>
-                    <b-button :to="`/editions/${edition.id}/artefacts`">Artefacts {{artefactsLength}}</b-button>
-                    <b-button :to="`/editions/${edition.id}/imaged-objects`">Imaged Objects {{imagedObjectsLength}}</b-button>
+                <b-button-group class="btns-groups">
+                    <b-button :to="`/editions/${edition.id}/artefacts`"
+                        >Artefacts {{ artefactsLength }}</b-button
+                    >
+                    <b-button :to="`/editions/${edition.id}/imaged-objects`"
+                        >Imaged Objects {{ imagedObjectsLength }}</b-button
+                    >
                 </b-button-group>
             </div>
         </div>
@@ -26,7 +42,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -60,9 +75,7 @@ export default Vue.extend({
         },
         imagedObjectsLength(): number {
             return this.$state.imagedObjects.items.length;
-        }
-
-        
+        },
     },
     mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
@@ -76,23 +89,52 @@ export default Vue.extend({
         next();
     },
     methods: {
+        versionString(ver: EditionInfo) {
+            return ver.name;
+        },
         getPage(url: string) {
             if (url.endsWith('artefacts')) {
                 this.page = 'artefacts';
             } else {
                 this.page = 'imaged-objects';
             }
-        }
+        },
     },
 });
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+.name-edition {
+    font-style: $font-style;
+    font-weight: $font-weight-3;
+    font-size: $font-size-3;
+    font-family: $font-family;
+    color: $black;
+}
 #sidebar {
-  float: left;
+    float: left;
 }
 
 #fragments {
-  float: right;
+    float: right;
+}
+.btns-groups a {
+    border: 2px solid transparent;
+    color: $black;
+    background-color: white;
+    border-color: $grey;
+    font-style: $font-style;
+    font-weight: $font-weight-1;
+    font-size: $font-size-2;
+    font-family: $font-family;
+}
+.btns-groups a:hover,
+.btns-groups:not(:disabled):not(.disabled):active {
+    border: 2px solid transparent;
+    color: $blue;
+    background-color: white;
+    border-color: $blue;
 }
 </style>
