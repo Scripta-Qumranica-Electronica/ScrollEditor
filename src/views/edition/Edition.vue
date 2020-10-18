@@ -1,16 +1,21 @@
 <template>
-    <div class="container" style="background: grey">
-        <div>
+    <div class="container">
+        <div class="mb-3" style="border-bottom: 2px solid #DCE1EA">
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
-                    <span class="name-edition">
+                    <span class="name-edition" v-if="edition">
                         Rule of Blessings {{ versionString(edition) }}
                     </span>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
-                    <div style="float: right">
-                        <b-button>Colloborator</b-button>
-                        <b-button>Publish</b-button>
+                    <div class="btns-permiss" v-if="current">
+                        <b-button
+                            class="mr-3"
+                            v-if="isAdmin"
+                            @click="openPermissionModal()"
+                            ><i class="fa fa-lock mr-1"></i>Collaborators</b-button
+                        >
+                        <b-button disabled><i class="fa fa-lock mr-1"></i>Publish</b-button>
                     </div>
                 </b-col>
             </b-row>
@@ -18,17 +23,21 @@
         <div v-if="!waiting">
             <b-row>
                 <b-col class="col-4">
-                    <label for="showr" class="search-bar">{{
+                    <label for="show" class="search-bar">{{
                         $t('home.show')
                     }}</label>
                 </b-col>
             </b-row>
             <div>
                 <b-button-group class="btns-groups">
-                    <b-button :to="`/editions/${edition.id}/artefacts`"
+                    <b-button
+                        variant="outline-primary"
+                        :to="`/editions/${edition.id}/artefacts`"
                         >Artefacts {{ artefactsLength }}</b-button
                     >
-                    <b-button :to="`/editions/${edition.id}/imaged-objects`"
+                    <b-button
+                        variant="outline-primary"
+                        :to="`/editions/${edition.id}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
                 </b-button-group>
@@ -42,6 +51,7 @@
                 </div>
             </div>
         </div>
+        <permission-modal v-if="current"></permission-modal>
     </div>
 </template>
 
@@ -50,12 +60,14 @@ import Vue from 'vue';
 import EditionSidebar from './components/sidebar.vue';
 import { EditionInfo } from '@/models/edition.js';
 import Waiting from '@/components/misc/Waiting.vue';
+import PermissionModal from './components/permission-modal.vue';
 
 export default Vue.extend({
     name: 'edition-version',
     components: {
         EditionSidebar,
         Waiting,
+        PermissionModal,
     },
     data() {
         return {
@@ -64,6 +76,12 @@ export default Vue.extend({
         };
     },
     computed: {
+        current(): EditionInfo | undefined {
+            return this.$state.editions.current;
+        },
+        isAdmin(): boolean {
+            return this.current!.permission.isAdmin;
+        },
         edition(): EditionInfo | undefined {
             return this.$state.editions.current;
         },
@@ -89,6 +107,10 @@ export default Vue.extend({
         next();
     },
     methods: {
+        openPermissionModal() {
+            console.log('ffff');
+            this.$root.$emit('bv::show::modal', 'permissionModal');
+        },
         versionString(ver: EditionInfo) {
             return ver.name;
         },
@@ -103,9 +125,28 @@ export default Vue.extend({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
+.btns-permiss {
+    float: right;
+}
+.btns-permiss button{
+    background-color: #bdbdbd;
+    border-color: #bdbdbd;
+    color: white;
+    font-weight: $font-weight-3;
+    font-size: $font-size-2;
+    font-family: $font-family;
+}
+.btn-secondary:not(:disabled):not(.disabled):active,
+.btn-secondary:focus,
+.btn-secondary:hover
+ {
+    color: #fff;
+    background-color: #bdbdbd!important;
+    border-color: #bdbdbd!important;
+}
 .name-edition {
     font-style: $font-style;
     font-weight: $font-weight-3;

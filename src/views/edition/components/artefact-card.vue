@@ -7,7 +7,9 @@
             v-show="artefact"
             :artefact="artefact"
         ></artefact-image>
-        <label>{{ artefact.name }} - {{ artefact.side }}</label>
+        <label class="side-edition"
+            >{{ artefact.name }} - {{ artefact.side }}</label
+        >
     </router-link>
 </template>
 
@@ -33,16 +35,26 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 div.card {
     margin-bottom: 20px;
 
     img {
         cursor: pointer;
     }
-    .card-img-top svg
-     {
+    .card-img-top svg {
         margin: 33px 33px 0px 33px;
         width: calc(92% - 33px);
+    }
+    .side-edition {
+        width: 100%;
+        text-align: center;
+        font-style: $font-style;
+        font-weight: $font-weight-3;
+        font-size: $font-size-2;
+        font-family: $font-family;
+        color: $black;
     }
 }
 </style>

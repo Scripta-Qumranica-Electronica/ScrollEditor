@@ -1,5 +1,5 @@
 <template>
-        <div class="mt-5">
+        <div>
             <b-tabs nav-wrapper-class="tabs">
                 <b-tab
                     :title-item-class="'tab-title-class'"
@@ -72,7 +72,7 @@ export default Vue.extend({
 @import '@/assets/styles/_fonts.scss';
 
 .tab-pane{
-    background: $light-grey;
+    background: $backround-grey;
     padding:  0 15%;
 }
 .tab-title-class > a.nav-link {
@@ -86,6 +86,7 @@ export default Vue.extend({
 .nav-tabs {
     margin: 0 220px;
     border-bottom: none!important;
+    background-color: white;
     
 }
 .nav-tabs .tab-title-class > .nav-link.active,

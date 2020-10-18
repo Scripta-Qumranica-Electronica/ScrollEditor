@@ -2,7 +2,7 @@
     <div>
         <div class="header">
             <b-row>
-                <b-col class="mt-4 mb-5">
+                <b-col class="mb-3">
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
@@ -53,8 +53,13 @@ export default Vue.extend({
 });
 </script>
 <style scoped>
-ul.list-unstyled {
-       height: calc(100vh - 123px);
-    overflow: auto;
+/* .card{
+    display: inline-block;
+    width: calc(25% - 20px);
+    margin: 10px;
+} */
+.direction{
+    float: right;
+    margin-top: -67px;
 }
 </style>

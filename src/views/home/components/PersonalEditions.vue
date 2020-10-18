@@ -57,15 +57,32 @@ export default class PersonalEditions extends Vue {
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
+        view: false
     };
 
-    // private get personalEdition(): EditionInfo[] {
-    //     return this.$state.editions.items.filter((ed) => {ed.mine && ed.name.toLowerCase})
-    //     .sort((a, b) => a['a'] > b['a'] ? 1 : -1 );
-    // }
     private get personalEdition(): EditionInfo[] {
-        return this.$state.editions.items.filter((ed) => ed.mine);
+                return this.$state.editions.items.filter((ed: EditionInfo) => {
+            let filter = true;
+            // if (this.searchValue.view) {
+            //     filter = filter && art.side === this.searchValue.view
+            // }
+            if (this.searchValue.filter) {
+                filter = filter && ed.name.toLowerCase().includes(this.searchValue.filter.toLowerCase())
+            }
+            return filter;
+        } )
+        .sort(
+            (a, b) => {
+                if (this.searchValue.sort) {
+                    return a[this.searchValue.sort] > b[this.searchValue.sort] ? 1 : -1;
+                }
+                else {
+                    return 1;
+                }
+            }
+        )
     }
+   
 
     private get draftEditions(): EditionInfo[] {
         return this.personalEdition.filter((ed) => !ed.isPublic);

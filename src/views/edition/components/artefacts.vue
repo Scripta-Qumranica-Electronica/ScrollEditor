@@ -2,7 +2,7 @@
     <div>
         <div class="header">
             <b-row>
-                <b-col class="mt-4 mb-5">
+                <b-col class="mb-3">
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
@@ -50,12 +50,30 @@ export default class EditionArtefacts extends Vue {
     };
 
     public get artefacts(): Artefact[] {
-        return this.$state.artefacts.items;
-            // return this.$state.artefacts.items.filter((art: Artefact) => art.side === this.searchValue.view
-            // && art.name.toLowerCase().includes(this.searchValue.filter.toLowerCase()));
+        return this.$state.artefacts.items.filter((art: Artefact) => {
+            let filter = true;
+            if (this.searchValue.view) {
+                filter = filter && art.side === this.searchValue.view
+            }
+            if (this.searchValue.filter) {
+                filter = filter && art.name.toLowerCase().includes(this.searchValue.filter.toLowerCase())
+            }
+            return filter;
+        } )
+        .sort(
+            (a, b) => {
+                if (this.searchValue.sort) {
+                    return a[this.searchValue.sort] > b[this.searchValue.sort] ? 1 : -1;
+                }
+                else {
+                    return 1;
+                }
+            }
+        )
         }
 
     public onArtefactsSearch(searchEvent: SearchBarValue) {
+        console.log(searchEvent)
         this.searchValue = searchEvent;
     }
 
@@ -70,16 +88,7 @@ export default class EditionArtefacts extends Vue {
 }
 .direction{
     float: right;
-}
-.filtering {
-    margin: 10px 10px 10px 0px;
+    margin-top: -67px;
 }
 
-.flex {
-    display: flex;
-}
-ul.list-unstyled {
-    height: calc(100vh - 123px);
-    overflow: auto;
-}
 </style>

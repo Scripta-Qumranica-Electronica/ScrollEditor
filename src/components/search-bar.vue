@@ -1,7 +1,7 @@
 <template>
     <b-form inline class="" @submit.prevent>
-        <b-form-group>
-            <label for="filter" class="search-bar">{{
+        <b-form-group v-if="params.filter">
+            <label for="filter" class="search-bar mb-2">{{
                 $t('home.filter')
             }}</label>
             <b-form-input
@@ -9,8 +9,8 @@
                 @change="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
-        <b-form-group>
-            <label for="view" class="search-bar ml-2">{{
+        <b-form-group v-if="params.view">
+            <label for="view" class="search-bar ml-2  mb-2">{{
                 $t('home.view')
             }}</label>
             <b-form-select
@@ -27,8 +27,8 @@
                 <b-form-select-option value="verso">Verso</b-form-select-option>
             </b-form-select>
         </b-form-group>
-        <b-form-group>
-            <label for="sort" class="search-bar ml-2">{{
+        <b-form-group v-if="params.sort">
+            <label for="sort" class="search-bar ml-2 mb-2">{{
                 $t('home.sort')
             }}</label>
             <b-form-select
@@ -68,7 +68,9 @@ export interface SearchBarValue {
     components: {},
 })
 export default class SearchBar extends Vue {
-    private searchValue: SearchBarValue = {};
+    private searchValue: SearchBarValue = {
+         
+    };
     @Prop({
         default: () => ({
             filter: false,
