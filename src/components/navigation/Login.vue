@@ -34,7 +34,7 @@
                 </b-row>
                 <b-row class="justify-content-end">
                     <b-link @click="forgotPassword" class="sign-link">
-                        {{ $t('navbar.forgotPassword') }}
+                        {{ $t('navbar.forgotPassword') }}?
                     </b-link>
                 </b-row>
                 <b-row>
