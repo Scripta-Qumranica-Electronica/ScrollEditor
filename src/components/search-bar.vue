@@ -34,6 +34,7 @@
             <b-form-select
                 name="sort"
                 class="ml-2"
+                :value="null"
                 @change="onSortChange($event)"
             >
                 <b-form-select-option :value="null"

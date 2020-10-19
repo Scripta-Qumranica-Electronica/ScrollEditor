@@ -53,43 +53,47 @@ import EditionsList from './EditionsList.vue';
     },
 })
 export default class PersonalEditions extends Vue {
+    private filteredEditions: EditionInfo[] = [];
     private searchValue: SearchBarValue = {};
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
-        view: false
+        view: false,
     };
 
-    private get personalEdition(): EditionInfo[] {
-                return this.$state.editions.items.filter((ed: EditionInfo) => {
-            let filter = true;
-            // if (this.searchValue.view) {
-            //     filter = filter && art.side === this.searchValue.view
-            // }
-            if (this.searchValue.filter) {
-                filter = filter && ed.name.toLowerCase().includes(this.searchValue.filter.toLowerCase())
-            }
-            return filter;
-        } )
-        .sort(
-            (a, b) => {
-                if (this.searchValue.sort) {
-                    return a[this.searchValue.sort] > b[this.searchValue.sort] ? 1 : -1;
+    private getFilteredEditions(): EditionInfo[] {
+        return this.$state.editions.items
+            .filter((ed: EditionInfo) => {
+                let filter: boolean = ed.mine === true;
+                // if (this.searchValue.view) {
+                //     filter = filter && art.side === this.searchValue.view
+                // }
+                if (this.searchValue.filter) {
+                    filter =
+                        filter &&
+                        ed.name
+                            .toLowerCase()
+                            .includes(this.searchValue.filter.toLowerCase());
                 }
-                else {
+                return filter;
+            })
+            .sort((a, b) => {
+                if (this.searchValue.sort) {
+                    return a[this.searchValue.sort] > b[this.searchValue.sort]
+                        ? 1
+                        : -1;
+                } else {
                     return 1;
                 }
-            }
-        )
+            });
     }
-   
 
     private get draftEditions(): EditionInfo[] {
-        return this.personalEdition.filter((ed) => !ed.isPublic);
+        return this.filteredEditions.filter((ed) => !ed.isPublic);
     }
 
     private get publishedEditions(): EditionInfo[] {
-        return this.personalEdition.filter((ed) => ed.isPublic);
+        return this.filteredEditions.filter((ed) => ed.isPublic);
     }
 
     public onEditionsSearch(event: SearchBarValue) {
@@ -104,7 +108,8 @@ export default class PersonalEditions extends Vue {
 
     @Emit()
     public onPersonalEditionsLoad() {
-        return this.personalEdition.length;
+        this.filteredEditions = this.getFilteredEditions()
+        return this.filteredEditions.length;
     }
 }
 </script>
@@ -114,9 +119,8 @@ export default class PersonalEditions extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-
-.direction{
-    float:right
+.direction {
+    float: right;
 }
 .text-color {
     color: $black;
@@ -127,7 +131,7 @@ export default class PersonalEditions extends Vue {
     font-size: $font-size-3;
     font-family: $font-family;
 }
-.edition-list{
+.edition-list {
     padding-top: 70px;
 }
 </style>

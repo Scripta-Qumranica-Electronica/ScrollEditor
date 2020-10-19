@@ -159,6 +159,9 @@ export default class Welcome extends Vue {
         font-style:normal;
         
     }
+    .link a{
+        color: white;
+    }
 }
 
 .intro {

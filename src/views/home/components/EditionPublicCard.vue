@@ -33,10 +33,7 @@
                                     >{{ edition.lastEdit ? edition.lastEdit.toDateString() : 'N/A' }}</span
                                 >
                             </p>
-                            <p class="card-font card-label">
-                                Image:
-                                <span class="card-font card-date">N/A</span>
-                            </p>
+                           
                             <!-- <p class="card-font card-label">
                                 By:
                                 {{ edition.owner.foreName }}

@@ -12,11 +12,15 @@
             </b-row>
         </div>
         <div>
-            <ul class="list-unstyled row mt-2"  v-if="imagedObjects.length">
-                <li class="col-sm-12 col-md-6 col-xl-4 list-item"
+            <ul class="list-unstyled row mt-2" v-if="imagedObjects.length">
+                <li
+                    class="col-sm-12 col-md-6 col-xl-4 list-item"
                     v-for="imagedObject in imagedObjects"
-                    :key="imagedObject.id">
-                    <imaged-object-card :imaged-object="imagedObject"></imaged-object-card>
+                    :key="imagedObject.id"
+                >
+                    <imaged-object-card
+                        :imaged-object="imagedObject"
+                    ></imaged-object-card>
                 </li>
             </ul>
         </div>
@@ -40,16 +44,14 @@ export default Vue.extend({
     computed: {
         imagedObjects(): ImagedObject[] {
             return this.$state.imagedObjects.items;
-        }
+        },
     },
-    methods:{
-        onImagedObjectsSearch(event) {
-
-        }
+    methods: {
+        onImagedObjectsSearch(event) {},
     },
     created() {
         this.$state.prepare.edition(this.$state.editions.current!.id);
-    }
+    },
 });
 </script>
 <style scoped>
@@ -58,7 +60,7 @@ export default Vue.extend({
     width: calc(25% - 20px);
     margin: 10px;
 } */
-.direction{
+.direction {
     float: right;
     margin-top: -67px;
 }
