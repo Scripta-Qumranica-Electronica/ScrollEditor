@@ -48,7 +48,7 @@ export default class EditionArtefacts extends Vue {
     private editionId: number = 0;
     private searchBarParams: SearchBarParams = {
         filter: true,
-        sort: true,
+        sort: false,
         view: true,
     };
 

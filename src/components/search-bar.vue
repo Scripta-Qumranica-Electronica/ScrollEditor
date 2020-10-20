@@ -15,7 +15,7 @@
             }}</label>
             <b-form-select
                 name="view"
-                class="ml-2"
+                class="ml-2 size"
                 @change="onViewChange($event)"
             >
                 <b-form-select-option value="recto and verso"
@@ -115,5 +115,8 @@ export default class SearchBar extends Vue {
     font-family: $font-family;
     color: $black;
     justify-content: inherit;
+}
+.size{
+    width: 200px!important;
 }
 </style>

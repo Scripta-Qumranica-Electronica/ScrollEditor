@@ -139,9 +139,10 @@ export default Vue.extend({
     font-size: $font-size-2;
     font-family: $font-family;
 }
-.btn-secondary:not(:disabled):not(.disabled):active,
+.btn-secondary:active,
 .btn-secondary:focus,
-.btn-secondary:hover
+.btn-secondary:hover,
+.btn-secondary.disabled
  {
     color: #fff;
     background-color: #bdbdbd!important;
@@ -177,5 +178,9 @@ export default Vue.extend({
     color: $blue;
     background-color: white;
     border-color: $blue;
+}
+.btn-secondary.disabled:hover{
+    cursor: not-allowed;
+    background-color: #bdbdbd!important;
 }
 </style>

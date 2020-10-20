@@ -1,30 +1,30 @@
 <template>
-        <div>
-            <b-tabs nav-wrapper-class="tabs">
-                <b-tab
-                    :title-item-class="'tab-title-class'"
-                    :title="
-                        $tc(
-                            'home.personalEditionGroupCount',
-                            personalEditionsCount
-                        )
-                    "
-                    active
-                >
-                    <personal-editions
-                        @on-personal-editions-load="onPersonalEditionsLoad($event)"
-                    ></personal-editions>
-                </b-tab>
-                <b-tab
-                    :title="$tc('home.publicEditionGroupCount', publicEditionsCount)"
-                    :title-item-class="'tab-title-class'"
-                >
-                    <public-editions 
-                        @on-public-editions-load="onPublicEditionsLoad($event)"
-                    ></public-editions>
-                </b-tab>
-            </b-tabs>
-        </div>
+    <div>
+        <b-tabs nav-wrapper-class="tabs">
+            <b-tab
+                v-if="user"
+                :title-item-class="'tab-title-class'"
+                :title="
+                    $tc('home.personalEditionGroupCount', personalEditionsCount)
+                "
+                active
+            >
+                <personal-editions
+                    @on-personal-editions-load="onPersonalEditionsLoad($event)"
+                ></personal-editions>
+            </b-tab>
+            <b-tab
+                :title="
+                    $tc('home.publicEditionGroupCount', publicEditionsCount)
+                "
+                :title-item-class="'tab-title-class'"
+            >
+                <public-editions
+                    @on-public-editions-load="onPublicEditionsLoad($event)"
+                ></public-editions>
+            </b-tab>
+        </b-tabs>
+    </div>
 </template>
 
 <script lang="ts">
@@ -39,7 +39,7 @@ export default Vue.extend({
     components: {
         Waiting,
         PersonalEditions,
-        PublicEditions
+        PublicEditions,
     },
     data() {
         return {
@@ -53,6 +53,11 @@ export default Vue.extend({
         this.$state.prepare.allEditions();
 
         this.$state.editions.current = undefined;
+    },
+    computed: {
+        user(): boolean {
+            return this.$state.session.user ? true : false;
+        },
     },
     methods: {
         nameMatch(name: string): boolean {
@@ -71,9 +76,9 @@ export default Vue.extend({
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.tab-pane{
+.tab-pane {
     background: $backround-grey;
-    padding:  0 15%;
+    padding: 0 15%;
 }
 .tab-title-class > a.nav-link {
     font-family: $font-family;
@@ -85,9 +90,8 @@ export default Vue.extend({
 }
 .nav-tabs {
     margin: 0 220px;
-    border-bottom: none!important;
+    border-bottom: none !important;
     background-color: white;
-    
 }
 .nav-tabs .tab-title-class > .nav-link.active,
 .nav-tabs .tab-title-class > .nav-link.focus {
