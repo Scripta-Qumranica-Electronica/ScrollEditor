@@ -14,6 +14,7 @@ import Activation from './views/user/Activation.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ConfirmInvitation from './views/edition/components/confirm-invitation.vue';
+import ArtefactEditorNew from './views/artefact-editor/artefact-editor-new.vue';
 
 Vue.use(Router);
 
@@ -32,6 +33,10 @@ export default new Router({
       component: Home,
     },
     {
+      path: '/artefact-editor-new',
+      component: ArtefactEditorNew,
+    },
+    {
       path: '/editions/:editionId',
       component: Edition,
       children: [{
@@ -42,6 +47,7 @@ export default new Router({
         path: 'imaged-objects',
         component: EditionImagedObjects,
       },
+     
       {
         path: '',
         redirect: '/editions/:editionId/artefacts',
