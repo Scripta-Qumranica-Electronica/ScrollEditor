@@ -10,7 +10,7 @@
             ></b-form-input>
         </b-form-group>
         <b-form-group v-if="params.view">
-            <label for="view" class="search-bar ml-2  mb-2">{{
+            <label for="view" class="search-bar ml-2 mb-2">{{
                 $t('home.view')
             }}</label>
             <b-form-select
@@ -21,9 +21,7 @@
                 <b-form-select-option value="recto and verso"
                     >Both</b-form-select-option
                 >
-                <b-form-select-option value="recto"
-                    >Recto</b-form-select-option
-                >
+                <b-form-select-option value="recto">Recto</b-form-select-option>
                 <b-form-select-option value="verso">Verso</b-form-select-option>
             </b-form-select>
         </b-form-group>
@@ -69,9 +67,6 @@ export interface SearchBarValue {
     components: {},
 })
 export default class SearchBar extends Vue {
-    private searchValue: SearchBarValue = {
-         
-    };
     @Prop({
         default: () => ({
             filter: false,
@@ -80,19 +75,20 @@ export default class SearchBar extends Vue {
         }),
     })
     public params!: SearchBarParams;
- 
-    public onFilterChange(inputEvent) {
+    private searchValue: SearchBarValue = {};
+
+    public onFilterChange(inputEvent: string | undefined) {
         console.log(inputEvent);
         this.searchValue.filter = inputEvent;
         this.onSearch();
     }
 
-    public onViewChange(viewEvent) {
-         this.searchValue.view = viewEvent;
+    public onViewChange(viewEvent: string | undefined) {
+        this.searchValue.view = viewEvent;
         this.onSearch();
     }
 
-    public onSortChange(selectEvent) {
+    public onSortChange(selectEvent: string | undefined) {
         console.log(selectEvent);
         this.searchValue.sort = selectEvent;
         this.onSearch();
@@ -116,7 +112,7 @@ export default class SearchBar extends Vue {
     color: $black;
     justify-content: inherit;
 }
-.size{
-    width: 200px!important;
+.size {
+    width: 200px !important;
 }
 </style>

@@ -1,5 +1,5 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
-import { SignInterpretation, InterpretationRoi } from '@/models/text';
+import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData } from '@/models/text';
 import { StateManager } from '.';
 
 
@@ -25,7 +25,7 @@ export class ArtefactEditorState {
 
     public toggleSelectSign(si: SignInterpretation | undefined, removeIfExist: boolean = true) {
         if (si && si.character) {
-            const existingIdx = this.selectedSignsInterpretation.findIndex(x => x.id === si.id);
+            const existingIdx = this.selectedSignsInterpretation.findIndex((x: SignInterpretation) => x.id === si.id);
             if (existingIdx === -1) {
                 this.selectedSignsInterpretation.push(si);
                 this.addTextFragementToArtefact(si);
@@ -53,7 +53,7 @@ export class ArtefactEditorState {
     private addTextFragementToArtefact(si: SignInterpretation) {
         const siTextFragment = si.sign.line.textFragment;
         const tf = state().artefacts.current!.textFragments.find(
-            (x) => x.id === siTextFragment.textFragmentId
+            (x: ArtefactTextFragmentData) => x.id === siTextFragment.textFragmentId
         );
         if (!tf) {
             state().artefacts.current!.textFragments.push({
@@ -70,7 +70,7 @@ export class ArtefactEditorState {
     private removeTextFragementToArtefact(si: SignInterpretation) {
         const siTextFragment = si.sign.line.textFragment;
         const tfIndex = state().artefacts.current!.textFragments.findIndex(
-            (x) => x.id === siTextFragment.textFragmentId
+            (x: ArtefactTextFragmentData) => x.id === siTextFragment.textFragmentId
         );
         if (tfIndex > -1) {
             state().artefacts.current!.textFragments[tfIndex].certain = false;

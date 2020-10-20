@@ -39,30 +39,28 @@ import EditionsPublicList from './EditionsPublicList.vue';
     },
 })
 export default class PublicEditions extends Vue {
-      private searchValue: SearchBarValue = {};
+    private searchValue: SearchBarValue = {};
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
     };
 
+    public onEditionsSearch(event: SearchBarValue) {
+        this.searchValue = event;
+        // this.onPersonalEditionsLoad();
+    }
+    @Emit()
+    public onPublicEditionsLoad() {
+        return this.publicEditions.length;
+    }
     protected async mounted() {
         await this.$state.prepare.allEditions();
         this.onPublicEditionsLoad();
     }
 
-     public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = event;
-        // this.onPersonalEditionsLoad();
-    }
     private get publicEditions(): EditionInfo[] {
         return this.$state.editions.items.filter((ed) => ed.isPublic);
     }
-
-    @Emit()
-    public onPublicEditionsLoad() {
-        return this.publicEditions.length;
-    }
-
 }
 </script>
 
@@ -79,6 +77,6 @@ export default class PublicEditions extends Vue {
     font-style: $font-style;
     font-weight: $font-weight-1;
     font-size: $font-size-3;
-    font-family: $font-family
+    font-family: $font-family;
 }
 </style>

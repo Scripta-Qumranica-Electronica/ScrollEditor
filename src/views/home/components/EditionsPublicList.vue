@@ -27,7 +27,7 @@ import CopyEditionModal from './CopyEditionModal.vue';
 
 @Component({
     name: 'editions-public-list',
-    components: { 
+    components: {
         Waiting,
         EditionPublicCard,
         CopyEditionModal

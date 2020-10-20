@@ -1,6 +1,6 @@
 import { IIIFImage } from './image';
 import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO,
-    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO } from '@/dtos/sqe-dtos';
+    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO, AttributeValueDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 
@@ -104,7 +104,7 @@ class AttributeMetadata {
     }
 
     public getAttribute(id: number) {
-        return this.attributes.find(attr => attr.attributeId === id);
+        return this.attributes.find((attr: AttributeDTO) => attr.attributeId === id);
     }
 
     public getAttributeValue(attributeId: number, valueId: number) {
@@ -112,7 +112,7 @@ class AttributeMetadata {
         if (!attr) {
             return undefined;
         }
-        const value = attr.values.find(val => val.id === valueId);
+        const value = attr.values.find((val: AttributeValueDTO) => val.id === valueId);
         return value;
     }
 }

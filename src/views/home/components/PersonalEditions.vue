@@ -60,7 +60,19 @@ export default class PersonalEditions extends Vue {
         sort: true,
         view: false,
     };
-
+    public onEditionsSearch(event: SearchBarValue) {
+        this.searchValue = event;
+        this.onPersonalEditionsLoad();
+    }
+    @Emit()
+    public onPersonalEditionsLoad() {
+        this.filteredEditions = this.getFilteredEditions();
+        return this.filteredEditions.length;
+    }
+    protected async mounted() {
+        await this.$state.prepare.allEditions();
+        this.onPersonalEditionsLoad();
+    }
     private getFilteredEditions(): EditionInfo[] {
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
@@ -94,22 +106,6 @@ export default class PersonalEditions extends Vue {
 
     private get publishedEditions(): EditionInfo[] {
         return this.filteredEditions.filter((ed) => ed.isPublic);
-    }
-
-    public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = event;
-        this.onPersonalEditionsLoad();
-    }
-
-    protected async mounted() {
-        await this.$state.prepare.allEditions();
-        this.onPersonalEditionsLoad();
-    }
-
-    @Emit()
-    public onPersonalEditionsLoad() {
-        this.filteredEditions = this.getFilteredEditions()
-        return this.filteredEditions.length;
     }
 }
 </script>
