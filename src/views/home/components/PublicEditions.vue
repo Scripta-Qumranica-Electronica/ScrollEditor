@@ -14,7 +14,7 @@
         <div>
             <editions-public-list
                 class="text-edition"
-                :editions="publicEditions"
+                :editions="filteredEditions"
             ></editions-public-list>
         </div>
     </div>
@@ -39,6 +39,7 @@ import EditionsPublicList from './EditionsPublicList.vue';
     },
 })
 export default class PublicEditions extends Vue {
+    private filteredEditions: EditionInfo[] = [];
     private searchValue: SearchBarValue = {};
     private searchBarParams: SearchBarParams = {
         filter: true,
@@ -47,19 +48,44 @@ export default class PublicEditions extends Vue {
 
     public onEditionsSearch(event: SearchBarValue) {
         this.searchValue = event;
-        // this.onPersonalEditionsLoad();
+        this.onPublicEditionsLoad();
     }
     @Emit()
     public onPublicEditionsLoad() {
-        return this.publicEditions.length;
+        this.filteredEditions = this.getFilteredEditions();
+        return this.filteredEditions.length;
     }
     protected async mounted() {
         await this.$state.prepare.allEditions();
         this.onPublicEditionsLoad();
     }
 
-    private get publicEditions(): EditionInfo[] {
-        return this.$state.editions.items.filter((ed) => ed.isPublic);
+    private getFilteredEditions(): EditionInfo[] {
+        return this.$state.editions.items
+            .filter((ed: EditionInfo) => {
+                let filter: boolean = ed.isPublic === true;
+                // if (this.searchValue.view) {
+                //     filter = filter && art.side === this.searchValue.view
+                // }
+                if (this.searchValue.filter) {
+                    filter =
+                        filter &&
+                        ed.name
+                            .toLowerCase()
+                            .includes(this.searchValue.filter.toLowerCase());
+                }
+                return filter;
+            })
+            .sort((a: EditionInfo, b: EditionInfo) => {
+                if (this.searchValue.sort) {
+                    return (a as any)[this.searchValue.sort] >
+                        (b as any)[this.searchValue.sort]
+                        ? 1
+                        : -1;
+                } else {
+                    return 1;
+                }
+            });
     }
 }
 </script>
