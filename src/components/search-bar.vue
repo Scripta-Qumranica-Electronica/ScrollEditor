@@ -6,6 +6,7 @@
             }}</label>
             <b-form-input
                 id="filter"
+                v-model="searchValue.filter"
                 @change="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
@@ -16,6 +17,7 @@
             <b-form-select
                 name="view"
                 class="ml-2 size"
+                v-model="searchValue.view"
                 @change="onViewChange($event)"
             >
                 <b-form-select-option value="recto and verso"
@@ -32,12 +34,12 @@
             <b-form-select
                 name="sort"
                 class="ml-2"
-                :value="null"
+                v-model="searchValue.sort"
                 @change="onSortChange($event)"
             >
-                <b-form-select-option :value="null"
+                <!-- <b-form-select-option :value="null"
                     >Please select an option</b-form-select-option
-                >
+                > -->
                 <b-form-select-option value="lastEdit"
                     >Last Edited</b-form-select-option
                 >
@@ -75,22 +77,28 @@ export default class SearchBar extends Vue {
         }),
     })
     public params!: SearchBarParams;
+
+    @Prop({
+        default: () => ({}),
+    })
+    private defaultValue!: SearchBarValue;
+
     private searchValue: SearchBarValue = {};
 
+    public mounted() {
+        this.searchValue = {...this.defaultValue};
+        this.onSearch();
+    }
+
     public onFilterChange(inputEvent: string | undefined) {
-        console.log(inputEvent);
-        this.searchValue.filter = inputEvent;
         this.onSearch();
     }
 
     public onViewChange(viewEvent: string | undefined) {
-        this.searchValue.view = viewEvent;
         this.onSearch();
     }
 
     public onSortChange(selectEvent: string | undefined) {
-        console.log(selectEvent);
-        this.searchValue.sort = selectEvent;
         this.onSearch();
     }
 
