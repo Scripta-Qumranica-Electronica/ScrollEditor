@@ -7,7 +7,7 @@
             <b-form-input
                 id="filter"
                 v-model="searchValue.filter"
-                @change="onFilterChange($event)"
+                @input="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
         <b-form-group v-if="params.view">
@@ -91,6 +91,7 @@ export default class SearchBar extends Vue {
     }
 
     public onFilterChange(inputEvent: string | undefined) {
+        console.debug('onFilterChange called');
         this.onSearch();
     }
 
