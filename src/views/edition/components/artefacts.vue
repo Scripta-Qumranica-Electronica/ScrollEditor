@@ -77,9 +77,9 @@ export default class EditionArtefacts extends Vue {
                 }
                 return filter;
             })
-            .sort((a, b) => {
+            .sort((a: Artefact, b: Artefact) => {
                 if (this.searchValue.sort) {
-                    return a[this.searchValue.sort] > b[this.searchValue.sort]
+                    return (a as any)[this.searchValue.sort] > (b as any)[this.searchValue.sort]
                         ? 1
                         : -1;
                 } else {

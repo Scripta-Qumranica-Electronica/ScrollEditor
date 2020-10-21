@@ -89,9 +89,9 @@ export default class PersonalEditions extends Vue {
                 }
                 return filter;
             })
-            .sort((a, b) => {
+            .sort((a: EditionInfo, b: EditionInfo) => {
                 if (this.searchValue.sort) {
-                    return a[this.searchValue.sort] > b[this.searchValue.sort]
+                    return (a as any)[this.searchValue.sort] > (b as any)[this.searchValue.sort]
                         ? 1
                         : -1;
                 } else {
