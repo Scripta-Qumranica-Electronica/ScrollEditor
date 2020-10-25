@@ -13,12 +13,11 @@
                     </clipPath>
                 </defs>
                 <g pointer-events="none" :clip-path="`url(#clip-path-${artefact.id}`">
-                    <image 
+                    <iiif-image 
                         v-for="imageSetting in visibleImageSettings"
-                        :key="imageSetting.image.url"
+                        :key="imageSetting.image"
                         draggable="false"
-                        :xlink:href="getImageUrl(imageSetting)"
-                        :opacity="imageSetting.normalizedOpacity"></image>
+                        :opacity="imageSetting.normalizedOpacity"/>
                 </g>
             </g>
         </svg>
@@ -62,8 +61,12 @@ import { Image, ImageStack } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting, ImageSetting } from '@/components/image-settings/types';
 import ImagedObjectService from '@/services/imaged-object';
+import IIIFImageComponent from '@/components/images/IIIFImage.vue';
 
 export default Vue.extend({
+    components: {
+        'iiif-image': IIIFImageComponent,
+    },
     props: {
         artefact: Object as () => Artefact,
         scale: Number,

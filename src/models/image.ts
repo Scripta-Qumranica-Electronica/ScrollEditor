@@ -53,6 +53,14 @@ export class IIIFImage {
         return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
     }
 
+    public getPlainFullUrl(pct: number, extension = 'jpg') {
+        return this.append(`full/pct:${pct}/0/default.${extension}`);
+    }
+
+    public getPlainScaledAndCroppedUrl(pct: number, x: number, y: number, width: number, height: number, extension = 'jpg') {
+        return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
+    }
+
     // Returns a server-optimized scale factor for the image, based on the manifest.
     // Returns a percentage.
     //
