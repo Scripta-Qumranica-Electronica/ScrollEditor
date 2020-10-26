@@ -16,6 +16,7 @@
                     <iiif-image 
                         v-for="imageSetting in visibleImageSettings"
                         :key="imageSetting.image"
+                        :scaleFactor="scale"
                         draggable="false"
                         :opacity="imageSetting.normalizedOpacity"/>
                 </g>

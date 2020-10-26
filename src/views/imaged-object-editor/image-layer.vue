@@ -17,7 +17,7 @@
               class="clippedImg" 
               draggable="false"
               :image="imageSetting.image"
-              :scaleFractor="params.zoom"
+              :scaleFactor="params.zoom"
               :opacity="imageSetting.normalizedOpacity"
               />
       </g>

@@ -52,12 +52,12 @@ export default class IIIFImageComponent extends Vue {
 
     private get serverScale(): number {
         let pct = this.screenWidth / this.editionCoordWidth;
-
+        console.debug(`${this.screenWidth}, ${this.editionCoordWidth}, ${this.scaleFactor}, ${pct}`);
         // Adjust to a maximum of 1000 pixels per image dimesion, until tiles are added
         const maxDim = Math.max(this.screenWidth, this.screenHeight);
-        if (maxDim > 1000) {
+        /*if (maxDim > 1000) {
             pct *= 1000 / maxDim;
-        }
+        } */
 
         return pct;
     }
