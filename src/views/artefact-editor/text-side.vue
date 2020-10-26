@@ -1,63 +1,76 @@
 <template>
-    <div id="text-side" class="fixed-header">
-        <input
-            v-if="!readOnly"
-            class="select-text"
-            list="my-list-id"
-            @change="loadFragment($event)"
-        />
-        <datalist id="my-list-id">
-            <option :key="tf.textFragmentId" v-for="tf in dropdownTextFragmentsData">{{ tf.name }}</option>
-        </datalist>
-        <span class="isa_error">{{ errorMessage }}</span>
-
-        <div
-            v-for="(textFragment, index) in displayedTextFragments"
-            :key="textFragment.id"
-            role="tablist"
-        >
-            <b-card-header header-tag="header" class="p-1">
-                <b-row>
-                    <b-col cols="2">
-                        <b-button-group block>
-                            <b-button
-                                href="#"
-                                @click="changePosition(index, true)"
-                                v-b-tooltip.hover.bottom
-                                :title="$t('misc.up')"
-                            >
-                                <i class="fa fa-arrow-up"></i>
-                            </b-button>
-                            <b-button
-                                href="#"
-                                @click="changePosition(index, false)"
-                                v-b-tooltip.hover.bottom
-                                :title="$t('misc.down')"
-                            >
-                                <i class="fa fa-arrow-down"></i>
-                            </b-button>
-                        </b-button-group>
-                    </b-col>
-                    <b-col cols="10" role="tab">
-                        <b-button
-                            block
-                            href="#"
-                            v-b-toggle="'accordion-' + index"
-                            variant="info"
-                        >{{ textFragment.textFragmentName }}</b-button>
-                    </b-col>
-                </b-row>
-            </b-card-header>
-
-            <b-collapse
-                :id="'accordion-' + index"
-                :visible="index === openedTextFragement"
-                accordion="my-accordion"
-                role="tabpanel"
-                @show="emptySelectedState()"
+    <div style="height: calc(100% - 56px);">
+        <div class="border-bottom" style="height: 71px; padding: 15px; text-align: right; padding-right: 31px;">
+            <input
+                v-if="!readOnly"
+                class="select-text"
+                placeholder="Enter a name e.g, col.1"
+                list="my-list-id"
+                @change="loadFragment($event)"
+            />
+            <datalist id="my-list-id">
+                <option
+                    :key="tf.textFragmentId"
+                    v-for="tf in dropdownTextFragmentsData"
+                >
+                    {{ tf.name }}
+                </option>
+            </datalist>
+            <span class="isa_error">{{ errorMessage }}</span>
+        </div>
+        <div id="text-side" class="fixed-header" style="height: calc(100% - 100px)">
+            <div
+                v-for="(textFragment, index) in displayedTextFragments"
+                :key="textFragment.id"
+                role="tablist"
+                class="text-side-border p-3"
             >
-                <text-fragment :fragment="textFragment" id="text-box"></text-fragment>
-            </b-collapse>
+                <b-card-header header-tag="header" class="p-0 mt-3">
+                    <b-row>
+                        <b-col cols="2">
+                            <b-button-group block>
+                                <b-button
+                                    href="#"
+                                    @click="changePosition(index, true)"
+                                    v-b-tooltip.hover.bottom
+                                    :title="$t('misc.up')"
+                                >
+                                    <i class="fa fa-arrow-up"></i>
+                                </b-button>
+                                <b-button
+                                    href="#"
+                                    @click="changePosition(index, false)"
+                                    v-b-tooltip.hover.bottom
+                                    :title="$t('misc.down')"
+                                >
+                                    <i class="fa fa-arrow-down"></i>
+                                </b-button>
+                            </b-button-group>
+                        </b-col>
+                        <b-col cols="10" role="tab">
+                            <b-button
+                                block
+                                href="#"
+                                v-b-toggle="'accordion-' + index"
+                                >{{ textFragment.textFragmentName }}</b-button
+                            >
+                        </b-col>
+                    </b-row>
+                </b-card-header>
+
+                <b-collapse
+                    :id="'accordion-' + index"
+                    :visible="index === openedTextFragement"
+                    accordion="my-accordion"
+                    role="tabpanel"
+                    @show="emptySelectedState(textFragment.textFragmentId)"
+                >
+                    <text-fragment
+                        :fragment="textFragment"
+                        id="text-box"
+                    ></text-fragment>
+                </b-collapse>
+            </div>
         </div>
     </div>
 </template>
@@ -65,10 +78,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
-import {
-    TextFragment,
-    ArtefactTextFragmentData,
-} from '@/models/text';
+import { TextFragment, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 
 @Component({
@@ -184,7 +194,12 @@ export default class TextSide extends Vue {
             this.emptySelectedState();
         }
     }
-    private emptySelectedState() {
+    private emptySelectedState(id?: number) {
+        if (id &&
+            this.$state.artefactEditor.singleSelectedSi &&
+            this.$state.artefactEditor.singleSelectedSi.sign.line.textFragment.textFragmentId === id) {
+            return;
+        }
         this.$state.artefactEditor.selectedSignsInterpretation = [];
         this.$state.artefactEditor.selectRoi(null);
     }
@@ -225,10 +240,11 @@ export default class TextSide extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 #text-side {
-    padding: 30px 15px 20px 30px;
+    // padding: 30px 15px 20px 0px;
     touch-action: pan-y;
     height: 90%;
     overflow: auto;
+    margin-right: 15px;
 }
 
 button {
@@ -257,7 +273,7 @@ button {
 }
 .select-text {
     height: 37px;
-    width: 190px;
+    width: 250px;
     padding: 10px;
 }
 @media (max-width: 1100px) {
@@ -266,5 +282,20 @@ button {
         overflow: auto;
         display: grid;
     }
+}
+
+a.btn.btn-secondary {
+    background-color: white;
+    border-radius: 0px;
+    color: grey;
+}
+a.btn.btn-info.btn-block.not-collapsed {
+    border-radius: 0px;
+    background-color: white;
+    color: grey;
+}
+.btn-secondary:hover,
+.btn-secondary.disabled {
+    background-color: white !important;
 }
 </style>

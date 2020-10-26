@@ -277,6 +277,8 @@ export default class SignAttributePane extends Vue {
     height: 10%;
     border-top: 3px solid #6c757d;
     padding: 10px;
+    margin-right: 13px;
+
     ul {
         list-style: none;
     }

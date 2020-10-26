@@ -15,81 +15,88 @@ import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-edito
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ConfirmInvitation from './views/edition/components/confirm-invitation.vue';
 import ArtefactEditorNew from './views/artefact-editor/artefact-editor-new.vue';
+import ImagedObjectEditorNew from './views/imaged-object-editor/imaged-object-editor-new.vue';
 
 Vue.use(Router);
 
 export default new Router({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/',
-      name: 'welcome',
-      component: Welcome,
-    },
-    {
-      path: '/home',
-      name: 'home',
-      component: Home,
-    },
-    {
-      path: '/artefact-editor-new',
-      component: ArtefactEditorNew,
-    },
-    {
-      path: '/editions/:editionId',
-      component: Edition,
-      children: [{
-        path: 'artefacts',
-        component: EditionArtefacts,
-      },
-      {
-        path: 'imaged-objects',
-        component: EditionImagedObjects,
-      },
-     
-      {
-        path: '',
-        redirect: '/editions/:editionId/artefacts',
-      }]
-    },
-    {
-      path: '/editions/:editionId/scroll-editor',
-      component: ScrollEditor,
-    },
-    {
-      path: '/editions/:editionId/imaged-objects/:imagedObjectId',
-      component: ImagedObjectEditor,
-    },
-    {
-      path: '/editions/:editionId/artefacts/:artefactId',
-      component: ArtefactEditor
-    },
-    {
-      path: '/accept-invitation/token/:token',
-      component: ConfirmInvitation,
-    },
-    {
-      path: '/registration',
-      component: Registration,
-    },
-    {
-      path: '/changePassword',
-      component: ChangePassword,
-      meta: { activeUserRoute: true }
-    },
-    {
-      path: '/updateUserDetails',
-      component: UpdateUser,
-      meta: { activeUserRoute: true }
-    },
-    {
-      path: '/changeForgottenPassword/token/:token',
-      component: ChangeForgottenPassword,
-    },
-    {
-      path: '/activateUser/token/:token',
-      component: Activation,
-    }
-  ],
+    mode: 'history',
+    base: process.env.BASE_URL,
+    routes: [
+        {
+            path: '/',
+            name: 'welcome',
+            component: Welcome
+        },
+        {
+            path: '/home',
+            name: 'home',
+            component: Home
+        },
+        {
+            path: '/editions/:editionId',
+            component: Edition,
+            children: [
+                {
+                    path: 'artefacts',
+                    component: EditionArtefacts
+                },
+                {
+                    path: 'imaged-objects',
+                    component: EditionImagedObjects
+                },
+
+                {
+                    path: '',
+                    redirect: '/editions/:editionId/artefacts'
+                }
+            ]
+        },
+        {
+            path: '/editions/:editionId/scroll-editor',
+            component: ScrollEditor
+        },
+        {
+            path: '/editions/:editionId/imaged-objects/:imagedObjectId',
+            component: ImagedObjectEditor
+        },
+        {
+            path: '/editions/:editionId/artefacts/:artefactId',
+            component: ArtefactEditor
+        },
+        {
+            path: '/editions/:editionId/artefacts/:artefactId/new',
+            component: ArtefactEditorNew
+        },
+        {
+            path: '/editions/:editionId/imaged-objects/:imagedObjectId/new',
+            component: ImagedObjectEditorNew
+        },
+        {
+            path: '/accept-invitation/token/:token',
+            component: ConfirmInvitation
+        },
+        {
+            path: '/registration',
+            component: Registration
+        },
+        {
+            path: '/changePassword',
+            component: ChangePassword,
+            meta: { activeUserRoute: true }
+        },
+        {
+            path: '/updateUserDetails',
+            component: UpdateUser,
+            meta: { activeUserRoute: true }
+        },
+        {
+            path: '/changeForgottenPassword/token/:token',
+            component: ChangeForgottenPassword
+        },
+        {
+            path: '/activateUser/token/:token',
+            component: Activation
+        }
+    ]
 });
