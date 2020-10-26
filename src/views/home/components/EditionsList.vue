@@ -31,7 +31,7 @@ import EditionCard from './EditionCard.vue';
 
 @Component({
     name: 'editions-list',
-    components: { 
+    components: {
         Waiting,
         EditionCard,
      },

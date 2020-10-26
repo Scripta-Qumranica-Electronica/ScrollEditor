@@ -6,6 +6,7 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
+                        :defaultValue="defaultSearchValue"
                         @on-search="onEditionsSearch($event)"
                     ></search-bar>
                 </b-col>
@@ -14,7 +15,7 @@
         <div>
             <editions-public-list
                 class="text-edition"
-                :editions="publicEditions"
+                :editions="filteredEditions"
             ></editions-public-list>
         </div>
     </div>
@@ -39,30 +40,55 @@ import EditionsPublicList from './EditionsPublicList.vue';
     },
 })
 export default class PublicEditions extends Vue {
-      private searchValue: SearchBarValue = {};
+    private filteredEditions: EditionInfo[] = [];
+    private defaultSearchValue: SearchBarValue = {sort: 'lastEdit'};
+    private searchValue: SearchBarValue = {};
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
     };
 
+    public onEditionsSearch(event: SearchBarValue) {
+        this.searchValue = event;
+        this.onPublicEditionsLoad();
+    }
+    @Emit()
+    public onPublicEditionsLoad() {
+        this.filteredEditions = this.getFilteredEditions();
+        return this.filteredEditions.length;
+    }
     protected async mounted() {
         await this.$state.prepare.allEditions();
         this.onPublicEditionsLoad();
     }
 
-     public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = event;
-        // this.onPersonalEditionsLoad();
+    private getFilteredEditions(): EditionInfo[] {
+        return this.$state.editions.items
+            .filter((ed: EditionInfo) => {
+                let filter: boolean = ed.isPublic === true;
+                // if (this.searchValue.view) {
+                //     filter = filter && art.side === this.searchValue.view
+                // }
+                if (this.searchValue.filter) {
+                    filter =
+                        filter &&
+                        ed.name
+                            .toLowerCase()
+                            .includes(this.searchValue.filter.toLowerCase());
+                }
+                return filter;
+            })
+            .sort((a: EditionInfo, b: EditionInfo) => {
+                if (this.searchValue.sort) {
+                    return (a as any)[this.searchValue.sort] >
+                        (b as any)[this.searchValue.sort]
+                        ? 1
+                        : -1;
+                } else {
+                    return 1;
+                }
+            });
     }
-    private get publicEditions(): EditionInfo[] {
-        return this.$state.editions.items.filter((ed) => ed.isPublic);
-    }
-
-    @Emit()
-    public onPublicEditionsLoad() {
-        return this.publicEditions.length;
-    }
-
 }
 </script>
 
@@ -79,6 +105,6 @@ export default class PublicEditions extends Vue {
     font-style: $font-style;
     font-weight: $font-weight-1;
     font-size: $font-size-3;
-    font-family: $font-family
+    font-family: $font-family;
 }
 </style>

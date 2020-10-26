@@ -94,7 +94,6 @@ export default class CopyEditionModal extends Vue {
     }
 
     public async copyEdition(evt: Event) {
-        console.log("ffff")
         evt.preventDefault();
 
         if (!this.canCopy) {

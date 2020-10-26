@@ -11,7 +11,13 @@
                 </b-col>
             </b-row>
         </div>
-        <div style="max-height: calc(100vh - 80px); overflow-y: auto; height: 60vh">
+        <div
+            style="
+                max-height: calc(100vh - 80px);
+                overflow-y: auto;
+                height: 60vh;
+            "
+        >
             <div
                 class="card"
                 v-for="artefact in filteredArtefacts"
@@ -56,7 +62,10 @@ export default class EditionArtefacts extends Vue {
         return this.$state.artefacts.items
             .filter((art: Artefact) => {
                 let filter = true;
-                if (this.searchValue.view && this.searchValue.view !== 'recto and verso') {
+                if (
+                    this.searchValue.view &&
+                    this.searchValue.view !== 'recto and verso'
+                ) {
                     filter = filter && art.side === this.searchValue.view;
                 }
                 if (this.searchValue.filter) {
@@ -68,9 +77,9 @@ export default class EditionArtefacts extends Vue {
                 }
                 return filter;
             })
-            .sort((a, b) => {
+            .sort((a: Artefact, b: Artefact) => {
                 if (this.searchValue.sort) {
-                    return a[this.searchValue.sort] > b[this.searchValue.sort]
+                    return (a as any)[this.searchValue.sort] > (b as any)[this.searchValue.sort]
                         ? 1
                         : -1;
                 } else {
@@ -79,14 +88,14 @@ export default class EditionArtefacts extends Vue {
             });
     }
 
-    protected async mounted() {
-        this.editionId = parseInt(this.$route.params.editionId, 10);
-        await this.$state.prepare.artefacts(this.editionId);
+    public onArtefactsSearch(searchEvent: SearchBarValue) {
+        this.searchValue = searchEvent;
         this.filteredArtefacts = this.getFilteredArtefacts();
     }
 
-    public onArtefactsSearch(searchEvent: SearchBarValue) {
-        this.searchValue = searchEvent;
+    protected async mounted() {
+        this.editionId = parseInt(this.$route.params.editionId, 10);
+        await this.$state.prepare.artefacts(this.editionId);
         this.filteredArtefacts = this.getFilteredArtefacts();
     }
 }

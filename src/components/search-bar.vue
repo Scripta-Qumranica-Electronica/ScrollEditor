@@ -6,24 +6,24 @@
             }}</label>
             <b-form-input
                 id="filter"
-                @change="onFilterChange($event)"
+                v-model="searchValue.filter"
+                @input="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
         <b-form-group v-if="params.view">
-            <label for="view" class="search-bar ml-2  mb-2">{{
+            <label for="view" class="search-bar ml-2 mb-2">{{
                 $t('home.view')
             }}</label>
             <b-form-select
                 name="view"
                 class="ml-2 size"
+                v-model="searchValue.view"
                 @change="onViewChange($event)"
             >
                 <b-form-select-option value="recto and verso"
                     >Both</b-form-select-option
                 >
-                <b-form-select-option value="recto"
-                    >Recto</b-form-select-option
-                >
+                <b-form-select-option value="recto">Recto</b-form-select-option>
                 <b-form-select-option value="verso">Verso</b-form-select-option>
             </b-form-select>
         </b-form-group>
@@ -34,12 +34,12 @@
             <b-form-select
                 name="sort"
                 class="ml-2"
-                :value="null"
+                v-model="searchValue.sort"
                 @change="onSortChange($event)"
             >
-                <b-form-select-option :value="null"
+                <!-- <b-form-select-option :value="null"
                     >Please select an option</b-form-select-option
-                >
+                > -->
                 <b-form-select-option value="lastEdit"
                     >Last Edited</b-form-select-option
                 >
@@ -69,9 +69,6 @@ export interface SearchBarValue {
     components: {},
 })
 export default class SearchBar extends Vue {
-    private searchValue: SearchBarValue = {
-         
-    };
     @Prop({
         default: () => ({
             filter: false,
@@ -80,21 +77,29 @@ export default class SearchBar extends Vue {
         }),
     })
     public params!: SearchBarParams;
- 
-    public onFilterChange(inputEvent) {
-        console.log(inputEvent);
-        this.searchValue.filter = inputEvent;
+
+    @Prop({
+        default: () => ({}),
+    })
+    private defaultValue!: SearchBarValue;
+
+    private searchValue: SearchBarValue = {};
+
+    public mounted() {
+        this.searchValue = {...this.defaultValue};
         this.onSearch();
     }
 
-    public onViewChange(viewEvent) {
-         this.searchValue.view = viewEvent;
+    public onFilterChange(inputEvent: string | undefined) {
+        console.debug('onFilterChange called');
         this.onSearch();
     }
 
-    public onSortChange(selectEvent) {
-        console.log(selectEvent);
-        this.searchValue.sort = selectEvent;
+    public onViewChange(viewEvent: string | undefined) {
+        this.onSearch();
+    }
+
+    public onSortChange(selectEvent: string | undefined) {
         this.onSearch();
     }
 
@@ -116,7 +121,7 @@ export default class SearchBar extends Vue {
     color: $black;
     justify-content: inherit;
 }
-.size{
-    width: 200px!important;
+.size {
+    width: 200px !important;
 }
 </style>

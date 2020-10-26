@@ -47,7 +47,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        onImagedObjectsSearch(event) {},
+        // onImagedObjectsSearch(event) {},
     },
     created() {
         this.$state.prepare.edition(this.$state.editions.current!.id);

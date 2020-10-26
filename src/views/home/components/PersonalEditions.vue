@@ -12,6 +12,7 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
+                        :defaultValue="defaultSearchValue"
                         @on-search="onEditionsSearch($event)"
                     ></search-bar>
                 </b-col>
@@ -54,13 +55,26 @@ import EditionsList from './EditionsList.vue';
 })
 export default class PersonalEditions extends Vue {
     private filteredEditions: EditionInfo[] = [];
+    private defaultSearchValue: SearchBarValue = {sort: 'lastEdit'};
     private searchValue: SearchBarValue = {};
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
         view: false,
     };
-
+    public onEditionsSearch(event: SearchBarValue) {
+        this.searchValue = event;
+        this.onPersonalEditionsLoad();
+    }
+    @Emit()
+    public onPersonalEditionsLoad() {
+        this.filteredEditions = this.getFilteredEditions();
+        return this.filteredEditions.length;
+    }
+    protected async mounted() {
+        await this.$state.prepare.allEditions();
+        this.onPersonalEditionsLoad();
+    }
     private getFilteredEditions(): EditionInfo[] {
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
@@ -77,9 +91,9 @@ export default class PersonalEditions extends Vue {
                 }
                 return filter;
             })
-            .sort((a, b) => {
+            .sort((a: EditionInfo, b: EditionInfo) => {
                 if (this.searchValue.sort) {
-                    return a[this.searchValue.sort] > b[this.searchValue.sort]
+                    return (a as any)[this.searchValue.sort] > (b as any)[this.searchValue.sort]
                         ? 1
                         : -1;
                 } else {
@@ -94,22 +108,6 @@ export default class PersonalEditions extends Vue {
 
     private get publishedEditions(): EditionInfo[] {
         return this.filteredEditions.filter((ed) => ed.isPublic);
-    }
-
-    public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = event;
-        this.onPersonalEditionsLoad();
-    }
-
-    protected async mounted() {
-        await this.$state.prepare.allEditions();
-        this.onPersonalEditionsLoad();
-    }
-
-    @Emit()
-    public onPersonalEditionsLoad() {
-        this.filteredEditions = this.getFilteredEditions()
-        return this.filteredEditions.length;
     }
 }
 </script>

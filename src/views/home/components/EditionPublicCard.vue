@@ -28,12 +28,13 @@
                         <div>
                             <p class="card-font card-label">
                                 Published At :
-                                <span
-                                    class="card-font card-date"
-                                    >{{ edition.lastEdit ? edition.lastEdit.toDateString() : 'N/A' }}</span
-                                >
+                                <span class="card-font card-date">{{
+                                    edition.lastEdit
+                                        ? edition.lastEdit.toDateString()
+                                        : 'N/A'
+                                }}</span>
                             </p>
-                           
+
                             <!-- <p class="card-font card-label">
                                 By:
                                 {{ edition.owner.foreName }}
@@ -45,6 +46,7 @@
         </router-link>
         <div class="mt-2">
             <b-button
+                v-if="user"
                 @click="editionCopyClick()"
                 variant="primary"
                 class="direction"
@@ -75,6 +77,9 @@ export default class EditionPublicCard extends Vue {
         return this.edition.thumbnail
             ? this.edition.thumbnail.thumbnailUrl
             : undefined;
+    }
+    private get user(): boolean {
+        return this.$state.session.user ? true : false;
     }
 
     @Emit()
