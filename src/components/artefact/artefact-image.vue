@@ -7,7 +7,8 @@
             :key="imageSetting.image.url"
             :image="imageSetting.image"
             :opacity="imageSetting.normalizedOpacity"
-            :boundingBox="boundingBox"/>
+            :boundingBox="boundingBox"
+            :maxWidth="maxWidth"/>
     </artefact-svg>
 </template>
 
@@ -32,6 +33,8 @@ export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
             return {} as ImageSetting;
         }
     }) private imageSettings!: ImageSetting;
+    @Prop({ default: 400 })
+    private maxWidth!: number;
 
     private loaded = false;
 

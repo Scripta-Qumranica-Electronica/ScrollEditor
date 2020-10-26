@@ -1,16 +1,52 @@
 <template>
     <g v-if="image"
        :transform="groupTransform">
-        <image :transform="imageTransform"
-               :xlink:href="imageUrl"
-               :opacity="opacity" />
+        <image v-for="(tile, idx) in tiles" :key="idx"
+               :xlink:href="tile.url"
+               :opacity="opacity"
+               :transform="tile.transform" />
     </g>
 </template>
 
 <script lang="ts">
+/*
+ * This component is responsible for displaying an IIIFImage on an SVG.
+ *
+ * It takes care of tiling and efficient zooming, but trying to get an optimal scale factor for the server.
+ *
+ * Understaning the code requires understanding the various coordinate systems we have - as we have a few.
+ *
+ * 1. SQE coordinate system
+ *    This is the coordinate system used by the SQE database. All coordinates and polygons in the database are
+ *    expressed in this coordinate system.
+ * 2. The Screen coordinate system
+ *    This is the coordinate system on the screen - in pixels.
+ * 3. The Image coodrinate system
+ *    This is the coordinate system of the IIIF Image with no scaling. Usually it is the same as the SQE coordinate
+ *    system, but in older images it might not be.
+ *
+ * Translating a coordinate from one system to another involves multiplying X and Y but a constant factor (identical for X and Y).
+ *
+ * * SQE Coordinate System to Screen Coordinate System
+ *   This is done by multiplying the SQE coordinates by the scaleFactor paramater, which is usually tied up to the Zoom slider on the UI.
+ *    Xscreen = Xsqe * scaleFactor; Yscreen = Ysqe * scaleFactor
+ *
+ * * SQE Coordinate System to Image Coordinate System
+ *   SQE assumes the DPI of all the images is 1215. Some images have a different DPI. Translating from one to another involves the image's ppiAdjustmentFactor, which
+ *   is sqeDPI / imageDPI. So:
+ *
+ *   Ximage = Xsqe / image.ppiAdjustmantFactor; Yimage = Ysqe / image.ppiAdjustmentFactor
+ */
+
 import { Image } from '@/models/image';
-import { BoundingBoxInterface } from '@/utils/helpers';
+import { BoundingBox, BoundingBoxInterface } from '@/utils/helpers';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+
+interface ManifestTileInfo {
+    width: number;
+    height: number;
+    scaleFactors: number[];
+}
 
 interface TileInfo {
     url: string;
@@ -22,64 +58,122 @@ interface TileInfo {
 })
 export default class IIIFImageComponent extends Vue {
     @Prop() private image!: Image;
-    @Prop() private boundingBox?: BoundingBoxInterface;  // In edition coordinates - the image in the edition's PPI
+    @Prop() private boundingBox?: BoundingBoxInterface;  // In SQE coordinates
     @Prop({ default: 0.5 }) private scaleFactor!: number;
-    @Prop() private maxWidth?: number;
+    @Prop() private maxWidth?: number;                   // In Screen Coordinates
     @Prop({ default: 1 }) private opacity!: number;
 
 
-    // Image dimensions in edition coordinates
-    private get editionCoordWidth(): number {
-        return this.boundingBox?.width || this.image.width;
-    }
-
-    private get editionCoordHeight(): number {
-        return this.boundingBox?.height || this.image.height;
-    }
-
-    // Image dimensions on the screen
-    private get screenWidth(): number {
-        if (this.maxWidth) {
-            return this.maxWidth;
-        }
-
-        return this.editionCoordWidth * this.scaleFactor;
-    }
-
-    private get screenHeight(): number {
-        return this.screenWidth * this.editionCoordHeight / this.editionCoordWidth;
-    }
-
-    private get serverScale(): number {
-        let pct = this.screenWidth / this.editionCoordWidth;
-        console.debug(`${this.screenWidth}, ${this.editionCoordWidth}, ${this.scaleFactor}, ${pct}`);
-        // Adjust to a maximum of 1000 pixels per image dimesion, until tiles are added
-        const maxDim = Math.max(this.screenWidth, this.screenHeight);
-        /*if (maxDim > 1000) {
-            pct *= 1000 / maxDim;
-        } */
-
-        return pct;
-    }
-
-    private get imageUrl(): string {
+    // The actual bounding box - either the supplied bounding box argument or the entire image
+    // in SQE coordinates
+    private get sqeBoundingBox(): BoundingBoxInterface {
         if (this.boundingBox) {
-            return this.image.getPlainScaledAndCroppedUrl(this.serverScale * 100,
-                                                     this.boundingBox.x / this.image.ppiAdjustmentFactor,
-                                                     this.boundingBox.y / this.image.ppiAdjustmentFactor,
-                                                     this.boundingBox.width / this.image.ppiAdjustmentFactor,
-                                                     this.boundingBox.height / this.image.ppiAdjustmentFactor);
-        } else {
-            return this.image.getPlainFullUrl(this.serverScale * 100);
+            return this.boundingBox;
         }
+
+        return new BoundingBox(0, 0, this.image.width, this.image.height);
+    }
+
+    // Bounding box in Image Coordinates
+    private get imageBoundingBox(): BoundingBoxInterface {
+        const sqeBB = this.sqeBoundingBox;
+        const f = 1 / this.image.ppiAdjustmentFactor;
+
+        return new BoundingBox(sqeBB.x / f, sqeBB.y / f, sqeBB.width / f, sqeBB.height / f);
+    }
+
+    // Screen bounding box - in Screen Coordinates
+    private get screenBoundingBox(): BoundingBoxInterface {
+        const sqeBB = this.sqeBoundingBox;
+        let f;
+
+        if (this.maxWidth) {
+            f = this.maxWidth / sqeBB.width;
+        } else {
+            f = this.scaleFactor;
+        }
+
+        return new BoundingBox(sqeBB.x / f, sqeBB.y / f, sqeBB.width / f, sqeBB.height / f);
+    }
+
+    // The IIIF manifest can contain tile information. If not, we have a default tile information we use.
+    private get manifestTileInfo(): ManifestTileInfo {
+        if (this.image.manifest.tiles) {
+            // Use the first tile - we haven't seen an example with more than one tile entry
+            return this.image.manifest.tiles[0] as ManifestTileInfo;
+        }
+
+        // Default tile information
+        return {
+            width: 1024,
+            height: 1024,
+            scaleFactors: [1, 2, 4, 8, 16, 32],
+        };
+    }
+
+    // The amount of scale required for the image
+    // imageCoordinate * imageScaleFactor = screenCoordinate
+    //
+    // This scale factor is the basis of what is sent to the server
+    private get imageScaleFactor(): number {
+        return Math.min(this.imageBoundingBox.width / this.screenBoundingBox.width, 1);
+    }
+
+    // The imageScaleFactor rounded up to the nearest scale optimized in the server
+    // (based on the tile info)
+    private get optimizedImageScaleFactor() {
+        for (let i = this.manifestTileInfo.scaleFactors.length - 1; i >= 0; i--) {
+            const manifestScaleFactor = 1 / this.manifestTileInfo.scaleFactors[i];
+            if (manifestScaleFactor > this.imageScaleFactor) {
+                return manifestScaleFactor;
+            }
+        }
+
+        return 1;  // If all fails, return 1
+    }
+
+    // Returns the tiles necessary for the laying out the original image.
+    // We need to lay out tiles to cover the entire imageBoundingBox.
+    private get tiles(): TileInfo[] {
+        // Get the tile size we can actually use (this is based on the optimizedImageScaleFactor)
+        const tileWidth = Math.floor(this.manifestTileInfo.width / this.optimizedImageScaleFactor);
+        const tileHeight = Math.floor(this.manifestTileInfo.height / this.optimizedImageScaleFactor);
+
+        const tiles: TileInfo[] = [];
+        const endX = this.imageBoundingBox.x + this.imageBoundingBox.width;   // Bottom right corner of the bounding box
+        const endY = this.imageBoundingBox.y + this.imageBoundingBox.height;
+
+        let xTranslate = 0;  // How much to translate the tile
+        for (let x = this.imageBoundingBox.x; x < endX; x += tileWidth) {
+            const currentTileWidth = Math.min(tileWidth, endX - x);
+
+            let yTranslate = 0;
+            for (let y = this.imageBoundingBox.y; y < endY; y += tileHeight) {
+                const currentTileHeight = Math.min(tileHeight, endY - y);
+
+                // Now we have a tile we can create
+                const tile = {
+                    url: this.image.getPlainScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
+                                                                x, y, currentTileWidth, currentTileHeight),
+                    transform: `translate(${xTranslate}, ${yTranslate})`,
+                };
+                tiles.push(tile);
+                yTranslate += currentTileHeight * this.optimizedImageScaleFactor - 1; // For some reason without the -1 we see thin lines between tiles
+            }
+            xTranslate += currentTileWidth * this.optimizedImageScaleFactor - 1;
+        }
+
+        return tiles;
     }
 
     private get groupTransform(): string {
-        const scaleTransform = `scale(${1 / this.serverScale})`;
-        let translateTransform = '';
-        if (this.boundingBox) {
-            translateTransform = `translate(${this.boundingBox.x}, ${this.boundingBox.y})`;
-        }
+        // Scale the images back to sqe coordinates.
+        // The images are in imageCoordinates * optimizedImageScaleFactor,
+        const optimizedImageToSqe = this.image.ppiAdjustmentFactor / this.optimizedImageScaleFactor;
+        const scaleTransform = `scale(${optimizedImageToSqe})`;
+
+        // The image is now in sqe coordinates, but at (0, 0) and not the bounding box. We need to move it.
+        const translateTransform = `translate(${this.sqeBoundingBox.x}, ${this.sqeBoundingBox.y})`;
 
         return translateTransform + ' ' + scaleTransform;
     }
