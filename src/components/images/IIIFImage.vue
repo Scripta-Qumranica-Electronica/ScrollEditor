@@ -70,7 +70,7 @@ export default class IIIFImageComponent extends Vue {
                                                      this.boundingBox.width / this.image.ppiAdjustmentFactor,
                                                      this.boundingBox.height / this.image.ppiAdjustmentFactor);
         } else {
-            return this.image.getPlainFullUrl(this.serverScale);
+            return this.image.getPlainFullUrl(this.serverScale * 100);
         }
     }
 

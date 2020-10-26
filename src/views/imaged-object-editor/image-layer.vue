@@ -11,15 +11,15 @@
         </clipPath>
       </defs>
       <g pointer-events="none" :clip-path="params.background ? 'url(#Full-clipping-outline)' : 'url(#Clipping-outline)'">
-        <image v-for="imageSetting in visibleImageSettings"
+        <iiif-image
+              v-for="imageSetting in visibleImageSettings"
               :key="'svg-image-' + imageSetting.image.url"
               class="clippedImg" 
               draggable="false"
-              :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
-              :width="width"
-              :height="height"
+              :image="imageSetting.image"
+              :scaleFractor="params.zoom"
               :opacity="imageSetting.normalizedOpacity"
-              ></image>
+              />
       </g>
       <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
     </g>
@@ -30,9 +30,13 @@ import Vue from 'vue';
 import { ImagedObjectEditorParams } from './types';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
+import IIIFImageComponent from '@/components/images/IIIFImage.vue';
 
 export default Vue.extend({
   name: 'image-layer',
+  components: {
+    'iiif-image': IIIFImageComponent,
+  },
   props: {
     width: Number,
     height: Number,
@@ -55,8 +59,6 @@ export default Vue.extend({
     visibleImageSettings(): SingleImageSetting[] {
       return this.imageSettings.filter((image) => image.visible);
     }
-  },
-  methods: {
   },
 });
 </script>
