@@ -10,18 +10,16 @@
                 <use stroke="none" fill="none" fill-rule="evenodd" xlink:href="#path"></use>
             </clipPath>
         </defs>
-        <image
-            v-for="imageSetting in visibleImageSettings"
-            :key="'svg-image-' + imageSetting.image.url"
-            clip-path="url(#clip-path)"
-            draggable="false"
-            :xlink:href="getImageUrl(imageSetting.image)"
-            :width="boundingBox.width"
-            :height="boundingBox.height"
-            :x="boundingBox.x"
-            :y="boundingBox.y"
-            :opacity="imageSetting.normalizedOpacity"
-        />
+        <g clip-path="url(#clip-path)" draggable="false">
+            <iiif-image
+                v-for="imageSetting in visibleImageSettings"
+                :key="'svg-image-' + imageSetting.image.url"
+                :image="imageSetting.image"
+                :boundingBox="boundingBox"
+                :scaleFactor="params.zoom"
+                :opacity="imageSetting.normalizedOpacity"
+            />
+        </g>
         <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
       
     </g>
@@ -35,9 +33,13 @@ import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
 import { BoundingBox } from '@/utils/helpers';
+import IIIFImageComponent from '@/components/images/IIIFImage.vue';
 
 @Component({
-    name: 'image-layer'
+    name: 'image-layer',
+    components: {
+        'iiif-image': IIIFImageComponent,
+    }
 })
 export default class ImagedObjectEditor extends Vue {
     @Prop() public width!: number;
