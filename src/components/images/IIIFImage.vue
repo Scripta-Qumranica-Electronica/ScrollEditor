@@ -1,10 +1,13 @@
 <template>
     <g v-if="image"
        :transform="groupTransform">
+        <image :xlink:href="backgroundImageUrl"
+               :transform="backgroundImageTransform"
+               :opacity="opacity"/>
         <image v-for="(tile, idx) in tiles" :key="idx"
                :xlink:href="tile.url"
                :opacity="opacity"
-               :transform="tile.transform" />
+               :transform="tile.transform"/>
     </g>
 </template>
 
@@ -156,14 +159,25 @@ export default class IIIFImageComponent extends Vue {
                     url: this.image.getPlainScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
                                                                 x, y, currentTileWidth, currentTileHeight),
                     transform: `translate(${xTranslate}, ${yTranslate})`,
+                    width: currentTileWidth * this.optimizedImageScaleFactor,
+                    height: currentTileHeight * this.optimizedImageScaleFactor,
                 };
                 tiles.push(tile);
-                yTranslate += currentTileHeight * this.optimizedImageScaleFactor - 1; // For some reason without the -1 we see thin lines between tiles
+                yTranslate += currentTileHeight * this.optimizedImageScaleFactor; // For some reason without the -1 we see thin lines between tiles
             }
-            xTranslate += currentTileWidth * this.optimizedImageScaleFactor - 1;
+            xTranslate += currentTileWidth * this.optimizedImageScaleFactor;
         }
 
         return tiles;
+    }
+
+    // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles
+    private get backgroundImageUrl(): string {
+        return this.image.getPlainScaledAndCroppedUrl(5, this.imageBoundingBox.x, this.imageBoundingBox.y, this.imageBoundingBox.width, this.imageBoundingBox.height);
+    }
+
+    private get backgroundImageTransform(): string {
+        return 'scale(20)';
     }
 
     private get groupTransform(): string {
