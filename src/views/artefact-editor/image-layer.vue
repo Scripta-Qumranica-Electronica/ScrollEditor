@@ -58,17 +58,6 @@ export default class ImagedObjectEditor extends Vue {
     public get visibleImageSettings(): SingleImageSetting[] {
         return this.imageSettings.filter(image => image.visible);
     }
-
-    public getImageUrl(image: IIIFImage): string {
-        const url = image.getScaledAndCroppedUrl(
-            100 / this.$render.scalingFactors.image,
-            this.boundingBox.x,
-            this.boundingBox.y,
-            this.boundingBox.width,
-            this.boundingBox.height
-        );
-        return url;
-    }
 }
 </script>
 

@@ -156,8 +156,8 @@ export default class IIIFImageComponent extends Vue {
 
                 // Now we have a tile we can create
                 const tile = {
-                    url: this.image.getPlainScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
-                                                                x, y, currentTileWidth, currentTileHeight),
+                    url: this.image.getScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
+                                                           x, y, currentTileWidth, currentTileHeight),
                     transform: `translate(${xTranslate}, ${yTranslate})`,
                     width: currentTileWidth * this.optimizedImageScaleFactor,
                     height: currentTileHeight * this.optimizedImageScaleFactor,
@@ -173,7 +173,7 @@ export default class IIIFImageComponent extends Vue {
 
     // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles
     private get backgroundImageUrl(): string {
-        return this.image.getPlainScaledAndCroppedUrl(5, this.imageBoundingBox.x, this.imageBoundingBox.y, this.imageBoundingBox.width, this.imageBoundingBox.height);
+        return this.image.getScaledAndCroppedUrl(5, this.imageBoundingBox.x, this.imageBoundingBox.y, this.imageBoundingBox.width, this.imageBoundingBox.height);
     }
 
     private get backgroundImageTransform(): string {

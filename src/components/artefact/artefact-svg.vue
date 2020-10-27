@@ -16,7 +16,7 @@
             </defs>
 
             <g :clip-path="`url(#clip-path-${artefact.id})`">
-                <slot v-bind:getImageUrl="getImageUrl"></slot>
+                <slot></slot>
             </g>
         </svg>
     </div>
@@ -60,15 +60,6 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
         window.addEventListener('resize', () => {
             this.updateWidth();
         });
-    }
-
-    protected getImageUrl(image: IIIFImage) {
-        const url = image.getScaledAndCroppedUrl(this.serverScale,
-            this.boundingBox.x,
-            this.boundingBox.y,
-            this.boundingBox.width,
-            this.boundingBox.height);
-        return url;
     }
 
     private updateWidth() {

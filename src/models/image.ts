@@ -32,32 +32,10 @@ export class IIIFImage {
     }
 
     public getFullUrl(pct: number, extension = 'jpg') {
-        // Max tile size is 1000x1000 - make sure the image fits inside one tile
-        const scale = Math.min(1000 / this.width, 1000 / this.height) * 100;
-        if (scale < 100 && pct > scale) {
-            pct = scale;
-        }
         return this.append(`full/pct:${pct}/0/default.${extension}`);
     }
 
     public getScaledAndCroppedUrl(pct: number, x: number, y: number, width: number, height: number, extension = 'jpg') {
-        x /= this.ppiAdjustmentFactor;
-        y /= this.ppiAdjustmentFactor;
-        width /= this.ppiAdjustmentFactor;
-        height /= this.ppiAdjustmentFactor;
-
-        const scale = Math.min(1000 / width, 1000 / height) * 100;
-        if (scale < 100 && pct > scale) {
-            pct = scale;
-        }
-        return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
-    }
-
-    public getPlainFullUrl(pct: number, extension = 'jpg') {
-        return this.append(`full/pct:${pct}/0/default.${extension}`);
-    }
-
-    public getPlainScaledAndCroppedUrl(pct: number, x: number, y: number, width: number, height: number, extension = 'jpg') {
         return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
     }
 

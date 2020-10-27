@@ -129,11 +129,6 @@ export default Vue.extend({
         this.scaledMask = Polygon.scale(this.artefact.mask, this.scale);
         this.masterImage = this.imageStack.master;
     },
-    methods: {
-        getImageUrl(imageSetting: SingleImageSetting) {
-            return imageSetting.image.getFullUrl(this.scale * 100);
-        }
-    }
 });
 </script>
 
