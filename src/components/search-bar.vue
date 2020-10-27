@@ -91,7 +91,6 @@ export default class SearchBar extends Vue {
     }
 
     public onFilterChange(inputEvent: string | undefined) {
-        console.debug('onFilterChange called');
         this.onSearch();
     }
 

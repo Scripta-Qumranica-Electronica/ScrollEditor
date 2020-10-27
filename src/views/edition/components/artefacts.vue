@@ -11,13 +11,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div
-            style="
-                max-height: calc(100vh - 80px);
-                overflow-y: auto;
-                height: 60vh;
-            "
-        >
+        <div class="scroll-bar">
             <div
                 class="card"
                 v-for="artefact in filteredArtefacts"
@@ -79,7 +73,8 @@ export default class EditionArtefacts extends Vue {
             })
             .sort((a: Artefact, b: Artefact) => {
                 if (this.searchValue.sort) {
-                    return (a as any)[this.searchValue.sort] > (b as any)[this.searchValue.sort]
+                    return (a as any)[this.searchValue.sort] >
+                        (b as any)[this.searchValue.sort]
                         ? 1
                         : -1;
                 } else {
@@ -101,6 +96,11 @@ export default class EditionArtefacts extends Vue {
 }
 </script>
 <style scoped>
+.scroll-bar {
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    height: 60vh;
+}
 .card {
     display: inline-block;
     width: calc(25% - 20px);

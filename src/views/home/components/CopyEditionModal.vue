@@ -39,6 +39,12 @@
             <p class="text-danger" v-if="errorMessage">
                 {{ errorMessage }}
             </p>
+            <div v-if="edition.copyrightHolder">
+                <label>Copy RightHolder {{edition.copyrightHolder}}</label>
+            </div>
+            <div v-if="edition.collaboators">
+                <label>Collaborators {{edition.collaboators}}</label>
+            </div>
         </form>
         <template v-slot:modal-footer>
             <div class="w-100">

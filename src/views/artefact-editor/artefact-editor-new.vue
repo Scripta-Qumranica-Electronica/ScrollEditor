@@ -18,8 +18,8 @@
                     <b-badge
                         :class="
                             artefact.status === 'published'
-                                ? ['status-badge', 'status-badge-Published']
-                                : ['status-badge', 'status-badge-Draft']
+                                ? ['status-badge', 'status-badge-published']
+                                : ['status-badge', 'status-badge-draft']
                         "
                         >{{ artefact.status ? 'Published' : 'Draft' }}</b-badge
                     >
@@ -1032,11 +1032,12 @@ export default class ArtefactEditorNew
     height: 29.58px;
     line-height: 20px;
 }
-.status-badge-Draft {
+
+.status-badge-draft {
     background-color: $light-orange;
     color: $orange;
 }
-.status-badge-Published {
+.status-badge-published {
     background-color: $light-greend;
     color: $green;
 }

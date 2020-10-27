@@ -27,7 +27,7 @@
             <register></register>
         </div>
         <div class="intro">
-            <div class="row">
+            <section class="row">
                 <div class="col-6 border-right">
                     <h5>OUR STORY</h5>
                     <p class="description">
@@ -54,25 +54,25 @@
                     <div class="container">
                         <div class="row logos">
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_antiquity.png" />
+                                <img src="@/assets/images/logo_antiquity.png" alt="Israel Antiquities Authority logo"/>
                             </div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_gottingen.png" />
+                                <img src="@/assets/images/logo_gottingen.png" alt="University of Göttingen logo"/>
                             </div>
                             <div class="w-100"></div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_tlv.png" />
+                                <img src="@/assets/images/logo_tlv.png" alt="University of TLV logo"/>
                             </div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_jlm.png" />
+                                <img src="@/assets/images/logo_jlm.png" alt="University of Jerusalem logo"/>
                             </div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_haifa.png" />
+                                <img src="@/assets/images/logo_haifa.png"  alt="University of Haifa logo"/>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 </template>

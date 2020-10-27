@@ -1,15 +1,15 @@
 <template>
-  <div id="app" :dir="$t('dir')">
-    <navbar v-if="!waiting"></navbar>
-    <div v-if="waiting">
-      <Waiting></Waiting>
+    <div id="app" :dir="$t('dir')">
+        <navbar v-if="!waiting"></navbar>
+        <div v-if="waiting">
+            <Waiting></Waiting>
+        </div>
+        <div v-if="!waiting" class="container-fluid" id="main-container">
+            <router-view></router-view>
+        </div>
     </div>
-    <div v-if="!waiting" class="container-fluid" id="main-container">
-      <router-view></router-view>
-    </div>
-  </div>
 
-  <!-- TODO: Add footer -->
+    <!-- TODO: Add footer -->
 </template>
 
 <script>
@@ -19,32 +19,34 @@ import SessionService from '@/services/session.ts';
 import { StateManager } from './state';
 
 export default {
-  name: 'app',
-  components: {
-    Navbar,
-    Waiting,
-  },
-  data() {
-    return {
-      waiting: true,
-    };
-  },
-  created() {
-    // Set the language
-    this.$i18n.locale = this.$state.session.language;
-    this.initializeApp();
-  },
-  methods: {
-    async initializeApp() {
-      const session = new SessionService();
-      await session.isTokenValid();
-      this.waiting = false;
+    name: 'app',
+    components: {
+        Navbar,
+        Waiting,
     },
-  }
+    data() {
+        return {
+            waiting: true,
+        };
+    },
+    created() {
+        // Set the language
+        this.$i18n.locale = this.$state.session.language;
+        this.initializeApp();
+    },
+    methods: {
+        async initializeApp() {
+            const session = new SessionService();
+            await session.isTokenValid();
+            this.waiting = false;
+        },
+    },
 };
 </script>
 
-<style>
+<style lang="scss">
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 @font-face {
     font-family: 'SBL Hebrew';
     src: url('./assets/fonts/SBL_Hbrw.woff') format('woff');
@@ -53,16 +55,20 @@ export default {
 }
 
 @font-face {
-  font-family: 'AvenirLTStd-Light';
-  src: url('./assets/fonts/AvenirLTStd-Light.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'AvenirLTStd-Light';
+    src: url('./assets/fonts/AvenirLTStd-Light.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    overflow: hidden;
+    background-color: $backround-grey!important; /* Override bootstrap */
 }
 
 #main-container {
-  max-height: calc(100vh - 56px);   /* Navbar is 56 pixels high */
-  padding: 0px;
-  background-color: #E5E5E5;
+    max-height: calc(100vh - 56px); /* Navbar is 56 pixels high */
+    padding: 0px;
+    background-color: #e5e5e5;
 }
-
 </style>

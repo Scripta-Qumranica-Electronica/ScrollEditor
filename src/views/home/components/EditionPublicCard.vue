@@ -1,7 +1,7 @@
 <template>
     <div>
         <router-link
-            class="cart-decoration"
+            class="card-decoration"
             :to="{ path: `/editions/${edition.id}` }"
         >
             <b-row>
@@ -21,7 +21,7 @@
                 </b-col>
                 <b-col class="col-8">
                     <div>
-                        <p class="card-font cart-title">
+                        <p class="card-font card-title">
                             {{ edition.name }}
                             <edition-icons :edition="edition" />
                         </p>
@@ -95,13 +95,13 @@ export default class EditionPublicCard extends Vue {
 .direction {
     margin-left: 90px;
 }
-.cart-title {
+.card-title {
     font-weight: $font-weight-3 !important;
     color: $black;
     margin-bottom: 1px;
 }
 
-.cart-decoration:hover {
+.card-decoration:hover {
     text-decoration: none;
 }
 .card-font {
