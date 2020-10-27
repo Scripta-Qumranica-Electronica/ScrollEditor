@@ -26,6 +26,10 @@ export class BoundingBox implements BoundingBoxInterface {
         this.width = width;
         this.height = height;
     }
+
+    public toString() {
+        return `(${this.x}, ${this.y}, ${this.width}, ${this.height})`;
+    }
 }
 
 
