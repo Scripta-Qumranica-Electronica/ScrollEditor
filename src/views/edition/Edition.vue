@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="mb-3" style="border-bottom: 2px solid #DCE1EA">
+        <div class="mb-3 border-container">
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
                     <span class="name-edition" v-if="edition">
@@ -132,8 +132,8 @@ export default Vue.extend({
     float: right;
 }
 .btns-permiss button{
-    background-color: #bdbdbd;
-    border-color: #bdbdbd;
+    background-color: $dark-backround-grey;
+    border-color: $dark-backround-grey;
     color: white;
     font-weight: $font-weight-3;
     font-size: $font-size-2;
@@ -145,8 +145,8 @@ export default Vue.extend({
 .btn-secondary.disabled
  {
     color: #fff;
-    background-color: #bdbdbd!important;
-    border-color: #bdbdbd!important;
+    background-color:$dark-backround-grey!important;
+    border-color:$dark-backround-grey!important;
 }
 .name-edition {
     font-style: $font-style;
@@ -181,6 +181,9 @@ export default Vue.extend({
 }
 .btn-secondary.disabled:hover{
     cursor: not-allowed;
-    background-color: #bdbdbd!important;
+    background-color:$dark-backround-grey!important;
+}
+.border-container{
+    border-bottom: 2px solid #DCE1EA;
 }
 </style>

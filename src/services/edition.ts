@@ -68,7 +68,10 @@ class EditionService {
         }
 
         const dto = {
-            name
+            name: name,
+            // collaborators: '',
+            // copyrightHolder: this.stateManager.session.user!.forename + ' ' + this.stateManager.session.user!.surname
+
         } as EditionUpdateRequestDTO;
         const response = await CommHelper.post<EditionDTO>(
             ApiRoutes.editionUrl(editionId),

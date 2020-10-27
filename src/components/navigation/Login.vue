@@ -141,11 +141,13 @@ export default Vue.extend({
 
 
 <style lang="scss">
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 .title-header {
-    font-family: AvenirLTStd-Light;
-    font-style: normal;
-    font-weight: 900;
-    font-size: 28px;
+    font-family: $font-family;
+    font-style: $font-style;
+    font-weight: $font-weight-4;
+    font-size: $font-size-4;
     line-height: 38px;
     letter-spacing: 0.28px;
     justify-content: center !important;
@@ -156,22 +158,22 @@ export default Vue.extend({
     }
 button.btn.btn-login-modal.btn-primary.btn-block {
     padding: 14px;
-    background: #145af3;
+    background: $blue;
     border-radius: 3px;
-    font-weight: 700;
-    font-style: normal;
-    font-size: 14px;
+    font-weight:$font-weight-2;
+    font-style: $font-style;
+    font-size: $font-size-1;
 }
 ::placeholder {
-    color: #adb4c5 !important;
-    font-size: 14px;
+    color: $dark-grey!important;
+    font-size: $font-size-1;
 }
 .modal-content{
     border-radius:0px!important;
 }
 .sign-link{
-    font-size: 14px;
-    font-weight:500;
+    font-size: $font-size-1;
+    font-weight:$font-weight-1;
     padding-top: 5px;
 
 }

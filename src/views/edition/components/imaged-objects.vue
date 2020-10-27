@@ -11,7 +11,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div>
+        <div class="scroll-bar">
             <ul class="list-unstyled row mt-2" v-if="imagedObjects.length">
                 <li
                     class="col-sm-12 col-md-6 col-xl-4 list-item"
@@ -55,13 +55,13 @@ export default Vue.extend({
 });
 </script>
 <style scoped>
-/* .card{
-    display: inline-block;
-    width: calc(25% - 20px);
-    margin: 10px;
-} */
 .direction {
     float: right;
     margin-top: -67px;
+}
+.scroll-bar {
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    height: 60vh;
 }
 </style>

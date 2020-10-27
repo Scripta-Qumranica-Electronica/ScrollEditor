@@ -1,6 +1,6 @@
 <template>
     <router-link
-        class="cart-decoration"
+        class="card-decoration"
         :to="{ path: `/editions/${edition.id}` }"
     >
         <b-row>
@@ -20,7 +20,7 @@
             </b-col>
             <b-col class="col-8">
                 <div>
-                    <p class="card-font cart-title">
+                    <p class="card-font card-title">
                         {{ edition.name }}
                         <edition-icons :edition="edition" />
                     </p>
@@ -42,7 +42,7 @@
                                               'status-badge',
                                               'status-badge-Published',
                                           ]
-                                        : ['status-badge', 'status-badge-Draft']
+                                        : ['status-badge', 'status-badge-draft']
                                 "
                                 >{{
                                     edition.isPublic ? 'Published' : 'Draft'
@@ -80,13 +80,13 @@ export default class EditionCard extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.cart-title {
+.card-title {
     font-weight: $font-weight-3 !important;
     color: $black;
     margin-bottom: 1px;
 }
 
-.cart-decoration:hover {
+.card-decoration:hover {
     text-decoration: none;
 }
 .card-font {
@@ -110,7 +110,7 @@ export default class EditionCard extends Vue {
     height: 29.58px;
     line-height: 20px;
 }
-.status-badge-Draft {
+.status-badge-draft {
     background-color: $light-orange;
     color: $orange;
 }
