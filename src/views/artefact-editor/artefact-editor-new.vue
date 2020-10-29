@@ -2,43 +2,8 @@
     <div>
         <div class="mb-3" style="background-color: white">
             <b-row class="mx-4 py-2">
-                <b-col cols="2">
-                    <div>
-                        <span class="name-edition"> MUR 44-papLetter </span>
-                    </div>
-                    <div>
-                        <span class="">Plate 100, frag 001, DJD 05a </span>
-                    </div>
-                </b-col>
-                <b-col cols="2" class="pt-3">
-                    <span>Last edit: <b>By Me at Jul 7,20</b></span>
-                </b-col>
-                <b-col class="px-0 col-1 pt-3">
-                    <span>Status:</span>
-                    <b-badge
-                        :class="
-                            artefact.status === 'published'
-                                ? ['status-badge', 'status-badge-published']
-                                : ['status-badge', 'status-badge-draft']
-                        "
-                        >{{ artefact.status ? 'Published' : 'Draft' }}</b-badge
-                    >
-                </b-col>
-                <b-col class="pt-2">
-                    <div>
-                        <b-button-group class="btns-groups">
-                            <b-button
-                                variant="outline-primary"
-                                :to="`/editions/${edition.id}/artefacts/${artefact.id}/new`"
-                                >Artefacts</b-button
-                            >
-                            <b-button
-                                variant="outline-primary"
-                                :to="`/editions/${edition.id}/imaged-objects/${artefact.imagedObjectId}/new`"
-                                >Imaged Objects</b-button
-                            >
-                        </b-button-group>
-                    </div>
+                <b-col cols="7">
+                    <edition-header></edition-header>
                 </b-col>
                 <b-col class="col-4">
                     <div class="buttons-div btn-tf">
@@ -299,6 +264,7 @@ import {
 } from '@/utils/operations-manager';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
+import EditionHeader from '../edition/components/edition-header.vue';
 
 @Component({
     name: 'artefact-editor-new',
@@ -314,6 +280,7 @@ import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
+        'edition-header': EditionHeader
     },
 })
 export default class ArtefactEditorNew

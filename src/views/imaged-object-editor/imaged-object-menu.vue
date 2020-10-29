@@ -379,9 +379,7 @@ export default Vue.extend({
         // save() {
         //     this.$emit('save', this.artefact);
         // },
-        undoModal() {
-            (this.$refs.undoRef as any).show();
-        },
+       
         undo() {
             this.$emit('undo');
         },

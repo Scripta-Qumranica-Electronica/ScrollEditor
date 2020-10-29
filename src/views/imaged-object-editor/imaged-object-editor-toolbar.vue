@@ -3,7 +3,7 @@
         <b-col class="p-3">
             <div>
                 <b-row v-align="center">
-                    <b-col class="col-5">
+                    <b-col class="col-3">
                         <b-button-group>
                             <b-button
                                 class="mr-0"
@@ -28,34 +28,33 @@
                             <span>{{ formatTooltip() }}</span>
                         </b-button-group>
                     </b-col>
-                    <b-col class="p-0">
+                    <b-col class="p-0 col-2">
                         <b-button id="popover-1-bottom" variant="primary"
-                             >Adjust image</b-button
+                            >Adjust image</b-button
                         >
                         <b-popover
                             target="popover-1-bottom"
                             triggers="click"
-                            :show.sync="popoverShow"
                             placement="bottom"
                             container="my-container"
                             ref="popover"
                         >
                             <div>
-                                    <image-settings
-                                        :imageStack="imageStack"
-                                        id="popover-input-1"
-                                        :params="params"
-                                        @imageSettingChanged="
-                                            onImageSettingChanged($event)
-                                        "
-                                    />
+                                <image-settings
+                                    :imageStack="imagedObject.getImageStack(this.artefact.side)"
+                                    id="popover-input-1"
+                                    :params="params"
+                                    @imageSettingChanged="
+                                        onImageSettingChanged($event)
+                                    "
+                                />
                             </div>
                         </b-popover>
                     </b-col>
                     <b-col class="p-0">
                         <b-button-group>
                             <b-button
-                                @click="onRotateClick(-10)"
+                                @click="onRotateClick(-90)"
                                 v-b-tooltip.hover.bottom
                                 :title="$t('misc.leftRotate')"
                                 class="mr-0"
@@ -70,7 +69,7 @@
                                 style="width: 75px"
                             />
                             <b-button
-                                @click="onRotateClick(10)"
+                                @click="onRotateClick(90)"
                                 v-b-tooltip.hover.bottom
                                 :title="$t('misc.RightRotate')"
                             >
@@ -79,6 +78,30 @@
                                 ></font-awesome-icon>
                             </b-button>
                         </b-button-group>
+                    </b-col>
+                    <b-col class="col-5">
+                        <b-row> 
+                        <div class="col-3" v-if="artefact && artefact.mask">
+                            <b-form-checkbox v-model="background"
+                                >Background</b-form-checkbox
+                            >
+                        </div>
+                        <div class="col-3">
+                            <b-form-checkbox v-model="highLight"
+                                >HighLight</b-form-checkbox
+                            >
+                        </div>
+                        <div class="col-3">
+                            <b-dropdown :text="sideFilter.displayName">
+                                <b-dropdown-item
+                                    v-for="filter in sideOptions"
+                                    :key="filter.displayName"
+                                    @click="sideFilterChanged(filter)"
+                                    >{{ filter.displayName }}</b-dropdown-item
+                                >
+                            </b-dropdown>
+                        </div>
+                        </b-row>
                     </b-col>
                 </b-row>
             </div>
@@ -99,7 +122,7 @@ import {
     ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
-import { Position } from '@/models/misc';
+import { Position, Side } from '@/models/misc';
 import { ArtefactTextFragmentData } from '@/models/text';
 
 import {
@@ -109,7 +132,7 @@ import {
 import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
-import { BoundingBox } from '@/utils/helpers';
+import { BoundingBox, DropdownOption } from '@/utils/helpers';
 import ImageLayer from '@/views/artefact-editor/image-layer.vue';
 import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
 import BoundaryDrawer, {
@@ -123,13 +146,7 @@ import TextService from '@/services/text';
 import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { EditionInfo } from '../../models/edition';
-import {
-    ArtefactEditorOperation,
-    ArtefactROIOperation,
-    ArtefactRotateOperation,
-    SignInterpretationCommentOperation,
-    TextFragmentAttributeOperation,
-} from './operations';
+
 import {
     SavingAgent,
     OperationsManager,
@@ -139,21 +156,36 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
+import { DrawingMode, EditorParamsChangedArgs } from './types';
+import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
+import { PropOptions } from 'vue';
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
-        'image-settings': ImageSettingsComponent
+        'image-settings': ImageSettingsComponent,
     },
 })
-export default class ArtefactEditorToolbar extends Vue {
+export default class ImagedObjectEditorToolbar extends Vue {
     private zoomInput: number = 16;
+    private sideFilter: DropdownOption = {} as DropdownOption;
 
     private errorMessage: string = '';
     private imagedObjectService: ImagedObjectService = new ImagedObjectService();
+    private artefactService: ArtefactService = new ArtefactService();
     private imageStack: ImageStack = {} as ImageStack;
-
+    private newArtefactName: string = '';
+    private waiting: boolean = false;
     @Prop() private artefact!: Artefact;
-    @Prop() private params: ArtefactEditorParams = {} as ArtefactEditorParams;
+    @Prop() private imagedObject!: ImagedObject;
+    @Prop({ type: Array, default: () => [] })
+    private artefacts!: PropOptions<Artefact[]>;
+    // @Prop() private editable: boolean = true;
+    @Prop({
+        type: String as () => Side,
+    })
+    private side!: Side;
+    @Prop()
+    private params: ImagedObjectEditorParams = {} as ImagedObjectEditorParams;
 
     public get editionId(): number {
         return parseInt(this.$route.params.editionId);
@@ -162,7 +194,6 @@ export default class ArtefactEditorToolbar extends Vue {
     public get scrolled(): boolean {
         return true;
     }
-
 
     public get zoom(): number {
         return this.params.zoom;
@@ -188,29 +219,65 @@ export default class ArtefactEditorToolbar extends Vue {
         this.params.rotationAngle = parseFloat(val.toString());
         this.notifyChange('rotationAngle', val);
     }
-    public get zoomArtefact(): number {
+    public get zoomImagedObject(): number {
         return this.params.zoom;
     }
-    public set zoomArtefact(val: number) {
+    public set zoomImagedObject(val: number) {
         this.params.zoom = parseFloat(val.toString());
-        this.notifyChange('zoomArtefact', val);
+        this.notifyChange('zoomImagedObject', val);
     }
 
     public get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
     }
+    public get background(): boolean {
+        return this.params.background;
+    }
+    public set background(val: boolean) {
+        this.params.background = val;
+        this.notifyChange('background', val);
+    }
+
+    public get highLight(): boolean {
+        return this.params.highLight;
+    }
+    public set highLight(val: boolean) {
+        this.params.highLight = val;
+        this.notifyChange('highLight', val);
+    }
+
+    public get sideOptions(): DropdownOption[] {
+        const options = [] as DropdownOption[];
+
+        if (!this.imagedObject) {
+            return [];
+        }
+
+        if (this.imagedObject.recto) {
+            options.push({ displayName: 'Recto', name: 'recto' });
+        }
+
+        if (this.imagedObject.verso) {
+            options.push({ displayName: 'Verso', name: 'verso' });
+        }
+
+        return options;
+    }
+    public get canCreate(): boolean {
+        return this.newArtefactName.trim().length > 0;
+    }
+
+    public sideFilterChanged(filter: DropdownOption) {
+        this.sideFilter = filter;
+        this.$emit('onSideArtefactChanged', filter);
+    }
 
     public async mounted() {
-        await this.$state.prepare.edition(this.artefact.editionId);
-        const imagedObject = this.$state.imagedObjects.find(
-            this.artefact.imagedObjectId
-        );
-        if (!imagedObject) {
-            throw new Error(
-                `Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`
-            );
+        const index = this.sideOptions.findIndex((a) => a.name === this.side);
+        if (index < 0) {
+            throw new Error("Side has to be either 'recto' or 'verso'");
         }
-        this.imageStack = imagedObject.getImageStack(this.artefact.side)!;
+        this.sideFilter = this.sideOptions[index];
     }
 
     public formatTooltip(): string {
@@ -221,40 +288,62 @@ export default class ArtefactEditorToolbar extends Vue {
             property: paramName,
             value: paramValue,
             params: this.params,
-        } as ArtefactEditorParamsChangedArgs;
+        } as EditorParamsChangedArgs;
         this.$emit('paramsChanged', args);
+    }
+
+    public zoomClick(percent: number) {
+        this.params.zoom += percent / 100;
+        this.notifyChange('zoomImagedObject', this.params.zoom);
     }
     public onImageSettingChanged(settings: ImageSetting) {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
     public onRotateClick(degrees: number) {
-        this.params.rotationAngle += degrees / 10;
+        this.params.rotationAngle += degrees;
         this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
-    public zoomClick(percent: number) {
-        this.params.zoom += percent / 100;
-        this.notifyChange('zoomArtefact', this.params.zoom);
+    public async newArtefact() {
+        this.newArtefactName = this.newArtefactName.trim();
+
+        let newArtefact = {} as Artefact;
+        this.waiting = true;
+        this.errorMessage = '';
+        try {
+            newArtefact = await this.artefactService.createArtefact(
+                this.editionId,
+                this.imagedObject,
+                this.newArtefactName,
+                this.side as Side
+            );
+        } catch (err) {
+            this.errorMessage = err;
+        } finally {
+            this.waiting = false;
+        }
+
+        this.newArtefactName = '';
+        (this.$refs.newArtRef as any).hide();
+        this.chooseArtefact(newArtefact);
+
+        this.onDrawChanged('DRAW');
+        this.$emit('create', newArtefact);
+    }
+    public newModalShown() {
+        // this.waiting = true;
+        (this.$refs.newArtefactName as any).focus();
+    }
+    public onDrawChanged(val: any) {
+        // DrawingMode
+        const mode = DrawingMode[val];
+        (this as any).params.drawingMode = mode;
+        this.notifyChange('drawingMode', mode);
+    }
+    public chooseArtefact(art: Artefact) {
+        this.$emit('artefactChanged', art);
     }
 }
 </script>
 
 <style lang="scss" scoped>
-#artefact-side-menu {
-    touch-action: pan-y;
-    top: 0;
-    right: 0;
-}
-span.selected {
-    font-weight: bold;
-}
-section {
-    margin-bottom: 20px;
-}
-button {
-    margin-right: 10px;
-}
-.btn-info {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
 </style>

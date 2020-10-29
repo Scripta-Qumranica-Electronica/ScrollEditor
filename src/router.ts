@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
 import Welcome from './components/welcome/welcome.vue';
-import Edition from './views/edition/Edition.vue';
+import Edition from './views/edition/edition.vue';
 import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
 import ScrollEditor from './views/scroll-editor/scroll-editor.vue';
@@ -57,19 +57,19 @@ export default new Router({
             component: ScrollEditor
         },
         {
-            path: '/editions/:editionId/imaged-objects/:imagedObjectId',
+            path: '/editions/:editionId/imaged-objects/:imagedObjectId/hold',
             component: ImagedObjectEditor
         },
         {
             path: '/editions/:editionId/artefacts/:artefactId',
-            component: ArtefactEditor
-        },
-        {
-            path: '/editions/:editionId/artefacts/:artefactId/new',
             component: ArtefactEditorNew
         },
         {
-            path: '/editions/:editionId/imaged-objects/:imagedObjectId/new',
+            path: '/editions/:editionId/artefacts/:artefactId/hold',
+            component: ArtefactEditor
+        },
+        {
+            path: '/editions/:editionId/imaged-objects/:imagedObjectId',
             component: ImagedObjectEditorNew
         },
         {
