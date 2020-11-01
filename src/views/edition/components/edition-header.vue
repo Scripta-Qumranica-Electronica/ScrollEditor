@@ -83,4 +83,9 @@ export default class EditionHeader extends Vue {
     background-color: $light-greend;
     color: $green;
 }
+
+.router-link-active{
+    border: 2px solid #007bff;
+    color:#007bff;
+}
 </style>

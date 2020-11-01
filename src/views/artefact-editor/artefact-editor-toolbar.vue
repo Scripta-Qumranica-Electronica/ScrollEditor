@@ -2,53 +2,55 @@
     <div id="artefact-toolbar">
         <b-col class="p-3">
             <div>
-                <b-row v-align="center">
+                <b-row align-v="center">
                     <b-col class="col-5">
                         <b-button-group>
                             <b-button
-                                class="mr-0"
-                                @click="zoomClick(zoomInput * 1)"
-                                :disabled="!canZoomIn"
-                                variant="outline-secondary"
-                                ><i class="fa fa-plus"></i
-                            ></b-button>
-                            <b-input
-                                v-model="zoomInput"
-                                type="number"
-                                min="1"
-                                max="99"
-                                style="width: 75px"
-                            ></b-input>
-                            <b-button
-                                @click="zoomClick(zoomInput * -1)"
+                                @click="zoomClick(-5)"
                                 :disabled="!canZoomOut"
                                 variant="outline-secondary"
                                 ><i class="fa fa-minus"></i
                             ></b-button>
-                            <span>{{ formatTooltip() }}</span>
+                            <b-input
+                                v-model="zoom"
+                                type="number"
+                                min="1"
+                                max="100"
+                                style="width: 75px"
+                            ></b-input>
+                            <b-button
+                                class="mr-0"
+                                @click="zoomClick(5)"
+                                :disabled="!canZoomIn"
+                                variant="outline-secondary"
+                                ><i class="fa fa-plus"></i
+                            ></b-button>
                         </b-button-group>
                     </b-col>
                     <b-col class="p-0">
-                        <b-button id="popover-1-bottom" variant="primary"
-                             >Adjust image</b-button
-                        >
+                           <b-button
+                            id="popover-1-bottom"
+                            variant="outline-secondary"
+                            ><img class="mr-1" src="@/assets/images/adjust.svg" />
+                            <span>Adjust image</span>
+                        </b-button>
                         <b-popover
+                            class="popover-body"
                             target="popover-1-bottom"
                             triggers="click"
-                            :show.sync="popoverShow"
                             placement="bottom"
                             container="my-container"
                             ref="popover"
                         >
                             <div>
-                                    <image-settings
-                                        :imageStack="imageStack"
-                                        id="popover-input-1"
-                                        :params="params"
-                                        @imageSettingChanged="
-                                            onImageSettingChanged($event)
-                                        "
-                                    />
+                                <image-settings
+                                    :imageStack="imageStack"
+                                    id="popover-input-1"
+                                    :params="params"
+                                    @imageSettingChanged="
+                                        onImageSettingChanged($event)
+                                    "
+                                />
                             </div>
                         </b-popover>
                     </b-col>
@@ -142,11 +144,10 @@ import { Artefact } from '@/models/artefact';
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
-        'image-settings': ImageSettingsComponent
+        'image-settings': ImageSettingsComponent,
     },
 })
 export default class ArtefactEditorToolbar extends Vue {
-    private zoomInput: number = 16;
 
     private errorMessage: string = '';
     private imagedObjectService: ImagedObjectService = new ImagedObjectService();
@@ -163,22 +164,21 @@ export default class ArtefactEditorToolbar extends Vue {
         return true;
     }
 
-
     public get zoom(): number {
-        return this.params.zoom;
+        return Math.round(this.params.zoom * 100);
     }
 
     public set zoom(val: number) {
-        this.params.zoom = parseFloat(val.toString());
+        this.params.zoom = parseFloat(val.toString()) / 100;
         this.notifyChange('zoom', val);
     }
 
     public get canZoomIn(): boolean {
-        return this.params.zoom + this.zoomInput / 100 < 1;
+        return this.params.zoom + 5 / 100 <= 1;
     }
 
     public get canZoomOut(): boolean {
-        return this.params.zoom - this.zoomInput / 100 > 0;
+        return this.params.zoom - 5 / 100 >= 0;
     }
 
     public get rotationAngle(): number {
@@ -213,9 +213,6 @@ export default class ArtefactEditorToolbar extends Vue {
         this.imageStack = imagedObject.getImageStack(this.artefact.side)!;
     }
 
-    public formatTooltip(): string {
-        return (this.zoom * 100).toFixed(0) + '%';
-    }
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
             property: paramName,
@@ -238,7 +235,7 @@ export default class ArtefactEditorToolbar extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 #artefact-side-menu {
     touch-action: pan-y;
     top: 0;
@@ -256,5 +253,8 @@ button {
 .btn-info {
     background-color: #6c757d;
     border-color: #6c757d;
+}
+.popover-body {
+    margin-left: 10px;
 }
 </style>

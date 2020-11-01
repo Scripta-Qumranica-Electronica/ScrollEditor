@@ -12,7 +12,7 @@
                 <b-col class="col-8">
                     <edition-header></edition-header>
                 </b-col>
-                <b-col class="col-3 mt-3">
+                <b-col class="col-3 mt-2">
                     <div class="buttons-div btn-tf">
                         <b-button
                             v-for="mode in editList"
@@ -42,8 +42,8 @@
                 height: calc(100vh - 180px);
             "
         >
-            <b-row v-align="center" class="border-bottom" style="height: 70px">
-                <b-col cols="10">
+            <b-row align-v="center" class="border-bottom" style="height: 70px">
+                <b-col cols="9">
                     <imaged-object-editor-toolbar
                         :imagedObject="imagedObject"
                         :artefacts="visibleArtefacts"
@@ -58,15 +58,21 @@
                         @onSideArtefactChanged="sideArtefactChanged($event)"
                     ></imaged-object-editor-toolbar>
                 </b-col>
-                <b-col  class="pt-3">
-                    <b-row>
-                    <b-button  class="col-6" :disabled="!canUndo" @click="onUndo()"
-                        >Undo</b-button
-                    >
-                    <b-button class="col-6" :disabled="!canRedo" @click="onRedo()"
-                        >Redo</b-button
-                    >
-                    </b-row>
+                <b-col class="pt-3">
+                    <b-button-group>
+                        <b-button
+                            class="mr-1"
+                            :disabled="!canUndo"
+                            @click="onUndo()"
+                            >Undo</b-button
+                        >
+                        <b-button
+                            class=""
+                            :disabled="!canRedo"
+                            @click="onRedo()"
+                            >Redo</b-button
+                        >
+                    </b-button-group>
                 </b-col>
                 <b-col class="pt-3">
                     <b-btn
@@ -79,7 +85,7 @@
             </b-row>
             <b-row>
                 <b-col cols="8">
-                    <div style="height: calc(100vh - 275px);">
+                    <div style="height: calc(100vh - 275px)">
                         <div
                             class="artefact-container"
                             style="height: 100%"
@@ -145,62 +151,82 @@
                         </div>
                     </div>
                 </b-col>
-                <b-col cols="4" style="height: calc(100vh - 275px);">
+                <b-col cols="4" style="height: calc(100vh - 250px); overflow:auto;">
                     <div v-for="art in visibleArtefacts" :key="art.id">
-                        <span
-                            style="
-                                border: solid 3px;
-                                height: 16px;
-                                display: inline-block;
-                                margin-right: 4px;
-                            "
-                            :style="{ color: getArtefactColor(art) }"
-                        >
-                            &nbsp;
-                        </span>
-                        <span
-                            v-if="renameInputActive !== art"
-                            :class="{ selected: art.id === artefact.id }"
-                            @click="onArtefactChanged(art)"
-                            >{{ art.name }}</span
-                        >
-
-                        <div v-if="canEdit">
-                            <b-button
-                                v-if="renameInputActive !== art"
-                                class="btn btn-sm"
-                                id="rename"
-                                @click="inputRenameChanged(art)"
-                                >Rename</b-button
-                            >
-                            <input
-                                v-if="renameInputActive === art"
-                                v-model="art.name"
-                            />
-                            <b-button
-                                v-if="!renaming && renameInputActive === art"
-                                class="btn btn-sm"
-                                :disabled="!art.name"
-                                @click="onRename(art)"
-                                >Rename</b-button
-                            >
-                            <b-button
-                                v-if="renameInputActive === art && renaming"
-                                disabled
-                                class="disable btn btn-sm"
-                            >
-                                Renaming...
-                                <font-awesome-icon
-                                    icon="spinner"
-                                    spin
-                                ></font-awesome-icon>
-                            </b-button>
-                            <b-button
-                                class="btn btn-sm"
-                                @click="onDeleteArtefact(art)"
-                                >Delete</b-button
-                            >
-                        </div>
+                        <b-row class="py-2">
+                            <b-col class="col-2">
+                                <span
+                                    style="
+                                        border: solid 3px;
+                                        height: 16px;
+                                        width: 45px;
+                                        display: inline-block;
+                                        margin-right: 4px;
+                                    "
+                                    :style="{
+                                        color: getArtefactColor(art),
+                                        backgroundColor: getArtefactColor(art),
+                                    }"
+                                >
+                                    &nbsp;
+                                </span>
+                            </b-col>
+                            <b-col class="col-3">
+                                <span
+                                    v-if="renameInputActive !== art"
+                                    :class="{
+                                        selected: art.id === artefact.id,
+                                    }"
+                                    style="cursor: pointer"
+                                    @click="onArtefactChanged(art)"
+                                    >{{ art.name }}</span
+                                >
+                            </b-col>
+                            <b-col class="col-5">
+                                <div v-if="canEdit">
+                                    <b-button
+                                        v-if="renameInputActive !== art"
+                                        class="btn btn-sm"
+                                        id="rename"
+                                        @click="inputRenameChanged(art)"
+                                        >Rename</b-button
+                                    >
+                                    <input
+                                        v-if="renameInputActive === art"
+                                        v-model="art.name"
+                                    />
+                                    <b-button
+                                        v-if="
+                                            !renaming &&
+                                            renameInputActive === art
+                                        "
+                                        class="btn btn-sm"
+                                        :disabled="!art.name"
+                                        @click="onRename(art)"
+                                        >Rename</b-button
+                                    >
+                                    <b-button
+                                        v-if="
+                                            renameInputActive === art &&
+                                            renaming
+                                        "
+                                        disabled
+                                        class="disable btn btn-sm"
+                                    >
+                                        Renaming...
+                                        <font-awesome-icon
+                                            icon="spinner"
+                                            spin
+                                        ></font-awesome-icon>
+                                    </b-button>
+                                    <b-button
+                                        class="btn btn-sm ml-2"
+                                        @click="onDeleteArtefact(art)"
+                                        >Delete</b-button
+                                    >
+                                </div>
+                            </b-col>
+                        </b-row>
                     </div>
                 </b-col>
             </b-row>

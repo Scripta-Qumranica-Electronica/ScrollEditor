@@ -3,36 +3,39 @@
         <b-col class="p-3">
             <div>
                 <b-row v-align="center">
-                    <b-col class="col-3">
+                    <b-col class="col-2">
                         <b-button-group>
                             <b-button
-                                class="mr-0"
-                                @click="zoomClick(zoomInput * 1)"
-                                :disabled="!canZoomIn"
-                                variant="outline-secondary"
-                                ><i class="fa fa-plus"></i
-                            ></b-button>
-                            <b-input
-                                v-model="zoomInput"
-                                type="number"
-                                min="1"
-                                max="99"
-                                style="width: 75px"
-                            ></b-input>
-                            <b-button
-                                @click="zoomClick(zoomInput * -1)"
+                                @click="zoomClick(-5)"
                                 :disabled="!canZoomOut"
                                 variant="outline-secondary"
                                 ><i class="fa fa-minus"></i
                             ></b-button>
-                            <span>{{ formatTooltip() }}</span>
+                            <b-input
+                                v-model="zoom"
+                                type="number"
+                                min="1"
+                                max="100"
+                                style="width: 75px"
+                            ></b-input>
+                            <b-button
+                                class="mr-0"
+                                @click="zoomClick(5)"
+                                :disabled="!canZoomIn"
+                                variant="outline-secondary"
+                                ><i class="fa fa-plus"></i
+                            ></b-button>
                         </b-button-group>
                     </b-col>
-                    <b-col class="p-0 col-2">
-                        <b-button id="popover-1-bottom" variant="primary"
-                            >Adjust image</b-button
-                        >
+                    <b-col class="p-0 col-2 ml-3">
+                        <b-button
+                            id="popover-1-bottom"
+                            variant="outline-secondary"
+                            ><img class="mr-1" src="@/assets/images/adjust.svg" />
+                            <span>Adjust image</span>
+                        </b-button>
                         <b-popover
+                            class="popover-body"
                             target="popover-1-bottom"
                             triggers="click"
                             placement="bottom"
@@ -41,7 +44,11 @@
                         >
                             <div>
                                 <image-settings
-                                    :imageStack="imagedObject.getImageStack(this.artefact.side)"
+                                    :imageStack="
+                                        imagedObject.getImageStack(
+                                            this.artefact.side
+                                        )
+                                    "
                                     id="popover-input-1"
                                     :params="params"
                                     @imageSettingChanged="
@@ -51,7 +58,7 @@
                             </div>
                         </b-popover>
                     </b-col>
-                    <b-col class="p-0">
+                    <b-col class="p-0 col-2">
                         <b-button-group>
                             <b-button
                                 @click="onRotateClick(-90)"
@@ -63,14 +70,10 @@
                                     icon="undo"
                                 ></font-awesome-icon>
                             </b-button>
-                            <b-form-input
-                                type="number"
-                                v-model="rotationAngle"
-                                style="width: 75px"
-                            />
                             <b-button
                                 @click="onRotateClick(90)"
                                 v-b-tooltip.hover.bottom
+                                class="ml-1"
                                 :title="$t('misc.RightRotate')"
                             >
                                 <font-awesome-icon
@@ -78,29 +81,34 @@
                                 ></font-awesome-icon>
                             </b-button>
                         </b-button-group>
+                        <span style="width: 40px; text-align: center">
+                            {{ rotationAngle }} °
+                        </span>
                     </b-col>
-                    <b-col class="col-5">
-                        <b-row> 
-                        <div class="col-3" v-if="artefact && artefact.mask">
-                            <b-form-checkbox v-model="background"
-                                >Background</b-form-checkbox
-                            >
-                        </div>
-                        <div class="col-3">
-                            <b-form-checkbox v-model="highLight"
-                                >HighLight</b-form-checkbox
-                            >
-                        </div>
-                        <div class="col-3">
-                            <b-dropdown :text="sideFilter.displayName">
-                                <b-dropdown-item
-                                    v-for="filter in sideOptions"
-                                    :key="filter.displayName"
-                                    @click="sideFilterChanged(filter)"
-                                    >{{ filter.displayName }}</b-dropdown-item
+                    <b-col class="col-4">
+                        <b-row>
+                            <div class="mr-3" v-if="artefact && artefact.mask">
+                                <b-form-checkbox v-model="background"
+                                    >Background</b-form-checkbox
                                 >
-                            </b-dropdown>
-                        </div>
+                            </div>
+                            <div class="mr-3">
+                                <b-form-checkbox v-model="highLight"
+                                    >HighLight</b-form-checkbox
+                                >
+                            </div>
+                            <div>
+                                <b-dropdown :text="sideFilter.displayName">
+                                    <b-dropdown-item
+                                        v-for="filter in sideOptions"
+                                        :key="filter.displayName"
+                                        @click="sideFilterChanged(filter)"
+                                        >{{
+                                            filter.displayName
+                                        }}</b-dropdown-item
+                                    >
+                                </b-dropdown>
+                            </div>
                         </b-row>
                     </b-col>
                 </b-row>
@@ -166,7 +174,7 @@ import { PropOptions } from 'vue';
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
-    private zoomInput: number = 16;
+    // private zoomInput: number = 1;
     private sideFilter: DropdownOption = {} as DropdownOption;
 
     private errorMessage: string = '';
@@ -196,27 +204,28 @@ export default class ImagedObjectEditorToolbar extends Vue {
     }
 
     public get zoom(): number {
-        return this.params.zoom;
+        return Math.round(this.params.zoom * 100);
     }
 
     public set zoom(val: number) {
-        this.params.zoom = parseFloat(val.toString());
+        this.params.zoom = parseFloat(val.toString()) / 100;
         this.notifyChange('zoom', val);
     }
 
     public get canZoomIn(): boolean {
-        return this.params.zoom + this.zoomInput / 100 < 1;
+        return this.params.zoom + 5 / 100 <= 1;
     }
 
     public get canZoomOut(): boolean {
-        return this.params.zoom - this.zoomInput / 100 > 0;
+        return this.params.zoom - 5 / 100 >= 0;
     }
 
     public get rotationAngle(): number {
-        return this.params.rotationAngle;
+        return ((this.params.rotationAngle % 360) + 360) % 360;
     }
     public set rotationAngle(val: number) {
-        this.params.rotationAngle = parseFloat(val.toString());
+        this.params.rotationAngle =
+            ((parseFloat(val.toString()) % 360) + 360) % 360;
         this.notifyChange('rotationAngle', val);
     }
     public get zoomImagedObject(): number {
@@ -280,9 +289,6 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.sideFilter = this.sideOptions[index];
     }
 
-    public formatTooltip(): string {
-        return (this.zoom * 100).toFixed(0) + '%';
-    }
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
             property: paramName,
@@ -345,5 +351,8 @@ export default class ImagedObjectEditorToolbar extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.popover-body {
+    margin-left: 10px;
+}
 </style>

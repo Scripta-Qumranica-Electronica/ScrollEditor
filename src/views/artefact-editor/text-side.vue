@@ -1,5 +1,5 @@
 <template>
-    <div style="height: calc(100% - 56px);">
+    <div style="height: calc(100vh - 285px);">
         <div class="border-bottom" style="height: 71px; padding: 15px; text-align: right; padding-right: 31px;">
             <input
                 v-if="!readOnly"
@@ -23,7 +23,7 @@
                 v-for="(textFragment, index) in displayedTextFragments"
                 :key="textFragment.id"
                 role="tablist"
-                class="text-side-border p-3"
+                class="text-side-border p-2"
             >
                 <b-card-header header-tag="header" class="p-0 mt-3">
                     <b-row>

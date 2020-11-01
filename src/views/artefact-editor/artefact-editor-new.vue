@@ -1,217 +1,228 @@
 <template>
     <div>
-        <div class="mb-3" style="background-color: white">
-            <b-row class="mx-4 py-2">
-                <b-col cols="7">
-                    <edition-header></edition-header>
-                </b-col>
-                <b-col class="col-4">
-                    <div class="buttons-div btn-tf">
-                        <b-button
-                            v-for="mode in [
-                                {
-                                    icon: 'fa fa-pencil-square-o',
-                                    val: 'polygon',
-                                    title: this.$t('misc.draw'),
-                                },
-                                {
-                                    icon: 'fa fa-square-o',
-                                    val: 'box',
-                                    title: this.$t('misc.box'),
-                                },
-                            ]"
-                            v-show="!readOnly"
-                            :key="mode.val"
-                            @click="onModeClick(mode.val)"
-                            :pressed="mode === mode.val"
-                            :disabled="!isDrawingEnabled"
-                            class="m-2"
-                            v-b-tooltip.hover.bottom
-                            :title="mode.title"
-                        >
-                            <i :class="mode.icon"></i>
-                        </b-button>
-                        <b-button
-                            v-if="!readOnly"
-                            type="button"
-                            class="m-2"
-                            @click="onDeleteRoi()"
-                            :disabled="!isDeleteEnabled"
-                            v-b-tooltip.hover.bottom
-                            :title="$t('misc.cancel')"
-                        >
-                            <i class="fa fa-trash"></i>
-                        </b-button>
-                        <b-button
-                            v-if="!readOnly"
-                            type="button"
-                            @click="onModeClick('select')"
-                            :pressed="mode === 'select'"
-                            class="m-2"
-                            v-b-tooltip.hover.bottom
-                            :title="$t('misc.select')"
-                        >
-                            <i class="fa fa-mouse-pointer"></i>
-                        </b-button>
-                        <b-button
-                            class="m-2"
-                            :disabled="!canUndo"
-                            @click="onUndo()"
-                            >Undo</b-button
-                        >
-                        <b-button
-                            class="m-2"
-                            :disabled="!canRedo"
-                            @click="onRedo()"
-                            >Redo</b-button
-                        >
-                    </div>
-                </b-col>
-                <b-col class="p-3"
-                    ><div>{{ saveStatusMessage }}</div></b-col
-                >
-            </b-row>
+        <div v-if="waiting" class="col">
+            <waiting></waiting>
         </div>
-        <div
-            class="mt-4"
-            style="
-                background-color: white;
-                margin-right: 5%;
-                margin-left: 5%;
-                height: calc(100vh - 180px);
-            "
-        >
-            <b-row v-align="top" style="height: 100%">
-                <b-col cols="8" style="height: 100%">
-                    <div style="height: 70px">
-                        <b-row class="border-bottom" v-align="center">
-                            <b-col>
-                                <artefact-editor-toolbar
-                                    :artefact="artefact"
-                                    :params="params"
-                                    @paramsChanged="onParamsChanged($event)"
-                                ></artefact-editor-toolbar>
-                            </b-col>
-                            <b-col class="col-2 pt-4">
-                                <div>
-                                    <span></span>
-                                    <b-form-checkbox switch size="sm"
-                                        >Comments</b-form-checkbox
-                                    >
-                                </div>
-                            </b-col>
-                            <b-col class="col-3 pt-4">
-                                <div>
-                                    <span> </span>
-                                    <b-form-checkbox
-                                        switch
-                                        size="sm"
-                                        v-if="!readOnly"
-                                        @input="onAuto()"
-                                        >Auto character select</b-form-checkbox
-                                    >
-                                </div>
-                            </b-col>
-                        </b-row>
-                    </div>
-                    <div style="height: calc(100% - 94px);">
-                        <div
-                            class="artefact-container"
-                            style="height:100%"
-                            id="info-box"
-                            ref="infoBox"
-                        >
-                            <div class="sign-wheel sign-wheel-position">
-                                {{ artefact.name }}
-                                <edition-icons
-                                    :edition="edition"
-                                    :show-text="true"
-                                />
-                                <sign-wheel
-                                    v-if="
-                                        selectedSignsInterpretation.length == 1
-                                    "
-                                    :line="selectedLine"
-                                />
-                            </div>
+        <div v-if="!waiting">
+            <div class="mb-3" style="background-color: white">
+                <b-row class="mx-4 py-2">
+                    <b-col cols="7">
+                        <edition-header></edition-header>
+                    </b-col>
+                    <b-col class="col-4">
+                        <div class="buttons-div btn-tf">
                             <b-button
-                                type="button"
-                                v-show="$bp.between('sm', 'lg')"
-                                @click="nextLine()"
-                                class="btn-next-line"
+                                v-for="mode in [
+                                    {
+                                        icon: 'fa fa-pencil-square-o',
+                                        val: 'polygon',
+                                        title: this.$t('misc.draw'),
+                                    },
+                                    {
+                                        icon: 'fa fa-square-o',
+                                        val: 'box',
+                                        title: this.$t('misc.box'),
+                                    },
+                                ]"
+                                v-show="!readOnly"
+                                :key="mode.val"
+                                @click="onModeClick(mode.val)"
+                                :pressed="mode === mode.val"
+                                :disabled="!isDrawingEnabled"
+                                class="m-2"
+                                v-b-tooltip.hover.bottom
+                                :title="mode.title"
                             >
-                                <i class="fa fa-arrow-left"></i>
+                                <i :class="mode.icon"></i>
                             </b-button>
-                            <zoomer
-                                :zoom="zoomLevel"
-                                :angle="rotationAngle"
-                                @new-zoom="onNewZoom($event)"
-                                @new-rotate="onNewRotate($event)"
+                            <b-button
+                                v-if="!readOnly"
+                                type="button"
+                                class="m-2"
+                                @click="onDeleteRoi()"
+                                :disabled="!isDeleteEnabled"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.cancel')"
                             >
-                                <svg
-                                    class="overlay"
-                                    :width="actualWidth"
-                                    :height="actualHeight"
-                                    :viewBox="actualBoundingBox"
-                                >
-                                    <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
-                            the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute-->
-                                    <g
-                                        :transform="transform"
-                                        id="transform-root"
-                                    >
-                                        <!-- Rotate and scale the content -->
-                                        <!-- This group's coordinate system is the master image's -->
-                                        <image-layer
-                                            :width="imageWidth"
-                                            :height="imageHeight"
-                                            :params="params"
-                                            :clipping-mask="artefact.mask"
-                                            :boundingBox="
-                                                artefact.mask.getBoundingBox()
-                                            "
-                                        />
-                                        <roi-layer
-                                            :rois="visibleRois"
-                                            @roi-clicked="onRoiClicked($event)"
-                                        />
-                                        <boundary-drawer
-                                            v-show="
-                                                isDrawingEnabled &&
-                                                this.mode !== 'select'
-                                            "
-                                            :mode="mode"
-                                            transformRootId="transform-root"
-                                            @new-polygon="onNewPolygon($event)"
-                                        />
-                                    </g>
-                                </svg>
-                            </zoomer>
+                                <i class="fa fa-trash"></i>
+                            </b-button>
+                            <b-button
+                                v-if="!readOnly"
+                                type="button"
+                                @click="onModeClick('select')"
+                                :pressed="mode === 'select'"
+                                class="m-2"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.select')"
+                            >
+                                <i class="fa fa-mouse-pointer"></i>
+                            </b-button>
+                            <b-button
+                                class="m-2"
+                                :disabled="!canUndo"
+                                @click="onUndo()"
+                                >Undo</b-button
+                            >
+                            <b-button
+                                class="m-2"
+                                :disabled="!canRedo"
+                                @click="onRedo()"
+                                >Redo</b-button
+                            >
                         </div>
-                    </div>
-                </b-col>
-                <b-col class="border-left px-0" style="height: 100%">
-                    <div
-                        id="text-right-sidebar"
-                        v-if="!waiting && artefact"
-                        style="height: 100%"
-                        :class="{
-                            sidebar: isActiveSidebar,
-                            text: isActiveText,
-                        }"
+                    </b-col>
+                    <b-col class="p-3"
+                        ><div>{{ saveStatusMessage }}</div></b-col
                     >
-                        <text-side
-                            :artefact="artefact"
-                            @sign-interpretation-clicked="
-                                onSignInterpretationClicked($event)
-                            "
-                            @text-fragment-selected="initVisibleRois()"
-                            @text-fragments-loaded="initVisibleRois()"
-                        ></text-side>
-                        <sign-attribute-pane />
-                    </div>
-                </b-col>
-            </b-row>
+                </b-row>
+            </div>
+            <div
+                class="mt-4"
+                style="
+                    background-color: white;
+                    margin-right: 5%;
+                    margin-left: 5%;
+                    height: calc(100vh - 180px);
+                "
+            >
+                <b-row style="height: 100%">
+                    <b-col cols="8" style="height: 100%">
+                        <div style="height: 70px">
+                            <b-row class="border-bottom">
+                                <b-col>
+                                    <artefact-editor-toolbar
+                                        :artefact="artefact"
+                                        :params="params"
+                                        @paramsChanged="onParamsChanged($event)"
+                                    ></artefact-editor-toolbar>
+                                </b-col>
+                                <b-col class="col-2 pt-4">
+                                    <div>
+                                        <span></span>
+                                        <b-form-checkbox switch size="sm"
+                                            >Comments</b-form-checkbox
+                                        >
+                                    </div>
+                                </b-col>
+                                <b-col class="col-3 pt-4">
+                                    <div>
+                                        <span> </span>
+                                        <b-form-checkbox
+                                            switch
+                                            size="sm"
+                                            v-if="!readOnly"
+                                            @input="onAuto()"
+                                            >Auto character
+                                            select</b-form-checkbox
+                                        >
+                                    </div>
+                                </b-col>
+                            </b-row>
+                        </div>
+                        <div style="height: calc(100vh - 310px)">
+                            <div
+                                class="artefact-container"
+                                style="height: 100%"
+                                id="info-box"
+                                ref="infoBox"
+                            >
+                                <div class="sign-wheel sign-wheel-position">
+                                    {{ artefact.name }}
+                                    <edition-icons
+                                        :edition="edition"
+                                        :show-text="true"
+                                    />
+                                    <sign-wheel
+                                        v-if="
+                                            selectedSignsInterpretation.length ==
+                                            1
+                                        "
+                                        :line="selectedLine"
+                                    />
+                                </div>
+                                <b-button
+                                    type="button"
+                                    v-show="$bp.between('sm', 'lg')"
+                                    @click="nextLine()"
+                                    class="btn-next-line"
+                                >
+                                    <i class="fa fa-arrow-left"></i>
+                                </b-button>
+                                <zoomer
+                                    :zoom="zoomLevel"
+                                    :angle="rotationAngle"
+                                    @new-zoom="onNewZoom($event)"
+                                    @new-rotate="onNewRotate($event)"
+                                >
+                                    <svg
+                                        class="overlay"
+                                        :width="actualWidth"
+                                        :height="actualHeight"
+                                        :viewBox="actualBoundingBox"
+                                    >
+                                        <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
+                            the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute-->
+                                        <g
+                                            :transform="transform"
+                                            id="transform-root"
+                                        >
+                                            <!-- Rotate and scale the content -->
+                                            <!-- This group's coordinate system is the master image's -->
+                                            <image-layer
+                                                :width="imageWidth"
+                                                :height="imageHeight"
+                                                :params="params"
+                                                :clipping-mask="artefact.mask"
+                                                :boundingBox="
+                                                    artefact.mask.getBoundingBox()
+                                                "
+                                            />
+                                            <roi-layer
+                                                :rois="visibleRois"
+                                                @roi-clicked="
+                                                    onRoiClicked($event)
+                                                "
+                                            />
+                                            <boundary-drawer
+                                                v-show="
+                                                    isDrawingEnabled &&
+                                                    mode !== 'select'
+                                                "
+                                                :mode="mode"
+                                                transformRootId="transform-root"
+                                                @new-polygon="
+                                                    onNewPolygon($event)
+                                                "
+                                            />
+                                        </g>
+                                    </svg>
+                                </zoomer>
+                            </div>
+                        </div>
+                    </b-col>
+                    <b-col class="border-left px-0" style="height: 100%">
+                        <div
+                            id="text-right-sidebar"
+                            v-if="!waiting && artefact"
+                            style="height: 100%"
+                            :class="{
+                                sidebar: isActiveSidebar,
+                                text: isActiveText,
+                            }"
+                        >
+                            <text-side
+                                :artefact="artefact"
+                                @sign-interpretation-clicked="
+                                    onSignInterpretationClicked($event)
+                                "
+                                @text-fragment-selected="initVisibleRois()"
+                                @text-fragments-loaded="initVisibleRois()"
+                            ></text-side>
+                            <sign-attribute-pane />
+                        </div>
+                    </b-col>
+                </b-row>
+            </div>
         </div>
     </div>
 </template>
@@ -280,7 +291,7 @@ import EditionHeader from '../edition/components/edition-header.vue';
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
-        'edition-header': EditionHeader
+        'edition-header': EditionHeader,
     },
 })
 export default class ArtefactEditorNew
@@ -459,7 +470,10 @@ export default class ArtefactEditorNew
         return 'Scroll Saved';
     }
 
-    protected created() {
+    protected async created() {
+        await this.$state.prepare.edition(
+            parseInt(this.$route.params.editionId)
+        );
         this.$state.eventBus.on('roi-changed', this.initVisibleRois);
         this.$state.eventBus.on(
             'change-artefact-rotation',
@@ -491,6 +505,7 @@ export default class ArtefactEditorNew
         if (this.$bp.between('sm', 'lg')) {
             this.isActiveSidebar = true;
         }
+
         await this.$state.prepare.artefact(
             parseInt(this.$route.params.editionId),
             parseInt(this.$route.params.artefactId)
@@ -532,7 +547,7 @@ export default class ArtefactEditorNew
     private get edition(): EditionInfo {
         return this.$state.editions.current!;
     }
-   
+
     private get masterImage(): IIIFImage {
         return this.imageStack!.master;
     }
@@ -989,6 +1004,9 @@ export default class ArtefactEditorNew
 
 .artefact-container {
     text-align: center;
+
+    // height: calc(100vh - 63px);
+    // width: calc(100vw - 80px);
 }
 
 .status-badge {
