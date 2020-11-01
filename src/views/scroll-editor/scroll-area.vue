@@ -40,6 +40,7 @@
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
+                        :scaleFactor="zoomLevel"
                     />
                 </g>
             </svg>
