@@ -36,11 +36,6 @@ export class IIIFImage {
     }
 
     public getScaledAndCroppedUrl(pct: number, x: number, y: number, width: number, height: number, extension = 'jpg') {
-        x /= this.ppiAdjustmentFactor;
-        y /= this.ppiAdjustmentFactor;
-        width /= this.ppiAdjustmentFactor;
-        height /= this.ppiAdjustmentFactor;
-
         return this.append(`${x},${y},${width},${height}/pct:${pct}/0/default.${extension}`);
     }
 
