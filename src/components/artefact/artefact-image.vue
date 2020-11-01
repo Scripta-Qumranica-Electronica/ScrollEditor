@@ -1,16 +1,14 @@
 <template>
     <artefact-svg v-if="loaded"
                   :artefact="artefact"
-                  :aspect-ratio="aspectRatio"
-                  v-slot:default="slotProps">
-        <image 
+                  :aspect-ratio="aspectRatio">
+        <iiif-image 
             v-for="imageSetting in visibleImageSettings"
             :key="imageSetting.image.url"
-            :xlink:href="slotProps.getImageUrl(imageSetting.image)"
+            :image="imageSetting.image"
             :opacity="imageSetting.normalizedOpacity"
-            :width="boundingBox.width"
-            :height="boundingBox.height"
-            :transform="`translate(${boundingBox.x} ${boundingBox.y})`"/>
+            :boundingBox="boundingBox"
+            :maxWidth="maxWidth"/>
     </artefact-svg>
 </template>
 
@@ -19,10 +17,14 @@ import { Component, Prop, Mixins } from 'vue-property-decorator';
 import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
 import ArtefactDataMixin from './artefact-data-mixin';
 import ArtefactSvg from './artefact-svg.vue';
+import IIIFImageComponent from '../images/IIIFImage.vue';
 
 @Component({
     name: 'artefact-image',
-    components: { 'artefact-svg': ArtefactSvg },
+    components: {
+        'artefact-svg': ArtefactSvg,
+        'iiif-image': IIIFImageComponent,
+    },
 })
 export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
     @Prop({default: 1.3}) private aspectRatio!: number;
@@ -31,6 +33,8 @@ export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
             return {} as ImageSetting;
         }
     }) private imageSettings!: ImageSetting;
+    @Prop({ default: 400 })
+    private maxWidth!: number;
 
     private loaded = false;
 

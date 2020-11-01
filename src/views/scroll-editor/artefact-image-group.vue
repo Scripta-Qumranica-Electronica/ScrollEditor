@@ -19,11 +19,10 @@
         </defs>
         <g @click="onSelect">
             <g :clip-path="`url(#clip-path-${artefact.id})`">
-                <image
-                    :width="boundingBox.width"
-                    :height="boundingBox.height"
-                    :transform="imageTransform"
-                    :xlink:href="masterImageUrl"
+                <iiif-image
+                    :image="masterImage"
+                    :boundingBox="boundingBox"
+                    :scaleFactor="scaleFactor"
                 />
             </g>
             <path
@@ -62,9 +61,13 @@ import {
     GroupPlacementOperation
 } from './operations';
 import { Placement } from '../../utils/Placement';
+import IIIFImageComponent from '@/components/images/IIIFImage.vue';
 
 @Component({
-    name: 'artefact-image-group'
+    name: 'artefact-image-group',
+    components: {
+        'iiif-image': IIIFImageComponent,
+    }
 })
 export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     @Prop({
@@ -85,28 +88,13 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private pointerId: number = -1;
     private element!: SVGGElement | null;
     private previousPlacement!: any[];
+    @Prop({
+        default: 1
+    })
+    private scaleFactor!: number;
 
-    private imageScale = 0.5; // TODO: Set a dynamic scale, based on actual element size.
-    // Wait until the IIIF server can handle requests of various sizes
-
-    get masterImageUrl() {
-        const image = this.imageStack!.master;
-        const url = image.getScaledAndCroppedUrl(
-            this.imageScale * 100,
-            this.boundingBox.x,
-            this.boundingBox.y,
-            this.boundingBox.width,
-            this.boundingBox.height
-        );
-        return url;
-    }
-
-    get imageTransform(): string {
-        // Note that we do not zoom the image at all, even though its original resolution depends on imageScale
-        // That's because we specify the width and height of the image element, and the browser makes sure the image
-        // is scaled to those
-        const translate = `translate(${this.boundingBox.x} ${this.boundingBox.y})`;
-        return translate;
+    get masterImage() {
+        return this.imageStack!.master;
     }
 
     public get groupTransform(): string {

@@ -280,14 +280,14 @@ import EditionHeader from '../edition/components/edition-header.vue';
 @Component({
     name: 'artefact-editor-new',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,

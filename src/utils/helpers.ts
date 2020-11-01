@@ -7,7 +7,14 @@ export function countIf<T>(array: T[], predicate: (element: T) => boolean) {
     return array.reduce((acc, element) => predicate(element) ? acc + 1 : acc, 0);
 }
 
-export class BoundingBox {
+export interface BoundingBoxInterface {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export class BoundingBox implements BoundingBoxInterface {
     public x: number;
     public y: number;
     public width: number;
@@ -18,6 +25,10 @@ export class BoundingBox {
         this.y = y;
         this.width = width;
         this.height = height;
+    }
+
+    public toString() {
+        return `(${this.x}, ${this.y}, ${this.width}, ${this.height})`;
     }
 }
 
