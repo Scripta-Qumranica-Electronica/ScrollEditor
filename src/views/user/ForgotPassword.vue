@@ -1,34 +1,62 @@
  <template>
-  <div>
-    <b-modal ref="passwordModalRef" id="passwordModal" title="Forgot Password" @shown="shown">
-        <b-container fluid @keyup.enter="submit">
-            <b-row class="mb-2">
-                <b-col cols="3">{{ $t('navbar.email') }}</b-col>
-                <b-col><b-form-input v-model="email" type="email" ref="emailRef" id="forgetPass"></b-form-input></b-col>
-            </b-row>
+    <div>
+        <b-modal
+            ref="passwordModalRef"
+            id="passwordModal"
+            header-class="title-header"
+            footer-class="title-footer"
+            @shown="shown"
+        >
+         <template v-slot:modal-header>
+                <b-row class="mt-3"> 
+                    <b-col cols="12">Forgot Password</b-col>
+                </b-row>
+            </template>
+            <b-container fluid @keyup.enter="submit">
+                <b-row class="mb-2">
+                    <b-col
+                        ><b-form-input
+                            v-model="email"
+                            type="email"
+                            ref="emailRef"
+                            id="forgetPass"
+                            placeholder="Email"
+                        ></b-form-input
+                    ></b-col>
+                </b-row>
 
-            <b-row>
-                <b-col class="text-danger">{{errorMessage}}</b-col>
-            </b-row> 
-        </b-container>
-
-        <div slot="modal-footer">
-            <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
-            <b-button @click="submit" variant="primary" type="submit"  class="forgetPass"  :disabled="disabledSubmit">
-                {{ $t('navbar.forgotPassword') }}
-                <span v-if="waiting">
-                    <font-awesome-icon icon="spinner" spin></font-awesome-icon>
-                </span>
-            </b-button>
-        </div>
-    </b-modal>
-  </div>
- </template>
+                <b-row>
+                    <b-col class="text-danger">{{ errorMessage }}</b-col>
+                </b-row>
+            </b-container>
+             <template v-slot:modal-footer>
+                <div class="w-100">
+                    <b-button
+                        @click="submit"
+                        block
+                        variant="primary"
+                        class="btn-login-modal"
+                       :disabled="disabledSubmit"
+                    >
+                        {{ $t('navbar.forgotPassword') }}
+                        <span v-if="waiting">
+                            <font-awesome-icon
+                                icon="spinner"
+                                spin
+                            ></font-awesome-icon>
+                        </span>
+                    </b-button>
+                </div>
+            </template>
+        </b-modal>
+    </div>
+</template>
 
 <script lang="ts">
 import Vue from 'vue';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
+import ForgotPassword from '@/views/user/ForgotPassword.vue';
 
 export default Vue.extend({
     name: 'forgot-password',
@@ -61,10 +89,12 @@ export default Vue.extend({
                 this.$toasted.show(this.$tc('toasts.reset'), {
                     type: 'info',
                     position: 'top-right',
-                    duration: 7000
+                    duration: 7000,
                 });
             } catch (err) {
-                this.errorMessage = this.errorService.getErrorMessage(err.response.data);
+                this.errorMessage = this.errorService.getErrorMessage(
+                    err.response.data
+                );
             } finally {
                 this.waiting = false;
             }
@@ -76,11 +106,10 @@ export default Vue.extend({
             this.errorMessage = '';
             this.waiting = false;
             (this.$refs.emailRef as any).focus();
-        }
-    }
+        },
+    },
 });
 </script>
 
 <style scoped>
-
 </style>

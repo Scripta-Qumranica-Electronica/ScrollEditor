@@ -1,7 +1,7 @@
 export default {
     home: 'Home',
     about: 'About',
-    login: 'Login',
+    login: 'Log in',
     logout: 'Logout',
 
     forename: 'Forename',

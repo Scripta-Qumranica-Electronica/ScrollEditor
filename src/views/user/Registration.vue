@@ -1,63 +1,100 @@
 <template>
     <div>
-        <form>
-            <b-row class="mb-3">
-                <h4>{{ $t('navbar.registration') }}</h4>
-            </b-row>
+        <b-modal
+            header-class="title-header"
+            footer-class="title-footer"
+            ref="registerModalRef"
+            id="registerModal"
+            @shown="shown"
+        >
+            <template v-slot:modal-header>
+                <b-row class="mt-3"> 
+                    <b-col cols="12">Create a researcher account</b-col>
+                </b-row>
+            </template>
+            <b-container fluid @keyup.enter="register">
+                <b-row class="mb-3">
+                    <b-col>
+                        <b-form-input
+                            v-model="forename"
+                            name="forename"
+                            placeholder="Forename"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
 
-            <b-row class="mb-3">
-                <b-col cols="2">{{ $t('navbar.forename') }}</b-col>
-                <b-col cols="3">
-                    <b-form-input v-model="forename"  name="forename" size="sm"></b-form-input>
-                </b-col>
-            </b-row>
+                <b-row class="mb-3">
+                    <b-col>
+                        <b-form-input
+                            v-model="surname"
+                            name="surname"
+                            placeholder="Surname"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
 
-            <b-row class="mb-3">
-                <b-col cols="2">{{ $t('navbar.surname') }}</b-col>
-                <b-col cols="3">
-                    <b-form-input v-model="surname"  name="surname" size="sm"></b-form-input>
-                </b-col>
-            </b-row>
+                <b-row class="mb-3">
+                    <b-col>
+                        <b-form-input
+                            v-model="email"
+                            type="email"
+                            placeholder="Email for verification"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
 
-            <b-row class="mb-3">
-                <b-col cols="2">{{ $t('navbar.email') }}</b-col>
-                <b-col cols="3">
-                    <b-form-input v-model="email" type="email" size="sm"></b-form-input>
-                </b-col>
-            </b-row>
+                <b-row class="mb-3">
+                    <b-col>
+                        <b-form-input
+                            v-model="password"
+                            type="password"
+                            name="password"
+                            placeholder="Password"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
 
-            <b-row class="mb-3">
-                <b-col cols="2">{{ $t('navbar.password') }}</b-col>
-                <b-col cols="3">
-                    <b-form-input v-model="password" type="password" name="password" size="sm"></b-form-input>
-                </b-col>
-            </b-row>
+                <b-row class="mb-3">
+                    <b-col>
+                        <b-form-input
+                            v-model="repassword"
+                            type="password"
+                            name="repassword"
+                            placeholder="Repeat password"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
 
-            <b-row class="mb-3">
-                <b-col cols="2">{{ $t('navbar.repassword') }}</b-col>
-                <b-col cols="3">
-                    <b-form-input v-model="repassword" type="password"  name="repassword" size="sm"></b-form-input>
-                </b-col>
-            </b-row>
+                <b-row class="mb-3">
+                    <b-col>
+                        <b-form-input
+                            v-model="organization"
+                            placeholder="Organization"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
+            </b-container>
 
-            <b-row class="mb-3">
-                <b-col cols="2">{{ $t('navbar.organization') }}</b-col>
-                <b-col cols="3">
-                    <b-form-input v-model="organization" size="sm"></b-form-input>
-                </b-col>
-            </b-row>
-
-            <div>
-                <b-button @click="register" variant="primary" :disabled="disabledReg" class="btn-register" size="sm">
-                    {{ $t('navbar.register') }}
-                    <span v-if="waiting">
-                        <font-awesome-icon icon="spinner" spin></font-awesome-icon>
-                    </span>
-                </b-button>
-                <span class="text-danger ml-3">{{errorMessage}}</span>
-                <span class="text-danger ml-3">{{identicalError}}</span>
-            </div>
-        </form>
+            <template v-slot:modal-footer>
+                <div class="w-100">
+                    <b-button
+                        @click="register"
+                        block
+                        variant="primary"
+                        class="btn-login-modal"
+                       :disabled="disabledReg"
+                    >
+                        {{ $t('navbar.register') }}
+                        <span v-if="waiting">
+                            <font-awesome-icon
+                                icon="spinner"
+                                spin
+                            ></font-awesome-icon>
+                        </span>
+                    </b-button>
+                </div>
+            </template>
+        </b-modal>
     </div>
 </template>
 
@@ -81,7 +118,7 @@ export default Vue.extend({
             errorMessage: '',
             sessionService: new SessionService(),
             errorService: new ErrorService(this),
-            waiting: false
+            waiting: false,
         };
     },
     components: {},
@@ -106,7 +143,7 @@ export default Vue.extend({
                 return 'Passwords must be identical';
             }
             return '';
-        }
+        },
     },
     methods: {
         async register() {
@@ -115,21 +152,18 @@ export default Vue.extend({
                 surname: this.surname,
                 email: this.email,
                 organization: this.organization,
-                password: this.password
+                password: this.password,
             } as NewUserRequestDTO;
             this.waiting = true;
 
             try {
                 await this.sessionService.register(data);
                 router.push('/');
-                this.$toasted.show(
-                   this.$tc('toasts.activationLink'),
-                    {
-                        type: 'info',
-                        position: 'top-right',
-                        duration: 7000
-                    }
-                );
+                this.$toasted.show(this.$tc('toasts.activationLink'), {
+                    type: 'info',
+                    position: 'top-right',
+                    duration: 7000,
+                });
             } catch (err) {
                 this.errorMessage = this.errorService.getErrorMessage(
                     err.response.data
@@ -137,8 +171,8 @@ export default Vue.extend({
             } finally {
                 this.waiting = false;
             }
-        }
-    }
+        },
+    },
 });
 </script>
 

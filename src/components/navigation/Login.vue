@@ -1,51 +1,89 @@
  <template>
-  <div>
-    <b-modal ref="loginModalRef" id="loginModal" title="Login" @shown="shown">
-        <b-container fluid @keyup.enter="login">
-            <b-row class="mb-2">
-                <b-col cols="3">{{ $t('navbar.email') }}</b-col>
-                <b-col><b-form-input ref="email" v-model="email"  type="email"></b-form-input></b-col>
-            </b-row>
-            <b-row class="mb-2">
-                <b-col cols="3">{{ $t('navbar.password') }}</b-col>
-                <b-col>
-                    <b-form-input v-model="password" type="password"></b-form-input>
-                </b-col>
-            </b-row>
-            <b-row>
-                <button @click="forgotPassword" class="btn btn-link">
-                    {{ $t('navbar.forgotPassword') }}
-                </button>
-            </b-row>
-            <b-row>
-                <b-col class="text-danger">{{ errorMessage }}</b-col>
-            </b-row>
-        </b-container>
-
-        <div slot="modal-footer">
-            <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
-            <b-button @click="login" variant="primary" type="submit" :disabled="disabledLogin">
-                {{ $t('navbar.login') }}
-                <span v-if="waiting">
-                    <font-awesome-icon icon="spinner" spin></font-awesome-icon>
-                </span>
-            </b-button>
-        </div>
-    </b-modal>
-    <forgot-password></forgot-password>
-  </div>
- </template>
+    <div>
+        <b-modal
+            header-class="title-header"
+            footer-class="title-footer"
+            ref="loginModalRef"
+            id="loginModal"
+            @shown="shown"
+        >
+            <template v-slot:modal-header>
+                <b-row>
+                    <b-col cols="12">Log in to your account</b-col>
+                </b-row>
+            </template>
+            <b-container fluid @keyup.enter="login">
+                <b-row class="mb-2">
+                    <b-col
+                        ><b-form-input
+                            ref="email"
+                            v-model="email"
+                            type="email"
+                            placeholder="Username or email"
+                        ></b-form-input
+                    ></b-col>
+                </b-row>
+                <b-row class="mb-2">
+                    <b-col>
+                        <b-form-input
+                            v-model="password"
+                            type="password"
+                            placeholder="Password"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
+                <b-row class="justify-content-end">
+                    <b-link @click="forgotPassword" class="sign-link">
+                        {{ $t('navbar.forgotPassword') }}?
+                    </b-link>
+                </b-row>
+                <b-row>
+                    <b-col class="text-danger">{{ errorMessage }}</b-col>
+                </b-row>
+            </b-container>
+            <template v-slot:modal-footer>
+                <div class="w-100">
+                    <b-button
+                        @click="login"
+                        block
+                        variant="primary"
+                        class="btn-login-modal"
+                        :disabled="disabledLogin"
+                    >
+                        {{ $t('navbar.login') }}
+                        <span v-if="waiting">
+                            <font-awesome-icon
+                                icon="spinner"
+                                spin
+                            ></font-awesome-icon>
+                        </span>
+                    </b-button>
+                     <p class="sign-link">Can’t login? <b-link
+                        @click="register"
+                        >Sign up</b-link
+                    > for an account here</p> 
+                </div> 
+                
+            </template>
+            
+        </b-modal>
+        <forgot-password></forgot-password>
+    </div>
+</template>
 
 <script lang="ts">
 import Vue from 'vue';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
+import { StateManager } from '@/state';
+import Registration from '@/views/user/Registration.vue';
 
 export default Vue.extend({
     name: 'login',
     components: {
         ForgotPassword,
+
     },
     data() {
         return {
@@ -76,7 +114,9 @@ export default Vue.extend({
                 this.close();
                 location.reload();
             } catch (err) {
-                this.errorMessage = this.errorService.getErrorMessage(err.response.data);
+                this.errorMessage = this.errorService.getErrorMessage(
+                    err.response.data
+                );
             } finally {
                 this.waiting = false;
             }
@@ -91,11 +131,50 @@ export default Vue.extend({
         },
         forgotPassword() {
             this.$root.$emit('bv::show::modal', 'passwordModal');
-        }
+        },
+        register() {
+        this.$root.$emit('bv::show::modal', 'registerModal');
+    }
     }
 });
 </script>
 
-<style scoped>
 
+<style lang="scss">
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+.title-header {
+    font-family: $font-family;
+    font-style: $font-style;
+    font-weight: $font-weight-4;
+    font-size: $font-size-4;
+    line-height: 38px;
+    letter-spacing: 0.28px;
+    justify-content: center !important;
+    border: unset !important;
+}
+.title-footer{ 
+    border: unset !important;
+    }
+button.btn.btn-login-modal.btn-primary.btn-block {
+    padding: 14px;
+    background: $blue;
+    border-radius: 3px;
+    font-weight:$font-weight-2;
+    font-style: $font-style;
+    font-size: $font-size-1;
+}
+::placeholder {
+    color: $dark-grey!important;
+    font-size: $font-size-1;
+}
+.modal-content{
+    border-radius:0px!important;
+}
+.sign-link{
+    font-size: $font-size-1;
+    font-weight:$font-weight-1;
+    padding-top: 5px;
+
+}
 </style>

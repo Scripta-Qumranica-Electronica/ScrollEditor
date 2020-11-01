@@ -102,6 +102,7 @@ import {
 	DetailedUserDTO,
 	DetailedUserTokenDTO,
 	EditorDTO,
+	UserDataStoreDTO,
 	ImageStackDTO,
 	ImagedObjectDTO,
 	ImagedObjectListDTO,
@@ -585,6 +586,26 @@ export class SignalRUtilities {
 	 */
     public async postV1UsersResendActivationEmail(payload: ResendUserAccountActivationRequestDTO): Promise<void> {
         return await this._connection.invoke('PostV1UsersResendActivationEmail', payload);
+    }
+
+    /**
+	 * Retrieve the information in the user's personal data store
+	 *
+	 *
+	 *
+	 */
+    public async getV1UsersDataStore(): Promise<UserDataStoreDTO> {
+        return await this._connection.invoke('GetV1UsersDataStore');
+    }
+
+    /**
+	 * Update the information in the user's personal data store
+	 *
+	 * @param data - A JSON object with the data to store for the user
+	 *
+	 */
+    public async putV1UsersDataStore(data: UserDataStoreDTO): Promise<void> {
+        return await this._connection.invoke('PutV1UsersDataStore', data);
     }
 
     /**

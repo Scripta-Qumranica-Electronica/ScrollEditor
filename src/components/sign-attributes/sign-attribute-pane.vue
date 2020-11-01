@@ -291,12 +291,16 @@ export default class SignAttributePane extends Vue {
     color: black;
     border: 0px;
 }
+
 .dropdown-attr {
     width: 100%;
     .attr-name {
         width: 100%;
         display: inline-block;
         font-size: 14px;
+        color: black;
+
+        
     }
     .btn-link {
         font-weight: 400;
@@ -307,9 +311,45 @@ export default class SignAttributePane extends Vue {
         padding-top: 0;
         padding-bottom: 0;
         color: inherit;
+
+        
     }
     ul {
         font-size: 12px;
     }
 }
+</style>
+
+<style lang="scss">
+.dropdown-attr {
+    width: 100%;
+    .attr-name {
+        width: 100%;
+        display: inline-block;
+        font-size: 14px;
+        color: black;
+
+        
+    }
+    .btn-link {
+        font-weight: 400;
+        // color: #007bff;
+        text-decoration: none;
+        width: 100%;
+        text-align: left;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: inherit;
+
+        &::after{
+            color:black;
+        }
+    }
+    ul {
+        font-size: 12px;
+    }
+}
+
+
+
 </style>

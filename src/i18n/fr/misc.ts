@@ -2,7 +2,7 @@ export default {
     cancel: 'Annuler',
     new: 'Nouveau',
     current: 'Actuel',
-    copy: 'Copie',
+    copy: 'Cree une copie',
     permission: 'Autorisation',
     draw: 'Dessiner',
     box: 'Box',
