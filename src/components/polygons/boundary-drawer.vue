@@ -9,7 +9,7 @@
         @keypress="keyPress($event)"
     >
         <!-- add an invisible rectangle so that pointer events work -->
-        <rect style="stroke: none; fill: none" width="10000" height="10000" />
+        <rect style="stroke: none; fill: none" width="30000" height="30000" />
         <polygon v-if="closedPolygon" :points="polygonString" :style="polygonStyle" />
         <polyline v-else :points="polygonString" :style="polylineStyle" />
     </g>

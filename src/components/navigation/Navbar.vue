@@ -5,13 +5,13 @@
                 ><span>S</span>Scrollery</b-navbar-brand
             >
             <b-nav class="ml-auto">
-                <b-nav-item
+<!--                <b-nav-item
                     :active="language === currentLanguage"
                     @click="changeLanguage(language)"
                     :key="language"
                     v-for="(texts, language) in allTexts"
                     >{{ texts.display }}</b-nav-item
-                >
+                > -->
                 <b-nav-item-dropdown
                     v-if="userName"
                     :text="userName"

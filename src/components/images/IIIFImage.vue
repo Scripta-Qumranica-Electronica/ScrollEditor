@@ -116,7 +116,7 @@ export default class IIIFImageComponent extends Vue {
         return {
             width: 1024,
             height: 1024,
-            scaleFactors: [1, 2, 4, 8, 16, 32],
+            scaleFactors: [1, 2, 4],
         };
     }
 
