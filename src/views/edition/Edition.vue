@@ -40,6 +40,11 @@
                         :to="`/editions/${edition.id}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
+                      <b-button
+                        variant="outline-primary"
+                        :to="`/editions/${edition.id}/scroll-editor`"
+                        >Entire Manuscript</b-button
+                    >
                 </b-button-group>
             </div>
         </div>
@@ -108,7 +113,6 @@ export default Vue.extend({
     },
     methods: {
         openPermissionModal() {
-            console.log('ffff');
             this.$root.$emit('bv::show::modal', 'permissionModal');
         },
         versionString(ver: EditionInfo) {

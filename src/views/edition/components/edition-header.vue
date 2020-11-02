@@ -1,6 +1,6 @@
 <template>
     <b-row v-if="edition">
-        <b-col  class="col-2 pt-3">
+        <b-col  class="col-1 pt-3">
             <div>
                 <span class="name-edition"> {{ edition.name }} </span>
             </div>
@@ -8,7 +8,7 @@
                 <span class=""> </span>
             </div>
         </b-col>
-        <b-col class="pt-3">
+        <b-col class="pt-3 col-3 ml-5 pl-0">
             <span
                 >Last edit:
                 <b>{{
@@ -16,7 +16,7 @@
                 }}</b></span
             >
         </b-col>
-        <b-col class="px-0 col-2 pt-3">
+        <b-col class="px-0  pt-3 col-2">
             <span>Status:</span>
             <b-badge
                 :class="
@@ -27,7 +27,7 @@
                 >{{ edition.status ? 'Published' : 'Draft' }}</b-badge
             >
         </b-col>
-        <b-col class="pt-2" h-align="end">
+        <b-col class="pt-2 col-5 pr-0" h-align="end">
             <div>
                 <b-button-group class="btns-groups">
                     <b-button
@@ -39,6 +39,11 @@
                         variant="outline-primary"
                         :to="`/editions/${edition.id}/imaged-objects/`"
                         >Imaged Objects</b-button
+                    >
+                      <b-button
+                        variant="outline-primary"
+                        :to="`/editions/${edition.id}/scroll-editor/`"
+                        >Entire Manuscript</b-button
                     >
                 </b-button-group>
             </div>

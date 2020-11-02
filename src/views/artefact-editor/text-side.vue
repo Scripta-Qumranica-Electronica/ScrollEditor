@@ -106,7 +106,8 @@ export default class TextSide extends Vue {
     }
 
     private get dropdownTextFragmentsData() {
-        return this.allTextFragmentsData.filter((x) => !x.certain);
+        const displayedTfIds = this.displayedTextFragments.map(tf => tf.id);
+        return this.allTextFragmentsData.filter((x) => !x.certain && !displayedTfIds.includes(x.id));
     }
 
     private get displayedTextFragmentsData() {
@@ -171,16 +172,12 @@ export default class TextSide extends Vue {
                 return;
             }
 
-            const index = this.displayedTextFragments.findIndex((x) => {
-                return (
-                    this.dropdownTextFragmentsData.find(
-                        (y) => y.id === x.id
-                    ) !== undefined
-                );
+            const tfIdsToDelete = this.allTextFragmentsData.filter((tfData) => !tfData.certain).map(tf => tf.id);
+            this.displayedTextFragments.forEach((x, index) => {
+                if (tfIdsToDelete.includes(x.id)) {
+                    this.displayedTextFragments.splice(index, 1);
+                }
             });
-            if (index > -1) {
-                this.displayedTextFragments.splice(index, 1);
-            }
 
             await this.getFragmentText(textFragmentData.id);
             const tf = this.$state.textFragments.get(textFragmentData.id);
@@ -240,10 +237,10 @@ export default class TextSide extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 #text-side {
-    // padding: 30px 15px 20px 0px;
     touch-action: pan-y;
     height: 90%;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     margin-right: 15px;
 }
 

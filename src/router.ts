@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
 import Welcome from './components/welcome/welcome.vue';
-import Edition from './views/edition/edition.vue';
+import Edition from './views/edition/Edition.vue';
 import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
 import ScrollEditor from './views/scroll-editor/scroll-editor.vue';
@@ -11,11 +11,9 @@ import ChangePassword from './views/user/ChangePassword.vue';
 import UpdateUser from './views/user/UpdateUser.vue';
 import ChangeForgottenPassword from './views/user/ChangeForgottenPassword.vue';
 import Activation from './views/user/Activation.vue';
-import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
-import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ConfirmInvitation from './views/edition/components/confirm-invitation.vue';
-import ArtefactEditorNew from './views/artefact-editor/artefact-editor-new.vue';
-import ImagedObjectEditorNew from './views/imaged-object-editor/imaged-object-editor-new.vue';
+import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
+import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
 
 Vue.use(Router);
 
@@ -57,20 +55,12 @@ export default new Router({
             component: ScrollEditor
         },
         {
-            path: '/editions/:editionId/imaged-objects/:imagedObjectId/hold',
-            component: ImagedObjectEditor
-        },
-        {
             path: '/editions/:editionId/artefacts/:artefactId',
-            component: ArtefactEditorNew
-        },
-        {
-            path: '/editions/:editionId/artefacts/:artefactId/hold',
             component: ArtefactEditor
         },
         {
             path: '/editions/:editionId/imaged-objects/:imagedObjectId',
-            component: ImagedObjectEditorNew
+            component: ImagedObjectEditor
         },
         {
             path: '/accept-invitation/token/:token',

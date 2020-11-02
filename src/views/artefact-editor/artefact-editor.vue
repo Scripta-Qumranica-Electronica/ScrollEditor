@@ -1,169 +1,228 @@
 <template>
-    <div class="wrapper" id="artefact-editor">
+    <div>
         <div v-if="waiting" class="col">
             <waiting></waiting>
         </div>
-
-        <div
-            id="sidebar"
-            class="artefact-menu-div"
-            v-if="!waiting && artefact"
-            :class="{ sidebar : isActiveSidebar }"
-        >
-            <artefact-side-menu
-                :artefact="artefact"
-                :params="params"
-                :saving="saving"
-                :status-indicator="operationsManager"
-                @paramsChanged="onParamsChanged($event)"
-                @undo="onUndo($event)"
-                @redo="onRedo($event)"
-            ></artefact-side-menu>
-        </div>
-
-        <div :class="{ sidebar: isActiveSidebar, text: isActiveText }" v-if="!waiting && artefact">
-            <div class="row" id="artefact-and-buttons">
-                <div class="buttons-div btn-menu-Artefact">
-                    <b-button
-                        type="button"
-                        class="sidebarCollapse"
-                        @click="sidebarClicked()"
-                        v-b-tooltip.hover.bottom
-                        :title="$t('misc.collapsedsidebarArtefact')"
+        <div v-if="!waiting">
+            <div class="mb-3" style="background-color: white">
+                <b-row class="mx-4 py-2">
+                    <b-col cols="8">
+                        <edition-header></edition-header>
+                    </b-col>
+                    <b-col cols="0">
+                        <div class="buttons-div btn-tf">
+                            <b-button
+                                v-for="mode in [
+                                    {
+                                        icon: 'fa fa-pencil-square-o',
+                                        val: 'polygon',
+                                        title: this.$t('misc.draw'),
+                                    },
+                                    {
+                                        icon: 'fa fa-square-o',
+                                        val: 'box',
+                                        title: this.$t('misc.box'),
+                                    },
+                                ]"
+                                v-show="!readOnly"
+                                :key="mode.val"
+                                @click="onModeClick(mode.val)"
+                                :pressed="mode === mode.val"
+                                :disabled="!isDrawingEnabled"
+                                class="m-2"
+                                v-b-tooltip.hover.bottom
+                                :title="mode.title"
+                            >
+                                <i :class="mode.icon"></i>
+                            </b-button>
+                            <b-button
+                                v-if="!readOnly"
+                                type="button"
+                                class="m-2"
+                                @click="onDeleteRoi()"
+                                :disabled="!isDeleteEnabled"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.cancel')"
+                            >
+                                <i class="fa fa-trash"></i>
+                            </b-button>
+                            <b-button
+                                v-if="!readOnly"
+                                type="button"
+                                @click="onModeClick('select')"
+                                :pressed="mode === 'select'"
+                                class="m-2"
+                                v-b-tooltip.hover.bottom
+                                :title="$t('misc.select')"
+                            >
+                                <i class="fa fa-mouse-pointer"></i>
+                            </b-button>
+                            <b-button
+                                class="m-2"
+                                :disabled="!canUndo"
+                                @click="onUndo()"
+                                >Undo</b-button
+                            >
+                            <b-button
+                                class="m-2"
+                                :disabled="!canRedo"
+                                @click="onRedo()"
+                                >Redo</b-button
+                            >
+                        </div>
+                    </b-col>
+                    <b-col class="pl-3 pt-3"
+                        ><div>{{ saveStatusMessage }}</div></b-col
                     >
-                        <i class="fa fa-align-justify"></i>
-                    </b-button>
-                </div>
-
-                <div
-                    class="artefact-container"
-                    :class="{ sidebar: isActiveSidebar, text: isActiveText }"
-                    id="info-box"
-                    ref="infoBox"
-                >
-                    <div class="sign-wheel sign-wheel-position">
-                        {{artefact.name}}
-                        <edition-icons :edition="edition" :show-text="true" />
-                        <sign-wheel
-                            v-if="selectedSignsInterpretation.length==1"
-                            :line="selectedLine"
-                        />
-                    </div>
-                    <b-button
-                        type="button"
-                        v-show="$bp.between('sm', 'lg')"
-                        @click="nextLine()"
-                        class="btn-next-line"
-                    >
-                        <i class="fa fa-arrow-left"></i>
-                    </b-button>
-                    <zoomer
-                        :zoom="zoomLevel"
-                        :angle="rotationAngle"
-                        @new-zoom="onNewZoom($event)"
-                        @new-rotate="onNewRotate($event)"
-                    >
-                        <svg
-                            class="overlay"
-                            :width="actualWidth"
-                            :height="actualHeight"
-                            :viewBox="actualBoundingBox"
-                        >
-                            <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
-                            the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute-->
-                            <g :transform="transform" id="transform-root">
-                                <!-- Rotate and scale the content -->
-                                <!-- This group's coordinate system is the master image's -->
-                                <image-layer
-                                    :width="imageWidth"
-                                    :height="imageHeight"
-                                    :params="params"
-                                    :clipping-mask="artefact.mask"
-                                    :boundingBox="artefact.mask.getBoundingBox()"
-                                />
-                                <roi-layer :rois="visibleRois" @roi-clicked="onRoiClicked($event)" />
-                                <boundary-drawer
-                                    v-show="isDrawingEnabled && this.mode !== 'select'"
-                                    :mode="mode"
-                                    transformRootId="transform-root"
-                                    @new-polygon="onNewPolygon($event)"
-                                />
-                            </g>
-                        </svg>
-                    </zoomer>
-                </div>
-                <div class="buttons-div btn-tf">
-                    <b-button
-                        type="button"
-                        class="sidebarCollapse"
-                        @click="textClicked()"
-                        v-b-tooltip.hover.bottom
-                        :title="$t('misc.collapsedsidebar')"
-                    >
-                        <i class="fa fa-align-justify"></i>
-                    </b-button>
-                    <b-button
-                        v-for="mode in [{icon: 'fa fa-pencil-square-o', val:'polygon' ,title: this.$t('misc.draw')}, {icon: 'fa fa-square-o', val: 'box', title: this.$t('misc.box')}]"
-                        v-show="!readOnly"
-                        :key="mode.val"
-                        @click="onModeClick(mode.val)"
-                        :pressed="mode === mode.val"
-                        :disabled="!isDrawingEnabled"
-                        class="sidebarCollapse"
-                        v-b-tooltip.hover.bottom
-                        :title="mode.title"
-                    >
-                        <i :class="mode.icon"></i>
-                    </b-button>
-                    <b-button
-                        v-if="!readOnly"
-                        type="button"
-                        class="sidebarCollapse"
-                        @click="onDeleteRoi()"
-                        :disabled="!isDeleteEnabled"
-                        v-b-tooltip.hover.bottom
-                        :title="$t('misc.cancel')"
-                    >
-                        <i class="fa fa-trash"></i>
-                    </b-button>
-                    <b-button
-                        v-if="!readOnly"
-                        type="button"
-                        @click="onAuto()"
-                        :pressed="autoMode == true"
-                        class="sidebarCollapse"
-                        v-b-tooltip.hover.bottom
-                        :title="$t('misc.auto')"
-                    >
-                        <i class="fa fa-play"></i>
-                    </b-button>
-
-                    <b-button
-                        v-if="!readOnly"
-                        type="button"
-                        @click="onModeClick('select')"
-                        :pressed="mode === 'select'"
-                        class="sidebarCollapse"
-                        v-b-tooltip.hover.bottom
-                        :title="$t('misc.select')"
-                    >
-                        <i class="fa fa-mouse-pointer"></i>
-                    </b-button>
-                </div>
+                </b-row>
             </div>
-        </div>
-        <div
-            id="text-right-sidebar"
-            v-if="!waiting && artefact"
-            :class="{ sidebar: isActiveSidebar, text: isActiveText }"
-        >
-            <text-side
-                :artefact="artefact"
-                @sign-interpretation-clicked="onSignInterpretationClicked($event)"
-                @text-fragment-selected="initVisibleRois()"
-                @text-fragments-loaded="initVisibleRois()"
-            ></text-side>
-            <sign-attribute-pane />
+            <div
+                class="mt-4"
+                style="
+                    background-color: white;
+                    margin-right: 5%;
+                    margin-left: 5%;
+                    height: calc(100vh - 180px);
+                "
+            >
+                <b-row style="height: 100%">
+                    <b-col cols="8" style="height: 100%">
+                        <div style="height: 70px">
+                            <b-row class="border-bottom">
+                                <b-col>
+                                    <artefact-editor-toolbar
+                                        :artefact="artefact"
+                                        :params="params"
+                                        @paramsChanged="onParamsChanged($event)"
+                                    ></artefact-editor-toolbar>
+                                </b-col>
+                                <b-col class="col-2 pt-4">
+                                    <div>
+                                        <b-form-checkbox
+                                        @input="onHighlightComment($event)"
+                                         switch size="sm"
+                                            >Comments</b-form-checkbox
+                                        >
+                                    </div>
+                                </b-col>
+                                <b-col class="col-3 pt-4">
+                                    <div>
+                                        <b-form-checkbox
+                                            switch
+                                            size="sm"
+                                            v-if="!readOnly"
+                                            @input="onAuto()"
+                                            >Auto character
+                                            select</b-form-checkbox
+                                        >
+                                    </div>
+                                </b-col>
+                            </b-row>
+                        </div>
+                        <div style="height: calc(100vh - 310px)">
+                            <div
+                                class="artefact-container"
+                                style="height: 100%"
+                                id="info-box"
+                                ref="infoBox"
+                            >
+                                <div class="sign-wheel sign-wheel-position">
+                                    {{ artefact.name }}
+                                    <edition-icons
+                                        :edition="edition"
+                                        :show-text="true"
+                                    />
+                                    <sign-wheel
+                                        v-if="
+                                            selectedSignsInterpretation.length ==
+                                            1
+                                        "
+                                        :line="selectedLine"
+                                    />
+                                </div>
+                                <b-button
+                                    type="button"
+                                    v-show="$bp.between('sm', 'lg')"
+                                    @click="nextLine()"
+                                    class="btn-next-line"
+                                >
+                                    <i class="fa fa-arrow-left"></i>
+                                </b-button>
+                                <zoomer
+                                    :zoom="zoomLevel"
+                                    :angle="rotationAngle"
+                                    @new-zoom="onNewZoom($event)"
+                                    @new-rotate="onNewRotate($event)"
+                                >
+                                    <svg
+                                        class="overlay"
+                                        :width="actualWidth"
+                                        :height="actualHeight"
+                                        :viewBox="actualBoundingBox"
+                                    >
+                                        <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
+                            the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute-->
+                                        <g
+                                            :transform="transform"
+                                            id="transform-root"
+                                        >
+                                            <!-- Rotate and scale the content -->
+                                            <!-- This group's coordinate system is the master image's -->
+                                            <image-layer
+                                                :width="imageWidth"
+                                                :height="imageHeight"
+                                                :params="params"
+                                                :clipping-mask="artefact.mask"
+                                                :boundingBox="
+                                                    artefact.mask.getBoundingBox()
+                                                "
+                                            />
+                                            <roi-layer
+                                                :rois="visibleRois"
+                                                @roi-clicked="
+                                                    onRoiClicked($event)
+                                                "
+                                            />
+                                            <boundary-drawer
+                                                v-show="
+                                                    isDrawingEnabled &&
+                                                    mode !== 'select'
+                                                "
+                                                :mode="mode"
+                                                transformRootId="transform-root"
+                                                @new-polygon="
+                                                    onNewPolygon($event)
+                                                "
+                                            />
+                                        </g>
+                                    </svg>
+                                </zoomer>
+                            </div>
+                        </div>
+                    </b-col>
+                    <b-col class="border-left px-0" style="height: 100%">
+                        <div
+                            id="text-right-sidebar"
+                            v-if="!waiting && artefact"
+                            style="height: 100%"
+                            :class="{
+                                sidebar: isActiveSidebar,
+                                text: isActiveText,
+                            }"
+                        >
+                            <text-side
+                                :artefact="artefact"
+                                @sign-interpretation-clicked="
+                                    onSignInterpretationClicked($event)
+                                "
+                                @text-fragment-selected="initVisibleRois()"
+                                @text-fragments-loaded="initVisibleRois()"
+                            ></text-side>
+                            <sign-attribute-pane />
+                        </div>
+                    </b-col>
+                </b-row>
+            </div>
         </div>
     </div>
 </template>
@@ -184,14 +243,8 @@ import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
 import { ArtefactTextFragmentData } from '@/models/text';
 
-import {
-    normalizeOpacity,
-} from '@/components/image-settings/types';
-import {
-    SignInterpretation,
-    InterpretationRoi,
-    Line,
-} from '@/models/text';
+import { normalizeOpacity } from '@/components/image-settings/types';
+import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import { BoundingBox } from '@/utils/helpers';
@@ -215,15 +268,21 @@ import {
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
 } from './operations';
-import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
+import {
+    SavingAgent,
+    OperationsManager,
+    OperationsManagerStatus,
+} from '@/utils/operations-manager';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
+import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
+import EditionHeader from '../edition/components/edition-header.vue';
 
 @Component({
     name: 'artefact-editor',
     components: {
         'waiting': Waiting,
         'artefact-image': ArtefactImage,
-        'artefact-side-menu': ArtefactSideMenu,
+        'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
@@ -232,14 +291,13 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
+        'edition-header': EditionHeader,
     },
 })
 export default class ArtefactEditor
     extends Vue
     implements SavingAgent<ArtefactEditorOperation> {
-    public params = new ArtefactEditorParams();
-    // private selectedSignInterpretation: SignInterpretation | null = null;
-    // private selectedInterpretationRoi: InterpretationRoi | null = null;
+    public params: ArtefactEditorParams = new ArtefactEditorParams();
     private mode: ActionMode = 'box';
     private autoMode = false;
 
@@ -260,19 +318,23 @@ export default class ArtefactEditor
     );
 
     private visibleRois: InterpretationRoi[] = [];
-
     protected get artefact() {
         return this.$state.artefacts.current!;
     }
-    public get artefactEditor() {
-        return this.$state.artefactEditor;
-    }
+
     public get selectedSignsInterpretation(): SignInterpretation[] {
-        return this.artefactEditor.selectedSignsInterpretation;
+        return this.artefactEditorState.selectedSignsInterpretation;
     }
 
     public get selectedInterpretationRoi(): InterpretationRoi | null {
-        return this.artefactEditor.selectedInterpretationRoi;
+        return this.artefactEditorState.selectedInterpretationRoi;
+    }
+
+    public get canUndo(): boolean {
+        return this.operationsManager.canUndo;
+    }
+    public get canRedo(): boolean {
+        return this.operationsManager.canRedo;
     }
 
     public async saveEntities(
@@ -290,7 +352,9 @@ export default class ArtefactEditor
                 ) as TextFragmentAttributeOperation[]
             );
             await this.saveCommentaries(
-                ops.filter(op => op.type === 'commentary') as SignInterpretationCommentOperation[]
+                ops.filter(
+                    (op) => op.type === 'commentary'
+                ) as SignInterpretationCommentOperation[]
             );
         } catch (e) {
             console.error("Can't save arterfacts to server", e);
@@ -356,6 +420,7 @@ export default class ArtefactEditor
         }
         this.visibleRois.push(newRoi);
         this.$state.artefactEditor.selectRoi(newRoi);
+        this.statusTextFragment(newRoi);
 
         return newRoi;
     }
@@ -394,7 +459,20 @@ export default class ArtefactEditor
         this.artefactEditorState.selectedSignsInterpretation = [];
     }
 
-    protected created() {
+    public get saveStatusMessage() {
+        if (this.operationsManager.isSaving) {
+            return 'Saving...';
+        }
+        if (this.operationsManager.isDirty) {
+            return 'Save pending';
+        }
+        return 'Scroll Saved';
+    }
+
+    protected async created() {
+        await this.$state.prepare.edition(
+            parseInt(this.$route.params.editionId)
+        );
         this.$state.eventBus.on('roi-changed', this.initVisibleRois);
         this.$state.eventBus.on(
             'change-artefact-rotation',
@@ -426,6 +504,7 @@ export default class ArtefactEditor
         if (this.$bp.between('sm', 'lg')) {
             this.isActiveSidebar = true;
         }
+
         await this.$state.prepare.artefact(
             parseInt(this.$route.params.editionId),
             parseInt(this.$route.params.artefactId)
@@ -467,9 +546,7 @@ export default class ArtefactEditor
     private get edition(): EditionInfo {
         return this.$state.editions.current!;
     }
-    private get imagedObject(): ImagedObject {
-        return this.$state.imagedObjects.current!;
-    }
+
     private get masterImage(): IIIFImage {
         return this.imageStack!.master;
     }
@@ -534,13 +611,15 @@ export default class ArtefactEditor
             );
 
             const anyRoiOfSelectedTf = visiblesTf.some((tf) => tf === tfId);
-            if (!anyRoiOfSelectedTf) {
-                const tfToMove = this.artefact.textFragments.find(
+            const tfToMove = this.artefact.textFragments.find(
                     (tf) => tf.id === tfId
                 );
-                if (tfToMove) {
-                    tfToMove.certain = false;
-                }
+            // if any ROI found in current text fragment, put tf.certain = false
+            if (!anyRoiOfSelectedTf && tfToMove) { 
+                this.artefactEditorState.removeTextFragementToArtefact(si);
+            // if new ROI and new text fragment, add text fragment to artefact
+            } else if (!tfToMove && anyRoiOfSelectedTf) {
+                this.artefactEditorState.addTextFragementToArtefact(si);
             }
         }
     }
@@ -647,15 +726,20 @@ export default class ArtefactEditor
     }
 
     private onAuto() {
-        if (this.artefactEditorState.selectedSignsInterpretation.length > 1) {
+        if (this.artefactEditorState.selectedSignsInterpretation.length > 1 && this.autoMode) {
             this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
                 type: 'info',
                 position: 'top-right',
                 duration: 7000,
             });
+            this.autoMode = false;
         } else {
             this.autoMode = !this.autoMode;
         }
+    }
+
+    private onHighlightComment(checked: boolean) {
+        this.$state.artefactEditor.highlightCommentMode = checked;
     }
 
     private fillImageSettings() {
@@ -809,31 +893,60 @@ export default class ArtefactEditor
                     break;
                 case 'update':
                     if (!op.prev || !op.next) {
-                        console.error('Found an update operation without both next and prev', op);
-                        throw new Error('Found an update operation without both next and prev');
+                        console.error(
+                            'Found an update operation without both next and prev',
+                            op
+                        );
+                        throw new Error(
+                            'Found an update operation without both next and prev'
+                        );
                     }
 
                     if (op.prev.attributeValueId === op.next.attributeValueId) {
                         // This is an update operation of a comment, we can use the update API
-                        await this.signInterpretationService.updateAttribute(this.edition!, si, op.next.attributeValueId, si.attributes[existingIndex]);
+                        await this.signInterpretationService.updateAttribute(
+                            this.edition!,
+                            si,
+                            op.next.attributeValueId,
+                            si.attributes[existingIndex]
+                        );
                         return;
                     }
 
-                    const prevIndex = si.findAttributeIndex(op.prev.attributeValueId);
-                    const nextIndex = si.findAttributeIndex(op.next.attributeValueId);
+                    const prevIndex = si.findAttributeIndex(
+                        op.prev.attributeValueId
+                    );
+                    const nextIndex = si.findAttributeIndex(
+                        op.next.attributeValueId
+                    );
 
                     if (prevIndex !== -1 && nextIndex !== -1) {
-                        console.error('In an attribute value update, we have both prev and next in the current attributes', op);
-                        throw new Error('In an attribute value update, we have both prev and next in the current attributes');
+                        console.error(
+                            'In an attribute value update, we have both prev and next in the current attributes',
+                            op
+                        );
+                        throw new Error(
+                            'In an attribute value update, we have both prev and next in the current attributes'
+                        );
                     }
 
                     // See if we delete prev and create next or vice versa
                     const prevIsCurrent = prevIndex !== -1;
-                    const toDeleteAttributeValueId = prevIsCurrent ? op.next.attributeValueId : op.prev.attributeValueId;
+                    const toDeleteAttributeValueId = prevIsCurrent
+                        ? op.next.attributeValueId
+                        : op.prev.attributeValueId;
                     const toCreateAttribute = prevIsCurrent ? op.prev : op.next;
 
-                    await this.signInterpretationService.deleteAttribute(this.edition!, si, toDeleteAttributeValueId);
-                    await this.signInterpretationService.createAttribute(this.edition!, si, toCreateAttribute);
+                    await this.signInterpretationService.deleteAttribute(
+                        this.edition!,
+                        si,
+                        toDeleteAttributeValueId
+                    );
+                    await this.signInterpretationService.createAttribute(
+                        this.edition!,
+                        si,
+                        toCreateAttribute
+                    );
                     break;
                 case 'delete':
                     await this.signInterpretationService.deleteAttribute(
@@ -848,12 +961,20 @@ export default class ArtefactEditor
 
     private async saveCommentaries(ops: SignInterpretationCommentOperation[]) {
         for (const op of ops) {
-            const si = this.$state.signInterpretations.get(op.signInterpretationId);
+            const si = this.$state.signInterpretations.get(
+                op.signInterpretationId
+            );
             if (!si) {
-                console.warn("Can't save commentary for non existing sign interpretation id ", op.signInterpretationId);
+                console.warn(
+                    "Can't save commentary for non existing sign interpretation id ",
+                    op.signInterpretationId
+                );
                 continue;
             }
-            await this.signInterpretationService.updateCommentary(this.$state.editions.current!, si);
+            await this.signInterpretationService.updateCommentary(
+                this.$state.editions.current!,
+                si
+            );
         }
     }
 
@@ -884,209 +1005,31 @@ export default class ArtefactEditor
 </script>
 
 <style lang="scss" scoped>
-.overlay {
-    position: absolute;
-    transform-origin: top left;
-}
-#artefact-editor {
-    overflow: hidden;
-    height: calc(100vh - 63px);
-}
-
-.artefact-menu-div {
-    height: calc(100vh - 63px);
-    overflow: hidden;
-}
-#zoom-div {
-    position: absolute;
-}
-#rotate-dev {
-    transform-origin: top left;
-}
-.buttons-div {
-    background-color: #eff1f4;
-}
-
-.sidebarCollapse {
-    width: 40px;
-    height: 40px;
-    display: block;
-    margin-bottom: 5px;
-}
-
-.wrapper {
-    display: flex;
-    align-items: stretch;
-    perspective: 1500px;
-}
-
-#sidebar {
-    min-width: 250px;
-    max-width: 250px;
-    transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
-}
-
-#sidebar.sidebar {
-    margin-left: -250px;
-    transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
-}
-
-.artefact-container.sidebar.text {
-    overflow: auto;
-    position: relative;
-    padding: 0;
-    height: calc(100vh - 63px);
-    width: calc(100vw - 80px);
-}
-
-.artefact-container.text {
-    overflow: auto;
-    position: relative;
-    padding: 0;
-    height: calc(100vh - 63px);
-    width: calc(100vw - 330px);
-}
-
-.artefact-container.sidebar {
-    overflow: auto;
-    position: relative;
-    padding: 0;
-    height: calc(100vh - 63px);
-    width: calc((100vw - 80px) / 2);
-}
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 
 .artefact-container {
-    overflow: auto;
-    position: relative;
-    padding: 0;
-    height: calc(100vh - 63px);
-    width: calc((100vw - 330px) / 2);
-}
-
-#text-right-sidebar {
-    height: calc(100vh - 63px);
-    width: calc((100vw - 330px) / 2);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-#text-right-sidebar.sidebar.text {
-    margin-right: calc((-100vw + 80px) / 2);
-}
-
-#text-right-sidebar.text {
-    margin-right: calc((-100vw + 330px) / 2);
-}
-
-#text-right-sidebar.sidebar {
-    width: calc((100vw - 80px) / 2);
-}
-
-#artefact-and-buttons {
-    margin: 0px;
-}
-
-.sign-wheel-position {
-    margin-top: 56px;
     text-align: center;
+
+    // height: calc(100vh - 63px);
+    // width: calc(100vw - 80px);
 }
-.btn-next-line {
-    position: absolute;
-    top: 0px;
+
+.status-badge {
+    font-family: $font-family;
+    text-align: center;
+    font-size: $font-size-1;
+    width: 68px;
+    height: 29.58px;
+    line-height: 20px;
 }
 
-// TODO -- update the madia
-@media (max-width: 1100px) {
-    /* Reversing the behavior of the sidebar:
-       it'll be rotated vertically and off canvas by default,
-       collapsing in on toggle button click with removal of
-       the vertical rotation.   */
-
-    #sidebar.sidebar {
-        margin-left: -250px;
-        transform: rotateY(100deg);
-    }
-    #sidebar.sidebarActive {
-        margin-left: 0;
-        transform: none;
-    }
-    .overlay {
-        position: absolute;
-        transform-origin: top left;
-    }
-
-    // TODO- check the scrolls in tablet, maybe they dno't have to appear.
-    .artefact-container.sidebar.text {
-        overflow: scroll;
-        position: relative;
-        padding: 0;
-        height: calc(100vh - 63px);
-        width: calc((93vw) / 2);
-    }
-
-    .artefact-container.text {
-        overflow: scroll;
-        position: relative;
-        padding: 0;
-        height: calc(100vh - 63px);
-        width: calc(100vw - 80px);
-    }
-
-    .artefact-container.sidebar {
-        overflow: scroll;
-        position: relative;
-        padding: 0;
-        height: calc(100vh - 63px);
-        width: calc((100vw - 80px));
-    }
-
-    .artefact-container {
-        overflow: scroll;
-        position: relative;
-        padding: 0;
-        height: calc(100vh - 63px);
-        width: calc(100vw - 80px);
-    }
-
-    #text-right-sidebar.sidebar.text {
-        margin-right: calc((-100vw + 330px) / 2);
-    }
-
-    #text-right-sidebar.sidebar.text {
-        width: calc((90vw) / 2);
-        transform: rotateY(0deg);
-    }
-
-    #text-right-sidebar.text {
-        width: calc((100vw - 80px) / 2);
-    }
-
-    #text-right-sidebar.sidebar {
-        margin-right: calc(-100vw + 330px);
-    }
-
-    #text-side {
-        margin: 30px -5px 20px 30px;
-    }
-
-    .sidebar.text {
-        .sign-wheel-position {
-            margin-left: 0px;
-            margin-right: 0px;
-            width: calc((87vw) / 2);
-        }
-    }
-    .sign-wheel {
-        overflow: auto;
-        white-space: normal;
-        word-break: break-word;
-        text-align: center;
-    }
-    .sign-wheel-position {
-        text-align: center;
-        margin-top: 50px;
-        z-index: 1000;
-    }
+.status-badge-draft {
+    background-color: $light-orange;
+    color: $orange;
+}
+.status-badge-published {
+    background-color: $light-greend;
+    color: $green;
 }
 </style>

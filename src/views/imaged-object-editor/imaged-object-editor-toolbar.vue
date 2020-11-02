@@ -208,6 +208,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
     }
 
     public set zoom(val: number) {
+         if (!val) {
+            val = 10;
+        }
         this.params.zoom = parseFloat(val.toString()) / 100;
         this.notifyChange('zoom', val);
     }
@@ -224,6 +227,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
         return ((this.params.rotationAngle % 360) + 360) % 360;
     }
     public set rotationAngle(val: number) {
+        if (!val) {
+            val = 0;
+        }
         this.params.rotationAngle =
             ((parseFloat(val.toString()) % 360) + 360) % 360;
         this.notifyChange('rotationAngle', val);

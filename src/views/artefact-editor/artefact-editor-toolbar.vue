@@ -28,10 +28,13 @@
                         </b-button-group>
                     </b-col>
                     <b-col class="p-0">
-                           <b-button
+                        <b-button
                             id="popover-1-bottom"
                             variant="outline-secondary"
-                            ><img class="mr-1" src="@/assets/images/adjust.svg" />
+                            ><img
+                                class="mr-1"
+                                src="@/assets/images/adjust.svg"
+                            />
                             <span>Adjust image</span>
                         </b-button>
                         <b-popover
@@ -148,7 +151,6 @@ import { Artefact } from '@/models/artefact';
     },
 })
 export default class ArtefactEditorToolbar extends Vue {
-
     private errorMessage: string = '';
     private imagedObjectService: ImagedObjectService = new ImagedObjectService();
     private imageStack: ImageStack = {} as ImageStack;
@@ -169,6 +171,9 @@ export default class ArtefactEditorToolbar extends Vue {
     }
 
     public set zoom(val: number) {
+        if (!val) {
+            val = 10;
+        }
         this.params.zoom = parseFloat(val.toString()) / 100;
         this.notifyChange('zoom', val);
     }
@@ -185,6 +190,9 @@ export default class ArtefactEditorToolbar extends Vue {
         return this.params.rotationAngle;
     }
     public set rotationAngle(val: number) {
+        if (!val) {
+            val = 0;
+        }
         this.params.rotationAngle = parseFloat(val.toString());
         this.notifyChange('rotationAngle', val);
     }
