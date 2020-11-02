@@ -4,7 +4,7 @@
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
                     <span class="name-edition" v-if="edition">
-                        Rule of Blessings {{ versionString(edition) }}
+                        {{ versionString(edition) }}
                     </span>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
