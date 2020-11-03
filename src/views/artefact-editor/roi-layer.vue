@@ -29,10 +29,9 @@ export default class RoiLayer extends Vue {
         }
     }
     public highlightedComment(roi: InterpretationRoi) {
-        if(roi.signInterpretationId) {
+        if (roi.signInterpretationId) {
             const si = this.$state.signInterpretations.get(roi.signInterpretationId);
-            return this.artefactEditorState.highlightCommentMode && si && si.commentary
-            
+            return this.artefactEditorState.highlightCommentMode && si && si.commentary;
         }
     }
 

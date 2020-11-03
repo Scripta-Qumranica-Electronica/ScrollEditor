@@ -289,7 +289,7 @@ import EditionHeader from '../edition/components/edition-header.vue';
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'edition-header': EditionHeader,
     },
 })
@@ -322,6 +322,36 @@ export default class ImagedObjectEditor
     private masterImage?: IIIFImage;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
+
+    public async saveEntities(
+        ops: ImagedObjectEditorOperation[]
+    ): Promise<boolean> {
+        // if (!this.artefact) {
+        //     throw new Error("Can't save if there is no artefact");
+        // }
+
+        for (const op of ops) {
+            const id = op.getId();
+            const artefact = this.artefacts.find((x) => x.id === id);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${id} for saving`);
+                continue;
+            }
+            try {
+                await this.artefactService.changeArtefact(
+                    this.editionId,
+                    artefact
+                );
+                this.showMessage('toasts.imagedObjectSaved', 'success');
+            } catch (error) {
+                console.error("Can't save arterfact to server", error);
+                this.showMessage('toasts.imagedObjectFailed', 'error');
+                continue;
+            }
+        }
+
+        return true;
+    }
 
     private async mounted() {
         try {
@@ -625,36 +655,6 @@ export default class ImagedObjectEditor
                 normalizeOpacity(this.params.imageSettings);
             }
         }
-    }
-
-    public async saveEntities(
-        ops: ImagedObjectEditorOperation[]
-    ): Promise<boolean> {
-        // if (!this.artefact) {
-        //     throw new Error("Can't save if there is no artefact");
-        // }
-
-        for (const op of ops) {
-            const id = op.getId();
-            const artefact = this.artefacts.find((x) => x.id === id);
-            if (!artefact) {
-                console.warn(`Can't find artefact ${id} for saving`);
-                continue;
-            }
-            try {
-                await this.artefactService.changeArtefact(
-                    this.editionId,
-                    artefact
-                );
-                this.showMessage('toasts.imagedObjectSaved', 'success');
-            } catch (error) {
-                console.error("Can't save arterfact to server", error);
-                this.showMessage('toasts.imagedObjectFailed', 'error');
-                continue;
-            }
-        }
-
-        return true;
     }
 
     private showMessage(msg: string, type: string = 'info') {
