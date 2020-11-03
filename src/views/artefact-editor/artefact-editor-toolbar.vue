@@ -16,7 +16,7 @@
                                 type="number"
                                 min="1"
                                 max="100"
-                                style="width: 75px"
+                                class="input-lg"
                             ></b-input>
                             <b-button
                                 class="mr-0"
@@ -72,7 +72,7 @@
                             <b-form-input
                                 type="number"
                                 v-model="rotationAngle"
-                                style="width: 75px"
+                                 class="input-lg"
                             />
                             <b-button
                                 @click="onRotateClick(10)"
@@ -264,5 +264,8 @@ button {
 }
 .popover-body {
     margin-left: 10px;
+}
+.input-lg{
+    width: 75px;
 }
 </style>

@@ -4,13 +4,13 @@
             <waiting></waiting>
         </div>
         <div v-if="!waiting">
-            <div class="mb-3" style="background-color: white">
+            <div class="mb-3 header-actions">
                 <b-row class="mx-4 py-2">
                     <b-col cols="8">
                         <edition-header></edition-header>
                     </b-col>
                     <b-col cols="0">
-                        <div class="buttons-div btn-tf">
+                        <div class="btn-tf">
                             <b-button
                                 v-for="mode in [
                                     {
@@ -76,18 +76,10 @@
                     >
                 </b-row>
             </div>
-            <div
-                class="mt-4"
-                style="
-                    background-color: white;
-                    margin-right: 5%;
-                    margin-left: 5%;
-                    height: calc(100vh - 180px);
-                "
-            >
-                <b-row style="height: 100%">
-                    <b-col cols="8" style="height: 100%">
-                        <div style="height: 70px">
+            <div class="mt-4 editor-container">
+                <b-row class="h-100">
+                    <b-col cols="8" class="h-100">
+                        <div class="editor-actions">
                             <b-row class="border-bottom">
                                 <b-col>
                                     <artefact-editor-toolbar
@@ -99,8 +91,9 @@
                                 <b-col class="col-2 pt-4">
                                     <div>
                                         <b-form-checkbox
-                                        @input="onHighlightComment($event)"
-                                         switch size="sm"
+                                            @input="onHighlightComment($event)"
+                                            switch
+                                            size="sm"
                                             >Comments</b-form-checkbox
                                         >
                                     </div>
@@ -119,14 +112,9 @@
                                 </b-col>
                             </b-row>
                         </div>
-                        <div style="height: calc(100vh - 310px)">
-                            <div
-                                class="artefact-container"
-                                style="height: 100%"
-                                id="info-box"
-                                ref="infoBox"
-                            >
-                                <div class="sign-wheel sign-wheel-position">
+                        <div class="artefact-image-container">
+                            <div class="artefact-container" ref="infoBox">
+                                <div>
                                     {{ artefact.name }}
                                     <edition-icons
                                         :edition="edition"
@@ -144,7 +132,6 @@
                                     type="button"
                                     v-show="$bp.between('sm', 'lg')"
                                     @click="nextLine()"
-                                    class="btn-next-line"
                                 >
                                     <i class="fa fa-arrow-left"></i>
                                 </b-button>
@@ -200,11 +187,10 @@
                             </div>
                         </div>
                     </b-col>
-                    <b-col class="border-left px-0" style="height: 100%">
+                    <b-col class="border-left px-0 h-100">
                         <div
-                            id="text-right-sidebar"
+                            class="h-100"
                             v-if="!waiting && artefact"
-                            style="height: 100%"
                             :class="{
                                 sidebar: isActiveSidebar,
                                 text: isActiveText,
@@ -280,14 +266,14 @@ import EditionHeader from '../edition/components/edition-header.vue';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-image': ArtefactImage,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
@@ -612,12 +598,12 @@ export default class ArtefactEditor
 
             const anyRoiOfSelectedTf = visiblesTf.some((tf) => tf === tfId);
             const tfToMove = this.artefact.textFragments.find(
-                    (tf) => tf.id === tfId
-                );
+                (tf) => tf.id === tfId
+            );
             // if any ROI found in current text fragment, put tf.certain = false
-            if (!anyRoiOfSelectedTf && tfToMove) { 
+            if (!anyRoiOfSelectedTf && tfToMove) {
                 this.artefactEditorState.removeTextFragementToArtefact(si);
-            // if new ROI and new text fragment, add text fragment to artefact
+                // if new ROI and new text fragment, add text fragment to artefact
             } else if (!tfToMove && anyRoiOfSelectedTf) {
                 this.artefactEditorState.addTextFragementToArtefact(si);
             }
@@ -726,7 +712,10 @@ export default class ArtefactEditor
     }
 
     private onAuto() {
-        if (this.artefactEditorState.selectedSignsInterpretation.length > 1 && this.autoMode) {
+        if (
+            this.artefactEditorState.selectedSignsInterpretation.length > 1 &&
+            this.autoMode
+        ) {
             this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
                 type: 'info',
                 position: 'top-right',
@@ -1008,11 +997,12 @@ export default class ArtefactEditor
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
+.header-actions {
+    background-color: $white;
+}
 .artefact-container {
     text-align: center;
-
-    // height: calc(100vh - 63px);
-    // width: calc(100vw - 80px);
+    height: 100%;
 }
 
 .status-badge {
@@ -1031,5 +1021,17 @@ export default class ArtefactEditor
 .status-badge-published {
     background-color: $light-greend;
     color: $green;
+}
+.editor-container {
+    background-color: $white;
+    margin-right: 5%;
+    margin-left: 5%;
+    height: calc(100vh - 180px);
+}
+.editor-actions {
+    height: 70px;
+}
+.artefact-image-container {
+    height: calc(100vh - 310px);
 }
 </style>

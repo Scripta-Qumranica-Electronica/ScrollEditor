@@ -1,8 +1,12 @@
 <template>
     <span
-        :class="[{ selected: isSelected}, cssStrings]"
+        :class="[
+            { selected: isSelected, highlighted: isHighlighted },
+            cssStrings,
+        ]"
         @click="onSignInterpretationClicked($event)"
-    >{{ si.character || '&nbsp;' }}</span>
+        >{{ si.character || '&nbsp;' }}</span
+    >
 </template>
 
 <script lang="ts">
@@ -36,6 +40,13 @@ export default class SignComponent extends Vue {
         return this.$state.artefactEditor.isSiSelected(this.si);
     }
 
+    private get isHighlighted() {
+        return (
+            this.$state.artefactEditor.highlightCommentMode &&
+            this.si.commentary
+        );
+    }
+
     private get cssStrings(): string {
         return this.si.attributes
             .map((x) =>
@@ -49,6 +60,7 @@ export default class SignComponent extends Vue {
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 div {
     display: inline;
 }
@@ -65,6 +77,10 @@ span.selected {
     transition: 0.6s;
     font-size: 17px;
     margin: 1px;
+}
+
+span.highlighted {
+    background-color: $yellow-select;
 }
 
 .is-reconstructed-true {

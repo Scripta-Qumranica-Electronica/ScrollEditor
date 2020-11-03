@@ -3,17 +3,13 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div
-            v-if="!waiting && imagedObject"
-            class="mb-3"
-            style="background-color: white"
-        >
+        <div v-if="!waiting && imagedObject" class="mb-3 header-actions">
             <b-row class="mx-4 py-2">
                 <b-col class="col-8">
                     <edition-header></edition-header>
                 </b-col>
                 <b-col class="col-3 mt-2">
-                    <div class="buttons-div btn-tf">
+                    <div class="btn-tf">
                         <b-button
                             v-for="mode in editList"
                             :key="mode.val"
@@ -32,17 +28,8 @@
                 </b-col>
             </b-row>
         </div>
-        <div
-            v-if="!waiting && imagedObject"
-            class="mt-4"
-            style="
-                background-color: white;
-                margin-right: 5%;
-                margin-left: 5%;
-                height: calc(100vh - 180px);
-            "
-        >
-            <b-row align-v="center" class="border-bottom" style="height: 70px">
+        <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
+            <b-row align-v="center" class="border-bottom editor-actions">
                 <b-col cols="9">
                     <imaged-object-editor-toolbar
                         :imagedObject="imagedObject"
@@ -66,10 +53,7 @@
                             @click="onUndo()"
                             >Undo</b-button
                         >
-                        <b-button
-                            class=""
-                            :disabled="!canRedo"
-                            @click="onRedo()"
+                        <b-button :disabled="!canRedo" @click="onRedo()"
                             >Redo</b-button
                         >
                     </b-button-group>
@@ -85,13 +69,8 @@
             </b-row>
             <b-row>
                 <b-col cols="8">
-                    <div style="height: calc(100vh - 275px)">
-                        <div
-                            class="artefact-container"
-                            style="height: 100%"
-                            id="info-box"
-                            ref="infoBox"
-                        >
+                    <div class="image-obj-container-height">
+                        <div class="img-obj-container h-100" ref="infoBox">
                             <div id="imaged-object-title">
                                 {{ imagedObject.id }}
                                 <edition-icons
@@ -151,11 +130,7 @@
                         </div>
                     </div>
                 </b-col>
-                <b-col
-                    class="pt-3"
-                    cols="4"
-                    style="height: calc(100vh - 250px); overflow: auto"
-                >
+                <b-col class="pt-3 col-rename-art" cols="4">
                     <div
                         v-for="art in visibleArtefacts"
                         :key="art.id"
@@ -171,14 +146,7 @@
                                         selected: art.id === artefact.id,
                                     }"
                                     @click="onArtefactChanged(art)"
-                                    style="
-                                        border: solid 3px;
-                                        height: 16px;
-                                        width: 100px;
-                                        display: inline-block;
-                                        margin-right: 4px;
-                                        cursor: pointer;
-                                    "
+                                    class="rename-art"
                                     :style="{
                                         color: getArtefactColor(art),
                                         backgroundColor: getArtefactColor(art),
@@ -732,13 +700,41 @@ export default class ImagedObjectEditor
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.artefact-container {
+.header-actions {
+    background-color: $white;
+}
+.editor-container {
+    background-color: $white;
+    margin-right: 5%;
+    margin-left: 5%;
+    height: calc(100vh - 180px);
+}
+.editor-actions {
+    height: 70px;
+}
+
+.img-obj-container {
     text-align: center;
+}
+.image-obj-container-height {
+    height: calc(100vh - 275px);
 }
 span.selected {
     font-weight: bold;
 }
 .selectedRow {
     border: 2px solid #7884a1;
+}
+.rename-art {
+    border: solid 3px;
+    height: 16px;
+    width: 100px;
+    display: inline-block;
+    margin-right: 4px;
+    cursor: pointer;
+}
+.col-rename-art {
+    height: calc(100vh - 250px);
+    overflow: auto;
 }
 </style>

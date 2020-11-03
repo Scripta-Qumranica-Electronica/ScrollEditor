@@ -16,7 +16,7 @@
                                 type="number"
                                 min="1"
                                 max="100"
-                                style="width: 75px"
+                                class="input-lg"
                             ></b-input>
                             <b-button
                                 class="mr-0"
@@ -31,7 +31,10 @@
                         <b-button
                             id="popover-1-bottom"
                             variant="outline-secondary"
-                            ><img class="mr-1" src="@/assets/images/adjust.svg" />
+                            ><img
+                                class="mr-1"
+                                src="@/assets/images/adjust.svg"
+                            />
                             <span>Adjust image</span>
                         </b-button>
                         <b-popover
@@ -81,9 +84,7 @@
                                 ></font-awesome-icon>
                             </b-button>
                         </b-button-group>
-                        <span style="width: 40px; text-align: center">
-                            {{ rotationAngle }} °
-                        </span>
+                        <span class="rotation"> {{ rotationAngle }} ° </span>
                     </b-col>
                     <b-col class="col-4">
                         <b-row>
@@ -208,7 +209,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
     }
 
     public set zoom(val: number) {
-         if (!val) {
+        if (!val) {
             val = 10;
         }
         this.params.zoom = parseFloat(val.toString()) / 100;
@@ -360,5 +361,12 @@ export default class ImagedObjectEditorToolbar extends Vue {
 <style lang="scss">
 .popover-body {
     margin-left: 10px;
+}
+.input-lg {
+    width: 75px;
+}
+.rotation {
+    width: 40px;
+    text-align: center;
 }
 </style>

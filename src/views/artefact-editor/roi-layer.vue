@@ -5,7 +5,7 @@
             :key="roi.id"
             :d="roi.shape.svg"
             :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="{ shine: roi.shiny, selected: isSelectedRoi(roi), highlighted: highlighted(roi) }"
+            :class="{ shine: roi.shiny, selected: isSelectedRoi(roi), highlighted: highlighted(roi), highlightedComment: highlightedComment(roi) }"
             @click="onPathClicked(roi)"
             vector-effect="non-scaling-stroke"
         />
@@ -28,6 +28,14 @@ export default class RoiLayer extends Vue {
             return roi.signInterpretationId === this.si.signInterpretationId;
         }
     }
+    public highlightedComment(roi: InterpretationRoi) {
+        if(roi.signInterpretationId) {
+            const si = this.$state.signInterpretations.get(roi.signInterpretationId);
+            return this.artefactEditorState.highlightCommentMode && si && si.commentary
+            
+        }
+    }
+
     public isSelectedRoi(roi: InterpretationRoi) {
         return (
             this.selectedInterpretationRoi &&
@@ -44,6 +52,10 @@ export default class RoiLayer extends Vue {
         return this.$state.artefactEditor.singleSelectedSi;
     }
 
+    public get artefactEditorState() {
+        return this.$state.artefactEditor;
+    }
+
     private onPathClicked(roi: InterpretationRoi) {
         this.roiClicked(roi);
     }
@@ -57,6 +69,7 @@ export default class RoiLayer extends Vue {
 
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 path {
     stroke-width: 2;
     fill: transparent;
@@ -66,6 +79,11 @@ path.highlighted {
     stroke-width: 2;
     fill: transparent;
     stroke: $red;
+}
+
+path.highlightedComment {
+    fill: $yellow-select;
+    fill-opacity: 0.5;
 }
 
 path.shiny {
