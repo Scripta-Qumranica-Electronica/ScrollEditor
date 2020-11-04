@@ -93,7 +93,7 @@ path.highlighted {
 
 path.highlightedComment {
     fill: $yellow-select;
-    fill-opacity: 0.5;
+    fill-opacity: 0.3;
 }
 
 path.shiny {

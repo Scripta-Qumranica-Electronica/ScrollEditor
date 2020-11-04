@@ -1,6 +1,6 @@
 <template>
-    <div style="height: calc(100vh - 285px);">
-        <div class="border-bottom" style="height: 71px; padding: 15px; text-align: right; padding-right: 31px;">
+    <div class="text-side-container">
+        <div class="border-bottom load-fragment">
             <input
                 v-if="!readOnly"
                 class="select-text"
@@ -18,7 +18,7 @@
             </datalist>
             <span class="isa_error">{{ errorMessage }}</span>
         </div>
-        <div id="text-side" class="fixed-header" style="height: calc(100% - 100px)">
+        <div id="text-side" class="fixed-header">
             <div
                 v-for="(textFragment, index) in displayedTextFragments"
                 :key="textFragment.id"
@@ -106,8 +106,10 @@ export default class TextSide extends Vue {
     }
 
     private get dropdownTextFragmentsData() {
-        const displayedTfIds = this.displayedTextFragments.map(tf => tf.id);
-        return this.allTextFragmentsData.filter((x) => !x.certain && !displayedTfIds.includes(x.id));
+        const displayedTfIds = this.displayedTextFragments.map((tf) => tf.id);
+        return this.allTextFragmentsData.filter(
+            (x) => !x.certain && !displayedTfIds.includes(x.id)
+        );
     }
 
     private get displayedTextFragmentsData() {
@@ -172,7 +174,9 @@ export default class TextSide extends Vue {
                 return;
             }
 
-            const tfIdsToDelete = this.allTextFragmentsData.filter((tfData) => !tfData.certain).map(t => t.id);
+            const tfIdsToDelete = this.allTextFragmentsData
+                .filter((tfData) => !tfData.certain)
+                .map((t) => t.id);
             this.displayedTextFragments.forEach((x, index) => {
                 if (tfIdsToDelete.includes(x.id)) {
                     this.displayedTextFragments.splice(index, 1);
@@ -192,9 +196,12 @@ export default class TextSide extends Vue {
         }
     }
     private emptySelectedState(id?: number) {
-        if (id &&
+        if (
+            id &&
             this.$state.artefactEditor.singleSelectedSi &&
-            this.$state.artefactEditor.singleSelectedSi.sign.line.textFragment.textFragmentId === id) {
+            this.$state.artefactEditor.singleSelectedSi.sign.line.textFragment
+                .textFragmentId === id
+        ) {
             return;
         }
         this.$state.artefactEditor.selectedSignsInterpretation = [];
@@ -236,6 +243,15 @@ export default class TextSide extends Vue {
 
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
+.text-side-container {
+    height: calc(100vh - 285px);
+}
+.load-fragment {
+    height: 71px;
+    padding: 15px;
+    text-align: right;
+    padding-right: 31px;
+}
 #text-side {
     touch-action: pan-y;
     height: 90%;
@@ -294,5 +310,8 @@ a.btn.btn-info.btn-block.not-collapsed {
 .btn-secondary:hover,
 .btn-secondary.disabled {
     background-color: white !important;
+}
+.fixed-header {
+    height: calc(100% - 100px);
 }
 </style>

@@ -161,7 +161,7 @@
                                     :class="{
                                         selected: art.id === artefact.id,
                                     }"
-                                    style="cursor: pointer"
+                                    class="select-art-name"
                                     @click="onArtefactChanged(art)"
                                     >{{ art.name }}</span
                                 >
@@ -736,5 +736,8 @@ span.selected {
 .col-rename-art {
     height: calc(100vh - 250px);
     overflow: auto;
+}
+.select-art-name{
+    cursor: pointer;
 }
 </style>
