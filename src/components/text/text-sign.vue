@@ -43,7 +43,8 @@ export default class SignComponent extends Vue {
     private get isHighlighted() {
         return (
             this.$state.artefactEditor.highlightCommentMode &&
-            this.si.commentary
+            (this.si.commentary ||
+                this.si.attributes.some((attr) => attr.commentary))
         );
     }
 

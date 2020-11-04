@@ -5,7 +5,12 @@
             :key="roi.id"
             :d="roi.shape.svg"
             :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="{ shine: roi.shiny, selected: isSelectedRoi(roi), highlighted: highlighted(roi), highlightedComment: highlightedComment(roi) }"
+            :class="{
+                shine: roi.shiny,
+                selected: isSelectedRoi(roi),
+                highlighted: highlighted(roi),
+                highlightedComment: highlightedComment(roi),
+            }"
             @click="onPathClicked(roi)"
             vector-effect="non-scaling-stroke"
         />
@@ -29,10 +34,15 @@ export default class RoiLayer extends Vue {
         }
     }
     public highlightedComment(roi: InterpretationRoi) {
-        if(roi.signInterpretationId) {
-            const si = this.$state.signInterpretations.get(roi.signInterpretationId);
-            return this.artefactEditorState.highlightCommentMode && si && si.commentary
-            
+        if (roi.signInterpretationId) {
+            const si = this.$state.signInterpretations.get(
+                roi.signInterpretationId
+            );
+            return (
+                this.artefactEditorState.highlightCommentMode &&
+                si &&
+                (si.commentary || si.attributes.some((attr) => attr.commentary))
+            );
         }
     }
 
