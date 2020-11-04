@@ -172,7 +172,7 @@ export default class TextSide extends Vue {
                 return;
             }
 
-            const tfIdsToDelete = this.allTextFragmentsData.filter((tfData) => !tfData.certain).map(tf => tf.id);
+            const tfIdsToDelete = this.allTextFragmentsData.filter((tfData) => !tfData.certain).map(t => t.id);
             this.displayedTextFragments.forEach((x, index) => {
                 if (tfIdsToDelete.includes(x.id)) {
                     this.displayedTextFragments.splice(index, 1);
