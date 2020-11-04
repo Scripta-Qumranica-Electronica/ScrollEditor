@@ -258,6 +258,7 @@ export default class TextSide extends Vue {
     overflow-y: auto;
     overflow-x: hidden;
     margin-right: 15px;
+    height: calc(100% - 100px);
 }
 
 button {
@@ -310,8 +311,5 @@ a.btn.btn-info.btn-block.not-collapsed {
 .btn-secondary:hover,
 .btn-secondary.disabled {
     background-color: white !important;
-}
-.fixed-header {
-    height: calc(100% - 100px);
 }
 </style>
