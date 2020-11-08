@@ -44,6 +44,13 @@ import {
     InterpretationAttributeDTO,
 } from '@/dtos/sqe-dtos';
 import { SignInterpretation } from '@/models/text';
+import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import {
+    SignInterperationEditOperation,
+    UpdateSignInterperationOperation,
+    ArtefactEditorOperation,
+    CreateSignInterpretationOperation,
+} from '@/views/artefact-editor/operations';
 import { Attributes } from '@fortawesome/fontawesome-svg-core';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 
@@ -53,22 +60,25 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 export default class EditSignModal extends Vue {
     private editedSi: SignInterpretation | null = null;
     private newAttributeValueId: number = 0;
-    private newCharacter: string | undefined = '';
+    private newCharacter: string = '';
     private isReconstructed: boolean = false;
 
     public shown(): void {
         this.editedSi = this.$state.artefactEditor.singleSelectedSi!;
 
-        this.newCharacter = this.editedSi.character;
+        this.newCharacter = this.editedSi.character || '';
         this.newAttributeValueId = this.editedSiSignType!.attributeValueId;
         this.isReconstructed = !!this.isReconstructedAttribute;
     }
+    
     private valueField(valueID: number) {
         const attributeValue = this.signTypes.find(
             (attrValue: AttributeValueDTO) => attrValue.id === valueID
         );
         if (attributeValue && attributeValue.value !== 'LETTER') {
-            this.newCharacter = undefined;
+            this.newCharacter = '';
+        } else {
+            this.newCharacter = this.editedSi!.character || ''
         }
     }
 
@@ -122,7 +132,7 @@ export default class EditSignModal extends Vue {
     // }
 
     public isLetter(e: any) {
-        this.newCharacter = undefined;
+        this.newCharacter = '';
         const char = String.fromCharCode(e.keyCode);
         if (/^[a-z\u0590-\u05fe]+$/i.test(char)) {
             this.newAttributeValueId = this.signTypes.find(
@@ -134,7 +144,36 @@ export default class EditSignModal extends Vue {
             )!.id;
             e.preventDefault();
         }
-        
+    }
+
+    public updateSignInterpretation() {
+        const op = new UpdateSignInterperationOperation(
+            this.editedSi!.id,
+            this.newCharacter,
+            this.newAttributeValueId,
+            this.signTypes.find(
+                (signType) => signType.id === this.newAttributeValueId
+            )!.value,
+            this.isReconstructed
+        );
+
+        op.redo();
+        this.$state.eventBus.emit('new-operation', op);
+    }
+
+    public createSignInterpretation() {
+        const op = new CreateSignInterpretationOperation(
+            this.editedSi!.id,
+            this.newCharacter,
+            this.newAttributeValueId,
+            this.signTypes.find(
+                (signType) => signType.id === this.newAttributeValueId
+            )!.value,
+            this.isReconstructed
+        );
+
+        op.redo();
+        this.$state.eventBus.emit('new-operation', op);
     }
 }
 </script>

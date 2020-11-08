@@ -24,7 +24,7 @@
                         >
                     </li>
                     <li>
-                        <b-link @click="deleteSign(si)"
+                        <b-link @click="deleteSignInterpretation(si)"
                             >Delete sign</b-link
                         >
                     </li>
@@ -40,6 +40,8 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 import EditSignModal from './edit-sign-modal.vue';
+import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import { DeleteSignInterpretationOperation } from '../../views/artefact-editor/operations';
 
 @Component({
     name: 'text-sign',
@@ -74,11 +76,11 @@ export default class SignComponent extends Vue {
             )
             .join(' ');
     }
-    private deleteSign(si: SignInterpretation) {
-        const index = si.sign.line.signs.findIndex((x) => x.indexInLine === si.sign.indexInLine);
-        if (index > -1) {
-            si.sign.line.signs.splice(index, 1);
-        }
+    private deleteSignInterpretation(si: SignInterpretation) {
+        const op = new DeleteSignInterpretationOperation(this.si.id);
+
+        op.redo();
+        this.$state.eventBus.emit('new-operation', op);
     }
     private onSignInterpretationClicked(event: MouseEvent) {
         if (event.ctrlKey || event.metaKey) {
@@ -97,6 +99,7 @@ export default class SignComponent extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
+
 div {
     display: inline;
 }
