@@ -29,7 +29,7 @@
                     </b-col>
                     <b-col class="p-0">
                         <b-button
-                            id="popover-1-bottom"
+                            id="popover-adjust"
                             variant="outline-secondary"
                             ><img
                                 class="mr-1"
@@ -39,8 +39,8 @@
                         </b-button>
                         <b-popover
                             class="popover-body"
-                            target="popover-1-bottom"
-                            triggers="click"
+                            target="popover-adjust"
+                            triggers="focus"
                             placement="bottom"
                             container="my-container"
                             ref="popover"

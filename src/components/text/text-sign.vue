@@ -1,17 +1,45 @@
 <template>
-    <span
-        :class="[
-            { selected: isSelected, highlighted: isHighlighted },
-            cssStrings,
-        ]"
-        @click="onSignInterpretationClicked($event)"
-        >{{ si.character || '&nbsp;' }}</span
-    >
+    <span>
+        <span
+            :class="[
+                { selected: isSelected, highlighted: isHighlighted },
+                cssStrings,
+            ]"
+            @click="onSignInterpretationClicked($event)"
+            >{{ si.character || '&nbsp;' }}</span
+        >
+        <b-popover
+            class="popover-body"
+            :target="'popover-si-' + si.signInterpretationId"
+            triggers="hover"
+            container="my-container"
+            ref="popover"
+        >
+            <div class="character-popover">
+                <span :class="cssStrings">{{ si.character || '&nbsp;' }}</span>
+                <ul>
+                    <li>
+                        <b-link @click="openEditSignModal($event)"
+                            >Edit sign</b-link
+                        >
+                    </li>
+                    <li>
+                        <b-link @click="deleteSign(si)"
+                            >Delete sign</b-link
+                        >
+                    </li>
+                    <li><b-link>Add to left</b-link></li>
+                    <li><b-link>Add to right</b-link></li>
+                </ul>
+            </div>
+        </b-popover>
+    </span>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
+import EditSignModal from './edit-sign-modal.vue';
 
 @Component({
     name: 'text-sign',
@@ -23,17 +51,6 @@ export default class SignComponent extends Vue {
     // Each sign offers alternative readings. For now we always show the first suggestion
     private get si() {
         return this.sign.signInterpretations[0];
-    }
-
-    private onSignInterpretationClicked(
-        event: MouseEvent,
-        si: SignInterpretation
-    ) {
-        if (event.ctrlKey || event.metaKey) {
-            this.$state.artefactEditor.toggleSelectSign(this.si);
-        } else {
-            this.$state.artefactEditor.selectSign(this.si);
-        }
     }
 
     private get isSelected() {
@@ -56,6 +73,24 @@ export default class SignComponent extends Vue {
                     .replace('_', '-')
             )
             .join(' ');
+    }
+    private deleteSign(si: SignInterpretation) {
+        const index = si.sign.line.signs.findIndex((x) => x.indexInLine === si.sign.indexInLine);
+        if (index > -1) {
+            si.sign.line.signs.splice(index, 1);
+        }
+    }
+    private onSignInterpretationClicked(event: MouseEvent) {
+        if (event.ctrlKey || event.metaKey) {
+            this.$state.artefactEditor.toggleSelectSign(this.si);
+        } else {
+            this.$state.artefactEditor.selectSign(this.si);
+        }
+    }
+
+    public openEditSignModal(event: MouseEvent) {
+        this.onSignInterpretationClicked(event);
+        this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 }
 </script>
@@ -113,5 +148,11 @@ span.highlighted {
 .relative-position-below-line {
     vertical-align: sub;
     font-size: 80%;
+}
+
+.character-popover {
+    .sign-type-space:after {
+        content: '˽';
+    }
 }
 </style>

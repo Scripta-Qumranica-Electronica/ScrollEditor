@@ -72,6 +72,7 @@
                 </b-collapse>
             </div>
         </div>
+        <edit-sign-modal></edit-sign-modal>
     </div>
 </template>
 
@@ -80,11 +81,13 @@ import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import { TextFragment, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
+import EditSignModal from '@/components/text/edit-sign-modal.vue';
 
 @Component({
     name: 'text-side',
     components: {
         'text-fragment': TextFragmentComponent,
+        'edit-sign-modal': EditSignModal,
     },
 })
 export default class TextSide extends Vue {
