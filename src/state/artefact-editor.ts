@@ -6,11 +6,13 @@ import { StateManager } from '.';
 function state() {
     return StateManager.instance;
 }
+export type editSignInterpretationModeType = 'edit' | 'create';
 export class ArtefactEditorState {
     public selectedSignsInterpretation: SignInterpretation[];
     public selectedInterpretationRoi: InterpretationRoi | null = null;
     public selectedAttribute: InterpretationAttributeDTO | null = null;
     public highlightCommentMode: boolean = false;
+    public modeSignModal: editSignInterpretationModeType = 'edit';
     constructor() {
         this.selectedSignsInterpretation = [];
     }

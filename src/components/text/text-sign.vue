@@ -19,17 +19,23 @@
                 <span :class="cssStrings">{{ si.character || '&nbsp;' }}</span>
                 <ul>
                     <li>
-                        <b-link @click="openEditSignModal($event)"
-                            >Edit sign</b-link
-                        >
+                        <b-link @click="openEditSignModal()">Edit sign</b-link>
                     </li>
                     <li>
                         <b-link @click="deleteSignInterpretation(si)"
                             >Delete sign</b-link
                         >
                     </li>
-                    <li><b-link>Add to left</b-link></li>
-                    <li><b-link>Add to right</b-link></li>
+                    <li>
+                        <b-link @click="openAddLeftSignModal()"
+                            >Add to left</b-link
+                        >
+                    </li>
+                    <li>
+                        <b-link @click="openAddRightSignModal()"
+                            >Add to right</b-link
+                        >
+                    </li>
                 </ul>
             </div>
         </b-popover>
@@ -90,8 +96,21 @@ export default class SignComponent extends Vue {
         }
     }
 
-    public openEditSignModal(event: MouseEvent) {
-        this.onSignInterpretationClicked(event);
+    public openEditSignModal() {
+        this.$state.artefactEditor.modeSignModal = 'edit';
+        this.$state.artefactEditor.selectSign(this.si);
+        this.$root.$emit('bv::show::modal', 'editSignModal');
+    }
+    public openAddLeftSignModal() {
+        this.$state.artefactEditor.modeSignModal = 'create';
+        this.$state.artefactEditor.selectSign(this.si);
+        this.$root.$emit('bv::show::modal', 'editSignModal');
+    }
+
+    public openAddRightSignModal() {
+        this.$state.artefactEditor.modeSignModal = 'create';
+        const si = this.si.sign.line.signs[this.si.sign.indexInLine - 1].signInterpretations[0];
+        this.$state.artefactEditor.selectSign(si);
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 }

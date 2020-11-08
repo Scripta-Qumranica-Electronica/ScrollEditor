@@ -1,6 +1,11 @@
 <template>
     <div>
-        <b-modal id="editSignModal" hide-footer @shown="shown">
+        <b-modal
+            id="editSignModal"
+            :title="isEditMode ? 'Edit' : 'Add'"
+            hide-footer
+            @shown="shown"
+        >
             <b-row v-if="editedSi">
                 <b-col>
                     <div>
@@ -8,6 +13,7 @@
                             type="text"
                             @keydown="isLetter($event)"
                             v-model="newCharacter"
+                            class="w-input"
                         ></b-input>
                     </div>
                 </b-col>
@@ -15,6 +21,7 @@
                     <div>
                         <b-form-select
                             v-model="newAttributeValueId"
+                            Edit
                             :options="signTypes"
                             value-field="id"
                             text-field="value"
@@ -28,10 +35,20 @@
                     <b-form-checkbox
                         :checked="editedSi.isReconstructed"
                         v-model="isReconstructed"
+                        class="mt-3"
                     >
                         Reconstructed
                     </b-form-checkbox></b-col
                 >
+                <b-col>
+                    <b-button
+                        class="mt-3"
+                        variant="primary"
+                        :disabled="!modeButtonApply"
+                        @click="statusMode()"
+                        >Apply</b-button
+                    >
+                </b-col>
             </b-row>
         </b-modal>
     </div>
@@ -63,6 +80,10 @@ export default class EditSignModal extends Vue {
     private newCharacter: string = '';
     private isReconstructed: boolean = false;
 
+    public get isEditMode(): boolean {
+        return this.$state.artefactEditor.modeSignModal === 'edit';
+    }
+
     public shown(): void {
         this.editedSi = this.$state.artefactEditor.singleSelectedSi!;
 
@@ -70,15 +91,13 @@ export default class EditSignModal extends Vue {
         this.newAttributeValueId = this.editedSiSignType!.attributeValueId;
         this.isReconstructed = !!this.isReconstructedAttribute;
     }
-    
+
     private valueField(valueID: number) {
         const attributeValue = this.signTypes.find(
             (attrValue: AttributeValueDTO) => attrValue.id === valueID
         );
         if (attributeValue && attributeValue.value !== 'LETTER') {
             this.newCharacter = '';
-        } else {
-            this.newCharacter = this.editedSi!.character || ''
         }
     }
 
@@ -90,6 +109,19 @@ export default class EditSignModal extends Vue {
             .values.sort((a: AttributeValueDTO, b: AttributeValueDTO) => {
                 return a.id > b.id ? 1 : -1;
             });
+    }
+    private get modeButtonApply(): boolean | undefined {
+        const attributeValue = this.signTypes.find(
+            (attrValue: AttributeValueDTO) =>
+                attrValue.id === this.newAttributeValueId
+        );
+        if (
+            attributeValue &&
+            attributeValue.value === 'LETTER' &&
+            this.newCharacter === ''
+        ) {
+            return false;
+        } else return true;
     }
 
     private get isReconstructedAttribute():
@@ -175,8 +207,21 @@ export default class EditSignModal extends Vue {
         op.redo();
         this.$state.eventBus.emit('new-operation', op);
     }
+
+    public statusMode() {
+        if (!this.isEditMode) {
+            this.createSignInterpretation();
+        } else {
+            this.updateSignInterpretation();
+        }
+    }
 }
 </script>
 
 <style lang="scss" scoped>
+.w-input {
+    width: 100px;
+    font-weight: 700;
+    font-size: 18px;
+}
 </style>
