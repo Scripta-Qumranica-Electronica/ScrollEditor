@@ -1,15 +1,16 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
 import { StateManager } from '@/state';
-import { InterpretationRoi } from '@/models/text';
+import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import Vue from 'vue';
+import { NumberFormatResult } from 'vue-i18n';
 
 function state() {
     return StateManager.instance;
 }
 
-export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary';
+export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary' | 'sign';
 
 
 export abstract class ArtefactEditorOperation implements Operation<ArtefactEditorOperation> {
@@ -246,3 +247,164 @@ export class SignInterpretationCommentOperation extends ArtefactEditorOperation 
     }
 }
 
+export type SignInterpretationEditOperationType = 'create' | 'update' | 'delete';
+
+export abstract class SignInterperationEditOperation extends ArtefactEditorOperation {
+    constructor(public signOpType: SignInterpretationEditOperationType) {
+        super('sign');
+    }
+
+    public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+        if (op.type !== 'sign') {
+            return undefined;
+        }
+
+        const other = op as SignInterperationEditOperation;
+        if (this.type !== op.type) {
+            return undefined;
+        }
+
+        return this.uniteWithRightOp(other);
+    }
+
+    protected abstract uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined;
+}
+
+interface SignData {
+    character: string;
+    signType: [number, string];
+    isReconstructed: boolean;
+}
+
+export class UpdateSignInterperationOperation extends SignInterperationEditOperation {
+    // Update a sign interepration - updates affect the character and the attributes.
+    public signInterpretationId: number;
+    public prev: SignData;
+    public next: SignData;
+
+    constructor(signInterperationId: number, character: string, signTypeId: number, signTypeString: string, isReconstructed: boolean) {
+        super('update');
+
+        this.signInterpretationId = signInterperationId;
+
+        this.next = {
+            character,
+            signType: [signTypeId, signTypeString],
+            isReconstructed
+        };
+        this.prev = this.getPrevSignData();
+    }
+
+    public redo() {
+        const si = this.signInterpretation;
+        si.character = this.next.character;
+        si.signType = this.next.signType;
+        si.isReconstructed = this.next.isReconstructed;
+    }
+
+    public undo() {
+        const si = this.signInterpretation;
+        si.character = this.prev.character;
+        si.signType = this.prev.signType;
+        si.isReconstructed = this.prev.isReconstructed;
+    }
+
+    protected uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined {
+        const other = op as UpdateSignInterperationOperation; // We are sure this is the right type
+        if (this.signInterpretationId !== other.signInterpretationId) {
+            return undefined;
+        }
+
+        const united = new UpdateSignInterperationOperation(this.signInterpretationId,
+                                                            this.next.character,
+                                                            this.next.signType[0],
+                                                            this.next.signType[1],
+                                                            this.next.isReconstructed);
+        united.prev = other.prev;
+
+        return united;
+    }
+
+    private get signInterpretation() {
+        return state().signInterpretations.get(this.signInterpretationId)!;
+    }
+
+    private getPrevSignData() {
+        const si = this.signInterpretation;
+        return {
+            character: si.character || '',
+            signType: si.signType,
+            isReconstructed: si.isReconstructed,
+        };
+    }
+}
+
+export class DeleteSignInterpretationOperation extends SignInterperationEditOperation {
+    public signInterperationId: number;
+    public sign: Sign;
+
+    constructor(signIntepretationId: number) {
+        super('delete');
+        this.signInterperationId = signIntepretationId;
+        this.sign = state().signInterpretations.get(this.signInterperationId)!.sign;
+    }
+
+    public uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined {
+        return undefined;
+    }
+
+    public redo() {
+        // Delete the sign from the line
+        this.sign.line.signs.splice(this.sign.indexInLine, 1);
+    }
+
+    public undo() {
+        // Add the sign back into the line
+        this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
+    }
+}
+
+export class CreateSignInterpretationOperation extends SignInterperationEditOperation {
+    public sign: Sign;
+
+    constructor(addAfterSignId: number, character: string, signTypeId: number, signTypeString: string, isReconstructed: boolean) {
+        super('create');
+
+        // We need to construct a brand new Sign object
+        const prevSignId = state().signInterpretations.get(addAfterSignId)!;
+        const prevSign = prevSignId.sign;
+
+        // First, create a sign with no interpretations
+        this.sign = new Sign({ signInterpretations: [] }, prevSign.line, prevSign.indexInLine + 1);
+
+        // Now the new sign interpretation
+        const si = new SignInterpretation({
+            character,
+            isVariant: false,
+            signInterpretationId: SignInterpretation.nextAvailableId,
+            nextSignInterpretations: [],
+            attributes: [],
+            rois: [],
+        }, this.sign);
+
+        // And the attributes
+        si.isReconstructed = isReconstructed;
+        si.signType = [signTypeId, signTypeString];
+
+        this.sign.signInterpretations. push(si);
+    }
+
+    public uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined {
+        return undefined;
+    }
+
+    public redo() {
+        // Add the sign into the line
+        this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
+    }
+
+    public undo() {
+        // Delete the sign from the line
+        this.sign.line.signs.splice(this.sign.indexInLine, 1);
+    }
+}
