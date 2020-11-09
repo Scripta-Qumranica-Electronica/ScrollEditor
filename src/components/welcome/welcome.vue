@@ -1,26 +1,33 @@
 <template>
-    <div style="height: 100vh" class="overflow-auto">
+    <div class="overflow-auto welcome-container">
         <div class="welcome">
             <div class="welcome-wrapper">
                 <p class="title">{{ $t('home.home') }}</p>
                 <p class="sub-title">
                     The next generation of Dead Sea Scrolls research
                 </p>
-                <b-nav class="btn-login" align="center">
+                <b-nav class="btn-inscription" align="center">
                     <b-nav-item v-if="!userName">
-                        <b-btn  size="md"  @click="login" style="background:#FFFFFF;color:#145AF3;width:120px">{{
-                            $t('navbar.login')
-                        }}</b-btn>
+                        <b-btn size="md" @click="login" class="btn-login">
+                            {{ $t('navbar.login') }}</b-btn
+                        >
                     </b-nav-item>
                     <b-nav-item v-if="!userName">
-                        <b-btn  size="md" @click="register" variant="primary" style="width:120px">
+                        <b-btn
+                            size="md"
+                            @click="register"
+                            variant="primary"
+                            class="btn-regis"
+                        >
                             {{ $t('navbar.register') }}
                         </b-btn>
                     </b-nav-item>
                 </b-nav>
-                   <p class="link"><router-link
-                        :to="{ path: `/home` }"
-                        >Enter the scrollery as a guest</router-link></p>
+                <p class="link">
+                    <router-link :to="{ path: `/home` }"
+                        >Enter the scrollery as a guest</router-link
+                    >
+                </p>
             </div>
 
             <login></login>
@@ -45,29 +52,50 @@
                         world to work together simultaneousy.
                     </p>
                     <div class="row">
-                      <div class="col-4 border-right font"><b-link>Learn more About the project</b-link></div>
-                       <div class="col-4 border-right font"><b-link>Dead sea scrolls website</b-link></div>  
-                        <div class="col-4 border-right font"><b-link>Dead sea scrolls website</b-link></div>    
+                        <div class="col-4 border-right font">
+                            <b-link>Learn more About the project</b-link>
+                        </div>
+                        <div class="col-4 border-right font">
+                            <b-link>Dead sea scrolls website</b-link>
+                        </div>
+                        <div class="col-4 border-right font">
+                            <b-link>Dead sea scrolls website</b-link>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 align-self-center">
                     <div class="container">
                         <div class="row logos">
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_antiquity.png" alt="Israel Antiquities Authority logo"/>
+                                <img
+                                    src="@/assets/images/logo_antiquity.png"
+                                    alt="Israel Antiquities Authority logo"
+                                />
                             </div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_gottingen.png" alt="University of Göttingen logo"/>
+                                <img
+                                    src="@/assets/images/logo_gottingen.png"
+                                    alt="University of Göttingen logo"
+                                />
                             </div>
                             <div class="w-100"></div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_tlv.png" alt="University of TLV logo"/>
+                                <img
+                                    src="@/assets/images/logo_tlv.png"
+                                    alt="University of TLV logo"
+                                />
                             </div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_jlm.png" alt="University of Jerusalem logo"/>
+                                <img
+                                    src="@/assets/images/logo_jlm.png"
+                                    alt="University of Jerusalem logo"
+                                />
                             </div>
                             <div class="col p-3">
-                                <img src="@/assets/images/logo_haifa.png"  alt="University of Haifa logo"/>
+                                <img
+                                    src="@/assets/images/logo_haifa.png"
+                                    alt="University of Haifa logo"
+                                />
                             </div>
                         </div>
                     </div>
@@ -119,6 +147,11 @@ export default class Welcome extends Vue {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+.welcome-container{
+    height: 100vh;
+}
 .welcome {
     height: 400px;
     position: relative;
@@ -139,34 +172,32 @@ export default class Welcome extends Vue {
         line-height: 49px;
         padding-top: 129px;
         margin: 0px;
-        font-family: 'AvenirLTStd-Light';
+        font-family: $font-family;
     }
     .sub-title {
-        font-style: normal;
+        font-style: $font-style;
         font-size: 20px;
         padding-top: 4.79px;
         padding-top: 4.79px;
         text-transform: inherit;
     }
-    .link{
-        font-family: 'AvenirLTStd-Light';
+    .link {
+        font-family: $font-family;
         font-size: 16px;
-         font-weight: 800;
+        font-weight: 800;
         text-align: center;
         text-decoration: underline;
         text-transform: inherit;
         padding-top: 20px;
-        font-style:normal;
-        
+        font-style: normal;
     }
-    .link a{
+    .link a {
         color: white;
     }
 }
 
 .intro {
     padding: 4%;
-
 }
 
 .welcome:after {
@@ -184,7 +215,7 @@ export default class Welcome extends Vue {
     pointer-events: none;
     z-index: 10;
 }
-.btn-login {
+.btn-inscription {
     padding-top: 31px;
 }
 .logos {
@@ -195,11 +226,18 @@ export default class Welcome extends Vue {
         max-width: 200px;
     }
 }
-.font{
-    font-size: 14px;
-    font-weight: 500;
+.font {
+    font-size: $font-size-1;
+    font-weight: $font-weight-1;
     text-decoration: underline;
     text-align: center;
 }
-
+.btn-regis,
+.btn-login {
+    width: 120px;
+}
+.btn-login {
+    background: #ffffff;
+    color: $blue;
+}
 </style>

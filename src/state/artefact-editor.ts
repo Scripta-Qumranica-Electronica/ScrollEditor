@@ -10,6 +10,7 @@ export class ArtefactEditorState {
     public selectedSignsInterpretation: SignInterpretation[];
     public selectedInterpretationRoi: InterpretationRoi | null = null;
     public selectedAttribute: InterpretationAttributeDTO | null = null;
+    public highlightCommentMode: boolean = false;
     constructor() {
         this.selectedSignsInterpretation = [];
     }
@@ -50,7 +51,7 @@ export class ArtefactEditorState {
 
     }
 
-    private addTextFragementToArtefact(si: SignInterpretation) {
+    public addTextFragementToArtefact(si: SignInterpretation) {
         const siTextFragment = si.sign.line.textFragment;
         const tf = state().artefacts.current!.textFragments.find(
             (x: ArtefactTextFragmentData) => x.id === siTextFragment.textFragmentId
@@ -67,7 +68,7 @@ export class ArtefactEditorState {
         }
     }
 
-    private removeTextFragementToArtefact(si: SignInterpretation) {
+    public removeTextFragementToArtefact(si: SignInterpretation) {
         const siTextFragment = si.sign.line.textFragment;
         const tfIndex = state().artefacts.current!.textFragments.findIndex(
             (x: ArtefactTextFragmentData) => x.id === siTextFragment.textFragmentId

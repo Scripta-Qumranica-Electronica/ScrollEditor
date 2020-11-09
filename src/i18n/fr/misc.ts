@@ -1,6 +1,6 @@
 export default {
     cancel: 'Annuler',
-    new: 'Nouveau',
+    new: 'Nouveau Artefact',
     current: 'Actuel',
     copy: 'Cree une copie',
     permission: 'Autorisation',

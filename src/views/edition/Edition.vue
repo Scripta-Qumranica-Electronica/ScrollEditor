@@ -4,7 +4,7 @@
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
                     <span class="name-edition" v-if="edition">
-                        Rule of Blessings {{ versionString(edition) }}
+                        {{ versionString(edition) }}
                     </span>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
@@ -39,6 +39,11 @@
                         variant="outline-primary"
                         :to="`/editions/${edition.id}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
+                    >
+                      <b-button
+                        variant="outline-primary"
+                        :to="`/editions/${edition.id}/scroll-editor`"
+                        >Entire Manuscript</b-button
                     >
                 </b-button-group>
             </div>
@@ -108,7 +113,6 @@ export default Vue.extend({
     },
     methods: {
         openPermissionModal() {
-            console.log('ffff');
             this.$root.$emit('bv::show::modal', 'permissionModal');
         },
         versionString(ver: EditionInfo) {

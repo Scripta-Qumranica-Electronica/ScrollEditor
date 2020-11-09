@@ -3,6 +3,7 @@
         @wheel="onWheel($event)"
         v-hammer:pinch="onPinch"
         v-hammer:rotate="onRotate"
+        style="height:100%; overflow: auto;"
     >
         <slot></slot>
     </div>

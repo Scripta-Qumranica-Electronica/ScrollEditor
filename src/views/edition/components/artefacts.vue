@@ -15,7 +15,7 @@
             <div
                 class="card"
                 v-for="artefact in filteredArtefacts"
-                :key="artefact.versionId"
+                :key="artefact.id"
             >
                 <artefact-card :artefact="artefact"></artefact-card>
             </div>

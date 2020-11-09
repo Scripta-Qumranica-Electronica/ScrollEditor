@@ -1,155 +1,301 @@
 <template>
-    <div class="wrapper" id="imaged-object-editor">
+    <div>
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div
-            id="sidebar"
-            class="imaged-object-menu-div col-xl-2 col-lg-3 col-md-4"
-            v-if="!waiting && imagedObject"
-            :class="{ active : isActive }"
-        >
-            <imaged-object-menu
-                :imagedObject="imagedObject"
-                :artefacts="visibleArtefacts"
-                :artefact="artefact"
-                :artefactId="artefactId"
-                :params="params"
-                :editable="canEdit"
-                :side="side"
-                :status-indicator="operationsManager"
-                @paramsChanged="onParamsChanged($event)"
-                @undo="onUndo($event)"
-                @redo="onRedo($event)"
-                @create="onNew($event)"
-                @rename="onRename($event)"
-                @deleteArtefact="onDeleteArtefact($event)"
-                @inputRenameChanged="inputRenameChanged($event)"
-                @artefactChanged="onArtefactChanged($event)"
-                @onSideArtefactChanged="sideArtefactChanged($event)"
-                :saving="saving"
-                :renaming="renaming"
-                :renameInputActive="renameInputActive"
-            ></imaged-object-menu>
-        </div>
-
-        <div
-            id="content"
-            class="container col-xl-12 col-lg-12 col-md-12"
-            v-if="!waiting && imagedObject"
-        >
-            <!-- todo: add external div with the condition -->
-            <div class="row">
-                <div id="buttons-div">
-                    <b-button
-                        type="button"
-                        class="sidebarCollapse"
-                        @click="sidebarClicked()"
-                        v-b-tooltip.hover.bottom
-                        :title="$t('misc.collapsedsidebarObject')"
-                    >
-                        <i class="fa fa-align-justify"></i>
-                    </b-button>
-
-                    <b-button
-                        v-for="mode in editList"
-                        :key="mode.val"
-                        @click="editingModeChanged(mode.val)"
-                        :pressed="modeChosen(mode.val)"
-                        class="sidebarCollapse"
-                        v-b-tooltip.hover.bottom
-                        :title="mode.title"
-                    >
-                        <i :class="mode.icon"></i>
-                    </b-button>
-                </div>
-
-                <div class="imaged-object-container" :class="{active: isActive}">
-                    <div id="imaged-object-title">
-                        {{ imagedObject.id }}
-                        <edition-icons :edition="edition" :show-text="true" />
-                    </div>
-
-                    <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
-                        <svg
-                            class="overlay"
-                            :width="actualWidth"
-                            :height="actualHeight"
-                            :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
+        <div v-if="!waiting && imagedObject" class="mb-3 header-actions">
+            <b-row class="mx-4 py-2">
+                <b-col class="col-8">
+                    <edition-header></edition-header>
+                </b-col>
+                <b-col class="col-3 mt-2">
+                    <div class="btn-tf">
+                        <b-button
+                            v-for="mode in editList"
+                            :key="mode.val"
+                            @click="editingModeChanged(mode.val)"
+                            :pressed="modeChosen(mode.val)"
+                            class="sidebarCollapse mr-4 pMt-2"
+                            v-b-tooltip.hover.bottom
+                            :title="mode.title"
                         >
-                            <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
-                            <g :transform="transform" id="transform-root">
-                                <!-- Coordinate system is in master image coordinates -->
-                                <image-layer
-                                    v-if="artefact"
-                                    :width="imageWidth"
-                                    :height="imageHeight"
-                                    :params="params"
-                                    :editable="canEdit"
-                                    :clipping-mask="artefact.mask"
-                                />
-                                <artefact-layer
-                                    :selected="art.id === artefact.id"
-                                    v-for="art in visibleArtefacts"
-                                    :artefact="art"
-                                    :key="art.id"
-                                    :color="removeColor ? 'none' : getArtefactColor(art)"
-                                />
-                                <boundary-drawer
-                                    v-if="canEdit && artefact"
-                                    :color="isErasing ? 'black' : getArtefactColor(artefact)"
-                                    transform-root-id="transform-root"
-                                    @new-polygon="onNewPolygon($event)"
-                                />
-                            </g>
-                        </svg>
-                    </zoomer>
-                </div>
-            </div>
+                            <i :class="mode.icon"></i>
+                        </b-button>
+                    </div>
+                </b-col>
+                <b-col class="p-3 col-1">
+                    <div>{{ saveStatusMessage }}</div>
+                </b-col>
+            </b-row>
         </div>
+        <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
+            <b-row align-v="center" class="border-bottom editor-actions">
+                <b-col cols="9">
+                    <imaged-object-editor-toolbar
+                        :imagedObject="imagedObject"
+                        :artefacts="visibleArtefacts"
+                        :artefact="artefact"
+                        :artefactId="artefactId"
+                        :params="params"
+                        :side="side"
+                        :status-indicator="operationsManager"
+                        @paramsChanged="onParamsChanged($event)"
+                        @undo="onUndo($event)"
+                        @redo="onRedo($event)"
+                        @onSideArtefactChanged="sideArtefactChanged($event)"
+                    ></imaged-object-editor-toolbar>
+                </b-col>
+                <b-col class="pt-3">
+                    <b-button-group>
+                        <b-button
+                            class="mr-1"
+                            :disabled="!canUndo"
+                            @click="onUndo()"
+                            >Undo</b-button
+                        >
+                        <b-button :disabled="!canRedo" @click="onRedo()"
+                            >Redo</b-button
+                        >
+                    </b-button-group>
+                </b-col>
+                <b-col class="pt-3">
+                    <b-btn
+                        v-if="canEdit"
+                        v-b-modal.modal="'newModal'"
+                        class="btn btn-sm btn-outline"
+                        >{{ $t('misc.new') }}</b-btn
+                    >
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col cols="8">
+                    <div class="image-obj-container-height">
+                        <div class="img-obj-container h-100" ref="infoBox">
+                            <div id="imaged-object-title">
+                                {{ imagedObject.id }}
+                                <edition-icons
+                                    :edition="edition"
+                                    :show-text="true"
+                                />
+                            </div>
+                            <zoomer
+                                v-if="masterImage"
+                                :zoom="zoomLevel"
+                                @new-zoom="onNewZoom($event)"
+                            >
+                                <svg
+                                    class="overlay"
+                                    :width="actualWidth"
+                                    :height="actualHeight"
+                                    :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
+                                >
+                                    <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
+                                    <g
+                                        :transform="transform"
+                                        id="transform-root"
+                                    >
+                                        <!-- Coordinate system is in master image coordinates -->
+                                        <image-layer
+                                            v-if="artefact"
+                                            :width="imageWidth"
+                                            :height="imageHeight"
+                                            :params="params"
+                                            :editable="canEdit"
+                                            :clipping-mask="artefact.mask"
+                                        />
+                                        <artefact-layer
+                                            :selected="art.id === artefact.id"
+                                            v-for="art in visibleArtefacts"
+                                            :artefact="art"
+                                            :key="art.id"
+                                            :color="
+                                                removeColor
+                                                    ? 'none'
+                                                    : getArtefactColor(art)
+                                            "
+                                        />
+                                        <boundary-drawer
+                                            v-if="canEdit && artefact"
+                                            :color="
+                                                isErasing
+                                                    ? 'black'
+                                                    : getArtefactColor(artefact)
+                                            "
+                                            transform-root-id="transform-root"
+                                            @new-polygon="onNewPolygon($event)"
+                                        />
+                                    </g>
+                                </svg>
+                            </zoomer>
+                        </div>
+                    </div>
+                </b-col>
+                <b-col class="pt-3 col-rename-art" cols="4">
+                    <div
+                        v-for="art in visibleArtefacts"
+                        :key="art.id"
+                        :class="{
+                            selectedRow: art.id === artefact.id,
+                        }"
+                    >
+                        <b-row class="py-2">
+                            <b-col class="col-4 pl-4 pt-1">
+                                <span
+                                    v-if="renameInputActive !== art"
+                                    :class="{
+                                        selected: art.id === artefact.id,
+                                    }"
+                                    @click="onArtefactChanged(art)"
+                                    class="rename-art"
+                                    :style="{
+                                        color: getArtefactColor(art),
+                                        backgroundColor: getArtefactColor(art),
+                                    }"
+                                >
+                                    &nbsp;
+                                </span>
+                            </b-col>
+                            <b-col class="col-3">
+                                <span
+                                    v-if="renameInputActive !== art"
+                                    :class="{
+                                        selected: art.id === artefact.id,
+                                    }"
+                                    class="select-art-name"
+                                    @click="onArtefactChanged(art)"
+                                    >{{ art.name }}</span
+                                >
+                            </b-col>
+                            <b-col class="col-5 px-0">
+                                <div v-if="canEdit">
+                                    <b-button
+                                        v-if="renameInputActive !== art"
+                                        class="btn btn-sm"
+                                        id="rename"
+                                        @click="inputRenameChanged(art)"
+                                        >Rename</b-button
+                                    >
+                                    <input
+                                        v-if="renameInputActive === art"
+                                        v-model="art.name"
+                                    />
+                                    <b-button
+                                        v-if="
+                                            !renaming &&
+                                            renameInputActive === art
+                                        "
+                                        class="btn btn-sm"
+                                        :disabled="!art.name"
+                                        @click="onRename(art)"
+                                        >Rename</b-button
+                                    >
+                                    <b-button
+                                        v-if="
+                                            renameInputActive === art &&
+                                            renaming
+                                        "
+                                        disabled
+                                        class="disable btn btn-sm"
+                                    >
+                                        Renaming...
+                                        <font-awesome-icon
+                                            icon="spinner"
+                                            spin
+                                        ></font-awesome-icon>
+                                    </b-button>
+                                    <b-button
+                                        class="btn btn-sm ml-2"
+                                        @click="onDeleteArtefact(art)"
+                                        >Delete</b-button
+                                    >
+                                </div>
+                            </b-col>
+                        </b-row>
+                    </div>
+                </b-col>
+            </b-row>
+        </div>
+        <b-modal
+            id="newModal"
+            ref="newArtRef"
+            :title="$t('home.newArtefact')"
+            @shown="newModalShown"
+            @ok="newArtefact"
+            :ok-title="$t('misc.create')"
+            :cancel-title="$t('misc.cancel')"
+            :ok-disabled="waiting || !canCreate"
+            :cancel-disabled="waiting"
+        >
+            <form @submit.stop.prevent="newArtefact">
+                <b-form-group
+                    :label="$t('home.newArtefactName')"
+                    label-for="newArtefactName"
+                >
+                    <b-form-input
+                        ref="newArtefactName"
+                        id="newName"
+                        v-model="newArtefactName"
+                        type="text"
+                        @keyup.enter="newArtefact"
+                        required
+                        :placeholder="$t('home.newArtefactName')"
+                    ></b-form-input>
+                </b-form-group>
+                <p v-if="waiting">
+                    {{ $t('home.creatingNewArtefact') }}...
+                    <font-awesome-icon icon="spinner" spin></font-awesome-icon>
+                </p>
+                <p class="text-danger" v-if="errorMessage">
+                    {{ errorMessage }}
+                </p>
+            </form>
+        </b-modal>
     </div>
 </template>
 
-<!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionService from '@/services/edition';
-import { ImagedObject } from '@/models/imaged-object';
-import { Artefact } from '@/models/artefact';
-import ImagedObjectMenu from '@/views/imaged-object-editor/imaged-object-menu.vue';
+import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
+import ArtefactService from '@/services/artefact';
 import {
-    ImagedObjectEditorParams,
-    EditorParamsChangedArgs,
     DrawingMode,
-} from '@/views/imaged-object-editor/types';
+    EditorParamsChangedArgs,
+    ImagedObjectEditorParams,
+} from './types';
+import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
+import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
 import { IIIFImage } from '@/models/image';
 import ImageLayer from '@/views/imaged-object-editor/image-layer.vue';
 import ArtefactLayer from '@/views/imaged-object-editor/artefact-layer.vue';
-import { Polygon } from '@/utils/Polygons';
-import { Side } from '@/models/misc';
-import ArtefactService from '@/services/artefact';
-import { DropdownOption } from '@/utils/helpers';
-import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
-import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
-import { normalizeOpacity } from '@/components/image-settings/types';
-import { addToArray } from '@/utils/collection-utils';
-import EditionIcons from '@/components/cues/edition-icons.vue';
+import { EditionInfo } from '@/models/edition';
+import { Artefact } from '@/models/artefact';
+import { ImagedObject } from '@/models/imaged-object';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import { ArtefactEditorOperation } from '../artefact-editor/operations';
+import { Side } from '@/models/misc';
 import { ImagedObjectEditorOperation } from './operations';
+import { Polygon } from '@/utils/Polygons';
+import { normalizeOpacity } from '@/components/image-settings/types';
+import ImagedObjectEditorToolbar from './imaged-object-editor-toolbar.vue';
+import { DropdownOption } from '@/utils/helpers';
+import EditionHeader from '../edition/components/edition-header.vue';
+
 @Component({
     name: 'imaged-object-editor',
     components: {
         Waiting,
-        'imaged-object-menu': ImagedObjectMenu,
         'image-layer': ImageLayer,
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
+        'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
         'zoomer': Zoomer,
-        'edition-icons': EditionIcons
-    }
+        'edition-header': EditionHeader,
+    },
 })
-export default class ImagedObjectEditor extends Vue implements SavingAgent<ImagedObjectEditorOperation> {
+export default class ImagedObjectEditor
+    extends Vue
+    implements SavingAgent<ImagedObjectEditorOperation> {
     private static colors = [
         'purple',
         'blue',
@@ -160,34 +306,33 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
         'magenta',
         'olive',
         'brown',
-        'cadetBlue'
+        'cadetBlue',
     ];
 
     private artefactService = new ArtefactService();
-    private editionService = new EditionService();
-    private waiting = true;
-    private artefactId: number = -1;
-    private initialMask = new Polygon();
     private params = new ImagedObjectEditorParams();
-    private saving = false;
+    private artefactId: number = -1;
     private renaming = false;
-    private renameInputActive: Artefact | null = null;
-    private nonSelectedMask = new Polygon();
-    // private artefactEditingDataList: ArtefactEditingData[] = [];
-    // private artefactEditingData = new ArtefactEditingData();
-    private isActive = false;
-    private masterImage?: IIIFImage;
+    private operationsManager = new OperationsManager<
+        ImagedObjectEditorOperation
+    >(this);
     private side: Side = 'recto';
-    private operationsManager = new OperationsManager<ImagedObjectEditorOperation>(this);
+    private renameInputActive: Artefact | null = null;
+    private waiting: boolean = false;
+    private masterImage?: IIIFImage;
+    private initialMask = new Polygon();
+    private nonSelectedMask = new Polygon();
 
-    public async saveEntities(ops: ImagedObjectEditorOperation[]): Promise<boolean> {
+    public async saveEntities(
+        ops: ImagedObjectEditorOperation[]
+    ): Promise<boolean> {
         // if (!this.artefact) {
         //     throw new Error("Can't save if there is no artefact");
         // }
 
         for (const op of ops) {
             const id = op.getId();
-            const artefact = this.artefacts.find(x => x.id === id);
+            const artefact = this.artefacts.find((x) => x.id === id);
             if (!artefact) {
                 console.warn(`Can't find artefact ${id} for saving`);
                 continue;
@@ -208,107 +353,6 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
         return true;
     }
 
-    private get artefact(): Artefact | undefined {
-        const artefact = this.artefacts.find(x => x.id === this.artefactId);
-        return artefact;
-    }
-
-    private get editList(): any[] {
-        if (this.canEdit) {
-            return [
-                {
-                    icon: 'fa fa-pencil',
-                    val: 'DRAW',
-                    title: this.$t('misc.draw')
-                },
-                {
-                    icon: 'fa fa-trash',
-                    val: 'ERASE',
-                    title: this.$t('misc.cancel')
-                }
-            ];
-        }
-        return [];
-    }
-    private get zoomLevel(): number {
-        return this.params.zoom;
-    }
-
-    private get imagedObject(): ImagedObject | undefined {
-        return this.$state.imagedObjects.current;
-    }
-
-    private get editionId(): number {
-        return parseInt(this.$route.params.editionId);
-    }
-
-    private get edition() {
-        return this.$state.editions.current!;
-    }
-
-    private get canEdit(): boolean {
-        return this.$state.editions.current?.permission.mayWrite || false;
-    }
-
-    private get actualWidth(): number {
-        return (
-            (this.rotationAngle % 180 ? this.imageHeight : this.imageWidth) *
-            this.zoomLevel
-        );
-    }
-
-    private get actualHeight(): number {
-        return (
-            (this.rotationAngle % 180 ? this.imageWidth : this.imageHeight) *
-            this.zoomLevel
-        );
-    }
-
-    private get rotationAngle(): number {
-        return ((this.params.rotationAngle % 360) + 360) % 360;
-    }
-
-    private get transform(): string {
-        // Rotation
-        const rotate = `rotate(${this.rotationAngle}, ${this.imageWidth /
-            2}, ${this.imageHeight / 2})`;
-
-        // If the rotation is by 90 or 270 degrees, the image need to be moved a little bit.
-        // Since the image's width is larger than its height, rotation by 90 degrees (or 270) results in a
-        // white band to the left of the rotated image. The top of the image is cut-off by exactly the
-        // width of the white band.
-        let translate = '';
-        if (this.rotationAngle % 180) {
-            // 90 or 270
-            // The band is caused by the new width (old height) being smaller than the old width.
-            // There actually two bands, one to the left and one to the right. The right one can't be seen.
-            const bandWidth = (this.imageWidth - this.imageHeight) / 2;
-            translate = `translate(-${bandWidth}, ${bandWidth})`;
-        }
-
-        const scale = `scale(${this.zoomLevel})`;
-
-        return `${scale} ${translate} ${rotate}`;
-    }
-
-    private get imageWidth(): number {
-        return this.masterImage!.width;
-    }
-
-    private get imageHeight(): number {
-        return this.masterImage!.height;
-    }
-
-    private get visibleArtefacts(): Artefact[] {
-        return this.artefacts.filter(item => item.side === this.side);
-    }
-
-    private get artefacts(): Artefact[] {
-        return this.imagedObject!.artefacts || [];
-    }
-    private get readOnly(): boolean {
-        return this.$state.editions.current!.permission.readOnly;
-    }
     private async mounted() {
         try {
             this.waiting = true;
@@ -357,20 +401,224 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
         this.fillImageSettings();
     }
 
-    private created() {
-        window.addEventListener('beforeunload', e => this.confirmLeaving(e));
+    private get artefact(): Artefact | undefined {
+        const artefact = this.artefacts.find((x) => x.id === this.artefactId);
+        return artefact;
+    }
+    private get artefacts(): Artefact[] {
+        return this.imagedObject!.artefacts || [];
+    }
+    private get imagedObject(): ImagedObject | undefined {
+        return this.$state.imagedObjects.current;
     }
 
-    private confirmLeaving(e: BeforeUnloadEvent) {
-        if (this.operationsManager.isDirty) {
-            // check if there unsaved changes
-            const confirmationMessage =
-                'It looks like you have been editing something. ' +
-                'If you leave before saving, your changes will be lost.';
+    private get editionId(): number {
+        return parseInt(this.$route.params.editionId);
+    }
 
-            (e || window.event).returnValue = confirmationMessage;
-            return confirmationMessage;
+    private get edition(): EditionInfo {
+        return this.$state.editions.current!;
+    }
+
+    private get removeColor() {
+        return this.params.highLight === false;
+    }
+
+    private get canEdit(): boolean {
+        return this.$state.editions.current?.permission.mayWrite || false;
+    }
+
+    private get visibleArtefacts(): Artefact[] {
+        return this.artefacts.filter((item) => item.side === this.side);
+    }
+
+    private get imageWidth(): number {
+        return this.masterImage!.width;
+    }
+
+    private get imageHeight(): number {
+        return this.masterImage!.height;
+    }
+    private get actualWidth(): number {
+        return (
+            (this.rotationAngle % 180 ? this.imageHeight : this.imageWidth) *
+            this.zoomLevel
+        );
+    }
+
+    private get actualHeight(): number {
+        return (
+            (this.rotationAngle % 180 ? this.imageWidth : this.imageHeight) *
+            this.zoomLevel
+        );
+    }
+    private get rotationAngle(): number {
+        return ((this.params.rotationAngle % 360) + 360) % 360;
+    }
+    private get zoomLevel(): number {
+        return this.params.zoom;
+    }
+    private get transform(): string {
+        // Rotation
+        const rotate = `rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${
+            this.imageHeight / 2
+        })`;
+
+        // If the rotation is by 90 or 270 degrees, the image need to be moved a little bit.
+        // Since the image's width is larger than its height, rotation by 90 degrees (or 270) results in a
+        // white band to the left of the rotated image. The top of the image is cut-off by exactly the
+        // width of the white band.
+        let translate = '';
+        if (this.rotationAngle % 180) {
+            // 90 or 270
+            // The band is caused by the new width (old height) being smaller than the old width.
+            // There actually two bands, one to the left and one to the right. The right one can't be seen.
+            const bandWidth = (this.imageWidth - this.imageHeight) / 2;
+            translate = `translate(-${bandWidth}, ${bandWidth})`;
         }
+
+        const scale = `scale(${this.zoomLevel})`;
+
+        return `${scale} ${translate} ${rotate}`;
+    }
+
+    private get editList(): any[] {
+        if (this.canEdit) {
+            return [
+                {
+                    icon: 'fa fa-pencil',
+                    val: 'DRAW',
+                    title: this.$t('misc.draw'),
+                },
+                {
+                    icon: 'fa fa-trash',
+                    val: 'ERASE',
+                    title: this.$t('misc.cancel'),
+                },
+            ];
+        }
+        return [];
+    }
+    public get canUndo(): boolean {
+        return this.operationsManager.canUndo;
+    }
+    public get canRedo(): boolean {
+        return this.operationsManager.canRedo;
+    }
+    private onUndo() {
+        this.operationsManager.undo();
+    }
+
+    private onRedo() {
+        this.operationsManager.redo();
+    }
+
+    public get saveStatusMessage() {
+        if (this.operationsManager.isSaving) {
+            return 'Saving...';
+        }
+        if (this.operationsManager.isDirty) {
+            return 'Save pending';
+        }
+        return 'Scroll Saved';
+    }
+    private get isErasing() {
+        return this.params.drawingMode === DrawingMode.ERASE;
+    }
+
+    private onNewZoom(event: ZoomEventArgs) {
+        this.params.zoom = event.zoom;
+    }
+    private editingModeChanged(val: any) {
+        (this as any).params.drawingMode = DrawingMode[val];
+    }
+    private modeChosen(val: DrawingMode): boolean {
+        return (
+            DrawingMode[val].toString() === this.params.drawingMode.toString()
+        );
+    }
+
+    private inputRenameChanged(art: Artefact | undefined) {
+        this.renameInputActive = art ? art : null;
+    }
+
+    private onArtefactChanged(art: Artefact) {
+        this.artefactId = art.id;
+        // const index = this.artefacts.indexOf(art); // index artefact in artefact list.
+        // this.artefactEditingData = this.getArtefactEditingData(index);
+
+        this.nonSelectedMask = new Polygon();
+        for (const artefact of this.visibleArtefacts) {
+            if (artefact.id !== art.id) {
+                this.nonSelectedMask = Polygon.add(
+                    this.nonSelectedMask,
+                    artefact.mask
+                );
+            }
+        }
+    }
+    private async onRename() {
+        if (!this.artefact) {
+            throw new Error("Can't rename if there is no artefact");
+        }
+        this.renaming = true;
+        try {
+            await this.artefactService.changeArtefact(
+                this.editionId,
+                this.artefact
+            );
+            this.showMessage('toasts.artefactRenamed', 'success');
+            // this.renameInputActive = {};
+            this.inputRenameChanged(undefined);
+        } catch (err) {
+            this.showMessage('toasts.artefactRenameFailed', 'error');
+        } finally {
+            this.renaming = false;
+        }
+    }
+    private onParamsChanged(evt: EditorParamsChangedArgs) {
+        this.params = evt.params; // This makes sure a change is triggered in child components
+    }
+    private onNewPolygon(poly: Polygon) {
+        let newPolygon: Polygon;
+
+        if (this.isErasing) {
+            newPolygon = Polygon.subtract(this.artefact!.mask, poly);
+        } else {
+            newPolygon = Polygon.add(this.artefact!.mask, poly);
+        }
+
+        // Check if the new mask intersects with a non selected artefact mask
+        const intersection = Polygon.intersect(
+            newPolygon,
+            this.nonSelectedMask
+        );
+        if (!intersection.empty) {
+            this.$toasted.show(this.$tc('toasts.artefactCantOverlap'), {
+                type: 'info',
+                position: 'top-center',
+                duration: 5000,
+            });
+            return;
+        }
+
+        console.log(this.artefact!.mask.svg, newPolygon.svg, 'hasChanged');
+        this.operationsManager.addOperation(
+            new ImagedObjectEditorOperation(
+                this.artefact!.id,
+                this.isErasing ? 'erase' : 'draw',
+                this.artefact!.mask,
+                newPolygon
+            )
+        );
+        this.artefact!.mask = newPolygon;
+    }
+    private sideArtefactChanged(side: DropdownOption) {
+        this.side = side.name as Side;
+        if (this.artefact!.side !== side.name && this.visibleArtefacts.length) {
+            this.onArtefactChanged(this.visibleArtefacts[0]);
+        }
+        this.fillImageSettings();
     }
 
     private fillImageSettings() {
@@ -395,7 +643,7 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
                             type: imageType,
                             visible: master,
                             opacity: 1,
-                            normalizedOpacity: 1
+                            normalizedOpacity: 1,
                         };
                         this.$set(
                             this.params.imageSettings,
@@ -409,172 +657,12 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
         }
     }
 
-    private editingModeChanged(val: any) {
-        (this as any).params.drawingMode = DrawingMode[val];
-    }
-
-    private onParamsChanged(evt: EditorParamsChangedArgs) {
-        this.params = evt.params; // This makes sure a change is triggered in child components
-    }
-
-    private onNewZoom(event: ZoomEventArgs) {
-        this.params.zoom = event.zoom;
-    }
-
-    // private onSave() {
-    //     if (!this.operationsManager.isDirty) {
-    //         this.showMessage('toasts.NoChangesDetected');
-    //         return;
-    //     }
-    //     this.operationsManager.save();
-    // }
-    // private onSave() {
-    //     if (!this.artefact) {
-    //         throw new Error("Can't save if there is no artefact");
-    //     }
-    //     this.saving = true;
-    //     let savedFlag = false;
-    //     let errorFlag = false;
-
-    //     this.artefacts.forEach(async (art, index) => {
-    //         if (this.artefactEditingDataList[index].dirty) {
-    //             savedFlag = true;
-
-    //             await this.artefactService
-    //                 .changeArtefact(this.editionId, art)
-    //                 .catch(() => {
-    //                     errorFlag = true;
-    //                 })
-    //                 .finally(() => {
-    //                     if (index === this.artefacts.length - 1) {
-    //                         this.showSaveMsg(savedFlag, errorFlag);
-    //                     }
-    //                 });
-    //             this.artefactEditingDataList[index].dirty = false;
-    //         } else {
-    //             setTimeout(() => {
-    //                 if (index === this.artefacts.length - 1) {
-    //                     this.showSaveMsg(savedFlag, errorFlag);
-    //                 }
-    //             }, 1000);
-    //         }
-    //     });
-    // }
-
-    private onUndo() {
-        this.operationsManager.undo();
-    }
-
-    private onRedo() {
-        this.operationsManager.redo();
-    }
-
-    private onNew(art: Artefact) {
-        addToArray(art, this.imagedObject!.artefacts);
-
-        this.artefactId = art.id;
-        if (!this.artefact) {
-            throw new Error("Can't create if there is no artefact");
-        }
-        this.saving = true;
-        try {
-            // this.artefactEditingData = new ArtefactEditingData();
-            // this.artefactEditingDataList.push(this.artefactEditingData);
-            this.showMessage('toasts.artefactCreated', 'success');
-        } catch (err) {
-            this.showMessage('toasts.artefactCreatedFailed', 'error');
-        } finally {
-            this.saving = false;
-        }
-    }
-
-    private async onRename() {
-        if (!this.artefact) {
-            throw new Error("Can't rename if there is no artefact");
-        }
-        this.renaming = true;
-        try {
-            await this.artefactService.changeArtefact(
-                this.editionId,
-                this.artefact
-            );
-            this.showMessage('toasts.artefactRenamed', 'success');
-            // this.renameInputActive = {};
-            this.inputRenameChanged(undefined);
-        } catch (err) {
-            this.showMessage('toasts.artefactRenameFailed', 'error');
-        } finally {
-            this.renaming = false;
-        }
-    }
-
-    private async onDeleteArtefact(art: Artefact) {
-        try {
-            await this.artefactService.deleteArtefact(art);
-            this.showMessage('toasts.artefactDeleted', 'success');
-            const index = this.artefacts.indexOf(art);
-
-
-            if (this.artefacts[0]) {
-                this.artefactId = this.artefacts[0].id;
-            } else {
-                this.artefactId = 0;
-                this.initialMask = new Polygon();
-            }
-        } catch (err) {
-            console.error(err);
-            this.showMessage('toasts.deleteArtefactFailed', 'error');
-        }
-    }
-
-    private inputRenameChanged(art: Artefact | undefined) {
-        this.renameInputActive = art ? art : null;
-    }
-
-    private onArtefactChanged(art: Artefact) {
-        this.artefactId = art.id;
-        // const index = this.artefacts.indexOf(art); // index artefact in artefact list.
-        // this.artefactEditingData = this.getArtefactEditingData(index);
-
-        this.nonSelectedMask = new Polygon();
-        for (const artefact of this.visibleArtefacts) {
-            if (artefact.id !== art.id) {
-                this.nonSelectedMask = Polygon.add(
-                    this.nonSelectedMask,
-                    artefact.mask
-                );
-            }
-        }
-    }
-
-    private sideArtefactChanged(side: DropdownOption) {
-        this.side = side.name as Side;
-        if (this.artefact!.side !== side.name && this.visibleArtefacts.length) {
-            this.onArtefactChanged(this.visibleArtefacts[0]);
-        }
-        this.fillImageSettings();
-    }
-
-    // private getArtefactEditingData(index: number) {
-    //     return this.artefactEditingDataList[index];
-    // }
-
     private showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
-            duration: 7000
+            duration: 7000,
         });
-    }
-
-    private sidebarClicked() {
-        this.isActive = !this.isActive;
-    }
-
-    private modeChosen(val: DrawingMode): boolean {
-        return (
-            DrawingMode[val].toString() === this.params.drawingMode.toString()
-        );
     }
 
     private getArtefactColor(art: Artefact) {
@@ -588,160 +676,68 @@ export default class ImagedObjectEditor extends Vue implements SavingAgent<Image
             idx % ImagedObjectEditor.colors.length
         ];
     }
+    private async onDeleteArtefact(art: Artefact) {
+        try {
+            await this.artefactService.deleteArtefact(art);
+            this.showMessage('toasts.artefactDeleted', 'success');
+            const index = this.artefacts.indexOf(art);
 
-    private get isErasing() {
-        return this.params.drawingMode === DrawingMode.ERASE;
-    }
-    private get removeColor() {
-        return this.params.highLight === false;
-    }
-
-    private onNewPolygon(poly: Polygon) {
-        let newPolygon: Polygon;
-
-        if (this.isErasing) {
-            newPolygon = Polygon.subtract(this.artefact!.mask, poly);
-        } else {
-            newPolygon = Polygon.add(this.artefact!.mask, poly);
+            if (this.artefacts[0]) {
+                this.artefactId = this.artefacts[0].id;
+            } else {
+                this.artefactId = 0;
+                this.initialMask = new Polygon();
+            }
+        } catch (err) {
+            console.error(err);
+            this.showMessage('toasts.deleteArtefactFailed', 'error');
         }
-
-        // Check if the new mask intersects with a non selected artefact mask
-        const intersection = Polygon.intersect(
-            newPolygon,
-            this.nonSelectedMask
-        );
-        if (!intersection.empty) {
-            this.$toasted.show(this.$tc('toasts.artefactCantOverlap'), {
-                type: 'info',
-                position: 'top-center',
-                duration: 5000
-            });
-            return;
-        }
-
-        console.log(
-            this.artefact!.mask.svg,
-            newPolygon.svg,
-            'hasChanged'
-        );
-        this.operationsManager.addOperation(
-            new ImagedObjectEditorOperation(
-                this.artefact!.id,
-                this.isErasing ? 'erase' : 'draw',
-                this.artefact!.mask,
-                newPolygon
-            )
-        );
-        this.artefact!.mask = newPolygon;
     }
 }
-
-/*
- * Todo:
- *
- * Add a shrinkFactor data element, initialize to 20.
- * Pass shrinkFactor as a property to ImagedObjectCanvas, and not as a data entry of ImagedObjectCanvas
- * Change ImagedObjectCanvas to use the optimizedMask instead of the mask
- * Make sure ImagedObjectCanvas does not shrink the mask (in clipCanvas and trace)
- * Before saving, call unoptimize mask to create the larger mask again
- */
 </script>
 
 <style lang="scss" scoped>
-// @import '~sass-vars';
-.readOnly {
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+
+.header-actions {
+    background-color: $white;
+}
+.editor-container {
+    background-color: $white;
+    margin-right: 5%;
+    margin-left: 5%;
+    height: calc(100vh - 180px);
+}
+.editor-actions {
+    height: 70px;
+}
+
+.img-obj-container {
     text-align: center;
 }
-.overlay {
-    position: absolute;
-    transform-origin: top left;
+.image-obj-container-height {
+    height: calc(100vh - 275px);
 }
-
-#imaged-object-editor {
-    overflow: hidden;
-    height: calc(100vh - 63px);
+span.selected {
+    font-weight: bold;
 }
-
-.imaged-object-container {
-    overflow: auto;
-    position: relative;
-    padding: 0;
-    height: calc(100vh - 63px);
-    width: calc(100vw - 290px);
-    touch-action: none;
+.selectedRow {
+    border: 2px solid #7884a1;
 }
-.imaged-object-container.active {
-    overflow: auto;
-    position: relative;
-    padding: 0;
-    height: calc(100vh - 63px);
-    width: calc(100vw - 40px);
+.rename-art {
+    border: solid 3px;
+    height: 16px;
+    width: 100px;
+    display: inline-block;
+    margin-right: 4px;
+    cursor: pointer;
 }
-.imaged-object-menu-div {
-    height: calc(100vh - 63px);
+.col-rename-art {
+    height: calc(100vh - 250px);
     overflow: auto;
 }
-#buttons-div {
-    background-color: #eff1f4;
-}
-
-.sidebarCollapse {
-    width: 40px;
-    height: 40px;
-    display: block;
-    margin-bottom: 5px;
-}
-
-.wrapper {
-    display: flex;
-    align-items: stretch;
-    perspective: 1500px;
-}
-
-#imaged-object-title {
-    margin-left: 80px;
-}
-
-#sidebar {
-    min-width: 250px;
-    max-width: 250px;
-    transition: all 0.6s cubic-bezier(0.945, 0.02, 0.27, 0.665);
-    transform-origin: center left; /* Set the transformed position of sidebar to center left side. */
-}
-
-#sidebar.active {
-    margin-left: -250px;
-    transform: rotateY(100deg); /* Rotate sidebar vertically by 100 degrees. */
-}
-
-@media (max-width: 1100px) {
-    /* Reversing the behavior of the sidebar: 
-       it'll be rotated vertically and off canvas by default, 
-       collapsing in on toggle button click with removal of 
-       the vertical rotation.   */
-    #sidebar {
-        margin-left: -250px;
-        transform: rotateY(100deg);
-    }
-    #sidebar.active {
-        margin-left: 0;
-        transform: none;
-    }
-
-    .imaged-object-container {
-        overflow: scroll;
-        position: relative;
-        padding: 0;
-        height: calc(100vh - 63px);
-        width: calc(100vw - 40px);
-    }
-
-    .imaged-object-container.active {
-        overflow: scroll;
-        position: relative;
-        padding: 0;
-        height: calc(100vh - 63px);
-        width: calc(100vw - 40px);
-    }
+.select-art-name{
+    cursor: pointer;
 }
 </style>

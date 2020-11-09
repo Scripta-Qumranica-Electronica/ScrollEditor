@@ -4,7 +4,7 @@
     >
         <artefact-image
             class="card-img-top"
-            v-show="artefact"
+            v-if="artefact"
             :artefact="artefact"
         ></artefact-image>
         <label class="side-edition"
