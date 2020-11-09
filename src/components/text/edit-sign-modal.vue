@@ -5,6 +5,7 @@
             :title="isEditMode ? 'Edit' : 'Add'"
             hide-footer
             @shown="shown"
+            ref="my-modal"
         >
             <b-row v-if="editedSi">
                 <b-col>
@@ -33,7 +34,7 @@
             <b-row v-if="editedSi">
                 <b-col>
                     <b-form-checkbox
-                        :checked="editedSi.isReconstructed"
+                        :checked="isReconstructed"
                         v-model="isReconstructed"
                         class="mt-3"
                     >
@@ -88,8 +89,8 @@ export default class EditSignModal extends Vue {
         this.editedSi = this.$state.artefactEditor.singleSelectedSi!;
 
         this.newCharacter = this.editedSi.character || '';
-        this.newAttributeValueId = this.editedSiSignType!.attributeValueId;
-        this.isReconstructed = !!this.isReconstructedAttribute;
+        this.newAttributeValueId = this.editedSi.signType[0];
+        this.isReconstructed = this.editedSi.isReconstructed;
     }
 
     private valueField(valueID: number) {
@@ -124,25 +125,25 @@ export default class EditSignModal extends Vue {
         } else return true;
     }
 
-    private get isReconstructedAttribute():
-        | InterpretationAttributeDTO
-        | undefined {
-        const attr = (
-            this.$state.editions.current?.attributeMetadata?.allAttributes || []
-        ).find((attr) => attr.attributeName === 'is_reconstructed')!;
+    // private get isReconstructedAttribute():
+    //     | InterpretationAttributeDTO
+    //     | undefined {
+    //     const attr = (
+    //         this.$state.editions.current?.attributeMetadata?.allAttributes || []
+    //     ).find((attr) => attr.attributeName === 'is_reconstructed')!;
 
-        return attr.values
-            .map(
-                (x) =>
-                    ({
-                        interpretationAttributeId: attr.attributeId,
-                        attributeString: attr.attributeName,
-                        attributeValueString: x.value,
-                        attributeValueId: x.id,
-                    } as InterpretationAttributeDTO)
-            )
-            .find((y) => y.attributeValueString === 'TRUE');
-    }
+    //     return attr.values
+    //         .map(
+    //             (x) =>
+    //                 ({
+    //                     interpretationAttributeId: attr.attributeId,
+    //                     attributeString: attr.attributeName,
+    //                     attributeValueString: x.value,
+    //                     attributeValueId: x.id,
+    //                 } as InterpretationAttributeDTO)
+    //         )
+    //         .find((y) => y.attributeValueString === 'TRUE');
+    // }
 
     public get editedSiSignType(): InterpretationAttributeDTO | undefined {
         return this.editedSi?.attributes.find(
@@ -211,8 +212,11 @@ export default class EditSignModal extends Vue {
     public statusMode() {
         if (!this.isEditMode) {
             this.createSignInterpretation();
+            this.$refs['my-modal'].hide();
         } else {
             this.updateSignInterpretation();
+            this.$refs['my-modal'].hide();
+        
         }
     }
 }

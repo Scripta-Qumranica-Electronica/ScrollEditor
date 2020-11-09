@@ -206,7 +206,7 @@ class SignInterpretation {
     public set isReconstructed(value: boolean) {
         // Remove the isReconstructed attributes
         const newAttrs = this.attributes.filter(attr => attr.attributeId !== 6);  // 6 is 'is_reconstructed'
-        if (this.isReconstructed) {
+        if (value) {
             newAttrs.push({
                 attributeId: 6,  // is_reconstructed
                 attributeValueId: 20, // TRUE
@@ -217,7 +217,6 @@ class SignInterpretation {
                 editorId: 0,
             } as InterpretationAttributeDTO);
         }
-
         this.attributes = newAttrs;
     }
 

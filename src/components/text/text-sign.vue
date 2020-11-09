@@ -6,17 +6,24 @@
                 cssStrings,
             ]"
             @click="onSignInterpretationClicked($event)"
+            @contextmenu="
+                openSignMenu($event, 'popover-si-' + si.signInterpretationId)
+            "
             >{{ si.character || '&nbsp;' }}</span
         >
         <b-popover
+            v-if="withMenu"
             class="popover-body"
             :target="'popover-si-' + si.signInterpretationId"
-            triggers="hover"
-            container="my-container"
-            ref="popover"
+            triggers=""
+            @shown="focusPopover($event)"
         >
-            <div class="character-popover">
-                <span :class="cssStrings">{{ si.character || '&nbsp;' }}</span>
+            <div
+                class="character-popover"
+                tabindex="-1"
+                ref="signMenu"
+                @blur="closeSignMenu($event)"
+            >
                 <ul>
                     <li>
                         <b-link @click="openEditSignModal()">Edit sign</b-link>
@@ -54,7 +61,8 @@ import { DeleteSignInterpretationOperation } from '../../views/artefact-editor/o
 })
 export default class SignComponent extends Vue {
     @Prop() public sign!: Sign;
-    // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
+    @Prop() public withMenu!: boolean;
+    private previousMenuId: string = '';
 
     // Each sign offers alternative readings. For now we always show the first suggestion
     private get si() {
@@ -88,6 +96,7 @@ export default class SignComponent extends Vue {
         op.redo();
         this.$state.eventBus.emit('new-operation', op);
     }
+
     private onSignInterpretationClicked(event: MouseEvent) {
         if (event.ctrlKey || event.metaKey) {
             this.$state.artefactEditor.toggleSelectSign(this.si);
@@ -98,20 +107,37 @@ export default class SignComponent extends Vue {
 
     public openEditSignModal() {
         this.$state.artefactEditor.modeSignModal = 'edit';
-        this.$state.artefactEditor.selectSign(this.si);
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
+
     public openAddLeftSignModal() {
         this.$state.artefactEditor.modeSignModal = 'create';
-        this.$state.artefactEditor.selectSign(this.si);
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
     public openAddRightSignModal() {
         this.$state.artefactEditor.modeSignModal = 'create';
-        const si = this.si.sign.line.signs[this.si.sign.indexInLine - 1].signInterpretations[0];
+        const si = this.si.sign.line.signs[this.si.sign.indexInLine - 1]
+            .signInterpretations[0];
         this.$state.artefactEditor.selectSign(si);
         this.$root.$emit('bv::show::modal', 'editSignModal');
+    }
+
+    public openSignMenu(event: MouseEvent, signMenuId: string) {
+        // prevent usual menu to display
+        event.preventDefault();
+        this.$state.artefactEditor.selectSign(this.si);
+
+        this.$root.$emit('bv::show::popover', signMenuId);
+        this.previousMenuId = signMenuId;
+    }
+
+    public closeSignMenu() {
+        this.$root.$emit('bv::hide::popover', this.previousMenuId);
+    }
+
+    public focusPopover() {
+        (this.$refs.signMenu as any).focus();
     }
 }
 </script>
@@ -175,6 +201,19 @@ span.highlighted {
 .character-popover {
     .sign-type-space:after {
         content: '˽';
+    }
+    ul {
+        list-style-type: none;
+        padding-left: 10px;
+
+        &:focus,
+        &:focus-visible {
+            outline: unset;
+        }
+    }
+    &:focus,
+    &:focus-visible {
+        outline: unset;
     }
 }
 </style>

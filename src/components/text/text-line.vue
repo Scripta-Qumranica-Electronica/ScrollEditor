@@ -1,7 +1,7 @@
 <template>
     <div class="text-line" :dir="direction">
         <span class="line-name">{{line.lineName}}</span>
-        <text-sign :id="'popover-si-' + sign.signInterpretations[0].signInterpretationId" v-for="sign in line.signs" :key="sign.signInterpretations[0].signInterpretationId" :sign="sign"></text-sign>
+        <text-sign :withMenu="true" :id="'popover-si-' + sign.signInterpretations[0].signInterpretationId" v-for="sign in line.signs" :key="sign.signInterpretations[0].signInterpretationId" :sign="sign"></text-sign>
     </div>
 </template>
 
