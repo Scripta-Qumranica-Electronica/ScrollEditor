@@ -105,17 +105,17 @@ export default class SignComponent extends Vue {
         }
     }
 
-    public openEditSignModal() {
+    private openEditSignModal() {
         this.$state.artefactEditor.modeSignModal = 'edit';
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
-    public openAddLeftSignModal() {
+    private openAddLeftSignModal() {
         this.$state.artefactEditor.modeSignModal = 'create';
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
-    public openAddRightSignModal() {
+    private openAddRightSignModal() {
         this.$state.artefactEditor.modeSignModal = 'create';
         const si = this.si.sign.line.signs[this.si.sign.indexInLine - 1]
             .signInterpretations[0];
@@ -123,7 +123,7 @@ export default class SignComponent extends Vue {
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
-    public openSignMenu(event: MouseEvent, signMenuId: string) {
+    private openSignMenu(event: MouseEvent, signMenuId: string) {
         // prevent usual menu to display
         event.preventDefault();
         this.$state.artefactEditor.selectSign(this.si);
@@ -132,11 +132,11 @@ export default class SignComponent extends Vue {
         this.previousMenuId = signMenuId;
     }
 
-    public closeSignMenu() {
+    private closeSignMenu() {
         this.$root.$emit('bv::hide::popover', this.previousMenuId);
     }
 
-    public focusPopover() {
+    private focusPopover() {
         (this.$refs.signMenu as any).focus();
     }
 }
