@@ -54,4 +54,13 @@ export default class SignInterpretationService {
         const response = await CommHelper.put<SignInterpretationDTO>(url, dto);
         return response.data;
     }
+
+    public async deleteSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation, deleteAllVariants = true) {
+        let url = ApiRoutes.signInterpretationUrl(edition.id, signInterpretation.id);
+        if (deleteAllVariants) {
+            url += '?optional=delete-all-variants';
+        }
+
+        await CommHelper.delete(url);
+    }
 }

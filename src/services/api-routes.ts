@@ -151,4 +151,13 @@ export namespace ApiRoutes {
 
         return url;
     }
+
+    export function signInterpretationUrl(editionId: number, signInterpretationId?: number) {
+        let url = `v1/editions/${editionId}/sign-interpretations`;
+        if (signInterpretationId) {
+            url += `/${signInterpretationId}`;
+        }
+
+        return url;
+    }
 }
