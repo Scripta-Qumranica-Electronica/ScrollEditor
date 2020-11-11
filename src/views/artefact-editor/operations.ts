@@ -87,10 +87,7 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
 
     public constructor(
         type: ArtefactEditorOperationType,
-        public roi: InterpretationRoi
-        // public artefactEditorInstance: ArtefactEditor
-        // public prev: ArtefactEditorStatus,
-        // public next: ArtefactEditorStatus
+        public roi: InterpretationRoi,
     ) {
         super(type);
         this.roi = roi.clone();
@@ -98,23 +95,17 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
 
     public undo(): void {
         if (this.type === 'draw') {
-            state().eventBus.emit('remove-roi', this.roi);
-            // this.artefactEditorInstance.removeRoi(this.roi);
+            this.removeRoi();
         } else {
-            // Restore status to previous status - it should no longer be deleted
-            state().eventBus.emit('place-roi', this.roi);
-            // this.artefactEditorInstance.placeRoi(this.roi);
+            this.placeRoi();
         }
     }
 
     public redo(): void {
         if (this.type === 'draw') {
-            state().eventBus.emit('place-roi', this.roi);
-            //  this.artefactEditorInstance.placeRoi(this.roi);
+            this.placeRoi();
         } else {
-            // Restore status to previous status - it should no longer be deleted
-            // this.artefactEditorInstance.removeRoi(this.roi);
-            state().eventBus.emit('remove-roi', this.roi);
+            this.removeRoi();
         }
     }
 
@@ -122,6 +113,32 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
         return undefined;
     }
 
+    private placeRoi() {
+        state().interpretationRois.put(this.roi);
+        this.roi.status = 'new';
+        const si = state().signInterpretations.get(
+            this.roi.signInterpretationId!
+        );
+        if (si) {
+            si.rois.push(this.roi);
+        }
+        state().eventBus.emit('roi-changed', this.roi);
+    }
+
+    private removeRoi() {
+        const inState = state().interpretationRois.get(this.roi.id);
+        if (!inState) {
+            console.error("Can't remove ROI which isn't in the state!");
+            return;
+        }
+        inState.status = 'deleted';
+        const si = state().signInterpretations.get(this.roi.signInterpretationId!);
+        if (si) {
+            si.deleteRoi(this.roi);
+        }
+        state().eventBus.emit('roi-changed', inState);
+        state().eventBus.emit('remove-roi', inState);
+    }
 }
 
 export type TextFragmentAttributeOperationType = 'create' | 'update' | 'delete';
