@@ -54,7 +54,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 import EditSignModal from './edit-sign-modal.vue';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { DeleteSignInterpretationOperation } from '../../views/artefact-editor/operations';
+import { ArtefactROIOperation, DeleteSignInterpretationOperation } from '../../views/artefact-editor/operations';
 
 @Component({
     name: 'text-sign',
@@ -90,11 +90,16 @@ export default class SignComponent extends Vue {
             )
             .join(' ');
     }
+
     private deleteSignInterpretation(si: SignInterpretation) {
+        const delOps = this.si.rois.map(roi => new ArtefactROIOperation('erase', roi));
         const op = new DeleteSignInterpretationOperation(this.si.id);
 
+        for (const delOp of delOps) {
+            delOp.redo();
+        }
         op.redo();
-        this.$state.eventBus.emit('new-operation', op);
+        this.$state.eventBus.emit('new-bulk-operations', [...delOps, op]);
     }
 
     private onSignInterpretationClicked(event: MouseEvent) {
