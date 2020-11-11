@@ -136,7 +136,6 @@ export default class IIIFImageComponent extends Vue {
         for (let i = this.manifestTileInfo.scaleFactors.length - 1; i >= 0; i--) {
             const manifestScaleFactor = 1 / this.manifestTileInfo.scaleFactors[i];
             if (manifestScaleFactor > this.imageScaleFactor) {
-                console.debug('optimizedImageScaleFactor: ', manifestScaleFactor);
                 return manifestScaleFactor;
             }
         }

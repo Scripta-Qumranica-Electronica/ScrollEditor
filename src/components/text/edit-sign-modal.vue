@@ -99,76 +99,11 @@ export default class EditSignModal extends Vue {
         }
     }
 
-    private valueField(valueID: number) {
-        const attributeValue = this.signTypes.find(
-            (attrValue: AttributeValueDTO) => attrValue.id === valueID
-        );
-        if (attributeValue && attributeValue.value !== 'LETTER') {
-            this.newCharacter = '';
-        }
-    }
-
-    private get signTypes() {
-        return (
-            this.$state.editions.current?.attributeMetadata?.allAttributes || []
-        )
-            .find((attr) => attr.attributeName === 'sign_type')!
-            .values.sort((a: AttributeValueDTO, b: AttributeValueDTO) => {
-                return a.id > b.id ? 1 : -1;
-            });
-    }
-    private get modeButtonApply(): boolean | undefined {
-        const attributeValue = this.signTypes.find(
-            (attrValue: AttributeValueDTO) =>
-                attrValue.id === this.newAttributeValueId
-        );
-        if (
-            attributeValue &&
-            attributeValue.value === 'LETTER' &&
-            this.newCharacter === ''
-        ) {
-            return false;
-        } else return true;
-    }
-
-    // private get isReconstructedAttribute():
-    //     | InterpretationAttributeDTO
-    //     | undefined {
-    //     const attr = (
-    //         this.$state.editions.current?.attributeMetadata?.allAttributes || []
-    //     ).find((attr) => attr.attributeName === 'is_reconstructed')!;
-
-    //     return attr.values
-    //         .map(
-    //             (x) =>
-    //                 ({
-    //                     interpretationAttributeId: attr.attributeId,
-    //                     attributeString: attr.attributeName,
-    //                     attributeValueString: x.value,
-    //                     attributeValueId: x.id,
-    //                 } as InterpretationAttributeDTO)
-    //         )
-    //         .find((y) => y.attributeValueString === 'TRUE');
-    // }
-
     public get editedSiSignType(): InterpretationAttributeDTO | undefined {
         return this.editedSi?.attributes.find(
             (attr) => attr.attributeString === 'sign_type'
         );
     }
-
-    // public setReconstructed(value: boolean) {
-    //     if (value) {
-    //         this.editedSi?.attributes.push(this.isReconstructedAttribute);
-    //     } else {
-    //         const isReconstructedAttrIdx = this.editedSi?.attributes.findIndex(
-    //             (attr) => attr.attributeString === 'is_reconstructed'
-    //         );
-    //         if (isReconstructedAttrIdx > -1) {
-    //             this.editedSi?.attributes.splice(isReconstructedAttrIdx, 1);
-    //         }
-    //     }
-    // }
 
     public isLetter(e: any) {
         this.newCharacter = '';
@@ -217,12 +152,47 @@ export default class EditSignModal extends Vue {
     public statusMode() {
         if (!this.isEditMode) {
             this.createSignInterpretation();
-            this.$refs['my-modal'].hide();
+            (this.$refs['my-modal'] as any).hide();
         } else {
             this.updateSignInterpretation();
-            this.$refs['my-modal'].hide();
+            (this.$refs['my-modal'] as any).hide();
         }
     }
+
+    private valueField(valueID: number) {
+        const attributeValue = this.signTypes.find(
+            (attrValue: AttributeValueDTO) => attrValue.id === valueID
+        );
+        if (attributeValue && attributeValue.value !== 'LETTER') {
+            this.newCharacter = '';
+        }
+    }
+
+    private get signTypes() {
+        return (
+            this.$state.editions.current?.attributeMetadata?.allAttributes || []
+        )
+            .find((attr) => attr.attributeName === 'sign_type')!
+            .values.sort((a: AttributeValueDTO, b: AttributeValueDTO) => {
+                return a.id > b.id ? 1 : -1;
+            });
+    }
+    private get modeButtonApply(): boolean | undefined {
+        const attributeValue = this.signTypes.find(
+            (attrValue: AttributeValueDTO) =>
+                attrValue.id === this.newAttributeValueId
+        );
+        if (
+            attributeValue &&
+            attributeValue.value === 'LETTER' &&
+            this.newCharacter === ''
+        ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }
 </script>
 

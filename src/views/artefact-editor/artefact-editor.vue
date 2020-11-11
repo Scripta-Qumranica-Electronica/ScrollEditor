@@ -366,12 +366,14 @@ export default class ArtefactEditor
             bbox
         );
 
-        const placedRoi = this.placeRoi(roi);
-
         const op: ArtefactROIOperation = new ArtefactROIOperation(
             'draw',
-            placedRoi.clone()
+            roi,
         );
+        op.redo();
+        this.$state.artefactEditor.selectRoi(roi);
+        this.statusTextFragment(roi);
+
         this.onNewOperation(op);
         if (this.autoMode) {
             // Find the next sign interpretation with a character - that can be mapped.
@@ -380,65 +382,11 @@ export default class ArtefactEditor
         }
     }
 
-    public placeRoi(roi: InterpretationRoi) {
-        let newRoi = this.$state.interpretationRois.get(roi.id);
-        if (!newRoi) {
-            newRoi = roi;
-            this.$state.interpretationRois.put(newRoi);
-            // const roiDTO: SetInterpretationRoiDTO = {
-            //     artefactId: roi.artefactId,
-            //     shape: roi.shape.wkt,
-            //     translate: roi.position,
-            //     stanceRotation: roi.rotation,
-            //     exceptional: roi.exceptional,
-            //     valuesSet: roi.valuesSet,
-            //     signInterpretationId: roi.signInterpretationId
-            // }
-            // newRoi = new InterpretationRoi(roiDTO);
-        }
-        // For now the status 'update' doesn't do the save, we put 'new' to save it
-        newRoi.status = 'new';
-        const si = this.$state.signInterpretations.get(
-            roi.signInterpretationId!
-        );
-        if (si) {
-            si.rois.push(newRoi);
-        }
-        this.visibleRois.push(newRoi);
-        this.$state.artefactEditor.selectRoi(newRoi);
-        this.statusTextFragment(newRoi);
-
-        return newRoi;
-    }
     public get artefactEditorState() {
         return this.$state.artefactEditor;
     }
 
     public removeRoi(roi: InterpretationRoi) {
-        const roiBbox = roi.shape.getBoundingBox();
-        const visibleRoi = this.visibleRois.find(
-            (vRoi) =>
-                vRoi.shape.getBoundingBox().x === roiBbox.x &&
-                vRoi.shape.getBoundingBox().y === roiBbox.y &&
-                vRoi.shape.getBoundingBox().width === roiBbox.width &&
-                vRoi.shape.getBoundingBox().height === roiBbox.height
-        );
-        if (!visibleRoi) {
-            console.error('Cannot find a ROI with the bounding box:', roiBbox);
-            return;
-        }
-        const existedRoi = this.$state.interpretationRois.get(visibleRoi.id);
-        if (existedRoi) {
-            existedRoi.status = 'deleted';
-        }
-        const si = this.$state.signInterpretations.get(
-            roi.signInterpretationId!
-        );
-        if (si) {
-            si.deleteRoi(roi);
-        }
-        const visIndex = this.visibleRois.findIndex((r) => r.id === roi.id);
-        this.visibleRois.splice(visIndex, 1);
         this.statusTextFragment(roi);
 
         this.artefactEditorState.selectRoi(null);
@@ -465,7 +413,6 @@ export default class ArtefactEditor
             (angle: number) => (this.params.rotationAngle = angle)
         );
         this.$state.eventBus.on('remove-roi', this.removeRoi);
-        this.$state.eventBus.on('place-roi', this.placeRoi);
         this.$state.eventBus.on('new-operation', this.onNewOperation);
         this.$state.eventBus.on(
             'new-bulk-operations',
@@ -477,7 +424,6 @@ export default class ArtefactEditor
         this.$state.eventBus.off('roi-changed', this.initVisibleRois);
         this.$state.eventBus.off('change-artefact-rotation');
         this.$state.eventBus.off('remove-roi', this.removeRoi);
-        this.$state.eventBus.off('place-roi', this.placeRoi);
         this.$state.eventBus.off('new-operation', this.onNewOperation);
         this.$state.eventBus.off(
             'new-bulk-operations',
@@ -632,9 +578,9 @@ export default class ArtefactEditor
             roi.clone()
         );
         this.onNewOperation(op);
-
-        this.removeRoi(roi);
+        op.redo();
     }
+
     private onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
     }

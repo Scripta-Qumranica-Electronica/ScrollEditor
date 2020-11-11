@@ -55,7 +55,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 import EditSignModal from './edit-sign-modal.vue';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { DeleteSignInterpretationOperation } from '../../views/artefact-editor/operations';
+import { ArtefactROIOperation, DeleteSignInterpretationOperation } from '../../views/artefact-editor/operations';
 
 @Component({
     name: 'text-sign',
@@ -91,11 +91,16 @@ export default class SignComponent extends Vue {
             )
             .join(' ');
     }
+
     private deleteSignInterpretation(si: SignInterpretation) {
+        const delOps = this.si.rois.map(roi => new ArtefactROIOperation('erase', roi));
         const op = new DeleteSignInterpretationOperation(this.si.id);
 
+        for (const delOp of delOps) {
+            delOp.redo();
+        }
         op.redo();
-        this.$state.eventBus.emit('new-operation', op);
+        this.$state.eventBus.emit('new-bulk-operations', [...delOps, op]);
     }
 
     private onSignInterpretationClicked(event: MouseEvent) {
@@ -106,17 +111,17 @@ export default class SignComponent extends Vue {
         }
     }
 
-    public openEditSignModal() {
+    private openEditSignModal() {
         this.$state.artefactEditor.modeSignModal = 'edit';
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
-    public openAddLeftSignModal() {
+    private openAddLeftSignModal() {
         this.$state.artefactEditor.modeSignModal = 'create';
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
-    public openAddRightSignModal() {
+    private openAddRightSignModal() {
         this.$state.artefactEditor.modeSignModal = 'create';
         const si = this.si.sign.line.signs[this.si.sign.indexInLine - 1]
             .signInterpretations[0];
@@ -124,7 +129,7 @@ export default class SignComponent extends Vue {
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
-    public openSignMenu(event: MouseEvent, signMenuId: string) {
+    private openSignMenu(event: MouseEvent, signMenuId: string) {
         // prevent usual menu to display
         event.preventDefault();
         this.$state.artefactEditor.selectSign(this.si);
@@ -133,11 +138,11 @@ export default class SignComponent extends Vue {
         this.previousMenuId = signMenuId;
     }
 
-    public closeSignMenu() {
+    private closeSignMenu() {
         this.$root.$emit('bv::hide::popover', this.previousMenuId);
     }
 
-    public focusPopover() {
+    private focusPopover() {
         (this.$refs.signMenu as any).focus();
     }
 }

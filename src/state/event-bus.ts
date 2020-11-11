@@ -2,7 +2,6 @@ import Vue from 'vue';
 
 export type EventBusEvents =
 | 'remove-roi'
-| 'place-roi'
 | 'roi-changed'
 | 'change-artefact-rotation'
 | 'select-artefact'
