@@ -60,6 +60,7 @@
                     <b-col class="p-0">
                         <b-button-group>
                             <b-button
+                                variant="outline-secondary"
                                 @click="onRotateClick(-10)"
                                 v-b-tooltip.hover.bottom
                                 :title="$t('misc.leftRotate')"
@@ -72,9 +73,10 @@
                             <b-form-input
                                 type="number"
                                 v-model="rotationAngle"
-                                 class="input-lg"
+                                class="input-lg"
                             />
                             <b-button
+                                variant="outline-secondary"
                                 @click="onRotateClick(10)"
                                 v-b-tooltip.hover.bottom
                                 :title="$t('misc.RightRotate')"
@@ -265,7 +267,11 @@ button {
 .popover-body {
     margin-left: 10px;
 }
-.input-lg{
+.input-lg {
     width: 75px;
+}
+#popover-adjust:hover {
+    color: #007bff;
+    background-color: white;
 }
 </style>

@@ -29,7 +29,7 @@
                     </b-col>
                     <b-col class="p-0 col-2 ml-3">
                         <b-button
-                            id="popover-1-bottom"
+                            id="popover-adjust"
                             variant="outline-secondary"
                             ><img
                                 class="mr-1"
@@ -39,7 +39,7 @@
                         </b-button>
                         <b-popover
                             class="popover-body"
-                            target="popover-1-bottom"
+                            target="popover-adjust"
                             triggers="click"
                             placement="bottom"
                             container="my-container"
@@ -64,6 +64,7 @@
                     <b-col class="p-0 col-2">
                         <b-button-group>
                             <b-button
+                                variant="outline-secondary"
                                 @click="onRotateClick(-90)"
                                 v-b-tooltip.hover.bottom
                                 :title="$t('misc.leftRotate')"
@@ -74,6 +75,7 @@
                                 ></font-awesome-icon>
                             </b-button>
                             <b-button
+                                variant="outline-secondary"
                                 @click="onRotateClick(90)"
                                 v-b-tooltip.hover.bottom
                                 class="ml-1"
@@ -368,5 +370,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
 .rotation {
     width: 40px;
     text-align: center;
+}
+#popover-adjust:hover {
+    color: #007bff;
+    background-color: white;
 }
 </style>

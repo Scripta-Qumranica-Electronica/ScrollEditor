@@ -1,6 +1,7 @@
 <template>
     <span>
         <span
+            class="text-sign"
             :class="[
                 { selected: isSelected, highlighted: isHighlighted },
                 cssStrings,
@@ -26,21 +27,21 @@
             >
                 <ul>
                     <li>
-                        <b-link @click="openEditSignModal()">Edit sign</b-link>
+                        <p @click="openEditSignModal()">Edit sign</p>
                     </li>
                     <li>
-                        <b-link @click="deleteSignInterpretation(si)"
-                            >Delete sign</b-link
+                        <p @click="deleteSignInterpretation(si)"
+                            >Delete sign</p
                         >
                     </li>
                     <li>
-                        <b-link @click="openAddLeftSignModal()"
-                            >Add to left</b-link
+                        <p @click="openAddLeftSignModal()"
+                            >Add to left</p
                         >
                     </li>
                     <li>
-                        <b-link @click="openAddRightSignModal()"
-                            >Add to right</b-link
+                        <p @click="openAddRightSignModal()"
+                            >Add to right</p
                         >
                     </li>
                 </ul>
@@ -172,7 +173,10 @@ span.highlighted {
     color: #bcbec0;
     user-select: none;
 }
-.is-reconstructed-true:after {
+.text-sign::after {
+    content: none;
+}
+.text-sign.is-reconstructed-true::after {
     content: '\05C4';
     /* Add a dot above the character */
 }
@@ -180,10 +184,10 @@ span.highlighted {
     /* readability-incomplete_but_clear */
     color: green;
 }
-.readability-incomplete-but-clear:after {
+.text-sign.readability-incomplete-but-clear:after {
     content: '\05C4';
 }
-.readability-incomplete-and-not-clear:after {
+.text-sign.readability-incomplete-and-not-clear:after {
     content: '\05AF';
 }
 .readability-incomplete-and-not-clear {
@@ -203,12 +207,16 @@ span.highlighted {
         content: '˽';
     }
     ul {
+        cursor: pointer;
         list-style-type: none;
         padding-left: 10px;
-
+    
         &:focus,
         &:focus-visible {
             outline: unset;
+        }
+        li p{
+            margin-bottom:8px;
         }
     }
     &:focus,

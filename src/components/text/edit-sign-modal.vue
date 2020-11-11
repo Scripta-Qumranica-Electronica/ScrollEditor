@@ -15,6 +15,7 @@
                             @keydown="isLetter($event)"
                             v-model="newCharacter"
                             class="w-input"
+                            autofocus
                         ></b-input>
                     </div>
                 </b-col>
@@ -22,7 +23,6 @@
                     <div>
                         <b-form-select
                             v-model="newAttributeValueId"
-                            Edit
                             :options="signTypes"
                             value-field="id"
                             text-field="value"
@@ -91,6 +91,12 @@ export default class EditSignModal extends Vue {
         this.newCharacter = this.editedSi.character || '';
         this.newAttributeValueId = this.editedSi.signType[0];
         this.isReconstructed = this.editedSi.isReconstructed;
+        if (!this.isEditMode) {
+            this.newCharacter = '';
+            this.newAttributeValueId = 2;
+            this.isReconstructed = false;
+
+        }
     }
 
     private valueField(valueID: number) {
@@ -189,7 +195,6 @@ export default class EditSignModal extends Vue {
             )!.value,
             this.isReconstructed
         );
-
         op.redo();
         this.$state.eventBus.emit('new-operation', op);
     }
@@ -216,7 +221,6 @@ export default class EditSignModal extends Vue {
         } else {
             this.updateSignInterpretation();
             this.$refs['my-modal'].hide();
-        
         }
     }
 }

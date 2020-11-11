@@ -143,10 +143,11 @@ export default Vue.extend({
     font-size: $font-size-2;
     font-family: $font-family;
 }
-.btn-secondary:active,
-.btn-secondary:focus,
-.btn-secondary:hover,
-.btn-secondary.disabled
+
+.btns-permiss button:active,
+.btns-permiss button:focus,
+.btns-permiss button:hover,
+.btns-permiss button.disabled
  {
     color: #fff;
     background-color:$dark-backround-grey!important;
@@ -183,8 +184,10 @@ export default Vue.extend({
     background-color: white;
     border-color: $blue;
 }
+.btn-secondary.disabled,
 .btn-secondary.disabled:hover{
     cursor: not-allowed;
+    border-color:$dark-backround-grey!important;
     background-color:$dark-backround-grey!important;
 }
 .border-container{
