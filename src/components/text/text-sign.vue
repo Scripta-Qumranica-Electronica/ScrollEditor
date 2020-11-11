@@ -14,7 +14,7 @@
         >
         <b-popover
             v-if="withMenu"
-            class="popover-body"
+            custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
             triggers=""
             @shown="focusPopover($event)"
@@ -30,19 +30,13 @@
                         <p @click="openEditSignModal()">Edit sign</p>
                     </li>
                     <li>
-                        <p @click="deleteSignInterpretation(si)"
-                            >Delete sign</p
-                        >
+                        <p @click="deleteSignInterpretation(si)">Delete sign</p>
                     </li>
                     <li>
-                        <p @click="openAddLeftSignModal()"
-                            >Add to left</p
-                        >
+                        <p @click="openAddLeftSignModal()">Add to left</p>
                     </li>
                     <li>
-                        <p @click="openAddRightSignModal()"
-                            >Add to right</p
-                        >
+                        <p @click="openAddRightSignModal()">Add to right</p>
                     </li>
                 </ul>
             </div>
@@ -55,7 +49,10 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 import EditSignModal from './edit-sign-modal.vue';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { ArtefactROIOperation, DeleteSignInterpretationOperation } from '../../views/artefact-editor/operations';
+import {
+    ArtefactROIOperation,
+    DeleteSignInterpretationOperation,
+} from '../../views/artefact-editor/operations';
 
 @Component({
     name: 'text-sign',
@@ -93,7 +90,9 @@ export default class SignComponent extends Vue {
     }
 
     private deleteSignInterpretation(si: SignInterpretation) {
-        const delOps = this.si.rois.map(roi => new ArtefactROIOperation('erase', roi));
+        const delOps = this.si.rois.map(
+            (roi) => new ArtefactROIOperation('erase', roi)
+        );
         const op = new DeleteSignInterpretationOperation(this.si.id);
 
         for (const delOp of delOps) {
@@ -139,7 +138,7 @@ export default class SignComponent extends Vue {
     }
 
     private closeSignMenu() {
-        this.$root.$emit('bv::hide::popover', this.previousMenuId);
+         this.$root.$emit('bv::hide::popover', this.previousMenuId);
     }
 
     private focusPopover() {
@@ -214,19 +213,29 @@ span.highlighted {
     ul {
         cursor: pointer;
         list-style-type: none;
-        padding-left: 10px;
-    
+        padding-left: 0px;
+
         &:focus,
         &:focus-visible {
             outline: unset;
         }
-        li p{
-            margin-bottom:8px;
+        li p {
+            margin-bottom: 8px;
+        }
+        li p:hover{
+            color:$blue;
         }
     }
     &:focus,
     &:focus-visible {
         outline: unset;
     }
+}
+
+
+</style>
+<style lang="scss">
+.popover-sign-body .popover-body {
+    margin: 0;
 }
 </style>
