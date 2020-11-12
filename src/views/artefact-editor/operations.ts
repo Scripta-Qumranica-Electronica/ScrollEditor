@@ -126,11 +126,20 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
     }
 
     private removeRoi() {
-        const inState = state().interpretationRois.get(this.roi.id);
+        let inState = state().interpretationRois.get(this.roi.id);
+        if (!inState) {
+            const newId = state().interpretationRois.getServerId(this.roi.id);
+
+            if (newId) {
+                inState = state().interpretationRois.get(newId);
+            }
+        }
+
         if (!inState) {
             console.error("Can't remove ROI which isn't in the state!");
             return;
         }
+
         inState.status = 'deleted';
         const si = state().signInterpretations.get(this.roi.signInterpretationId!);
         if (si) {
