@@ -55,4 +55,10 @@ export default class EditionsPublicList extends Vue {
     margin: 10px;
 }
 
+//NOTE: Bronson added this, and the height looks very good
+.afterlogin {
+    max-height: 75vh;
+    overflow: auto;
+}
+
 </style>

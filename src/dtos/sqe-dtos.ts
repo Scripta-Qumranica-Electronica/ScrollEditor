@@ -49,6 +49,7 @@ export interface TextFragmentDataDTO {
     id: number;
     name: string;
     editorId: number;
+    suggested: boolean;
 }
 
 export interface ArtefactTextFragmentMatchDTO extends TextFragmentDataDTO {

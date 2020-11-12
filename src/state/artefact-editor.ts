@@ -64,6 +64,7 @@ export class ArtefactEditorState {
                 name: siTextFragment.textFragmentName,
                 editorId: siTextFragment.editorId,
                 certain: true,
+                suggested: false,
             });
         } else {
             tf.certain = true;

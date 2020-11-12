@@ -180,10 +180,7 @@ span.highlighted {
 .text-sign::after {
     content: none;
 }
-.text-sign.is-reconstructed-true::after {
-    content: '\05C4';
-    /* Add a dot above the character */
-}
+
 .readability-incomplete-but-clear {
     /* readability-incomplete_but_clear */
     color: green;

@@ -36,10 +36,24 @@ class TextService {
 
     public async getArtefactTextFragments(editionId: number, artefactId: number) {
         const response = await CommHelper.get<ArtefactTextFragmentMatchListDTO>(
-            ApiRoutes.artefactTextFragmentsUrl(editionId, artefactId)
+            ApiRoutes.artefactTextFragmentsUrl(editionId, artefactId, true)
         );
 
-        return response.data.textFragments.map(obj => new ArtefactTextFragmentData(obj));
+        /*
+         * NOTE: Bronson added some checking here to help in getting matches.
+         * There is logic further downstream to also do this kind of sorting.
+         * Make a decision whether to do it in both places, or perhaps to remove
+         * the "suggested" filter here (and just return all results).
+         */
+
+        // Check if there are any actual matches (not just suggested matches)
+        const actualMatches = response.data.textFragments.filter(x => x.suggested === false);
+        console.info(response.data.textFragments);
+
+        // If there are actual matches use only those, otherwise return everything
+        return actualMatches.length > 0 ?
+            actualMatches.map(obj => new ArtefactTextFragmentData(obj))
+            : response.data.textFragments.map(obj => new ArtefactTextFragmentData(obj));
     }
 
     public async getTextFragment(editionId: number, textFragmentId: number) {

@@ -20,11 +20,13 @@ class TextFragmentData {
     public id: number;
     public name: string;
     public editorId: number;
+    public suggested: boolean;
 
     constructor(obj: TextFragmentDataDTO) {
         this.id = obj.id;
         this.name = obj.name;
         this.editorId = obj.editorId;
+        this.suggested = obj.suggested;
     }
 }
 
@@ -34,7 +36,7 @@ class ArtefactTextFragmentData extends TextFragmentData {
             id: tf.id,
             name: tf.name,
             editorId: tf.editorId,
-            suggested: true
+            suggested: tf.suggested
         });
     }
     public certain: boolean;

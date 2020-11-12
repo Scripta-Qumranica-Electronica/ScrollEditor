@@ -64,4 +64,13 @@ export default class EditionsList extends Vue {
     margin: 10px;
 }
 
+// NOTE: Bronson added this and it is probably not really good.
+// There will be two edition-lists in the window, and one
+// or the other may be collapsed.  The max height setting should
+// be dependent upon whether only one or both edition-lists
+// are opened.
+.afterlogin {
+    max-height: 35vh;
+    overflow: auto;
+}
 </style>
