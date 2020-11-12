@@ -6,7 +6,6 @@ import Edition from './views/edition/Edition.vue';
 import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
 import EditionArtefacts from './views/edition/components/artefacts.vue';
 import ScrollEditor from './views/scroll-editor/scroll-editor.vue';
-import ScrollEditorNew from './views/scroll-editor/scroll-editor-new.vue';
 import Registration from './views/user/Registration.vue';
 import ChangePassword from './views/user/ChangePassword.vue';
 import UpdateUser from './views/user/UpdateUser.vue';
@@ -54,10 +53,6 @@ export default new Router({
         {
             path: '/editions/:editionId/scroll-editor',
             component: ScrollEditor
-        },
-        {
-            path: '/editions/:editionId/scroll-editor/new',
-            component: ScrollEditorNew
         },
         {
             path: '/editions/:editionId/artefacts/:artefactId',
