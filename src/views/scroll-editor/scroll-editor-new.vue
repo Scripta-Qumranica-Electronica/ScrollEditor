@@ -70,21 +70,20 @@
                             <b-row>
                                 <div class="col-6 ml-5">
                                     <b-button-group>
-                                    <b-button
-                                        class="m-1"
-                                        size="sm"
-                                        @click="resizeScroll(1)"
-                                        >add</b-button
-                                    >
-                                    <b-button
-                                        class="m-1"
-                                        size="sm"
-                                        @click="resizeScroll(-1)"
-                                        >cut</b-button
-                                    >
-                                </b-button-group>
+                                        <b-button
+                                            class="m-1"
+                                            size="sm"
+                                            @click="resizeScroll(1)"
+                                            >add</b-button
+                                        >
+                                        <b-button
+                                            class="m-1"
+                                            size="sm"
+                                            @click="resizeScroll(-1)"
+                                            >cut</b-button
+                                        >
+                                    </b-button-group>
                                 </div>
-                                
                             </b-row>
                         </div>
                     </div>
@@ -127,7 +126,10 @@
                     </div>
                 </b-row>
                 <b-row no-gutters>
-                    <div class="col-2 border-right" v-if="scrollEditorState.viewport">
+                    <div
+                        class="col-2 border-right"
+                        v-if="scrollEditorState.viewport"
+                    >
                         <div class="mb-3">
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
@@ -169,7 +171,6 @@
                             id="artefact-container"
                             ref="artefactContainer"
                             @scroll="onScroll"
-                            :class="{ active: isActive }"
                         >
                             <scroll-ruler
                                 :height="actualHeight"
@@ -347,7 +348,7 @@ export default class ScrollEditorNew
             val = 10;
         }
         this.params.zoom = parseFloat(val.toString()) / 100;
-        this.notifyChange('zoom', val);
+        this.onZoomChanged();
     }
 
     private get artefacts() {
@@ -470,7 +471,7 @@ export default class ScrollEditorNew
     }
 
     public zoomClick(percent: number) {
-        this.params.zoom += percent / 100;
+        this.zoom += percent;
         this.notifyChange('zoomScrollEditor', this.params.zoom);
     }
 
@@ -517,6 +518,7 @@ export default class ScrollEditorNew
     }
 
     private onResize(entries: ResizeObserverEntry[]) {
+        
         this.calculateViewport();
     }
 
@@ -922,7 +924,7 @@ export default class ScrollEditorNew
     height: calc(100vh - 63px);
     width: calc(100vw - 40px);
 }
-.position-zoom{
+.position-zoom {
     margin-left: 27px;
 }
 </style>
