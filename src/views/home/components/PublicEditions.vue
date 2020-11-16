@@ -12,7 +12,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div>
+        <div class="scroll-bar">
             <editions-public-list
                 class="text-edition"
                 :editions="filteredEditions"
@@ -41,7 +41,7 @@ import EditionsPublicList from './EditionsPublicList.vue';
 })
 export default class PublicEditions extends Vue {
     private filteredEditions: EditionInfo[] = [];
-    private defaultSearchValue: SearchBarValue = {sort: 'lastEdit'};
+    private defaultSearchValue: SearchBarValue = { sort: 'lastEdit' };
     private searchValue: SearchBarValue = {};
     private searchBarParams: SearchBarParams = {
         filter: true,
@@ -106,5 +106,9 @@ export default class PublicEditions extends Vue {
     font-weight: $font-weight-1;
     font-size: $font-size-3;
     font-family: $font-family;
+}
+.scroll-bar {
+    overflow-y: auto;
+    max-height: calc(100vh - 240px);
 }
 </style>

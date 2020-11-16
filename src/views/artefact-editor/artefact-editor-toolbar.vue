@@ -146,6 +146,7 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
+import { ArtefactEditorState } from '@/state/artefact-editor';
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
@@ -158,10 +159,16 @@ export default class ArtefactEditorToolbar extends Vue {
     private imageStack: ImageStack = {} as ImageStack;
 
     @Prop() private artefact!: Artefact;
-    @Prop() private params: ArtefactEditorParams = {} as ArtefactEditorParams;
+    // @Prop() private params: ArtefactEditorParams = {} as ArtefactEditorParams;
 
     public get editionId(): number {
         return parseInt(this.$route.params.editionId);
+    }
+    public get artefactEditorState(): ArtefactEditorState {
+        return this.$state.artefactEditor;
+    }
+    private get params(): ArtefactEditorParams {
+        return this.artefactEditorState.params || new ArtefactEditorParams();
     }
 
     public get scrolled(): boolean {

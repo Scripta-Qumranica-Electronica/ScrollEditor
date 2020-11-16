@@ -1,6 +1,7 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData } from '@/models/text';
 import { StateManager } from '.';
+import { ArtefactEditorParams } from '../views/artefact-editor/types';
 
 
 function state() {
@@ -13,7 +14,9 @@ export class ArtefactEditorState {
     public selectedAttribute: InterpretationAttributeDTO | null = null;
     public highlightCommentMode: boolean = false;
     public modeSignModal: editSignInterpretationModeType = 'edit';
+    public params: ArtefactEditorParams| null = null;
     constructor() {
+        this.params = new ArtefactEditorParams();
         this.selectedSignsInterpretation = [];
     }
     public get singleSelectedSi(): SignInterpretation | null {

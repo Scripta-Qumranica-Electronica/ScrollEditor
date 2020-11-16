@@ -18,7 +18,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div>
+        <div class="scroll-bar">
             <editions-list
                 title="Draft"
                 class="text-edition"
@@ -131,5 +131,9 @@ export default class PersonalEditions extends Vue {
 }
 .edition-list {
     padding-top: 70px;
+}
+.scroll-bar {
+    overflow-y: auto;
+    max-height: calc(100vh - 240px);
 }
 </style>
