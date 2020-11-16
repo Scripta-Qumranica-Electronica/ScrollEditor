@@ -11,7 +11,14 @@
                     </b-col>
                     <b-col cols="0">
                         <div class="btn-tf">
-                            <b-button
+                            <span
+                                tabindex="0"
+                                class="d-inline-block"
+                                :style="{
+                                    pointerEvents: isDrawingEnabled
+                                        ? 'all'
+                                        : 'none',
+                                }"
                                 v-for="mode in [
                                     {
                                         icon: 'fa fa-pencil-square-o',
@@ -24,39 +31,62 @@
                                         title: this.$t('misc.box'),
                                     },
                                 ]"
-                                v-show="!readOnly"
                                 :key="mode.val"
-                                @click="onModeClick(mode.val)"
-                                :pressed="mode === mode.val"
-                                :disabled="!isDrawingEnabled"
-                                class="m-2"
                                 v-b-tooltip.hover.bottom
                                 :title="mode.title"
                             >
-                                <i :class="mode.icon"></i>
-                            </b-button>
-                            <b-button
-                                v-if="!readOnly"
-                                type="button"
-                                class="m-2"
-                                @click="onDeleteRoi()"
-                                :disabled="!isDeleteEnabled"
+                                <b-button
+                                    v-show="!readOnly"
+                                    @click="onModeClick(mode.val)"
+                                    :pressed="mode === mode.val"
+                                    :disabled="!isDrawingEnabled"
+                                    class="m-2"
+                                >
+                                    <i :class="mode.icon"></i>
+                                </b-button>
+                            </span>
+                            <span
+                                tabindex="0"
+                                class="d-inline-block"
                                 v-b-tooltip.hover.bottom
+                                :style="{
+                                    pointerEvents: isDrawingEnabled
+                                        ? 'all'
+                                        : 'none',
+                                }"
                                 :title="$t('misc.cancel')"
                             >
-                                <i class="fa fa-trash"></i>
-                            </b-button>
-                            <b-button
-                                v-if="!readOnly"
-                                type="button"
-                                @click="onModeClick('select')"
-                                :pressed="mode === 'select'"
-                                class="m-2"
+                                <b-button
+                                    v-if="!readOnly"
+                                    type="button"
+                                    class="m-2"
+                                    @click="onDeleteRoi()"
+                                    :disabled="!isDeleteEnabled"
+                                >
+                                    <i class="fa fa-trash"></i> </b-button
+                            ></span>
+                            <span
+                                tabindex="0"
+                                class="d-inline-block"
                                 v-b-tooltip.hover.bottom
+                                :style="{
+                                    pointerEvents: isDrawingEnabled
+                                        ? 'all'
+                                        : 'none',
+                                }"
                                 :title="$t('misc.select')"
                             >
-                                <i class="fa fa-mouse-pointer"></i>
-                            </b-button>
+                                <b-button
+                                    v-if="!readOnly"
+                                    type="button"
+                                    @click="onModeClick('select')"
+                                    :pressed="mode === 'select'"
+                                    class="m-2"
+                                >
+                                    <i
+                                        class="fa fa-mouse-pointer"
+                                    ></i> </b-button
+                            ></span>
                             <b-button
                                 class="m-2"
                                 :disabled="!canUndo"
@@ -71,9 +101,7 @@
                             >
                         </div>
                     </b-col>
-                    <b-col class="pl-3 pt-3"
-                        ><div>{{ saveStatusMessage }}</div></b-col
-                    >
+                    <div class="pt-3">{{ saveStatusMessage }}</div>
                 </b-row>
             </div>
             <div class="mt-4 editor-container">
@@ -84,7 +112,6 @@
                                 <b-col>
                                     <artefact-editor-toolbar
                                         :artefact="artefact"
-                                        :params="params"
                                         @paramsChanged="onParamsChanged($event)"
                                     ></artefact-editor-toolbar>
                                 </b-col>
@@ -114,7 +141,7 @@
                         </div>
                         <div class="artefact-image-container">
                             <div class="artefact-container" ref="infoBox">
-                                <div>
+                                <div style="height: 60px">
                                     {{ artefact.name }}
                                     <edition-icons
                                         :edition="edition"
@@ -262,6 +289,7 @@ import {
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
 import EditionHeader from '../edition/components/edition-header.vue';
+import { ArtefactEditorState } from '@/state/artefact-editor';
 
 @Component({
     name: 'artefact-editor',
@@ -283,7 +311,7 @@ import EditionHeader from '../edition/components/edition-header.vue';
 export default class ArtefactEditor
     extends Vue
     implements SavingAgent<ArtefactEditorOperation> {
-    public params: ArtefactEditorParams = new ArtefactEditorParams();
+    // public params: ArtefactEditorParams = new ArtefactEditorParams();
     private mode: ActionMode = 'box';
     private autoMode = false;
 
@@ -306,6 +334,12 @@ export default class ArtefactEditor
     private visibleRois: InterpretationRoi[] = [];
     protected get artefact() {
         return this.$state.artefacts.current!;
+    }
+    private get params(): ArtefactEditorParams {
+        return this.artefactEditorState.params || new ArtefactEditorParams();
+    }
+    public get artefactEditorState(): ArtefactEditorState {
+        return this.$state.artefactEditor;
     }
 
     public get selectedSignsInterpretation(): SignInterpretation[] {
@@ -382,8 +416,35 @@ export default class ArtefactEditor
         }
     }
 
-    public get artefactEditorState() {
-        return this.$state.artefactEditor;
+    public placeRoi(roi: InterpretationRoi) {
+        let newRoi = this.$state.interpretationRois.get(roi.id);
+        if (!newRoi) {
+            newRoi = roi;
+            this.$state.interpretationRois.put(newRoi);
+            // const roiDTO: SetInterpretationRoiDTO = {
+            //     artefactId: roi.artefactId,
+            //     shape: roi.shape.wkt,
+            //     translate: roi.position,
+            //     stanceRotation: roi.rotation,
+            //     exceptional: roi.exceptional,
+            //     valuesSet: roi.valuesSet,
+            //     signInterpretationId: roi.signInterpretationId
+            // }
+            // newRoi = new InterpretationRoi(roiDTO);
+        }
+        // For now the status 'update' doesn't do the save, we put 'new' to save it
+        newRoi.status = 'new';
+        const si = this.$state.signInterpretations.get(
+            roi.signInterpretationId!
+        );
+        if (si) {
+            si.rois.push(newRoi);
+        }
+        this.visibleRois.push(newRoi);
+        this.$state.artefactEditor.selectRoi(newRoi);
+        this.statusTextFragment(newRoi);
+
+        return newRoi;
     }
 
     public removeRoi(roi: InterpretationRoi) {
@@ -647,7 +708,6 @@ export default class ArtefactEditor
     }
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
-        this.params = evt.params; // This makes sure a change is triggered in child components
         if (evt.property === 'rotationAngle') {
             const op: ArtefactRotateOperation = new ArtefactRotateOperation(
                 this.artefact.placement.rotate,

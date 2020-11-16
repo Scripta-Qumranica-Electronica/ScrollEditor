@@ -1,5 +1,5 @@
 export default {
-    cancel: 'Cancel',
+    cancel: ' Delete ROI',
     new: 'New Artefact',
     current: 'Current',
     copy: 'Create a copy',
