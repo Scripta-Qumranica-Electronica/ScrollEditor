@@ -7,6 +7,7 @@
         <div v-if="!waiting" class="container-fluid" id="main-container">
             <router-view></router-view>
         </div>
+        <corrupted-state-dialog />
     </div>
 
     <!-- TODO: Add footer -->
@@ -17,12 +18,14 @@ import Navbar from '@/components/navigation/Navbar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SessionService from '@/services/session.ts';
 import { StateManager } from './state';
+import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog';
 
 export default {
     name: 'app',
     components: {
         Navbar,
         Waiting,
+        CorruptedStateDialog
     },
     data() {
         return {
@@ -33,12 +36,26 @@ export default {
         // Set the language
         this.$i18n.locale = this.$state.session.language;
         this.initializeApp();
+        // Corrupted state event listener
+        this.$state.eventBus.on(
+            'corrupted-state',
+            this.openCorruptedStateDialog
+        );
+    },
+    destroyed() {
+        this.$state.eventBus.off(
+            'corrupted-state',
+            this.openCorruptedStateDialog
+        );
     },
     methods: {
         async initializeApp() {
             const session = new SessionService();
             await session.isTokenValid();
             this.waiting = false;
+        },
+        openCorruptedStateDialog() {
+             this.$root.$emit('bv::show::modal', 'corrupted-state-dialog');
         },
     },
 };
@@ -63,7 +80,7 @@ export default {
 
 body {
     overflow: hidden;
-    background-color: $backround-grey!important; /* Override bootstrap */
+    background-color: $backround-grey !important; /* Override bootstrap */
 }
 
 #main-container {
