@@ -50,7 +50,7 @@ class TextService {
         return new TextEdition(response.data);
     }
 
-    public async updateArtefactROIs(artefact: Artefact) {
+    public async updateArtefactROIs(artefact: Artefact, mode: 'created' | 'deleted' | 'both' = 'both') {
         // Updates all the ROIs of the artefact.
         // This function scans the state and updates ROIs based on their status.
         // It also updates the state - deleted ROIs are removed, and the status of all other ROIs
@@ -61,9 +61,9 @@ class TextService {
         for (const roi of this.stateManager.interpretationRois.getArtefactRois(
             artefact
         )) {
-            if (roi.status === 'new') {
+            if (roi.status === 'new' && mode !== 'deleted') {
                 newROIs.push(roi);
-            } else if (roi.status === 'deleted') {
+            } else if (roi.status === 'deleted' && mode !== 'created') {
                 deletedROIs.push(roi);
             }
         }

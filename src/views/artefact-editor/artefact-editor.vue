@@ -278,6 +278,7 @@ import {
     ArtefactEditorOperation,
     ArtefactROIOperation,
     ArtefactRotateOperation,
+    SignInterperationEditOperation,
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
 } from './operations';
@@ -364,8 +365,11 @@ export default class ArtefactEditor
 
         this.saving = true;
         try {
-            const appliedRotation = await this.saveRotation();
-            const appliedROIs = await this.saveROIs();
+            await this.saveRotation();
+            await this.saveROIs('deleted');
+            // await this.saveSignInterpretations(ops.filter(op => op.type === 'sign') as SignInterpretationEditOperation);
+            await this.saveROIs('created');
+
             await this.saveAttributes(
                 ops.filter(
                     (op) => op.type === 'attr'
@@ -831,11 +835,11 @@ export default class ArtefactEditor
         return true;
     }
 
-    private async saveROIs() {
+    private async saveROIs(mode: 'created' | 'deleted') {
         const selected = this.artefactEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
-            this.artefact
+            this.artefact, mode
         );
         this.initVisibleRois();
         // if (selected) {
@@ -845,6 +849,10 @@ export default class ArtefactEditor
 
         return updated > 0;
     }
+
+    //private async saveSignInterpretations(ops: SignInterperationEditOperation[]) {
+//        
+    //}
 
     private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
         for (const op of ops) {

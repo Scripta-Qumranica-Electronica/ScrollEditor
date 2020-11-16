@@ -37,6 +37,7 @@
                         :checked="isReconstructed"
                         v-model="isReconstructed"
                         class="mt-3"
+                        :disabled="isEditMode"
                     >
                         Reconstructed
                     </b-form-checkbox></b-col
@@ -127,8 +128,7 @@ export default class EditSignModal extends Vue {
             this.newAttributeValueId,
             this.signTypes.find(
                 (signType) => signType.id === this.newAttributeValueId
-            )!.value,
-            this.isReconstructed
+            )!.value
         );
         op.redo();
         this.$state.eventBus.emit('new-operation', op);

@@ -276,6 +276,8 @@ export class SignInterpretationCommentOperation extends ArtefactEditorOperation 
 export type SignInterpretationEditOperationType = 'create' | 'update' | 'delete';
 
 export abstract class SignInterperationEditOperation extends ArtefactEditorOperation {
+    public undone = false;
+
     constructor(public signOpType: SignInterpretationEditOperationType) {
         super('sign');
     }
@@ -299,7 +301,6 @@ export abstract class SignInterperationEditOperation extends ArtefactEditorOpera
 interface SignData {
     character: string;
     signType: [number, string];
-    isReconstructed: boolean;
 }
 
 export class UpdateSignInterperationOperation extends SignInterperationEditOperation {
@@ -308,7 +309,7 @@ export class UpdateSignInterperationOperation extends SignInterperationEditOpera
     public prev: SignData;
     public next: SignData;
 
-    constructor(signInterperationId: number, character: string, signTypeId: number, signTypeString: string, isReconstructed: boolean) {
+    constructor(signInterperationId: number, character: string, signTypeId: number, signTypeString: string) {
         super('update');
 
         this.signInterpretationId = signInterperationId;
@@ -316,7 +317,6 @@ export class UpdateSignInterperationOperation extends SignInterperationEditOpera
         this.next = {
             character,
             signType: [signTypeId, signTypeString],
-            isReconstructed
         };
         this.prev = this.getPrevSignData();
     }
@@ -325,14 +325,14 @@ export class UpdateSignInterperationOperation extends SignInterperationEditOpera
         const si = this.signInterpretation;
         si.character = this.next.character;
         si.signType = this.next.signType;
-        si.isReconstructed = this.next.isReconstructed;
+        this.undone = false;
     }
 
     public undo() {
         const si = this.signInterpretation;
         si.character = this.prev.character;
         si.signType = this.prev.signType;
-        si.isReconstructed = this.prev.isReconstructed;
+        this.undone = true;
     }
 
     protected uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined {
@@ -344,8 +344,7 @@ export class UpdateSignInterperationOperation extends SignInterperationEditOpera
         const united = new UpdateSignInterperationOperation(this.signInterpretationId,
                                                             this.next.character,
                                                             this.next.signType[0],
-                                                            this.next.signType[1],
-                                                            this.next.isReconstructed);
+                                                            this.next.signType[1]);
         united.prev = other.prev;
 
         return united;
@@ -382,11 +381,13 @@ export class DeleteSignInterpretationOperation extends SignInterperationEditOper
     public redo() {
         // Delete the sign from the line
         this.sign.line.signs.splice(this.sign.indexInLine, 1);
+        this.undone = false;
     }
 
     public undo() {
         // Add the sign back into the line
         this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
+        this.undone = true;
     }
 }
 
@@ -427,10 +428,12 @@ export class CreateSignInterpretationOperation extends SignInterperationEditOper
     public redo() {
         // Add the sign into the line
         this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
+        this.undone = false;
     }
 
     public undo() {
         // Delete the sign from the line
         this.sign.line.signs.splice(this.sign.indexInLine, 1);
+        this.undone = true;
     }
 }
