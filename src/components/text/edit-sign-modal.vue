@@ -141,8 +141,7 @@ export default class EditSignModal extends Vue {
             this.newAttributeValueId,
             this.signTypes.find(
                 (signType) => signType.id === this.newAttributeValueId
-            )!.value,
-            this.isReconstructed
+            )!.value
         );
 
         op.redo();

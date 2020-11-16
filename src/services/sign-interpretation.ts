@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreateDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
+import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;
@@ -62,6 +62,8 @@ export default class SignInterpretationService {
         }
 
         await CommHelper.delete(url);
+
+        signInterpretation.signInterpretationId = SignInterpretation.nextAvailableId;  // Give the sign interpretation a negative ID, so it can still remain in the undo/redo system
     }
 
     public async createSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
@@ -72,12 +74,47 @@ export default class SignInterpretationService {
         const prevSignInterpretation = prevSign.signInterpretations[0];
 
         // Now we can build the DTO
+        const attributeDTOs = signInterpretation.attributes.map(attr => {
+             return {
+                 attributeId: attr.attributeId,
+                 attributeValueId: attr.attributeValueId,
+                 commentary: attr.commentary,
+            } as InterpretationAttributeCreateDTO;
+        });
+
+        const commentaryDTO = signInterpretation.commentary ? { commentary: signInterpretation.commentary } : undefined;
         const dto: SignInterpretationCreateDTO = {
+            character: signInterpretation.character,
             previousSignInterpretationIds: [prevSignInterpretation.id],
-            attributes: [],
+            attributes: attributeDTOs,
             rois: [],
+            commentary: commentaryDTO,
             isVariant: false,
-            breakPreviousAndNextSignInterpretations: false,
+            breakPreviousAndNextSignInterpretations: true,
         };
+
+        const response = await CommHelper.post<SignInterpretationListDTO>(url, dto);
+
+        // Find the ID of the new SI. The response contains all the updated SIs - usually twp -
+        // the new SI And the SI right before it.
+        let newId: number | undefined;
+        for (const siDto of response.data.signInterpretations || []) {
+            if (!this.stateManager.signInterpretations.get(siDto.signInterpretationId)) {
+                if (newId) {
+                    console.error('More than one unknown ID returned from server');
+                    // TODO: Raise the 'corrupted' event so that the page is reloaded
+                    return;
+                }
+                newId = siDto.signInterpretationId;
+            }
+        }
+        if (!newId) {
+            console.error('The ID of the new sign interpretation was not returned from the server');
+            return;
+        }
+
+        // Update the sign intepretation from the old ID to the new one, and update the sign interpretation map as well
+        this.stateManager.signInterpretations.mapFrontendIdToServerId(signInterpretation.id, newId);
+        signInterpretation.signInterpretationId = newId;
     }
 }

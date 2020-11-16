@@ -232,12 +232,19 @@ class SignInterpretation {
     public set signType(pair: [number, string]) {
         const attr = this.attributes.find(a => a.attributeString === 'sign_type');
         if (!attr) {
-            console.warn(`Sign Interpretation ${this.signInterpretationId} has no sign_type attribute!`);
-            return;
+            this.attributes.push({
+                attributeId: 1,  // sign_type
+                attributeValueId: pair[0], // TRUE
+                attributeString: 'sign_type',
+                attributeValueString: pair[1],
+                interpretationAttributeId: -171718, // Not used by us except as a vue key
+                creatorId: 0,
+                editorId: 0,
+            } as InterpretationAttributeDTO);
+        } else {
+            attr.attributeValueId = pair[0];
+            attr.attributeValueString = pair[1];
         }
-
-        attr.attributeValueId = pair[0];
-        attr.attributeValueString = pair[1];
     }
 }
 

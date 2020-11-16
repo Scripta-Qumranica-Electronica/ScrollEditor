@@ -867,7 +867,9 @@ export default class ArtefactEditor
                 case 'delete':
                     const deleteOp = op as DeleteSignInterpretationOperation;
                     if (op.undone) {
-                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, deleteOp.signInterpretation);
+                        const si = deleteOp.signInterpretation;
+                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, si);
+                        deleteOp.signInterpretationId = si.signInterpretationId; // The id has changed to a negative number after the deletion
                     } else {
                         await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, deleteOp.signInterpretation);
                     }

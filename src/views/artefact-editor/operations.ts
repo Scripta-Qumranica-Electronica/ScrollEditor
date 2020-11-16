@@ -399,7 +399,7 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
 export class CreateSignInterpretationOperation extends SignInterpretationEditOperation {
     public sign: Sign;
 
-    constructor(addAfterSignId: number, character: string, signTypeId: number, signTypeString: string, isReconstructed: boolean) {
+    constructor(addAfterSignId: number, character: string, signTypeId: number, signTypeString: string) {
         super('create');
 
         // We need to construct a brand new Sign object
@@ -420,10 +420,9 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
         }, this.sign);
 
         // And the attributes
-        si.isReconstructed = isReconstructed;
         si.signType = [signTypeId, signTypeString];
 
-        this.sign.signInterpretations. push(si);
+        this.sign.signInterpretations.push(si);
     }
 
     public get signInterpretation() {
