@@ -275,7 +275,7 @@ export class SignInterpretationCommentOperation extends ArtefactEditorOperation 
 
 export type SignInterpretationEditOperationType = 'create' | 'update' | 'delete';
 
-export abstract class SignInterperationEditOperation extends ArtefactEditorOperation {
+export abstract class SignInterpretationEditOperation extends ArtefactEditorOperation {
     public undone = false;
 
     constructor(public signOpType: SignInterpretationEditOperationType) {
@@ -287,7 +287,7 @@ export abstract class SignInterperationEditOperation extends ArtefactEditorOpera
             return undefined;
         }
 
-        const other = op as SignInterperationEditOperation;
+        const other = op as SignInterpretationEditOperation;
         if (this.type !== op.type) {
             return undefined;
         }
@@ -295,7 +295,7 @@ export abstract class SignInterperationEditOperation extends ArtefactEditorOpera
         return this.uniteWithRightOp(other);
     }
 
-    protected abstract uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined;
+    protected abstract uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined;
 }
 
 interface SignData {
@@ -303,7 +303,7 @@ interface SignData {
     signType: [number, string];
 }
 
-export class UpdateSignInterperationOperation extends SignInterperationEditOperation {
+export class UpdateSignInterperationOperation extends SignInterpretationEditOperation {
     // Update a sign interepration - updates affect the character and the attributes.
     public signInterpretationId: number;
     public prev: SignData;
@@ -335,7 +335,7 @@ export class UpdateSignInterperationOperation extends SignInterperationEditOpera
         this.undone = true;
     }
 
-    protected uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined {
+    protected uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
         const other = op as UpdateSignInterperationOperation; // We are sure this is the right type
         if (this.signInterpretationId !== other.signInterpretationId) {
             return undefined;
@@ -364,7 +364,7 @@ export class UpdateSignInterperationOperation extends SignInterperationEditOpera
     }
 }
 
-export class DeleteSignInterpretationOperation extends SignInterperationEditOperation {
+export class DeleteSignInterpretationOperation extends SignInterpretationEditOperation {
     public signInterperationId: number;
     public sign: Sign;
 
@@ -374,7 +374,7 @@ export class DeleteSignInterpretationOperation extends SignInterperationEditOper
         this.sign = state().signInterpretations.get(this.signInterperationId)!.sign;
     }
 
-    public uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined {
+    public uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
         return undefined;
     }
 
@@ -391,7 +391,7 @@ export class DeleteSignInterpretationOperation extends SignInterperationEditOper
     }
 }
 
-export class CreateSignInterpretationOperation extends SignInterperationEditOperation {
+export class CreateSignInterpretationOperation extends SignInterpretationEditOperation {
     public sign: Sign;
 
     constructor(addAfterSignId: number, character: string, signTypeId: number, signTypeString: string, isReconstructed: boolean) {
@@ -421,7 +421,7 @@ export class CreateSignInterpretationOperation extends SignInterperationEditOper
         this.sign.signInterpretations. push(si);
     }
 
-    public uniteWithRightOp(op: SignInterperationEditOperation): SignInterperationEditOperation | undefined {
+    public uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
         return undefined;
     }
 

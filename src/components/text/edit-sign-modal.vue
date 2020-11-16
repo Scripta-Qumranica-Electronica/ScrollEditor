@@ -65,7 +65,7 @@ import {
 import { SignInterpretation } from '@/models/text';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import {
-    SignInterperationEditOperation,
+    SignInterpretationEditOperation,
     UpdateSignInterperationOperation,
     ArtefactEditorOperation,
     CreateSignInterpretationOperation,

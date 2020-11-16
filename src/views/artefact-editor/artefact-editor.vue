@@ -278,7 +278,7 @@ import {
     ArtefactEditorOperation,
     ArtefactROIOperation,
     ArtefactRotateOperation,
-    SignInterperationEditOperation,
+    SignInterpretationEditOperation,
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
 } from './operations';
@@ -850,9 +850,9 @@ export default class ArtefactEditor
         return updated > 0;
     }
 
-    //private async saveSignInterpretations(ops: SignInterperationEditOperation[]) {
-//        
-    //}
+    private async saveSignInterpretations(ops: SignInterpretationEditOperation[]) {
+        // Save
+    }
 
     private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
         for (const op of ops) {
