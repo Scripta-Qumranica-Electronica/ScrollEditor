@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
+import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreateDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;
@@ -62,5 +62,22 @@ export default class SignInterpretationService {
         }
 
         await CommHelper.delete(url);
+    }
+
+    public async createSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
+        const url = ApiRoutes.signInterpretationUrl(edition.id);
+
+        // Find the previous signInterpretationId
+        const prevSign = signInterpretation.sign.line.signs[signInterpretation.sign.indexInLine - 1];
+        const prevSignInterpretation = prevSign.signInterpretations[0];
+
+        // Now we can build the DTO
+        const dto: SignInterpretationCreateDTO = {
+            previousSignInterpretationIds: [prevSignInterpretation.id],
+            attributes: [],
+            rois: [],
+            isVariant: false,
+            breakPreviousAndNextSignInterpretations: false,
+        };
     }
 }

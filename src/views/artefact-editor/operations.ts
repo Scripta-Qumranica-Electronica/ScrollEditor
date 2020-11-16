@@ -295,6 +295,7 @@ export abstract class SignInterpretationEditOperation extends ArtefactEditorOper
         return this.uniteWithRightOp(other);
     }
 
+    public abstract get signInterpretation(): SignInterpretation;
     protected abstract uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined;
 }
 
@@ -319,6 +320,10 @@ export class UpdateSignInterperationOperation extends SignInterpretationEditOper
             signType: [signTypeId, signTypeString],
         };
         this.prev = this.getPrevSignData();
+    }
+
+    public get signInterpretation() {
+        return state().signInterpretations.get(this.signInterpretationId)!;
     }
 
     public redo() {
@@ -350,10 +355,6 @@ export class UpdateSignInterperationOperation extends SignInterpretationEditOper
         return united;
     }
 
-    private get signInterpretation() {
-        return state().signInterpretations.get(this.signInterpretationId)!;
-    }
-
     private getPrevSignData() {
         const si = this.signInterpretation;
         return {
@@ -365,13 +366,17 @@ export class UpdateSignInterperationOperation extends SignInterpretationEditOper
 }
 
 export class DeleteSignInterpretationOperation extends SignInterpretationEditOperation {
-    public signInterperationId: number;
+    public signInterpretationId: number;
     public sign: Sign;
 
     constructor(signIntepretationId: number) {
         super('delete');
-        this.signInterperationId = signIntepretationId;
-        this.sign = state().signInterpretations.get(this.signInterperationId)!.sign;
+        this.signInterpretationId = signIntepretationId;
+        this.sign = state().signInterpretations.get(this.signInterpretationId)!.sign;
+    }
+
+    public get signInterpretation() {
+        return state().signInterpretations.get(this.signInterpretationId)!;
     }
 
     public uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
@@ -421,8 +426,8 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
         this.sign.signInterpretations. push(si);
     }
 
-    public uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
-        return undefined;
+    public get signInterpretation() {
+        return this.sign.signInterpretations[0];
     }
 
     public redo() {
@@ -435,5 +440,9 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
         // Delete the sign from the line
         this.sign.line.signs.splice(this.sign.indexInLine, 1);
         this.undone = true;
+    }
+
+    protected uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
+        return undefined;
     }
 }

@@ -281,6 +281,8 @@ import {
     SignInterpretationEditOperation,
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
+    CreateSignInterpretationOperation,
+    DeleteSignInterpretationOperation,
 } from './operations';
 import {
     SavingAgent,
@@ -367,7 +369,7 @@ export default class ArtefactEditor
         try {
             await this.saveRotation();
             await this.saveROIs('deleted');
-            // await this.saveSignInterpretations(ops.filter(op => op.type === 'sign') as SignInterpretationEditOperation);
+            await this.saveSignInterpretations(ops.filter(op => op.type === 'sign') as SignInterpretationEditOperation[]);
             await this.saveROIs('created');
 
             await this.saveAttributes(
@@ -851,7 +853,31 @@ export default class ArtefactEditor
     }
 
     private async saveSignInterpretations(ops: SignInterpretationEditOperation[]) {
-        // Save
+        for (const op of ops) {
+            switch (op.signOpType) {
+                case 'create':
+                    const createOp = op as CreateSignInterpretationOperation;
+                    if (op.undone) {
+                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, createOp.signInterpretation, true);
+                    } else {
+                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, createOp.signInterpretation);
+                    }
+                    break;
+
+                case 'delete':
+                    const deleteOp = op as DeleteSignInterpretationOperation;
+                    if (op.undone) {
+                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, deleteOp.signInterpretation);
+                    } else {
+                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, deleteOp.signInterpretation);
+                    }
+                    break;
+
+                case 'update':
+                    console.warn('Updating of sign interperations is not supported yet');
+                    break;
+            }
+        }
     }
 
     private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
