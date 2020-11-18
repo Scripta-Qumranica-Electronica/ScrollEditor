@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO } from '@/dtos/sqe-dtos';
+import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreatedDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;
@@ -93,12 +93,12 @@ export default class SignInterpretationService {
             breakPreviousAndNextSignInterpretations: true,
         };
 
-        const response = await CommHelper.post<SignInterpretationListDTO>(url, dto);
+        const response = await CommHelper.post<SignInterpretationCreatedDTO>(url, dto);
 
         // Find the ID of the new SI. The response contains all the updated SIs - usually twp -
         // the new SI And the SI right before it.
         let newId: number | undefined;
-        for (const siDto of response.data.signInterpretations || []) {
+        for (const siDto of response.data.created || []) {
             if (!this.stateManager.signInterpretations.get(siDto.signInterpretationId)) {
                 if (newId) {
                     console.error('More than one unknown ID returned from server');
