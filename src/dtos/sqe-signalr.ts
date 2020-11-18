@@ -32,9 +32,10 @@ import {
 	NextSignInterpretationDTO,
 	SignInterpretationBaseDTO,
 	SignInterpretationCreateDTO,
-	SignInterpretationReplicateDTO,
+	SignInterpretationVariantDTO,
 	SignInterpretationDTO,
 	SignInterpretationListDTO,
+	SignInterpretationCreatedDTO,
 	SignInterpretationDeleteDTO,
 	InterpretationAttributeBaseDTO,
 	InterpretationAttributeCreateDTO,
@@ -819,15 +820,15 @@ export class SignalRUtilities {
 	 * @param newSignInterpretation - New sign interpretation data to be added
 	 * @returns - The new sign interpretation
 	 */
-    public async postV1EditionsEditionIdSignInterpretations(editionId: number, newSignInterpretation: SignInterpretationCreateDTO): Promise<SignInterpretationListDTO> {
+    public async postV1EditionsEditionIdSignInterpretations(editionId: number, newSignInterpretation: SignInterpretationCreateDTO): Promise<SignInterpretationCreatedDTO> {
         return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretations', editionId, newSignInterpretation);
     }
 
     /**
-	 * Creates a variant sign interpretation to the submitted sign interpretation id.
-	 *		 This variant will be inserted into the sign stream following the specifications
-	 *		 in the newSignInterpretation. If the properties for `attributes`, `rois`, or
-	 *		 `commentary`
+	 * Creates a variant sign interpretation to the submitted sign interpretation id using
+	 *		 the character and attribute settings of the newSignInterpretation payload. It will
+	 *		 copy the ROIs from the original sign interpretation to the new one, but it will not
+	 *		 copy the attributes (or any commentaries associated with the attributes).
 	 *
 	 * @param editionId - ID of the edition being changed
 	 * @param signInterpretationId - 
@@ -837,7 +838,7 @@ export class SignalRUtilities {
 	 * @param newSignInterpretation - New sign interpretation data to be added
 	 * @returns - The new sign interpretation
 	 */
-    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number, newSignInterpretation: SignInterpretationCreateDTO): Promise<SignInterpretationListDTO> {
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number, newSignInterpretation: SignInterpretationVariantDTO): Promise<SignInterpretationCreatedDTO> {
         return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId, newSignInterpretation);
     }
 
