@@ -410,7 +410,7 @@ export default class ArtefactEditor
             'draw',
             roi,
         );
-        op.redo();
+        op.redo(true);
         this.$state.artefactEditor.selectRoi(roi);
         this.statusTextFragment(roi);
 
@@ -644,8 +644,8 @@ export default class ArtefactEditor
             'erase',
             roi.clone()
         );
+        op.redo(true);
         this.onNewOperation(op);
-        op.redo();
     }
 
     private onNewZoom(event: ZoomEventArgs) {

@@ -13,13 +13,13 @@ function state() {
 export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary' | 'sign';
 
 
-export abstract class ArtefactEditorOperation implements Operation<ArtefactEditorOperation> {
+export abstract class ArtefactEditorOperation extends Operation<ArtefactEditorOperation> {
     public constructor(
         public type: ArtefactEditorOperationType
-    ) { }
+    ) {
+        super();
+    }
 
-    public abstract undo(): void;
-    public abstract redo(): void;
     public abstract uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined;
 
     public getId(): number {
@@ -52,17 +52,6 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
         this.next = next;
     }
 
-    public undo(): void {
-        state().eventBus.emit('change-artefact-rotation', this.prev);
-        // this.artefactEditorInstance.params.rotationAngle = this.prev;
-    }
-
-    public redo(): void {
-        state().eventBus.emit('change-artefact-rotation', this.next);
-
-        // this.artefactEditorInstance.params.rotationAngle = this.next;
-    }
-
     public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
         // Unite operations of the same type
         if (op.type !== 'rotate') {
@@ -80,7 +69,16 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
         );
     }
 
+    protected internalUndo(): void {
+        state().eventBus.emit('change-artefact-rotation', this.prev);
+        // this.artefactEditorInstance.params.rotationAngle = this.prev;
+    }
 
+    protected internalRedo(): void {
+        state().eventBus.emit('change-artefact-rotation', this.next);
+
+        // this.artefactEditorInstance.params.rotationAngle = this.next;
+    }
 }
 
 export class ArtefactROIOperation extends ArtefactEditorOperation {
@@ -93,24 +91,24 @@ export class ArtefactROIOperation extends ArtefactEditorOperation {
         this.roi = roi.clone();
     }
 
-    public undo(): void {
-        if (this.type === 'draw') {
-            this.removeRoi();
-        } else {
-            this.placeRoi();
-        }
-    }
-
-    public redo(): void {
-        if (this.type === 'draw') {
-            this.placeRoi();
-        } else {
-            this.removeRoi();
-        }
-    }
-
     public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
         return undefined;
+    }
+
+    protected internalUndo(): void {
+        if (this.type === 'draw') {
+            this.removeRoi();
+        } else {
+            this.placeRoi();
+        }
+    }
+
+    protected internalRedo(): void {
+        if (this.type === 'draw') {
+            this.placeRoi();
+        } else {
+            this.removeRoi();
+        }
     }
 
     private placeRoi() {
@@ -193,7 +191,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
         return united;
     }
 
-    public undo() {
+    protected internalUndo() {
         // In an update, the attributeValueId might change. In that case, we get the *next* attributeValueId, which is the new ID.
         // In other cases, there is only one attributeValueId, so we can take it from `this`.
         const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeOperationType === 'update' ? this.next!.attributeValueId : this.attributeValueId);
@@ -213,7 +211,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
         }
     }
 
-    public redo() {
+    protected internalRedo() {
         const existingIndex = this.signInterpretation.findAttributeIndex(this.attributeValueId); // In case of an update, this finds the previous attribute
 
         if (this.next) {
@@ -248,14 +246,6 @@ export class SignInterpretationCommentOperation extends ArtefactEditorOperation 
         return state().signInterpretations.get(this.signInterpretationId)!;
     }
 
-    public undo() {
-        this.signInterpretation.commentary = this.prevComment;
-    }
-
-    public redo() {
-        this.signInterpretation.commentary = this.nextComment;
-    }
-
     public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
         if (op.type !== 'commentary') {
             return undefined;
@@ -271,13 +261,19 @@ export class SignInterpretationCommentOperation extends ArtefactEditorOperation 
 
         return united;
     }
+
+    protected internalUndo() {
+        this.signInterpretation.commentary = this.prevComment;
+    }
+
+    protected internalRedo() {
+        this.signInterpretation.commentary = this.nextComment;
+    }
 }
 
 export type SignInterpretationEditOperationType = 'create' | 'update' | 'delete';
 
 export abstract class SignInterpretationEditOperation extends ArtefactEditorOperation {
-    public undone = false;
-
     constructor(public signOpType: SignInterpretationEditOperationType) {
         super('sign');
     }
@@ -326,18 +322,16 @@ export class UpdateSignInterperationOperation extends SignInterpretationEditOper
         return state().signInterpretations.get(this.signInterpretationId)!;
     }
 
-    public redo() {
+    protected internalRedo() {
         const si = this.signInterpretation;
         si.character = this.next.character;
         si.signType = this.next.signType;
-        this.undone = false;
     }
 
-    public undo() {
+    protected internalUndo() {
         const si = this.signInterpretation;
         si.character = this.prev.character;
         si.signType = this.prev.signType;
-        this.undone = true;
     }
 
     protected uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
@@ -383,16 +377,14 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
         return undefined;
     }
 
-    public redo() {
+    protected internalRedo() {
         // Delete the sign from the line
         this.sign.line.signs.splice(this.sign.indexInLine, 1);
-        this.undone = false;
     }
 
-    public undo() {
+    protected internalUndo() {
         // Add the sign back into the line
         this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
-        this.undone = true;
     }
 }
 
@@ -429,16 +421,14 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
         return this.sign.signInterpretations[0];
     }
 
-    public redo() {
+    protected internalRedo() {
         // Add the sign into the line
         this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
-        this.undone = false;
     }
 
-    public undo() {
+    protected internalUndo() {
         // Delete the sign from the line
         this.sign.line.signs.splice(this.sign.indexInLine, 1);
-        this.undone = true;
     }
 
     protected uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {

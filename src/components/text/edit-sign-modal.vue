@@ -130,7 +130,7 @@ export default class EditSignModal extends Vue {
                 (signType) => signType.id === this.newAttributeValueId
             )!.value
         );
-        op.redo();
+        op.redo(true);
         this.$state.eventBus.emit('new-operation', op);
     }
 
@@ -144,7 +144,7 @@ export default class EditSignModal extends Vue {
             )!.value
         );
 
-        op.redo();
+        op.redo(true);
         this.$state.eventBus.emit('new-operation', op);
     }
 

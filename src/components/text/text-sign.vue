@@ -96,9 +96,9 @@ export default class SignComponent extends Vue {
         const op = new DeleteSignInterpretationOperation(this.si.id);
 
         for (const delOp of delOps) {
-            delOp.redo();
+            delOp.redo(true);
         }
-        op.redo();
+        op.redo(true);
         this.$state.eventBus.emit('new-bulk-operations', [...delOps, op]);
     }
 
