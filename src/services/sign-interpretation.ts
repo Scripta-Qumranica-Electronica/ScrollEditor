@@ -95,22 +95,23 @@ export default class SignInterpretationService {
 
         const response = await CommHelper.post<SignInterpretationCreatedDTO>(url, dto);
 
-        // Find the ID of the new SI. The response contains all the updated SIs - usually twp -
-        // the new SI And the SI right before it.
-        let newId: number | undefined;
-        for (const siDto of response.data.created || []) {
-            if (!this.stateManager.signInterpretations.get(siDto.signInterpretationId)) {
-                if (newId) {
-                    console.error('More than one unknown ID returned from server');
-                    // TODO: Raise the 'corrupted' event so that the page is reloaded
-                    return;
-                }
-                newId = siDto.signInterpretationId;
-            }
-        }
-        if (!newId) {
-            console.error('The ID of the new sign interpretation was not returned from the server');
+        if (response.data.created?.length !== 1) {
+            console.warn('Received a bad response from the server - expected exactly one sign to be created');
             return;
+            // TODO: Raise the inconsistent event to reload the page
+        }
+
+        const siDto = response.data.created![0];
+        const newId = siDto.signInterpretationId;
+        const existingSi = this.stateManager.signInterpretations.get(newId);
+        if (existingSi) {
+            // This sign interpretation has already been added by the SignalR notification, but we already have
+            // the sign we've created, with the old frontend-only ID. So we have twp sign interpretations.
+            //
+            // Easiest way to handle this is to delete the sign interpretation added by the Signal R notification handler,
+            // and update the ID of the sign interpretation we do have
+            existingSi.sign.line.removeSign(existingSi.sign);
+            this.stateManager.signInterpretations.delete(existingSi.signInterpretationId);
         }
 
         // Update the sign intepretation from the old ID to the new one, and update the sign interpretation map as well

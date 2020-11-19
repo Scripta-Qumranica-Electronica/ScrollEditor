@@ -8,13 +8,13 @@ import {
     UpdatedInterpretationRoiDTO,
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
-    DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO
+    DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
-import { InterpretationRoi, SignInterpretation } from '@/models/text';
+import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 import Vue from 'vue';
 
 /* This file contains the implementation of all the incoming events from SignalR */
@@ -160,7 +160,7 @@ export class NotificationHandler {
             const line = sign.line;
             if (line.signs[sign.indexInLine] === sign) {
                 console.debug('Deleting sign from line');
-                line.signs.splice(sign.indexInLine, 1);
+                line.removeSign(sign);
             } else {
                 // Do nothing, sign has already been deleted here
             }
@@ -169,6 +169,44 @@ export class NotificationHandler {
             state().signInterpretations.delete(id); */
             // We do not remove the sign interpretation from the map, as we may need it for undoing (if this browser originated the call),
             // and it's not going to hurt since it will no longer be displayed anyway.
+        }
+    }
+
+    public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
+        for (const siDto of dto.signInterpretations || []) {
+            console.debug('Handling create of sign Interpretation ', siDto.signInterpretationId);
+            const existingSi = state().signInterpretations.get(siDto.signInterpretationId);
+            if (existingSi) {
+                console.debug('SignInterpretation already exists here');
+                return;
+            }
+
+            if (!siDto.nextSignInterpretations) {
+                console.warn("Can't add sign-interpretation without next-interpretation IDs");
+                return;
+            }
+
+            // Find a sign intepretation that goes after this sign
+            let siNext: SignInterpretation | undefined;
+            for (const nextId of siDto.nextSignInterpretations) {
+                siNext = state().signInterpretations.get(nextId.nextSignInterpretationId);
+                if (siNext) {
+                    break;
+                }
+            }
+
+            if (!siNext) {
+                console.warn("Can't find any sign-interpretation next to the newly created sign");
+                return;
+            }
+
+            // Now we can add the sign before the next sign, on the same line
+            const indexInLine = siNext.sign.indexInLine;
+            const sign = new Sign({ signInterpretations: []}, siNext.sign.line, indexInLine);
+            const si = new SignInterpretation(siDto, sign);
+            sign.signInterpretations.push(si);
+            state().signInterpretations.put(si);
+            sign.line.addSign(sign);
         }
     }
 }

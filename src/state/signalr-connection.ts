@@ -85,6 +85,7 @@ export class SignalRWrapper {
             this._utils.disconnectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
             this._utils.disconnectUpdatedSignInterpretations(this._currentHandler.handleUpdatedSignInterpretations);
             this._utils.disconnectDeletedSignInterpretation(this._currentHandler.handleDeletedSignInterpretation);
+            this._utils.disconnectCreatedSignInterpretation(this._currentHandler.handleCreatedSignInterpretation);
         }
         this._currentHandler = undefined;
     }
@@ -103,6 +104,7 @@ export class SignalRWrapper {
             this._utils.connectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
             this._utils.connectUpdatedSignInterpretations(this._currentHandler.handleUpdatedSignInterpretations);
             this._utils.connectDeletedSignInterpretation(this._currentHandler.handleDeletedSignInterpretation);
+            this._utils.connectCreatedSignInterpretation(this._currentHandler.handleCreatedSignInterpretation);
         }
     }
 

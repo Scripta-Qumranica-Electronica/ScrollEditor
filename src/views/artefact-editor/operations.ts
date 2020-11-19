@@ -379,12 +379,12 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
 
     protected internalRedo() {
         // Delete the sign from the line
-        this.sign.line.signs.splice(this.sign.indexInLine, 1);
+        this.sign.line.removeSign(this.sign);
     }
 
     protected internalUndo() {
         // Add the sign back into the line
-        this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
+        this.sign.line.addSign(this.sign);
     }
 }
 
@@ -423,12 +423,12 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
 
     protected internalRedo() {
         // Add the sign into the line
-        this.sign.line.signs.splice(this.sign.indexInLine, 0, this.sign);
+        this.sign.line.addSign(this.sign);
     }
 
     protected internalUndo() {
         // Delete the sign from the line
-        this.sign.line.signs.splice(this.sign.indexInLine, 1);
+        this.sign.line.removeSign(this.sign);
     }
 
     protected uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
