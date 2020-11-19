@@ -6,7 +6,7 @@
             class="card-img-top"
             v-if="artefact"
             :artefact="artefact"
-            maxWidth="300"
+            maxWidth="150"
         ></artefact-image>
         <label class="side-edition"
             >{{ artefact.name }} - {{ artefact.side }}</label

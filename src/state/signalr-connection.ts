@@ -83,6 +83,8 @@ export class SignalRWrapper {
             this._utils.disconnectDeletedRoi(this._currentHandler.handleDeletedRoi);
             this._utils.disconnectCreatedEditor(this._currentHandler.handleCreatedEditor);
             this._utils.disconnectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
+            this._utils.disconnectUpdatedSignInterpretations(this._currentHandler.handleUpdatedSignInterpretations)
+            this._utils.disconnectDeletedSignInterpretation(this._currentHandler.handleDeletedSignInterpretation);
         }
         this._currentHandler = undefined;
     }
@@ -99,6 +101,8 @@ export class SignalRWrapper {
             this._utils.connectDeletedRoi(this._currentHandler.handleDeletedRoi);
             this._utils.connectCreatedEditor(this._currentHandler.handleCreatedEditor);
             this._utils.connectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
+            this._utils.connectUpdatedSignInterpretations(this._currentHandler.handleUpdatedSignInterpretations)
+            this._utils.connectDeletedSignInterpretation(this._currentHandler.handleDeletedSignInterpretation);
         }
     }
 
