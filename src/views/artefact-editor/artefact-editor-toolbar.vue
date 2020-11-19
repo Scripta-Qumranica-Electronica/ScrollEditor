@@ -275,7 +275,7 @@ button {
     margin-left: 10px;
 }
 .input-lg {
-    width: 75px;
+    width: 75px !important;
 }
 #popover-adjust:hover {
     color: #007bff;

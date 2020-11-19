@@ -107,8 +107,7 @@ export default class EditSignModal extends Vue {
 
     public isLetter(e: any) {
         this.newCharacter = '';
-        const char = String.fromCharCode(e.keyCode);
-        if (/^[a-z\u0590-\u05fe]+$/i.test(char)) {
+        if (![32,8,46].includes(e.keyCode)) {
             this.newAttributeValueId = this.signTypes.find(
                 (attr) => attr.value === 'LETTER'
             )!.id;

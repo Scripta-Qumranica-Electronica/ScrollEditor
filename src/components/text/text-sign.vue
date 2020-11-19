@@ -27,21 +27,21 @@
             >
                 <ul>
                     <li>
-                        <p @click="openEditSignModal()">Edit sign</p>
+                        <p @click="openEditSignModal()">{{ $t('misc.editSign') }}</p>
                     </li>
                     <li>
                         <p @click="deleteSignInterpretation(si)"
-                            >Delete sign</p
+                            >{{ $t('misc.deleteSign') }}</p
                         >
                     </li>
                     <li>
                         <p @click="openAddLeftSignModal()"
-                            >Add to left</p
+                            >{{ $t('misc.addToLeft') }}</p
                         >
                     </li>
                     <li>
                         <p @click="openAddRightSignModal()"
-                            >Add to right</p
+                            >{{ $t('misc.addToRight') }}</p
                         >
                     </li>
                 </ul>

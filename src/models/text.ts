@@ -198,7 +198,7 @@ class SignInterpretation {
     }
 
     public get isReconstructed(): boolean {
-        return !!this.attributes.find(attr => attr.attributeString === 'is_reconstructed');
+        return this.attributes.find(attr => attr.attributeString === 'is_reconstructed') !== undefined;
     }
 
     // Setting the isReconstructed and signType attributes is done when editing or creating a sign.
