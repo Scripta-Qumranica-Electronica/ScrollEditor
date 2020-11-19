@@ -283,6 +283,7 @@ import {
     TextFragmentAttributeOperation,
     CreateSignInterpretationOperation,
     DeleteSignInterpretationOperation,
+    UpdateSignInterperationOperation,
 } from './operations';
 import {
     SavingAgent,
@@ -876,7 +877,8 @@ export default class ArtefactEditor
                     break;
 
                 case 'update':
-                    console.warn('Updating of sign interperations is not supported yet');
+                    const updateOp = op as UpdateSignInterperationOperation;
+                    await this.signInterpretationService.updateSignInterpretation(this.$state.editions.current!, op.signInterpretation);
                     break;
             }
         }

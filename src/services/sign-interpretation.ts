@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreatedDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO } from '@/dtos/sqe-dtos';
+import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreatedDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO, SignInterpretationVariantDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;
@@ -117,5 +117,16 @@ export default class SignInterpretationService {
         // Update the sign intepretation from the old ID to the new one, and update the sign interpretation map as well
         this.stateManager.signInterpretations.mapFrontendIdToServerId(signInterpretation.id, newId);
         signInterpretation.signInterpretationId = newId;
+    }
+
+    public async updateSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
+        const url = ApiRoutes.signInterpretationCharacterUrl(edition.id, signInterpretation.id);
+        const dto: SignInterpretationVariantDTO = {
+            character: signInterpretation.character || '',
+            attributeId: 1, // sign-type
+            attributeValueId: signInterpretation.signType[0],
+        };
+
+        await CommHelper.post<SignInterpretationCreatedDTO>(url, dto);
     }
 }
