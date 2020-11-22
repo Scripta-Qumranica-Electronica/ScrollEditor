@@ -1,6 +1,7 @@
 import Vue from 'vue';
 
 export type EventBusEvents =
+| 'corrupted-state'
 | 'remove-roi'
 | 'roi-changed'
 | 'change-artefact-rotation'

@@ -6,7 +6,7 @@
                 class="select-text"
                 placeholder="Enter a name e.g, col.1"
                 list="my-list-id"
-                @change="loadFragment($event)"
+                @input="loadFragment($event)"
             />
             <datalist id="my-list-id">
                 <option

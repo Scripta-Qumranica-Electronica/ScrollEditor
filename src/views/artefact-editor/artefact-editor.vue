@@ -422,7 +422,7 @@ export default class ArtefactEditor
             setTimeout(this.nextSign, 1500);
         }
     }
-
+    
     public placeRoi(roi: InterpretationRoi) {
         let newRoi = this.$state.interpretationRois.get(roi.id);
         if (!newRoi) {

@@ -1,5 +1,5 @@
 export default {
-    cancel: ' Delete ROI',
+    cancel: 'Delete ROI',
     new: 'New Artefact',
     current: 'Current',
     copy: 'Create a copy',
@@ -25,5 +25,10 @@ export default {
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',
     leftRotate: 'Left Rotate',
-    RightRotate: 'Right Rotate'
+    RightRotate: 'Right Rotate',
+    editSign: 'Edit sign',
+    deleteSign: 'Delete sign',
+    addToLeft: 'Add to left',
+    addToRight: 'Add to right'
+
 };
