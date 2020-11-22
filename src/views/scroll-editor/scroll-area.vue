@@ -1,14 +1,19 @@
 <template>
-
     <div ref="scrollArea" id="outer">
         <div
             v-draggable="draggableOptions"
             v-show="selectedArtefact || selectedGroup"
-            style="position: fixed;"
+            style="position: fixed"
         >
             <div
                 ref="handleTools"
-                style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move"
+                style="
+                    width: 16px;
+                    height: 22px;
+                    background: #ccc;
+                    text-align: center;
+                    cursor: move;
+                "
             >
                 <i class="fa fa-ellipsis-v"></i>
             </div>
@@ -41,44 +46,41 @@
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
                         :scaleFactor="zoomLevel"
+                        :withRois="displayRois"
                     />
                 </g>
             </svg>
         </zoomer>
     </div>
-    
 </template>
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
 import { Component, Vue, Emit } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import Zoomer, {
-    ZoomEventArgs,
-} from '@/components/misc/zoomer.vue';
+import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { ScrollEditorParams } from '../artefact-editor/types';
 import { BoundingBox } from '@/utils/helpers';
-import {
-    ImageSetting
-} from '@/components/image-settings/types';
+import { ImageSetting } from '@/components/image-settings/types';
 import { Artefact } from '@/models/artefact';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
 import { ScrollEditorState } from '@/state/scroll-editor';
+import { ArtefactTextFragmentData } from '@/models/text';
 
 @Component({
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
-        'artefact-toolbox': ArtefactToolbox
+        'artefact-toolbox': ArtefactToolbox,
     },
     directives: {
-        Draggable
-    }
+        Draggable,
+    },
 })
 export default class ScrollArea extends Vue {
     private imageSettings!: ImageSetting;
@@ -99,14 +101,30 @@ export default class ScrollArea extends Vue {
         this.$state.eventBus.off('select-artefact');
     }
 
-    private mounted() {
+    private async mounted() {
         this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
         this.draggableOptions.boundingElement = this.$refs
             .scrollArea as HTMLElement;
+        // Prepare ROIs of placed artefacts
+        await this.placedArtefacts.forEach(async (artefact: Artefact) => {
+            await this.$state.prepare.artefact(
+            artefact.editionId,
+            artefact.id
+        );
+            await Promise.all(
+                artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+                    this.$state.prepare.textFragment(artefact.editionId, tf.id)
+                )
+            );
+        });
     }
 
     private get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
+    }
+
+    private get displayRois(): boolean {
+        return this.scrollEditorState.displayRois;
     }
 
     private get params() {
@@ -153,7 +171,7 @@ export default class ScrollArea extends Vue {
 
     private getArtefactGroup(artefact: Artefact) {
         return this.edition!.artefactGroups.find(
-            x =>
+            (x) =>
                 artefact &&
                 x.artefactIds.includes(artefact!.id) &&
                 x.artefactIds.length > 1
@@ -203,7 +221,7 @@ export default class ScrollArea extends Vue {
 
     private get placedArtefacts() {
         return this.artefacts
-            .filter(x => x.isPlaced)
+            .filter((x) => x.isPlaced)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
     }
 
@@ -238,14 +256,12 @@ export default class ScrollArea extends Vue {
 </script>
 
 <style lang="scss">
-
-
 #the-scroll {
     background: #7bb6e0;
 }
 
 #outer {
-	margin-left: 30px;
+    margin-left: 30px;
     margin-top: 30px;
     width: fit-content;
 }

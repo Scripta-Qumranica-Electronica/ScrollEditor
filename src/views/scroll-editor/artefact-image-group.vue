@@ -32,6 +32,7 @@
                 vector-effect="non-scaling-stroke"
             />
         </g>
+        <roi-layer v-if="withRois" :rois="visibleRois"></roi-layer>
     </g>
 </template> 
 
@@ -62,11 +63,14 @@ import {
 } from './operations';
 import { Placement } from '../../utils/Placement';
 import IIIFImageComponent from '@/components/images/IIIFImage.vue';
+import { InterpretationRoi } from '@/models/text';
+import RoiLayer from '../artefact-editor/roi-layer.vue';
 
 @Component({
     name: 'artefact-image-group',
     components: {
         'iiif-image': IIIFImageComponent,
+        'roi-layer': RoiLayer
     }
 })
 export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
@@ -78,6 +82,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         default: false
     })
     public disabled!: boolean;
+    @Prop({
+        default: false
+    })
+    public withRois!: boolean;
     @Prop({
         default: undefined
     })
@@ -129,6 +137,19 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.svg.getElementById(
             this.transformRootId
         ) as SVGGraphicsElement;
+    }
+
+    private get visibleRois(): InterpretationRoi[] {
+        const visibleRois: InterpretationRoi[] = [];
+        for (const roi of this.$state.interpretationRois.getItems()) {
+            if (
+                roi.status !== 'deleted' &&
+                roi.artefactId === this.artefact.id
+            ) {
+                visibleRois.push(roi);
+            }
+        }
+        return visibleRois;
     }
 
     protected async mounted() {

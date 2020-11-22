@@ -115,12 +115,21 @@
                                     ></b-button>
                                 </b-button-group>
                             </div>
-                            <div class="col-9">
+                            <div class="col-7">
                                 <artefact-toolbox
                                     @new-operation="newOperation($event)"
                                     @save-group="saveGroupArtefacts()"
                                     @cancel-group="cancelGroup()"
                                 ></artefact-toolbox>
+                            </div>
+
+                            <div class="col-2">
+                                <b-form-checkbox
+                                    switch
+                                    size="sm"
+                                    @input="onDisplayROIs($event)"
+                                    >Display ROIs</b-form-checkbox
+                                >
                             </div>
                         </b-row>
                     </div>
@@ -224,6 +233,7 @@ import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
 import ScrollMap from './scroll-map.vue';
 import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
+import { ArtefactTextFragmentData } from '@/models/text';
 
 @Component({
     name: 'scroll-editor',
@@ -417,7 +427,7 @@ export default class ScrollEditor
         this.calculateViewport();
     }
 
-    private onAddArtefactModalClose(artId: number) {
+    private async onAddArtefactModalClose(artId: number) {
         const artefact = this.$state.artefacts.find(artId);
         if (artefact) {
             const numberOfPlaced = this.artefacts.filter((x) => x.isPlaced)
@@ -449,6 +459,13 @@ export default class ScrollEditor
                 true
             );
             artefact.placeOnScroll(placement);
+
+            // load artefact Rois
+            await Promise.all(
+                artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+                    this.$state.prepare.textFragment(artefact.editionId, tf.id)
+                )
+            );
 
             this.newOperation(operation);
             this.selectArtefact(artefact);
@@ -876,6 +893,10 @@ export default class ScrollEditor
         if (this.selectedGroup) {
             this.deleteGroup(this.selectedGroup.groupId);
         }
+    }
+
+    public onDisplayROIs(value: boolean) {
+        this.scrollEditorState.displayRois = value;
     }
 }
 </script>

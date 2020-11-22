@@ -14,10 +14,12 @@ export class ScrollEditorState {
     public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
     public params: ScrollEditorParams| null = null;
     public pointerPosition: Point;
+    public displayRois: boolean;
 
     public constructor() {
         this.params = new ScrollEditorParams();
         this.pointerPosition = {x: 0, y: 0};
+        this.displayRois = false;
     }
 
     public get selectedArtefacts(): Artefact[] {
