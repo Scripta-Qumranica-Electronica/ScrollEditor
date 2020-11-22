@@ -120,13 +120,15 @@ export default class SignInterpretationService {
     }
 
     public async updateSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
-        const url = ApiRoutes.signInterpretationCharacterUrl(edition.id, signInterpretation.id);
+        console.warn('updateSignInterpretation is not yet supported by the server');
+
+        /*const url = ApiRoutes.signInterpretationCharacterUrl(edition.id, signInterpretation.id);
         const dto: SignInterpretationVariantDTO = {
             character: signInterpretation.character || '',
             attributeId: 1, // sign-type
             attributeValueId: signInterpretation.signType[0],
         };
 
-        await CommHelper.post<SignInterpretationCreatedDTO>(url, dto);
+        await CommHelper.post<SignInterpretationCreatedDTO>(url, dto); */
     }
 }

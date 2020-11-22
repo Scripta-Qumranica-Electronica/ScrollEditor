@@ -136,14 +136,14 @@ export class NotificationHandler {
     }
 
     public handleDeletedSignInterpretation(dto: DeleteDTO): void {
-        console.debug('handleDeletedSignInterpretation called on ', dto.ids);
+        // console.debug('handleDeletedSignInterpretation called on ', dto.ids);
         if (dto.entity !== 'signInterpretation') {
             console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);
             return;
         }
 
         for (const id of dto.ids) {
-            console.debug('Working on ', id);
+            // console.debug('Working on ', id);
             const si = state().signInterpretations.get(id);
             if (!si) {
                 // Sign Interpretation has already been deleted
@@ -153,13 +153,13 @@ export class NotificationHandler {
             // First, remove the sign interpretation from the sign
             const sign = si.sign;
             if (sign.signInterpretations.length !== 1) {
-                console.warn('Only signs with one sign interperation are supported');
+                // console.warn('Only signs with one sign interperation are supported');
                 return;
             }
 
             const line = sign.line;
             if (line.signs[sign.indexInLine] === sign) {
-                console.debug('Deleting sign from line');
+                // console.debug('Deleting sign from line');
                 line.removeSign(sign);
             } else {
                 // Do nothing, sign has already been deleted here
@@ -174,7 +174,7 @@ export class NotificationHandler {
 
     public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
         for (const siDto of dto.signInterpretations || []) {
-            console.debug('Handling create of sign Interpretation ', siDto.signInterpretationId);
+            // console.debug('Handling create of sign Interpretation ', siDto.signInterpretationId);
             const existingSi = state().signInterpretations.get(siDto.signInterpretationId);
             if (existingSi) {
                 console.debug('SignInterpretation already exists here');
