@@ -240,4 +240,13 @@ export default class Welcome extends Vue {
     background: #ffffff;
     color: $blue;
 }
+.btn-login:active,
+.btn-login:focus,
+.btn-login:hover,
+.btn-login.disabled
+ {
+    color: #145af3!important;
+    background-color:white!important;
+    border-color:white!important;
+}
 </style>

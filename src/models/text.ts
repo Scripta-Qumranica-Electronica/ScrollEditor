@@ -147,6 +147,12 @@ class Sign {
 }
 
 class SignInterpretation {
+    private static nextId = 0;
+    public static get nextAvailableId() {
+        SignInterpretation.nextId --;
+        return SignInterpretation.nextId;
+    }
+
     public signInterpretationId: number;
     public character?: string;
     public attributes: InterpretationAttributeDTO[]; // InterpretationAttributeDTO[];
@@ -187,12 +193,51 @@ class SignInterpretation {
         }
     }
 
-    public get isReconstructed(): boolean {
-        return !!this.attributes.find(attr => attr.attributeString === 'is_reconstructed');
-    }
-
     public findAttributeIndex(attributeValueId: number) {
         return this.attributes.findIndex(attr => attr.attributeValueId === attributeValueId);
+    }
+
+    public get isReconstructed(): boolean {
+        return this.attributes.find(attr => attr.attributeString === 'is_reconstructed') !== undefined;
+    }
+
+    // Setting the isReconstructed and signType attributes is done when editing or creating a sign.
+    // We *hard-code* the attribute ids and strings, because they are very unlikely to change.
+    public set isReconstructed(value: boolean) {
+        // Remove the isReconstructed attributes
+        const newAttrs = this.attributes.filter(attr => attr.attributeId !== 6);  // 6 is 'is_reconstructed'
+        if (value) {
+            newAttrs.push({
+                attributeId: 6,  // is_reconstructed
+                attributeValueId: 20, // TRUE
+                attributeString: 'is_reconstructed',
+                attributeValueString: 'TRUE',
+                interpretationAttributeId: -171717, // Not used by us except as a vue key
+                creatorId: 0,
+                editorId: 0,
+            } as InterpretationAttributeDTO);
+        }
+        this.attributes = newAttrs;
+    }
+
+    // Set the sign type
+    public get signType(): [number, string] {
+        const attr = this.attributes.find(a => a.attributeString === 'sign_type');
+        if (!attr) {
+            return this.character ? [1, 'LETTER'] : [2, 'SPACE'];
+        }
+        return [attr.attributeValueId, attr.attributeValueString];
+    }
+
+    public set signType(pair: [number, string]) {
+        const attr = this.attributes.find(a => a.attributeString === 'sign_type');
+        if (!attr) {
+            console.warn(`Sign Interpretation ${this.signInterpretationId} has no sign_type attribute!`);
+            return;
+        }
+
+        attr.attributeValueId = pair[0];
+        attr.attributeValueString = pair[1];
     }
 }
 

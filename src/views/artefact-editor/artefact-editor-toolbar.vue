@@ -29,7 +29,7 @@
                     </b-col>
                     <b-col class="p-0">
                         <b-button
-                            id="popover-1-bottom"
+                            id="popover-adjust"
                             variant="outline-secondary"
                             ><img
                                 class="mr-1"
@@ -39,8 +39,8 @@
                         </b-button>
                         <b-popover
                             class="popover-body"
-                            target="popover-1-bottom"
-                            triggers="click"
+                            target="popover-adjust"
+                            triggers="focus"
                             placement="bottom"
                             container="my-container"
                             ref="popover"
@@ -60,6 +60,7 @@
                     <b-col class="p-0">
                         <b-button-group>
                             <b-button
+                                variant="outline-secondary"
                                 @click="onRotateClick(-10)"
                                 v-b-tooltip.hover.bottom
                                 :title="$t('misc.leftRotate')"
@@ -72,9 +73,10 @@
                             <b-form-input
                                 type="number"
                                 v-model="rotationAngle"
-                                 class="input-lg"
+                                class="input-lg"
                             />
                             <b-button
+                                variant="outline-secondary"
                                 @click="onRotateClick(10)"
                                 v-b-tooltip.hover.bottom
                                 :title="$t('misc.RightRotate')"
@@ -144,6 +146,7 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
+import { ArtefactEditorState } from '@/state/artefact-editor';
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
@@ -156,10 +159,16 @@ export default class ArtefactEditorToolbar extends Vue {
     private imageStack: ImageStack = {} as ImageStack;
 
     @Prop() private artefact!: Artefact;
-    @Prop() private params: ArtefactEditorParams = {} as ArtefactEditorParams;
+    // @Prop() private params: ArtefactEditorParams = {} as ArtefactEditorParams;
 
     public get editionId(): number {
         return parseInt(this.$route.params.editionId);
+    }
+    public get artefactEditorState(): ArtefactEditorState {
+        return this.$state.artefactEditor;
+    }
+    private get params(): ArtefactEditorParams {
+        return this.artefactEditorState.params || new ArtefactEditorParams();
     }
 
     public get scrolled(): boolean {
@@ -265,7 +274,11 @@ button {
 .popover-body {
     margin-left: 10px;
 }
-.input-lg{
-    width: 75px;
+.input-lg {
+    width: 75px !important;
+}
+#popover-adjust:hover {
+    color: #007bff;
+    background-color: white;
 }
 </style>

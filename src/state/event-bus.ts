@@ -1,8 +1,8 @@
 import Vue from 'vue';
 
 export type EventBusEvents =
+| 'corrupted-state'
 | 'remove-roi'
-| 'place-roi'
 | 'roi-changed'
 | 'change-artefact-rotation'
 | 'select-artefact'

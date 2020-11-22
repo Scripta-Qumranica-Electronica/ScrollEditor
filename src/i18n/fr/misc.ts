@@ -23,5 +23,9 @@ export default {
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',
     leftRotate: 'Rotation à gauche',
-    RightRotate: 'Rotation à droite'
+    RightRotate: 'Rotation à droite',
+    editSign: 'Modifier le signe',
+    deleteSign: 'Supprimer le signe',
+    addToLeft: 'Ajouter à gauche',
+    addToRight: 'Ajouter à droite'
 };
