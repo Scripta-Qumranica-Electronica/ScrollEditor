@@ -1,4 +1,5 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import { Artefact } from '@/models/artefact';
 import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData } from '@/models/text';
 import { StateManager } from '.';
 import { ArtefactEditorParams } from '../views/artefact-editor/types';
@@ -62,12 +63,12 @@ export class ArtefactEditorState {
             (x: ArtefactTextFragmentData) => x.id === siTextFragment.textFragmentId
         );
         if (!tf) {
-            state().artefacts.current!.textFragments.push({
+            state().artefacts.current!.textFragments.push(new ArtefactTextFragmentData({
                 id: siTextFragment.textFragmentId,
                 name: siTextFragment.textFragmentName,
                 editorId: siTextFragment.editorId,
-                certain: true,
-            });
+                suggested: true,
+            }));
         } else {
             tf.certain = true;
         }
