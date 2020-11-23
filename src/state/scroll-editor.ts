@@ -15,11 +15,13 @@ export class ScrollEditorState {
     public params: ScrollEditorParams| null = null;
     public pointerPosition: Point;
     public displayRois: boolean;
+    public displayReconstructedText: boolean;
 
     public constructor() {
         this.params = new ScrollEditorParams();
         this.pointerPosition = {x: 0, y: 0};
         this.displayRois = false;
+        this.displayReconstructedText = false;
     }
 
     public get selectedArtefacts(): Artefact[] {

@@ -47,6 +47,7 @@
                         :selected="isArtefactSelected(artefact)"
                         :scaleFactor="zoomLevel"
                         :withRois="displayRois"
+                        :reconstructedText="displayReconstructedText"
                     />
                 </g>
             </svg>
@@ -107,10 +108,7 @@ export default class ScrollArea extends Vue {
             .scrollArea as HTMLElement;
         // Prepare ROIs of placed artefacts
         await this.placedArtefacts.forEach(async (artefact: Artefact) => {
-            await this.$state.prepare.artefact(
-            artefact.editionId,
-            artefact.id
-        );
+            await this.$state.prepare.artefact(artefact.editionId, artefact.id);
             await Promise.all(
                 artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
                     this.$state.prepare.textFragment(artefact.editionId, tf.id)
@@ -127,6 +125,9 @@ export default class ScrollArea extends Vue {
         return this.scrollEditorState.displayRois;
     }
 
+    private get displayReconstructedText(): boolean {
+        return this.scrollEditorState.displayReconstructedText;
+    }
     private get params() {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }

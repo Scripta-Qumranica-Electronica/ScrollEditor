@@ -131,6 +131,14 @@
                                     >Display ROIs</b-form-checkbox
                                 >
                             </div>
+                            <div class="col-2">
+                                <b-form-checkbox
+                                    switch
+                                    size="sm"
+                                    @input="onDisplayReconstructedText($event)"
+                                    >Display Reconstructed Text</b-form-checkbox
+                                >
+                            </div>
                         </b-row>
                     </div>
                 </b-row>
@@ -897,6 +905,9 @@ export default class ScrollEditor
 
     public onDisplayROIs(value: boolean) {
         this.scrollEditorState.displayRois = value;
+    }
+    public onDisplayReconstructedText(value: boolean) {
+        this.scrollEditorState.displayReconstructedText = value;
     }
 }
 </script>

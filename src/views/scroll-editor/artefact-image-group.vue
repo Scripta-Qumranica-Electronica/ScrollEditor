@@ -1,6 +1,6 @@
 <template>
     <g
-        :class="{disabled: disabled}"
+        :class="{ disabled: disabled }"
         v-if="loaded"
         :key="artefact.id"
         :transform="groupTransform"
@@ -14,7 +14,12 @@
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
             <clipPath :id="`clip-path-${artefact.id}`">
-                <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
+                <use
+                    stroke="none"
+                    fill="black"
+                    fill-rule="evenodd"
+                    :href="`#path-${artefact.id}`"
+                />
             </clipPath>
         </defs>
         <g @click="onSelect">
@@ -33,6 +38,8 @@
             />
         </g>
         <roi-layer v-if="withRois" :rois="visibleRois"></roi-layer>
+        <roi-layer v-if="reconstructedText" :withLetters="true" :rois="reconstructedRois">
+        </roi-layer>
     </g>
 </template> 
 
@@ -59,7 +66,7 @@ import {
     ScrollEditorOperation,
     ArtefactPlacementOperation,
     ArtefactPlacementOperationType,
-    GroupPlacementOperation
+    GroupPlacementOperation,
 } from './operations';
 import { Placement } from '../../utils/Placement';
 import IIIFImageComponent from '@/components/images/IIIFImage.vue';
@@ -70,24 +77,28 @@ import RoiLayer from '../artefact-editor/roi-layer.vue';
     name: 'artefact-image-group',
     components: {
         'iiif-image': IIIFImageComponent,
-        'roi-layer': RoiLayer
-    }
+        'roi-layer': RoiLayer,
+    },
 })
 export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     @Prop({
-        default: false
+        default: false,
     })
     public selected!: boolean;
     @Prop({
-        default: false
+        default: false,
     })
     public disabled!: boolean;
     @Prop({
-        default: false
+        default: false,
     })
     public withRois!: boolean;
     @Prop({
-        default: undefined
+        default: false,
+    })
+    public reconstructedText!: boolean;
+    @Prop({
+        default: undefined,
     })
     public artefact!: Artefact;
     @Prop() public readonly transformRootId!: string;
@@ -97,7 +108,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private element!: SVGGElement | null;
     private previousPlacement!: any[];
     @Prop({
-        default: 1
+        default: 1,
     })
     private scaleFactor!: number;
 
@@ -149,7 +160,22 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
                 visibleRois.push(roi);
             }
         }
+
         return visibleRois;
+    }
+
+    private get reconstructedRois() {
+        const reconstructedRois: InterpretationRoi[] = [];
+        for (const roi of this.visibleRois) {
+            if (
+                this.$state.signInterpretations.get(roi.signInterpretationId!)!
+                    .isReconstructed
+            ) {
+                reconstructedRois.push(roi);
+            }
+        }
+
+        return reconstructedRois;
     }
 
     protected async mounted() {
@@ -192,9 +218,9 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         if (this.pointerId > 0) {
             return;
         }
-        this.previousPlacement = this.selectedArtefacts.map(art => ({
+        this.previousPlacement = this.selectedArtefacts.map((art) => ({
             placement: art!.placement.clone(),
-            artefactId: art!.id
+            artefactId: art!.id,
         }));
 
         this.pointerId = $event.pointerId;
@@ -221,10 +247,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         const diffPt = {
             x: pt.x - this.mouseOrigin!.x,
-            y: pt.y - this.mouseOrigin!.y
+            y: pt.y - this.mouseOrigin!.y,
         };
 
-        this.selectedArtefacts.forEach(art => {
+        this.selectedArtefacts.forEach((art) => {
             art!.placement.translate.x! += diffPt.x;
             art!.placement.translate.y! += diffPt.y;
         });
@@ -249,7 +275,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             );
         }
         if (this.selectedGroup) {
-            this.selectedArtefacts.forEach(art => {
+            this.selectedArtefacts.forEach((art) => {
                 const trans = art!.placement.clone();
                 operations.push(this.createOperation('translate', trans, art));
             });
@@ -279,7 +305,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             artefact!.id,
             opType,
             this.previousPlacement.find(
-                x => x.artefactId === artefact!.id
+                (x) => x.artefactId === artefact!.id
             ).placement,
             newPlacement,
             artefact!.isPlaced,
