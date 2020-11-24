@@ -38,8 +38,20 @@
             />
         </g>
         <roi-layer v-if="withRois" :rois="visibleRois"></roi-layer>
-        <roi-layer v-if="reconstructedText" :withLetters="true" :rois="reconstructedRois">
+        <roi-layer
+            v-if="reconstructedText"
+            :withLetters="true"
+            :rois="reconstructedRois"
+        >
         </roi-layer>
+        <template v-for="(value, propertyName) in siInterpretationRois">
+            <text
+                :key="propertyName"
+                :transform="`translate(${letterRoiPosition(value)})`"
+                font-size="250"
+                >{{ propertyName }}</text
+            >
+        </template>
     </g>
 </template> 
 
@@ -72,6 +84,7 @@ import { Placement } from '../../utils/Placement';
 import IIIFImageComponent from '@/components/images/IIIFImage.vue';
 import { InterpretationRoi } from '@/models/text';
 import RoiLayer from '../artefact-editor/roi-layer.vue';
+import { forEach } from 'mathjs';
 
 @Component({
     name: 'artefact-image-group',
@@ -162,6 +175,20 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         }
 
         return visibleRois;
+    }
+    private get siInterpretationRois(): {
+        [character: string]: InterpretationRoi[];
+    } {
+        const q = this.visibleRois.reduce((result, roi) => {
+            const character =
+                this.$state.signInterpretations.get(roi.signInterpretationId!)!
+                    .character || '';
+            (result[character] = result[character] || []).push(roi);
+            // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
+            return result;
+        }, {});
+        console.log(q);
+        return q;
     }
 
     private get reconstructedRois() {
@@ -319,6 +346,37 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         (targetElement || this.element)!.releasePointerCapture(this.pointerId);
         this.element = null;
         this.pointerId = -1;
+    }
+
+    private letterRoiPosition(value: InterpretationRoi[]) {
+        let minx: number = 0;
+        let maxx: number = 0;
+        let miny: number = 0;
+        let maxy: number = 0;
+
+        value.forEach((v, idx) => {
+            if (idx === 0) {
+                minx = maxx = v.position.x;
+                miny = maxy = v.position.y;
+            }
+            if (v.position.x <= minx) {
+                minx = v.position.x;
+            }
+            if (v.position.x >= maxx) {
+                maxx = v.position.x;
+            }
+            if (v.position.y <= miny) {
+                miny = v.position.y;
+            }
+            if (v.position.y >= maxy) {
+                maxy = v.position.y;
+            }
+        });
+
+        const newPositionX = (maxx + minx) / 2;
+        const newPositionY = (maxy + miny) / 2;
+
+        return `${newPositionX} ${newPositionY}`;
     }
 
     @Emit()

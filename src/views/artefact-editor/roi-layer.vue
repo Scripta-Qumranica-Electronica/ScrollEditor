@@ -1,5 +1,5 @@
 <template>
-    <g>
+    <g>    
         <template v-for="roi in rois">
             <g
                 :key="roi.id"
@@ -139,9 +139,9 @@ path.selected {
     }
 }
 .reconstructed-letters {
-       stroke-width: 15px;
+    stroke-width: 15px;
     stroke: black;
     fill: white;
-    font-weight: 800;;
+    font-weight: 800;
 }
 </style>
