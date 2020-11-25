@@ -6,7 +6,7 @@ import { EditionCollection,
     InterpretationRoiMap,
     SignInterpretationMap,
     TextFragmentMap,
-    ArtefactGroupsMap } from './utilities';
+    ArtefactGroupsMap} from './utilities';
 import StateService from './state-service';
 import { ScrollEditorState } from './scroll-editor';
 import { EventBus } from './event-bus';

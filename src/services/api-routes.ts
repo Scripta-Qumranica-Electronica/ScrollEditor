@@ -160,4 +160,10 @@ export namespace ApiRoutes {
 
         return url;
     }
+
+    export function signInterpretationCharacterUrl(editionId: number, signInterpretationId: number) {
+        const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}/character`;
+
+        return url;
+    }
 }

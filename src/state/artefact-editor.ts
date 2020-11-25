@@ -16,10 +16,12 @@ export class ArtefactEditorState {
     public highlightCommentMode: boolean = false;
     public modeSignModal: editSignInterpretationModeType = 'edit';
     public params: ArtefactEditorParams| null = null;
+
     constructor() {
         this.params = new ArtefactEditorParams();
         this.selectedSignsInterpretation = [];
     }
+
     public get singleSelectedSi(): SignInterpretation | null {
         if (this.selectedSignsInterpretation.length === 1) {
             return this.selectedSignsInterpretation[0];

@@ -32,8 +32,11 @@ import {
 	NextSignInterpretationDTO,
 	SignInterpretationBaseDTO,
 	SignInterpretationCreateDTO,
+	SignInterpretationVariantDTO,
 	SignInterpretationDTO,
 	SignInterpretationListDTO,
+	SignInterpretationCreatedDTO,
+	SignInterpretationDeleteDTO,
 	InterpretationAttributeBaseDTO,
 	InterpretationAttributeCreateDTO,
 	InterpretationAttributeDTO,
@@ -215,8 +218,8 @@ export class SignalRUtilities {
 
     /**
 	 * Checks a WKT polygon to ensure validity. If the polygon is invalid,
-	 * it attempts to construct a valid polygon that matches the original
-	 * as closely as possible.
+	 *		 it attempts to construct a valid polygon that matches the original
+	 *		 as closely as possible.
 	 *
 	 * @param payload - JSON object with the WKT polygon to validate
 	 *
@@ -227,8 +230,8 @@ export class SignalRUtilities {
 
     /**
 	 * Override the default OnConnectedAsync to add the connection to the user's user_id
-	 * group if the user is authenticated. The user_id group is used for messages that
-	 * are above the level of a single edition.
+	 *		 group if the user is authenticated. The user_id group is used for messages that
+	 *		 are above the level of a single edition.
 	 *
 	 *
 	 *
@@ -280,7 +283,7 @@ export class SignalRUtilities {
 
     /**
 	 * Get a list of requests issued by the current user for other users
-	 * to become editors of a shared edition
+	 *		 to become editors of a shared edition
 	 *
 	 *
 	 *
@@ -387,7 +390,7 @@ export class SignalRUtilities {
 
     /**
 	 * Provides spatial data for all letters in the edition organized and oriented
-	 * by lines.
+	 *		 by lines.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 *
@@ -457,9 +460,9 @@ export class SignalRUtilities {
 	 * @param editionId - Id of the edition
 	 * @param textFragmentId - Id of the text fragment
 	 * @returns - 
-	 *             A manuscript edition object including the fragments and their lines in a hierarchical order and in correct
-	 *             sequence
-	 *         
+	 *		  A manuscript edition object including the fragments and their lines in a hierarchical order and in correct
+	 *		  sequence
+	 *		 
 	 */
     public async getV1EditionsEditionIdTextFragmentsTextFragmentId(editionId: number, textFragmentId: number): Promise<TextEditionDTO> {
         return await this._connection.invoke('GetV1EditionsEditionIdTextFragmentsTextFragmentId', editionId, textFragmentId);
@@ -471,9 +474,9 @@ export class SignalRUtilities {
 	 * @param editionId - Id of the edition
 	 * @param lineId - Id of the line
 	 * @returns - 
-	 *             A manuscript edition object including the fragments and their lines in a hierarchical order and in correct
-	 *             sequence
-	 *         
+	 *		  A manuscript edition object including the fragments and their lines in a hierarchical order and in correct
+	 *		  sequence
+	 *		 
 	 */
     public async getV1EditionsEditionIdLinesLineId(editionId: number, lineId: number): Promise<LineTextDTO> {
         return await this._connection.invoke('GetV1EditionsEditionIdLinesLineId', editionId, lineId);
@@ -484,9 +487,9 @@ export class SignalRUtilities {
 	 *
 	 * @param payload - JSON object with an email and password parameter
 	 * @returns - 
-	 *             A DetailedUserTokenDTO with a JWT for activated user accounts, or the email address of an unactivated user
-	 *             account
-	 *         
+	 *		  A DetailedUserTokenDTO with a JWT for activated user accounts, or the email address of an unactivated user
+	 *		  account
+	 *		 
 	 */
     public async postV1UsersLogin(payload: LoginRequestDTO): Promise<DetailedUserTokenDTO> {
         return await this._connection.invoke('PostV1UsersLogin', payload);
@@ -494,7 +497,7 @@ export class SignalRUtilities {
 
     /**
 	 * Allows a user who has not yet activated their account to change their email address. This will not work if the user
-	 * account associated with the email address has already been activated
+	 *		 account associated with the email address has already been activated
 	 *
 	 * @param payload - JSON object with the current email address and the new desired email address
 	 *
@@ -525,12 +528,12 @@ export class SignalRUtilities {
 
     /**
 	 * Updates a user's registration details. Note that the if the email address has changed, the account will be set to
-	 * inactive until the account is activated with the secret token.
+	 *		 inactive until the account is activated with the secret token.
 	 *
 	 * @param payload - 
-	 *             A JSON object with all data necessary to update a user account.  Null fields (but not empty
-	 *             strings!) will be populated with existing user data
-	 *         
+	 *		  A JSON object with all data necessary to update a user account.  Null fields (but not empty
+	 *		  strings!) will be populated with existing user data
+	 *		 
 	 * @returns - Returns a DetailedUserDTO with the updated user account details
 	 */
     public async putV1Users(payload: UserUpdateRequestDTO): Promise<DetailedUserDTO> {
@@ -579,7 +582,7 @@ export class SignalRUtilities {
 
     /**
 	 * Sends a new activation email for the user's account. This will not work if the user account associated with the
-	 * email address has already been activated.
+	 *		 email address has already been activated.
 	 *
 	 * @param payload - JSON object with the current email address and the new desired email address
 	 *
@@ -620,7 +623,7 @@ export class SignalRUtilities {
 
     /**
 	 * Provides information for the specified imaged object related to the specified edition, can include images and also
-	 * their masks with optional.
+	 *		 their masks with optional.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param imagedObjectId - Unique Id of the desired object from the imaging Institution
@@ -633,7 +636,7 @@ export class SignalRUtilities {
 
     /**
 	 * Provides a listing of imaged objects related to the specified edition, can include images and also their masks with
-	 * optional.
+	 *		 optional.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param optional - Set 'artefacts' to receive related artefact data and 'masks' to include the artefact masks
@@ -671,6 +674,16 @@ export class SignalRUtilities {
 	 */
     public async getV1ImagedObjectsImagedObjectIdTextFragments(imagedObjectId: string): Promise<ImagedObjectTextFragmentMatchListDTO> {
         return await this._connection.invoke('GetV1ImagedObjectsImagedObjectIdTextFragments', imagedObjectId);
+    }
+
+    /**
+	 * Get a listing of all text fragments to imaged object matches
+	 *
+	 *
+	 *
+	 */
+    public async getV1CatalogueAllMatches(): Promise<CatalogueMatchListDTO> {
+        return await this._connection.invoke('GetV1CatalogueAllMatches');
     }
 
     /**
@@ -799,30 +812,59 @@ export class SignalRUtilities {
     }
 
     /**
-	 * Creates a new sign interpretation
+	 * Creates a new sign interpretation. This creates a new sign entity for the submitted
+	 *		 interpretation. This also takes care of inserting the sign interpretation into the
+	 *		 sign stream following the specifications in the newSignInterpretation.
 	 *
 	 * @param editionId - ID of the edition being changed
 	 * @param newSignInterpretation - New sign interpretation data to be added
 	 * @returns - The new sign interpretation
 	 */
-    public async postV1EditionsEditionIdSignInterpretations(editionId: number, newSignInterpretation: SignInterpretationCreateDTO): Promise<SignInterpretationListDTO> {
+    public async postV1EditionsEditionIdSignInterpretations(editionId: number, newSignInterpretation: SignInterpretationCreateDTO): Promise<SignInterpretationCreatedDTO> {
         return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretations', editionId, newSignInterpretation);
     }
 
     /**
-	 * Deletes the sign interpretation in the route. The endpoint automatically manages the sign stream
-	 * by connecting all the deleted sign's next and previous nodes.
+	 * Creates a variant sign interpretation to the submitted sign interpretation id using
+	 *		 the character and attribute settings of the newSignInterpretation payload. It will
+	 *		 copy the ROIs from the original sign interpretation to the new one, but it will not
+	 *		 copy the attributes (or any commentaries associated with the attributes).
 	 *
 	 * @param editionId - ID of the edition being changed
-	 * @param signInterpretationId - ID of the sign interpretation being deleted
-	 * @returns - Ok or Error
+	 * @param signInterpretationId - 
+	 *		  Id of the sign interpretation for which this variant
+	 *		  will be created
+	 *		 
+	 * @param newSignInterpretation - New sign interpretation data to be added
+	 * @returns - The new sign interpretation
 	 */
-    public async deleteV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number): Promise<void> {
-        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId);
+    public async postV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number, newSignInterpretation: SignInterpretationVariantDTO): Promise<SignInterpretationCreatedDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId, newSignInterpretation);
     }
 
     /**
-	 * Links two sign interpretations in the edition's sign stream
+	 * Deletes the sign interpretation in the route. The endpoint automatically manages the
+	 *		 sign stream by connecting all the deleted sign's next and previous nodes. Adding
+	 *		 "delete-all-variants" to the optional query parameter will cause all variant sign
+	 *		 interpretations to be deleted as well.
+	 *
+	 * @param editionId - ID of the edition being changed
+	 * @param signInterpretationId - ID of the sign interpretation being deleted
+	 * @param optional - 
+	 *		  If the string "delete-all-variants" is submitted here, then
+	 *		  all variant readings to the submitted sign interpretation id will be deleted as well
+	 *		 
+	 * @returns - 
+	 *		  A list of all the sign interpretations that were deleted and changed as a result of
+	 *		  the deletion operation
+	 *		 
+	 */
+    public async deleteV1EditionsEditionIdSignInterpretationsSignInterpretationId(editionId: number, signInterpretationId: number, optional: string[]): Promise<SignInterpretationDeleteDTO> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdSignInterpretationsSignInterpretationId', editionId, signInterpretationId, optional);
+    }
+
+    /**
+	 * Links two sign interpretations together in the edition's sign stream
 	 *
 	 * @param editionId - ID of the edition being changed
 	 * @param signInterpretationId - The sign interpretation to be linked to the nextSignInterpretationId
@@ -871,7 +913,7 @@ export class SignalRUtilities {
 
     /**
 	 * This changes the values of the specified sign interpretation attribute,
-	 * mainly used to change commentary.
+	 *		 mainly used to change commentary.
 	 *
 	 * @param editionId - ID of the edition being changed
 	 * @param signInterpretationId - ID of the sign interpretation being altered
@@ -896,12 +938,29 @@ export class SignalRUtilities {
     }
 
     /**
+	 * This is an admin endpoint used to trigger the generation of materialized sign streams.
+	 *		 These streams are generated on demand by the API, but it can happen that some do not
+	 *		 complete (a record in the database exists when a materialization was started but
+	 *		 never finished).
+	 *
+	 * @param editionIds - 
+	 *		  A list of edition IDs for which to generate materialized
+	 *		  sign streams.  If the list is empty, then the system will look for any unfinished
+	 *		  jobs and complete those.
+	 *		 
+	 *
+	 */
+    public async postV1MaterializeSignStreams(editionIds: number[]): Promise<void> {
+        return await this._connection.invoke('PostV1MaterializeSignStreams', editionIds);
+    }
+
+    /**
 	 * Creates a new artefact with the provided data.
-	 * If no mask is provided, a placeholder mask will be created with the values:
-	 * "POLYGON((0 0,1 1,1 0,0 0))" (the system requires a valid WKT polygon mask for
-	 * every artefact). It is not recommended to leave the mask, name, or work status
-	 * blank or null. It will often be advantageous to leave the transformation null
-	 * when first creating a new artefact.
+	 *		 If no mask is provided, a placeholder mask will be created with the values:
+	 *		 "POLYGON((0 0,1 1,1 0,0 0))" (the system requires a valid WKT polygon mask for
+	 *		 every artefact). It is not recommended to leave the mask, name, or work status
+	 *		 blank or null. It will often be advantageous to leave the transformation null
+	 *		 when first creating a new artefact.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param payload - A CreateArtefactDTO with the data for the new artefact
@@ -958,8 +1017,8 @@ export class SignalRUtilities {
 
     /**
 	 * Provides a listing of text fragments that have text in the specified artefact.
-	 * With the optional query parameter "suggested", this endpoint will also return
-	 * any text fragment that the system suggests might have text in the artefact.
+	 *		 With the optional query parameter "suggested", this endpoint will also return
+	 *		 any text fragment that the system suggests might have text in the artefact.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param artefactId - Unique Id of the desired artefact
@@ -972,15 +1031,15 @@ export class SignalRUtilities {
 
     /**
 	 * Updates the specified artefact.
-	 * There are many possible attributes that can be changed for
-	 * an artefact. The caller should only input only those that
-	 * should be changed. Attributes with a null value will be ignored.
-	 * For instance, setting the mask to null or "" will result in
-	 * no changes to the current mask, and no value for the mask will
-	 * be returned (or broadcast). Likewise, the transformation, name,
-	 * or status message may be set to null and no change will be made
-	 * to those entities (though any unchanged values will be returned
-	 * along with the changed values and also broadcast to co-editors).
+	 *		 There are many possible attributes that can be changed for
+	 *		 an artefact. The caller should only input only those that
+	 *		 should be changed. Attributes with a null value will be ignored.
+	 *		 For instance, setting the mask to null or "" will result in
+	 *		 no changes to the current mask, and no value for the mask will
+	 *		 be returned (or broadcast). Likewise, the transformation, name,
+	 *		 or status message may be set to null and no change will be made
+	 *		 to those entities (though any unchanged values will be returned
+	 *		 along with the changed values and also broadcast to co-editors).
 	 *
 	 * @param artefactId - Unique Id of the desired artefact
 	 * @param editionId - Unique Id of the desired edition
@@ -1025,8 +1084,8 @@ export class SignalRUtilities {
 
     /**
 	 * Creates a new artefact group with the submitted data.
-	 * The new artefact must have a list of artefacts that belong to the group.
-	 * It is not necessary to give the group a name.
+	 *		 The new artefact must have a list of artefacts that belong to the group.
+	 *		 It is not necessary to give the group a name.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param payload - Parameters of the new artefact group
@@ -1038,8 +1097,8 @@ export class SignalRUtilities {
 
     /**
 	 * Updates the details of an artefact group.
-	 * The artefact group will now only contain the artefacts listed in the JSON payload.
-	 * If the name is null, no change will be made, otherwise the name will also be updated.
+	 *		 The artefact group will now only contain the artefacts listed in the JSON payload.
+	 *		 If the name is null, no change will be made, otherwise the name will also be updated.
 	 *
 	 * @param editionId - Unique Id of the desired edition
 	 * @param artefactGroupId - Id of the artefact group to be updated
@@ -1419,6 +1478,23 @@ export class SignalRUtilities {
 	 */
     public disconnectUpdatedSignInterpretation(handler: (msg: SignInterpretationDTO) => void): void {
         this._connection.off('UpdatedSignInterpretation', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of a sign interpretation
+	 *
+	 */
+    public connectUpdatedSignInterpretations(handler: (msg: SignInterpretationListDTO) => void): void {
+        this._connection.on('UpdatedSignInterpretations', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of a sign interpretation
+	 *
+	 */
+    public disconnectUpdatedSignInterpretations(handler: (msg: SignInterpretationListDTO) => void): void {
+        this._connection.off('UpdatedSignInterpretations', handler)
     }
 
 

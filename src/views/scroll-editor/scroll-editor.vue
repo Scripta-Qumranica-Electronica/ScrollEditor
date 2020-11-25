@@ -370,21 +370,7 @@ export default class ScrollEditor
         this.onZoomChanged();
     }
 
-    private get artefacts() {
-        return this.$state.artefacts.items || [];
-    }
-    private get placedArtefacts() {
-        return this.artefacts.filter((x) => x.isPlaced);
-    }
-    public get canZoomIn(): boolean {
-        return this.zoom + 5 <= 100;
-    }
-
-    public get canZoomOut(): boolean {
-        return this.zoom - 5 > 0;
-    }
-
-        public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
+    public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
         const allMovedArtefactIds = new Set<number>();
         const allEditedGroupIds = new Set<number>();
         const allDeletedGroupIds = new Set<number>();
@@ -485,6 +471,20 @@ export default class ScrollEditor
             this.$toasted.error(error, { duration: 3000 });
             return false;
         }
+    }
+
+    private get artefacts() {
+        return this.$state.artefacts.items || [];
+    }
+    private get placedArtefacts() {
+        return this.artefacts.filter((x) => x.isPlaced);
+    }
+    public get canZoomIn(): boolean {
+        return this.zoom + 5 <= 100;
+    }
+
+    public get canZoomOut(): boolean {
+        return this.zoom - 5 > 0;
     }
 
     protected created() {
@@ -597,7 +597,7 @@ export default class ScrollEditor
             property: paramName,
             value: paramValue,
             params: this.params,
-        }; // as EditorParamsChangedArgs;
+        } as unknown as  EditorParamsChangedArgs; // TODO: Change this to the right type
         this.$emit('paramsChanged', args);
     }
 
@@ -875,6 +875,7 @@ export default class ScrollEditor
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
+
     private newOperation(operation: ScrollEditorOperation) {
         this.operationsManager.addOperation(operation);
     }

@@ -50,7 +50,7 @@ class TextService {
         return new TextEdition(response.data);
     }
 
-    public async updateArtefactROIs(artefact: Artefact) {
+    public async updateArtefactROIs(artefact: Artefact, mode: 'created' | 'deleted' | 'both' = 'both') {
         // Updates all the ROIs of the artefact.
         // This function scans the state and updates ROIs based on their status.
         // It also updates the state - deleted ROIs are removed, and the status of all other ROIs
@@ -61,9 +61,9 @@ class TextService {
         for (const roi of this.stateManager.interpretationRois.getArtefactRois(
             artefact
         )) {
-            if (roi.status === 'new') {
+            if (roi.status === 'new' && mode !== 'deleted') {
                 newROIs.push(roi);
-            } else if (roi.status === 'deleted') {
+            } else if (roi.status === 'deleted' && mode !== 'created') {
                 deletedROIs.push(roi);
             }
         }
@@ -103,8 +103,17 @@ class TextService {
     private updateStateCreatedROIs(artefact: Artefact,
                                    preSaveROIs: InterpretationRoi[],
                                    listDTO: InterpretationRoiDTO[]) {
-        // First, remove the preSave ROIs
-        for (const preSave of preSaveROIs) {
+
+        if (preSaveROIs.length !== listDTO.length) {
+            console.error(`Server returned an ROI list with the wrong length - expected ${preSaveROIs.length} and got ${listDTO.length}`);
+            return;
+        }
+
+        for (let i = 0; i < preSaveROIs.length; i++) {
+            const preSave = preSaveROIs[i];
+            const postSave = listDTO[i];
+
+            // First, remove the preSave ROI
             if (preSave.signInterpretationId) {
                 const si = this.stateManager.signInterpretations.get(preSave.signInterpretationId);
                 if (si) {
@@ -112,10 +121,8 @@ class TextService {
                 }
             }
             this.stateManager.interpretationRois.delete(preSave.id);
-        }
 
-        // Now add the new ones
-        for (const postSave of listDTO) {
+            // Add the post save ROI
             const roi = new InterpretationRoi(postSave);
             if (postSave.signInterpretationId) {
                 const si = this.stateManager.signInterpretations.get(postSave.signInterpretationId);
@@ -129,6 +136,11 @@ class TextService {
             }
 
             this.stateManager.interpretationRois.put(roi);
+
+            // Map the old ID to the new ID
+            if (preSave.id !== roi.id) {
+                this.stateManager.interpretationRois.mapFrontendIdToServerId(preSave.id, roi.id);
+            }
         }
     }
 

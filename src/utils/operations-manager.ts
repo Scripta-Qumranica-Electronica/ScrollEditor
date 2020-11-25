@@ -4,14 +4,52 @@
 // Since it is generic, specifics are provided by by implementation of the operations classes, as well as
 // the save helper interface
 
-export interface Operation<T extends Operation<T, K>, K = number> {
-    // Unite with a previous operation - returns undefined if the operations can't be united
-    uniteWith(prev: T): T | undefined;
+export abstract class Operation<T extends Operation<T, K>, K = number> {
+    // True if the operation has been undone, false otherwise
+    public get undone() {
+        return this._undone;
+    }
 
-    undo(): void;  // Undo the operation
-    redo(): void;  // Redo the operation
-    getId(): K;    // Gets the ID of the affected entity
-    replaceEntityId(newId: K): void; // Update the id of the entity
+    public needsSaving = true; // True when the outcome of this operation needs saving
+    protected _undone = false;
+
+    // Unite with a previous operation - returns undefined if the operations can't be united
+    public abstract uniteWith(prev: T): T | undefined;
+
+    public undo(): void  {
+        if (this._undone) {
+            // Don't undo twice without redoing
+            console.warn('Operation has already been undone');
+            return;
+        }
+        this.internalUndo();
+        this._undone = true;
+        this.needsSaving = !this.needsSaving;
+    }
+
+    public redo(initial = false): void  {
+        // Some operations are responsible for updating the state. Those operations' redo method is called right after they are created.
+        // When you do so, pass initial=true, so that the check whether the operation is being redone without being undone is bypassed.
+
+        if (!initial && !this.undone) {
+            console.warn('Operation has already been redone');
+            return;
+        }
+
+        this.internalRedo();
+        if (initial) {
+            this.needsSaving = true;
+        } else {
+            this.needsSaving = !this.needsSaving;
+        }
+        this._undone = false;
+    }
+
+    public abstract getId(): K;    // Gets the ID of the affected entity
+    public abstract replaceEntityId(newId: K): void; // Update the id of the entity
+
+    protected abstract internalUndo(): void;  // Actually undo the operation
+    protected abstract internalRedo(): void;  // Actually redo the operation
 }
 
 // Pass this interface to components that implement the undo/redo/save buttons, so they can
@@ -130,7 +168,7 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
         }
 
         // Now we're saving. Store the dirty set so we remark as dirty of saving fails
-        const preSaveDirty = Array.from(this.dirty);
+        const preSaveDirty = Array.from(this.dirty).filter(op => op.needsSaving);
         this.dirty.clear();
         this._isDirty = false;
         let saveOk = false;
@@ -148,6 +186,18 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
                 this._isDirty = true;
             }
             console.warn('Saving failed');
+        } else {
+            for (const ops of this.undoStack) {
+                for (const op of ops) {
+                    op.needsSaving = false;
+                }
+            }
+
+            for (const ops of this.redoStack) {
+                for (const op of ops) {
+                    op.needsSaving = false;
+                }
+            }
         }
     }
 

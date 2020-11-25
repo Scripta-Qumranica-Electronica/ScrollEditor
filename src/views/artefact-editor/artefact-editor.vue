@@ -278,8 +278,12 @@ import {
     ArtefactEditorOperation,
     ArtefactROIOperation,
     ArtefactRotateOperation,
+    SignInterpretationEditOperation,
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
+    CreateSignInterpretationOperation,
+    DeleteSignInterpretationOperation,
+    UpdateSignInterperationOperation,
 } from './operations';
 import {
     SavingAgent,
@@ -364,8 +368,11 @@ export default class ArtefactEditor
 
         this.saving = true;
         try {
-            const appliedRotation = await this.saveRotation();
-            const appliedROIs = await this.saveROIs();
+            await this.saveRotation();
+            await this.saveROIs('deleted');
+            await this.saveSignInterpretations(ops.filter(op => op.type === 'sign') as SignInterpretationEditOperation[]);
+            await this.saveROIs('created');
+
             await this.saveAttributes(
                 ops.filter(
                     (op) => op.type === 'attr'
@@ -404,7 +411,7 @@ export default class ArtefactEditor
             'draw',
             roi,
         );
-        op.redo();
+        op.redo(true);
         this.$state.artefactEditor.selectRoi(roi);
         this.statusTextFragment(roi);
 
@@ -638,8 +645,8 @@ export default class ArtefactEditor
             'erase',
             roi.clone()
         );
+        op.redo(true);
         this.onNewOperation(op);
-        op.redo();
     }
 
     private onNewZoom(event: ZoomEventArgs) {
@@ -831,11 +838,11 @@ export default class ArtefactEditor
         return true;
     }
 
-    private async saveROIs() {
+    private async saveROIs(mode: 'created' | 'deleted') {
         const selected = this.artefactEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
-            this.artefact
+            this.artefact, mode
         );
         this.initVisibleRois();
         // if (selected) {
@@ -844,6 +851,37 @@ export default class ArtefactEditor
         // }
 
         return updated > 0;
+    }
+
+    private async saveSignInterpretations(ops: SignInterpretationEditOperation[]) {
+        for (const op of ops) {
+            switch (op.signOpType) {
+                case 'create':
+                    const createOp = op as CreateSignInterpretationOperation;
+                    if (op.undone) {
+                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, createOp.signInterpretation, true);
+                    } else {
+                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, createOp.signInterpretation);
+                    }
+                    break;
+
+                case 'delete':
+                    const deleteOp = op as DeleteSignInterpretationOperation;
+                    if (op.undone) {
+                        const si = deleteOp.signInterpretation;
+                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, si);
+                        deleteOp.signInterpretationId = si.signInterpretationId; // The id has changed to a negative number after the deletion
+                    } else {
+                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, deleteOp.signInterpretation);
+                    }
+                    break;
+
+                case 'update':
+                    const updateOp = op as UpdateSignInterperationOperation;
+                    await this.signInterpretationService.updateSignInterpretation(this.$state.editions.current!, op.signInterpretation);
+                    break;
+            }
+        }
     }
 
     private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
