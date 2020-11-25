@@ -37,10 +37,11 @@
                 vector-effect="non-scaling-stroke"
             />
         </g>
-        <roi-layer v-if="withRois" :rois="visibleRois"></roi-layer>
+        <roi-layer v-if="withRois" :withClass="false" :rois="visibleRois"></roi-layer>
         <roi-layer
             v-if="reconstructedText"
             :withLetters="true"
+            :withClass="false"
             :rois="reconstructedRois"
         >
         </roi-layer>

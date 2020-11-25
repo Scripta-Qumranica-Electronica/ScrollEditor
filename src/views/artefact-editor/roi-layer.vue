@@ -8,11 +8,11 @@
                 <path
                     :d="roi.shape.svg"
                     :class="{
-                        shine: roi.shiny && !withLetters,
-                        selected: isSelectedRoi(roi) && !withLetters,
-                        highlighted: highlighted(roi) && !withLetters,
+                        shine: roi.shiny && withClass,
+                        selected: isSelectedRoi(roi) && withClass,
+                        highlighted: highlighted(roi) && withClass,
                         highlightedComment:
-                            highlightedComment(roi) && !withLetters,
+                            highlightedComment(roi) && withClass,
                     }"
                     @click="onPathClicked(roi)"
                     vector-effect="non-scaling-stroke"
@@ -44,6 +44,11 @@ export default class RoiLayer extends Vue {
         default: false,
     })
     public withLetters!: boolean;
+
+    @Prop({
+        default: true,
+    })
+    public withClass!: boolean;
 
     public highlighted(roi: InterpretationRoi) {
         if (this.si) {
