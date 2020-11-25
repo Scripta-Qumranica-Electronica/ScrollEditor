@@ -294,14 +294,14 @@ import { ArtefactEditorState } from '@/state/artefact-editor';
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-image': ArtefactImage,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
@@ -415,7 +415,7 @@ export default class ArtefactEditor
             setTimeout(this.nextSign, 1500);
         }
     }
-    
+
     public placeRoi(roi: InterpretationRoi) {
         let newRoi = this.$state.interpretationRois.get(roi.id);
         if (!newRoi) {

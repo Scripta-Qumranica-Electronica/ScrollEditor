@@ -255,7 +255,7 @@ import { ArtefactTextFragmentData } from '@/models/text';
     name: 'scroll-editor',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
         'edition-header': EditionHeader,
@@ -383,6 +383,110 @@ export default class ScrollEditor
     public get canZoomOut(): boolean {
         return this.zoom - 5 > 0;
     }
+
+        public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
+        const allMovedArtefactIds = new Set<number>();
+        const allEditedGroupIds = new Set<number>();
+        const allDeletedGroupIds = new Set<number>();
+        let saveMetrics = false;
+
+        ops.forEach((op) => {
+            // Take artefact placements operations
+            if (op instanceof ArtefactPlacementOperation) {
+                allMovedArtefactIds.add(op.artefactId);
+            } else if (op instanceof GroupPlacementOperation) {
+                op.operations.forEach((artOp) =>
+                    allMovedArtefactIds.add(artOp.getId())
+                );
+                if (op.type === 'delete') {
+                    allDeletedGroupIds.add(op.groupId);
+                }
+                // Take EditGroup operations
+            } else if (op instanceof EditGroupOperation) {
+                allEditedGroupIds.add(op.groupId);
+            } else if (op instanceof EditionMetricOperation) {
+                saveMetrics = true;
+            }
+        });
+
+        try {
+            // save artefacts in bulk
+            const allMovedArtefacts = Array.from(allMovedArtefactIds).map(
+                (artId) => this.$state.artefacts.find(artId)!
+            );
+            allMovedArtefacts.forEach((art) => art.prepareForBackend());
+
+            if (allMovedArtefacts) {
+                await this.editionService.updateArtefactDTOs(
+                    this.editionId,
+                    allMovedArtefacts
+                );
+            }
+
+            // save groups
+            if (allEditedGroupIds.size) {
+                allEditedGroupIds.forEach(async (groupId) => {
+                    const group = this.edition.artefactGroups.find(
+                        (artGroup) => artGroup.id === groupId
+                    );
+                    if (!group) {
+                        console.error(
+                            'Cannot find group in edition with id: ' + groupId
+                        );
+                        return;
+                    }
+                    // Save new group with id < 0
+                    if (group.id < 0) {
+                        if (group.artefactIds.length >= 2) {
+                            const savedGroup = await this.editionService.newArtefactGroup(
+                                this.editionId,
+                                group
+                            );
+                            group.groupId = savedGroup.id;
+                            this.updateOperationId(groupId, savedGroup.id);
+                            this.selectGroup(group);
+                        }
+                        // Save edited group with length > 1
+                    } else if (group.id > 0) {
+                        if (group.artefactIds.length >= 2) {
+                            const savedGroup = await this.editionService.updateArtefactGroup(
+                                this.editionId,
+                                group
+                            );
+                        } else {
+                            await this.editionService.deleteArtefactGroup(
+                                this.editionId,
+                                groupId
+                            );
+                        }
+                    }
+                });
+            }
+
+            // delete groups
+            allDeletedGroupIds.forEach(async (groupId) => {
+                await this.editionService.deleteArtefactGroup(
+                    this.editionId,
+                    groupId
+                );
+            });
+
+            // save metrics
+            if (saveMetrics) {
+                await this.editionService.updateMetrics(
+                    this.editionId,
+                    this.edition.metrics
+                );
+            }
+
+            return true;
+        } catch (error) {
+            console.error(error);
+            this.$toasted.error(error, { duration: 3000 });
+            return false;
+        }
+    }
+
     protected created() {
         this.$state.eventBus.on('select-group', this.selectGroup);
         this.$state.eventBus.on('save-group', this.saveGroupArtefacts);
@@ -487,21 +591,22 @@ export default class ScrollEditor
             this.selectArtefact(artefact);
         }
     }
-    public notifyChange(paramName: string, paramValue: any) {
+
+    private notifyChange(paramName: string, paramValue: any) {
         const args = {
             property: paramName,
             value: paramValue,
             params: this.params,
-        } as EditorParamsChangedArgs;
+        }; // as EditorParamsChangedArgs;
         this.$emit('paramsChanged', args);
     }
 
-    public zoomClick(percent: number) {
+    private zoomClick(percent: number) {
         this.zoom += percent;
         this.notifyChange('zoomScrollEditor', this.params.zoom);
     }
 
-    public selectArtefact(artefact: Artefact | undefined) {
+    private selectArtefact(artefact: Artefact | undefined) {
         if (!artefact) {
             this.selectGroup(undefined);
         }
@@ -539,7 +644,7 @@ export default class ScrollEditor
         }
     }
 
-    public selectGroup(group: ArtefactGroup | undefined) {
+    private selectGroup(group: ArtefactGroup | undefined) {
         this.scrollEditorState.selectGroup(group);
     }
 
@@ -571,109 +676,6 @@ export default class ScrollEditor
         const viewport = new BoundingBox(left, top, width, height);
         // Vue.set(this.$state.scrollEditor, 'viewport', viewport);
         this.$state.scrollEditor.viewport = viewport;
-    }
-
-    public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
-        const allMovedArtefactIds = new Set<number>();
-        const allEditedGroupIds = new Set<number>();
-        const allDeletedGroupIds = new Set<number>();
-        let saveMetrics = false;
-
-        ops.forEach((op) => {
-            // Take artefact placements operations
-            if (op instanceof ArtefactPlacementOperation) {
-                allMovedArtefactIds.add(op.artefactId);
-            } else if (op instanceof GroupPlacementOperation) {
-                op.operations.forEach((artOp) =>
-                    allMovedArtefactIds.add(artOp.getId())
-                );
-                if (op.type === 'delete') {
-                    allDeletedGroupIds.add(op.groupId);
-                }
-                // Take EditGroup operations
-            } else if (op instanceof EditGroupOperation) {
-                allEditedGroupIds.add(op.groupId);
-            } else if (op instanceof EditionMetricOperation) {
-                saveMetrics = true;
-            }
-        });
-
-        try {
-            // save artefacts in bulk
-            const allMovedArtefacts = Array.from(allMovedArtefactIds).map(
-                (artId) => this.$state.artefacts.find(artId)!
-            );
-            allMovedArtefacts.forEach((art) => art.prepareForBackend());
-
-            if (allMovedArtefacts) {
-                await this.editionService.updateArtefactDTOs(
-                    this.editionId,
-                    allMovedArtefacts
-                );
-            }
-
-            // save groups
-            if (allEditedGroupIds.size) {
-                allEditedGroupIds.forEach(async (groupId) => {
-                    const group = this.edition.artefactGroups.find(
-                        (artGroup) => artGroup.id === groupId
-                    );
-                    if (!group) {
-                        console.error(
-                            'Cannot find group in edition with id: ' + groupId
-                        );
-                        return;
-                    }
-                    // Save new group with id < 0
-                    if (group.id < 0) {
-                        if (group.artefactIds.length >= 2) {
-                            const savedGroup = await this.editionService.newArtefactGroup(
-                                this.editionId,
-                                group
-                            );
-                            group.groupId = savedGroup.id;
-                            this.updateOperationId(groupId, savedGroup.id);
-                            this.selectGroup(group);
-                        }
-                        // Save edited group with length > 1
-                    } else if (group.id > 0) {
-                        if (group.artefactIds.length >= 2) {
-                            const savedGroup = await this.editionService.updateArtefactGroup(
-                                this.editionId,
-                                group
-                            );
-                        } else {
-                            await this.editionService.deleteArtefactGroup(
-                                this.editionId,
-                                groupId
-                            );
-                        }
-                    }
-                });
-            }
-
-            // delete groups
-            allDeletedGroupIds.forEach(async (groupId) => {
-                await this.editionService.deleteArtefactGroup(
-                    this.editionId,
-                    groupId
-                );
-            });
-
-            // save metrics
-            if (saveMetrics) {
-                await this.editionService.updateMetrics(
-                    this.editionId,
-                    this.edition.metrics
-                );
-            }
-
-            return true;
-        } catch (error) {
-            console.error(error);
-            this.$toasted.error(error, { duration: 3000 });
-            return false;
-        }
     }
 
     private updateOperationId(oldId: number, newId: number) {
@@ -870,14 +872,14 @@ export default class ScrollEditor
         this.params.mode = '';
     }
 
-    public openAddArtefactModal() {
+    private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
-    public newOperation(operation: ScrollEditorOperation) {
+    private newOperation(operation: ScrollEditorOperation) {
         this.operationsManager.addOperation(operation);
     }
 
-    public removeArtefactOrGroup() {
+    private removeArtefactOrGroup() {
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
 
         if (this.selectedArtefact) {
@@ -911,13 +913,13 @@ export default class ScrollEditor
         }
     }
 
-    public onDisplayROIs(value: boolean) {
+    private onDisplayROIs(value: boolean) {
         this.scrollEditorState.displayRois = value;
     }
-    public onDisplayReconstructedText(value: boolean) {
+    private onDisplayReconstructedText(value: boolean) {
         this.scrollEditorState.displayReconstructedText = value;
     }
-     public onDisplayText(value: boolean) {
+    private onDisplayText(value: boolean) {
         this.scrollEditorState.displayText = value;
     }
 }
