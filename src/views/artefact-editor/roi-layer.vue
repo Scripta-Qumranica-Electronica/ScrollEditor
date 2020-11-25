@@ -139,7 +139,8 @@ path.selected {
     }
 }
 .reconstructed-letters {
-    stroke-width: 15px;
+    font-family: 'SBL Hebrew';
+    stroke-width: 10px;
     stroke: black;
     fill: white;
     font-weight: 800;

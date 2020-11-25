@@ -44,11 +44,15 @@
             :rois="reconstructedRois"
         >
         </roi-layer>
-        <template v-for="(value, propertyName) in siInterpretationRois">
+        <template v-if="displayText">
             <text
+                v-for="(value, propertyName) in siInterpretationRois"
                 :key="propertyName"
                 :transform="`translate(${letterRoiPosition(value)})`"
                 font-size="250"
+                text-anchor="middle"
+                dominant-baseline="central"
+                class="display-letters"
                 >{{ propertyName }}</text
             >
         </template>
@@ -106,6 +110,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         default: false,
     })
     public withRois!: boolean;
+    @Prop({
+        default: false,
+    })
+    public displayText!: boolean;
     @Prop({
         default: false,
     })
@@ -179,7 +187,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private get siInterpretationRois(): {
         [character: string]: InterpretationRoi[];
     } {
-        const q = this.visibleRois.reduce((result, roi) => {
+        const siRois = this.visibleRois.reduce((result, roi) => {
             const character =
                 this.$state.signInterpretations.get(roi.signInterpretationId!)!
                     .character || '';
@@ -187,8 +195,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
             return result;
         }, {});
-        console.log(q);
-        return q;
+        return siRois;
     }
 
     private get reconstructedRois() {
@@ -349,32 +356,40 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private letterRoiPosition(value: InterpretationRoi[]) {
-        let minx: number = 0;
-        let maxx: number = 0;
-        let miny: number = 0;
-        let maxy: number = 0;
+        let minx: InterpretationRoi = {} as InterpretationRoi;
+        let maxx: InterpretationRoi = {} as InterpretationRoi;
+        let miny: InterpretationRoi = {} as InterpretationRoi;
+        let maxy: InterpretationRoi = {} as InterpretationRoi;
 
-        value.forEach((v, idx) => {
+        value.forEach((roi, idx) => {
             if (idx === 0) {
-                minx = maxx = v.position.x;
-                miny = maxy = v.position.y;
+                minx = maxx = roi;
+                miny = maxy = roi;
             }
-            if (v.position.x <= minx) {
-                minx = v.position.x;
+            if (roi.position.x <= minx.position.x) {
+                minx = roi;
             }
-            if (v.position.x >= maxx) {
-                maxx = v.position.x;
+            if (roi.position.x >= maxx.position.x) {
+                maxx = roi;
             }
-            if (v.position.y <= miny) {
-                miny = v.position.y;
+            if (roi.position.y <= miny.position.y) {
+                miny = roi;
             }
-            if (v.position.y >= maxy) {
-                maxy = v.position.y;
+            if (roi.position.y >= maxy.position.y) {
+                maxy = roi;
             }
         });
 
-        const newPositionX = (maxx + minx) / 2;
-        const newPositionY = (maxy + miny) / 2;
+        const newPositionX =
+            (maxx.position.x +
+                minx.position.x +
+                maxx.shape.getBoundingBox().width) /
+            2;
+        const newPositionY =
+            (maxy.position.y +
+                miny.position.y +
+                maxy.shape.getBoundingBox().height) /
+            2;
 
         return `${newPositionX} ${newPositionY}`;
     }
@@ -396,5 +411,13 @@ path.selected {
 
 .disabled {
     cursor: not-allowed;
+}
+
+.display-letters {
+    font-family: 'SBL Hebrew';
+    stroke-width: 10px;
+    stroke: black;
+    fill: white;
+    font-weight: 800;
 }
 </style>                 

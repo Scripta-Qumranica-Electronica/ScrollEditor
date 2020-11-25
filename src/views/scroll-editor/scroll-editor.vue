@@ -115,7 +115,7 @@
                                     ></b-button>
                                 </b-button-group>
                             </div>
-                            <div class="col-7">
+                            <div class="col-5">
                                 <artefact-toolbox
                                     @new-operation="newOperation($event)"
                                     @save-group="saveGroupArtefacts()"
@@ -123,7 +123,7 @@
                                 ></artefact-toolbox>
                             </div>
 
-                            <div class="col-2">
+                            <div class="col-1">
                                 <b-form-checkbox
                                     switch
                                     size="sm"
@@ -137,6 +137,14 @@
                                     size="sm"
                                     @input="onDisplayReconstructedText($event)"
                                     >Display Reconstructed Text</b-form-checkbox
+                                >
+                            </div>
+                            <div class="col-1">
+                                <b-form-checkbox
+                                    switch
+                                    size="sm"
+                                    @input="onDisplayText($event)"
+                                    >Display Text</b-form-checkbox
                                 >
                             </div>
                         </b-row>
@@ -908,6 +916,9 @@ export default class ScrollEditor
     }
     public onDisplayReconstructedText(value: boolean) {
         this.scrollEditorState.displayReconstructedText = value;
+    }
+     public onDisplayText(value: boolean) {
+        this.scrollEditorState.displayText = value;
     }
 }
 </script>

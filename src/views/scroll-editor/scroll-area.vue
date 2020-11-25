@@ -5,16 +5,7 @@
             v-show="selectedArtefact || selectedGroup"
             style="position: fixed"
         >
-            <div
-                ref="handleTools"
-                style="
-                    width: 16px;
-                    height: 22px;
-                    background: #ccc;
-                    text-align: center;
-                    cursor: move;
-                "
-            >
+            <div ref="handleTools" class="handle-tools">
                 <i class="fa fa-ellipsis-v"></i>
             </div>
             <artefact-toolbox
@@ -47,6 +38,7 @@
                         :selected="isArtefactSelected(artefact)"
                         :scaleFactor="zoomLevel"
                         :withRois="displayRois"
+                        :displayText="displayText"
                         :reconstructedText="displayReconstructedText"
                     />
                 </g>
@@ -123,6 +115,9 @@ export default class ScrollArea extends Vue {
 
     private get displayRois(): boolean {
         return this.scrollEditorState.displayRois;
+    }
+    private get displayText(): boolean {
+        return this.scrollEditorState.displayText;
     }
 
     private get displayReconstructedText(): boolean {
@@ -265,5 +260,12 @@ export default class ScrollArea extends Vue {
     margin-left: 30px;
     margin-top: 30px;
     width: fit-content;
+}
+.handle-tools {
+    width: 16px;
+    height: 22px;
+    background: #ccc;
+    text-align: center;
+    cursor: move;
 }
 </style>
