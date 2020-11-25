@@ -119,7 +119,7 @@ export default class SignAttributePane extends Vue {
         }
 
         const op = new SignInterpretationCommentOperation(this.selectedSignsInterpretation[0].id, val);
-        op.redo();
+        op.redo(true);
         this.$state.eventBus.emit('new-operation', op);
     }
 
@@ -180,7 +180,7 @@ export default class SignAttributePane extends Vue {
                 attributeValueId: attrVal.id,
                 attributeValueString: attrVal.value,
             } as InterpretationAttributeDTO);
-            op.redo();
+            op.redo(true);
             ops.push(op);
         }
         this.$state.eventBus.emit('new-bulk-operations', ops);

@@ -97,7 +97,7 @@ export default class SignAttributeModal extends Vue {
             newAttr
         );
 
-        op.redo(); // Apply change
+        op.redo(true); // Apply change
         this.$state.eventBus.emit('new-operation', op);
     }
 
@@ -183,7 +183,7 @@ export default class SignAttributeModal extends Vue {
                 this.attribute!.attributeValueId,
                 undefined
             );
-            op.redo();
+            op.redo(true);
             ops.push(op);
         }
         this.$state.eventBus.emit('new-bulk-operations', ops);
@@ -206,7 +206,7 @@ export default class SignAttributeModal extends Vue {
                     attr.attributeValueId, // This is the old ID of the attribute
                     newAttr
                 );
-                op.redo();
+                op.redo(true);
                 ops.push(op);
             }
         }

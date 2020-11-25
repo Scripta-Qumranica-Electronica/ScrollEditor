@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationDTO } from '@/dtos/sqe-dtos';
+import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreatedDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO, SignInterpretationVariantDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;
@@ -62,5 +62,73 @@ export default class SignInterpretationService {
         }
 
         await CommHelper.delete(url);
+
+        signInterpretation.signInterpretationId = SignInterpretation.nextAvailableId;  // Give the sign interpretation a negative ID, so it can still remain in the undo/redo system
+    }
+
+    public async createSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
+        const url = ApiRoutes.signInterpretationUrl(edition.id);
+
+        // Find the previous signInterpretationId
+        const prevSign = signInterpretation.sign.line.signs[signInterpretation.sign.indexInLine - 1];
+        const prevSignInterpretation = prevSign.signInterpretations[0];
+
+        // Now we can build the DTO
+        const attributeDTOs = signInterpretation.attributes.map(attr => {
+             return {
+                 attributeId: attr.attributeId,
+                 attributeValueId: attr.attributeValueId,
+                 commentary: attr.commentary,
+            } as InterpretationAttributeCreateDTO;
+        });
+
+        const commentaryDTO = signInterpretation.commentary ? { commentary: signInterpretation.commentary } : undefined;
+        const dto: SignInterpretationCreateDTO = {
+            character: signInterpretation.character,
+            previousSignInterpretationIds: [prevSignInterpretation.id],
+            attributes: attributeDTOs,
+            rois: [],
+            commentary: commentaryDTO,
+            isVariant: false,
+            breakPreviousAndNextSignInterpretations: true,
+        };
+
+        const response = await CommHelper.post<SignInterpretationCreatedDTO>(url, dto);
+
+        if (response.data.created?.length !== 1) {
+            console.warn('Received a bad response from the server - expected exactly one sign to be created');
+            return;
+            // TODO: Raise the inconsistent event to reload the page
+        }
+
+        const siDto = response.data.created![0];
+        const newId = siDto.signInterpretationId;
+        const existingSi = this.stateManager.signInterpretations.get(newId);
+        if (existingSi) {
+            // This sign interpretation has already been added by the SignalR notification, but we already have
+            // the sign we've created, with the old frontend-only ID. So we have twp sign interpretations.
+            //
+            // Easiest way to handle this is to delete the sign interpretation added by the Signal R notification handler,
+            // and update the ID of the sign interpretation we do have
+            existingSi.sign.line.removeSign(existingSi.sign);
+            this.stateManager.signInterpretations.delete(existingSi.signInterpretationId);
+        }
+
+        // Update the sign intepretation from the old ID to the new one, and update the sign interpretation map as well
+        this.stateManager.signInterpretations.mapFrontendIdToServerId(signInterpretation.id, newId);
+        signInterpretation.signInterpretationId = newId;
+    }
+
+    public async updateSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
+        console.warn('updateSignInterpretation is not yet supported by the server');
+
+        /*const url = ApiRoutes.signInterpretationCharacterUrl(edition.id, signInterpretation.id);
+        const dto: SignInterpretationVariantDTO = {
+            character: signInterpretation.character || '',
+            attributeId: 1, // sign-type
+            attributeValueId: signInterpretation.signType[0],
+        };
+
+        await CommHelper.post<SignInterpretationCreatedDTO>(url, dto); */
     }
 }

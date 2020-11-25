@@ -11,11 +11,11 @@ function state() {
 
 export type ScrollEditorOperationCategory = 'artefact' | 'group' | 'edit-group' | 'edition-metrics';
 
-export abstract class ScrollEditorOperation implements Operation<ScrollEditorOperation> {
-    public constructor(public category: ScrollEditorOperationCategory) { }
+export abstract class ScrollEditorOperation extends Operation<ScrollEditorOperation> {
+    public constructor(public category: ScrollEditorOperationCategory) {
+        super();
+    }
 
-    public abstract undo(): void;
-    public abstract redo(): void;
     public abstract uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined;
     public abstract getId(): number;
     public abstract replaceEntityId(newId: number): void;
@@ -42,27 +42,6 @@ export class ArtefactPlacementOperation extends ScrollEditorOperation {
         this.next = next.clone();
         this.isPlacedPrev = isPlacedPrev;
         this.isPlacedNext = isPlacedNext;
-    }
-
-
-    public undo(): void {
-        this.artefact.placement = this.prev.clone();
-        this.artefact.isPlaced = this.isPlacedPrev;
-        if (this.artefact.isPlaced) {
-            state().eventBus.emit('select-artefact', this.artefact);
-        } else {
-            state().eventBus.emit('select-artefact', undefined);
-        }
-    }
-
-    public redo(): void {
-        this.artefact.placement = this.next.clone();
-        this.artefact.isPlaced = this.isPlacedNext;
-        if (this.artefact.isPlaced) {
-            state().eventBus.emit('select-artefact', this.artefact);
-        } else {
-            state().eventBus.emit('select-artefact', undefined);
-        }
     }
 
     public uniteWith(sop: ScrollEditorOperation): ArtefactPlacementOperation | undefined {
@@ -98,6 +77,26 @@ export class ArtefactPlacementOperation extends ScrollEditorOperation {
         this.artefactId = newId;
     }
 
+    protected internalUndo(): void {
+        this.artefact.placement = this.prev.clone();
+        this.artefact.isPlaced = this.isPlacedPrev;
+        if (this.artefact.isPlaced) {
+            state().eventBus.emit('select-artefact', this.artefact);
+        } else {
+            state().eventBus.emit('select-artefact', undefined);
+        }
+    }
+
+    protected internalRedo(): void {
+        this.artefact.placement = this.next.clone();
+        this.artefact.isPlaced = this.isPlacedNext;
+        if (this.artefact.isPlaced) {
+            state().eventBus.emit('select-artefact', this.artefact);
+        } else {
+            state().eventBus.emit('select-artefact', undefined);
+        }
+    }
+
     protected get artefact(): Artefact {
         const artefact = state().artefacts.find(this.artefactId);
         if (!artefact) {
@@ -128,47 +127,6 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
         super('group');
         this.operations = operations;
         this.type = type;
-    }
-
-
-    public undo(): void {
-        this.operations.forEach(
-            op => op.undo()
-        );
-        if (this.type === 'delete') {
-            this.type = 'placement';
-            // recreate the group with id 'this.groupId'
-            const artefactIds = this.operations.map(artOp => artOp.getId());
-            const removedGroup = ArtefactGroup.generateGroup(artefactIds);
-            state().editions.current!.artefactGroups.push(removedGroup);
-            state().eventBus.emit('update-operation-id', this.groupId, removedGroup.id);
-            this.groupId = removedGroup.id;
-
-            state().eventBus.emit('select-group', removedGroup);
-            state().eventBus.emit('save-group');
-
-        }
-    }
-
-    public redo(): void {
-        this.operations.forEach(
-            op => op.redo()
-        );
-
-        if (this.type === 'placement' || this.type === 'delete') {
-            this.type = 'delete';
-            // Shaindel: Is there a place that documents all these events? There should be a list of
-            // all the events, their parameters and what they are used for.
-            state().eventBus.emit('delete-group', this.groupId);
-            state().eventBus.emit('cancel-group');
-        }
-
-        const artefactIds = this.operations.map(artOp => artOp.getId());
-        // if the edit was on an artefact, select the artefact
-        if (artefactIds.length < 2) {
-            const grp = ArtefactGroup.generateGroup(artefactIds);
-            state().eventBus.emit('select-group', grp);
-        }
     }
 
     public uniteWith(sop: ScrollEditorOperation): GroupPlacementOperation | undefined {
@@ -218,6 +176,45 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
         this.groupId = newId;
     }
 
+    protected internalUndo(): void {
+        this.operations.forEach(
+            op => op.undo()
+        );
+        if (this.type === 'delete') {
+            this.type = 'placement';
+            // recreate the group with id 'this.groupId'
+            const artefactIds = this.operations.map(artOp => artOp.getId());
+            const removedGroup = ArtefactGroup.generateGroup(artefactIds);
+            state().editions.current!.artefactGroups.push(removedGroup);
+            state().eventBus.emit('update-operation-id', this.groupId, removedGroup.id);
+            this.groupId = removedGroup.id;
+
+            state().eventBus.emit('select-group', removedGroup);
+            state().eventBus.emit('save-group');
+
+        }
+    }
+
+    protected internalRedo(): void {
+        this.operations.forEach(
+            op => op.redo()
+        );
+
+        if (this.type === 'placement' || this.type === 'delete') {
+            this.type = 'delete';
+            // Shaindel: Is there a place that documents all these events? There should be a list of
+            // all the events, their parameters and what they are used for.
+            state().eventBus.emit('delete-group', this.groupId);
+            state().eventBus.emit('cancel-group');
+        }
+
+        const artefactIds = this.operations.map(artOp => artOp.getId());
+        // if the edit was on an artefact, select the artefact
+        if (artefactIds.length < 2) {
+            const grp = ArtefactGroup.generateGroup(artefactIds);
+            state().eventBus.emit('select-group', grp);
+        }
+    }
 }
 
 // This type of operation allow to change items inside the group
@@ -245,26 +242,6 @@ export class EditGroupOperation extends ScrollEditorOperation {
         this.next = next;
     }
 
-
-    public undo(): void {
-        this.group!.artefactIds = [...this.prev];
-        state().eventBus.emit('select-group',
-            {
-                groupId: this.groupId,
-                artefactIds: [...this.prev]
-            } as ArtefactGroup);
-    }
-
-    public redo(): void {
-        this.group!.artefactIds = [...this.next];
-        state().eventBus.emit('select-group',
-            {
-                groupId: this.groupId,
-                artefactIds: [...this.next]
-            } as ArtefactGroup);
-    }
-
-
     public uniteWith(op: ScrollEditorOperation): EditGroupOperation | undefined {
         return undefined;
     }
@@ -275,6 +252,24 @@ export class EditGroupOperation extends ScrollEditorOperation {
 
     public replaceEntityId(newId: number) {
         this.groupId = newId;
+    }
+
+    protected internalUndo(): void {
+        this.group!.artefactIds = [...this.prev];
+        state().eventBus.emit('select-group',
+            {
+                groupId: this.groupId,
+                artefactIds: [...this.prev]
+            } as ArtefactGroup);
+    }
+
+    protected internalRedo(): void {
+        this.group!.artefactIds = [...this.next];
+        state().eventBus.emit('select-group',
+            {
+                groupId: this.groupId,
+                artefactIds: [...this.next]
+            } as ArtefactGroup);
     }
 }
 
@@ -317,10 +312,11 @@ export class EditionMetricOperation extends ScrollEditorOperation {
         // we never replace them.
     }
 
-    public undo(): void {
+    protected internalUndo(): void {
         this.edition.metrics = { ...this.edition.metrics, ...this.prev };
     }
-    public redo(): void {
+
+    protected internalRedo(): void {
         this.edition.metrics = { ...this.edition.metrics, ...this.next };
     }
 }

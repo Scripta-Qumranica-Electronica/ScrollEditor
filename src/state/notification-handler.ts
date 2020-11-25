@@ -8,13 +8,13 @@ import {
     UpdatedInterpretationRoiDTO,
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
-    DetailedEditorRightsDTO, SignInterpretationDTO
+    DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
-import { InterpretationRoi, SignInterpretation } from '@/models/text';
+import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 import Vue from 'vue';
 
 /* This file contains the implementation of all the incoming events from SignalR */
@@ -60,14 +60,6 @@ export class NotificationHandler {
     }
 
     public handleUpdatedArtefact(dto: ArtefactDTO): void {
-        /*if (!artefact.mask) {
-            const oldArtefact = state().artefacts.find(artefact.id);
-            if (oldArtefact) {
-                artefact.mask = oldArtefact.mask.wkt;
-            }
-
-        } */
-
         const existingArtefact = state().artefacts.find(dto.id);
         if (!existingArtefact) {
             // We don't have this aretfact, no need to update it
@@ -133,50 +125,94 @@ export class NotificationHandler {
         }
     }
 
-    public handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
-        const existingSI = state().signInterpretations.get(dto.signInterpretationId);
+    public handleUpdatedSignInterpretations(dto: SignInterpretationListDTO): void {
+        for (const siDto of dto.signInterpretations || []) {
+            handleUpdatedSignInterpretation(siDto);
+        }
+    }
 
-        if (!existingSI) {
-            console.warn('Receive an updated for a non-existant sign interpretation ', dto.signInterpretationId);
+    public handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
+        handleUpdatedSignInterpretation(dto);
+    }
+
+    public handleDeletedSignInterpretation(dto: DeleteDTO): void {
+        // console.debug('handleDeletedSignInterpretation called on ', dto.ids);
+        if (dto.entity !== 'signInterpretation') {
+            console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);
             return;
         }
 
-        // Update the sign interpretations map
-        const newSI = new SignInterpretation(dto, existingSI.sign);
-        state().signInterpretations.put(newSI);
+        for (const id of dto.ids) {
+            // console.debug('Working on ', id);
+            const si = state().signInterpretations.get(id);
+            if (!si) {
+                // Sign Interpretation has already been deleted
+                return;
+            }
 
-        // Update the sign containing the sign interpretation
-        const sign = newSI.sign;
-        const index = sign.signInterpretations.findIndex(si => si.id === newSI.id);
+            // First, remove the sign interpretation from the sign
+            const sign = si.sign;
+            if (sign.signInterpretations.length !== 1) {
+                // console.warn('Only signs with one sign interperation are supported');
+                return;
+            }
 
-        if (index < 0) {
-            console.warn("Can't locate sign interpretation in sign!");
-        } else {
-            Vue.set(sign.signInterpretations, index, newSI);
+            const line = sign.line;
+            if (line.signs[sign.indexInLine] === sign) {
+                // console.debug('Deleting sign from line');
+                line.removeSign(sign);
+            } else {
+                // Do nothing, sign has already been deleted here
+            }
+
+            /*console.debug("Removing sign interpretation from the map");
+            state().signInterpretations.delete(id); */
+            // We do not remove the sign interpretation from the map, as we may need it for undoing (if this browser originated the call),
+            // and it's not going to hurt since it will no longer be displayed anyway.
         }
+    }
 
-        // Update the selected sign interpretations
-        const selectedIndex = state().artefactEditor.selectedSignsInterpretation.findIndex(si => si.id === newSI.id);
-        if (selectedIndex !== -1) {
-            Vue.set(state().artefactEditor.selectedSignsInterpretation, selectedIndex, newSI);
+    public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
+        for (const siDto of dto.signInterpretations || []) {
+            // console.debug('Handling create of sign Interpretation ', siDto.signInterpretationId);
+            const existingSi = state().signInterpretations.get(siDto.signInterpretationId);
+            if (existingSi) {
+                console.debug('SignInterpretation already exists here');
+                return;
+            }
 
-            // Update the selected attribute, too
-            const selectedAttribute = state().artefactEditor.selectedAttribute;
-            if (selectedAttribute) {
-                // Find the attribute in the new sign interpretation
-                const attrInNewSI = newSI.attributes.filter(attr => attr.attributeValueId === selectedAttribute.attributeValueId);
-                if (attrInNewSI.length === 1) {
-                    state().artefactEditor.selectedAttribute = attrInNewSI[0];
-                } else {
-                    state().artefactEditor.selectedAttribute = null;
+            if (!siDto.nextSignInterpretations) {
+                console.warn("Can't add sign-interpretation without next-interpretation IDs");
+                return;
+            }
+
+            // Find a sign intepretation that goes after this sign
+            let siNext: SignInterpretation | undefined;
+            for (const nextId of siDto.nextSignInterpretations) {
+                siNext = state().signInterpretations.get(nextId.nextSignInterpretationId);
+                if (siNext) {
+                    break;
                 }
             }
+
+            if (!siNext) {
+                console.warn("Can't find any sign-interpretation next to the newly created sign");
+                return;
+            }
+
+            // Now we can add the sign before the next sign, on the same line
+            const indexInLine = siNext.sign.indexInLine;
+            const sign = new Sign({ signInterpretations: []}, siNext.sign.line, indexInLine);
+            const si = new SignInterpretation(siDto, sign);
+            sign.signInterpretations.push(si);
+            state().signInterpretations.put(si);
+            sign.line.addSign(sign);
         }
     }
 }
 
 /*
- * ROI updating is handled in external functions which are called from the NotificationHandler.
+ * Some updating functions are handled in external functions which are called from the NotificationHandler.
  *
  * We have to use these function, since `this` is not initialized properly in the notification handler's
  * methods, so we can't call one handler from another.
@@ -218,6 +254,47 @@ function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
     // the lists is of no consqeuence.
     handleDeletedRoi(dto.oldInterpretationRoiId);
     handleCreatedRoi(dto);
+}
+
+function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
+    const existingSI = state().signInterpretations.get(dto.signInterpretationId);
+
+    if (!existingSI) {
+        console.warn('Receive an updated for a non-existant sign interpretation ', dto.signInterpretationId);
+        return;
+    }
+
+    // Update the sign interpretations map
+    const newSI = new SignInterpretation(dto, existingSI.sign);
+    state().signInterpretations.put(newSI);
+
+    // Update the sign containing the sign interpretation
+    const sign = newSI.sign;
+    const index = sign.signInterpretations.findIndex(si => si.id === newSI.id);
+
+    if (index < 0) {
+        console.warn("Can't locate sign interpretation in sign!");
+    } else {
+        Vue.set(sign.signInterpretations, index, newSI);
+    }
+
+    // Update the selected sign interpretations
+    const selectedIndex = state().artefactEditor.selectedSignsInterpretation.findIndex(si => si.id === newSI.id);
+    if (selectedIndex !== -1) {
+        Vue.set(state().artefactEditor.selectedSignsInterpretation, selectedIndex, newSI);
+
+        // Update the selected attribute, too
+        const selectedAttribute = state().artefactEditor.selectedAttribute;
+        if (selectedAttribute) {
+            // Find the attribute in the new sign interpretation
+            const attrInNewSI = newSI.attributes.filter(attr => attr.attributeValueId === selectedAttribute.attributeValueId);
+            if (attrInNewSI.length === 1) {
+                state().artefactEditor.selectedAttribute = attrInNewSI[0];
+            } else {
+                state().artefactEditor.selectedAttribute = null;
+            }
+        }
+    }
 }
 
 function notifyRoiChanged() {

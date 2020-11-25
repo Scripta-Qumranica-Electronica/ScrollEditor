@@ -111,7 +111,7 @@ export default class TextSide extends Vue {
     private get dropdownTextFragmentsData() {
         const displayedTfIds = this.displayedTextFragments.map((tf) => tf.id);
         return this.allTextFragmentsData.filter(
-            (x) => (!x.certain || !x.suggested)  && !displayedTfIds.includes(x.id) 
+            (x) => (!x.certain || !x.suggested)  && !displayedTfIds.includes(x.id)
         );
     }
 

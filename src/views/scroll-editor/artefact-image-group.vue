@@ -188,7 +188,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private get siInterpretationRois(): {
         [character: string]: InterpretationRoi[];
     } {
-        const siRois = this.visibleRois.reduce((result, roi) => {
+        const siRois = this.visibleRois.reduce((result: {[character: string]: InterpretationRoi[] }, roi) => {
             const character =
                 this.$state.signInterpretations.get(roi.signInterpretationId!)!
                     .character || '';

@@ -137,6 +137,7 @@ abstract class StateCache<T extends ItemWithId<U>, U = number> {
 // A map of items, used for holding
 abstract class StateMap<T extends ItemWithId<U>, U = number> {
     private _entries = new Map<U, T>();
+    private _frontendToServerIdMap = new Map<U, U>();
 
     public get(key: U): T | undefined {
         return this._entries.get(key);
@@ -165,12 +166,30 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
 
     public clear() {
         this._entries.clear();
+        this._frontendToServerIdMap.clear();
     }
 
     public delete(id: U) {
         this._entries.delete(id);
     }
+
+    // Sometimes we generate entity IDs in the frontend - when creating new entities. When the entities are saved
+    // the server returns their new - final ID. We update the state, but the undo stack still contains the old frontend-only
+    // IDs.
+    //
+    // We map these frontend IDs to server IDs here.
+    // Note that we do not do anything with these IDs, all logic should be implemented by the different view and operation
+    // classes.
+    public mapFrontendIdToServerId(frontendId: U, serverId: U) {
+        this._frontendToServerIdMap.set(frontendId, serverId);
+    }
+
+    public getServerId(frontendId: U): U | undefined {
+        return this._frontendToServerIdMap.get(frontendId);
+    }
 }
+
+
 
 export class EditionCollection extends StateCollection<EditionInfo> { }
 

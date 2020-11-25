@@ -26,7 +26,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 export default class CorruptedStateDialog extends Vue {
     public reloadPage() {
         this.$router.go(0);
-        (this.$refs.corruptedModalRef as any).hide()
+        (this.$refs.corruptedModalRef as any).hide();
     }
 }
 </script>

@@ -95,7 +95,7 @@ export default class IIIFImageComponent extends Vue {
         let f;
 
         if (this.maxWidth) {
-            f = this.maxWidth / sqeBB.width;
+            f = sqeBB.width / this.maxWidth;
         } else {
             f = 1 / this.scaleFactor;
         }
@@ -136,6 +136,7 @@ export default class IIIFImageComponent extends Vue {
         for (let i = this.manifestTileInfo.scaleFactors.length - 1; i >= 0; i--) {
             const manifestScaleFactor = 1 / this.manifestTileInfo.scaleFactors[i];
             if (manifestScaleFactor > this.imageScaleFactor) {
+                // console.debug('optimizedImageScaleFactor: ', manifestScaleFactor);
                 return manifestScaleFactor;
             }
         }
@@ -150,10 +151,12 @@ export default class IIIFImageComponent extends Vue {
         // Get the tile size we can actually use (this is based on the optimizedImageScaleFactor)
         const tileWidth = Math.floor(this.manifestTileInfo.width / this.optimizedImageScaleFactor);
         const tileHeight = Math.floor(this.manifestTileInfo.height / this.optimizedImageScaleFactor);
+        // console.debug(`tile size ${tileWidth}, ${tileHeight}`);
 
         const tiles: TileInfo[] = [];
         const endX = this.imageBoundingBox.x + this.imageBoundingBox.width;   // Bottom right corner of the bounding box
         const endY = this.imageBoundingBox.y + this.imageBoundingBox.height;
+        // console.debug('imageBoundingBox: ', this.imageBoundingBox);
 
         let xTranslate = 0;  // How much to translate the tile
         for (let x = this.imageBoundingBox.x; x < endX; x += tileWidth) {

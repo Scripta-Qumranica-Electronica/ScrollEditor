@@ -67,7 +67,7 @@ import { ArtefactTextFragmentData } from '@/models/text';
     name: 'scroll-area',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox,
     },

@@ -67,6 +67,40 @@ class Line {
 
         this.textFragment = textFragment;
     }
+
+    public addSign(sign: Sign) {
+        if (sign.line !== this) {
+            throw new Error("Can't add sign before it is attached to this line by the caller");
+        }
+        const index = sign.indexInLine;
+        if (this.signs.length < index - 1) {
+            throw new Error(`Can't add sign at index ${index}, line only has ${this.signs.length} signs in it`);
+        }
+        if (index < 0) {
+            throw new Error(`Can't add sign at negative index ${index}`);
+        }
+
+        this.signs.splice(index, 0, sign);
+        for (let i = index + 1; i < this.signs.length; i++) {
+            this.signs[i].indexInLine ++;
+        }
+    }
+
+    public removeSign(sign: Sign) {
+        if (sign.line !== this) {
+            throw new Error("Can't delete sign, it belongs to a different line");
+        }
+
+        const index = sign.indexInLine;
+        if (index < 0 || index >= this.signs.length) {
+            throw new Error(`Can't delete sign - index ${index} out of range`);
+        }
+
+        this.signs.splice(index, 1);
+        for (let i = index; i < this.signs.length; i++) {
+            this.signs[i].indexInLine --;
+        }
+    }
 }
 
 class TextFragment {
@@ -234,12 +268,19 @@ class SignInterpretation {
     public set signType(pair: [number, string]) {
         const attr = this.attributes.find(a => a.attributeString === 'sign_type');
         if (!attr) {
-            console.warn(`Sign Interpretation ${this.signInterpretationId} has no sign_type attribute!`);
-            return;
+            this.attributes.push({
+                attributeId: 1,  // sign_type
+                attributeValueId: pair[0], // TRUE
+                attributeString: 'sign_type',
+                attributeValueString: pair[1],
+                interpretationAttributeId: -171718, // Not used by us except as a vue key
+                creatorId: 0,
+                editorId: 0,
+            } as InterpretationAttributeDTO);
+        } else {
+            attr.attributeValueId = pair[0];
+            attr.attributeValueString = pair[1];
         }
-
-        attr.attributeValueId = pair[0];
-        attr.attributeValueString = pair[1];
     }
 }
 
