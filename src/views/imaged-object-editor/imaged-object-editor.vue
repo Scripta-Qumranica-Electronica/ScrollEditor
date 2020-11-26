@@ -380,11 +380,20 @@ export default class ImagedObjectEditor
                 );
             }
 
-            const stack = this.imagedObject.getImageStack(this.side)!;
-            // Prepare the image manifests of all images
-            const promises = stack.images.map(img => this.$state.prepare.imageManifest(img));
+
+            // Load manifests of all images of both sides
+            const rectoStack = this.imagedObject.getImageStack('recto');
+            const rectoImages = rectoStack?.images || [];
+
+            const versoStack = this.imagedObject.getImageStack('verso');
+            const versoImages = versoStack?.images || [];
+
+            const images = [...rectoImages, ...versoImages];
+            const promises = images.map(img => this.$state.prepare.imageManifest(img));
             await Promise.all(promises);
 
+            // Get the current master image
+            const stack = this.imagedObject.getImageStack(this.side)!;
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {
