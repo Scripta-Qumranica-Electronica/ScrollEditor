@@ -23,13 +23,17 @@
             </clipPath>
         </defs>
         <g @click="onSelect">
-            <g :clip-path="`url(#clip-path-${artefact.id})`">
+            <g :clip-path="`url(#clip-path-${artefact.id})`" v-if="!artefact.isVirtual">
                 <iiif-image
                     :image="masterImage"
                     :boundingBox="boundingBox"
                     :scaleFactor="scaleFactor"
                 />
             </g>
+            <path v-if="artefact.isVirtual"
+                class="virtual-artefact"
+                :d="artefact.mask.svg"
+                vector-effect="non-scaling-stroke"/>
             <path
                 class="selected"
                 v-if="selected"
@@ -403,6 +407,13 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 </script>
 
 <style lang="scss" scoped>
+
+path.virtual-artefact {
+    stroke-width: 1;
+    fill-opacity: 0.3;
+    stroke: gray;
+}
+
 path.selected {
     stroke-width: 2;
     fill-opacity: 0.3;
