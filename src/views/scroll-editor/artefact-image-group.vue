@@ -54,12 +54,6 @@
         ></roi-layer>
         <template v-if="displayText || reconstructedText">
             <template v-for="(value, propertyName) in siRois">
-                <roi-layer
-                    :key="propertyName"
-                    v-if="value.length === 1"
-                    :withClass="false"
-                    :rois="value"
-                ></roi-layer>
                 <text
                     :key="propertyName"
                     :transform="`translate(${letterRoiPosition(value)})`"
@@ -458,9 +452,9 @@ path.selected {
 
 .display-letters {
     font-family: 'SBL Hebrew';
-    stroke-width: 10px;
-    stroke: black;
-    fill: white;
+    // stroke-width: 10px;
+    // stroke: black;
+    fill: black;
     font-weight: 800;
 }
 </style>                 
