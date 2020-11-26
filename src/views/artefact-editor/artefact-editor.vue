@@ -244,7 +244,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
@@ -300,7 +299,6 @@ import { ArtefactEditorState } from '@/state/artefact-editor';
     name: 'artefact-editor',
     components: {
         'waiting': Waiting,
-        'artefact-image': ArtefactImage,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,

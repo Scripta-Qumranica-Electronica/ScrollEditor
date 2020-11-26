@@ -256,7 +256,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
 import ArtefactService from '@/services/artefact';
 import {
     DrawingMode,
