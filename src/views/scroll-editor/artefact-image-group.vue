@@ -407,11 +407,13 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 
 path.virtual-artefact {
     stroke-width: 1;
     fill-opacity: 0.3;
-    stroke: gray;
+    stroke: $virtual-artefact-outline-color;
 }
 
 path.selected {
