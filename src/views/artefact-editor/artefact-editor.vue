@@ -190,6 +190,7 @@
                                                 :boundingBox="
                                                     artefact.mask.getBoundingBox()
                                                 "
+                                                :artefact="artefact"
                                             />
                                             <roi-layer
                                                 :rois="visibleRois"
@@ -509,25 +510,29 @@ export default class ArtefactEditor
             parseInt(this.$route.params.editionId),
             parseInt(this.$route.params.artefactId)
         );
-        const imagedObject = this.$state.imagedObjects.find(
-            this.artefact.imagedObjectId
-        );
-        if (!imagedObject) {
-            throw new Error(
-                `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`
+
+        if (!this.artefact.isVirtual) {
+            const imagedObject = this.$state.imagedObjects.find(
+                this.artefact.imagedObjectId
             );
+            if (!imagedObject) {
+                throw new Error(
+                    `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`
+                );
+            }
+            this.imageStack =
+                this.artefact.side === 'recto'
+                    ? imagedObject.recto
+                    : imagedObject.verso;
+            if (!this.imageStack) {
+                throw new Error(
+                    `ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
+                        `${this.artefact.side} side even though artefact ${this.artefact.id} references it`
+                );
+            }
+            await this.$state.prepare.imageManifest(this.imageStack.master);
         }
-        this.imageStack =
-            this.artefact.side === 'recto'
-                ? imagedObject.recto
-                : imagedObject.verso;
-        if (!this.imageStack) {
-            throw new Error(
-                `ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
-                    `${this.artefact.side} side even though artefact ${this.artefact.id} references it`
-            );
-        }
-        await this.$state.prepare.imageManifest(this.imageStack.master);
+
         this.params.rotationAngle = this.artefact.placement.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
@@ -560,10 +565,16 @@ export default class ArtefactEditor
     // On tablet screen - Active means opened.
 
     private get imageWidth(): number {
+        if (this.artefact.isVirtual) {
+            return this.boundingBox.width * 1.5;
+        }
         return this.masterImage.width;
     }
 
     private get imageHeight(): number {
+        if (this.artefact.isVirtual) {
+            return this.boundingBox.height * 1.5;
+        }
         return this.masterImage.height;
     }
 
@@ -745,12 +756,16 @@ export default class ArtefactEditor
     }
 
     private fillImageSettings() {
+        this.params.imageSettings = {};
+        if (this.artefact.isVirtual) {
+            return;
+        }
+
         if (!this.imageStack) {
             throw new Error(
                 `No image stack for artefact ${this.artefact.id} in artefact-editor`
             );
         }
-        this.params.imageSettings = {};
         for (const imageType of this.imageStack.availableImageTypes) {
             const image = this.imageStack.getImage(imageType);
             if (image) {

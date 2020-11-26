@@ -31,6 +31,7 @@
                         <b-button
                             id="popover-adjust"
                             variant="outline-secondary"
+                            :disabled="this.artefact.isVirtual"
                             ><img
                                 class="mr-1"
                                 src="@/assets/images/adjust.svg"
@@ -219,15 +220,18 @@ export default class ArtefactEditorToolbar extends Vue {
 
     public async mounted() {
         await this.$state.prepare.edition(this.artefact.editionId);
-        const imagedObject = this.$state.imagedObjects.find(
-            this.artefact.imagedObjectId
-        );
-        if (!imagedObject) {
-            throw new Error(
-                `Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`
+
+        if (!this.artefact.isVirtual) {
+            const imagedObject = this.$state.imagedObjects.find(
+                this.artefact.imagedObjectId
             );
+            if (!imagedObject) {
+                throw new Error(
+                    `Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`
+                );
+            }
+            this.imageStack = imagedObject.getImageStack(this.artefact.side)!;
         }
-        this.imageStack = imagedObject.getImageStack(this.artefact.side)!;
     }
 
     public notifyChange(paramName: string, paramValue: any) {

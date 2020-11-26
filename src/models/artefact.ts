@@ -36,6 +36,9 @@ export class Artefact {
 
         // TODO: Check if the artefact ID is on of the list of "virtual" artefacts. If so, set their
         // imageObjectId to '', so that they are treated as virtual
+        if (this.id === 16772) {
+            this.imagedObjectId = '';
+        }
     }
 
     public get isVirtual() {

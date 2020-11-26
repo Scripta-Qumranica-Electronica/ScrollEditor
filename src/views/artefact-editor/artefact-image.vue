@@ -12,14 +12,19 @@
                         <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`"></use>
                     </clipPath>
                 </defs>
-                <g pointer-events="none" :clip-path="`url(#clip-path-${artefact.id}`">
-                    <iiif-image 
+                <g pointer-events="none" :clip-path="`url(#clip-path-${artefact.id}`" v-if="!artefact.isVirtual">
+                    <iiif-image
                         v-for="imageSetting in visibleImageSettings"
                         :key="imageSetting.image"
                         :scaleFactor="scale"
                         draggable="false"
                         :opacity="imageSetting.normalizedOpacity"/>
                 </g>
+                <path v-if="artefact.isVirtual"
+                      class="virtual-path"
+                      :d="scaledMask.svg"
+                      vector-effect="non-scaling-stroke"
+                />            
             </g>
         </svg>
     </div>
@@ -88,6 +93,9 @@ export default Vue.extend({
         scaledImageWidth(): number {
             if (this.masterImage) {
                 return this.masterImage.width * this.scale;
+            } else if (this.artefact.mask) {
+                const bbox = this.artefact.mask.getBoundingBox();
+                return bbox.width * 1.5;
             }
 
             return 200;
@@ -96,6 +104,9 @@ export default Vue.extend({
         scaledImageHeight(): number {
             if (this.masterImage) {
                 return this.masterImage.height * this.scale;
+            } else if (this.artefact.mask) {
+                const bbox = this.artefact.mask.getBoundingBox();
+                return bbox.height * 1.5;
             }
 
             return 150;
@@ -115,25 +126,35 @@ export default Vue.extend({
     },
     async mounted() {
         await this.$state.prepare.edition(this.artefact.editionId);
-        const imagedObject = this.$state.imagedObjects.find(this.artefact.imagedObjectId);
-        if (!imagedObject) {
-            throw new Error(`Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`);
+        if (!this.artefact.isVirtual) {
+            const imagedObject = this.$state.imagedObjects.find(this.artefact.imagedObjectId);
+            if (!imagedObject) {
+                throw new Error(`Can't find ImagedObject ${this.artefact.imagedObjectId} for artefact ${this.artefact.id}`);
+            }
+            this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
+            if (!this.imageStack) {
+                throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
+                                `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
+            }
+            await this.$state.prepare.imageManifest(this.imageStack.master);
+
+            this.masterImage = this.imageStack.master;
         }
-        this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
-        if (!this.imageStack) {
-            throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
-                            `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
-        }
-        await this.$state.prepare.imageManifest(this.imageStack.master);
 
         this.scaledMask = Polygon.scale(this.artefact.mask, this.scale);
-        this.masterImage = this.imageStack.master;
     },
 });
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
 #svg-scale {
     transform-origin: 0 0;
+}
+
+.virtual-path {
+    stroke-width: 2;
+    fill-opacity: 0.3;
+    stroke: $virtual-artefact-outline-color;
 }
 </style>
