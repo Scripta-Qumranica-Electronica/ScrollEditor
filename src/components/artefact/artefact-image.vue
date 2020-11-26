@@ -2,13 +2,20 @@
     <artefact-svg v-if="loaded"
                   :artefact="artefact"
                   :aspect-ratio="aspectRatio">
-        <iiif-image 
-            v-for="imageSetting in visibleImageSettings"
-            :key="imageSetting.image.url"
-            :image="imageSetting.image"
-            :opacity="imageSetting.normalizedOpacity"
-            :boundingBox="boundingBox"
-            :maxWidth="maxWidth"/>
+        <g v-if="!this.artefact.isVirtual">
+            <iiif-image 
+                v-for="imageSetting in visibleImageSettings"
+                :key="imageSetting.image.url"
+                :image="imageSetting.image"
+                :opacity="imageSetting.normalizedOpacity"
+                :boundingBox="boundingBox"
+                :maxWidth="maxWidth"/>
+        </g>
+        <path v-if="artefact.isVirtual"
+                class="virtual-path"
+                :d="artefact.mask.svg"
+                vector-effect="non-scaling-stroke"
+        />            
     </artefact-svg>
 </template>
 
@@ -39,6 +46,10 @@ export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
     private loaded = false;
 
     get visibleImageSettings(): SingleImageSetting[] {
+        if (this.artefact.isVirtual) {
+            return [];
+        }
+
         if (!Object.keys(this.imageSettings).length) {
             // If no settings, just show the master image
             return [{
@@ -64,4 +75,11 @@ export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+
+.virtual-path {
+    stroke-width: 2;
+    fill-opacity: 0.3;
+    stroke: $virtual-artefact-outline-color;
+}
 </style>

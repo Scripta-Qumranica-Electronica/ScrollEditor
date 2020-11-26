@@ -71,9 +71,11 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
             return;
         }
 
-        this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
-            this.elementWidth / this.aspectRatio,
-            this.boundingBox);
+        if (this.imageStack) {
+            this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
+                this.elementWidth / this.aspectRatio,
+                this.boundingBox);
+        }
     }
 }
 
