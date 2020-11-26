@@ -384,7 +384,7 @@ export default class ImagedObjectEditor
             // Prepare the image manifests of all images
             const promises = stack.images.map(img => this.$state.prepare.imageManifest(img));
             await Promise.all(promises);
-            
+
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {
