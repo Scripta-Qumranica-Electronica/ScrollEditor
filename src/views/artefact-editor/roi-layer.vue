@@ -17,14 +17,6 @@
                     @click="onPathClicked(roi)"
                     vector-effect="non-scaling-stroke"
                 ></path>
-                <text
-                    v-if="withLetters"
-                    class="reconstructed-letters"
-                    :key="roi.id"
-                    :y="roi.shape.getBoundingBox().height"
-                    font-size="300"
-                    >{{ si.character }}</text
-                >
             </g>
         </template>
     </g>
@@ -40,11 +32,6 @@ import { InterpretationRoi } from '@/models/text';
 })
 export default class RoiLayer extends Vue {
     @Prop() public rois!: Iterator<InterpretationRoi>;
-    @Prop({
-        default: false,
-    })
-    public withLetters!: boolean;
-
     @Prop({
         default: true,
     })
@@ -143,11 +130,5 @@ path.selected {
         stroke-opacity: 0.4;
     }
 }
-.reconstructed-letters {
-    font-family: 'SBL Hebrew';
-    stroke-width: 10px;
-    stroke: black;
-    fill: white;
-    font-weight: 800;
-}
+
 </style>

@@ -31,31 +31,41 @@
                 />
             </g>
             <path
+                class="virtual"
+                v-if="artefact.isVirtual"
+                :d="artefact.mask.svg"
+                vector-effect="non-scaling-stroke"
+            />
+            <path
                 class="selected"
                 v-if="selected"
                 :d="artefact.mask.svg"
                 vector-effect="non-scaling-stroke"
             />
         </g>
-        <roi-layer v-if="withRois" :withClass="false" :rois="visibleRois"></roi-layer>
         <roi-layer
-            v-if="reconstructedText"
-            :withLetters="true"
+            v-if="withRois"
             :withClass="false"
-            :rois="reconstructedRois"
-        >
-        </roi-layer>
-        <template v-if="displayText">
-            <text
-                v-for="(value, propertyName) in siInterpretationRois"
-                :key="propertyName"
-                :transform="`translate(${letterRoiPosition(value)})`"
-                font-size="250"
-                text-anchor="middle"
-                dominant-baseline="central"
-                class="display-letters"
-                >{{ propertyName }}</text
-            >
+            :rois="visibleRois"
+        ></roi-layer>
+        <template v-if="displayText || reconstructedText">
+            <template v-for="(value, propertyName) in siRois">
+                <roi-layer
+                    :key="propertyName"
+                    v-if="value.length === 1"
+                    :withClass="false"
+                    :rois="value"
+                ></roi-layer>
+                <text
+                    :key="propertyName"
+                    :transform="`translate(${letterRoiPosition(value)})`"
+                    font-size="200"
+                    text-anchor="middle"
+                    dominant-baseline="central"
+                    class="display-letters"
+                    >{{ propertyName }}</text
+                >
+            </template>
         </template>
     </g>
 </template> 
@@ -185,32 +195,51 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         return visibleRois;
     }
-    private get siInterpretationRois(): {
+
+    private get siRois(): {
         [character: string]: InterpretationRoi[];
     } {
-        const siRois = this.visibleRois.reduce((result: {[character: string]: InterpretationRoi[] }, roi) => {
-            const character =
-                this.$state.signInterpretations.get(roi.signInterpretationId!)!
-                    .character || '';
-            (result[character] = result[character] || []).push(roi);
-            // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
-            return result;
-        }, {});
+        if (this.reconstructedText && !this.displayText) {
+            return this.reconstructedSiRois;
+        }
+
+        return this.allSiRois;
+    }
+
+    private get allSiRois(): {
+        [character: string]: InterpretationRoi[];
+    } {
+        const siRois = this.visibleRois.reduce(
+            (result: { [character: string]: InterpretationRoi[] }, roi) => {
+                const character =
+                    this.$state.signInterpretations.get(
+                        roi.signInterpretationId!
+                    )!.character || '';
+                (result[character] = result[character] || []).push(roi);
+                return result;
+            },
+            {}
+        );
         return siRois;
     }
 
-    private get reconstructedRois() {
-        const reconstructedRois: InterpretationRoi[] = [];
-        for (const roi of this.visibleRois) {
-            if (
-                this.$state.signInterpretations.get(roi.signInterpretationId!)!
-                    .isReconstructed
-            ) {
-                reconstructedRois.push(roi);
-            }
-        }
-
-        return reconstructedRois;
+    private get reconstructedSiRois(): {
+        [character: string]: InterpretationRoi[];
+    } {
+        const siRois = this.visibleRois.reduce(
+            (result: { [character: string]: InterpretationRoi[] }, roi) => {
+                const si = this.$state.signInterpretations.get(
+                    roi.signInterpretationId!
+                )!;
+                if (si.isReconstructed) {
+                    const character = si.character || '';
+                    (result[character] = result[character] || []).push(roi);
+                }
+                return result;
+            },
+            {}
+        );
+        return siRois;
     }
 
     protected async mounted() {
