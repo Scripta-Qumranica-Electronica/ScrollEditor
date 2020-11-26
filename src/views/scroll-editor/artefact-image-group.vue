@@ -451,7 +451,7 @@ path.selected {
 }
 
 .display-letters {
-    font-family: 'SBL Hebrew';
+    font-family: 'scroll_hebrew';
     // stroke-width: 10px;
     // stroke: black;
     fill: black;
