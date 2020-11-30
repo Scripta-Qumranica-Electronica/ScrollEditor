@@ -528,7 +528,10 @@ export default class ArtefactEditor
                         `${this.artefact.side} side even though artefact ${this.artefact.id} references it`
                 );
             }
-            await this.$state.prepare.imageManifest(this.imageStack.master);
+
+            // Prepare the image manifests of all images
+            const promises = this.imageStack.images.map(img => this.$state.prepare.imageManifest(img));
+            await Promise.all(promises);
         }
 
         this.params.rotationAngle = this.artefact.placement.rotate || 0;
