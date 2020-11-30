@@ -9,7 +9,7 @@ function state() {
 
 export type ImagedObjectEditorOperationType = 'draw' | 'erase';
 
-export class ImagedObjectEditorOperation implements Operation<ImagedObjectEditorOperation> {
+export class ImagedObjectEditorOperation extends Operation<ImagedObjectEditorOperation> {
 
     public prev: Polygon;
     public next: Polygon;
@@ -20,7 +20,7 @@ export class ImagedObjectEditorOperation implements Operation<ImagedObjectEditor
         prev: Polygon,
         next: Polygon
     ) {
-
+        super();
         this.prev = new Polygon(prev.svg);
         this.next = new Polygon(next.svg);
     }
@@ -40,17 +40,16 @@ export class ImagedObjectEditorOperation implements Operation<ImagedObjectEditor
         this.artefact.id = newId;
     }
 
-    public undo(): void {
-        this.artefact.mask = new Polygon(this.prev.svg);
-    }
-
-    public redo(): void {
-        this.artefact.mask = new Polygon(this.next.svg);
-
-    }
     public uniteWith(op: ImagedObjectEditorOperation): ImagedObjectEditorOperation | undefined {
         return undefined;
     }
 
+    protected internalUndo(): void {
+        this.artefact.mask = new Polygon(this.prev.svg);
+    }
+
+    protected internalRedo(): void {
+        this.artefact.mask = new Polygon(this.next.svg);
+    }
 }
 

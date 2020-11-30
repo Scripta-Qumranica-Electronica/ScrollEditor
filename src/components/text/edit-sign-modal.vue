@@ -37,6 +37,7 @@
                         :checked="isReconstructed"
                         v-model="isReconstructed"
                         class="mt-3"
+                        :disabled="isEditMode"
                     >
                         Reconstructed
                     </b-form-checkbox></b-col
@@ -64,7 +65,7 @@ import {
 import { SignInterpretation } from '@/models/text';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import {
-    SignInterperationEditOperation,
+    SignInterpretationEditOperation,
     UpdateSignInterperationOperation,
     ArtefactEditorOperation,
     CreateSignInterpretationOperation,
@@ -107,7 +108,7 @@ export default class EditSignModal extends Vue {
 
     public isLetter(e: any) {
         this.newCharacter = '';
-        if (![32,8,46].includes(e.keyCode)) {
+        if (![32, 8, 46].includes(e.keyCode)) {
             this.newAttributeValueId = this.signTypes.find(
                 (attr) => attr.value === 'LETTER'
             )!.id;
@@ -126,10 +127,9 @@ export default class EditSignModal extends Vue {
             this.newAttributeValueId,
             this.signTypes.find(
                 (signType) => signType.id === this.newAttributeValueId
-            )!.value,
-            this.isReconstructed
+            )!.value
         );
-        op.redo();
+        op.redo(true);
         this.$state.eventBus.emit('new-operation', op);
     }
 
@@ -140,11 +140,10 @@ export default class EditSignModal extends Vue {
             this.newAttributeValueId,
             this.signTypes.find(
                 (signType) => signType.id === this.newAttributeValueId
-            )!.value,
-            this.isReconstructed
+            )!.value
         );
 
-        op.redo();
+        op.redo(true);
         this.$state.eventBus.emit('new-operation', op);
     }
 

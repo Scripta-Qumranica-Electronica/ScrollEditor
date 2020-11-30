@@ -129,13 +129,17 @@ export interface SignInterpretationBaseDTO {
 }
 
 export interface SignInterpretationCreateDTO extends SignInterpretationBaseDTO {
-    lineId: number;
+    lineId?: number;
     previousSignInterpretationIds?: Array<number>;
     nextSignInterpretationIds?: Array<number>;
     attributes: Array<InterpretationAttributeCreateDTO>;
     rois: Array<SetInterpretationRoiDTO>;
     commentary?: CommentaryCreateDTO;
     breakPreviousAndNextSignInterpretations: boolean;
+}
+
+export interface SignInterpretationVariantDTO extends InterpretationAttributeBaseDTO {
+    character: string;
 }
 
 export interface SignInterpretationDTO extends SignInterpretationBaseDTO {
@@ -148,6 +152,16 @@ export interface SignInterpretationDTO extends SignInterpretationBaseDTO {
 
 export interface SignInterpretationListDTO {
     signInterpretations?: Array<SignInterpretationDTO>;
+}
+
+export interface SignInterpretationCreatedDTO {
+    created?: Array<SignInterpretationDTO>;
+    updated?: Array<SignInterpretationDTO>;
+}
+
+export interface SignInterpretationDeleteDTO {
+    updates?: SignInterpretationListDTO;
+    deletes?: Array<number>;
 }
 
 export interface InterpretationAttributeBaseDTO {
@@ -611,6 +625,7 @@ export interface CatalogueMatchInputDTO {
     catalogSide?: SideDesignation;
     imagedObjectId: string;
     manuscriptId: number;
+    manuscriptName: string;
     editionName: string;
     editionVolume: string;
     editionLocation1: string;
@@ -634,7 +649,6 @@ export interface CatalogueMatchDTO extends CatalogueMatchInputDTO {
     thumbnail: string;
     license: string;
     iaaEditionCatalogueId: number;
-    manuscriptName: string;
     name: string;
     matchAuthor: string;
     matchConfirmationAuthor?: string;
