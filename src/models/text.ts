@@ -20,13 +20,11 @@ class TextFragmentData {
     public id: number;
     public name: string;
     public editorId: number;
-    public suggested: boolean;
 
-    constructor(obj: ArtefactTextFragmentMatchDTO) {
+    constructor(obj: TextFragmentDataDTO) {
         this.id = obj.id;
         this.name = obj.name;
         this.editorId = obj.editorId;
-        this.suggested = obj.suggested;
     }
 }
 
