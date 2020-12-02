@@ -78,6 +78,13 @@ export default {
     font-style: normal;
 }
 
+@font-face {
+  font-family: "scroll_hebrew";
+  src: url('./assets/fonts/scroll_hebrew.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
     overflow: hidden;
     background-color: $backround-grey !important; /* Override bootstrap */

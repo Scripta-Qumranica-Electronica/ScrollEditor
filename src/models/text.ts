@@ -39,10 +39,12 @@ class ArtefactTextFragmentData extends TextFragmentData {
             suggested: tf.suggested,
         });
     }
+    public suggested: boolean;
     public certain: boolean;
 
     constructor(obj: ArtefactTextFragmentMatchDTO) {
         super(obj);
+        this.suggested = obj.suggested;
         this.certain = !obj.suggested;
     }
 }

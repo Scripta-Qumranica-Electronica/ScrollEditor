@@ -1,19 +1,24 @@
 <template>
-    <g>
-        <path
-            v-for="roi in rois"
-            :key="roi.id"
-            :d="roi.shape.svg"
-            :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="{
-                shine: roi.shiny,
-                selected: isSelectedRoi(roi),
-                highlighted: highlighted(roi),
-                highlightedComment: highlightedComment(roi),
-            }"
-            @click="onPathClicked(roi)"
-            vector-effect="non-scaling-stroke"
-        />
+    <g>    
+        <template v-for="roi in rois">
+            <g
+                :key="roi.id"
+                :transform="`translate(${roi.position.x} ${roi.position.y})`"
+            >
+                <path
+                    :d="roi.shape.svg"
+                    :class="{
+                        shine: roi.shiny && withClass,
+                        selected: isSelectedRoi(roi) && withClass,
+                        highlighted: highlighted(roi) && withClass,
+                        highlightedComment:
+                            highlightedComment(roi) && withClass,
+                    }"
+                    @click="onPathClicked(roi)"
+                    vector-effect="non-scaling-stroke"
+                ></path>
+            </g>
+        </template>
     </g>
 </template>
 
@@ -27,6 +32,10 @@ import { InterpretationRoi } from '@/models/text';
 })
 export default class RoiLayer extends Vue {
     @Prop() public rois!: Iterator<InterpretationRoi>;
+    @Prop({
+        default: true,
+    })
+    public withClass!: boolean;
 
     public highlighted(roi: InterpretationRoi) {
         if (this.si) {
@@ -121,4 +130,5 @@ path.selected {
         stroke-opacity: 0.4;
     }
 }
+
 </style>

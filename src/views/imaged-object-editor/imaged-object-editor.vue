@@ -256,7 +256,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import ArtefactImage from '@/views/artefact-editor/artefact-image.vue';
 import ArtefactService from '@/services/artefact';
 import {
     DrawingMode,
@@ -381,8 +380,20 @@ export default class ImagedObjectEditor
                 );
             }
 
+
+            // Load manifests of all images of both sides
+            const rectoStack = this.imagedObject.getImageStack('recto');
+            const rectoImages = rectoStack?.images || [];
+
+            const versoStack = this.imagedObject.getImageStack('verso');
+            const versoImages = versoStack?.images || [];
+
+            const images = [...rectoImages, ...versoImages];
+            const promises = images.map(img => this.$state.prepare.imageManifest(img));
+            await Promise.all(promises);
+
+            // Get the current master image
             const stack = this.imagedObject.getImageStack(this.side)!;
-            await this.$state.prepare.imageManifest(stack.master);
             this.masterImage = stack.master;
 
             if (this.imagedObject.artefacts.length) {

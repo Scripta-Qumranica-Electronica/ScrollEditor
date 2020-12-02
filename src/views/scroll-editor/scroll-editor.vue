@@ -115,12 +115,37 @@
                                     ></b-button>
                                 </b-button-group>
                             </div>
-                            <div class="col-9">
+                            <div class="col-5">
                                 <artefact-toolbox
                                     @new-operation="newOperation($event)"
                                     @save-group="saveGroupArtefacts()"
                                     @cancel-group="cancelGroup()"
                                 ></artefact-toolbox>
+                            </div>
+
+                            <div class="col-1">
+                                <b-form-checkbox
+                                    switch
+                                    size="sm"
+                                    @input="onDisplayROIs($event)"
+                                    >Display ROIs</b-form-checkbox
+                                >
+                            </div>
+                            <div class="col-2">
+                                <b-form-checkbox
+                                    switch
+                                    size="sm"
+                                    @input="onDisplayReconstructedText($event)"
+                                    >Display Reconstructed Text</b-form-checkbox
+                                >
+                            </div>
+                            <div class="col-1">
+                                <b-form-checkbox
+                                    switch
+                                    size="sm"
+                                    @input="onDisplayText($event)"
+                                    >Display Text</b-form-checkbox
+                                >
                             </div>
                         </b-row>
                     </div>
@@ -224,6 +249,7 @@ import EditionService from '@/services/edition';
 import ArtefactService from '@/services/artefact';
 import ScrollMap from './scroll-map.vue';
 import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
+import { ArtefactTextFragmentData } from '@/models/text';
 
 @Component({
     name: 'scroll-editor',
@@ -344,7 +370,7 @@ export default class ScrollEditor
         this.onZoomChanged();
     }
 
-        public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
+    public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
         const allMovedArtefactIds = new Set<number>();
         const allEditedGroupIds = new Set<number>();
         const allDeletedGroupIds = new Set<number>();
@@ -460,6 +486,7 @@ export default class ScrollEditor
     public get canZoomOut(): boolean {
         return this.zoom - 5 > 0;
     }
+
     protected created() {
         this.$state.eventBus.on('select-group', this.selectGroup);
         this.$state.eventBus.on('save-group', this.saveGroupArtefacts);
@@ -520,7 +547,7 @@ export default class ScrollEditor
         this.calculateViewport();
     }
 
-    private onAddArtefactModalClose(artId: number) {
+    private async onAddArtefactModalClose(artId: number) {
         const artefact = this.$state.artefacts.find(artId);
         if (artefact) {
             const numberOfPlaced = this.artefacts.filter((x) => x.isPlaced)
@@ -552,6 +579,13 @@ export default class ScrollEditor
                 true
             );
             artefact.placeOnScroll(placement);
+
+            // load artefact Rois
+            await Promise.all(
+                artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+                    this.$state.prepare.textFragment(artefact.editionId, tf.id)
+                )
+            );
 
             this.newOperation(operation);
             this.selectArtefact(artefact);
@@ -878,6 +912,16 @@ export default class ScrollEditor
         if (this.selectedGroup) {
             this.deleteGroup(this.selectedGroup.groupId);
         }
+    }
+
+    private onDisplayROIs(value: boolean) {
+        this.scrollEditorState.displayRois = value;
+    }
+    private onDisplayReconstructedText(value: boolean) {
+        this.scrollEditorState.displayReconstructedText = value;
+    }
+    private onDisplayText(value: boolean) {
+        this.scrollEditorState.displayText = value;
     }
 }
 </script>
