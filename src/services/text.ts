@@ -36,7 +36,7 @@ class TextService {
 
     public async getArtefactTextFragments(editionId: number, artefactId: number) {
         const response = await CommHelper.get<ArtefactTextFragmentMatchListDTO>(
-            ApiRoutes.artefactTextFragmentsUrl(editionId, artefactId)
+            ApiRoutes.artefactTextFragmentsUrl(editionId, artefactId, true)
         );
 
         return response.data.textFragments.map(obj => new ArtefactTextFragmentData(obj));

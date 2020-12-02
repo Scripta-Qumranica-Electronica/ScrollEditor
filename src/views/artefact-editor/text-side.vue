@@ -2,7 +2,6 @@
     <div class="text-side-container">
         <div class="border-bottom load-fragment">
             <input
-                v-if="!readOnly"
                 class="select-text"
                 placeholder="Enter a name e.g, col.1"
                 list="my-list-id"
@@ -116,7 +115,8 @@ export default class TextSide extends Vue {
     }
 
     private get displayedTextFragmentsData() {
-        return this.allTextFragmentsData.filter((x) => x.certain);
+      const certainFragments = this.allTextFragmentsData.filter((x) => x.certain);
+      return certainFragments.length > 0 ? certainFragments : this.allTextFragmentsData.filter((x) => x.suggested);
     }
 
     private get openedTextFragement() {
@@ -147,6 +147,10 @@ export default class TextSide extends Vue {
                     (artefactTf) =>
                         artefactTf.id === editionTf.id && artefactTf.certain
                 ) > -1;
+            editionTf.suggested = textFragmentsArtefact.findIndex(
+                (artefactTf) =>
+                    artefactTf.id === editionTf.id && artefactTf.suggested
+            ) > -1;
         });
 
         return textFragments;
@@ -154,7 +158,8 @@ export default class TextSide extends Vue {
 
     private async mounted() {
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
-        this.displayedTextFragmentsData.forEach(async (tfd, idx) => {
+        for (const tfd of this.displayedTextFragmentsData) {
+          let idx = this.displayedTextFragmentsData.indexOf(tfd);
             await this.getFragmentText(tfd.id);
             const tf = this.$state.textFragments.get(tfd.id);
             if (tf) {
@@ -162,7 +167,7 @@ export default class TextSide extends Vue {
                 this.displayedTextFragmentsShow[tfd.id] =
                     idx === 0 ? true : false;
             }
-        });
+        }
     }
 
     private async loadFragment(event: Event) {
