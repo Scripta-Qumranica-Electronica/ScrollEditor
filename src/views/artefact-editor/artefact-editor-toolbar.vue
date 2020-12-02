@@ -41,7 +41,7 @@
                         <b-popover
                             class="popover-body"
                             target="popover-adjust"
-                            triggers="focus"
+                            triggers="click"
                             placement="bottom"
                             container="my-container"
                             ref="popover"
