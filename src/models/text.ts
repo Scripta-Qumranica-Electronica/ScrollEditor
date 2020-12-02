@@ -34,7 +34,7 @@ class ArtefactTextFragmentData extends TextFragmentData {
             id: tf.id,
             name: tf.name,
             editorId: tf.editorId,
-            suggested: tf.suggested,
+            suggested: true,
         });
     }
     public suggested: boolean;
