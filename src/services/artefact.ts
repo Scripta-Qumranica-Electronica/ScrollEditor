@@ -32,7 +32,7 @@ class ArtefactService {
             mask: '',
             placement: {
                 rotate: 0,
-                scale: 0,
+                scale: 1,
                 translate: {
                     x: 0,
                     y: 0,

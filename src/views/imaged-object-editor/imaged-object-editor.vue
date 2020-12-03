@@ -8,7 +8,7 @@
                 <b-col class="col-8">
                     <edition-header></edition-header>
                 </b-col>
-                <b-col class="col-3 mt-2">
+                <b-col class="col-2 mt-2">
                     <div class="btn-tf">
                         <b-button
                             v-for="mode in editList"
@@ -23,7 +23,7 @@
                         </b-button>
                     </div>
                 </b-col>
-                <b-col class="p-3 col-1">
+                <b-col class="p-3 col-2">
                     <div>{{ saveStatusMessage }}</div>
                 </b-col>
             </b-row>
@@ -90,13 +90,13 @@
                                     :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
                                 >
                                     <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
-                                    <g
+                                    <g v-if="artefact"
                                         :transform="transform"
                                         id="transform-root"
                                     >
                                         <!-- Coordinate system is in master image coordinates -->
                                         <image-layer
-                                            v-if="artefact"
+                                            
                                             :width="imageWidth"
                                             :height="imageHeight"
                                             :params="params"
@@ -279,6 +279,7 @@ import { normalizeOpacity } from '@/components/image-settings/types';
 import ImagedObjectEditorToolbar from './imaged-object-editor-toolbar.vue';
 import { DropdownOption } from '@/utils/helpers';
 import EditionHeader from '../edition/components/edition-header.vue';
+import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
     name: 'imaged-object-editor',
@@ -289,6 +290,7 @@ import EditionHeader from '../edition/components/edition-header.vue';
         'boundary-drawer': BoundaryDrawer,
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
         'zoomer': Zoomer,
+        'edition-icons': EditionIcons,
         'edition-header': EditionHeader,
     },
 })
@@ -307,7 +309,8 @@ export default class ImagedObjectEditor
         'brown',
         'cadetBlue',
     ];
-
+    private errorMessage: string = '';
+    private newArtefactName: string = '';
     private artefactService = new ArtefactService();
     private params = new ImagedObjectEditorParams();
     private artefactId: number = -1;
@@ -351,7 +354,13 @@ export default class ImagedObjectEditor
 
         return true;
     }
-
+    public get canCreate(): boolean {
+        return this.newArtefactName.trim().length > 0;
+    }
+   public newModalShown() {
+        // this.waiting = true;
+        (this.$refs.newArtefactName as any).focus();
+    }
     private async mounted() {
         try {
             this.waiting = true;
@@ -380,7 +389,6 @@ export default class ImagedObjectEditor
                 );
             }
 
-
             // Load manifests of all images of both sides
             const rectoStack = this.imagedObject.getImageStack('recto');
             const rectoImages = rectoStack?.images || [];
@@ -389,7 +397,9 @@ export default class ImagedObjectEditor
             const versoImages = versoStack?.images || [];
 
             const images = [...rectoImages, ...versoImages];
-            const promises = images.map(img => this.$state.prepare.imageManifest(img));
+            const promises = images.map((img) =>
+                this.$state.prepare.imageManifest(img)
+            );
             await Promise.all(promises);
 
             // Get the current master image
@@ -535,6 +545,32 @@ export default class ImagedObjectEditor
     }
     private get isErasing() {
         return this.params.drawingMode === DrawingMode.ERASE;
+    }
+    public async newArtefact() {
+        this.newArtefactName = this.newArtefactName.trim();
+
+        let newArtefact = {} as Artefact;
+        this.waiting = true;
+        this.errorMessage = '';
+        try {
+            newArtefact = await this.artefactService.createArtefact(
+                this.editionId,
+                this.imagedObject!,
+                this.newArtefactName,
+                this.side as Side
+            );
+        } catch (err) {
+            this.errorMessage = err;
+        } finally {
+            this.waiting = false;
+        }
+
+        this.newArtefactName = '';
+        (this.$refs.newArtRef as any).hide();
+        this.onArtefactChanged(newArtefact);
+
+        this.editingModeChanged('DRAW');
+        this.$emit('create', newArtefact);
     }
 
     private onNewZoom(event: ZoomEventArgs) {
@@ -748,7 +784,7 @@ span.selected {
     height: calc(100vh - 250px);
     overflow: auto;
 }
-.select-art-name{
+.select-art-name {
     cursor: pointer;
 }
 </style>

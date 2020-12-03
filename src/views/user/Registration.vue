@@ -5,7 +5,6 @@
             footer-class="title-footer"
             ref="registerModalRef"
             id="registerModal"
-            @shown="shown"
         >
             <template v-slot:modal-header>
                 <b-row class="mt-3"> 

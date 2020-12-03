@@ -2,7 +2,7 @@
     <div id="artefact-toolbar">
         <b-col class="p-3">
             <div>
-                <b-row v-align="center">
+                <b-row align-v="center">
                     <b-col class="col-2">
                         <b-button-group>
                             <b-button
@@ -280,9 +280,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
 
         return options;
     }
-    public get canCreate(): boolean {
-        return this.newArtefactName.trim().length > 0;
-    }
+  
 
     public sideFilterChanged(filter: DropdownOption) {
         this.sideFilter = filter;
@@ -317,45 +315,42 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.params.rotationAngle += degrees;
         this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
-    public async newArtefact() {
-        this.newArtefactName = this.newArtefactName.trim();
+    // public async newArtefact() {
+    //     this.newArtefactName = this.newArtefactName.trim();
 
-        let newArtefact = {} as Artefact;
-        this.waiting = true;
-        this.errorMessage = '';
-        try {
-            newArtefact = await this.artefactService.createArtefact(
-                this.editionId,
-                this.imagedObject,
-                this.newArtefactName,
-                this.side as Side
-            );
-        } catch (err) {
-            this.errorMessage = err;
-        } finally {
-            this.waiting = false;
-        }
+    //     let newArtefact = {} as Artefact;
+    //     this.waiting = true;
+    //     this.errorMessage = '';
+    //     try {
+    //         newArtefact = await this.artefactService.createArtefact(
+    //             this.editionId,
+    //             this.imagedObject,
+    //             this.newArtefactName,
+    //             this.side as Side
+    //         );
+    //     } catch (err) {
+    //         this.errorMessage = err;
+    //     } finally {
+    //         this.waiting = false;
+    //     }
 
-        this.newArtefactName = '';
-        (this.$refs.newArtRef as any).hide();
-        this.chooseArtefact(newArtefact);
+    //     this.newArtefactName = '';
+    //     (this.$refs.newArtRef as any).hide();
+    //     this.chooseArtefact(newArtefact);
 
-        this.onDrawChanged('DRAW');
-        this.$emit('create', newArtefact);
-    }
-    public newModalShown() {
-        // this.waiting = true;
-        (this.$refs.newArtefactName as any).focus();
-    }
-    public onDrawChanged(val: any) {
-        // DrawingMode
-        const mode = DrawingMode[val];
-        (this as any).params.drawingMode = mode;
-        this.notifyChange('drawingMode', mode);
-    }
-    public chooseArtefact(art: Artefact) {
-        this.$emit('artefactChanged', art);
-    }
+    //     this.onDrawChanged('DRAW');
+    //     this.$emit('create', newArtefact);
+    // }
+ 
+    // public onDrawChanged(val: any) {
+    //     // DrawingMode
+    //     const mode = DrawingMode[val];
+    //     (this as any).params.drawingMode = mode;
+    //     this.notifyChange('drawingMode', mode);
+    // }
+    // public chooseArtefact(art: Artefact) {
+    //     this.$emit('artefactChanged', art);
+    // }
 }
 </script>
 
