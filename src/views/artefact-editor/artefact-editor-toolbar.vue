@@ -3,7 +3,7 @@
         <b-col class="p-3">
             <div>
                 <b-row align-v="center">
-                    <b-col class="col-5">
+                    <b-col class="col">
                         <b-button-group>
                             <b-button
                                 @click="zoomClick(-5)"
@@ -27,7 +27,7 @@
                             ></b-button>
                         </b-button-group>
                     </b-col>
-                    <b-col class="p-0">
+                    <b-col class="p-0 col">
                         <b-button
                             id="popover-adjust"
                             variant="outline-secondary"
@@ -58,7 +58,7 @@
                             </div>
                         </b-popover>
                     </b-col>
-                    <b-col class="p-0">
+                    <b-col class="col">
                         <b-button-group>
                             <b-button
                                 variant="outline-secondary"
@@ -278,8 +278,10 @@ button {
     margin-left: 10px;
 }
 .input-lg {
-    width: 75px !important;
+    width: 50% !important;
+    max-width: 75px;
 }
+
 #popover-adjust:hover {
     color: #007bff;
     background-color: white;

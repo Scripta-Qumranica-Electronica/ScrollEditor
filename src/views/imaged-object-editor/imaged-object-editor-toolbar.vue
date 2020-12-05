@@ -3,7 +3,7 @@
         <b-col class="p-3">
             <div>
                 <b-row align-v="center">
-                    <b-col class="col-2">
+                    <b-col class="col-lg-3 col-xl-2">
                         <b-button-group>
                             <b-button
                                 @click="zoomClick(-5)"
@@ -27,7 +27,7 @@
                             ></b-button>
                         </b-button-group>
                     </b-col>
-                    <b-col class="p-0 col-2 ml-3">
+                    <b-col class="p-0 col-lg-3 col-xl-2">
                         <b-button
                             id="popover-adjust"
                             variant="outline-secondary"
@@ -61,7 +61,7 @@
                             </div>
                         </b-popover>
                     </b-col>
-                    <b-col class="p-0 col-2">
+                    <b-col class="p-0 col-lg-2">
                         <b-button-group>
                             <b-button
                                 variant="outline-secondary"
@@ -88,8 +88,8 @@
                         </b-button-group>
                         <span class="rotation"> {{ rotationAngle }} ° </span>
                     </b-col>
-                    <b-col class="col-4">
-                        <b-row>
+                    <b-col class="col-lg-4 col-xl-5">
+                        <b-row align-v="center">
                             <div class="mr-3" v-if="artefact && artefact.mask">
                                 <b-form-checkbox v-model="background"
                                     >Background</b-form-checkbox
@@ -101,7 +101,7 @@
                                 >
                             </div>
                             <div>
-                                <b-dropdown :text="sideFilter.displayName">
+                                <b-dropdown :text="sideFilter.displayName" class="btn-sm">
                                     <b-dropdown-item
                                         v-for="filter in sideOptions"
                                         :key="filter.displayName"

@@ -26,8 +26,8 @@
                 class="text-side-border p-2"
             >
                 <b-card-header header-tag="header" class="p-0 mt-3">
-                    <b-row>
-                        <b-col cols="2">
+                    <b-row no-gutters>
+                        <div style="width:80px;">
                             <b-button-group block>
                                 <b-button
                                     href="#"
@@ -46,15 +46,15 @@
                                     <i class="fa fa-arrow-down"></i>
                                 </b-button>
                             </b-button-group>
-                        </b-col>
-                        <b-col cols="10" role="tab">
+                        </div>
+                        <div class="col" role="tab">
                             <b-button
                                 block
                                 href="#"
                                 v-b-toggle="'accordion-' + index"
                                 >{{ textFragment.textFragmentName }}</b-button
                             >
-                        </b-col>
+                        </div>
                     </b-row>
                 </b-card-header>
 
@@ -290,7 +290,7 @@ button {
 }
 .select-text {
     height: 37px;
-    width: 250px;
+    width: 100%;
     padding: 10px;
 }
 @media (max-width: 1100px) {
