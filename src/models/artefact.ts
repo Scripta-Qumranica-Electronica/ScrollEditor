@@ -33,12 +33,6 @@ export class Artefact {
         this.placement = new Placement(obj.placement);
         this.artefactPlacementEditorId = obj.artefactPlacementEditorId;
         this.side = (obj.side === 'recto') ? 'recto' : 'verso';
-
-        // TODO: Check if the artefact ID is on of the list of "virtual" artefacts. If so, set their
-        // imageObjectId to '', so that they are treated as virtual
-        if (this.id === 16772) {
-            this.imagedObjectId = '';
-        }
     }
 
     public get isVirtual() {
