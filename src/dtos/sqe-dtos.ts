@@ -113,6 +113,10 @@ export interface CreateTextFragmentDTO extends UpdateTextFragmentDTO {
     name: string;
 }
 
+export interface RequestMaterializationDTO {
+    editionIds: Array<number>;
+}
+
 export interface SignDTO {
     signInterpretations: Array<SignInterpretationDTO>;
 }
@@ -142,7 +146,14 @@ export interface SignInterpretationVariantDTO extends InterpretationAttributeBas
     character: string;
 }
 
+export interface SignInterpretationCharacterUpdateDTO {
+    character?: string;
+    attributeValueId?: number;
+    priority: number;
+}
+
 export interface SignInterpretationDTO extends SignInterpretationBaseDTO {
+    signId: number;
     signInterpretationId: number;
     nextSignInterpretations: Array<NextSignInterpretationDTO>;
     attributes: Array<InterpretationAttributeDTO>;
@@ -568,6 +579,20 @@ export interface ImagedObjectListDTO {
 
 export interface WktPolygonDTO {
     wktPolygon: string;
+}
+
+export interface DetailedSearchRequestDTO {
+    textDesignation?: string;
+    imageDesignation?: string;
+    textReference?: Array<string>;
+    artefactDesignation?: Array<string>;
+}
+
+export interface DetailedSearchResponseDTO {
+    editions?: EditionListDTO;
+    textFragments?: TextFragmentDataListDTO;
+    artefacts?: ArtefactDataListDTO;
+    images?: ImagedObjectListDTO;
 }
 
 export interface SetInterpretationRoiDTO {

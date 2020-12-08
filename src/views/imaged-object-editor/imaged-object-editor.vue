@@ -527,11 +527,12 @@ export default class ImagedObjectEditor
     public get canRedo(): boolean {
         return this.operationsManager.canRedo;
     }
-    private onUndo() {
+
+    public onUndo() {
         this.operationsManager.undo();
     }
 
-    private onRedo() {
+    public onRedo() {
         this.operationsManager.redo();
     }
 
@@ -544,9 +545,7 @@ export default class ImagedObjectEditor
         }
         return 'Scroll Saved';
     }
-    private get isErasing() {
-        return this.params.drawingMode === DrawingMode.ERASE;
-    }
+
     public async newArtefact() {
         this.newArtefactName = this.newArtefactName.trim();
 
@@ -572,6 +571,10 @@ export default class ImagedObjectEditor
 
         this.editingModeChanged('DRAW');
         this.$emit('create', newArtefact);
+    }
+
+    private get isErasing() {
+        return this.params.drawingMode === DrawingMode.ERASE;
     }
 
     private onNewZoom(event: ZoomEventArgs) {

@@ -3,7 +3,7 @@ import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCreatedDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO, SignInterpretationVariantDTO } from '@/dtos/sqe-dtos';
+import { CommentaryCreateDTO, InterpretationAttributeCreateDTO, InterpretationAttributeDTO, SignInterpretationCharacterUpdateDTO, SignInterpretationCreatedDTO, SignInterpretationCreateDTO, SignInterpretationDTO, SignInterpretationListDTO, SignInterpretationVariantDTO } from '@/dtos/sqe-dtos';
 
 export default class SignInterpretationService {
     public stateManager: StateManager;
@@ -120,15 +120,13 @@ export default class SignInterpretationService {
     }
 
     public async updateSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
-        console.warn('updateSignInterpretation is not yet supported by the server');
-
-        /*const url = ApiRoutes.signInterpretationCharacterUrl(edition.id, signInterpretation.id);
-        const dto: SignInterpretationVariantDTO = {
-            character: signInterpretation.character || '',
-            attributeId: 1, // sign-type
-            attributeValueId: signInterpretation.signType[0],
+        const url = ApiRoutes.signInterpretationCharacterUrl(edition.id, signInterpretation.id);
+        const dto: SignInterpretationCharacterUpdateDTO = {
+            character: signInterpretation.character || ' ',
+            attributeValueId: signInterpretation.signType[0], // The DTO should be updated shortly to support this
+            priority: 1,
         };
 
-        await CommHelper.post<SignInterpretationCreatedDTO>(url, dto); */
+        await CommHelper.put<SignInterpretationCreatedDTO>(url, dto);
     }
 }

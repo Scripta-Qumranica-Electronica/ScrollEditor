@@ -280,7 +280,6 @@ export default class ImagedObjectEditorToolbar extends Vue {
 
         return options;
     }
-  
 
     public sideFilterChanged(filter: DropdownOption) {
         this.sideFilter = filter;

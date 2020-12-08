@@ -25,6 +25,7 @@
     "variable-name": {
       "options": ["check-format", "allow-leading-underscore"]
     },
-    "max-line-length": false
+    "max-line-length": false,
+    "member-ordering": false
   }
 }
