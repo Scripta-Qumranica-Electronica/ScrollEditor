@@ -315,42 +315,6 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.params.rotationAngle += degrees;
         this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
-    // public async newArtefact() {
-    //     this.newArtefactName = this.newArtefactName.trim();
-
-    //     let newArtefact = {} as Artefact;
-    //     this.waiting = true;
-    //     this.errorMessage = '';
-    //     try {
-    //         newArtefact = await this.artefactService.createArtefact(
-    //             this.editionId,
-    //             this.imagedObject,
-    //             this.newArtefactName,
-    //             this.side as Side
-    //         );
-    //     } catch (err) {
-    //         this.errorMessage = err;
-    //     } finally {
-    //         this.waiting = false;
-    //     }
-
-    //     this.newArtefactName = '';
-    //     (this.$refs.newArtRef as any).hide();
-    //     this.chooseArtefact(newArtefact);
-
-    //     this.onDrawChanged('DRAW');
-    //     this.$emit('create', newArtefact);
-    // }
- 
-    // public onDrawChanged(val: any) {
-    //     // DrawingMode
-    //     const mode = DrawingMode[val];
-    //     (this as any).params.drawingMode = mode;
-    //     this.notifyChange('drawingMode', mode);
-    // }
-    // public chooseArtefact(art: Artefact) {
-    //     this.$emit('artefactChanged', art);
-    // }
 }
 </script>
 
