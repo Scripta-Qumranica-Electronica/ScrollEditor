@@ -403,6 +403,7 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
 
         // Now the new sign interpretation
         const si = new SignInterpretation({
+            signId: -1,   // Patch, we don't really need the signID, but the DTO requires it
             character,
             isVariant: false,
             signInterpretationId: SignInterpretation.nextAvailableId,

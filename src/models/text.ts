@@ -10,7 +10,8 @@ import {
     NextSignInterpretationDTO,
     SetInterpretationRoiDTO,
     ArtefactTextFragmentMatchDTO,
-    TranslateDTO
+    TranslateDTO,
+    SignInterpretationCreateDTO
 } from '@/dtos/sqe-dtos';
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
