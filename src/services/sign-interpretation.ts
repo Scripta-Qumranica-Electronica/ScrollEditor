@@ -123,7 +123,7 @@ export default class SignInterpretationService {
         const url = ApiRoutes.signInterpretationCharacterUrl(edition.id, signInterpretation.id);
         const dto: SignInterpretationCharacterUpdateDTO = {
             character: signInterpretation.character || ' ',
-            signTypeValueId: signInterpretation.signType[0], // The DTO should be updated shortly to support this
+            attributeValueId: signInterpretation.signType[0], // The DTO should be updated shortly to support this
             priority: 1,
         };
 

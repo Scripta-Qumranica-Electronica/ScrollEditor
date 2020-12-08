@@ -147,7 +147,8 @@ export interface SignInterpretationVariantDTO extends InterpretationAttributeBas
 }
 
 export interface SignInterpretationCharacterUpdateDTO {
-    character: string;
+    character?: string;
+    attributeValueId?: number;
     priority: number;
 }
 
