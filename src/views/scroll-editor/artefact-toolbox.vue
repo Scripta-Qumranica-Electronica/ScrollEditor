@@ -308,6 +308,7 @@
                             style="display: block"
                             accordion="my-accordion-side-actions"
                             role="tabpanel"
+                            class="ml-3"
                         >
                             <b-row no-gutters>
                                 <b-button-group>

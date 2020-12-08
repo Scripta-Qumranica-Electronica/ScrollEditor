@@ -5,7 +5,7 @@
         </div>
         <div v-if="!waiting && imagedObject" class="mb-3 header-actions">
             <b-row class="mx-4 py-2">
-                <b-col class="col-8">
+                <b-col class="col-lg-9 col-xl-8">
                     <edition-header></edition-header>
                 </b-col>
                 <b-col class="col-2 mt-2">
@@ -29,8 +29,8 @@
             </b-row>
         </div>
         <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
-            <b-row align-v="center" class="border-bottom editor-actions">
-                <b-col cols="9">
+            <b-row align-v="center" class="border-bottom no-gutters">
+                <b-col class="col-lg-9 col-xl-9">
                     <imaged-object-editor-toolbar
                         :imagedObject="imagedObject"
                         :artefacts="visibleArtefacts"
@@ -45,8 +45,8 @@
                         @onSideArtefactChanged="sideArtefactChanged($event)"
                     ></imaged-object-editor-toolbar>
                 </b-col>
-                <b-col class="pt-3">
-                    <b-button-group>
+                <div class="col-lg-3 col-xl-3">
+                    <b-button-group class="btn-sm">
                         <b-button
                             class="mr-1"
                             :disabled="!canUndo"
@@ -57,17 +57,18 @@
                             >Redo</b-button
                         >
                     </b-button-group>
-                </b-col>
-                <b-col class="pt-3">
+                
+            
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
-                        class="btn btn-sm btn-outline"
+                        class="btn btn-sm  ml-2 btn-outline"
                         >{{ $t('misc.new') }}</b-btn
                     >
-                </b-col>
+              
+                </div>
             </b-row>
-            <b-row>
+            <b-row no-gutters>
                 <b-col cols="8">
                     <div class="image-obj-container-height">
                         <div class="img-obj-container h-100" ref="infoBox">
@@ -139,7 +140,7 @@
                         }"
                     >
                         <b-row class="py-2">
-                            <b-col class="col-4 pl-4 pt-1">
+                            <b-col class="col-lg-3 col-xl-4 pl-4 pt-1">
                                 <span
                                     v-if="renameInputActive !== art"
                                     :class="{
@@ -155,7 +156,7 @@
                                     &nbsp;
                                 </span>
                             </b-col>
-                            <b-col class="col-3">
+                            <b-col class="col-lg-3 col-xl-3">
                                 <span
                                     v-if="renameInputActive !== art"
                                     :class="{
@@ -166,7 +167,7 @@
                                     >{{ art.name }}</span
                                 >
                             </b-col>
-                            <b-col class="col-5 px-0">
+                            <b-col class="col-lg-6 col-xl-5 px-0">
                                 <div v-if="canEdit">
                                     <b-button
                                         v-if="renameInputActive !== art"
@@ -775,13 +776,13 @@ span.selected {
 .rename-art {
     border: solid 3px;
     height: 16px;
-    width: 100px;
+    width: 100%;
     display: inline-block;
     margin-right: 4px;
     cursor: pointer;
 }
 .col-rename-art {
-    height: calc(100vh - 250px);
+    height: calc(100vh - 315px);
     overflow: auto;
 }
 .select-art-name {

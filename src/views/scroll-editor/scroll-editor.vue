@@ -6,10 +6,10 @@
         <div v-if="!waiting">
             <div class="mb-3 header-actions">
                 <b-row class="mx-4 py-2">
-                    <b-col cols="8">
+                    <div class="col-xl-8 col-lg-8">
                         <edition-header></edition-header>
-                    </b-col>
-                    <b-col cols="0">
+                    </div>
+                    <b-col class="col-lg-3 pl-4">
                         <div class="btn-tf">
                             <b-button
                                 size="sm"
@@ -39,7 +39,7 @@
                             >
                         </div>
                     </b-col>
-                    <b-col class="pl-3 pt-3"
+                    <b-col class="pl-3 pt-3 col-lg-1"
                         ><div>{{ saveStatusMessage }}</div></b-col
                     >
                 </b-row>
@@ -88,7 +88,7 @@
                         </div>
                     </div>
                     <div class="col-10">
-                        <b-row align-v="center">
+                        <b-row align-v="center" class="row ml-2">
                             <div class="col-2 position-zoom">
                                 <b-button-group>
                                     <b-button
@@ -104,6 +104,7 @@
                                         min="10"
                                         max="100"
                                         size="sm"
+                                        class="input-lg"
                                     ></b-input>
                                     <b-button
                                         size="sm"
@@ -122,30 +123,34 @@
                                     @cancel-group="cancelGroup()"
                                 ></artefact-toolbox>
                             </div>
-
-                            <div class="col-1">
-                                <b-form-checkbox
-                                    switch
-                                    size="sm"
-                                    @input="onDisplayROIs($event)"
-                                    >Display ROIs</b-form-checkbox
-                                >
-                            </div>
-                            <div class="col-2">
-                                <b-form-checkbox
-                                    switch
-                                    size="sm"
-                                    @input="onDisplayReconstructedText($event)"
-                                    >Display Reconstructed Text</b-form-checkbox
-                                >
-                            </div>
-                            <div class="col-1">
-                                <b-form-checkbox
-                                    switch
-                                    size="sm"
-                                    @input="onDisplayText($event)"
-                                    >Display Text</b-form-checkbox
-                                >
+                            <div class="row col-5">
+                                <div  class="col-xl-4 col-md-4">
+                                    <b-form-checkbox
+                                        switch
+                                        size="sm"
+                                        @input="onDisplayROIs($event)"
+                                        >Display ROIs</b-form-checkbox
+                                    >
+                                </div>
+                                <div class="col-xl-4 col-md-4">
+                                    <b-form-checkbox
+                                        switch
+                                        size="sm"
+                                        @input="
+                                            onDisplayReconstructedText($event)
+                                        "
+                                        >Display Reconstructed
+                                        Text</b-form-checkbox
+                                    >
+                                </div>
+                                <div class="col-xl-4 col-md-4">
+                                    <b-form-checkbox
+                                        switch
+                                        size="sm"
+                                        @input="onDisplayText($event)"
+                                        >Display Text</b-form-checkbox
+                                    >
+                                </div>
                             </div>
                         </b-row>
                     </div>
@@ -255,7 +260,7 @@ import { ArtefactTextFragmentData } from '@/models/text';
     name: 'scroll-editor',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
         'edition-header': EditionHeader,
@@ -593,11 +598,11 @@ export default class ScrollEditor
     }
 
     private notifyChange(paramName: string, paramValue: any) {
-        const args = {
+        const args = ({
             property: paramName,
             value: paramValue,
             params: this.params,
-        } as unknown as  EditorParamsChangedArgs; // TODO: Change this to the right type
+        } as unknown) as EditorParamsChangedArgs; // TODO: Change this to the right type
         this.$emit('paramsChanged', args);
     }
 
@@ -955,7 +960,8 @@ export default class ScrollEditor
     width: calc(100vw - 290px);
 }
 
-.position-zoom {
-    margin-left: 27px;
+.input-lg {
+    width: 50% !important;
+    max-width: 75px;
 }
 </style>

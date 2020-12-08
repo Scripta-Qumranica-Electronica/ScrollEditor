@@ -106,17 +106,17 @@
             </div>
             <div class="mt-4 editor-container">
                 <b-row class="h-100">
-                    <b-col cols="8" class="h-100">
+                    <b-col class="h-100 col-lg-9">
                         <div class="editor-actions">
                             <b-row class="border-bottom">
-                                <b-col>
+                                <b-col class="col-lg-8">
                                     <artefact-editor-toolbar
                                         :artefact="artefact"
                                         @paramsChanged="onParamsChanged($event)"
                                     ></artefact-editor-toolbar>
                                 </b-col>
-                                <b-col class="col-2 pt-4">
-                                    <div>
+                                <div class="pt-4 col-lg-4 row no-gutters">
+                                    <div class="col-xl-6 col-md-12">
                                         <b-form-checkbox
                                             @input="onHighlightComment($event)"
                                             switch
@@ -124,9 +124,7 @@
                                             >Comments</b-form-checkbox
                                         >
                                     </div>
-                                </b-col>
-                                <b-col class="col-3 pt-4">
-                                    <div>
+                                    <div class="col-xl-6 col-md-12">
                                         <b-form-checkbox
                                             switch
                                             size="sm"
@@ -136,7 +134,7 @@
                                             select</b-form-checkbox
                                         >
                                     </div>
-                                </b-col>
+                                </div>
                             </b-row>
                         </div>
                         <div class="artefact-image-container">
@@ -155,13 +153,13 @@
                                         :line="selectedLine"
                                     />
                                 </div>
-                                <b-button
+                                <!-- <b-button
                                     type="button"
                                     v-show="$bp.between('sm', 'lg')"
                                     @click="nextLine()"
                                 >
                                     <i class="fa fa-arrow-left"></i>
-                                </b-button>
+                                </b-button> -->
                                 <zoomer
                                     :zoom="zoomLevel"
                                     :angle="rotationAngle"
@@ -215,7 +213,7 @@
                             </div>
                         </div>
                     </b-col>
-                    <b-col class="border-left px-0 h-100">
+                    <b-col class="border-left px-0 h-100 col-lg-3">
                         <div
                             class="h-100"
                             v-if="!waiting && artefact"
@@ -298,13 +296,13 @@ import { ArtefactEditorState } from '@/state/artefact-editor';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
@@ -369,7 +367,11 @@ export default class ArtefactEditor
         try {
             await this.saveRotation();
             await this.saveROIs('deleted');
-            await this.saveSignInterpretations(ops.filter(op => op.type === 'sign') as SignInterpretationEditOperation[]);
+            await this.saveSignInterpretations(
+                ops.filter(
+                    (op) => op.type === 'sign'
+                ) as SignInterpretationEditOperation[]
+            );
             await this.saveROIs('created');
 
             await this.saveAttributes(
@@ -406,10 +408,7 @@ export default class ArtefactEditor
             bbox
         );
 
-        const op: ArtefactROIOperation = new ArtefactROIOperation(
-            'draw',
-            roi,
-        );
+        const op: ArtefactROIOperation = new ArtefactROIOperation('draw', roi);
         op.redo(true);
         this.$state.artefactEditor.selectRoi(roi);
         this.statusTextFragment(roi);
@@ -530,7 +529,9 @@ export default class ArtefactEditor
             }
 
             // Prepare the image manifests of all images
-            const promises = this.imageStack.images.map(img => this.$state.prepare.imageManifest(img));
+            const promises = this.imageStack.images.map((img) =>
+                this.$state.prepare.imageManifest(img)
+            );
             await Promise.all(promises);
         }
 
@@ -712,19 +713,19 @@ export default class ArtefactEditor
         this.isActiveText = !this.isActiveText;
     }
 
-    private nextLine() {
-        if (this.selectedLine) {
-            const linesArray = this.selectedLine.textFragment.lines;
-            const index = linesArray.findIndex(
-                (k) => k.lineId === this.selectedLine!.lineId
-            );
-            if (index !== -1) {
-                const nextLine = linesArray[index + 1];
-                const newSI = nextLine.signs[1].signInterpretations[0];
-                this.artefactEditorState.selectSign(newSI);
-            }
-        }
-    }
+    // private nextLine() {
+    //     if (this.selectedLine) {
+    //         const linesArray = this.selectedLine.textFragment.lines;
+    //         const index = linesArray.findIndex(
+    //             (k) => k.lineId === this.selectedLine!.lineId
+    //         );
+    //         if (index !== -1) {
+    //             const nextLine = linesArray[index + 1];
+    //             const newSI = nextLine.signs[1].signInterpretations[0];
+    //             this.artefactEditorState.selectSign(newSI);
+    //         }
+    //     }
+    // }
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         if (evt.property === 'rotationAngle') {
@@ -858,7 +859,8 @@ export default class ArtefactEditor
         const selected = this.artefactEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
-            this.artefact, mode
+            this.artefact,
+            mode
         );
         this.initVisibleRois();
         // if (selected) {
@@ -869,15 +871,24 @@ export default class ArtefactEditor
         return updated > 0;
     }
 
-    private async saveSignInterpretations(ops: SignInterpretationEditOperation[]) {
+    private async saveSignInterpretations(
+        ops: SignInterpretationEditOperation[]
+    ) {
         for (const op of ops) {
             switch (op.signOpType) {
                 case 'create':
                     const createOp = op as CreateSignInterpretationOperation;
                     if (op.undone) {
-                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, createOp.signInterpretation, true);
+                        await this.signInterpretationService.deleteSignInterpretation(
+                            this.$state.editions.current!,
+                            createOp.signInterpretation,
+                            true
+                        );
                     } else {
-                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, createOp.signInterpretation);
+                        await this.signInterpretationService.createSignInterpretation(
+                            this.$state.editions.current!,
+                            createOp.signInterpretation
+                        );
                     }
                     break;
 
@@ -885,16 +896,25 @@ export default class ArtefactEditor
                     const deleteOp = op as DeleteSignInterpretationOperation;
                     if (op.undone) {
                         const si = deleteOp.signInterpretation;
-                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, si);
+                        await this.signInterpretationService.createSignInterpretation(
+                            this.$state.editions.current!,
+                            si
+                        );
                         deleteOp.signInterpretationId = si.signInterpretationId; // The id has changed to a negative number after the deletion
                     } else {
-                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, deleteOp.signInterpretation);
+                        await this.signInterpretationService.deleteSignInterpretation(
+                            this.$state.editions.current!,
+                            deleteOp.signInterpretation
+                        );
                     }
                     break;
 
                 case 'update':
                     const updateOp = op as UpdateSignInterperationOperation;
-                    await this.signInterpretationService.updateSignInterpretation(this.$state.editions.current!, op.signInterpretation);
+                    await this.signInterpretationService.updateSignInterpretation(
+                        this.$state.editions.current!,
+                        op.signInterpretation
+                    );
                     break;
             }
         }
