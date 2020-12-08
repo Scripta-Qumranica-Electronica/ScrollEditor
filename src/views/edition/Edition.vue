@@ -3,9 +3,11 @@
         <div class="mb-3 border-container">
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
-                    <span class="name-edition" v-if="edition">
-                        {{ versionString(edition) }}
-                    </span>
+                    <router-link :to="{path:`/editions/${edition.id}/artefacts`}">
+                        <span class="name-edition" v-if="edition">{{
+                            versionString(edition)
+                        }}</span>
+                    </router-link>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
                     <div class="btns-permiss" v-if="current">
@@ -13,9 +15,12 @@
                             class="mr-3"
                             v-if="isAdmin"
                             @click="openPermissionModal()"
-                            ><i class="fa fa-lock mr-1"></i>Collaborators</b-button
+                            ><i class="fa fa-lock mr-1"></i
+                            >Collaborators</b-button
                         >
-                        <b-button disabled><i class="fa fa-lock mr-1"></i>Publish</b-button>
+                        <b-button disabled
+                            ><i class="fa fa-lock mr-1"></i>Publish</b-button
+                        >
                     </div>
                 </b-col>
             </b-row>
@@ -40,7 +45,7 @@
                         :to="`/editions/${edition.id}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
-                      <b-button
+                    <b-button
                         variant="outline-primary"
                         :to="`/editions/${edition.id}/scroll-editor`"
                         >Entire Manuscript</b-button
@@ -135,7 +140,7 @@ export default Vue.extend({
 .btns-permiss {
     float: right;
 }
-.btns-permiss button{
+.btns-permiss button {
     background-color: $dark-backround-grey;
     border-color: $dark-backround-grey;
     color: white;
@@ -147,11 +152,10 @@ export default Vue.extend({
 .btns-permiss button:active,
 .btns-permiss button:focus,
 .btns-permiss button:hover,
-.btns-permiss button.disabled
- {
+.btns-permiss button.disabled {
     color: #fff;
-    background-color:$dark-backround-grey!important;
-    border-color:$dark-backround-grey!important;
+    background-color: $dark-backround-grey !important;
+    border-color: $dark-backround-grey !important;
 }
 .name-edition {
     font-style: $font-style;
@@ -185,12 +189,12 @@ export default Vue.extend({
     border-color: $blue;
 }
 .btn-secondary.disabled,
-.btn-secondary.disabled:hover{
+.btn-secondary.disabled:hover {
     cursor: not-allowed;
-    border-color:$dark-backround-grey!important;
-    background-color:$dark-backround-grey!important;
+    border-color: $dark-backround-grey !important;
+    background-color: $dark-backround-grey !important;
 }
-.border-container{
-    border-bottom: 2px solid #DCE1EA;
+.border-container {
+    border-bottom: 2px solid #dce1ea;
 }
 </style>
