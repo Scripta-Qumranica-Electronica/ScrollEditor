@@ -283,7 +283,7 @@
                 </b-card>
             </section>
         </b-col>
-        <b-col class="col-4">
+        <b-col class="col-8">
             <section v-if="!float" class="center-btn" style="border:1px solid #dee2e6">
                         <div class="row">
                         <b-button-group class="ml-4">

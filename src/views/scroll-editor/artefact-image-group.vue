@@ -1,6 +1,6 @@
 <template>
     <g
-        :class="{disabled: disabled}"
+        :class="{ disabled: disabled }"
         v-if="loaded"
         :key="artefact.id"
         :transform="groupTransform"
@@ -14,17 +14,26 @@
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
             <clipPath :id="`clip-path-${artefact.id}`">
-                <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
+                <use
+                    stroke="none"
+                    fill="black"
+                    fill-rule="evenodd"
+                    :href="`#path-${artefact.id}`"
+                />
             </clipPath>
         </defs>
         <g @click="onSelect">
-            <g :clip-path="`url(#clip-path-${artefact.id})`">
+            <g :clip-path="`url(#clip-path-${artefact.id})`" v-if="!artefact.isVirtual">
                 <iiif-image
                     :image="masterImage"
                     :boundingBox="boundingBox"
                     :scaleFactor="scaleFactor"
                 />
             </g>
+            <path v-if="artefact.isVirtual"
+                class="virtual-artefact"
+                :d="artefact.mask.svg"
+                vector-effect="non-scaling-stroke"/>
             <path
                 class="selected"
                 v-if="selected"
@@ -32,6 +41,24 @@
                 vector-effect="non-scaling-stroke"
             />
         </g>
+        <roi-layer
+            v-if="withRois"
+            :withClass="false"
+            :rois="visibleRois"
+        ></roi-layer>
+        <template v-if="displayText || reconstructedText">
+            <template v-for="(value, propertyName) in siRois">
+                <text
+                    :key="propertyName"
+                    :transform="`translate(${letterRoiPosition(value)})`"
+                    font-size="200"
+                    text-anchor="middle"
+                    dominant-baseline="central"
+                    class="display-letters"
+                    >{{ propertyName }}</text
+                >
+            </template>
+        </template>
     </g>
 </template> 
 
@@ -58,28 +85,44 @@ import {
     ScrollEditorOperation,
     ArtefactPlacementOperation,
     ArtefactPlacementOperationType,
-    GroupPlacementOperation
+    GroupPlacementOperation,
 } from './operations';
 import { Placement } from '../../utils/Placement';
 import IIIFImageComponent from '@/components/images/IIIFImage.vue';
+import { InterpretationRoi } from '@/models/text';
+import RoiLayer from '../artefact-editor/roi-layer.vue';
+import { forEach } from 'mathjs';
 
 @Component({
     name: 'artefact-image-group',
     components: {
         'iiif-image': IIIFImageComponent,
-    }
+        'roi-layer': RoiLayer,
+    },
 })
 export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     @Prop({
-        default: false
+        default: false,
     })
     public selected!: boolean;
     @Prop({
-        default: false
+        default: false,
     })
     public disabled!: boolean;
     @Prop({
-        default: undefined
+        default: false,
+    })
+    public withRois!: boolean;
+    @Prop({
+        default: false,
+    })
+    public displayText!: boolean;
+    @Prop({
+        default: false,
+    })
+    public reconstructedText!: boolean;
+    @Prop({
+        default: undefined,
     })
     public artefact!: Artefact;
     @Prop() public readonly transformRootId!: string;
@@ -89,7 +132,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private element!: SVGGElement | null;
     private previousPlacement!: any[];
     @Prop({
-        default: 1
+        default: 1,
     })
     private scaleFactor!: number;
 
@@ -129,6 +172,66 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.svg.getElementById(
             this.transformRootId
         ) as SVGGraphicsElement;
+    }
+
+    private get visibleRois(): InterpretationRoi[] {
+        const visibleRois: InterpretationRoi[] = [];
+        for (const roi of this.$state.interpretationRois.getItems()) {
+            if (
+                roi.status !== 'deleted' &&
+                roi.artefactId === this.artefact.id
+            ) {
+                visibleRois.push(roi);
+            }
+        }
+
+        return visibleRois;
+    }
+
+    private get siRois(): {
+        [character: string]: InterpretationRoi[];
+    } {
+        if (this.reconstructedText && !this.displayText) {
+            return this.reconstructedSiRois;
+        }
+
+        return this.allSiRois;
+    }
+
+    private get allSiRois(): {
+        [character: string]: InterpretationRoi[];
+    } {
+        const siRois = this.visibleRois.reduce(
+            (result: { [character: string]: InterpretationRoi[] }, roi) => {
+                const character =
+                    this.$state.signInterpretations.get(
+                        roi.signInterpretationId!
+                    )!.character || '';
+                (result[character] = result[character] || []).push(roi);
+                return result;
+            },
+            {}
+        );
+        return siRois;
+    }
+
+    private get reconstructedSiRois(): {
+        [character: string]: InterpretationRoi[];
+    } {
+        const siRois = this.visibleRois.reduce(
+            (result: { [character: string]: InterpretationRoi[] }, roi) => {
+                const si = this.$state.signInterpretations.get(
+                    roi.signInterpretationId!
+                )!;
+                if (si.isReconstructed) {
+                    const character = si.character || '';
+                    (result[character] = result[character] || []).push(roi);
+                }
+                return result;
+            },
+            {}
+        );
+        return siRois;
     }
 
     protected async mounted() {
@@ -171,9 +274,9 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         if (this.pointerId > 0) {
             return;
         }
-        this.previousPlacement = this.selectedArtefacts.map(art => ({
+        this.previousPlacement = this.selectedArtefacts.map((art) => ({
             placement: art!.placement.clone(),
-            artefactId: art!.id
+            artefactId: art!.id,
         }));
 
         this.pointerId = $event.pointerId;
@@ -200,10 +303,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         const diffPt = {
             x: pt.x - this.mouseOrigin!.x,
-            y: pt.y - this.mouseOrigin!.y
+            y: pt.y - this.mouseOrigin!.y,
         };
 
-        this.selectedArtefacts.forEach(art => {
+        this.selectedArtefacts.forEach((art) => {
             art!.placement.translate.x! += diffPt.x;
             art!.placement.translate.y! += diffPt.y;
         });
@@ -228,7 +331,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             );
         }
         if (this.selectedGroup) {
-            this.selectedArtefacts.forEach(art => {
+            this.selectedArtefacts.forEach((art) => {
                 const trans = art!.placement.clone();
                 operations.push(this.createOperation('translate', trans, art));
             });
@@ -258,7 +361,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             artefact!.id,
             opType,
             this.previousPlacement.find(
-                x => x.artefactId === artefact!.id
+                (x) => x.artefactId === artefact!.id
             ).placement,
             newPlacement,
             artefact!.isPlaced,
@@ -274,6 +377,45 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.pointerId = -1;
     }
 
+    private letterRoiPosition(value: InterpretationRoi[]) {
+        let minx: InterpretationRoi = {} as InterpretationRoi;
+        let maxx: InterpretationRoi = {} as InterpretationRoi;
+        let miny: InterpretationRoi = {} as InterpretationRoi;
+        let maxy: InterpretationRoi = {} as InterpretationRoi;
+
+        value.forEach((roi, idx) => {
+            if (idx === 0) {
+                minx = maxx = roi;
+                miny = maxy = roi;
+            }
+            if (roi.position.x <= minx.position.x) {
+                minx = roi;
+            }
+            if (roi.position.x >= maxx.position.x) {
+                maxx = roi;
+            }
+            if (roi.position.y <= miny.position.y) {
+                miny = roi;
+            }
+            if (roi.position.y >= maxy.position.y) {
+                maxy = roi;
+            }
+        });
+
+        const newPositionX =
+            (maxx.position.x +
+                minx.position.x +
+                maxx.shape.getBoundingBox().width) /
+            2;
+        const newPositionY =
+            (maxy.position.y +
+                miny.position.y +
+                maxy.shape.getBoundingBox().height) /
+            2;
+
+        return `${newPositionX} ${newPositionY}`;
+    }
+
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
@@ -282,6 +424,15 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+
+path.virtual-artefact {
+    stroke-width: 1;
+    fill-opacity: 0.3;
+    stroke: $virtual-artefact-outline-color;
+}
+
 path.selected {
     stroke-width: 2;
     fill-opacity: 0.3;
@@ -291,5 +442,13 @@ path.selected {
 
 .disabled {
     cursor: not-allowed;
+}
+
+.display-letters {
+    font-family: 'scroll_hebrew';
+    // stroke-width: 10px;
+    // stroke: black;
+    fill: black;
+    font-weight: 800;
 }
 </style>                 

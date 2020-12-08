@@ -2,13 +2,13 @@
     <div>
         <div class="header">
             <b-row>
-                <b-col class="mb-3">
+                <!-- <b-col class="mb-3">
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
                         @on-search="onImagedObjectsSearch($event)"
                     ></search-bar>
-                </b-col>
+                </b-col> -->
             </b-row>
         </div>
         <div class="scroll-bar">

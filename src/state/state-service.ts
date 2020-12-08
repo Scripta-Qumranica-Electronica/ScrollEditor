@@ -9,6 +9,7 @@ import { SignalRWrapper } from './signalr-connection';
 import { NotificationHandler } from './notification-handler';
 import { ShareInfo, Permissions, AttributeMetadata } from '@/models/edition';
 import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
+import { ImagedObject } from '@/models/imaged-object';
 
 /*
  * This service handles all the state data.
@@ -273,30 +274,37 @@ export default class StateService {
             throw new Error(`Can't located artefact ${artefactId} in edition ${editionId}`);
         }
 
-        const imagedObject = this._state.imagedObjects.find(artefact.imagedObjectId);
-        if (!imagedObject) {
-            console.error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
-            throw new Error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
-        }
+        const promises: Array<Promise<any>> = [];
+        let imagedObject: ImagedObject | undefined;
+        if (!artefact.isVirtual) {
+            imagedObject = this._state.imagedObjects.find(artefact.imagedObjectId);
+            if (!imagedObject) {
+                console.error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
+                throw new Error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
+            }
 
-        const stack = artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
-        if (!stack) {
-            console.error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
-            throw new Error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
-        }
+            const stack = artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
+            if (!stack) {
+                console.error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
+                throw new Error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
+            }
 
-        // Load the image's manifest
-        const imPromise = this.imageManifest(stack.master);
+            // Load the image's manifest
+            const imPromise = this.imageManifest(stack.master);
+
+            promises.push(imPromise);
+        }
 
         // Load the artefact's text fragments
         const textService = new TextService();
         const tfPromise = textService.getArtefactTextFragments(editionId, artefactId);
+        promises.push(tfPromise);
 
-        await Promise.all([imPromise, tfPromise]); // Let both requests happen concurrently
+        await Promise.all(promises); // Let both requests happen concurrently
         artefact.textFragments = await tfPromise;
 
         this._state.artefacts.current = artefact;
-        this._state.imagedObjects.current = imagedObject;
+        this._state.imagedObjects.current = imagedObject; // will be undefined if the artefact is virtual
     }
 
     private async textFragmentInternal(editionId: number, textFragmentId: number) {

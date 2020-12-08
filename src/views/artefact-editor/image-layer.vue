@@ -10,7 +10,7 @@
                 <use stroke="none" fill="none" fill-rule="evenodd" xlink:href="#path"></use>
             </clipPath>
         </defs>
-        <g clip-path="url(#clip-path)" draggable="false">
+        <g clip-path="url(#clip-path)" draggable="false" v-if="!artefact.isVirtual">
             <iiif-image
                 v-for="imageSetting in visibleImageSettings"
                 :key="'svg-image-' + imageSetting.image.url"
@@ -20,8 +20,13 @@
                 :opacity="imageSetting.normalizedOpacity"
             />
         </g>
+        <path v-if="artefact.isVirtual"
+                class="virtual-path"
+                :d="artefact.mask.svg"
+                vector-effect="non-scaling-stroke"
+        />            
         <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
-      
+     
     </g>
   
 </template>
@@ -34,6 +39,7 @@ import { SingleImageSetting } from '../../components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
 import { BoundingBox } from '@/utils/helpers';
 import IIIFImageComponent from '@/components/images/IIIFImage.vue';
+import { Artefact } from '@/models/artefact';
 
 @Component({
     name: 'image-layer',
@@ -48,6 +54,7 @@ export default class ImagedObjectEditor extends Vue {
     // @Prop() public editable!: boolean;
     @Prop() public clippingMask!: Polygon;
     @Prop() public boundingBox!: BoundingBox;
+    @Prop() public artefact!: Artefact;
 
     public get imageSettings(): SingleImageSetting[] {
         const values = Object.keys(this.params.imageSettings).map(
@@ -63,7 +70,16 @@ export default class ImagedObjectEditor extends Vue {
 
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+
 svg {
     max-height: initial;
 }
+
+.virtual-path {
+    stroke-width: 2;
+    fill-opacity: 0.3;
+    stroke: $virtual-artefact-outline-color;
+}
+
 </style>

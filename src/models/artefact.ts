@@ -25,7 +25,7 @@ export class Artefact {
     constructor(obj: ArtefactDTO) {
         this.id = obj.id;
         this.editionId = obj.editionId;
-        this.imagedObjectId = obj.imagedObjectId;
+        this.imagedObjectId = obj.imagedObjectId || '';
         this.name = obj.name;
         this.mask = Polygon.fromWkt(obj.mask);
         this.artefactMaskEditorId = obj.artefactMaskEditorId;
@@ -33,6 +33,10 @@ export class Artefact {
         this.placement = new Placement(obj.placement);
         this.artefactPlacementEditorId = obj.artefactPlacementEditorId;
         this.side = (obj.side === 'recto') ? 'recto' : 'verso';
+    }
+
+    public get isVirtual() {
+        return !this.imagedObjectId;
     }
 
     // TBD: Perhaps rename to setTransformation, or maybe even drop this function entirely

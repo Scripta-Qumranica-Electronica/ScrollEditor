@@ -27,7 +27,7 @@
                 >{{ edition.status ? 'Published' : 'Draft' }}</b-badge
             >
         </b-col>
-        <b-col class="pt-2 col-5 pr-0" h-align="end">
+        <b-col class="pt-2 col-5 pr-0" align-h="end">
             <div>
                 <b-button-group class="btns-groups">
                     <b-button
