@@ -35,12 +35,6 @@
                 :d="artefact.mask.svg"
                 vector-effect="non-scaling-stroke"/>
             <path
-                class="virtual"
-                v-if="artefact.isVirtual"
-                :d="artefact.mask.svg"
-                vector-effect="non-scaling-stroke"
-            />
-            <path
                 class="selected"
                 v-if="selected"
                 :d="artefact.mask.svg"
