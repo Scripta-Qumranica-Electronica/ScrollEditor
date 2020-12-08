@@ -26,9 +26,9 @@
                 @blur="closeSignMenu($event)"
             >
                 <ul>
-                    <!--<li>
+                    <li>
                         <p @click="openEditSignModal()">{{ $t('misc.editSign') }}</p>
-                    </li> -->
+                    </li>
                     <li>
                         <p @click="deleteSignInterpretation(si)"
                             >{{ $t('misc.deleteSign') }}</p

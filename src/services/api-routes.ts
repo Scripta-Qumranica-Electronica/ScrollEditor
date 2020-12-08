@@ -162,7 +162,7 @@ export namespace ApiRoutes {
     }
 
     export function signInterpretationCharacterUrl(editionId: number, signInterpretationId: number) {
-        const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}/character`;
+        const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}`;
 
         return url;
     }
