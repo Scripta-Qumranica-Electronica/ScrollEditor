@@ -88,13 +88,13 @@
                                     ></i> </b-button
                             ></span>
                             <b-button
-                                class="m-2"
+                                class="m-2 undo"
                                 :disabled="!canUndo"
                                 @click="onUndo()"
                                 >Undo</b-button
                             >
                             <b-button
-                                class="m-2"
+                                class="m-2 redo"
                                 :disabled="!canRedo"
                                 @click="onRedo()"
                                 >Redo</b-button
@@ -132,6 +132,7 @@
                                             size="sm"
                                             v-if="!readOnly"
                                             @input="onAuto()"
+                                            id="auto-character"
                                             >Auto character
                                             select</b-form-checkbox
                                         >
@@ -155,13 +156,13 @@
                                         :line="selectedLine"
                                     />
                                 </div>
-                                <b-button
+                                <!-- <b-button
                                     type="button"
                                     v-show="$bp.between('sm', 'lg')"
                                     @click="nextLine()"
                                 >
                                     <i class="fa fa-arrow-left"></i>
-                                </b-button>
+                                </b-button> -->
                                 <zoomer
                                     :zoom="zoomLevel"
                                     :angle="rotationAngle"
@@ -298,13 +299,13 @@ import { ArtefactEditorState } from '@/state/artefact-editor';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
@@ -369,7 +370,11 @@ export default class ArtefactEditor
         try {
             await this.saveRotation();
             await this.saveROIs('deleted');
-            await this.saveSignInterpretations(ops.filter(op => op.type === 'sign') as SignInterpretationEditOperation[]);
+            await this.saveSignInterpretations(
+                ops.filter(
+                    (op) => op.type === 'sign'
+                ) as SignInterpretationEditOperation[]
+            );
             await this.saveROIs('created');
 
             await this.saveAttributes(
@@ -406,10 +411,7 @@ export default class ArtefactEditor
             bbox
         );
 
-        const op: ArtefactROIOperation = new ArtefactROIOperation(
-            'draw',
-            roi,
-        );
+        const op: ArtefactROIOperation = new ArtefactROIOperation('draw', roi);
         op.redo(true);
         this.$state.artefactEditor.selectRoi(roi);
         this.statusTextFragment(roi);
@@ -530,7 +532,9 @@ export default class ArtefactEditor
             }
 
             // Prepare the image manifests of all images
-            const promises = this.imageStack.images.map(img => this.$state.prepare.imageManifest(img));
+            const promises = this.imageStack.images.map((img) =>
+                this.$state.prepare.imageManifest(img)
+            );
             await Promise.all(promises);
         }
 
@@ -684,16 +688,18 @@ export default class ArtefactEditor
     }
 
     private nextSign() {
-        let newIndex =
-            this.artefactEditorState.singleSelectedSi!.sign.indexInLine + 1;
-        while (newIndex < this.selectedLine!.signs.length) {
-            const newSI = this.selectedLine!.signs[newIndex]
-                .signInterpretations[0];
-            if (newSI.character && !newSI.isReconstructed) {
-                this.artefactEditorState.selectSign(newSI);
-                break;
+        if (this.artefactEditorState.singleSelectedSi) {
+            let newIndex =
+                this.artefactEditorState.singleSelectedSi!.sign.indexInLine + 1;
+            while (newIndex < this.selectedLine!.signs.length) {
+                const newSI = this.selectedLine!.signs[newIndex]
+                    .signInterpretations[0];
+                if (newSI.character && !newSI.isReconstructed) {
+                    this.artefactEditorState.selectSign(newSI);
+                    break;
+                }
+                newIndex++;
             }
-            newIndex++;
         }
     }
 
@@ -858,7 +864,8 @@ export default class ArtefactEditor
         const selected = this.artefactEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
-            this.artefact, mode
+            this.artefact,
+            mode
         );
         this.initVisibleRois();
         // if (selected) {
@@ -869,15 +876,24 @@ export default class ArtefactEditor
         return updated > 0;
     }
 
-    private async saveSignInterpretations(ops: SignInterpretationEditOperation[]) {
+    private async saveSignInterpretations(
+        ops: SignInterpretationEditOperation[]
+    ) {
         for (const op of ops) {
             switch (op.signOpType) {
                 case 'create':
                     const createOp = op as CreateSignInterpretationOperation;
                     if (op.undone) {
-                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, createOp.signInterpretation, true);
+                        await this.signInterpretationService.deleteSignInterpretation(
+                            this.$state.editions.current!,
+                            createOp.signInterpretation,
+                            true
+                        );
                     } else {
-                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, createOp.signInterpretation);
+                        await this.signInterpretationService.createSignInterpretation(
+                            this.$state.editions.current!,
+                            createOp.signInterpretation
+                        );
                     }
                     break;
 
@@ -885,16 +901,25 @@ export default class ArtefactEditor
                     const deleteOp = op as DeleteSignInterpretationOperation;
                     if (op.undone) {
                         const si = deleteOp.signInterpretation;
-                        await this.signInterpretationService.createSignInterpretation(this.$state.editions.current!, si);
+                        await this.signInterpretationService.createSignInterpretation(
+                            this.$state.editions.current!,
+                            si
+                        );
                         deleteOp.signInterpretationId = si.signInterpretationId; // The id has changed to a negative number after the deletion
                     } else {
-                        await this.signInterpretationService.deleteSignInterpretation(this.$state.editions.current!, deleteOp.signInterpretation);
+                        await this.signInterpretationService.deleteSignInterpretation(
+                            this.$state.editions.current!,
+                            deleteOp.signInterpretation
+                        );
                     }
                     break;
 
                 case 'update':
                     const updateOp = op as UpdateSignInterperationOperation;
-                    await this.signInterpretationService.updateSignInterpretation(this.$state.editions.current!, op.signInterpretation);
+                    await this.signInterpretationService.updateSignInterpretation(
+                        this.$state.editions.current!,
+                        op.signInterpretation
+                    );
                     break;
             }
         }
