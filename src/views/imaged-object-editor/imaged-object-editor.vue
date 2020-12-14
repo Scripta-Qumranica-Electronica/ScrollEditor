@@ -321,7 +321,7 @@ export default class ImagedObjectEditor
     private side: Side = 'recto';
     private renameInputActive: Artefact | null = null;
     private waiting: boolean = false;
-    private masterImage?: IIIFImage;
+    private masterImage?: IIIFImage| null = null;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
 
