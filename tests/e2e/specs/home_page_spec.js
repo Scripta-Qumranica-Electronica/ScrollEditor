@@ -1,4 +1,4 @@
-describe('The Home Page', function() {
+describe('The Home Page', function () {
     beforeEach(() => {
         cy.visit('http://localhost:8080')
     });
@@ -15,7 +15,7 @@ describe('The Home Page', function() {
     Cypress.Commands.add('PostLogin', () => {
         cy.server()
         cy.route('POST', '/v1/users/login').as('postUser')
-        cy.get('button[type=submit]').click()
+        cy.get('.w-100 > .btn').click()
         cy.wait('@postUser')
     })
 
@@ -24,7 +24,7 @@ describe('The Home Page', function() {
     it('Login Fails', () => {
         /*check if status equal 401 after Incorrect values  */
 
-        cy.contains('button', 'Login').click()
+        cy.contains('button', 'Log in').click()
 
         cy.typeLogin({ email: 'tests@1.com', password: 'tests' })
 
@@ -33,16 +33,16 @@ describe('The Home Page', function() {
         cy.get('@postUser').should((resp) => {
             expect(resp.status).to.eq(401)
         })
-        cy.contains('button', 'Forgot Password').click()
+        cy.get('.justify-content-end > .sign-link').click()
         cy.get('#forgetPass')
             .type(userEmail)
-        cy.get('.forgetPass').click()
 
+        cy.get('#forget-password > .btn').click()
     })
 
     it('Login Fails Data ', () => { /*check if status equal 400 after Incorrect email address  */
 
-        cy.contains('button', 'Login').click()
+        cy.contains('button', 'Log in').click()
 
         cy.typeLogin({ email: 'tests1.com', password: 'tests' })
 
@@ -56,7 +56,7 @@ describe('The Home Page', function() {
 
     it('Login Sucess', () => { /*check if status equal 200 after Correct values  */
 
-        cy.contains('button', 'Login').click()
+        cy.contains('button', 'Log in').click()
 
         cy.typeLogin({ email: 'test@1.com', password: 'test' })
 

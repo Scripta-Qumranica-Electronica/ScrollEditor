@@ -15,6 +15,7 @@
                             @keydown="isLetter($event)"
                             v-model="newCharacter"
                             class="w-input"
+                            id="new-character"
                             autofocus
                         ></b-input>
                     </div>

@@ -30,7 +30,7 @@
                 </b-row>
             </b-container>
              <template v-slot:modal-footer>
-                <div class="w-100">
+                <div class="w-100" id="forget-password">
                     <b-button
                         @click="submit"
                         block

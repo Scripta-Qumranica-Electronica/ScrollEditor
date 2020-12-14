@@ -30,17 +30,17 @@
                         <p @click="openEditSignModal()">{{ $t('misc.editSign') }}</p>
                     </li> -->
                     <li>
-                        <p @click="deleteSignInterpretation(si)"
+                        <p  class="delete" @click="deleteSignInterpretation(si)"
                             >{{ $t('misc.deleteSign') }}</p
                         >
                     </li>
                     <li>
-                        <p @click="openAddLeftSignModal()"
+                        <p  class="add-left" @click="openAddLeftSignModal()"
                             >{{ $t('misc.addToLeft') }}</p
                         >
                     </li>
                     <li>
-                        <p @click="openAddRightSignModal()"
+                        <p class="add-right" @click="openAddRightSignModal()"
                             >{{ $t('misc.addToRight') }}</p
                         >
                     </li>

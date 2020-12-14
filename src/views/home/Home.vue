@@ -2,8 +2,9 @@
     <div>
         <b-tabs nav-wrapper-class="tabs">
             <b-tab
+               
                 v-if="user"
-                :title-item-class="'tab-title-class'"
+                :title-item-class="'tab-title-class personal-editions'"
                 :title="
                     $tc('home.personalEditionGroupCount', personalEditionsCount)
                 "
@@ -14,10 +15,11 @@
                 ></personal-editions>
             </b-tab>
             <b-tab
+                
                 :title="
                     $tc('home.publicEditionGroupCount', publicEditionsCount)
                 "
-                :title-item-class="'tab-title-class'"
+                :title-item-class="'tab-title-class public-editions'"
             >
                 <public-editions
                     @on-public-editions-load="onPublicEditionsLoad($event)"

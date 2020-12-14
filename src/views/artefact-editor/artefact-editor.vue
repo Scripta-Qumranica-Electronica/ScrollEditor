@@ -121,6 +121,7 @@
                                             @input="onHighlightComment($event)"
                                             switch
                                             size="sm"
+                                             id="comments"
                                             >Comments</b-form-checkbox
                                         >
                                     </div>

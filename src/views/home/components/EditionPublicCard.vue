@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="edition-public">
         <router-link
             class="card-decoration"
             :to="{ path: `/editions/${edition.id}` }"
@@ -93,7 +93,7 @@ export default class EditionPublicCard extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 .direction {
-    margin-left: 90px;
+    //margin-left: 90px;
 }
 .card-title {
     font-weight: $font-weight-3 !important;
