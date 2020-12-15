@@ -29,7 +29,6 @@ class ArtefactService {
         }
         const body = {
             masterImageId: masterImage.id,
-            mask: '',
             placement: {
                 rotate: 0,
                 scale: 1,
@@ -54,10 +53,10 @@ class ArtefactService {
     public async changeArtefact(editionId: number, artefact: Artefact):
         Promise<ArtefactDTO> {
         const body = {
-                mask: artefact.mask.wkt,
-                placement: artefact.placement,
-                maskEditorId: 0,
-                positionEditorId: 0,
+            mask: artefact.mask.wkt,
+            placement: artefact.placement,
+            maskEditorId: 0,
+            positionEditorId: 0,
             // zOrder: artefact.zOrder,
             name: artefact.name,
             statusMessage: '',
