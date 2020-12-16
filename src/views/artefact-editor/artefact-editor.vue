@@ -88,13 +88,13 @@
                                     ></i> </b-button
                             ></span>
                             <b-button
-                                class="m-2"
+                                class="m-2 undo"
                                 :disabled="!canUndo"
                                 @click="onUndo()"
                                 >Undo</b-button
                             >
                             <b-button
-                                class="m-2"
+                                class="m-2 redo"
                                 :disabled="!canRedo"
                                 @click="onRedo()"
                                 >Redo</b-button
@@ -130,6 +130,7 @@
                                             size="sm"
                                             v-if="!readOnly"
                                             @input="onAuto()"
+                                            id="auto-character"
                                             >Auto character
                                             select</b-form-checkbox
                                         >
@@ -296,13 +297,13 @@ import { ArtefactEditorState } from '@/state/artefact-editor';
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
@@ -685,16 +686,18 @@ export default class ArtefactEditor
     }
 
     private nextSign() {
-        let newIndex =
-            this.artefactEditorState.singleSelectedSi!.sign.indexInLine + 1;
-        while (newIndex < this.selectedLine!.signs.length) {
-            const newSI = this.selectedLine!.signs[newIndex]
-                .signInterpretations[0];
-            if (newSI.character && !newSI.isReconstructed) {
-                this.artefactEditorState.selectSign(newSI);
-                break;
+        if (this.artefactEditorState.singleSelectedSi) {
+            let newIndex =
+                this.artefactEditorState.singleSelectedSi!.sign.indexInLine + 1;
+            while (newIndex < this.selectedLine!.signs.length) {
+                const newSI = this.selectedLine!.signs[newIndex]
+                    .signInterpretations[0];
+                if (newSI.character && !newSI.isReconstructed) {
+                    this.artefactEditorState.selectSign(newSI);
+                    break;
+                }
+                newIndex++;
             }
-            newIndex++;
         }
     }
 
