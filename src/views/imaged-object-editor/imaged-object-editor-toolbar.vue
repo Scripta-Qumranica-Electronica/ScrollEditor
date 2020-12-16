@@ -49,7 +49,7 @@
                                 <image-settings
                                     :imageStack="
                                         imagedObject.getImageStack(
-                                            this.artefact.side
+                                            artefact.side
                                         )
                                     "
                                     id="popover-input-1"
@@ -101,7 +101,10 @@
                                 >
                             </div>
                             <div>
-                                <b-dropdown :text="sideFilter.displayName" class="btn-sm">
+                                <b-dropdown
+                                    :text="sideFilter.displayName"
+                                    class="btn-sm"
+                                >
                                     <b-dropdown-item
                                         v-for="filter in sideOptions"
                                         :key="filter.displayName"
@@ -194,12 +197,11 @@ export default class ImagedObjectEditorToolbar extends Vue {
         type: String as () => Side,
     })
     private side!: Side;
-   
 
     private get params(): ImagedObjectEditorParams {
         return this.imagedObjectState.params!;
     }
-      public get imagedObjectState(): ImagedObjectState {
+    public get imagedObjectState(): ImagedObjectState {
         return this.$state.imagedObject!;
     }
     public get editionId(): number {
@@ -314,7 +316,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
     public onRotateClick(degrees: number) {
-       this.imagedObjectState.params!.rotationAngle += degrees;
+        this.imagedObjectState.params!.rotationAngle += degrees;
         // this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
     // public async newArtefact() {

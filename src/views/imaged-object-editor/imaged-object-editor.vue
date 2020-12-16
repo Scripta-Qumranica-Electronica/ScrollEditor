@@ -55,22 +55,20 @@
                             >Redo</b-button
                         >
                     </b-button-group>
-                
-            
+
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
-                        class="btn btn-sm  ml-2 btn-outline"
+                        class="btn btn-sm ml-2 btn-outline"
                         >{{ $t('misc.new') }}</b-btn
                     >
-              
                 </div>
             </b-row>
             <b-row no-gutters>
                 <b-col cols="8">
                     <div class="image-obj-container-height">
                         <div class="img-obj-container h-100" ref="infoBox">
-                            <div id="imaged-object-title">
+                            <div id="imaged-object-title" v-if="imagedObject">
                                 {{ imagedObject.id }}
                                 <edition-icons
                                     :edition="edition"
@@ -129,7 +127,7 @@
                         </div>
                     </div>
                 </b-col>
-                <b-col class="pt-3 col-rename-art" cols="4">
+                <b-col class="pt-3 col-rename-art" cols="4" >
                     <div
                         v-for="art in visibleArtefacts"
                         :key="art.id"
@@ -564,18 +562,18 @@ export default class ImagedObjectEditor
                 this.newArtefactName,
                 this.side as Side
             );
+            
+            (this.$refs.newArtRef as any).hide();
+            this.onArtefactChanged(newArtefact);
+
+            this.editingModeChanged('DRAW');
+            this.$emit('create', newArtefact);
         } catch (err) {
             this.errorMessage = err;
         } finally {
+            this.newArtefactName = '';
             this.waiting = false;
         }
-
-        this.newArtefactName = '';
-        (this.$refs.newArtRef as any).hide();
-        this.onArtefactChanged(newArtefact);
-
-        this.editingModeChanged('DRAW');
-        this.$emit('create', newArtefact);
     }
 
     private get isErasing() {
@@ -755,7 +753,6 @@ export default class ImagedObjectEditor
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
-
 
 .header-actions {
     background-color: $white;
