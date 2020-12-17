@@ -1,6 +1,6 @@
 <template>
     <div class="row" :class="{ 'mt-2': !float }">
-        <b-col class="col-8" v-if="float">
+        <b-col class="col-10" v-if="float">
             <section>
                 <b-card no-body>
                     <b-card-header header-tag="header" class="p-1" role="tab">
@@ -62,6 +62,9 @@
                                     size="xs"
                                 ></font-awesome-icon>
                             </b-button>
+                            <b-button :pill="float" @click="statusMirror()">
+                           mirror
+                            </b-button> 
                         </b-button-group>
                     </b-card-header>
                     <b-collapse
@@ -635,6 +638,35 @@ export default class ArtefactToolbox extends Vue {
             );
         }
         this.newOperation(operation);
+    }
+    public statusMirror() {
+        const operations: ArtefactPlacementOperation[] = [];
+        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
+        if(this.selectedArtefact) { 
+            const placement = this.selectedArtefact.placement.clone();
+            placement.mirrored= !placement.mirrored;
+            operation = this.createOperation(
+                'mirror',
+                placement,
+                this.selectedArtefact
+            );
+        }
+        if (this.selectedGroup) {
+            this.selectedArtefacts.forEach((art) => {
+                const placement = art.placement.clone();
+                placement.mirrored= !placement.mirrored;
+                operations.push(
+                    this.createOperation('mirror', placement, art)
+                );
+            });
+            operation = new GroupPlacementOperation(
+                this.selectedGroup.groupId,
+                operations,
+                'placement'
+            );
+        }
+        this.newOperation(operation);
+
     }
 
     public resetZoom() {
