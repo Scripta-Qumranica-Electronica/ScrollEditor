@@ -34,6 +34,8 @@ import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/PersonalEditions.vue';
 import PublicEditions from './components/PublicEditions.vue';
 
+/* Shaindel: Add a Search tab, and a Search.vue component */
+
 export default Vue.extend({
     name: 'home',
     components: {

@@ -117,6 +117,66 @@ export interface RequestMaterializationDTO {
     editionIds: Array<number>;
 }
 
+export interface CreateScriptDataDTO {
+    wordSpace: number;
+    lineSpace: number;
+}
+
+export interface ScriptDataDTO extends CreateScriptDataDTO {
+    kerningPairs?: Array<KernPairDTO>;
+    glyphs?: Array<GlyphDataDTO>;
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface ScriptDataListDTO {
+    scripts?: Array<ScriptDataDTO>;
+}
+
+export interface CreateKernPairDTO {
+    firstCharacter: string;
+    secondCharacter: string;
+    xKern: number;
+    yKern: number;
+}
+
+export interface KernPairDTO extends CreateKernPairDTO {
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteKernPairDTO {
+    firstCharacter: string;
+    secondCharacter: string;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface CreateGlyphDataDTO {
+    character: string;
+    shape: string;
+    yOffset: number;
+}
+
+export interface GlyphDataDTO extends CreateGlyphDataDTO {
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteGlyphDataDTO {
+    character: string;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteScribalFontDTO {
+    scribalFontId: number;
+    editionEditorId: number;
+}
+
 export interface SignDTO {
     signInterpretations: Array<SignInterpretationDTO>;
 }
@@ -396,6 +456,10 @@ export interface EditionListDTO {
     editions: Array<Array<EditionDTO>>;
 }
 
+export interface FlatEditionListDTO {
+    editions: Array<EditionDTO>;
+}
+
 export interface PermissionDTO {
     mayRead: boolean;
     mayWrite: boolean;
@@ -583,16 +647,42 @@ export interface WktPolygonDTO {
 
 export interface DetailedSearchRequestDTO {
     textDesignation?: string;
+    exactTextDesignation: boolean;
     imageDesignation?: string;
+    exactImageDesignation: boolean;
     textReference?: Array<string>;
+    exactTextReference: boolean;
     artefactDesignation?: Array<string>;
+    exactArtefactDesignation: boolean;
 }
 
 export interface DetailedSearchResponseDTO {
-    editions?: EditionListDTO;
-    textFragments?: TextFragmentDataListDTO;
-    artefacts?: ArtefactDataListDTO;
-    images?: ImagedObjectListDTO;
+    editions?: FlatEditionListDTO;
+    textFragments?: TextFragmentSearchResponseListDTO;
+    artefacts?: ArtefactListDTO;
+    images?: ImageSearchResponseListDTO;
+}
+
+export interface TextFragmentSearchResponseListDTO {
+    textFragments?: Array<TextFragmentSearchResponseDTO>;
+}
+
+export interface TextFragmentSearchResponseDTO {
+    id: number;
+    editionId: number;
+    name?: string;
+    editionName?: string;
+    editionEditors?: Array<string>;
+}
+
+export interface ImageSearchResponseListDTO {
+    imagedObjects?: Array<ImageSearchResponseDTO>;
+}
+
+export interface ImageSearchResponseDTO {
+    id?: string;
+    rectoThumbnail?: string;
+    versoThumbnail?: string;
 }
 
 export interface SetInterpretationRoiDTO {

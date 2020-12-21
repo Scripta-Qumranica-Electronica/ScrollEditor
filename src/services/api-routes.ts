@@ -166,4 +166,8 @@ export namespace ApiRoutes {
 
         return url;
     }
+
+    export function searchUrl() {
+        return 'v1/search';
+    }
 }

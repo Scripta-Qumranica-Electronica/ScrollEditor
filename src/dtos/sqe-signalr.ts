@@ -29,6 +29,16 @@ import {
 	UpdateTextFragmentDTO,
 	CreateTextFragmentDTO,
 	RequestMaterializationDTO,
+	CreateScriptDataDTO,
+	ScriptDataDTO,
+	ScriptDataListDTO,
+	CreateKernPairDTO,
+	KernPairDTO,
+	DeleteKernPairDTO,
+	CreateGlyphDataDTO,
+	GlyphDataDTO,
+	DeleteGlyphDataDTO,
+	DeleteScribalFontDTO,
 	SignDTO,
 	NextSignInterpretationDTO,
 	SignInterpretationBaseDTO,
@@ -76,6 +86,7 @@ import {
 	EditionDTO,
 	EditionGroupDTO,
 	EditionListDTO,
+	FlatEditionListDTO,
 	PermissionDTO,
 	UpdateEditorRightsDTO,
 	InviteEditorDTO,
@@ -114,6 +125,10 @@ import {
 	WktPolygonDTO,
 	DetailedSearchRequestDTO,
 	DetailedSearchResponseDTO,
+	TextFragmentSearchResponseListDTO,
+	TextFragmentSearchResponseDTO,
+	ImageSearchResponseListDTO,
+	ImageSearchResponseDTO,
 	SetInterpretationRoiDTO,
 	UpdateInterpretationRoiDTO,
 	InterpretationRoiDTO,
@@ -401,6 +416,104 @@ export class SignalRUtilities {
 	 */
     public async getV1EditionsEditionIdScriptLines(editionId: number): Promise<EditionScriptLinesDTO> {
         return await this._connection.invoke('GetV1EditionsEditionIdScriptLines', editionId);
+    }
+
+    /**
+	 * Get the details of the scribal font for an edition that
+	 *		 are needed to generate reconstructed text layout.
+	 *
+	 * @param editionId - Edition for which to get the scribal font information
+	 *
+	 */
+    public async getV1EditionsEditionIdScribalFonts(editionId: number): Promise<ScriptDataListDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdScribalFonts', editionId);
+    }
+
+    /**
+	 * Creates a new scribal font for the edition
+	 *
+	 * @param editionId - Edition for which to create the new scribal font
+	 * @param scriptData - Basic information about the new scribal font
+	 *
+	 */
+    public async postV1EditionsEditionIdScribalFonts(editionId: number, scriptData: CreateScriptDataDTO): Promise<ScriptDataDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdScribalFonts', editionId, scriptData);
+    }
+
+    /**
+	 * Updates the basic information about a scribal font
+	 *
+	 * @param editionId - Edition for which to update the scribal font
+	 * @param scribalFontId - The scribal font to be updated
+	 * @param scriptData - The updated scribal font information
+	 *
+	 */
+    public async putV1EditionsEditionIdScribalFontsScribalFontIdScribalFontData(editionId: number, scribalFontId: number, scriptData: CreateScriptDataDTO): Promise<ScriptDataDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdScribalFontsScribalFontIdScribalFontData', editionId, scribalFontId, scriptData);
+    }
+
+    /**
+	 * Deletes a scribal font
+	 *
+	 * @param editionId - Edition from which to delete the scribal font
+	 * @param scribalFontId - The scribal font to be deleted
+	 *
+	 */
+    /*public async deleteV1EditionsEditionIdScribalFontsScribalFontId(editionId: number, scribalFontId: number): Promise<NoContentResult> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdScribalFontsScribalFontId', editionId, scribalFontId);
+    } */
+
+    /**
+	 * Creates or updates a kerning pair for the scribal font.
+	 *		 If the kern pair does not yet exists, it is created.
+	 *		 If the kern pair already exists, it is updated.
+	 *
+	 * @param editionId - Edition for which to create or update the kerning pair
+	 * @param scribalFontId - The scribal font the kerning pair belongs to
+	 * @param kernPair - The kerning information
+	 *
+	 */
+    public async postV1EditionsEditionIdScribalFontsScribalFontIdKerningPairs(editionId: number, scribalFontId: number, kernPair: CreateKernPairDTO): Promise<KernPairDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdScribalFontsScribalFontIdKerningPairs', editionId, scribalFontId, kernPair);
+    }
+
+    /**
+	 * Deletes a kerning pair from a scribal font
+	 *
+	 * @param editionId - Edition from which to delete the kerning pair
+	 * @param scribalFontId - Scribal font from which to delete the kerning pair
+	 * @param firstCharacter - The first character of the kerning pair
+	 * @param secondCharacter - The second character of the kerning pair
+	 *
+	 */
+    public async deleteV1EditionsEditionIdScribalFontsScribalFontIdKerningPairsFirstCharacterSecondCharacter(editionId: number, scribalFontId: number, firstCharacter: string, secondCharacter: string): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdScribalFontsScribalFontIdKerningPairsFirstCharacterSecondCharacter', editionId, scribalFontId, firstCharacter, secondCharacter);
+    }
+
+    /**
+	 * Creates or updates information about a scribal font glyph.
+	 *		 If information for the glyph does not yet exist, a new glyph is created.
+	 *		 If information for the glyph already exists, that glyph information is updated.
+	 *
+	 * @param editionId - Edition in which the glyph is created or updated
+	 * @param scribalFontId - Scribal font in which the glyph is created or updated
+	 * @param glyph - Information about the glyph
+	 *
+	 */
+    public async postV1EditionsEditionIdScribalFontsScribalFontIdGlyphs(editionId: number, scribalFontId: number, glyph: CreateGlyphDataDTO): Promise<GlyphDataDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdScribalFontsScribalFontIdGlyphs', editionId, scribalFontId, glyph);
+    }
+
+    /**
+	 * Deletes glyph information from a scribal font
+	 *
+	 * @param editionId - Edition from which the glyph is deleted
+	 * @param scribalFontId - Scribal font from which the glyph is deleted
+	 * @param glyph - The glyph to be deleted
+	 *
+	 */
+    public async deleteV1EditionsEditionIdScribalFontsScribalFontIdGlyphsGlyph(editionId: number, scribalFontId: number, glyph: string): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdScribalFontsScribalFontIdGlyphsGlyph', editionId, scribalFontId, glyph);
     }
 
     /**
@@ -760,7 +873,13 @@ export class SignalRUtilities {
         return await this._connection.invoke('DeleteV1CatalogueConfirmMatchIaaEditionCatalogToTextFragmentId', iaaEditionCatalogToTextFragmentId);
     }
 
-    
+    /**
+	 * Basic searching of the Qumranica database. Results are truncated
+	 *		 to 100 results per search category.
+	 *
+	 * @param searchParameters - The parameters of the search
+	 *
+	 */
     public async postV1Search(searchParameters: DetailedSearchRequestDTO): Promise<DetailedSearchResponseDTO> {
         return await this._connection.invoke('PostV1Search', searchParameters);
     }
@@ -1590,6 +1709,159 @@ export class SignalRUtilities {
 	 */
     public disconnectDeletedAttribute(handler: (msg: DeleteDTO) => void): void {
         this._connection.off('DeletedAttribute', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the creation of scribal font information
+	 *
+	 */
+    public connectCreatedScribalFontInfo(handler: (msg: ScriptDataDTO) => void): void {
+        this._connection.on('CreatedScribalFontInfo', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the creation of scribal font information
+	 *
+	 */
+    public disconnectCreatedScribalFontInfo(handler: (msg: ScriptDataDTO) => void): void {
+        this._connection.off('CreatedScribalFontInfo', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of scribal font information
+	 *
+	 */
+    public connectUpdatedScribalFontInfo(handler: (msg: ScriptDataDTO) => void): void {
+        this._connection.on('UpdatedScribalFontInfo', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of scribal font information
+	 *
+	 */
+    public disconnectUpdatedScribalFontInfo(handler: (msg: ScriptDataDTO) => void): void {
+        this._connection.off('UpdatedScribalFontInfo', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the creation of scribal font kerning pair
+	 *
+	 */
+    public connectCreatedScribalFontKerningPair(handler: (msg: KernPairDTO) => void): void {
+        this._connection.on('CreatedScribalFontKerningPair', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the creation of scribal font kerning pair
+	 *
+	 */
+    public disconnectCreatedScribalFontKerningPair(handler: (msg: KernPairDTO) => void): void {
+        this._connection.off('CreatedScribalFontKerningPair', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of scribal font kerning pair
+	 *
+	 */
+    public connectUpdatedScribalFontKerningPair(handler: (msg: KernPairDTO) => void): void {
+        this._connection.on('UpdatedScribalFontKerningPair', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of scribal font kerning pair
+	 *
+	 */
+    public disconnectUpdatedScribalFontKerningPair(handler: (msg: KernPairDTO) => void): void {
+        this._connection.off('UpdatedScribalFontKerningPair', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the deletion of scribal font kerning pair
+	 *
+	 */
+    public connectDeletedScribalFontKerningPair(handler: (msg: DeleteKernPairDTO) => void): void {
+        this._connection.on('DeletedScribalFontKerningPair', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the deletion of scribal font kerning pair
+	 *
+	 */
+    public disconnectDeletedScribalFontKerningPair(handler: (msg: DeleteKernPairDTO) => void): void {
+        this._connection.off('DeletedScribalFontKerningPair', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the creation of scribal font glyph
+	 *
+	 */
+    public connectCreatedScribalFontGlyph(handler: (msg: GlyphDataDTO) => void): void {
+        this._connection.on('CreatedScribalFontGlyph', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the creation of scribal font glyph
+	 *
+	 */
+    public disconnectCreatedScribalFontGlyph(handler: (msg: GlyphDataDTO) => void): void {
+        this._connection.off('CreatedScribalFontGlyph', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the update of scribal font glyph
+	 *
+	 */
+    public connectUpdatedScribalFontGlyph(handler: (msg: GlyphDataDTO) => void): void {
+        this._connection.on('UpdatedScribalFontGlyph', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the update of scribal font glyph
+	 *
+	 */
+    public disconnectUpdatedScribalFontGlyph(handler: (msg: GlyphDataDTO) => void): void {
+        this._connection.off('UpdatedScribalFontGlyph', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the deletion of scribal font glyph
+	 *
+	 */
+    public connectDeletedScribalFontGlyph(handler: (msg: DeleteGlyphDataDTO) => void): void {
+        this._connection.on('DeletedScribalFontGlyph', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the deletion of scribal font glyph
+	 *
+	 */
+    public disconnectDeletedScribalFontGlyph(handler: (msg: DeleteGlyphDataDTO) => void): void {
+        this._connection.off('DeletedScribalFontGlyph', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the deletion of a scribal font
+	 *
+	 */
+    public connectDeletedScribalFont(handler: (msg: DeleteScribalFontDTO) => void): void {
+        this._connection.on('DeletedScribalFont', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the deletion of a scribal font
+	 *
+	 */
+    public disconnectDeletedScribalFont(handler: (msg: DeleteScribalFontDTO) => void): void {
+        this._connection.off('DeletedScribalFont', handler)
     }
 
 } 
