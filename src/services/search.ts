@@ -1,7 +1,10 @@
-// Shaindel - create a new SearchService.
-// Look for example at the ImageService
+import { DetailedSearchRequestDTO } from '@/dtos/sqe-dtos';
+import axios from 'axios';
+import { ApiRoutes } from './api-routes';
 
-
-// Create one method - search, which gets its parameters, 
-// builds a DetailedSearchRequestDTO and accesses the search URL.
-// It should return the SearchResultDTO for now
+export default class SearchService {
+    public async search(detailedSearchRequestDTO: DetailedSearchRequestDTO): Promise<any> {
+        const response = await axios.post(ApiRoutes.searchUrl(), detailedSearchRequestDTO);
+        return response.data;
+    }
+}
