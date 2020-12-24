@@ -38,7 +38,7 @@ describe('Copy Edition', function () {
 
         cy.get('.public-editions').click()
         cy.wait(2500)
-        cy.get('#__BVID__50 > .bv-no-focus-ring > #filter').type('1Q7')
+        cy.get('#__BVID__50 div #filter').type('1Q7')
         cy.wait(2500)
         cy.get(':nth-child(4) > .edition-public > .mt-2 > .btn').trigger('click').click({ force: true })
         cy.get('#newName').clear() /* clear the input and create new name */
