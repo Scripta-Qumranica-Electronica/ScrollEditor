@@ -13,8 +13,6 @@
             <b-col class="col-1">
                 <b-form-checkbox
                     v-model="searchParams.exactTextDesignation"
-                    value="accepted"
-                    unchecked-value="not_accepted"
                 >
                 </b-form-checkbox>
             </b-col>
@@ -91,8 +89,7 @@ export default class Search extends Vue {
     }
 
     private textToArray(event: any, field: string) {
-        console.log(event, 'event');
-        this.searchParams[field] = event.split('/n');
+        this.searchParams[field] = event.split('\n');
     }
 }
 </script>
