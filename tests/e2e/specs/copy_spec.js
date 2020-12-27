@@ -41,7 +41,9 @@ describe('Copy Edition', function () {
         cy.get('#__BVID__50 div #filter').type('1Q7')
         cy.wait(2500)
         cy.get(':nth-child(4) > .edition-public > .mt-2 > .btn').trigger('click').click({ force: true })
+        cy.wait(2500)
         cy.get('#newName').clear({ force: true }) /* clear the input and create new name */
+        cy.wait(5000) // needed to validate the search term was cleared
         cy.get('#newName').type('1Q7Copy')
         cy.PostCopyArtefact()
         cy.get('@postCopy').should((response) => {
