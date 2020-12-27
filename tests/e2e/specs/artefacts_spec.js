@@ -33,7 +33,7 @@ describe('Imaged Artefact', function () {
         cy.intercept('GET', '/v1/editions').as('getEditions')
         cy.wait('@getEditions')
         cy.get('#Draft > .afterlogin > :nth-child(1)').click({ multiple: true })
-        cy.get(':nth-child(1) > a > .side-edition').click()
+        cy.get('div.card:nth-child(1) > a > .side-edition').click()
 
     })
 
@@ -82,9 +82,9 @@ describe('Imaged Artefact', function () {
         cy.get('.overlay>#transform-root>g:nth-child(2)').find('g').should('have.length', 2)
         cy.get('.redo').click() /* check redo */
         cy.get('.overlay>#transform-root>g:nth-child(2)').find('g').should('have.length', 3)
-        cy.get('.undo').click()
-        cy.get('.undo').click()
-        cy.get('.undo').click()
+        cy.get('.undo').click({ force: true })
+        cy.get('.undo').click({ force: true })
+        cy.get('.undo').click({ force: true })
 
     })
 
@@ -148,11 +148,12 @@ describe('Imaged Artefact', function () {
         cy.get('.overlay').then(($newZoom) => {
             newValueHeight = $newZoom.attr('height')
             expect(newValueHeight).to.not.equal(valueHeight)
-        })
-        cy.get('.col-5 > .btn-group > :nth-child(1)').click({ force: true })
-        cy.get('.overlay').then(($newZoom) => {
-            newValueHeight = $newZoom.attr('height')
-            expect(newValueHeight).to.eq(valueHeight)
+
+            cy.get('.col-5 > .btn-group > :nth-child(1)').click({ force: true })
+            cy.get('.overlay').then(($newZoom) => {
+                newValueHeight = $newZoom.attr('height')
+                expect(newValueHeight).to.eq(valueHeight)
+            })
         })
     })
 
