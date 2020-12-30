@@ -141,7 +141,19 @@
                         <div class="artefact-image-container">
                             <div class="artefact-container" ref="infoBox">
                                 <div style="height: 60px">
-                                    {{ artefact.name }}
+                                    <span v-if="!isNaN(this.artefactId)">{{
+                                        artefact.name
+                                    }}</span>
+                                    <b-form-select
+                                        v-if="isNaN(this.artefactId)"
+                                        @input="selectArtefact($event)"
+                                        :options="artefacts"
+                                        value-field="id"
+                                        text-field="name"
+                                        size="sm"
+                                        class="mt-4 col-3"
+                                        
+                                    ></b-form-select>
                                     <edition-icons
                                         :edition="edition"
                                         :show-text="true"
@@ -224,6 +236,7 @@
                             }"
                         >
                             <text-side
+                                :float="!isNaN(this.artefactId)"
                                 :artefact="artefact"
                                 @sign-interpretation-clicked="
                                     onSignInterpretationClicked($event)
@@ -253,7 +266,7 @@ import {
 } from '@/views/artefact-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
-import { ArtefactTextFragmentData } from '@/models/text';
+import { ArtefactTextFragmentData, TextFragment } from '@/models/text';
 
 import { normalizeOpacity } from '@/components/image-settings/types';
 import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
@@ -293,6 +306,7 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
 import EditionHeader from '../edition/components/edition-header.vue';
 import { ArtefactEditorState } from '@/state/artefact-editor';
+import { Artefact } from '@/models/artefact';
 
 @Component({
     name: 'artefact-editor',
@@ -334,6 +348,11 @@ export default class ArtefactEditor
     );
 
     private visibleRois: InterpretationRoi[] = [];
+    private editionId: number = 0;
+    private artefactId: number = 0;
+    private textFragmentId: number = 0;
+    private textFragment?: TextFragment;
+
     protected get artefact() {
         return this.$state.artefacts.current!;
     }
@@ -504,55 +523,41 @@ export default class ArtefactEditor
             this.isActiveSidebar = true;
         }
 
-        await this.$state.prepare.artefact(
-            parseInt(this.$route.params.editionId),
-            parseInt(this.$route.params.artefactId)
-        );
+        //  verifier url
+        this.editionId = parseInt(this.$route.params.editionId);
+        this.artefactId = parseInt(this.$route.params.artefactId);
+        this.textFragmentId = parseInt(this.$route.params.textFragmentId);
 
-        if (!this.artefact.isVirtual) {
-            const imagedObject = this.$state.imagedObjects.find(
-                this.artefact.imagedObjectId
+        if (!isNaN(this.artefactId)) {
+            await this.prepareArtefact(this.artefactId);
+            await Promise.all(
+                this.artefact.textFragments.map(
+                    (tf: ArtefactTextFragmentData) =>
+                        this.$state.prepare.textFragment(
+                            this.artefact.editionId,
+                            tf.id
+                        )
+                )
             );
-            if (!imagedObject) {
-                throw new Error(
-                    `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`
-                );
-            }
-            this.imageStack =
-                this.artefact.side === 'recto'
-                    ? imagedObject.recto
-                    : imagedObject.verso;
-            if (!this.imageStack) {
-                throw new Error(
-                    `ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
-                        `${this.artefact.side} side even though artefact ${this.artefact.id} references it`
-                );
-            }
+        } else if (!isNaN(this.textFragmentId)) {
+            await this.prepareTextFragment(this.textFragmentId);
+            // await Promise.all(
+            // this.textFragment.artefacts.map((art: Artefact) =>
+            //     this.$state.prepare.artefact(this.artefact.editionId, art.id)
+            // )
 
-            // Prepare the image manifests of all images
-            const promises = this.imageStack.images.map((img) =>
-                this.$state.prepare.imageManifest(img)
-            );
-            await Promise.all(promises);
+            await this.selectArtefact(this.artefacts[0].id);
         }
 
-        this.params.rotationAngle = this.artefact.placement.rotate || 0;
-        this.fillImageSettings();
-        this.calculateBoundingBox();
-        await Promise.all(
-            this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
-                this.$state.prepare.textFragment(this.artefact.editionId, tf.id)
-            )
-        );
-
-        this.initVisibleRois();
         this.waiting = false;
-
-        setTimeout(() => this.setFirstZoom(), 0);
     }
 
     private get edition(): EditionInfo {
         return this.$state.editions.current!;
+    }
+
+    public get artefacts(): Artefact[] {
+        return this.$state.artefacts.items || [];
     }
 
     private get masterImage(): IIIFImage {
@@ -611,6 +616,56 @@ export default class ArtefactEditor
     private get rotationAngle(): number {
         return this.params.rotationAngle;
     }
+
+    private async selectArtefact(artefactId: number) {
+        await this.prepareArtefact(artefactId);
+    }
+
+    private async prepareArtefact(artefactId: number) {
+        await this.$state.prepare.artefact(this.editionId, artefactId);
+
+        if (!this.artefact.isVirtual) {
+            const imagedObject = this.$state.imagedObjects.find(
+                this.artefact.imagedObjectId
+            );
+            if (!imagedObject) {
+                throw new Error(
+                    `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`
+                );
+            }
+            this.imageStack =
+                this.artefact.side === 'recto'
+                    ? imagedObject.recto
+                    : imagedObject.verso;
+            if (!this.imageStack) {
+                throw new Error(
+                    `ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
+                        `${this.artefact.side} side even though artefact ${this.artefact.id} references it`
+                );
+            }
+
+            // Prepare the image manifests of all images
+            const promises = this.imageStack.images.map((img) =>
+                this.$state.prepare.imageManifest(img)
+            );
+            await Promise.all(promises);
+        }
+
+        this.params.rotationAngle = this.artefact.placement.rotate || 0;
+        this.fillImageSettings();
+        this.calculateBoundingBox();
+
+        this.initVisibleRois();
+
+        setTimeout(() => this.setFirstZoom(), 0);
+    }
+
+    private async prepareTextFragment(tfId: number) {
+        await this.$state.prepare.textFragment(this.editionId, tfId);
+
+        this.textFragment = this.$state.textFragments.get(tfId);
+    }
+
     private statusTextFragment(roi: InterpretationRoi) {
         const si = this.$state.signInterpretations.get(
             roi.signInterpretationId!
@@ -637,7 +692,6 @@ export default class ArtefactEditor
             }
         }
     }
-
     private setFirstZoom() {
         const infoBox = this.$refs.infoBox as Element;
         const height = infoBox.clientHeight;

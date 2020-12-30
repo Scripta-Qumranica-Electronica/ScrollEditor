@@ -15,6 +15,7 @@ import ConfirmInvitation from './views/edition/components/confirm-invitation.vue
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
 
+
 Vue.use(Router);
 
 export default new Router({
@@ -59,6 +60,10 @@ export default new Router({
             component: ArtefactEditor
         },
         {
+            path: '/editions/:editionId/textFragments/:textFragmentId',
+            component: ArtefactEditor
+        },
+        {
             path: '/editions/:editionId/imaged-objects/:imagedObjectId',
             component: ImagedObjectEditor
         },
@@ -88,5 +93,6 @@ export default new Router({
             path: '/activateUser/token/:token',
             component: Activation
         }
+        
     ]
 });
