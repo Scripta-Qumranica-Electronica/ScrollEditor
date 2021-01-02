@@ -24,3 +24,9 @@ yarn run test
 ```
 yarn run lint
 ```
+
+### This branch, based on development branch, 
+### is dedicated for migrating old VUE syntax to new Class Components syntax.
+### reference: 
+### Overview | Vue Class Component (vuejs.org) 
+https://class-component.vuejs.org/ 
