@@ -28,50 +28,79 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+// import Vue from 'vue';
+import { Component, Prop, Emit, Vue, Watch } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/PersonalEditions.vue';
 import PublicEditions from './components/PublicEditions.vue';
 
-export default Vue.extend({
-    name: 'home',
-    components: {
+
+@Component({
+  name: 'home',
+  components: {
         Waiting,
         PersonalEditions,
-        PublicEditions,
-    },
-    data() {
-        return {
-            filter: '',
-            personalEditionsCount: 0,
-            publicEditionsCount: 0,
-        };
-    },
+        PublicEditions
+  }
+})
 
-    created() {
+export default class App extends Vue {
+ 
+      // component data
+      // =====================
+
+     private filter: string = '';
+     private personalEditionsCount: number = 0 ;
+     private publicEditionsCount: number = 0 ;
+
+     // hooks as constructor
+     // ========================
+      created() {
         this.$state.prepare.allEditions();
 
         this.$state.editions.current = undefined;
-    },
-    computed: {
-        user(): boolean {
+      }
+
+      // computed properties geters setters
+      // ====================================
+
+      // This will direct user to personal and public tabs view
+      // Without it, only public tabs view will be displayed,
+      // and without editing options (such as copy)
+
+      get user(): boolean {
             return this.$state.session.user ? true : false;
-        },
-    },
-    methods: {
-        nameMatch(name: string): boolean {
+        }
+
+       // methods & event handlers
+       // ==================================
+
+       public nameMatch(name: string): boolean {           
             return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
-        },
-        onPersonalEditionsLoad(count: number) {
-            this.personalEditionsCount = count;
-        },
-        onPublicEditionsLoad(count: number) {
+        }
+
+       // on-personal-editions-load emitted event handler
+        public  onPersonalEditionsLoad(count: number) {
+            this.personalEditionsCount = count;                        
+        }
+
+
+       // on-public-editions-load emitted event handler
+        public  onPublicEditionsLoad(count: number) {
             this.publicEditionsCount = count;
-        },
-    },
-});
-</script>
+         }
+
+
+}
+
+
+
+
+ </script>
+
+
+
 <style lang="scss">
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
