@@ -260,7 +260,7 @@ import { ArtefactTextFragmentData } from '@/models/text';
     name: 'scroll-editor',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
         'edition-header': EditionHeader,
