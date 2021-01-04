@@ -4,9 +4,9 @@
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
                     <router-link :to="{path:`/editions/${edition.id}/artefacts`}">
-                        <span class="name-edition" v-if="edition">{{
-                            versionString(edition)
-                        }}</span>
+                        <span class="name-edition" v-if="edition">
+                            {{  versionString(edition)  }}
+                        </span>
                     </router-link>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
@@ -86,17 +86,19 @@ export default Vue.extend({
         };
     },
     computed: {
-        current(): EditionInfo | undefined {
-            return this.$state.editions.current;
+        current(): EditionInfo | boolean {            
+            return ( undefined === this.$state.editions.current ) ?
+                false : this.$state.editions.current;
         },
         isAdmin(): boolean {
             return this.current!.permission.isAdmin;
         },
-        edition(): EditionInfo | undefined {
-            return this.$state.editions.current;
+        edition(): EditionInfo | boolean {
+            return ( undefined === this.$state.editions.current ) ?
+                false : this.$state.editions.current;
         },
-        waiting(): boolean {
-            return !this.edition;
+        waiting(): boolean {            
+            return !this.edition;     
         },
         artefactsLength(): number {
             return this.$state.artefacts.items.length;
@@ -105,7 +107,7 @@ export default Vue.extend({
             return this.$state.imagedObjects.items.length;
         },
     },
-    mounted() {
+     mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
         this.$state.prepare.edition(this.editionId);
         this.getPage(window.location.href);
