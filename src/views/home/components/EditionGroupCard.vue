@@ -48,15 +48,23 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
     }
 })
 export default class EditionCard extends Vue {
-    @Prop() public edition!: EditionInfo;
+    // @Prop() public edition!: EditionInfo;
+
+    @Prop({default: null}) public edition!: EditionInfo;
+
+    private get thumbnailSource(): string | null {
+        return (undefined !== this.edition.thumbnail)
+            ? this.edition.thumbnail.thumbnailUrl
+            : null;
+    }
+    // private get thumbnailSource(): string | undefined {
+    //     return this.edition.thumbnail
+    //         ? this.edition.thumbnail.thumbnailUrl
+    //         : undefined;
+    // }
 
     private get lockEdition(): boolean {
         return this.edition.permission.readOnly;
-    }
-    private get thumbnailSource(): string | undefined {
-        return this.edition.thumbnail
-            ? this.edition.thumbnail.thumbnailUrl
-            : undefined;
     }
 
     private get publicEditionCount(): number {
