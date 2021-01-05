@@ -104,10 +104,10 @@ export default Vue.extend({
             return ( undefined === this.$state.editions.current ) ?
                 null : this.$state.editions.current!;
         },
-        
+
         isAdmin(): boolean {
             return ( undefined === this.current) ?
-            false : this.current!.permission.isAdmin;
+            false : this.currentEdition!.permission.isAdmin;
         },
 
         waiting(): boolean {            
