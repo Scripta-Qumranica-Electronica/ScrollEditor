@@ -260,7 +260,7 @@ import { ArtefactTextFragmentData } from '@/models/text';
     name: 'scroll-editor',
     components: {
         Waiting,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
         'edition-header': EditionHeader,
@@ -573,6 +573,7 @@ export default class ScrollEditor
                 scale: 1,
                 rotate: 0,
                 zIndex: maxZindex + 1,
+                mirrored: false,
             });
 
             const operation = new ArtefactPlacementOperation(

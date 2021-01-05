@@ -49,7 +49,7 @@
                                 <image-settings
                                     :imageStack="
                                         imagedObject.getImageStack(
-                                            this.artefact.side
+                                            artefact.side
                                         )
                                     "
                                     id="popover-input-1"
@@ -101,7 +101,10 @@
                                 >
                             </div>
                             <div>
-                                <b-dropdown :text="sideFilter.displayName" class="btn-sm">
+                                <b-dropdown
+                                    :text="sideFilter.displayName"
+                                    class="btn-sm"
+                                >
                                     <b-dropdown-item
                                         v-for="filter in sideOptions"
                                         :key="filter.displayName"
@@ -169,6 +172,7 @@ import { Artefact } from '@/models/artefact';
 import { DrawingMode, EditorParamsChangedArgs } from './types';
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { PropOptions } from 'vue';
+import { ImagedObjectState } from '../../state/imaged-object';
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
@@ -176,7 +180,6 @@ import { PropOptions } from 'vue';
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
-    // private zoomInput: number = 1;
     private sideFilter: DropdownOption = {} as DropdownOption;
 
     private errorMessage: string = '';
@@ -189,14 +192,18 @@ export default class ImagedObjectEditorToolbar extends Vue {
     @Prop() private imagedObject!: ImagedObject;
     @Prop({ type: Array, default: () => [] })
     private artefacts!: PropOptions<Artefact[]>;
-    // @Prop() private editable: boolean = true;
+
     @Prop({
         type: String as () => Side,
     })
     private side!: Side;
-    @Prop()
-    private params: ImagedObjectEditorParams = {} as ImagedObjectEditorParams;
 
+    private get params(): ImagedObjectEditorParams {
+        return this.imagedObjectState.params!;
+    }
+    public get imagedObjectState(): ImagedObjectState {
+        return this.$state.imagedObject!;
+    }
     public get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
@@ -213,16 +220,15 @@ export default class ImagedObjectEditorToolbar extends Vue {
         if (!val) {
             val = 10;
         }
-        this.params.zoom = parseFloat(val.toString()) / 100;
-        this.notifyChange('zoom', val);
+        this.imagedObjectState.params!.zoom = parseFloat(val.toString()) / 100;
     }
 
     public get canZoomIn(): boolean {
-        return this.params.zoom + 5 / 100 <= 1;
+        return this.zoom + 5 <= 100;
     }
 
     public get canZoomOut(): boolean {
-        return this.params.zoom - 5 / 100 >= 0;
+        return this.zoom - 5 > 0;
     }
 
     public get rotationAngle(): number {
@@ -232,16 +238,16 @@ export default class ImagedObjectEditorToolbar extends Vue {
         if (!val) {
             val = 0;
         }
-        this.params.rotationAngle =
+        this.imagedObjectState.params!.rotationAngle =
             ((parseFloat(val.toString()) % 360) + 360) % 360;
-        this.notifyChange('rotationAngle', val);
+        // this.notifyChange('rotationAngle', val);
     }
     public get zoomImagedObject(): number {
         return this.params.zoom;
     }
     public set zoomImagedObject(val: number) {
-        this.params.zoom = parseFloat(val.toString());
-        this.notifyChange('zoomImagedObject', val);
+        this.imagedObjectState.params!.zoom = parseFloat(val.toString());
+        // this.notifyChange('zoomImagedObject', val);
     }
 
     public get readOnly(): boolean {
@@ -251,16 +257,16 @@ export default class ImagedObjectEditorToolbar extends Vue {
         return this.params.background;
     }
     public set background(val: boolean) {
-        this.params.background = val;
-        this.notifyChange('background', val);
+        this.imagedObjectState.params!.background = val;
+        // this.notifyChange('background', val);
     }
 
     public get highLight(): boolean {
         return this.params.highLight;
     }
     public set highLight(val: boolean) {
-        this.params.highLight = val;
-        this.notifyChange('highLight', val);
+        this.imagedObjectState.params!.highLight = val;
+        // this.notifyChange('highLight', val);
     }
 
     public get sideOptions(): DropdownOption[] {
@@ -304,16 +310,51 @@ export default class ImagedObjectEditorToolbar extends Vue {
     }
 
     public zoomClick(percent: number) {
-        this.params.zoom += percent / 100;
-        this.notifyChange('zoomImagedObject', this.params.zoom);
+        this.imagedObjectState.params!.zoom += percent / 100;
     }
     public onImageSettingChanged(settings: ImageSetting) {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
     public onRotateClick(degrees: number) {
-        this.params.rotationAngle += degrees;
-        this.notifyChange('rotationAngle', this.params.rotationAngle);
+        this.imagedObjectState.params!.rotationAngle += degrees;
+        // this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
+    // public async newArtefact() {
+    //     this.newArtefactName = this.newArtefactName.trim();
+
+    //     let newArtefact = {} as Artefact;
+    //     this.waiting = true;
+    //     this.errorMessage = '';
+    //     try {
+    //         newArtefact = await this.artefactService.createArtefact(
+    //             this.editionId,
+    //             this.imagedObject,
+    //             this.newArtefactName,
+    //             this.side as Side
+    //         );
+    //     } catch (err) {
+    //         this.errorMessage = err;
+    //     } finally {
+    //         this.waiting = false;
+    //     }
+
+    //     this.newArtefactName = '';
+    //     (this.$refs.newArtRef as any).hide();
+    //     this.chooseArtefact(newArtefact);
+
+    //     this.onDrawChanged('DRAW');
+    //     this.$emit('create', newArtefact);
+    // }
+
+    // public onDrawChanged(val: any) {
+    //     // DrawingMode
+    //     const mode = DrawingMode[val];
+    //     (this as any).params.drawingMode = mode;
+    //     this.notifyChange('drawingMode', mode);
+    // }
+    // public chooseArtefact(art: Artefact) {
+    //     this.$emit('artefactChanged', art);
+    // }
 }
 </script>
 

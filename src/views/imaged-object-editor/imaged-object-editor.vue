@@ -36,10 +36,8 @@
                         :artefacts="visibleArtefacts"
                         :artefact="artefact"
                         :artefactId="artefactId"
-                        :params="params"
                         :side="side"
                         :status-indicator="operationsManager"
-                        @paramsChanged="onParamsChanged($event)"
                         @undo="onUndo($event)"
                         @redo="onRedo($event)"
                         @onSideArtefactChanged="sideArtefactChanged($event)"
@@ -57,22 +55,20 @@
                             >Redo</b-button
                         >
                     </b-button-group>
-                
-            
+
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
-                        class="btn btn-sm  ml-2 btn-outline"
+                        class="btn btn-sm ml-2 btn-outline"
                         >{{ $t('misc.new') }}</b-btn
                     >
-              
                 </div>
             </b-row>
             <b-row no-gutters>
                 <b-col cols="8">
                     <div class="image-obj-container-height">
                         <div class="img-obj-container h-100" ref="infoBox">
-                            <div id="imaged-object-title">
+                            <div id="imaged-object-title" v-if="imagedObject">
                                 {{ imagedObject.id }}
                                 <edition-icons
                                     :edition="edition"
@@ -91,13 +87,13 @@
                                     :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
                                 >
                                     <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
-                                    <g v-if="artefact"
+                                    <g
+                                        v-if="artefact"
                                         :transform="transform"
                                         id="transform-root"
                                     >
                                         <!-- Coordinate system is in master image coordinates -->
                                         <image-layer
-                                            
                                             :width="imageWidth"
                                             :height="imageHeight"
                                             :params="params"
@@ -131,7 +127,7 @@
                         </div>
                     </div>
                 </b-col>
-                <b-col class="pt-3 col-rename-art" cols="4">
+                <b-col class="pt-3 col-rename-art" cols="4" >
                     <div
                         v-for="art in visibleArtefacts"
                         :key="art.id"
@@ -281,6 +277,7 @@ import ImagedObjectEditorToolbar from './imaged-object-editor-toolbar.vue';
 import { DropdownOption } from '@/utils/helpers';
 import EditionHeader from '../edition/components/edition-header.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
+import { ImagedObjectState } from '../../state/imaged-object';
 
 @Component({
     name: 'imaged-object-editor',
@@ -290,7 +287,7 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'edition-icons': EditionIcons,
         'edition-header': EditionHeader,
     },
@@ -313,16 +310,16 @@ export default class ImagedObjectEditor
     private errorMessage: string = '';
     private newArtefactName: string = '';
     private artefactService = new ArtefactService();
-    private params = new ImagedObjectEditorParams();
+    // private params = new ImagedObjectEditorParams();
     private artefactId: number = -1;
     private renaming = false;
-    private operationsManager = new OperationsManager<
-        ImagedObjectEditorOperation
-    >(this);
+    private operationsManager = new OperationsManager<ImagedObjectEditorOperation>(
+        this
+    );
     private side: Side = 'recto';
     private renameInputActive: Artefact | null = null;
     private waiting: boolean = false;
-    private masterImage?: IIIFImage;
+    private masterImage?: IIIFImage | null = null;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
 
@@ -355,10 +352,16 @@ export default class ImagedObjectEditor
 
         return true;
     }
+    public get imagedObjectState(): ImagedObjectState {
+        return this.$state.imagedObject;
+    }
+    private get params(): ImagedObjectEditorParams {
+        return this.imagedObjectState.params || new ImagedObjectEditorParams();
+    }
     public get canCreate(): boolean {
         return this.newArtefactName.trim().length > 0;
     }
-   public newModalShown() {
+    public newModalShown() {
         // this.waiting = true;
         (this.$refs.newArtefactName as any).focus();
     }
@@ -559,18 +562,18 @@ export default class ImagedObjectEditor
                 this.newArtefactName,
                 this.side as Side
             );
+            
+            (this.$refs.newArtRef as any).hide();
+            this.onArtefactChanged(newArtefact);
+
+            this.editingModeChanged('DRAW');
+            this.$emit('create', newArtefact);
         } catch (err) {
             this.errorMessage = err;
         } finally {
+            this.newArtefactName = '';
             this.waiting = false;
         }
-
-        this.newArtefactName = '';
-        (this.$refs.newArtRef as any).hide();
-        this.onArtefactChanged(newArtefact);
-
-        this.editingModeChanged('DRAW');
-        this.$emit('create', newArtefact);
     }
 
     private get isErasing() {
@@ -627,9 +630,9 @@ export default class ImagedObjectEditor
             this.renaming = false;
         }
     }
-    private onParamsChanged(evt: EditorParamsChangedArgs) {
-        this.params = evt.params; // This makes sure a change is triggered in child components
-    }
+    // private onParamsChanged(evt: EditorParamsChangedArgs) {
+    //     this.params = evt.params; // This makes sure a change is triggered in child components
+    // }
     private onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;
 
