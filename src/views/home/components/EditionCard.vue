@@ -36,18 +36,20 @@
                         <p class="card-font card-label">
                             Status:
                             <b-badge
-                                :class="
-                                    edition.isPublic
-                                        ? [
-                                              'status-badge',
-                                              'status-badge-Published',
-                                          ]
-                                        : ['status-badge', 'status-badge-draft']
-                                "
-                                >{{
+                                :class="edition.isPublic ? 
+                                        [
+                                            'status-badge',
+                                            'status-badge-Published',
+                                        ]:
+                                        [
+                                            'status-badge', 
+                                            'status-badge-draft'
+                                        ]"
+                                 >
+                                {{
                                     edition.isPublic ? 'Published' : 'Draft'
-                                }}</b-badge
-                            >
+                                }}
+                                </b-badge>
                         </p>
                     </div>
                 </div>
@@ -66,12 +68,12 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
     components: { EditionIcons },
 })
 export default class EditionCard extends Vue {
-    @Prop() public edition!: EditionInfo;
+    @Prop({default: null}) public edition!: EditionInfo;
 
-    private get thumbnailSource(): string | undefined {
-        return this.edition.thumbnail
+    private get thumbnailSource(): string | null {
+        return (undefined !== this.edition.thumbnail)
             ? this.edition.thumbnail.thumbnailUrl
-            : undefined;
+            : null;
     }
 }
 </script>
