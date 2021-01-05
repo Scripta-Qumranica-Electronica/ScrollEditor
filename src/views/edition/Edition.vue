@@ -3,14 +3,15 @@
         <div class="mb-3 border-container">
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
-                    <router-link :to="{path:`/editions/${edition.id}/artefacts`}">
-                        <span class="name-edition" v-if="edition">
-                            {{  versionString(edition)  }}
+                    <!-- <router-link :to="{path:`/editions/${edition.id}/artefacts`}"> -->
+                     <router-link :to="{path:`/editions/${editionId}/artefacts`}">
+                        <span class="name-edition" v-if="currentEditionExists">
+                            {{  versionString(currentEdition)  }}
                         </span>
                     </router-link>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
-                    <div class="btns-permiss" v-if="current">
+                    <div class="btns-permiss" v-if="currentEditionExists">
                         <b-button
                             class="mr-3"
                             v-if="isAdmin"
@@ -61,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <permission-modal v-if="current"></permission-modal>
+        <permission-modal v-if="currentEditionExists"></permission-modal>
     </div>
 </template>
 
@@ -85,18 +86,30 @@ export default Vue.extend({
             page: '',
         };
     },
-    computed: {
-        current(): EditionInfo | boolean {            
-            return ( undefined === this.$state.editions.current ) ?
-                false : this.$state.editions.current;
+    computed: {        
+        currentEditionExists(): boolean { 
+            return ( undefined !== this.$state.editions.current ) ;
         },
+        currentEdition(): EditionInfo | null {            
+            return ( undefined === this.$state.editions.current ) ?
+                null : this.$state.editions.current;
+        },
+
+        current(): EditionInfo | null {            
+            return ( undefined === this.$state.editions.current ) ?
+                null : this.$state.editions.current;
+        },
+        
+        edition(): EditionInfo | null {
+            return ( undefined === this.$state.editions.current ) ?
+                null : this.$state.editions.current!;
+        },
+        
         isAdmin(): boolean {
-            return this.current!.permission.isAdmin;
+            return ( undefined === this.current) ?
+            false : this.current!.permission.isAdmin;
         },
-        edition(): EditionInfo | boolean {
-            return ( undefined === this.$state.editions.current ) ?
-                false : this.$state.editions.current;
-        },
+
         waiting(): boolean {            
             return !this.edition;     
         },
