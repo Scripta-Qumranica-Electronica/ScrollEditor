@@ -22,7 +22,7 @@
         "@types/jsts": "^0.17.2",
         "@types/mathjs": "^4.4.5",
         "@yutahaga/vue-media-breakpoints": "^0.6.1",
-        "axios": "^0.18.0",
+        "axios": "^0.21.1",
         "bootstrap-vue": "^2.0.0-rc.11",
         "core-js": "^3.6.4",
         "element-ui": "^2.4.9",
