@@ -34,8 +34,7 @@ import CopyEditionModal from './CopyEditionModal.vue';
      },
 })
 export default class EditionsPublicList extends Vue {
-    @Prop(
-    ) public editions!: EditionInfo[];
+    @Prop( ) public editions!: EditionInfo[];
 
     private openCopyEditionModal(edition: EditionInfo) {
             // console.log(edition);
