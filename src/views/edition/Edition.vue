@@ -145,7 +145,7 @@ export default class Edition extends Vue {
         // Wait for editionInfo object to be valid
         // (in order not to get run-time undefined errors)
         await this.$state.prepare.edition(this.editionId);
-  
+
         // Added as in scroll-editor.vue
         const currentEdition = this.$state.editions.find(this.editionId); 
 
