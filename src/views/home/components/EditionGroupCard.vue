@@ -4,7 +4,7 @@
             <!--TODO do not hardcode the image proxy server-->
             <img
                 class="card-img-top"
-                v-if="humbnailSourceExists"
+                v-if="thumbnailSourceExists"
                 v-lazy="thumbnailSource"
                 :alt="edition.name"
             />
