@@ -10,7 +10,7 @@ export interface ItemWithId<U> {
 
 abstract class StateCollection<T extends ItemWithId<U>, U = number> {
     private _items: T[];
-    private _current: T | undefined;
+    private _current: T | undefined; // Tsvia - change this to | null
 
     constructor() {
         this._items = [];
@@ -216,5 +216,5 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
 export class SignInterpretationMap extends StateMap<SignInterpretation> { }
 
 export class MiscState {
-    public newEditionId: number | undefined;
+    public newEditionId: number | undefined;  // Tsvia: Change this to | null
 }

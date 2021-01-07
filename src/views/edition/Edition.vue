@@ -160,9 +160,15 @@ export default class Edition extends Vue {
         //  returning an editionInternal(id));    }
 
         await this.$state.prepare.edition(this.editionId);
+<<<<<<< HEAD
   
        // Added as in scroll-editor.vue
          const currentEdition = this.$state.editions.find(this.editionId); 
+=======
+
+        // Added as in scroll-editor.vue
+        const currentEdition = this.$state.editions.find(this.editionId); 
+>>>>>>> ce45ff03d9e2f5ba6e4294447de251aa21123e69
 
 //           console.log("Edition mounted currentEdition ", currentEdition);
 
