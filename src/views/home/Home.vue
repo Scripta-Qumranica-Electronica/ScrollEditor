@@ -56,7 +56,7 @@ export default class App extends Vue {
 
      // hooks as constructor
      // ========================
-      created() {
+      protected created() {
         this.$state.prepare.allEditions();
 
         this.$state.editions.current = undefined;

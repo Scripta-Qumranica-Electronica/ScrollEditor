@@ -146,7 +146,7 @@ export default class Edition extends Vue {
     // ( same mechanism as in scroll-editor.vue )
 
     // protected 
-    async mounted() {
+    protected async mounted() {
      
         this.editionId = parseInt(this.$route.params.editionId, 10);
 
@@ -176,8 +176,8 @@ export default class Edition extends Vue {
      // while resource is being fetched for the incoming view
      // ==========================================================
 
-    // protected 
-    async beforeRouteUpdate(to: any, from: any, next: () => void) {
+
+    protected async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
 
          // Wait for editionInfo object to be valid

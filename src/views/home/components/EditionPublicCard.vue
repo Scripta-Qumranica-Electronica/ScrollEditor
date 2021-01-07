@@ -70,8 +70,6 @@ export default class EditionPublicCard extends Vue {
     @Prop() public edition!: EditionInfo;
     public editionService: EditionService = new EditionService();
   
- 
-
     private get thumbnailSourceExists(): boolean {
         return (undefined !== this.edition
                  && undefined !== this.edition.thumbnail ) ;
