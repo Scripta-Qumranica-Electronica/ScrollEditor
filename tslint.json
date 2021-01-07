@@ -26,6 +26,7 @@
       "options": ["check-format", "allow-leading-underscore"]
     },
     "max-line-length": false,
-    "member-ordering": false
+    "member-ordering": false,
+    "object-literal-key-quotes": [true, "as-needed"]
   }
 }

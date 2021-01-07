@@ -154,7 +154,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         // Now, scale and rotate around (0 ,0)
         const scale = `scale(${placement.scale})`; // Scale by scale of transform
         const rotate = `rotate(${placement.rotate})`;
-        const scaleMirrored = placement.mirrored ? `scale(-1, 1)` : '';
+        const scaleMirrored = placement.mirrored ? 'scale(-1, 1)' : '';
 
         // Finally, move to correct place. Remember that at this point the artefact's top left is (-midX, -midY)
         const translateX = this.boundingBox.width / 2 + placement.translate.x!;

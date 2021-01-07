@@ -562,7 +562,7 @@ export default class ImagedObjectEditor
                 this.newArtefactName,
                 this.side as Side
             );
-            
+
             (this.$refs.newArtRef as any).hide();
             this.onArtefactChanged(newArtefact);
 

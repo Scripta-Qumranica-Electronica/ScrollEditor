@@ -642,9 +642,9 @@ export default class ArtefactToolbox extends Vue {
     public statusMirror() {
         const operations: ArtefactPlacementOperation[] = [];
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-        if(this.selectedArtefact) { 
+        if (this.selectedArtefact) {
             const placement = this.selectedArtefact.placement.clone();
-            placement.mirrored= !placement.mirrored;
+            placement.mirrored = !placement.mirrored;
             operation = this.createOperation(
                 'mirror',
                 placement,
@@ -654,7 +654,7 @@ export default class ArtefactToolbox extends Vue {
         if (this.selectedGroup) {
             this.selectedArtefacts.forEach((art) => {
                 const placement = art.placement.clone();
-                placement.mirrored= !placement.mirrored;
+                placement.mirrored = !placement.mirrored;
                 operations.push(
                     this.createOperation('mirror', placement, art)
                 );

@@ -93,6 +93,5 @@ export default new Router({
             path: '/activateUser/token/:token',
             component: Activation
         }
-        
     ]
 });

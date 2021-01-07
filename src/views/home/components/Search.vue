@@ -70,7 +70,7 @@
                 </b-form-checkbox>
             </b-col>
         </b-row>
-        <b-button variant="outline-primary" @click="search()">Ok</b-button>
+        <b-button variant="primary" @click="search()">Search</b-button>
     </div>
 </template>
 <script lang="ts">
