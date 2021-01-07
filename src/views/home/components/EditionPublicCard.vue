@@ -8,7 +8,7 @@
                 <b-col class="col-4">
                     <img
                         class="card-img-top"
-                        v-if="thumbnailSource"
+                        v-if="thumbnailSourceExists"
                         v-lazy="thumbnailSource"
                         :alt="edition.name"
                     />
@@ -69,15 +69,21 @@ import EditionService from '@/services/edition';
 export default class EditionPublicCard extends Vue {
     @Prop() public edition!: EditionInfo;
     public editionService: EditionService = new EditionService();
-    public newCopyName: string = '';
-    public errorMessage: string = '';
-    public waiting: boolean = false;
+  
+ 
+
+    private get thumbnailSourceExists(): boolean {
+        return (undefined !== this.edition
+                 && undefined !== this.edition.thumbnail ) ;
+                 
+    }
 
     private get thumbnailSource(): string | undefined {
-        return this.edition.thumbnail
+        return (undefined !== this.edition.thumbnail)
             ? this.edition.thumbnail.thumbnailUrl
             : undefined;
     }
+
     private get user(): boolean {
         return this.$state.session.user ? true : false;
     }
