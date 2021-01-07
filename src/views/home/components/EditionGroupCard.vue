@@ -4,7 +4,7 @@
             <!--TODO do not hardcode the image proxy server-->
             <img
                 class="card-img-top"
-                v-if="thumbnailSource"
+                v-if="humbnailSourceExists"
                 v-lazy="thumbnailSource"
                 :alt="edition.name"
             />
@@ -49,20 +49,26 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 })
 export default class EditionCard extends Vue {
 
-    @Prop({default: null}) public edition!: EditionInfo;
+    @Prop() public edition!: EditionInfo;
 
-    private get thumbnailSource(): string | null {
+    private get thumbnailSourceExists(): boolean {
+        return (undefined !== this.edition
+                 && undefined !== this.edition.thumbnail ) ;
+                 
+    }
+
+    private get thumbnailSource(): string | undefined {
         return (undefined !== this.edition.thumbnail)
-            ? this.edition.thumbnail.thumbnailUrl
-            : null;
+            ? this.edition!.thumbnail.thumbnailUrl
+            : undefined;
     }
 
     private get lockEdition(): boolean {
-        return this.edition.permission.readOnly;
+        return this.edition!.permission!.readOnly;
     }
 
     private get publicEditionCount(): number {
-        return this.edition.publicCopies;
+        return this.edition!.publicCopies;
     }
 
     private get personalVersionCount(): number {
