@@ -3,10 +3,9 @@
         <div class="mb-3 border-container">
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
-                    <!-- <router-link :to="{path:`/editions/${edition.id}/artefacts`}"> -->
                      <router-link :to="{path:`/editions/${editionId}/artefacts`}">
                         <span class="name-edition" v-if="currentEditionExists">
-                            {{  versionString(edition)  }}
+                            {{  versionString(currentEdition)  }}
                         </span>
                     </router-link>
                 </b-col>
@@ -26,7 +25,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div v-if="!waiting">
+        <div v-if="!isWaiting">
             <b-row>
                 <b-col class="col-4">
                     <label for="show" class="search-bar">{{
@@ -57,11 +56,14 @@
         <div>
             <div v-if="!isWaiting" class="row">
                 <div class="col" v-if="isWaiting">
-                    <Waiting></Waiting></div>
+                    <Waiting></Waiting>
+                </div>
                 <div class="col" v-if="!isWaiting">
                     <router-view></router-view>
                 </div>
             </div>
+
+
         </div>
         <permission-modal v-if="currentEditionExists"></permission-modal>
     </div>
@@ -89,11 +91,6 @@ import PermissionModal from './components/permission-modal.vue';
 
 export default class Edition extends Vue {
 
-     // this.$state.editions.current is declared as:
-     //  (property) StateCollection<EditionInfo, number>.current: EditionInfo | undefined
-
-   @Prop() public edition!: EditionInfo | undefined;
-
      // data => member parameters
      // protected (not private) to allow future inheritance
      // =======================================================
@@ -106,6 +103,10 @@ export default class Edition extends Vue {
      // computed=> get/set
      // =======================================================
           
+         // this.$state.editions.current is declared as:
+        //  (property) StateCollection<EditionInfo, number>.current: 
+        //                EditionInfo | undefined
+      
         public get currentEditionExists(): boolean { 
             // if ( undefined !== this.$state.editions.current ) {
             //    this.waiting = false;
@@ -114,20 +115,18 @@ export default class Edition extends Vue {
                      && null !== this.$state.editions.current) ;
         }
        
-       public get isWaiting() : boolean{
+       public get isWaiting() : boolean {
             return  !this.currentEditionExists;
        }
 
-        // private 
-        // public get edition(): EditionInfo  {
-        //     return this.$state.editions.current! || {};
-        // }
+        
+        public get currentEdition(): EditionInfo {            
+            return this.$state.editions.current! || {};
+        }
  
 
         public get isAdmin(): boolean {
-            // return ( undefined === this.current) ?
-            // false : this.currentEdition!.permission.isAdmin;
-            return this.edition!.permission.isAdmin;
+            return this.currentEdition!.permission.isAdmin;
         }
 
 
@@ -148,11 +147,8 @@ export default class Edition extends Vue {
 
     // protected 
     async mounted() {
-       // this.waiting = true;
-
+     
         this.editionId = parseInt(this.$route.params.editionId, 10);
-
-         console.log("Edition mounted this.editionId ", this.editionId);
 
         // Wait for editionInfo object to be valid
         // (in order not to get run-time undefined errors)
@@ -160,34 +156,14 @@ export default class Edition extends Vue {
         //  returning an editionInternal(id));    }
 
         await this.$state.prepare.edition(this.editionId);
-<<<<<<< HEAD
   
        // Added as in scroll-editor.vue
-         const currentEdition = this.$state.editions.find(this.editionId); 
-=======
+        const currentEdition = this.$state.editions.find(this.editionId);             
 
-        // Added as in scroll-editor.vue
-        const currentEdition = this.$state.editions.find(this.editionId); 
->>>>>>> ce45ff03d9e2f5ba6e4294447de251aa21123e69
-
-//           console.log("Edition mounted currentEdition ", currentEdition);
-
-//         // Set the current scroll
-//         if (!currentEdition) {
-//             this.$router.push({ path: '/' });
-//         }
-
-//         // This is done in scroll-editor
-//         if (currentEdition) {
-//           this.$state.editions.current = currentEdition;       
-          
-//         }
-
-     // this.$state.editions.current is declared as:
-     //  (property) StateCollection<EditionInfo, number>.current: EditionInfo | undefined
-         this.edition = this.$state.editions.current ;
-
-        console.log("Edition mounted this.edition ", this.edition);
+         // This is done also in scroll-editor
+        if (currentEdition) {
+          this.$state.editions.current = currentEdition;    
+         }
 
       //  this.waiting = false;
         this.getPage(window.location.href);
@@ -204,12 +180,8 @@ export default class Edition extends Vue {
     async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
 
-        console.log("Edition beforeRouteUpdate  this.editionId", this.editionId);
-
          // Wait for editionInfo object to be valid
         await this.$state.prepare.edition(this.editionId);
-
-        console.log("Edition beforeRouteUpdate  after this.$state.prepare.edition(this.editionId) ");
 
         this.getPage(to.path);
 
@@ -221,17 +193,16 @@ export default class Edition extends Vue {
     // methods => member functions of the class
     // ============================================================
 
-        public openPermissionModal() {
+        protected openPermissionModal() {
             this.$root.$emit( 'bv::show::modal', 'permissionModal'); 
             // event, new_value
         }
 
-        public versionString(ver: EditionInfo): string {
+        protected versionString(ver: EditionInfo): string {
             return ver.name;
         }
 
-    //    protected 
-       public getPage(url: string) {
+        protected getPage(url: string) {
             if (url.endsWith('artefacts')) {
                 this.page = 'artefacts';
             } else {
@@ -240,54 +211,6 @@ export default class Edition extends Vue {
         }
  
 }
-
-// computed: {
-//         current(): EditionInfo | undefined {
-//             return this.$state.editions.current;
-//         },
-//         isAdmin(): boolean {
-//             return this.current!.permission.isAdmin;
-//         },
-//         edition(): EditionInfo | undefined {
-//             return this.$state.editions.current;
-//         },
-//         waiting(): boolean {
-//             return !this.edition;
-//         },
-//         artefactsLength(): number {
-//             return this.$state.artefacts.items.length;
-//         },
-//         imagedObjectsLength(): number {
-//             return this.$state.imagedObjects.items.length;
-//         },
-//     },
-//     mounted() {
-//         this.editionId = parseInt(this.$route.params.editionId, 10);
-//         this.$state.prepare.edition(this.editionId);
-//         this.getPage(window.location.href);
-//     },
-//     beforeRouteUpdate(to, from, next) {
-//         this.editionId = parseInt(to.params.editionId, 10);
-//         this.$state.prepare.edition(this.editionId);
-//         this.getPage(to.path);
-//         next();
-//     },
-//     methods: {
-//         openPermissionModal() {
-//             this.$root.$emit('bv::show::modal', 'permissionModal');
-//         },
-//         versionString(ver: EditionInfo) {
-//             return ver.name;
-//         },
-//         getPage(url: string) {
-//             if (url.endsWith('artefacts')) {
-//                 this.page = 'artefacts';
-//             } else {
-//                 this.page = 'imaged-objects';
-//             }
-//         },
-//     },
-
 
 </script>
 
