@@ -115,7 +115,7 @@ export default class Edition extends Vue {
                      && null !== this.$state.editions.current) ;
         }
        
-       public get isWaiting() : boolean {
+       public get isWaiting(): boolean {
             return  !this.currentEditionExists;
        }
 
@@ -145,7 +145,7 @@ export default class Edition extends Vue {
     //  we just moved it to mounted.
     // ( same mechanism as in scroll-editor.vue )
 
-    // protected 
+
     protected async mounted() {
      
         this.editionId = parseInt(this.$route.params.editionId, 10);

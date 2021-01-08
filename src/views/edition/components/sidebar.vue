@@ -1,13 +1,13 @@
 <template>
-    <div v-if="current">
+    <div v-if="currentEditionExists">
         <div class="sidebar-header">
             <h5>
-                {{ versionString(current) }}
+                {{ versionString(currentEdition) }}
                 <span
                     class="badge badge-success"
                     v-if="isNew"
                 >{{ $t('misc.new') }}</span>
-                <edition-icons :edition="edition" :show-text="false" />
+                <edition-icons :edition="currentEdition" :show-text="false" />
             </h5>
 
             <b-btn
@@ -29,14 +29,14 @@
             <b-nav-item>
                 <router-link
                     :class="{ bold: page === 'artefacts',artefacts }"
-                    :to="`/editions/${current.id}/artefacts`"
+                    :to="`/editions/${currentEdition.id}/artefacts`"
                     replace
                 >{{ $t('home.artefacts') }}: {{ artefacts }}</router-link>
             </b-nav-item>
             <b-nav-item>
                 <router-link
                     :class="{ bold: page === 'imaged-objects',imagedObjects  }"
-                    :to="`/editions/${current.id}/imaged-objects`"
+                    :to="`/editions/${currentEdition.id}/imaged-objects`"
                     replace
                 >{{ $t('home.imagedObjects') }}: {{ imagedObjects }}</router-link>
             </b-nav-item>
@@ -44,19 +44,19 @@
                 <router-link
                     class="scroll"
                     :class="{ bold: page === 'scroll' }"
-                    :to="`/editions/${current.id}/scroll-editor`"
+                    :to="`/editions/${currentEdition.id}/scroll-editor`"
                     replace
                 >{{ $t('home.scroll') }}</router-link>
             </b-nav-item>
             <!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
-            <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
+            <b-nav-item-dropdown v-if="currentEdition.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item
-                    v-for="version in current.otherVersions"
+                    v-for="version in currentEdition.otherVersions"
                     :key="version.id"
                     :to="`/editions/${version.id}`"
                 >{{ versionString(version) }}</b-dropdown-item>
             </b-nav-item-dropdown>
-            <b-nav-text v-if="!current.otherVersions.length">
+            <b-nav-text v-if="!currentEdition.otherVersions.length">
                 <small class="no-vers">{{ $t("home.noVersions") }}</small>
             </b-nav-text>
             <b-btn
@@ -75,7 +75,7 @@
         <b-modal
             id="copyModal"
             ref="copyModalRef"
-            :title="$t('home.copyTitle', { name: current.name, owner: current.owner.forename })"
+            :title="$t('home.copyTitle', { name: currentEdition.name, owner: currentEdition.owner.forename })"
             @shown="copyModalShown"
             @ok="copyEdition"
             :ok-title="$t('misc.copy')"
@@ -111,67 +111,90 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import PermissionModal from './permission-modal.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 
-export default Vue.extend({
+
+@Component({
     name: 'edition-ver-sidebar',
     components: {
         PermissionModal,
-        EditionIcons,
-    },
-    props: {
-        page: String
-    },
-    data() {
-        return {
-            editionService: new EditionService(),
-            newCopyName: '',
-            waiting: false,
-            errorMessage: '',
-            newEditionName: '',
-            renaming: false
-        };
-    },
-    computed: {
-        readOnly(): boolean {
-            return this.current!.permission.readOnly;
-        },
-        isAdmin(): boolean {
-            return this.current!.permission.isAdmin;
-        },
-        canRename(): boolean {
-            return this.current!.permission.mayWrite;
-        },
-        user(): boolean {
+        EditionIcons
+    }
+})
+
+export default class SideBar extends Vue {
+
+    @Prop() protected page!: string;
+
+     // data => member parameters
+     // protected (not private) to allow future inheritance
+     // =======================================================
+       
+
+    protected editionId: number = 0;
+    protected editionService: EditionService = new EditionService() ;
+    protected newCopyName: string = '';
+    protected waiting: boolean = false;
+    protected errorMessage: string =  '';
+    protected newEditionName: string =  '';
+    protected renaming: boolean = false;
+
+  
+    // computed:       
+        public get currentEditionExists(): boolean { 
+            // if ( undefined !== this.$state.editions.current ) {
+            //    this.waiting = false;
+            // }
+            return ( undefined !== this.$state.editions.current 
+                     && null !== this.$state.editions.current) ;
+        }
+
+        public get currentEdition(): EditionInfo {            
+            return this.$state.editions.current! || null; // {};
+        }
+
+
+        public get readOnly(): boolean {
+            return this.currentEdition!.permission.readOnly;
+        }
+
+        public get isAdmin(): boolean {
+            return this.currentEdition!.permission.isAdmin;
+        }
+
+        public get canRename(): boolean {
+            return this.currentEdition!.permission.mayWrite;
+        }
+
+        public get user(): boolean {
             return this.$state.session.user ? true : false;
-        },
-        canCopy(): boolean {
+        }
+
+        public get canCopy(): boolean {
             return this.newCopyName.trim().length > 0;
-        },
-        current(): EditionInfo | undefined {
-            return this.$state.editions.current;
-        },
-        isNew(): boolean {
-            if (this.current) {
-                return this.current.id === this.$state.misc.newEditionId;
+        } 
+
+
+        public get isNew(): boolean {
+            if (this.currentEdition) {
+                return this.currentEdition.id === this.$state.misc.newEditionId;
             }
             return false;
-        },
-        imagedObjects(): number {
+        }
+
+        public get imagedObjects(): number {
             if (this.$state.imagedObjects.items) {
                 return this.$state.imagedObjects.items.length;
             }
             return 0;
-        },
-        edition(): EditionInfo {
-            return this.$state.editions.current!;
-        },
-        artefacts(): number {
+        }
+
+        public get artefacts(): number {
             if (this.$state.imagedObjects.items) {
                 let artLen = 0;
                 this.$state.imagedObjects.items.forEach(
@@ -183,27 +206,32 @@ export default Vue.extend({
             }
             return 0;
         }
-    },
+    
 
-    methods: {
-        openPermissionModal() {
+    // methods: {
+
+       protected  openPermissionModal() {
             this.$root.$emit('bv::show::modal', 'permissionModal');
-        },
-        openRename() {
+        }
+
+        protected openRename() {
             this.renaming = true;
-            this.newEditionName = this.current!.name;
-        },
-        showMessage(msg: string, type: string = 'info') {
+            this.newEditionName = this.currentEdition!.name;
+        }
+
+        protected showMessage(msg: string, type: string = 'info') {
             this.$toasted.show(this.$tc(msg), {
                 type,
                 position: 'top-right',
                 duration: 7000
             });
-        },
-        versionString(ver: EditionInfo) {
+        }
+
+        protected versionString(ver: EditionInfo) {
             return ver.name;
-        },
-        async copyEdition(evt: Event) {
+        }
+
+        protected async copyEdition(evt: Event) {
             evt.preventDefault();
 
             if (!this.canCopy) {
@@ -215,7 +243,7 @@ export default Vue.extend({
             this.errorMessage = '';
             try {
                 const newEdition = await this.editionService.copyEdition(
-                    this.current!.id,
+                    this.currentEdition!.id,
                     this.newCopyName
                 );
 
@@ -230,19 +258,21 @@ export default Vue.extend({
             } finally {
                 this.waiting = false;
             }
-        },
-        copyModalShown() {
-            this.newCopyName = this.current!.name;
+        }
+
+        protected copyModalShown() {
+            this.newCopyName = this.currentEdition!.name;
             (this.$refs.newCopyName as any).focus();
-        },
-        async onRename(newName: string) {
-            if (!this.current) {
+        }
+
+        protected async onRename(newName: string) {
+            if (!this.currentEdition) {
                 throw new Error("Can't rename if there is no edition");
             }
             this.renaming = true;
             try {
                 await this.editionService.renameEdition(
-                    this.current!.id,
+                    this.currentEdition!.id,
                     newName
                 );
                 this.showMessage('toasts.editionSuccess', 'success');
@@ -252,8 +282,9 @@ export default Vue.extend({
                 this.renaming = false;
             }
         }
-    }
-});
+    
+}
+
 </script>
 
 <style lang="scss" scoped>
