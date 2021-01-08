@@ -1,6 +1,6 @@
 <template>
     <b-modal
-        v-if="edition"
+        v-if="currentEditionExists"
         id="copy-edition-modal"
         ref="copyModalRef"
         header-class="title-header"
@@ -15,8 +15,8 @@
                 <b-col cols="12">
                     {{
                         $t('home.copyTitle', {
-                            name: edition.name,
-                            owner: edition.owner.forename,
+                            name: currentEdition.name,
+                            owner: currentEdition.owner.forename,
                         })
                     }}</b-col
                 >
@@ -39,10 +39,12 @@
             <p class="text-danger" v-if="errorMessage">
                 {{ errorMessage }}
             </p>
-            <div v-if="edition.copyrightHolder">
-                <label>Copy RightHolder {{edition.copyrightHolder}}</label>
+            <div v-if="currentEdition.copyrightHolder">
+                <label>
+                    Copy RightHolder {{currentEdition.copyrightHolder}}
+                </label>
             </div>
-            <div v-if="edition.collaboators">
+            <div v-if="currentEdition.collaboators">
                 <label>Collaborators {{edition.collaboators}}</label>
             </div>
         </form>
@@ -86,8 +88,21 @@ export default class CopyEditionModal extends Vue {
         return this.$state.session.user ? true : false;
     }
 
-    public get edition(): EditionInfo {
-        return this.$state.editions.current!;
+    public get currentEditionExists(): boolean { 
+        // if ( undefined !== this.$state.editions.current ) {
+        //    this.waiting = false;
+        // }
+        return ( undefined !== this.$state.editions.current 
+                    && null !== this.$state.editions.current) ;
+    }
+    
+    public get isWaiting(): boolean {
+        return  !this.currentEditionExists;
+    }
+
+    
+    public get currentEdition(): EditionInfo {            
+        return this.$state.editions.current! || null; // {};
     }
 
     public get canCopy(): boolean {
@@ -95,7 +110,7 @@ export default class CopyEditionModal extends Vue {
     }
 
     public copyModalShown() {
-        this.newCopyName = this.edition!.name;
+        this.newCopyName = this.currentEdition!.name;
         (this.$refs.newCopyName as any).focus();
     }
 
@@ -111,7 +126,7 @@ export default class CopyEditionModal extends Vue {
         this.errorMessage = '';
         try {
             const newEdition = await this.editionService.copyEdition(
-                this.edition!.id,
+                this.currentEdition!.id,
                 this.newCopyName
             );
 
