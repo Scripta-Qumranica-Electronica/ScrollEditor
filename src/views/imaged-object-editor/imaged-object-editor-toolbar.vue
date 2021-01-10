@@ -185,17 +185,22 @@ export default class ImagedObjectEditorToolbar extends Vue {
     private imageStack: ImageStack = {} as ImageStack;
     private newArtefactName: string = '';
     private waiting: boolean = false;
+
     @Prop() private artefact!: Artefact;
     @Prop() private imagedObject!: ImagedObject;
+
     @Prop({ type: Array, default: () => [] })
     private artefacts!: PropOptions<Artefact[]>;
     // @Prop() private editable: boolean = true;
+
     @Prop({
         type: String as () => Side,
     })
     private side!: Side;
+
     @Prop()
-    private params: ImagedObjectEditorParams = {} as ImagedObjectEditorParams;
+    private params!: ImagedObjectEditorParams;
+    // = {} as ImagedObjectEditorParams;
 
     public get editionId(): number {
         return parseInt(this.$route.params.editionId);
