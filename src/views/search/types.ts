@@ -1,3 +1,5 @@
+import { DetailedSearchResponseDTO } from '@/dtos/sqe-dtos';
+
 export class SearchFormData {
     public textDesignation?: string;
     public exactTextDesignation = false;
@@ -11,3 +13,5 @@ export class SearchFormData {
     public artefactDesignation?: string[];
     public exactArtefactDesignation = false;
 }
+
+export type SearchResults = DetailedSearchResponseDTO;

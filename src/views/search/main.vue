@@ -2,7 +2,7 @@
     <div>
         <search-form @search="onSearch($event)" :disabled="searching" />
         <waiting v-if="searching" />
-        <!-- <search-results v-if="searchResults" /> -->
+        <search-results :results="searchResults" />
     </div>
 </template>
 <script lang="ts">
@@ -10,20 +10,22 @@ import { DetailedSearchRequestDTO, DetailedSearchResponseDTO } from '@/dtos/sqe-
 import SearchService from '@/services/search';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import SearchForm from './form.vue';
-import { SearchFormData } from './types';
+import { SearchFormData, SearchResults } from './types';
 import Waiting from '@/components/misc/Waiting.vue';
+import SearchResultComponent from './results.vue';
 
 @Component({
     name: 'search',
     components: {
         'search-form': SearchForm,
         'waiting': Waiting,
+        'search-results': SearchResultComponent,
     }
 })
 export default class Search extends Vue {
     public searchService: SearchService = new SearchService();
     private searchData = new SearchFormData();
-    private searchResults: DetailedSearchResponseDTO | null = null;
+    private searchResults: SearchResults | null = null;
     private searching = false;
 
     private mounted() {
@@ -36,6 +38,7 @@ export default class Search extends Vue {
         this.searchResults = null;
         try  {
             this.searchResults = await this.searchService.search(data);
+            console.debug(this.searchResults);
         } finally {
             this.searching = false;
         }

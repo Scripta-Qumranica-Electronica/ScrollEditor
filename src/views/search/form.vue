@@ -93,11 +93,12 @@ export default class SearchForm extends Vue {
     }
 
     private textToArray(input: string, field: 'textReference' | 'artefactDesignation') {
-        this.searchData[field] = input.split('\n');
+        const list = input.split('\n').filter(s => !!s);  // Remove empty items from the list
+        Vue.set(this.searchData, field, list);
     }
 
     private get noSearch() {
-        return this.disabled || !this.searchData.textDesignation && !this.searchData.imageDesignation && !this.searchData.textReference && !this.searchData.artefactDesignation;
+        return this.disabled || !this.searchData.textDesignation && !this.searchData.imageDesignation && !this.searchData.textReference?.length && !this.searchData.artefactDesignation?.length;
     }
 
     @Emit()
