@@ -41,7 +41,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/PersonalEditions.vue';
 import PublicEditions from './components/PublicEditions.vue';
-import Search from './components/Search.vue';
+import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */
 
 export default Vue.extend({

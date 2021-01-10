@@ -27,6 +27,6 @@
     },
     "max-line-length": false,
     "member-ordering": false,
-    "object-literal-key-quotes": [true, "as-needed"]
+    "object-literal-key-quotes": false
   }
 }
