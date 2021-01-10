@@ -80,14 +80,15 @@
                                 />
                             </div>
                             <zoomer
-                                v-if="masterImage"
+                                v-if="masterImageExists"
                                 :zoom="zoomLevel"
                                 @new-zoom="onNewZoom($event)"
                             >
                                 <svg
                                     class="overlay"
-                                    :width="actualWidth"
                                     :height="actualHeight"
+                                    :width="actualWidth"
+
                                     :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
                                 >
                                     <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
@@ -96,10 +97,9 @@
                                         id="transform-root"
                                     >
                                         <!-- Coordinate system is in master image coordinates -->
-                                        <image-layer
-                                            
-                                            :width="imageWidth"
+                                        <image-layer   
                                             :height="imageHeight"
+                                            :width="imageWidth"
                                             :params="params"
                                             :editable="canEdit"
                                             :clipping-mask="artefact.mask"
@@ -322,7 +322,7 @@ export default class ImagedObjectEditor
     private side: Side = 'recto';
     private renameInputActive: Artefact | null = null;
     private waiting: boolean = false;
-    private masterImage?: IIIFImage;
+    private masterImage?: IIIFImage | null| undefined = null; 
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
 
@@ -362,10 +362,16 @@ export default class ImagedObjectEditor
         // this.waiting = true;
         (this.$refs.newArtefactName as any).focus();
     }
-    private async mounted() {
+
+   // moved code to created()
+   // from  private async mounted() {
+   // in order to have the masterImage ready before mounted
+   // for the <zoomed...><svg> ... part
+    private async created() {
         try {
             this.waiting = true;
             await this.$state.prepare.edition(this.editionId);
+            
             this.$state.imagedObjects.current = this.$state.imagedObjects.find(
                 this.$route.params.imagedObjectId
             );
@@ -423,6 +429,7 @@ export default class ImagedObjectEditor
         this.fillImageSettings();
     }
 
+
     private get artefact(): Artefact | undefined {
         const artefact = this.artefacts.find((x) => x.id === this.artefactId);
         return artefact;
@@ -454,12 +461,17 @@ export default class ImagedObjectEditor
         return this.artefacts.filter((item) => item.side === this.side);
     }
 
-    private get imageWidth(): number {
+    private masterImageExists(): boolean {
+        return ( undefined !== this.masterImage 
+              && null !== this.masterImage );
+    }
+
+    private get imageWidth(): number {        
         return this.masterImage!.width;
     }
 
     private get imageHeight(): number {
-        return this.masterImage!.height;
+          return this.masterImage!.height;
     }
     private get actualWidth(): number {
         return (
