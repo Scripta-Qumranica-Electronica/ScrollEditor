@@ -8,33 +8,46 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import { ImagedObject } from '@/models/imaged-object';
 
-export default Vue.extend({
-    props: {
-        imagedObject: Object as () => ImagedObject,
-    },
-    computed: {
-        imageUrl(): string | undefined {
-            if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
-                return this.imagedObject.recto.master.getThumbnailUrl(600);
-            }
-            return undefined;
-        },
-        editionId(): number | undefined {
-            if (this.$state.editions.current) {
-                return this.$state.editions.current.id;
-            }
-            return undefined;
-        },
-        artefactsNames(): string {
-            const names = this.imagedObject.artefacts.map((a) => a.name);
-            const unique = [...new Set(names)]; // Taken from here: https://stackoverflow.com/a/42123984/871910
-            return unique.join(', ');
+@Component({
+    name: 'imaged-object-card',
+})
+
+export default class ImagedObjectCard extends Vue {
+
+    // props: 
+
+    @Prop() protected imagedObject!: ImagedObject;
+                                 // Object as () => ImagedObject,
+    
+    // computed: 
+
+    public get imageUrl(): string | undefined {
+        if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
+            return this.imagedObject.recto.master.getThumbnailUrl(600);
         }
+        return undefined;
     }
-});
+
+    public get editionId(): number | undefined {
+        if (this.$state.editions.current) {
+            return this.$state.editions.current.id;
+        }
+        return undefined;
+    }
+
+    public get artefactsNames(): string {
+        const names = this.imagedObject.artefacts.map((a) => a.name);
+         // Taken from here: https://stackoverflow.com/a/42123984/871910    
+        const unique = [...new Set(names)];    
+        return unique.join(', ');
+    }
+    
+}
+
 </script>
 
 <style lang="scss" scoped>
