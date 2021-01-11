@@ -57,7 +57,7 @@ export default class ChangeForgottenPassword extends Vue {
   protected token: string = '';
   protected errorMessage: string = '';
   protected sessionService: SessionService = new SessionService();
-  protected errorService: ErrorService =new ErrorService(this);
+  protected errorService: ErrorService = new ErrorService(this);
   protected waiting: boolean = false;
 
   // computed

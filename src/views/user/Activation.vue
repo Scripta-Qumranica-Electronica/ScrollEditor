@@ -4,17 +4,17 @@
         <b-row class="mb-3">
             <h4>{{ $t('navbar.activateUser') }}</h4>
         </b-row>
-        
+
         <b-button @click="change" variant="primary" class="btn-activate">
             {{ $t('navbar.activate') }}
             <span v-if="waiting">
                 <font-awesome-icon icon="spinner" spin></font-awesome-icon>
             </span>
-        </b-button>   
-        
+        </b-button>
+
         <b-row>
           <b-col class="text-danger">{{errorMessage}}</b-col>
-        </b-row>   
+        </b-row>
     </form>
   </div>
 </template>
@@ -35,16 +35,15 @@ import { ResetForgottenUserPasswordRequestDTO } from '@/dtos/sqe-dtos';
 })
 
 export default class Activation extends Vue {
- 
+
   // data
-  
+
   protected token: string = '';
   protected errorMessage: string = '';
   protected sessionService: SessionService = new SessionService();
   protected errorService: ErrorService = new ErrorService(this);
   protected waiting: boolean = false;
-   
- 
+
   protected mounted() {
     const url  = window.location.href;
     this.token = url.split('token/')[1];
@@ -53,24 +52,24 @@ export default class Activation extends Vue {
     }
   }
 
-  // methods 
-  
-    public async change() {
-      const data = {
-        token: this.token
-      } as ResetForgottenUserPasswordRequestDTO;
-      this.waiting = true;
-      try {
-        await this.sessionService.activateUser(data);
-        router.push('/');
-        this.$root.$emit('bv::show::modal', 'loginModal');
-      } catch (e) {
-        this.errorMessage = this.errorService.getErrorMessage(e.response.data);
-      } finally {
-        this.waiting = false;
-      }
+  // methods
+
+  public async change() {
+    const data = {
+      token: this.token
+    } as ResetForgottenUserPasswordRequestDTO;
+    this.waiting = true;
+    try {
+      await this.sessionService.activateUser(data);
+      router.push('/');
+      this.$root.$emit('bv::show::modal', 'loginModal');
+    } catch (e) {
+      this.errorMessage = this.errorService.getErrorMessage(e.response.data);
+    } finally {
+      this.waiting = false;
     }
-  
+  }
+
 }
 
 </script>

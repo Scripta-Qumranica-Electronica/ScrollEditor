@@ -18,12 +18,12 @@ import { ImagedObject } from '@/models/imaged-object';
 
 export default class ImagedObjectCard extends Vue {
 
-    // props: 
+    // props
 
     @Prop() protected imagedObject!: ImagedObject;
                                  // Object as () => ImagedObject,
-    
-    // computed: 
+
+    // computed:
 
     public get imageUrl(): string | undefined {
         if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
@@ -41,11 +41,11 @@ export default class ImagedObjectCard extends Vue {
 
     public get artefactsNames(): string {
         const names = this.imagedObject.artefacts.map((a) => a.name);
-         // Taken from here: https://stackoverflow.com/a/42123984/871910    
-        const unique = [...new Set(names)];    
+         // Taken from here: https://stackoverflow.com/a/42123984/871910
+        const unique = [...new Set(names)];
         return unique.join(', ');
     }
-    
+
 }
 
 </script>

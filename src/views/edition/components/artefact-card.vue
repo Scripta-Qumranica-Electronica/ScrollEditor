@@ -31,10 +31,10 @@ export default class ArtefactCard extends Vue {
 
 
     // props
-    @Prop() public readonly artefact!: Artefact
+    @Prop() public readonly artefact!: Artefact;
                         // Object as () => Artefact,
-    
-    // computed: 
+
+    // computed:
     public get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }

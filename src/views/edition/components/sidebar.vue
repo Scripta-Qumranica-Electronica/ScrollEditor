@@ -131,10 +131,9 @@ export default class SideBar extends Vue {
 
     @Prop() protected page!: string;
 
-     // data => member parameters
-     // protected (not private) to allow future inheritance
-     // =======================================================
-       
+    // data => member parameters
+    // protected (not private) to allow future inheritance
+    // =======================================================
 
     protected editionId: number = 0;
     protected editionService: EditionService = new EditionService() ;
@@ -144,17 +143,18 @@ export default class SideBar extends Vue {
     protected newEditionName: string =  '';
     protected renaming: boolean = false;
 
-  
-    // computed:       
-        public get currentEditionExists(): boolean { 
+
+    // computed
+
+        public get currentEditionExists(): boolean {
             // if ( undefined !== this.$state.editions.current ) {
             //    this.waiting = false;
             // }
-            return ( undefined !== this.$state.editions.current 
+            return ( undefined !== this.$state.editions.current
                      && null !== this.$state.editions.current) ;
         }
 
-        public get currentEdition(): EditionInfo {            
+        public get currentEdition(): EditionInfo {
             return this.$state.editions.current! || null; // {};
         }
 
@@ -177,7 +177,7 @@ export default class SideBar extends Vue {
 
         public get canCopy(): boolean {
             return this.newCopyName.trim().length > 0;
-        } 
+        }
 
 
         public get isNew(): boolean {
@@ -206,7 +206,7 @@ export default class SideBar extends Vue {
             }
             return 0;
         }
-    
+
 
     // methods: {
 
@@ -282,7 +282,7 @@ export default class SideBar extends Vue {
                 this.renaming = false;
             }
         }
-    
+
 }
 
 </script>

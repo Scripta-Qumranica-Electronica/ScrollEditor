@@ -43,7 +43,7 @@ import EditionService from '@/services/edition';
 })
 export default class ConfirmInvitation extends Vue {
     // data
-       
+
     protected token: string =  '';
     protected errorMessage: string = '';
     protected editionService: EditionService = new EditionService();
@@ -65,12 +65,11 @@ export default class ConfirmInvitation extends Vue {
     // computed: {
     protected get currentUser(): DetailedUserDTO {
             return this.$state.session.user!;
-        }
+    }
 
     protected get isLogged(): boolean {
             return this.currentUser !== null && this.currentUser !== undefined;
-        }
-   
+    }
 
     // methods: {
     protected async change() {
@@ -86,7 +85,7 @@ export default class ConfirmInvitation extends Vue {
             this.waiting = false;
         }
     }
-    
+
 }
 
 </script>

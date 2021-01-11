@@ -88,20 +88,19 @@ export default class CopyEditionModal extends Vue {
         return this.$state.session.user ? true : false;
     }
 
-    public get currentEditionExists(): boolean { 
+    public get currentEditionExists(): boolean {
         // if ( undefined !== this.$state.editions.current ) {
         //    this.waiting = false;
         // }
-        return ( undefined !== this.$state.editions.current 
+        return ( undefined !== this.$state.editions.current
                     && null !== this.$state.editions.current) ;
     }
-    
+
     public get isWaiting(): boolean {
         return  !this.currentEditionExists;
     }
 
-    
-    public get currentEdition(): EditionInfo {            
+    public get currentEdition(): EditionInfo {
         return this.$state.editions.current! || null; // {};
     }
 

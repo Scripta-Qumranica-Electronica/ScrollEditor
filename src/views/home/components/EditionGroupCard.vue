@@ -54,7 +54,6 @@ export default class EditionGroupCard extends Vue {
     private get thumbnailSourceExists(): boolean {
         return (undefined !== this.edition
                  && undefined !== this.edition.thumbnail ) ;
-
     }
 
     private get thumbnailSource(): string | undefined {

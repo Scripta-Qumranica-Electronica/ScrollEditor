@@ -401,8 +401,8 @@ export default class ArtefactToolbox extends Vue {
     public keyboardInput!: boolean;
     private reset!: number;
     private zoomDelta!: number;
-    
-    public mounted() {
+
+    protected mounted() {
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
         }

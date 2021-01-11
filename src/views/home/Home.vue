@@ -45,51 +45,51 @@ import PublicEditions from './components/PublicEditions.vue';
   }
 })
 
-export default class App extends Vue {
- 
-      // component data
-      // =====================
+export default class Home extends Vue {
 
-     private filter: string = '';
-     private personalEditionsCount: number = 0 ;
-     private publicEditionsCount: number = 0 ;
+    // component data
+    // =====================
 
-     // hooks as constructor
-     // ========================
-      protected created() {
+    private filter: string = '';
+    private personalEditionsCount: number = 0 ;
+    private publicEditionsCount: number = 0 ;
+
+    // hooks as constructor
+    // ========================
+    protected created() {
         this.$state.prepare.allEditions();
 
         this.$state.editions.current = undefined;
-      }
+    }
 
-      // computed properties geters setters
-      // ====================================
+    // computed properties geters setters
+    // ====================================
 
-      // This will direct user to personal and public tabs view
-      // Without it, only public tabs view will be displayed,
-      // and without editing options (such as copy)
+    // This will direct user to personal and public tabs view
+    // Without it, only public tabs view will be displayed,
+    // and without editing options (such as copy)
 
-      get user(): boolean {
-            return this.$state.session.user ? true : false;
-        }
+    public get user(): boolean {
+        return this.$state.session.user ? true : false;
+    }
 
-       // methods & event handlers
-       // ==================================
+    // methods & event handlers
+    // ==================================
 
-       public nameMatch(name: string): boolean {           
-            return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
-        }
+    public nameMatch(name: string): boolean {
+        return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
+    }
 
-       // on-personal-editions-load emitted event handler
-        public  onPersonalEditionsLoad(count: number) {
-            this.personalEditionsCount = count;                        
-        }
+    // on-personal-editions-load emitted event handler
+    public  onPersonalEditionsLoad(count: number) {
+        this.personalEditionsCount = count;
+    }
 
 
-       // on-public-editions-load emitted event handler
-        public  onPublicEditionsLoad(count: number) {
-            this.publicEditionsCount = count;
-         }
+    // on-public-editions-load emitted event handler
+    public  onPublicEditionsLoad(count: number) {
+        this.publicEditionsCount = count;
+    }
 
 
 }

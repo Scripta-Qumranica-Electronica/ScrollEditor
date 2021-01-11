@@ -36,13 +36,13 @@
                         <p class="card-font card-label">
                             Status:
                             <b-badge
-                                :class="edition.isPublic ? 
+                                :class="edition.isPublic ?
                                         [
                                             'status-badge',
                                             'status-badge-Published',
                                         ]:
                                         [
-                                            'status-badge', 
+                                            'status-badge',
                                             'status-badge-draft'
                                         ]"
                                  >
@@ -73,7 +73,6 @@ export default class EditionCard extends Vue {
     private get thumbnailSourceExists(): boolean {
         return (undefined !== this.edition
                  && undefined !== this.edition.thumbnail ) ;
-                 
     }
 
     private get thumbnailSource(): string | undefined {

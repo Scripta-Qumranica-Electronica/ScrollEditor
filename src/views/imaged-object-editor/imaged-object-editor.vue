@@ -57,15 +57,15 @@
                             >Redo</b-button
                         >
                     </b-button-group>
-                
-            
+
+
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
                         class="btn btn-sm  ml-2 btn-outline"
                         >{{ $t('misc.new') }}</b-btn
                     >
-              
+
                 </div>
             </b-row>
             <b-row no-gutters>
@@ -97,7 +97,7 @@
                                         id="transform-root"
                                     >
                                         <!-- Coordinate system is in master image coordinates -->
-                                        <image-layer   
+                                        <image-layer
                                             :height="imageHeight"
                                             :width="imageWidth"
                                             :params="params"
@@ -310,6 +310,7 @@ export default class ImagedObjectEditor
         'brown',
         'cadetBlue',
     ];
+
     private errorMessage: string = '';
     private newArtefactName: string = '';
     private artefactService = new ArtefactService();
@@ -319,10 +320,11 @@ export default class ImagedObjectEditor
     private operationsManager = new OperationsManager<
         ImagedObjectEditorOperation
     >(this);
+
     private side: Side = 'recto';
     private renameInputActive: Artefact | null = null;
     private waiting: boolean = false;
-    private masterImage?: IIIFImage | null| undefined = null; 
+    private masterImage?: IIIFImage | null| undefined = null;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
 
@@ -355,10 +357,12 @@ export default class ImagedObjectEditor
 
         return true;
     }
+
     public get canCreate(): boolean {
         return this.newArtefactName.trim().length > 0;
     }
-   public newModalShown() {
+
+    public newModalShown() {
         // this.waiting = true;
         (this.$refs.newArtefactName as any).focus();
     }
@@ -367,11 +371,12 @@ export default class ImagedObjectEditor
    // from  private async mounted() {
    // in order to have the masterImage ready before mounted
    // for the <zoomed...><svg> ... part
+
     private async created() {
         try {
             this.waiting = true;
             await this.$state.prepare.edition(this.editionId);
-            
+
             this.$state.imagedObjects.current = this.$state.imagedObjects.find(
                 this.$route.params.imagedObjectId
             );
@@ -434,9 +439,11 @@ export default class ImagedObjectEditor
         const artefact = this.artefacts.find((x) => x.id === this.artefactId);
         return artefact;
     }
+
     private get artefacts(): Artefact[] {
         return this.imagedObject!.artefacts || [];
     }
+
     private get imagedObject(): ImagedObject | undefined {
         return this.$state.imagedObjects.current;
     }
@@ -462,17 +469,18 @@ export default class ImagedObjectEditor
     }
 
     private masterImageExists(): boolean {
-        return ( undefined !== this.masterImage 
+        return ( undefined !== this.masterImage
               && null !== this.masterImage );
     }
 
-    private get imageWidth(): number {        
+    private get imageWidth(): number {
         return this.masterImage!.width;
     }
 
     private get imageHeight(): number {
           return this.masterImage!.height;
     }
+
     private get actualWidth(): number {
         return (
             (this.rotationAngle % 180 ? this.imageHeight : this.imageWidth) *
@@ -486,12 +494,15 @@ export default class ImagedObjectEditor
             this.zoomLevel
         );
     }
+
     private get rotationAngle(): number {
         return ((this.params.rotationAngle % 360) + 360) % 360;
     }
+
     private get zoomLevel(): number {
         return this.params.zoom;
     }
+
     private get transform(): string {
         // Rotation
         const rotate = `rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${
@@ -533,9 +544,11 @@ export default class ImagedObjectEditor
         }
         return [];
     }
+
     public get canUndo(): boolean {
         return this.operationsManager.canUndo;
     }
+
     public get canRedo(): boolean {
         return this.operationsManager.canRedo;
     }
@@ -592,9 +605,11 @@ export default class ImagedObjectEditor
     private onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
     }
+
     private editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
     }
+
     private modeChosen(val: DrawingMode): boolean {
         return (
             DrawingMode[val].toString() === this.params.drawingMode.toString()
@@ -620,6 +635,7 @@ export default class ImagedObjectEditor
             }
         }
     }
+
     private async onRename() {
         if (!this.artefact) {
             throw new Error("Can't rename if there is no artefact");
@@ -639,9 +655,11 @@ export default class ImagedObjectEditor
             this.renaming = false;
         }
     }
+
     private onParamsChanged(evt: EditorParamsChangedArgs) {
         this.params = evt.params; // This makes sure a change is triggered in child components
     }
+
     private onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;
 
@@ -676,6 +694,7 @@ export default class ImagedObjectEditor
         );
         this.artefact!.mask = newPolygon;
     }
+
     private sideArtefactChanged(side: DropdownOption) {
         this.side = side.name as Side;
         if (this.artefact!.side !== side.name && this.visibleArtefacts.length) {
@@ -739,6 +758,7 @@ export default class ImagedObjectEditor
             idx % ImagedObjectEditor.colors.length
         ];
     }
+
     private async onDeleteArtefact(art: Artefact) {
         try {
             await this.artefactService.deleteArtefact(art);

@@ -49,21 +49,17 @@ import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 
 export default class ImagedObjects extends Vue {
 
-
-    // computed 
+    // computed
     public get imagedObjects(): ImagedObject[] {
         return this.$state.imagedObjects!.items!;
     }
-    
 
     // methods
     // onImagedObjectsSearch(event) {}
-    
-
 
     protected async created() {
         const editionId = this.$state.editions.current!.id;
-           await this.$state.prepare.edition(editionId);
+        await this.$state.prepare.edition(editionId);
         // await this.$state.prepare.edition(this.$state.editions.current!.id);
     }
 
