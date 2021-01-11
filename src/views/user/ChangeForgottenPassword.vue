@@ -49,7 +49,7 @@ import { ResetForgottenUserPasswordRequestDTO } from '@/dtos/sqe-dtos';
      name: 'change-forgotten-password'
 })
 
-export default class Edition extends Vue {
+export default class ChangeForgottenPassword extends Vue {
 
   // data
   protected newPassword: string = '';
