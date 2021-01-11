@@ -26,41 +26,47 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import { ImagedObjectEditorParams } from './types';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
 import IIIFImageComponent from '@/components/images/IIIFImage.vue';
 
-export default Vue.extend({
-  name: 'image-layer',
+@Component({
+name: 'image-layer',
   components: {
     'iiif-image': IIIFImageComponent,
-  },
-  props: {
-    width: Number,
-    height: Number,
-    params: Object as () => ImagedObjectEditorParams,
-    editable: Boolean,
-    clippingMask: Object as () => Polygon,
-  },
-  data() {
-    return {
-    };
-  },
-  computed: {
-    fullImageMask(): string {
+  }
+})
+
+export default class ImageLayer extends Vue {
+
+  // props
+    @Prop() public width!: number;
+    @Prop() public height!: number;
+    @Prop() public params!: ImagedObjectEditorParams;
+                        // Object as () => ImagedObjectEditorParams;
+    @Prop() public editable!: boolean;
+    @Prop() public clippingMask!: Polygon; 
+                        // Object as () => Polygon;
+    
+  // computed 
+    public get fullImageMask(): string {
       return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
-    },
-    imageSettings(): SingleImageSetting[] {
+    }
+
+    public get imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
       return values;
-    },
-    visibleImageSettings(): SingleImageSetting[] {
+    }
+    
+    public get visibleImageSettings(): SingleImageSetting[] {
       return this.imageSettings.filter((image) => image.visible);
     }
-  },
-});
+
+}
+
 </script>
 
 <style lang="scss" scoped>
