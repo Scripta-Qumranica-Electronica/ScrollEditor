@@ -20,32 +20,42 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import router from '@/router';
 import { ResetForgottenUserPasswordRequestDTO } from '@/dtos/sqe-dtos';
 
-export default Vue.extend({
-  name: 'activation',
-  data() {
-    return {
-      token: '',
-      errorMessage: '',
-      sessionService: new SessionService(),
-      errorService: new ErrorService(this),
-      waiting: false,
-    };
-  },
-  mounted() {
+
+
+@Component({
+     name: 'activation'
+})
+
+export default class Activation extends Vue {
+ 
+  // data
+  
+  protected token: string = '';
+  protected errorMessage: string = '';
+  protected sessionService: SessionService = new SessionService();
+  protected errorService: ErrorService = new ErrorService(this);
+  protected waiting: boolean = false;
+   
+ 
+  protected mounted() {
     const url  = window.location.href;
     this.token = url.split('token/')[1];
     if (this.token === '') {
       console.error('There is no token in url');
     }
-  },
-  methods: {
-    async change() {
+  }
+
+  // methods 
+  
+    public async change() {
       const data = {
         token: this.token
       } as ResetForgottenUserPasswordRequestDTO;
@@ -60,8 +70,9 @@ export default Vue.extend({
         this.waiting = false;
       }
     }
-  }
-});
+  
+}
+
 </script>
 
 <style scoped>
