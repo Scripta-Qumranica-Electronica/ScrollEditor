@@ -28,31 +28,47 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectCard from './imaged-object-card.vue';
 import { ImagedObject } from '@/models/imaged-object';
 import SearchBar from '@/components/search-bar.vue';
 import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 
-export default Vue.extend({
+
+
+@Component({
+    name: 'imaged-objects',
     components: {
         ImagedObjectCard,
         Waiting,
-        SearchBar,
-    },
-    computed: {
-        imagedObjects(): ImagedObject[] {
-            return this.$state.imagedObjects.items;
-        },
-    },
-    methods: {
-        // onImagedObjectsSearch(event) {},
-    },
-    created() {
-        this.$state.prepare.edition(this.$state.editions.current!.id);
-    },
-});
+        SearchBar
+    }
+})
+
+export default class ImagedObjects extends Vue {
+
+
+    // computed 
+    public get imagedObjects(): ImagedObject[] {
+        return this.$state.imagedObjects!.items!;
+    }
+    
+
+    // methods
+    // onImagedObjectsSearch(event) {}
+    
+
+
+    protected async created() {
+        const editionId = this.$state.editions.current!.id;
+           await this.$state.prepare.edition(editionId);
+        // await this.$state.prepare.edition(this.$state.editions.current!.id);
+    }
+
+}
+
 </script>
 <style scoped>
 .direction {
