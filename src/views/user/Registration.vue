@@ -7,7 +7,7 @@
             id="registerModal"
         >
             <template v-slot:modal-header>
-                <b-row class="mt-3"> 
+                <b-row class="mt-3">
                     <b-col cols="12">Create a researcher account</b-col>
                 </b-row>
             </template>
@@ -98,81 +98,96 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import { NewUserRequestDTO } from '@/dtos/sqe-dtos';
 import router from '@/router';
 
-export default Vue.extend({
-    name: 'registration',
-    data() {
-        return {
-            forename: '',
-            surname: '',
-            email: '',
-            password: '',
-            repassword: '',
-            organization: '',
-            errorMessage: '',
-            sessionService: new SessionService(),
-            errorService: new ErrorService(this),
-            waiting: false,
-        };
-    },
-    components: {},
-    computed: {
-        disabledReg(): boolean {
-            return (
-                this.password !== this.repassword ||
-                !this.forename ||
-                !this.surname ||
-                !this.email ||
-                !this.password ||
-                !this.repassword ||
-                this.waiting
-            );
-        },
-        identicalError(): string {
-            if (
-                this.password &&
-                this.repassword &&
-                this.password !== this.repassword
-            ) {
-                return 'Passwords must be identical';
-            }
-            return '';
-        },
-    },
-    methods: {
-        async register() {
-            const data = {
-                forename: this.forename,
-                surname: this.surname,
-                email: this.email,
-                organization: this.organization,
-                password: this.password,
-            } as NewUserRequestDTO;
-            this.waiting = true;
 
-            try {
-                await this.sessionService.register(data);
-                router.push('/');
-                this.$toasted.show(this.$tc('toasts.activationLink'), {
-                    type: 'info',
-                    position: 'top-right',
-                    duration: 7000,
-                });
-            } catch (err) {
-                this.errorMessage = this.errorService.getErrorMessage(
-                    err.response.data
-                );
-            } finally {
-                this.waiting = false;
-            }
-        },
-    },
-});
+
+@Component({
+    name: 'registration',
+})
+
+export default class Registration extends Vue {
+
+    // data
+
+    protected forename: string = '';
+    protected surname: string = '';
+    protected email: string = '';
+    protected password: string = '';
+    protected repassword: string = '';
+    protected organization: string = '';
+    protected errorMessage: string = '';
+    protected sessionService: SessionService = new SessionService();
+    protected errorService: ErrorService = new ErrorService(this);
+    protected waiting: boolean = false;
+
+
+    // computed
+
+    public get disabledReg(): boolean {
+        return (
+            this.password !== this.repassword ||
+            !this.forename ||
+            !this.surname ||
+            !this.email ||
+            !this.password ||
+            !this.repassword ||
+            this.waiting
+        );
+    }
+
+    public get identicalError(): string {
+        if (
+            this.password &&
+            this.repassword &&
+            this.password !== this.repassword
+        ) {
+            return 'Passwords must be identical';
+        }
+        return '';
+    }
+
+    // methods
+    protected async register() {
+        const data = {
+            forename: this.forename,
+            surname: this.surname,
+            email: this.email,
+            organization: this.organization,
+            password: this.password,
+        } as NewUserRequestDTO;
+        this.waiting = true;
+
+        try {
+            await this.sessionService.register(data);
+
+            // this causes
+            // vue-router.esm.js?8c4f:2008 Uncaught (in promise)
+            // NavigationDuplicated: Avoided redundant navigation to current
+            // location: "/".
+            router.push('/');
+
+            this.$toasted.show(this.$tc('toasts.activationLink'), {
+                type: 'info',
+                position: 'top-right',
+                duration: 9000, // was 7000
+            });
+        } catch (err) {
+            this.errorMessage = this.errorService.getErrorMessage(
+                err.response.data
+            );
+        } finally {
+            this.waiting = false;
+        }
+    }
+
+}
+
 </script>
 
 <style scoped>
