@@ -13,26 +13,34 @@
     <!-- TODO: Add footer -->
 </template>
 
-<script>
+<script lang="ts">
+
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import Navbar from '@/components/navigation/Navbar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SessionService from '@/services/session.ts';
 import { StateManager } from './state';
-import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog';
+import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog.vue';
 
-export default {
+
+@Component({
     name: 'app',
     components: {
         Navbar,
         Waiting,
         CorruptedStateDialog
-    },
-    data() {
-        return {
-            waiting: true,
-        };
-    },
-    created() {
+    }
+})
+
+export default class App extends Vue {
+
+    // data
+
+    protected waiting: boolean = true;
+
+
+    public created() {
         // Set the language
         this.$i18n.locale = this.$state.session.language;
         this.initializeApp();
@@ -41,24 +49,28 @@ export default {
             'corrupted-state',
             this.openCorruptedStateDialog
         );
-    },
-    destroyed() {
+    }
+
+    public destroyed() {
         this.$state.eventBus.off(
             'corrupted-state',
             this.openCorruptedStateDialog
         );
-    },
-    methods: {
-        async initializeApp() {
-            const session = new SessionService();
-            await session.isTokenValid();
-            this.waiting = false;
-        },
-        openCorruptedStateDialog() {
-             this.$root.$emit('bv::show::modal', 'corrupted-state-dialog');
-        },
-    },
-};
+    }
+
+    // methods
+    public async initializeApp() {
+        const session = new SessionService();
+        await session.isTokenValid();
+        this.waiting = false;
+    }
+
+    public openCorruptedStateDialog() {
+            this.$root.$emit('bv::show::modal', 'corrupted-state-dialog');
+    }
+
+}
+
 </script>
 
 <style lang="scss">
