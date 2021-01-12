@@ -63,7 +63,7 @@ import {
 @Component({
     name: 'text-sign',
 })
-export default class SignComponent extends Vue {
+export default class TextSign extends Vue {
     @Prop() public sign!: Sign;
     @Prop() public withMenu!: boolean;
     private previousMenuId: string = '';
