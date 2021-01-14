@@ -58,7 +58,6 @@ export default class App extends Vue {
         );
     }
 
-    // methods
     public async initializeApp() {
         const session = new SessionService();
         await session.isTokenValid();
