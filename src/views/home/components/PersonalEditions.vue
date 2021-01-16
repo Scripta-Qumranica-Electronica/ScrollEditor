@@ -19,18 +19,18 @@
             </b-row>
         </div>
         <div class="scroll-bar">
-            <editions-list
+            <edition-list
                 title="Draft"
                 class="text-edition"
                 :editions="draftEditions"
-            ></editions-list>
+            ></edition-list>
         </div>
         <div class="edition-list">
-            <editions-list
+            <edition-list
                 title="Published"
                 class="text-edition"
                 :editions="publishedEditions"
-            ></editions-list>
+            ></edition-list>
         </div>
     </div>
 </template>
