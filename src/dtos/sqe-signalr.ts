@@ -509,7 +509,7 @@ export class SignalRUtilities {
 	 *
 	 * @param editionId - Edition from which the glyph is deleted
 	 * @param scribalFontId - Scribal font from which the glyph is deleted
-	 * @param glyph - The glyph to be deleted
+	 * @param glyphCharacter - The glyph to be deleted
 	 *
 	 */
     public async deleteV1EditionsEditionIdScribalFontsScribalFontIdGlyphsGlyphCharacter(editionId: number, scribalFontId: number, glyphCharacter: string): Promise<void> {

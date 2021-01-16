@@ -683,6 +683,7 @@ export interface ImageSearchResponseDTO {
     id?: string;
     rectoThumbnail?: string;
     versoThumbnail?: string;
+    editionIds?: Array<number>;
 }
 
 export interface SetInterpretationRoiDTO {
