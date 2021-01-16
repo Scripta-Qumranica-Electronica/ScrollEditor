@@ -1,17 +1,24 @@
 <template>
     <div v-if="results">
         <p v-if="empty">Search returned no results</p>
-        <pre v-if="!empty">{{ prettyResults }}</pre>
+        <div v-else>
+            <edition-results :editions="results.editions.editions"/>
+            <pre v-if="!empty">{{ prettyResults }}</pre>
+        </div>
     </div>
 </template>
 <script lang="ts">
 import { DetailedSearchRequestDTO } from '@/dtos/sqe-dtos';
 import SearchService from '@/services/search';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import EditionResultsComponent from './edition-results.vue';
 import { SearchFormData, SearchResults } from './types';
 
 @Component({
     name: 'search-results',
+    components: {
+        'edition-results': EditionResultsComponent,
+    }
 })
 export default class SearchResultComponent extends Vue {
     @Prop( { default: null })
