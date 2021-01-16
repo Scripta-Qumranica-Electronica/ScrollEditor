@@ -43,14 +43,14 @@ import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchBar from '@/components/search-bar.vue';
-import EditionsList from './EditionsList.vue';
+import EditionList from './EditionList.vue';
 
 @Component({
     name: 'personal-editions',
     components: {
         Waiting,
         SearchBar,
-        EditionsList,
+        EditionList,
     },
 })
 export default class PersonalEditions extends Vue {

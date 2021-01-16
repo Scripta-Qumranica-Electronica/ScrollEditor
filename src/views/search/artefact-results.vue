@@ -1,39 +1,35 @@
 <template>
-    <div v-if="editions && ready" id="search-editions" class="scroll-bar edition-results">
-        <p v-b-toggle="edition-results">
+    <div v-if="artefacts" class="scroll-bar" id="artefact-editions">
+        <p v-b-toggle="title">
              {{ title }} <i class="toggle-icon fa fa-angle-up"/></p>
-        <b-collapse visible id="edition-results" class="mt-2">
+        <b-collapse visible :id="title" class="mt-2">
             <div>
                 <b-card
                     class="p-3"
                     no-body
-                    v-for="edition in actualEditions"
-                    :key="edition.versionId"
+                    v-for="artefact in artefacts"
+                    :key="artefact.id"
                 >
-                    <edition-card :edition="edition"></edition-card>
+                    {{ artefact.id }}
                 </b-card>
             </div>
         </b-collapse>
     </div>
 </template>
 <script lang="ts">
-import { DetailedSearchRequestDTO, EditionDTO } from '@/dtos/sqe-dtos';
+import { ArtefactDTO, DetailedSearchRequestDTO } from '@/dtos/sqe-dtos';
 import { EditionInfo } from '@/models/edition';
 import SearchService from '@/services/search';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
-import EditionCard from '../home/components/EditionCard.vue';
 import EditionList from '../home/components/EditionList.vue';
 import { SearchFormData, SearchResults } from './types';
 
 @Component({
-    name: 'edition-results',
-    components: {
-        'edition-card': EditionCard
-    }
+    name: 'artefact-results',
 })
-export default class EditionResultsComponent extends Vue {
+export default class ArtefactResultComponent extends Vue {
     @Prop( { default: null })
-    private editions!: EditionDTO[] | null;
+    private artefacts!: ArtefactDTO[] | null;
     private ready = false;
 
     private async mounted() {
@@ -42,17 +38,8 @@ export default class EditionResultsComponent extends Vue {
         this.ready = true;
     }
 
-    private get actualEditions(): EditionInfo[] {
-        // From EditionDTO to EditionInfo - we have the editions in our store
-        if (!this.editions) {
-            return [];
-        }
-
-        return this.editions.map(ed => this.$state.editions.find(ed.id)).filter(ed => !!ed) as EditionInfo[];
-    }
-
     private get title() {
-        return `Editions (${this.actualEditions.length || 0})`;
+        return `Artefacts (${this.artefacts?.length || 0})`;
     }
 }
 </script>
@@ -73,17 +60,11 @@ export default class EditionResultsComponent extends Vue {
     font-size: $font-size-3;
     font-family: $font-family;
 }
-.search-editions {
+.artefact-editions {
     padding-top: 70px;
 }
 .scroll-bar {
     overflow-y: auto;
     max-height: calc(400px);
-}
-
-.edition-results .card {
-    display: inline-block;
-    width: calc(25% - 20px);
-    margin: 10px;
 }
 </style>

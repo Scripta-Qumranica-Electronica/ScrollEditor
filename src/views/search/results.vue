@@ -2,8 +2,8 @@
     <div v-if="results">
         <p v-if="empty">Search returned no results</p>
         <div v-else>
-            <edition-results :editions="results.editions.editions"/>
-            <pre v-if="!empty">{{ prettyResults }}</pre>
+            <edition-results :editions="results.editions.editions" />
+            <artefact-results :artefacts="results.artefacts.artefacts" />
         </div>
     </div>
 </template>
@@ -11,6 +11,7 @@
 import { DetailedSearchRequestDTO } from '@/dtos/sqe-dtos';
 import SearchService from '@/services/search';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import ArtefactResultComponent from './artefact-results.vue';
 import EditionResultsComponent from './edition-results.vue';
 import { SearchFormData, SearchResults } from './types';
 
@@ -18,6 +19,7 @@ import { SearchFormData, SearchResults } from './types';
     name: 'search-results',
     components: {
         'edition-results': EditionResultsComponent,
+        'artefact-results': ArtefactResultComponent,
     }
 })
 export default class SearchResultComponent extends Vue {

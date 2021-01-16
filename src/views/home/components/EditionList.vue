@@ -30,13 +30,13 @@ import Waiting from '@/components/misc/Waiting.vue';
 import EditionCard from './EditionCard.vue';
 
 @Component({
-    name: 'edition-list',
+    name: 'editions-list',
     components: {
         Waiting,
         EditionCard,
      },
 })
-export default class EditionList extends Vue {
+export default class EditionsList extends Vue {
     @Prop() public title!: string;
     @Prop(
     ) public editions!: EditionInfo[];
