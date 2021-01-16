@@ -81,7 +81,7 @@ export default class EditionResultsComponent extends Vue {
     max-height: calc(400px);
 }
 
-.edition-results .card {
+#edition-results .card {
     display: inline-block;
     width: calc(25% - 20px);
     margin: 10px;
