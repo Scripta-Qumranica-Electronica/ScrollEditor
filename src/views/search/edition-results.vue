@@ -1,7 +1,7 @@
 <template>
     <div v-if="editions" class="scroll-bar">
         <edition-list
-            title="Editions"
+            :title="sectionTitle"
             class="text-edition"
             :editions="editions"
         ></edition-list>
@@ -23,6 +23,10 @@ import { SearchFormData, SearchResults } from './types';
 export default class EditionResultsComponent extends Vue {
     @Prop( { default: null })
     private editions!: EditionDTO[] | null;
+
+    private get sectionTitle() {
+        return `Editions (${this.editions?.length || 0})`;
+    }
 }
 </script>
 
