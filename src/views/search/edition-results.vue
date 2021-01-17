@@ -1,7 +1,7 @@
 <template>
     <div v-if="editions && ready" class="scroll-bar">
         <p v-b-toggle.edition-results-main>
-             {{ title }} <i class="toggle-icon fa fa-angle-up"/></p>
+            <i class="toggle-icon fa fa-angle-down"/> {{ title }}</p>
         <b-collapse visible id="edition-results-main" class="mt-2">
             <div>
                 <b-card
@@ -61,13 +61,17 @@ export default class EditionResultsComponent extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.collapsed .toggle-icon {
-    transform: rotate(180deg);
+.toggle-icon {
+    margin-left: 5px;
     color: $blue;
 }
 
-.text-color {
-    color: $black;
+p:focus {
+    outline: 0;
+}
+
+.collapsed .toggle-icon {
+    transform: rotate(-90deg);
 }
 
 p {

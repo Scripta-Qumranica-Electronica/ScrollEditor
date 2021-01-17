@@ -1,7 +1,7 @@
 <template>
     <div v-if="artefacts" class="scroll-bar">
         <p v-b-toggle.artefact-results-main>
-             {{ title }} <i class="toggle-icon fa fa-angle-up"/></p>
+             <i class="toggle-icon fa fa-angle-down"/> {{ title }} </p>
         <b-collapse visible id="artefact-results-main" class="mt-2 scroll-bar">
             <div>
                 <b-card
@@ -109,9 +109,17 @@ p {
     max-height: calc(400px);
 }
 
-.collapsed .toggle-icon {
-    transform: rotate(180deg);
+.toggle-icon {
+    margin-left: 5px;
     color: $blue;
+}
+
+p:focus {
+    outline: 0;
+}
+
+.collapsed .toggle-icon {
+    transform: rotate(-90deg);
 }
 
 #artefact-results-main .card {
