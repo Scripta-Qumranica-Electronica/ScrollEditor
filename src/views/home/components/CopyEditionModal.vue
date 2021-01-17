@@ -1,6 +1,6 @@
 <template>
     <b-modal
-        v-if="currentEditionExists"
+        v-if="currentEdition"
         id="copy-edition-modal"
         ref="copyModalRef"
         header-class="title-header"
@@ -79,41 +79,34 @@ import EditionService from '@/services/edition';
     name: 'copy-edition-modal',
 })
 export default class CopyEditionModal extends Vue {
-    public editionService: EditionService = new EditionService();
-    public newCopyName: string = '';
-    public errorMessage: string = '';
-    public waiting: boolean = false;
+    private editionService: EditionService = new EditionService();
+    private newCopyName: string = '';
+    private errorMessage: string = '';
+    private waiting: boolean = false;
 
-    public get user(): boolean {
+    private get user(): boolean {
         return this.$state.session.user ? true : false;
     }
 
-    public get currentEditionExists(): boolean {
-        // if ( undefined !== this.$state.editions.current ) {
-        //    this.waiting = false;
-        // }
-        return ( undefined !== this.$state.editions.current
-                    && null !== this.$state.editions.current) ;
+
+    private get isWaiting(): boolean {
+        return  !this.currentEdition;
     }
 
-    public get isWaiting(): boolean {
-        return  !this.currentEditionExists;
+    private get currentEdition(): EditionInfo | null {
+        return this.$state.editions.current;
     }
 
-    public get currentEdition(): EditionInfo {
-        return this.$state.editions.current! || null; // {};
-    }
-
-    public get canCopy(): boolean {
+    private get canCopy(): boolean {
         return this.newCopyName.trim().length > 0;
     }
 
-    public copyModalShown() {
+    private copyModalShown() {
         this.newCopyName = this.currentEdition!.name;
         (this.$refs.newCopyName as any).focus();
     }
 
-    public async copyEdition(evt: Event) {
+    private async copyEdition(evt: Event) {
         evt.preventDefault();
 
         if (!this.canCopy) {
