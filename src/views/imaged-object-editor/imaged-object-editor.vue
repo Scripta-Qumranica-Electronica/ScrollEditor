@@ -80,7 +80,7 @@
                                 />
                             </div>
                             <zoomer
-                                v-if="masterImageExists"
+                                v-if="masterImage"
                                 :zoom="zoomLevel"
                                 @new-zoom="onNewZoom($event)"
                             >
@@ -324,7 +324,7 @@ export default class ImagedObjectEditor
     private side: Side = 'recto';
     private renameInputActive: Artefact | null = null;
     private waiting: boolean = false;
-    private masterImage?: IIIFImage | null| undefined = null;
+    private masterImage?: IIIFImage | null = null;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
 
@@ -416,7 +416,7 @@ export default class ImagedObjectEditor
 
             // Get the current master image
             const stack = this.imagedObject.getImageStack(this.side)!;
-            this.masterImage = stack.master;
+            this.masterImage = (undefined === stack) ? null : stack.master;
 
             if (this.imagedObject.artefacts.length) {
                 this.onArtefactChanged(this.visibleArtefacts[0]);
@@ -466,11 +466,6 @@ export default class ImagedObjectEditor
 
     private get visibleArtefacts(): Artefact[] {
         return this.artefacts.filter((item) => item.side === this.side);
-    }
-
-    private masterImageExists(): boolean {
-        return ( undefined !== this.masterImage
-              && null !== this.masterImage );
     }
 
     private get imageWidth(): number {
