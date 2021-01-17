@@ -34,10 +34,9 @@ import CopyEditionModal from './CopyEditionModal.vue';
      },
 })
 export default class EditionsPublicList extends Vue {
-    @Prop(
-    ) public editions!: EditionInfo[];
+    @Prop( ) public editions!: EditionInfo[];
 
-        private openCopyEditionModal(edition: EditionInfo) {
+    private openCopyEditionModal(edition: EditionInfo) {
             // console.log(edition);
         this.$state.editions.current = edition;
         this.$root.$emit('bv::show::modal', 'copy-edition-modal');

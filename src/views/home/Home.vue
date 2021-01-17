@@ -36,7 +36,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+// import Vue from 'vue';
+import { Component, Prop, Emit, Vue, Watch } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/PersonalEditions.vue';
@@ -44,45 +45,73 @@ import PublicEditions from './components/PublicEditions.vue';
 import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */
 
-export default Vue.extend({
-    name: 'home',
-    components: {
+
+@Component({
+  name: 'home',
+  components: {
         Waiting,
         PersonalEditions,
         PublicEditions,
         Search
-    },
-    data() {
-        return {
-            filter: '',
-            personalEditionsCount: 0,
-            publicEditionsCount: 0,
-        };
-    },
+  }
+})
 
-    created() {
+export default class Home extends Vue {
+
+    // component data
+    // =====================
+
+    private filter: string = '';
+    private personalEditionsCount: number = 0 ;
+    private publicEditionsCount: number = 0 ;
+
+    // hooks as constructor
+    // ========================
+    protected created() {
         this.$state.prepare.allEditions();
 
-        this.$state.editions.current = undefined;
-    },
-    computed: {
-        user(): boolean {
-            return this.$state.session.user ? true : false;
-        },
-    },
-    methods: {
-        nameMatch(name: string): boolean {
-            return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
-        },
-        onPersonalEditionsLoad(count: number) {
-            this.personalEditionsCount = count;
-        },
-        onPublicEditionsLoad(count: number) {
-            this.publicEditionsCount = count;
-        },
-    },
-});
+        this.$state.editions.current = null;
+    }
+
+    // computed properties geters setters
+    // ====================================
+
+    // This will direct user to personal and public tabs view
+    // Without it, only public tabs view will be displayed,
+    // and without editing options (such as copy)
+
+    public get user(): boolean {
+        return this.$state.session.user ? true : false;
+    }
+
+    // methods & event handlers
+    // ==================================
+
+    public nameMatch(name: string): boolean {
+        return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
+    }
+
+    // on-personal-editions-load emitted event handler
+    public  onPersonalEditionsLoad(count: number) {
+        this.personalEditionsCount = count;
+    }
+
+
+    // on-public-editions-load emitted event handler
+    public  onPublicEditionsLoad(count: number) {
+        this.publicEditionsCount = count;
+    }
+
+
+}
+
+
+
+
 </script>
+
+
+
 <style lang="scss">
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';

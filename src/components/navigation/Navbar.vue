@@ -12,10 +12,12 @@
                     v-for="(texts, language) in allTexts"
                     >{{ texts.display }}</b-nav-item
                 > -->
+
                 <b-nav-item-dropdown
-                    v-if="userName"
+                    v-if="userNameExists"
                     :text="userName"
                     id="register"
+                    right
                 >
                     <b-dropdown-item-button @click="logout()" class="logout">{{
                         $t('navbar.logout')
@@ -34,6 +36,7 @@
                             $t('navbar.updateUserDetails')
                         }}</b-dropdown-item-button
                     >
+
                 </b-nav-item-dropdown>
             </b-nav>
         </b-navbar>
@@ -57,6 +60,10 @@ export default class Navbar extends Vue {
     private currentLanguage = 'en';
     private allTexts = localizedTexts;
 
+    protected userNameExists(): boolean {
+        return ( undefined !== this.userName );
+    }
+
     private get userName(): string | undefined {
         if (this.$state.session.user) {
             return (
@@ -73,7 +80,8 @@ export default class Navbar extends Vue {
             ? this.$state.session.user.activated
             : false;
     }
-    private get currentEdition(): EditionInfo | undefined {
+
+    private get currentEdition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
@@ -153,4 +161,6 @@ export default class Navbar extends Vue {
     content: '|';
     color: #f3f3f3;
 }
+
+
 </style>
