@@ -68,17 +68,17 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
     components: { EditionIcons },
 })
 export default class EditionCard extends Vue {
-    @Prop() public edition!: EditionInfo;
+    @Prop() private edition!: EditionInfo;
 
     private get thumbnailSourceExists(): boolean {
         return (undefined !== this.edition
                  && undefined !== this.edition.thumbnail ) ;
     }
 
-    private get thumbnailSource(): string | undefined {
+    private get thumbnailSource(): string | null {
         return (undefined !== this.edition.thumbnail)
             ? this.edition.thumbnail.thumbnailUrl
-            : undefined;
+            : null;
     }
 
 }
