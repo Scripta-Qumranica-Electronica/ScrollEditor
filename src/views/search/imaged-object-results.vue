@@ -24,17 +24,6 @@
                             <img class="card-img" v-lazy="im.rectoThumbnail || im.versoThumbnail" v-if="im.rectoThumbnail || im.versoThumbnail" alt="Imaged-Object">
                         </div>
                     </div>
-<!--                    <router-link :to="{path: `/editions/${a_e.edition.id}/artefacts/${a_e.artefact.id}`}">
-                        <artefact-image
-                            class="card-img-top"
-                            :artefact="a_e.artefact"
-                            maxWidth="150"
-                        ></artefact-image>
-                        <label class="side-edition">
-                            {{ a_e.edition.name }} - {{ a_e.artefact.name }} - {{ a_e.artefact.side }}
-                        </label>
-                    </router-link> -->
-                    
                 </b-card>
             </div>
         </b-collapse>
