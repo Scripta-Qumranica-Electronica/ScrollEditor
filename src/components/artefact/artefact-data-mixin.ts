@@ -15,7 +15,7 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     protected boundingBox = new BoundingBox();
 
     protected async asyncMounted() {
-        await this.$state.prepare.edition(this.artefact.editionId);
+        // await this.$state.prepare.edition(this.artefact.editionId);
 
         if (!this.artefact.isVirtual) {
             const imagedObject = this.imagedObject || this.$state.imagedObjects.find(this.artefact.imagedObjectId);
