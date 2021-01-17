@@ -44,7 +44,7 @@ interface ExpandedImagedObjectResponse extends ImageSearchResponseDTO {
 }
 
 @Component({
-    name: 'artefact-results',
+    name: 'imaged-object-results',
 })
 export default class ImagedObjectResultComponent extends Vue {
     @Prop( { default: null })
@@ -52,7 +52,7 @@ export default class ImagedObjectResultComponent extends Vue {
     private get expandedObjects() {
         const expanded = [] as ExpandedImagedObjectResponse[];
 
-        for(const im of this.imagedObjects || []) {
+        for (const im of this.imagedObjects || []) {
             let editions: EditionInfo[] | null = null;
             if (im.editionIds) {
                 for (const editionId of im.editionIds) {

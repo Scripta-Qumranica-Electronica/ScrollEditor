@@ -60,7 +60,7 @@ export default new Router({
             component: ArtefactEditor
         },
         {
-            path: '/editions/:editionId/textFragments/:textFragmentId',
+            path: '/editions/:editionId/text-fragments/:textFragmentId',
             component: ArtefactEditor
         },
         {

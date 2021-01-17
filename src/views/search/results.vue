@@ -5,6 +5,7 @@
             <edition-results :editions="results.editions.editions" />
             <artefact-results :artefacts="results.artefacts.artefacts" />
             <imaged-object-results :imaged-objects="results.images.imagedObjects" />
+            <text-fragment-results :text-fragments="results.textFragments.textFragments" />
         </div>
     </div>
 </template>
@@ -15,6 +16,7 @@ import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import ArtefactResultComponent from './artefact-results.vue';
 import EditionResultsComponent from './edition-results.vue';
 import ImagedObjectResultComponent from './imaged-object-results.vue';
+import TextFragmentResultComponent from './text-fragment-results.vue';
 import { SearchFormData, SearchResults } from './types';
 
 @Component({
@@ -23,6 +25,7 @@ import { SearchFormData, SearchResults } from './types';
         'edition-results': EditionResultsComponent,
         'artefact-results': ArtefactResultComponent,
         'imaged-object-results': ImagedObjectResultComponent,
+        'text-fragment-results': TextFragmentResultComponent,
     }
 })
 export default class SearchResultComponent extends Vue {
