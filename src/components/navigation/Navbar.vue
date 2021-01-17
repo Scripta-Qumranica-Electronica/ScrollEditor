@@ -81,7 +81,7 @@ export default class Navbar extends Vue {
             : false;
     }
 
-    private get currentEdition(): EditionInfo | undefined {
+    private get currentEdition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
