@@ -33,15 +33,9 @@ import PermissionModal from './components/permission-modal.vue';
 export default class ImageSettings extends Vue {
 
   // props
-    @Prop({
-      type: Object as () => ImageStack
-    })
-    protected imageStack!: ImageStack;
+    @Prop() protected imageStack!: ImageStack;
 
-    @Prop({
-      type: Object as () => BaseEditorParams
-    })
-    protected params!: BaseEditorParams;
+    @Prop() protected params!: BaseEditorParams;
 
   // methods
     public onSingleImageSettingChanged($event: SingleImageSetting) {
