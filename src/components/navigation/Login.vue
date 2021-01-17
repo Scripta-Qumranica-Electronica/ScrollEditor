@@ -89,25 +89,20 @@ import Registration from '@/views/user/Registration.vue';
 
 export default class Login extends Vue {
 
-
-    // data
-
-    protected email: string = '';
+    private email: string = '';
     // email: this.$state.session ? this.$state.session.user!.email : '',
-    protected password: string = '';
-    protected errorMessage: string = '';
-    protected sessionService: SessionService = new SessionService();
-    protected errorService: ErrorService = new ErrorService(this);
-    protected waiting: boolean = false;
+    private password: string = '';
+    private errorMessage: string = '';
+    private sessionService: SessionService = new SessionService();
+    private errorService: ErrorService = new ErrorService(this);
+    private waiting: boolean = false;
 
-    // computed
-    public get disabledLogin(): boolean {
+
+    private get disabledLogin(): boolean {
         return !this.email || !this.password || this.waiting;
     }
 
-    // methods
-
-    protected async login() {
+    private async login() {
         if (this.disabledLogin) {
             // Can be called due to ENTER key
             return;
@@ -127,21 +122,21 @@ export default class Login extends Vue {
         }
     }
 
-    protected close() {
+    private close() {
         (this.$refs.loginModalRef as any).hide();
     }
 
-    protected shown(): void {
+    private shown(): void {
         this.errorMessage = '';
         this.waiting = false;
         (this.$refs.email! as any).focus();
     }
 
-    protected forgotPassword() {
+    private forgotPassword() {
         this.$root.$emit('bv::show::modal', 'passwordModal');
     }
 
-    protected register() {
+    private register() {
         this.$root.$emit('bv::show::modal', 'registerModal');
     }
 
