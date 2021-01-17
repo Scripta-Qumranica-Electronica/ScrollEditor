@@ -444,7 +444,7 @@ export default class ImagedObjectEditor
         return this.imagedObject!.artefacts || [];
     }
 
-    private get imagedObject(): ImagedObject | undefined {
+    private get imagedObject(): ImagedObject | null {
         return this.$state.imagedObjects.current;
     }
 
@@ -452,8 +452,8 @@ export default class ImagedObjectEditor
         return parseInt(this.$route.params.editionId);
     }
 
-    private get edition(): EditionInfo {
-        return this.$state.editions.current!;
+    private get edition(): EditionInfo | null {
+        return this.$state.editions.current;
     }
 
     private get removeColor() {
