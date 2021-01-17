@@ -69,17 +69,17 @@ import EditionService from '@/services/edition';
 export default class EditionPublicCard extends Vue {
     @Prop() public edition!: EditionInfo;
 
-    public editionService: EditionService = new EditionService();
+    private editionService: EditionService = new EditionService();
 
     private get thumbnailSourceExists(): boolean {
         return (undefined !== this.edition
                  && undefined !== this.edition.thumbnail ) ;
     }
 
-    private get thumbnailSource(): string | undefined {
+    private get thumbnailSource(): string | null {
         return (undefined !== this.edition.thumbnail)
             ? this.edition.thumbnail.thumbnailUrl
-            : undefined;
+            : null;
     }
 
     private get user(): boolean {
