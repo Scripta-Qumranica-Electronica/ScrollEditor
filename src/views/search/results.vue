@@ -4,6 +4,7 @@
         <div v-else>
             <edition-results :editions="results.editions.editions" />
             <artefact-results :artefacts="results.artefacts.artefacts" />
+            <imaged-object-results :imaged-objects="results.images.imagedObjects" />
         </div>
     </div>
 </template>
@@ -13,6 +14,7 @@ import SearchService from '@/services/search';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import ArtefactResultComponent from './artefact-results.vue';
 import EditionResultsComponent from './edition-results.vue';
+import ImagedObjectResultComponent from './imaged-object-results.vue';
 import { SearchFormData, SearchResults } from './types';
 
 @Component({
@@ -20,6 +22,7 @@ import { SearchFormData, SearchResults } from './types';
     components: {
         'edition-results': EditionResultsComponent,
         'artefact-results': ArtefactResultComponent,
+        'imaged-object-results': ImagedObjectResultComponent,
     }
 })
 export default class SearchResultComponent extends Vue {
