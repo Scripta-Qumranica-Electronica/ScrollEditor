@@ -18,25 +18,16 @@ import { ImagedObject } from '@/models/imaged-object';
 
 export default class ImagedObjectCard extends Vue {
 
-    // props
-
-    @Prop() protected imagedObject!: ImagedObject;
-                                 // Object as () => ImagedObject,
-
-    // computed:
+     @Prop() protected imagedObject!: ImagedObject;
 
     public get imageUrl(): string | undefined {
-        if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
-            return this.imagedObject.recto.master.getThumbnailUrl(600);
-        }
-        return undefined;
+        // TS 3.7 and up , optional chaining returns undefined
+        // if any chain member is null or undefined
+         return this.imagedObject?.recto?.master?.getThumbnailUrl(600);
     }
 
     public get editionId(): number | undefined {
-        if (this.$state.editions.current) {
-            return this.$state.editions.current.id;
-        }
-        return undefined;
+        return this.$state?.editions?.current?.id;
     }
 
     public get artefactsNames(): string {
