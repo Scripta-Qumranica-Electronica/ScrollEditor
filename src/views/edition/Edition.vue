@@ -4,13 +4,13 @@
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
                      <router-link :to="{path:`/editions/${editionId}/artefacts`}">
-                        <span class="name-edition" v-if="currentEditionExists">
+                        <span class="name-edition" v-if="currentEdition">
                             {{  versionString(currentEdition)  }}
                         </span>
                     </router-link>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
-                    <div class="btns-permiss" v-if="currentEditionExists">
+                    <div class="btns-permiss" v-if="currentEdition">
                         <b-button
                             class="mr-3"
                             v-if="isAdmin"
@@ -65,7 +65,7 @@
 
 
         </div>
-        <permission-modal v-if="currentEditionExists"></permission-modal>
+        <permission-modal v-if="currentEdition"></permission-modal>
     </div>
 </template>
 
@@ -91,7 +91,6 @@ import PermissionModal from './components/permission-modal.vue';
 
 export default class Edition extends Vue {
 
-    // data => member parameters
     // protected (not private) to allow future inheritance
     // =======================================================
 
@@ -99,36 +98,17 @@ export default class Edition extends Vue {
     protected editionId: number = 0;
     protected page: string = '';
 
-
-    // computed=> get/set
-    // =======================================================
-
-        // this.$state.editions.current is declared as:
-    //  (property) StateCollection<EditionInfo, number>.current:
-    //                EditionInfo | undefined
-
-    public get currentEditionExists(): boolean {
-        // if ( undefined !== this.$state.editions.current ) {
-        //    this.waiting = false;
-        // }
-        return ( undefined !== this.$state.editions.current
-                    && null !== this.$state.editions.current) ;
-    }
-
     public get isWaiting(): boolean {
-        return  !this.currentEditionExists;
+        return  !this.currentEdition;
     }
 
-
-    public get currentEdition(): EditionInfo {
-        return this.$state.editions.current! || {};
+    public get currentEdition(): EditionInfo | null {
+        return this.$state.editions.current!;
     }
-
 
     public get isAdmin(): boolean {
         return this.currentEdition!.permission.isAdmin;
     }
-
 
     protected get artefactsLength(): number {
         return this.$state.artefacts.items.length;
