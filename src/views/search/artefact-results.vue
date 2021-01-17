@@ -39,7 +39,6 @@ import { SearchFormData, SearchResults } from './types';
 
 interface ArtefactWithEdition {
     artefact: Artefact;
-    imagedObject: ImagedObject;
     edition: EditionInfo;
 }
 
@@ -69,7 +68,6 @@ export default class ArtefactResultComponent extends Vue {
 
         for (const dto of this.artefacts) {
             const edition = this.$state.editions.find(dto.editionId);
-            let imagedObject
             if (edition) {
                 const artefact = new Artefact(dto);
                 artefacts.push( { artefact, edition });
