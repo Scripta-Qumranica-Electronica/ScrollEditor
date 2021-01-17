@@ -1,5 +1,5 @@
 <template>
-    <div v-if="currentEditionExists">
+    <div v-if="currentEdition">
         <div class="sidebar-header">
             <h5>
                 {{ versionString(currentEdition) }}
@@ -129,33 +129,23 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 
 export default class SideBar extends Vue {
 
-    @Prop() protected page!: string;
+    @Prop() private page!: string;
 
-    // data => member parameters
-    // protected (not private) to allow future inheritance
-    // =======================================================
 
-    protected editionId: number = 0;
-    protected editionService: EditionService = new EditionService() ;
-    protected newCopyName: string = '';
-    protected waiting: boolean = false;
-    protected errorMessage: string =  '';
-    protected newEditionName: string =  '';
-    protected renaming: boolean = false;
+    private editionId: number = 0;
+    private editionService: EditionService = new EditionService() ;
+    private newCopyName: string = '';
+    private waiting: boolean = false;
+    private errorMessage: string =  '';
+    private newEditionName: string =  '';
+    private renaming: boolean = false;
 
 
     // computed
 
-        public get currentEditionExists(): boolean {
-            // if ( undefined !== this.$state.editions.current ) {
-            //    this.waiting = false;
-            // }
-            return ( undefined !== this.$state.editions.current
-                     && null !== this.$state.editions.current) ;
-        }
 
-        public get currentEdition(): EditionInfo {
-            return this.$state.editions.current! || null; // {};
+        public get currentEdition(): EditionInfo | null {
+            return this.$state.editions.current ;
         }
 
 
@@ -210,16 +200,16 @@ export default class SideBar extends Vue {
 
     // methods: {
 
-       protected  openPermissionModal() {
+       private  openPermissionModal() {
             this.$root.$emit('bv::show::modal', 'permissionModal');
         }
 
-        protected openRename() {
+        private openRename() {
             this.renaming = true;
             this.newEditionName = this.currentEdition!.name;
         }
 
-        protected showMessage(msg: string, type: string = 'info') {
+        private showMessage(msg: string, type: string = 'info') {
             this.$toasted.show(this.$tc(msg), {
                 type,
                 position: 'top-right',
@@ -227,11 +217,11 @@ export default class SideBar extends Vue {
             });
         }
 
-        protected versionString(ver: EditionInfo) {
+        private versionString(ver: EditionInfo) {
             return ver.name;
         }
 
-        protected async copyEdition(evt: Event) {
+        private async copyEdition(evt: Event) {
             evt.preventDefault();
 
             if (!this.canCopy) {
@@ -260,12 +250,12 @@ export default class SideBar extends Vue {
             }
         }
 
-        protected copyModalShown() {
+        private copyModalShown() {
             this.newCopyName = this.currentEdition!.name;
             (this.$refs.newCopyName as any).focus();
         }
 
-        protected async onRename(newName: string) {
+        private async onRename(newName: string) {
             if (!this.currentEdition) {
                 throw new Error("Can't rename if there is no edition");
             }
