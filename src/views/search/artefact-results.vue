@@ -1,8 +1,8 @@
 <template>
-    <div v-if="artefacts" class="artefact-results">
-        <p v-b-toggle="artefact-results">
+    <div v-if="artefacts" class="scroll-bar">
+        <p v-b-toggle.artefact-results-main>
              {{ title }} <i class="toggle-icon fa fa-angle-up"/></p>
-        <b-collapse visible id="artefact-results" class="mt-2 scroll-bar">
+        <b-collapse visible id="artefact-results-main" class="mt-2 scroll-bar">
             <div>
                 <b-card
                     class="p-3"
@@ -87,9 +87,13 @@ export default class ArtefactResultComponent extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.direction {
-    float: right;
+p {
+    font-style: $font-style;
+    font-weight: $font-weight-1;
+    font-size: $font-size-3;
+    font-family: $font-family;
 }
+
 .text-color {
     color: $black;
 }
@@ -105,11 +109,12 @@ export default class ArtefactResultComponent extends Vue {
     max-height: calc(400px);
 }
 
-.artefact-results {
-    margin-top: 50px;
+.collapsed .toggle-icon {
+    transform: rotate(180deg);
+    color: $blue;
 }
 
-#artefact-results .card {
+#artefact-results-main .card {
     display: inline-block;
     width: calc(25% - 20px);
     margin: 10px;

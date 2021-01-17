@@ -1,8 +1,8 @@
 <template>
-    <div v-if="editions && ready" id="search-editions" class="scroll-bar edition-results">
-        <p v-b-toggle="edition-results">
+    <div v-if="editions && ready" class="scroll-bar">
+        <p v-b-toggle.edition-results-main>
              {{ title }} <i class="toggle-icon fa fa-angle-up"/></p>
-        <b-collapse visible id="edition-results" class="mt-2">
+        <b-collapse visible id="edition-results-main" class="mt-2">
             <div>
                 <b-card
                     class="p-3"
@@ -61,27 +61,28 @@ export default class EditionResultsComponent extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.direction {
-    float: right;
+.collapsed .toggle-icon {
+    transform: rotate(180deg);
+    color: $blue;
 }
+
 .text-color {
     color: $black;
 }
-.text-edition {
+
+p {
     font-style: $font-style;
     font-weight: $font-weight-1;
     font-size: $font-size-3;
     font-family: $font-family;
 }
-.search-editions {
-    padding-top: 70px;
-}
+
 .scroll-bar {
     overflow-y: auto;
     max-height: calc(400px);
 }
 
-#edition-results .card {
+#edition-results-main .card {
     display: inline-block;
     width: calc(25% - 20px);
     margin: 10px;

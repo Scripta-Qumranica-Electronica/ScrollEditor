@@ -1,5 +1,5 @@
 <template>
-    <div v-if="results">
+    <div v-if="results" class="mt-4">
         <p v-if="empty">Search returned no results</p>
         <div v-else>
             <edition-results :editions="results.editions.editions" />
@@ -56,3 +56,15 @@ export default class SearchResultComponent extends Vue {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+
+p {
+    font-style: $font-style;
+    font-weight: $font-weight-1;
+    font-size: $font-size-3;
+    font-family: $font-family;
+}
+</style>
