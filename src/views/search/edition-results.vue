@@ -1,8 +1,8 @@
 <template>
-    <div v-if="editions && ready" class="scroll-bar">
+    <div v-if="editions && ready">
         <p v-b-toggle.edition-results-main>
             <i class="toggle-icon fa fa-angle-down"/> {{ title }}</p>
-        <b-collapse visible id="edition-results-main" class="mt-2">
+        <b-collapse visible id="edition-results-main" class="scroll-bar mt-2">
             <div>
                 <b-card
                     class="p-3"

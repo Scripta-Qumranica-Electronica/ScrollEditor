@@ -1,5 +1,5 @@
 <template>
-    <div v-if="artefacts" class="scroll-bar">
+    <div v-if="artefacts">
         <p v-b-toggle.artefact-results-main>
              <i class="toggle-icon fa fa-angle-down"/> {{ title }} </p>
         <b-collapse visible id="artefact-results-main" class="mt-2 scroll-bar">
