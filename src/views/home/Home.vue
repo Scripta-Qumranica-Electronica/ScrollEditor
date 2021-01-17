@@ -59,7 +59,7 @@ export default class Home extends Vue {
     protected created() {
         this.$state.prepare.allEditions();
 
-        this.$state.editions.current = undefined;
+        this.$state.editions.current = null;
     }
 
     // computed properties geters setters
