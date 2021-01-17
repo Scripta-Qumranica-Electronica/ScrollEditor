@@ -56,10 +56,10 @@ export default class EditionGroupCard extends Vue {
                  && undefined !== this.edition.thumbnail ) ;
     }
 
-    private get thumbnailSource(): string | undefined {
-        return (undefined !== this.edition.thumbnail)
+    private get thumbnailSource(): string | null {
+        return (undefined !== this.edition!.thumbnail)
             ? this.edition!.thumbnail.thumbnailUrl
-            : undefined;
+            : null;
     }
 
     private get lockEdition(): boolean {
