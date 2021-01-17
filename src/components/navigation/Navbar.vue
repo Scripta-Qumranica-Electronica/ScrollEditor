@@ -14,7 +14,7 @@
                 > -->
 
                 <b-nav-item-dropdown
-                    v-if="userNameExists"
+                    v-if="userName"
                     :text="userName"
                     id="register"
                     right
@@ -60,12 +60,9 @@ export default class Navbar extends Vue {
     private currentLanguage = 'en';
     private allTexts = localizedTexts;
 
-    protected userNameExists(): boolean {
-        return ( undefined !== this.userName );
-    }
-
     private get userName(): string | undefined {
-        if (this.$state.session.user) {
+
+        if (this.$state.session && this.$state.session.user ) {
             return (
                 this.$state.session.user.forename +
                 ' ' +
