@@ -71,7 +71,9 @@ import {
 	InstitutionalImageListDTO,
 	ArtefactDataDTO,
 	ArtefactDTO,
+	ExtendedArtefactDTO,
 	ArtefactListDTO,
+	ExtendedArtefactListDTO,
 	ArtefactDataListDTO,
 	ArtefactGroupDTO,
 	ArtefactGroupListDTO,
@@ -139,6 +141,13 @@ import {
 	UpdatedInterpretationRoiDTOList,
 	BatchEditRoiDTO,
 	BatchEditRoiResponseDTO,
+	QwbWordVariantListDTO,
+	QwbWordVariantDTO,
+	QwbBibliographyDTO,
+	QwbParallelWordDTO,
+	QwbParallelDTO,
+	QwbParallelListDTO,
+	QwbBibliographyEntryDTO,
 	CatalogueMatchInputDTO,
 	CatalogueMatchDTO,
 	CatalogueMatchListDTO,
@@ -726,6 +735,50 @@ export class SignalRUtilities {
 	 */
     public async putV1UsersDataStore(data: UserDataStoreDTO): Promise<void> {
         return await this._connection.invoke('PutV1UsersDataStore', data);
+    }
+
+    /**
+	 * Search QWB (via proxy) for any variant readings for the word that contains the submitted sign
+	 *		 interpretation id.
+	 *
+	 * @param editionId - Edition in which the sign interpretation id is found
+	 * @param signInterpretationId - Id of the sign interpretation to search
+	 *
+	 */
+    public async getV1EditionsEditionIdSignInterpretationsSignInterpretationIdWordVariants(editionId: number, signInterpretationId: number): Promise<QwbWordVariantListDTO> {
+        return await this._connection.invoke('GetV1EditionsEditionIdSignInterpretationsSignInterpretationIdWordVariants', editionId, signInterpretationId);
+    }
+
+    /**
+	 * Search QWB (via proxy) for any variant readings for the word that contains the submitted
+	 *		 QWB word id.
+	 *
+	 * @param qwbWordId - QWB word Id
+	 *
+	 */
+    public async getV1QwbProxyWordsQwbWordIdWordVariants(qwbWordId: number): Promise<QwbWordVariantListDTO> {
+        return await this._connection.invoke('GetV1QwbProxyWordsQwbWordIdWordVariants', qwbWordId);
+    }
+
+    /**
+	 * Search QWB (via proxy) for any parallel text.
+	 *
+	 * @param qwbStartWordId - QWB word Id for the beginning of the text selection
+	 * @param qwbEndWordId - QWB word Id for the end of the text selection
+	 *
+	 */
+    public async getV1QwbProxyParallelsStartWordQwbStartWordIdEndWordQwbEndWordId(qwbStartWordId: number, qwbEndWordId: number): Promise<QwbParallelListDTO> {
+        return await this._connection.invoke('GetV1QwbProxyParallelsStartWordQwbStartWordIdEndWordQwbEndWordId', qwbStartWordId, qwbEndWordId);
+    }
+
+    /**
+	 * Get full bibliographic entry from QWB (via proxy).
+	 *
+	 * @param qwbBibliographyId - ID of the qwb bibliographical item to be retrieved
+	 *
+	 */
+    public async getV1QwbProxyBibliographyQwbBibliographyId(qwbBibliographyId: number): Promise<QwbBibliographyEntryDTO> {
+        return await this._connection.invoke('GetV1QwbProxyBibliographyQwbBibliographyId', qwbBibliographyId);
     }
 
     /**

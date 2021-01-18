@@ -219,6 +219,8 @@ export interface SignInterpretationDTO extends SignInterpretationBaseDTO {
     attributes: Array<InterpretationAttributeDTO>;
     rois: Array<InterpretationRoiDTO>;
     commentary?: CommentaryDTO;
+    signStreamSectionIds?: Array<number>;
+    qwbWordIds?: Array<number>;
 }
 
 export interface SignInterpretationListDTO {
@@ -378,8 +380,17 @@ export interface ArtefactDTO extends ArtefactDataDTO {
     statusMessage?: string;
 }
 
+export interface ExtendedArtefactDTO extends ArtefactDTO {
+    url?: string;
+    ppi: number;
+}
+
 export interface ArtefactListDTO {
     artefacts: Array<ArtefactDTO>;
+}
+
+export interface ExtendedArtefactListDTO {
+    artefacts: Array<ExtendedArtefactDTO>;
 }
 
 export interface ArtefactDataListDTO {
@@ -659,7 +670,7 @@ export interface DetailedSearchRequestDTO {
 export interface DetailedSearchResponseDTO {
     editions?: FlatEditionListDTO;
     textFragments?: TextFragmentSearchResponseListDTO;
-    artefacts?: ArtefactListDTO;
+    artefacts?: ExtendedArtefactListDTO;
     images?: ImageSearchResponseListDTO;
 }
 
@@ -735,6 +746,43 @@ export interface BatchEditRoiResponseDTO {
     createRois: Array<InterpretationRoiDTO>;
     updateRois: Array<UpdatedInterpretationRoiDTO>;
     deleteRois: Array<number>;
+}
+
+export interface QwbWordVariantListDTO {
+    variants?: Array<QwbWordVariantDTO>;
+}
+
+export interface QwbWordVariantDTO {
+    variantReading?: string;
+    bibliography?: Array<QwbBibliographyDTO>;
+}
+
+export interface QwbBibliographyDTO {
+    bibliographyId: number;
+    shortTitle?: string;
+    comment?: string;
+    pageReference?: string;
+}
+
+export interface QwbParallelWordDTO {
+    isVariant: boolean;
+    isReconstructed: boolean;
+    qwbWordId: number;
+    relatedQwbWordId: number;
+    word?: string;
+}
+
+export interface QwbParallelDTO {
+    qwbTextReference?: string;
+    parallelWords?: Array<QwbParallelWordDTO>;
+}
+
+export interface QwbParallelListDTO {
+    parallels?: Array<QwbParallelDTO>;
+}
+
+export interface QwbBibliographyEntryDTO {
+    entry?: string;
 }
 
 export interface CatalogueMatchInputDTO {

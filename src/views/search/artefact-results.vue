@@ -14,6 +14,7 @@
                         <artefact-image
                             class="card-img-top"
                             :artefact="a_e.artefact"
+                            :imaged-object="a_e.imagedObject"
                             maxWidth="150"
                         ></artefact-image>
                         <label class="side-edition">
@@ -28,7 +29,7 @@
 </template>
 <script lang="ts">
 import ArtefactImage from '@/components/artefact/artefact-image.vue';
-import { ArtefactDTO, DetailedSearchRequestDTO } from '@/dtos/sqe-dtos';
+import { ArtefactDTO, DetailedSearchRequestDTO, ExtendedArtefactDTO, ImagedObjectDTO, ImageDTO, ImageStackDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
@@ -39,6 +40,7 @@ import { SearchFormData, SearchResults } from './types';
 
 interface ArtefactWithEdition {
     artefact: Artefact;
+    imagedObject?: ImagedObject;
     edition: EditionInfo;
 }
 
@@ -50,13 +52,58 @@ interface ArtefactWithEdition {
 })
 export default class ArtefactResultComponent extends Vue {
     @Prop( { default: null })
-    private artefacts!: ArtefactDTO[] | null;
+    private artefacts!: ExtendedArtefactDTO[] | null;
     private ready = false;
 
     private async mounted() {
         this.ready = false;
         await this.$state.prepare.allEditions();
         this.ready = true;
+    }
+
+    private createImagedObjectDTO(dto: ExtendedArtefactDTO) {
+        // Create a DTO for the imaged object.
+        // This DTO has a lot of default fields, we only need the id, recto and verso urls and ppi
+
+        if (!dto.url) {
+            return undefined;
+        }
+
+        const rectoImageDTO: ImageDTO = {
+            id: -1,
+            url: dto.url,
+            lightingType: 'direct',
+            lightingDirection: 'top',
+            waveLength: [],
+            type: 'master',
+            side: 'recto',
+            ppi: dto.ppi,
+            master: true,
+            catalogNumber: 0
+        };
+        const rectoImageStackDTO: ImageStackDTO = {
+            id: -1,
+            images: [rectoImageDTO],
+            masterIndex: 0,
+        }
+
+        const versoImageDTO = { ...rectoImageDTO };
+        versoImageDTO.url = dto.url;
+        versoImageDTO.side = 'verso';
+        const versoImageStackDTO: ImageStackDTO = {
+            id: -1,
+            images: [versoImageDTO],
+            masterIndex: 0,
+        }
+
+        const imagedObjectDTO: ImagedObjectDTO = {
+            id: dto.imagedObjectId,
+            recto: rectoImageStackDTO,
+            verso: versoImageStackDTO,
+            artefacts: [],
+        }
+
+        return imagedObjectDTO;
     }
 
     private get artefactsWithEditions() {
@@ -70,7 +117,9 @@ export default class ArtefactResultComponent extends Vue {
             const edition = this.$state.editions.find(dto.editionId);
             if (edition) {
                 const artefact = new Artefact(dto);
-                artefacts.push( { artefact, edition });
+                const imagedObjectDTO = this.createImagedObjectDTO(dto);
+                const imagedObject = imagedObjectDTO ? new ImagedObject(imagedObjectDTO, edition) : undefined;
+                artefacts.push( { artefact, edition, imagedObject });
             }
         }
 
