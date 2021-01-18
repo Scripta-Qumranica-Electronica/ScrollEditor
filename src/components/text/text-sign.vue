@@ -10,8 +10,8 @@
             @contextmenu="
                 openSignMenu($event, 'popover-si-' + si.signInterpretationId)
             "
-            >{{ si.character || '&nbsp;' }}</span
-        >
+            >{{ si.character || '&nbsp;' }}</span>
+
         <b-popover
             v-if="withMenu"
             custom-class="popover-sign-body"
@@ -44,21 +44,44 @@
                             >{{ $t('misc.addToRight') }}</p
                         >
                     </li>
+                    <li v-if="qwbWordId !== undefined">
+                        <p @click="openQwbVariantsModal()"
+                        >{{ $t('misc.showQwbVariants') }}</p
+                        >
+                    </li>
                 </ul>
             </div>
         </b-popover>
+
+        <b-modal v-if="qwbWordId !== undefined" :ref="`qwb-word-${si.signInterpretationId}`" hide-footer title="Variant Readings from QWB">
+          <div v-if="qwbVariants && qwbVariants.variants.length > 0">
+            <div v-for="variant in qwbVariants.variants">
+              <b>{{variant.variantReading}}</b>
+              <hr>
+              <div v-for="biblio in variant.bibliography">
+                <p>{{biblio.shortTitle}}, {{biblio.pageReference}}</p>
+                <p v-if="biblio.comment !== undefined">{{biblio.comment}}</p>
+              </div>
+            </div>
+          </div>
+          <div v-if="qwbVariants === null || qwbVariants.variants.length === 0">
+            <p>No variants found in the QWB database.</p>
+          </div>
+        </b-modal>
     </span>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
+import QwbProxyService from '@/services/qwb-proxy';
 import EditSignModal from './edit-sign-modal.vue';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import {
     ArtefactROIOperation,
     DeleteSignInterpretationOperation,
 } from '../../views/artefact-editor/operations';
+import { QwbWordVariantListDTO } from '@/dtos/sqe-dtos';
 
 @Component({
     name: 'text-sign',
@@ -67,6 +90,7 @@ export default class TextSign extends Vue {
     @Prop() public sign!: Sign;
     @Prop() public withMenu!: boolean;
     private previousMenuId: string = '';
+    private qwbVariants: QwbWordVariantListDTO | null = null;
 
     // Each sign offers alternative readings. For now we always show the first suggestion
     private get si() {
@@ -93,6 +117,11 @@ export default class TextSign extends Vue {
                     .replace('_', '-')
             )
             .join(' ');
+    }
+
+    private get qwbWordId(): number | undefined {
+      const allQwbWordIds = this.sign.signInterpretations.flatMap(x => x.qwbWordIds);
+      return allQwbWordIds.length > 0 ? allQwbWordIds[0] : undefined;
     }
 
     private deleteSignInterpretation(si: SignInterpretation) {
@@ -132,6 +161,14 @@ export default class TextSign extends Vue {
             .signInterpretations[0];
         this.$state.artefactEditor.selectSign(si);
         this.$root.$emit('bv::show::modal', 'editSignModal');
+    }
+
+    private async openQwbVariantsModal() {
+        this.$refs[`qwb-word-${this.si.signInterpretationId}`].show();
+        if (this.qwbVariants === null && this.qwbWordId !== undefined) {
+            const qps = new QwbProxyService();
+            this.qwbVariants = await qps.getQwbWordVariants(this.qwbWordId)
+        }
     }
 
     private openSignMenu(event: MouseEvent, signMenuId: string) {

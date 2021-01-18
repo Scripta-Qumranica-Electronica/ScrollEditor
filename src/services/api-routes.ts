@@ -170,4 +170,22 @@ export namespace ApiRoutes {
     export function searchUrl() {
         return 'v1/search';
     }
+
+    export function qwbWordVariantUrl(qwbWordId: number) {
+        const url = `${baseUrl}/qwb-proxy/words/${qwbWordId}/word-variants`;
+
+        return url;
+    }
+
+    export function qwbParallelTextUrl(qwbStartWordId: number, qwbEndWordId: number) {
+        const url = `${baseUrl}/qwb-proxy/parallels/start-word/${qwbStartWordId}/end-word/${qwbEndWordId}`;
+
+        return url;
+    }
+
+    export function qwbBibliographyUrl(qwbBibliographyId: number) {
+        const url = `${baseUrl}/qwb-proxy/bibliography/${qwbBibliographyId}`;
+
+        return url;
+    }
 }

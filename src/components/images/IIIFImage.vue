@@ -5,9 +5,14 @@
                :transform="backgroundImageTransform"
                :opacity="opacity"/>
         <image v-for="(tile, idx) in tiles" :key="idx"
+               :x="tile.x"
+               :y="tile.y"
+               :width="tile.width"
+               :height="tile.height"
                :xlink:href="tile.url"
                :opacity="opacity"
-               :transform="tile.transform"/>
+               image-rendering="crisp-edges"
+               preserve-aspect-ratio="none"/>
     </g>
 </template>
 
@@ -171,6 +176,8 @@ export default class IIIFImageComponent extends Vue {
                     url: this.image.getScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
                                                            x, y, currentTileWidth, currentTileHeight),
                     transform: `translate(${xTranslate}, ${yTranslate})`,
+                    x: xTranslate,
+                    y: yTranslate,
                     width: currentTileWidth * this.optimizedImageScaleFactor,
                     height: currentTileHeight * this.optimizedImageScaleFactor,
                 };
