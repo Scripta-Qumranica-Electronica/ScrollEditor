@@ -66,9 +66,13 @@ export default class ArtefactResultComponent extends Vue {
         // This DTO has a lot of default fields, we only need the id, recto and verso urls and ppi
 
         if (!dto.url) {
+            console.warn('Search result returned an artefact with no image url', dto);
             return undefined;
         }
 
+        // The url from the server is either for recto or verso - depending on the artefact's side. 
+        // An ImagedObject must have both recto and verso image stacks, so we just replicate the same stack
+        // twice.
         const rectoImageDTO: ImageDTO = {
             id: -1,
             url: dto.url,
@@ -88,7 +92,6 @@ export default class ArtefactResultComponent extends Vue {
         };
 
         const versoImageDTO = { ...rectoImageDTO };
-        versoImageDTO.url = dto.url;
         versoImageDTO.side = 'verso';
         const versoImageStackDTO: ImageStackDTO = {
             id: -1,
