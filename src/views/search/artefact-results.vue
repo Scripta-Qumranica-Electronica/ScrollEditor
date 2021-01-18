@@ -85,7 +85,7 @@ export default class ArtefactResultComponent extends Vue {
             id: -1,
             images: [rectoImageDTO],
             masterIndex: 0,
-        }
+        };
 
         const versoImageDTO = { ...rectoImageDTO };
         versoImageDTO.url = dto.url;
@@ -94,14 +94,14 @@ export default class ArtefactResultComponent extends Vue {
             id: -1,
             images: [versoImageDTO],
             masterIndex: 0,
-        }
+        };
 
         const imagedObjectDTO: ImagedObjectDTO = {
             id: dto.imagedObjectId,
             recto: rectoImageStackDTO,
             verso: versoImageStackDTO,
             artefacts: [],
-        }
+        };
 
         return imagedObjectDTO;
     }
