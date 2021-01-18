@@ -70,7 +70,7 @@ export default class ArtefactResultComponent extends Vue {
             return undefined;
         }
 
-        // The url from the server is either for recto or verso - depending on the artefact's side. 
+        // The url from the server is either for recto or verso - depending on the artefact's side.
         // An ImagedObject must have both recto and verso image stacks, so we just replicate the same stack
         // twice.
         const rectoImageDTO: ImageDTO = {
