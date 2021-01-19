@@ -10,7 +10,7 @@ module.exports = {
     devServer: {
       proxy: {
         '/v1': {
-          target: 'http://localhost:5000',
+          target: 'https://api.qumranica.org',
           ws: true,
           changeOrigin: true
         }

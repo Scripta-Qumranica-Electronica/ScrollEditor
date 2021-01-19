@@ -167,7 +167,7 @@ export default class TextSign extends Vue {
         this.$refs[`qwb-word-${this.si.signInterpretationId}`].show();
         if (this.qwbVariants === null && this.qwbWordId !== undefined) {
             const qps = new QwbProxyService();
-            this.qwbVariants = await qps.getQwbWordVariants(this.qwbWordId)
+            this.qwbVariants = await qps.getQwbWordVariants(this.qwbWordId);
         }
     }
 

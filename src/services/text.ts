@@ -6,7 +6,7 @@ import {
     BatchEditRoiDTO,
     InterpretationRoiDTO,
     BatchEditRoiResponseDTO,
-    ArtefactTextFragmentMatchListDTO
+    ArtefactTextFragmentMatchListDTO, LineTextDTO
 } from '@/dtos/sqe-dtos';
 import {
     TextFragmentData,
@@ -73,6 +73,11 @@ class TextService {
         this.updateStateDeletedROIs(artefact, deletedROIs);
 
         return deletedROIs.length + newROIs.length;
+    }
+
+    public async getLineText(editionId: number, lineId: number): Promise<LineTextDTO> {
+        const response = await CommHelper.get<LineTextDTO>(ApiRoutes.lineText(editionId, lineId));
+        return response.data;
     }
 
     private async updateServerROIs(artefact: Artefact, newROIs: InterpretationRoi[], deletedROIs: InterpretationRoi[]) {

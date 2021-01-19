@@ -1,13 +1,13 @@
 <template>
     <div>
         <b-row class="mt-5" align-v="center">
-            <b-col class="col-1">
-                <label>Text</label>
+            <b-col class="col-2">
+                <label>Text Designation</label>
             </b-col>
-            <b-col class="col-5">
+            <b-col class="col-4">
                 <b-form-input
                     v-model="searchData.textDesignation"
-                    placeholder="Enter your text"
+                    placeholder="Enter your text designation"
                 ></b-form-input>
             </b-col>
             <b-col class="col-1">
@@ -18,10 +18,10 @@
             </b-col>
         </b-row>
         <b-row class="mt-2" align-v="center">
-            <b-col class="col-1">
+            <b-col class="col-2">
                 <label>Image object</label>
             </b-col>
-            <b-col class="col-5">
+            <b-col class="col-4">
                 <b-form-input
                     v-model="searchData.imageDesignation"
                     placeholder="Enter Image object "
@@ -33,15 +33,15 @@
             </b-col>
         </b-row>
         <b-row class="mt-2" align-v="center">
-            <b-col class="col-1">
+            <b-col class="col-2">
                 <label>Text Reference</label>
             </b-col>
-            <b-col class="col-5">
+            <b-col class="col-4">
                 <b-form-textarea
                     id="textarea"
                     @input="textToArray($event, 'textReference')"
                     placeholder="Enter Text Reference"
-                    rows="3"
+                    rows="2"
                     max-rows="6"
                 ></b-form-textarea>
             </b-col>
@@ -51,15 +51,15 @@
             </b-col>
         </b-row>
         <b-row class="mt-2" align-v="center">
-            <b-col class="col-1">
+            <b-col class="col-2">
                 <label>Artefact</label>
             </b-col>
-            <b-col class="col-5">
+            <b-col class="col-4">
                 <b-form-textarea
                     id="textarea"
                     @input="textToArray($event, 'artefactDesignation')"
                     placeholder="Enter artefact"
-                    rows="3"
+                    rows="2"
                     max-rows="6"
                 ></b-form-textarea>
             </b-col>
