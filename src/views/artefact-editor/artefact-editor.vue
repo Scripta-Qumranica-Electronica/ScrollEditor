@@ -141,11 +141,11 @@
                         <div class="artefact-image-container">
                             <div class="artefact-container" ref="infoBox">
                                 <div style="height: 60px">
-                                    <span v-if="!isNaN(this.artefactId)">{{
+                                    <span v-if="artefactMode">{{
                                         artefact.name
                                     }}</span>
                                     <b-form-select
-                                        v-if="isNaN(this.artefactId)"
+                                        v-if="textFragmentMode"
                                         @input="selectArtefact($event)"
                                         :options="artefacts"
                                         value-field="id"
@@ -236,7 +236,7 @@
                             }"
                         >
                             <text-side
-                                :float="!isNaN(this.artefactId)"
+                                :float="artefactMode"
                                 :artefact="artefact"
                                 @sign-interpretation-clicked="
                                     onSignInterpretationClicked($event)
@@ -261,6 +261,7 @@ import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import {
+  ArtefactEditorMode,
     ArtefactEditorParams,
     ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
@@ -329,6 +330,17 @@ export default class ArtefactEditor
     implements SavingAgent<ArtefactEditorOperation> {
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
     private actionMode: ActionMode = 'box';
+
+    // Two modes of operation. In artefact mode, the artefact is  chosen, and text fragments can be added to it.
+    // In text-fragment mode, the text fragment is constant, and artefacts can be changed.
+    private editorMode: ArtefactEditorMode = 'artefact';
+    private get artefactMode() {
+        return this.editorMode === 'artefact';
+    }
+    private get textFragmentMode() {
+        return this.editorMode === 'text-fragment';
+    }
+
     private autoMode = false;
 
     private errorMessage = '';
@@ -348,9 +360,10 @@ export default class ArtefactEditor
     );
 
     private visibleRois: InterpretationRoi[] = [];
+    // Arguments retrieved from the URL
     private editionId: number = 0;
-    private artefactId: number = 0;
-    private textFragmentId: number = 0;
+    private artefactId: number = 0;  // Only relevent in artefact mode
+    private textFragmentId: number = 0; // Only relevent in text-fragment mode
     private textFragment?: TextFragment;
 
     protected get artefact() {
@@ -525,10 +538,19 @@ export default class ArtefactEditor
 
         //  verifier url
         this.editionId = parseInt(this.$route.params.editionId);
-        this.artefactId = parseInt(this.$route.params.artefactId);
-        this.textFragmentId = parseInt(this.$route.params.textFragmentId);
+        if (this.$route.params.artefactId) {
+            this.artefactId = parseInt(this.$route.params.artefactId);
+            this.editorMode = 'artefact';
+        }
+        if (this.$route.params.textFragmentId) {
+            this.textFragmentId = parseInt(this.$route.params.textFragmentId);
+            this.editorMode = 'text-fragment';
 
-        if (!isNaN(this.artefactId)) {
+            // Note that artefactId and textFragmentId can't be both specified, because there is no Route that has both.
+            // In case the routes change and suddenly allow this, text-fragment takes precedence.
+        }
+
+        if (this.artefactMode) {
             await this.prepareArtefact(this.artefactId);
             await Promise.all(
                 this.artefact.textFragments.map(
@@ -539,7 +561,7 @@ export default class ArtefactEditor
                         )
                 )
             );
-        } else if (!isNaN(this.textFragmentId)) {
+        } else if (this.textFragmentMode) {
             await this.prepareTextFragment(this.textFragmentId);
             // await Promise.all(
             // this.textFragment.artefacts.map((art: Artefact) =>
