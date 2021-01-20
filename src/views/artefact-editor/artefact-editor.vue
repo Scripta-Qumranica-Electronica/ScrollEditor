@@ -80,7 +80,7 @@
                                     v-if="!readOnly"
                                     type="button"
                                     @click="onModeClick('select')"
-                                    :pressed="mode === 'select'"
+                                    :pressed="actionMode === 'select'"
                                     class="m-2"
                                 >
                                     <i
@@ -212,9 +212,9 @@
                                             <boundary-drawer
                                                 v-show="
                                                     isDrawingEnabled &&
-                                                    mode !== 'select'
+                                                    actionMode !== 'select'
                                                 "
-                                                :mode="mode"
+                                                :mode="actionMode"
                                                 transformRootId="transform-root"
                                                 @new-polygon="
                                                     onNewPolygon($event)
@@ -328,7 +328,7 @@ export default class ArtefactEditor
     extends Vue
     implements SavingAgent<ArtefactEditorOperation> {
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
-    private mode: ActionMode = 'box';
+    private actionMode: ActionMode = 'box';
     private autoMode = false;
 
     private errorMessage = '';
@@ -894,7 +894,7 @@ export default class ArtefactEditor
     }
 
     private onModeClick(newMode: ActionMode) {
-        this.mode = newMode;
+        this.actionMode = newMode;
     }
 
     private async saveRotation() {
