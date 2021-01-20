@@ -1,7 +1,7 @@
 <template>
     <div class="attributes">
         <ul class="row">
-            <li class="pr-1">
+            <li class="pr-1" v-if="!readOnly">
                 <b-dropdown
                     ref="attributesMenu"
                     :disabled="!selectedSignsInterpretation.length"
@@ -50,20 +50,6 @@
                 />
             </li>
         </ul>
-        <!-- <b-row v-if="!isMultiSelect" class="mt-3">
-            <b-col cols="3">
-                <label for="comment">Comment</label>
-            </b-col>
-            <b-col cols="9">
-                <b-form-input
-                    id="comment"
-                    class="inputsm"
-                    type="search"
-                    v-model="comment"
-                    placeholder="Comment"
-                />
-            </b-col>
-        </b-row> -->
         <comment v-model="comment" v-if="!isMultiSelect" class="mt-3" />
         <sign-attribute-modal />
     </div>
@@ -94,6 +80,11 @@ import CommentComponent from '../comment/comment.vue';
 export default class SignAttributePane extends Vue {
     private keepOpen = false;
     private attributesMenu: AttributeDTO[] = [];
+
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
+
 
     public get artefactEditor() {
         return this.$state.artefactEditor;

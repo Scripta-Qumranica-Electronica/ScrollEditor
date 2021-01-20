@@ -1,14 +1,13 @@
 <template>
     <div class="text-side-container">
-        <div class="border-bottom load-fragment">
+        <div class="border-bottom load-fragment" v-if="artefactMode">
             <input
-                v-if="!readOnly && artefactMode"
                 class="select-text"
                 placeholder="Enter a name e.g, col.1"
                 list="my-list-id"
                 @input="loadFragment($event)"
             />
-            <datalist id="my-list-id"  v-if="artefactMode">
+            <datalist id="my-list-id">
                 <option
                     :key="tf.textFragmentId"
                     v-for="tf in dropdownTextFragmentsData"
