@@ -236,11 +236,10 @@
                             }"
                         >
                             <text-side
-                                :artefact-mode="artefactMode"
+                                :editor-mode="editorMode"
                                 :artefact="artefact"
-                                @sign-interpretation-clicked="
-                                    onSignInterpretationClicked($event)
-                                "
+                                :text-fragment="textFragment"
+                                @sign-interpretation-clicked="onSignInterpretationClicked($event)"
                                 @text-fragment-selected="initVisibleRois()"
                                 @text-fragments-loaded="initVisibleRois()"
                             ></text-side>
@@ -364,7 +363,7 @@ export default class ArtefactEditor
     private editionId: number = 0;
     private artefactId: number = 0;  // Only relevent in artefact mode
     private textFragmentId: number = 0; // Only relevent in text-fragment mode
-    private textFragment?: TextFragment;
+    private textFragment?: TextFragment; // The single Text Fragment in text-fragment mode
 
     protected get artefact() {
         return this.$state.artefacts.current!;
@@ -562,15 +561,13 @@ export default class ArtefactEditor
                 )
             );
         } else if (this.textFragmentMode) {
-            await this.prepareTextFragment(this.textFragmentId);
-            // await Promise.all(
-            // this.textFragment.artefacts.map((art: Artefact) =>
-            //     this.$state.prepare.artefact(this.artefact.editionId, art.id)
-            // )
+            await this.$state.prepare.textFragment(this.editionId, this.textFragmentId);
+            this.textFragment = this.$state.textFragments.get(this.textFragmentId);
 
             await this.selectArtefact(this.artefacts[0].id);
         }
 
+        console.debug('artefact editor mounted with mode ', this.editorMode);
         this.waiting = false;
     }
 
@@ -680,12 +677,6 @@ export default class ArtefactEditor
         this.initVisibleRois();
 
         setTimeout(() => this.setFirstZoom(), 0);
-    }
-
-    private async prepareTextFragment(tfId: number) {
-        await this.$state.prepare.textFragment(this.editionId, tfId);
-
-        this.textFragment = this.$state.textFragments.get(tfId);
     }
 
     private statusTextFragment(roi: InterpretationRoi) {
