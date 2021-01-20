@@ -236,7 +236,7 @@
                             }"
                         >
                             <text-side
-                                :float="artefactMode"
+                                :artefact-mode="artefactMode"
                                 :artefact="artefact"
                                 @sign-interpretation-clicked="
                                     onSignInterpretationClicked($event)

@@ -2,13 +2,13 @@
     <div class="text-side-container">
         <div class="border-bottom load-fragment">
             <input
-                v-if="!readOnly && float"
+                v-if="!readOnly && artefactMode"
                 class="select-text"
                 placeholder="Enter a name e.g, col.1"
                 list="my-list-id"
                 @input="loadFragment($event)"
             />
-            <datalist id="my-list-id"  v-if="float">
+            <datalist id="my-list-id"  v-if="artefactMode">
                 <option
                     :key="tf.textFragmentId"
                     v-for="tf in dropdownTextFragmentsData"
@@ -27,7 +27,7 @@
             >
                 <b-card-header header-tag="header" class="p-0 mt-3">
                     <b-row no-gutters>
-                        <div style="width:80px;"  v-if="float">
+                        <div style="width:80px;"  v-if="artefactMode">
                             <b-button-group block>
                                 <b-button
                                     href="#"
@@ -82,6 +82,7 @@ import { Artefact } from '@/models/artefact';
 import { TextFragment, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
+import { ArtefactEditorMode } from './types';
 
 @Component({
     name: 'text-side',
@@ -92,8 +93,16 @@ import EditSignModal from '@/components/text/edit-sign-modal.vue';
 })
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
-     @Prop({ default: false })
-    public float!: boolean;
+    @Prop({ default: 'artefact'})
+    public editorMode!: ArtefactEditorMode;
+
+    private get artefactMode() {
+        return this.editorMode === 'artefact';
+    }
+
+    private get textFragmentMode() {
+        return this.editorMode === 'text-fragment';
+    }
 
     // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
