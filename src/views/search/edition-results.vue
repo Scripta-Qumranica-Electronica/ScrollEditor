@@ -84,7 +84,7 @@ p {
 
 .scroll-bar {
     overflow-y: auto;
-    max-height: calc(400px);
+    max-height: calc(380px);
 }
 
 #edition-results-main .card {
