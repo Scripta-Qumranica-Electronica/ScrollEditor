@@ -23,7 +23,7 @@
                     @on-public-editions-load="onPublicEditionsLoad($event)"
                 ></public-editions>
             </b-tab>
-                 <b-tab
+            <b-tab
                 :title="
                     $tc('home.search')
                 "
@@ -33,6 +33,7 @@
             </b-tab>
         </b-tabs>
     </div>
+
 </template>
 
 <script lang="ts">
