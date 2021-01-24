@@ -1,8 +1,9 @@
 <template>
     <div v-if="imagedObjects">
-        <p v-b-toggle.imaged-object-results-main>
+        <p v-b-toggle.imaged-object-results-main role="tab">
              <i class="toggle-icon fa fa-angle-down"/> {{ title }} </p>
-        <b-collapse visible id="imaged-object-results-main" class="mt-2 scroll-bar">
+        <b-collapse  id="imaged-object-results-main" class="mt-2 scroll-bar"
+        accordion="search-accordion" role="tabpanel">
             <div>
                 <b-card
                     class="p-3"

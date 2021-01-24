@@ -1,8 +1,9 @@
 <template>
     <div v-if="editions && ready">
-        <p v-b-toggle.edition-results-main>
+        <p v-b-toggle.edition-results-main  role="tab">
             <i class="toggle-icon fa fa-angle-down"/> {{ title }}</p>
-        <b-collapse visible id="edition-results-main" class="scroll-bar mt-2">
+        <b-collapse  id="edition-results-main" class="scroll-bar mt-2"
+        accordion="search-accordion" role="tabpanel">
             <div>
                 <b-card
                     class="p-3"

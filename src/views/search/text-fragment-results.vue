@@ -1,8 +1,9 @@
 <template>
     <div v-if="textFragments">
-        <p v-b-toggle.text-fragment-results-main>
+        <p v-b-toggle.text-fragment-results-main  role="tab">
              <i class="toggle-icon fa fa-angle-down"/> {{ title }} </p>
-        <b-collapse visible id="text-fragment-results-main" class="mt-2 scroll-bar">
+        <b-collapse  id="text-fragment-results-main" class="mt-2 scroll-bar"
+        accordion="search-accordion" role="tabpanel">
             <div>
                 <b-card
                     class="p-3"
