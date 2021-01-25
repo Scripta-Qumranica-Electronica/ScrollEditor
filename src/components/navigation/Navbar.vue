@@ -4,6 +4,17 @@
             <b-navbar-brand to="/" class="navbar-brand"
                 ><span>S</span>Scrollery</b-navbar-brand
             >
+
+            <b-nav>
+
+                <b-nav-item
+                    active
+                    to="/search"
+                >
+                <span>Search</span>
+                </b-nav-item>
+            </b-nav>
+
             <b-nav class="ml-auto">
 <!--                <b-nav-item
                     :active="language === currentLanguage"

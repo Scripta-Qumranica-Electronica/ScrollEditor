@@ -1,5 +1,5 @@
 <template>
-    <div class="scroll-bar">
+    <div class="scroll-bar main-div">
         <search-form @search="onSearch($event)" :disabled="searching" />
         <waiting v-if="searching" />
         <search-results :results="searchResults" />
@@ -50,11 +50,14 @@ export default class Search extends Vue {
 <style lang="scss" scoped>
 
 .scroll-bar {
-
     max-height: calc(100vh - 140px);
     overflow-y: auto;
     overflow-x: hidden;
+}
 
+.main-div {
+    padding: 0 15%;
+    border-bottom: none !important;
 }
 
 </style>
