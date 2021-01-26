@@ -2,7 +2,7 @@
     <div v-if="editions && ready">
         <p v-b-toggle.edition-results-main  role="tab">
             <i class="toggle-icon fa fa-angle-down"/> {{ title }}</p>
-        <b-collapse  id="edition-results-main" class="scroll-bar mt-2"
+        <b-collapse  id="edition-results-main" class="mt-2"
         accordion="search-accordion" role="tabpanel">
             <div>
                 <b-card
@@ -80,11 +80,6 @@ p {
     font-weight: $font-weight-1;
     font-size: $font-size-3;
     font-family: $font-family;
-}
-
-.scroll-bar {
-    overflow-y: auto;
-    max-height: calc(380px);
 }
 
 #edition-results-main .card {
