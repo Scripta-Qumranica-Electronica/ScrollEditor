@@ -5,8 +5,7 @@
                 ><span>S</span>Scrollery</b-navbar-brand
             >
 
-            <b-nav>
-
+            <b-nav  v-if="isActive" >
                 <b-nav-item
                     active
                     to="/search"
