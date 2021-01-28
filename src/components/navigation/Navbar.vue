@@ -1,55 +1,83 @@
 <template>
     <div>
-        <b-navbar toggleable="md" class="navbar">
-            <b-navbar-brand to="/" class="navbar-brand"
-                ><span>S</span>Scrollery</b-navbar-brand
-            >
+        <!-- variant is BG color, type is text color -->
 
-            <b-nav  v-if="isActive" >
+        <b-navbar toggleable="md"
+            class="main-nav-bar d-flex flex-row justify-content-between align-items-center"
+            variant= "dark" type="light" active
+        >
+
+            <b-navbar-brand to="/" align="left"
+                class="mt-mb-auto d-flex flex-row justify-content-between">
+                <span>S</span>
+                {{ $t('home.home') }}
+            </b-navbar-brand >
+
+            <b-navbar-nav fill
+                class="mt-mb-auto d-flex">
                 <b-nav-item
                     active
                     to="/search"
                 >
-                <span>Search</span>
+                    <span>{{ $t('home.search') }}</span>
                 </b-nav-item>
-            </b-nav>
 
-            <b-nav class="ml-auto">
-<!--                <b-nav-item
-                    :active="language === currentLanguage"
-                    @click="changeLanguage(language)"
-                    :key="language"
-                    v-for="(texts, language) in allTexts"
-                    >{{ texts.display }}</b-nav-item
-                > -->
+            </b-navbar-nav>
 
-                <b-nav-item-dropdown
-                    v-if="userNameExists"
-                    :text="userName"
-                    id="register"
-                    right
-                >
-                    <b-dropdown-item-button @click="logout()" class="logout">{{
-                        $t('navbar.logout')
-                    }}</b-dropdown-item-button>
-                    <b-dropdown-item-button
-                        v-if="isActive"
-                        @click="changePassword()"
-                        >{{
-                            $t('navbar.changePassword')
-                        }}</b-dropdown-item-button
-                    >
-                    <b-dropdown-item-button
-                        v-if="isActive"
-                        @click="updateUserDetails()"
-                        >{{
-                            $t('navbar.updateUserDetails')
-                        }}</b-dropdown-item-button
+            <b-navbar-nav c
+                class="ml-auto mt-mb-auto"
+                align="right" fill  >
+
+
+    <!--                <b-nav-item
+                        :active="language === currentLanguage"
+                        @click="changeLanguage(language)"
+                        :key="language"
+                        v-for="(texts, language) in allTexts"
+                        >{{ texts.display }}</b-nav-item
+                    > -->
+
+
+                    <b-nav-item-dropdown
+                        v-if="userNameExists"
+                        :text="userName"
+                        id="register"
+                        right
                     >
 
-                </b-nav-item-dropdown>
-            </b-nav>
+                        <b-dropdown-item-button
+                            @click="logout()"
+                            class="logout"
+                        >
+                            {{
+                                $t('navbar.logout')
+                            }}
+                        </b-dropdown-item-button>
+
+                        <b-dropdown-item-button
+                            v-if="isActive"
+                            @click="changePassword()"
+                        >
+                            {{
+                                $t('navbar.changePassword')
+                            }}
+                        </b-dropdown-item-button >
+
+                        <b-dropdown-item-button
+                            v-if="isActive"
+                            @click="updateUserDetails()"
+                        >
+                            {{
+                                $t('navbar.updateUserDetails')
+                            }}
+                        </b-dropdown-item-button>
+
+                    </b-nav-item-dropdown>
+
+            </b-navbar-nav>
+
         </b-navbar>
+
     </div>
 </template>
 
@@ -124,33 +152,42 @@ export default class Navbar extends Vue {
 }
 </script>
 
-<style scoped>
+
+<style lang="scss" >
+@import '@/assets/styles/_fonts.scss';
+
+/* scoped has to be removed in order to set b-nav-dropdown color  */
+
 .white-link {
-    color: white;
+    /* color: white; */
+    color: #f3f3f3 !important;
     text-decoration: none;
 }
-.editionId {
-    list-style: none;
-}
-.editionId > a {
-    color: white;
-}
-.navbar {
+
+.main-nav-bar.navbar {
     background: #0a142e;
     height: 50px;
 }
-.navbar-light .navbar-brand,
-.navbar-light .navbar-brand:hover {
-    color: #ffffff;
+.navbar-brand,
+.navbar-brand:hover {
+    /* color: #ffffff; */
+    /* color: #134ff5 !important; */
+    color: #8253f0 !important;
 }
+
 .navbar-brand {
-    font-family: Helvetica Neue W01 95 Black;
+    /* font-family: Helvetica Neue W01 95 Black; */
+    font-family: $font-family;
+    /* color: #ffffff; */
+    /* color: #f3f3f3; */
     letter-spacing: 0em;
     text-align: left;
     font-weight: 900;
-    font-style: normal;
-    font-size: 20px;
+    font-style: italic;
+    /* font-size: 20px; */
+    font-size: 2.2rem;
 }
+
 .navbar-brand > span {
     margin-right: 10px;
     margin-left: 24px;
@@ -162,12 +199,27 @@ export default class Navbar extends Vue {
     text-align: center;
 }
 
-.navbar .nav-item {
+.main-nav-bar.navbar .nav-item {
     display: flex;
     align-items: center;
+
+    font-family: $font-family;
+    letter-spacing: 0em;
+    text-align: left;
+    font-weight: 900;
+    font-size: 1.1rem;
 }
 
-.navbar .nav-item:not(:last-child):after {
+
+
+/* .main-nav-bar .nav-item a.nav-link , */
+.main-nav-bar .nav-item  .nav-link,
+.nav-item-white
+{
+     color: #f3f3f3  !important;
+}
+
+.main-nav-bar .nav-item:not(:last-child):after {
     content: '|';
     color: #f3f3f3;
 }
