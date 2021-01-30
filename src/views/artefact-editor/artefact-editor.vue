@@ -363,7 +363,7 @@ export default class ArtefactEditor
     private editionId: number = 0;
     private artefactId: number = 0;  // Only relevent in artefact mode
     private textFragmentId: number = 0; // Only relevent in text-fragment mode
-    private textFragment?: TextFragment; // The single Text Fragment in text-fragment mode
+    private textFragment: TextFragment | null = null; // The single Text Fragment in text-fragment mode
 
     protected get artefact() {
         return this.$state.artefacts.current!;
@@ -562,7 +562,7 @@ export default class ArtefactEditor
             );
         } else if (this.textFragmentMode) {
             await this.$state.prepare.textFragment(this.editionId, this.textFragmentId);
-            this.textFragment = this.$state.textFragments.get(this.textFragmentId);
+            this.textFragment = this.$state.textFragments.get(this.textFragmentId) || null;
 
             await this.selectArtefact(this.artefacts[0].id);
         }

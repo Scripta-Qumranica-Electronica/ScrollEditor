@@ -366,7 +366,11 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
     constructor(signIntepretationId: number) {
         super('delete');
         this.signInterpretationId = signIntepretationId;
-        this.sign = state().signInterpretations.get(this.signInterpretationId)!.sign;
+        const si = state().signInterpretations.get(this.signInterpretationId, true);
+        if (!si) {
+            state().corrupted(`Can't find sign interpretation ${this.signInterpretationId}`);
+        }
+        this.sign = si!.sign;
     }
 
     public get signInterpretation() {
@@ -377,26 +381,45 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
         return undefined;
     }
 
+    protected get prevSign() {
+        return this.sign.line.signs[this.sign.indexInLine - 1];
+    }
+
     protected internalRedo() {
         // Delete the sign from the line
         this.sign.line.removeSign(this.sign);
+
+        // Fix the linked list of signs
+        const SI = this.sign.signInterpretations[0];
+        const prevSI = this.prevSign.signInterpretations[0];
+        prevSI.nextSignInterpretations = SI.nextSignInterpretations;
     }
 
     protected internalUndo() {
         // Add the sign back into the line
         this.sign.line.addSign(this.sign);
+
+        // Fix the linked list of signs
+        const SI = this.sign.signInterpretations[0];
+        const prevSI = this.prevSign.signInterpretations[0];
+        SI.nextSignInterpretations = prevSI.nextSignInterpretations;
+        prevSI.nextSignInterpretations[0].nextSignInterpretationId = SI.signInterpretationId;
     }
 }
 
 export class CreateSignInterpretationOperation extends SignInterpretationEditOperation {
     public sign: Sign;
 
-    constructor(addAfterSignId: number, character: string, signTypeId: number, signTypeString: string) {
+    constructor(addAfterSignInterpretationId: number, character: string, signTypeId: number, signTypeString: string) {
         super('create');
 
         // We need to construct a brand new Sign object
-        const prevSignId = state().signInterpretations.get(addAfterSignId)!;
-        const prevSign = prevSignId.sign;
+        const prevSI = state().signInterpretations.get(addAfterSignInterpretationId, true);
+        if (!prevSI) {
+            state().corrupted(`Can't locate sign interpretation ${addAfterSignInterpretationId}`);
+        }
+        const prevSign = prevSI!.sign;
+        console.debug(`previous sign interpretation ${prevSI!.id}, previous sign: ${prevSign}`);
 
         // First, create a sign with no interpretations
         this.sign = new Sign({ signInterpretations: [] }, prevSign.line, prevSign.indexInLine + 1);
@@ -416,20 +439,37 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
         si.signType = [signTypeId, signTypeString];
 
         this.sign.signInterpretations.push(si);
+        state().signInterpretations.put(si);
+        console.debug('Created new sign interpretation ', si);
     }
 
     public get signInterpretation() {
         return this.sign.signInterpretations[0];
     }
 
+    protected get prevSign() {
+        return this.sign.line.signs[this.sign.indexInLine - 1];
+    }
+
     protected internalRedo() {
         // Add the sign into the line
         this.sign.line.addSign(this.sign);
+
+        // Fix the linked list of signs
+        const SI = this.sign.signInterpretations[0];
+        const prevSI = this.prevSign.signInterpretations[0];
+        SI.nextSignInterpretations = prevSI.nextSignInterpretations;
+        prevSI.nextSignInterpretations[0].nextSignInterpretationId = SI.signInterpretationId;
     }
 
     protected internalUndo() {
         // Delete the sign from the line
         this.sign.line.removeSign(this.sign);
+
+        // Fix the linked list of signs
+        const SI = this.sign.signInterpretations[0];
+        const prevSI = this.prevSign.signInterpretations[0];
+        prevSI.nextSignInterpretations = SI.nextSignInterpretations;
     }
 
     protected uniteWithRightOp(op: SignInterpretationEditOperation): SignInterpretationEditOperation | undefined {
