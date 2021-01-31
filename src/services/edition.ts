@@ -14,7 +14,7 @@ import {
     CreateArtefactGroupDTO,
     ArtefactGroupDTO,
     ArtefactGroupListDTO,
-    UpdateEditionManuscriptMetricsDTO, AttributeListDTO
+    UpdateEditionManuscriptMetricsDTO, AttributeListDTO, ScriptDataDTO, ScriptDataListDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -286,6 +286,13 @@ class EditionService {
         const response = await CommHelper.get<AttributeListDTO>(
             ApiRoutes.editionAttributeMetadataUrl(editionId)
         );
+
+        return response.data;
+    }
+
+    public async getScribalFont(editionId: number): Promise<ScriptDataListDTO> {
+        const url = ApiRoutes.editionScirbalFontUrl(editionId);
+        const response = await CommHelper.get<ScriptDataListDTO>(url);
 
         return response.data;
     }

@@ -3,6 +3,7 @@ import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO,
     ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO, AttributeValueDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
+import { ScriptData } from './script';
 
 type SimplifiedPermission = 'none' | 'read' | 'write' | 'admin';
 
@@ -139,6 +140,7 @@ class EditionInfo {
     // The following are loaded when necessary
     public textFragments: TextFragmentData[] = [];
     public artefactGroups: ArtefactGroup[];
+    public script?: ScriptData;
 
     public get ppm(): number {  // Pixels per milimeter
         return this.metrics.ppi / 25.4;

@@ -170,4 +170,10 @@ export namespace ApiRoutes {
     export function searchUrl() {
         return 'v1/search';
     }
+
+    export function editionScirbalFontUrl(editionId: number) {
+        const url = `v1/editions/${editionId}/scribalfonts`;
+
+        return url;
+    }
 }

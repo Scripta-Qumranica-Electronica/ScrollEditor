@@ -446,6 +446,7 @@ export interface CreateArtefactGroupDTO extends UpdateArtefactGroupDTO {
 export interface EditionDTO {
     id: number;
     name: string;
+    manuscriptId: number;
     editionDataEditorId: number;
     permission: PermissionDTO;
     owner: UserDTO;

@@ -427,6 +427,11 @@ export class SignalRUtilities {
         return await this._connection.invoke('GetV1EditionsEditionIdScriptLines', editionId);
     }
 
+    
+    public async getV1ManuscriptsManuscriptIdEditions(manuscriptId: number): Promise<EditionListDTO> {
+        return await this._connection.invoke('GetV1ManuscriptsManuscriptIdEditions', manuscriptId);
+    }
+
     /**
 	 * Get the details of the scribal font for an edition that
 	 *		 are needed to generate reconstructed text layout.
