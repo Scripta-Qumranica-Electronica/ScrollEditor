@@ -67,6 +67,7 @@ export default class SignInterpretationService {
     }
 
     public async createSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
+        console.debug(`About to create sign interpretation in server, local id is ${signInterpretation.signInterpretationId}`);
         const url = ApiRoutes.signInterpretationUrl(edition.id);
 
         // Find the previous signInterpretationId
@@ -103,6 +104,8 @@ export default class SignInterpretationService {
 
         const siDto = response.data.created![0];
         const newId = siDto.signInterpretationId;
+        console.debug(`New sign interpretation id is ${newId}`);
+
         const existingSi = this.stateManager.signInterpretations.get(newId);
         if (existingSi) {
             // This sign interpretation has already been added by the SignalR notification, but we already have
