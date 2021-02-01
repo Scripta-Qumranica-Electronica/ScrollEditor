@@ -188,8 +188,10 @@ export default class ImagedObjectEditorToolbar extends Vue {
     private imageStack: ImageStack = {} as ImageStack;
     private newArtefactName: string = '';
     private waiting: boolean = false;
+
     @Prop() private artefact!: Artefact;
     @Prop() private imagedObject!: ImagedObject;
+
     @Prop({ type: Array, default: () => [] })
     private artefacts!: PropOptions<Artefact[]>;
 

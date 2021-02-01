@@ -43,7 +43,7 @@ class ArtefactService {
 
         const artefact = new Artefact(response.data);
         this.stateManager.artefacts.add(artefact, false);
-        
+
         return artefact;
     }
 

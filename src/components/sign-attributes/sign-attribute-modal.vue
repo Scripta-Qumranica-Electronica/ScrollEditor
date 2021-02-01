@@ -3,7 +3,7 @@
         id="sign-attribute-modal"
         @hide="onHide"
         ref="signAttributeModalRef"
-        title="Edit Attribute"
+        title="Attribute Information"
     >
         <div v-if="attribute">
             <b-row>
@@ -15,6 +15,7 @@
                         id="selectAttr"
                         v-model="selected"
                         @change="onAttributeValueChanged($event)"
+                        :disabled="readOnly"
                     >
                         <option :disabled="true" :value="null">{{attribute.attributeValueString}}</option>
                         <option
@@ -32,7 +33,7 @@
             <comment v-if="!isMultiSelect" v-model="comment" class="mt-3" />
         </div>
         <template v-slot:modal-footer>
-            <b-button :disabled="!deleteAllowed" @click="onDeleteAttribute">
+            <b-button :disabled="!deleteAllowed || readOnly" @click="onDeleteAttribute">
                 <i class="fa fa-trash"></i>
             </b-button>
         </template>
@@ -65,6 +66,10 @@ import SignAttributeBadge from './sign-attribute-badge.vue';
 export default class SignAttributeModal extends Vue {
     private selected: string | null = null;
     private hidingStarted = false;
+
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
 
     private get attribute() {
         return this.$state.artefactEditor.selectedAttribute;

@@ -10,11 +10,11 @@ export interface ItemWithId<U> {
 
 abstract class StateCollection<T extends ItemWithId<U>, U = number> {
     private _items: T[];
-    private _current: T | undefined;
+    private _current: T | null;
 
     constructor() {
         this._items = [];
-        this._current = undefined;
+        this._current = null;
     }
 
     public get items(): T[] {
@@ -23,14 +23,14 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
 
     public set items(items: T[]) {
         this._items = items;
-        this._current = undefined;
+        this._current = null;
     }
 
-    public get current(): T | undefined {
+    public get current(): T | null {
         return this._current;
     }
 
-    public set current(item: T | undefined) {
+    public set current(item: T | null) {
         if (item) {
             if (this._items) {
                 const existing = this._items.find((a) => a.id === item.id);
@@ -41,15 +41,23 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
             }
             this._current = item;
         } else {
-            this._current = undefined;
+            this._current = null;
         }
     }
 
-    public find(id: U): T | undefined {
+    // public find(id: U): T | undefined {
+    //     if (!this._items) {
+    //         return undefined;
+    //     }
+    //     return this._items.find((it) => it.id === id);
+    // }
+
+    public find(id: U): T | null { // } | undefined {
         if (!this._items) {
-            return undefined;
+            return null;
         }
-        return this._items.find((it) => it.id === id);
+        const res = this._items.find((it) => it.id === id);
+        return (undefined === res ) ?  null : res ;
     }
 
     public update(entity: T, failIfNotFound = true) {
@@ -73,7 +81,7 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         }
 
         if (this._current && this._current.id === entityId) {
-            this._current = undefined;
+            this._current = null;
         }
 
         const newItems = [...this._items]; // Create a new copy, for reactiveness
@@ -97,7 +105,8 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         const oldCurrent = this._current;
         this.items = newItems;
         const newCurrent = oldCurrent && this.find(oldCurrent.id);
-        this.current = newCurrent;
+        this.current = (undefined === newCurrent) ? null : newCurrent;
+        // this.current = newCurrent;
     }
 }
 
@@ -216,5 +225,5 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
 export class SignInterpretationMap extends StateMap<SignInterpretation> { }
 
 export class MiscState {
-    public newEditionId: number | undefined;
+    public newEditionId!: number ;
 }

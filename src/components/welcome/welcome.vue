@@ -161,7 +161,7 @@ export default class Welcome extends Vue {
         position: relative;
         z-index: 20;
     }
-    p {
+    p, p.title {
         letter-spacing: 0em;
         text-transform: uppercase;
         color: #ffffff;

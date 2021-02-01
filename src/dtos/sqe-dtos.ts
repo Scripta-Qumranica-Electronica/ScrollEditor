@@ -117,6 +117,66 @@ export interface RequestMaterializationDTO {
     editionIds: Array<number>;
 }
 
+export interface CreateScriptDataDTO {
+    wordSpace: number;
+    lineSpace: number;
+}
+
+export interface ScriptDataDTO extends CreateScriptDataDTO {
+    kerningPairs?: Array<KernPairDTO>;
+    glyphs?: Array<GlyphDataDTO>;
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface ScriptDataListDTO {
+    scripts?: Array<ScriptDataDTO>;
+}
+
+export interface CreateKernPairDTO {
+    firstCharacter: string;
+    secondCharacter: string;
+    xKern: number;
+    yKern: number;
+}
+
+export interface KernPairDTO extends CreateKernPairDTO {
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteKernPairDTO {
+    firstCharacter: string;
+    secondCharacter: string;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface CreateGlyphDataDTO {
+    character: string;
+    shape: string;
+    yOffset: number;
+}
+
+export interface GlyphDataDTO extends CreateGlyphDataDTO {
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteGlyphDataDTO {
+    character: string;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteScribalFontDTO {
+    scribalFontId: number;
+    editionEditorId: number;
+}
+
 export interface SignDTO {
     signInterpretations: Array<SignInterpretationDTO>;
 }
@@ -159,6 +219,8 @@ export interface SignInterpretationDTO extends SignInterpretationBaseDTO {
     attributes: Array<InterpretationAttributeDTO>;
     rois: Array<InterpretationRoiDTO>;
     commentary?: CommentaryDTO;
+    signStreamSectionIds?: Array<number>;
+    qwbWordIds?: Array<number>;
 }
 
 export interface SignInterpretationListDTO {
@@ -318,8 +380,17 @@ export interface ArtefactDTO extends ArtefactDataDTO {
     statusMessage?: string;
 }
 
+export interface ExtendedArtefactDTO extends ArtefactDTO {
+    url?: string;
+    ppi: number;
+}
+
 export interface ArtefactListDTO {
     artefacts: Array<ArtefactDTO>;
+}
+
+export interface ExtendedArtefactListDTO {
+    artefacts: Array<ExtendedArtefactDTO>;
 }
 
 export interface ArtefactDataListDTO {
@@ -394,6 +465,10 @@ export interface EditionGroupDTO {
 
 export interface EditionListDTO {
     editions: Array<Array<EditionDTO>>;
+}
+
+export interface FlatEditionListDTO {
+    editions: Array<EditionDTO>;
 }
 
 export interface PermissionDTO {
@@ -583,16 +658,43 @@ export interface WktPolygonDTO {
 
 export interface DetailedSearchRequestDTO {
     textDesignation?: string;
+    exactTextDesignation: boolean;
     imageDesignation?: string;
+    exactImageDesignation: boolean;
     textReference?: Array<string>;
+    exactTextReference: boolean;
     artefactDesignation?: Array<string>;
+    exactArtefactDesignation: boolean;
 }
 
 export interface DetailedSearchResponseDTO {
-    editions?: EditionListDTO;
-    textFragments?: TextFragmentDataListDTO;
-    artefacts?: ArtefactDataListDTO;
-    images?: ImagedObjectListDTO;
+    editions?: FlatEditionListDTO;
+    textFragments?: TextFragmentSearchResponseListDTO;
+    artefacts?: ExtendedArtefactListDTO;
+    images?: ImageSearchResponseListDTO;
+}
+
+export interface TextFragmentSearchResponseListDTO {
+    textFragments?: Array<TextFragmentSearchResponseDTO>;
+}
+
+export interface TextFragmentSearchResponseDTO {
+    id: number;
+    editionId: number;
+    name?: string;
+    editionName?: string;
+    editionEditors?: Array<string>;
+}
+
+export interface ImageSearchResponseListDTO {
+    imagedObjects?: Array<ImageSearchResponseDTO>;
+}
+
+export interface ImageSearchResponseDTO {
+    id?: string;
+    rectoThumbnail?: string;
+    versoThumbnail?: string;
+    editionIds?: Array<number>;
 }
 
 export interface SetInterpretationRoiDTO {
@@ -644,6 +746,43 @@ export interface BatchEditRoiResponseDTO {
     createRois: Array<InterpretationRoiDTO>;
     updateRois: Array<UpdatedInterpretationRoiDTO>;
     deleteRois: Array<number>;
+}
+
+export interface QwbWordVariantListDTO {
+    variants?: Array<QwbWordVariantDTO>;
+}
+
+export interface QwbWordVariantDTO {
+    variantReading?: string;
+    bibliography?: Array<QwbBibliographyDTO>;
+}
+
+export interface QwbBibliographyDTO {
+    bibliographyId: number;
+    shortTitle?: string;
+    comment?: string;
+    pageReference?: string;
+}
+
+export interface QwbParallelWordDTO {
+    isVariant: boolean;
+    isReconstructed: boolean;
+    qwbWordId: number;
+    relatedQwbWordId: number;
+    word?: string;
+}
+
+export interface QwbParallelDTO {
+    qwbTextReference?: string;
+    parallelWords?: Array<QwbParallelWordDTO>;
+}
+
+export interface QwbParallelListDTO {
+    parallels?: Array<QwbParallelDTO>;
+}
+
+export interface QwbBibliographyEntryDTO {
+    entry?: string;
 }
 
 export interface CatalogueMatchInputDTO {

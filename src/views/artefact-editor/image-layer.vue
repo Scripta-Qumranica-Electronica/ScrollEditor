@@ -24,11 +24,11 @@
                 class="virtual-path"
                 :d="artefact.mask.svg"
                 vector-effect="non-scaling-stroke"
-        />            
+        />
         <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
-     
+
     </g>
-  
+
 </template>
 
 <script lang="ts">
@@ -47,7 +47,7 @@ import { Artefact } from '@/models/artefact';
         'iiif-image': IIIFImageComponent,
     }
 })
-export default class ImagedObjectEditor extends Vue {
+export default class ImageLayer extends Vue {
     @Prop() public width!: number;
     @Prop() public height!: number;
     @Prop() public params!: BaseEditorParams;

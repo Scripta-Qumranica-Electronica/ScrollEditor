@@ -27,5 +27,6 @@ export default {
     viewPortSize: "Taille d'affichage",
     lock: 'Lecture seulement',
     shared: 'Partagé',
-    admin: "Vos droits d'administrateur ont été révoqués"
+    admin: "Vos droits d'administrateur ont été révoqués",
+    search: 'Recherche'
 };

@@ -1,8 +1,7 @@
 <template>
     <div class="text-side-container">
-        <div class="border-bottom load-fragment">
+        <div class="border-bottom load-fragment" v-if="artefactMode">
             <input
-                v-if="!readOnly"
                 class="select-text"
                 placeholder="Enter a name e.g, col.1"
                 list="my-list-id"
@@ -27,7 +26,7 @@
             >
                 <b-card-header header-tag="header" class="p-0 mt-3">
                     <b-row no-gutters>
-                        <div style="width:80px;">
+                        <div style="width:80px;"  v-if="artefactMode">
                             <b-button-group block>
                                 <b-button
                                     href="#"
@@ -82,6 +81,7 @@ import { Artefact } from '@/models/artefact';
 import { TextFragment, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
+import { ArtefactEditorMode } from './types';
 
 @Component({
     name: 'text-side',
@@ -92,14 +92,25 @@ import EditSignModal from '@/components/text/edit-sign-modal.vue';
 })
 export default class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
+    @Prop({ default: 'artefact'})
+    public editorMode!: ArtefactEditorMode;
+    @Prop() public textFragment!: TextFragment;
+
+    private get artefactMode() {
+        return this.editorMode === 'artefact';
+    }
+
+    private get textFragmentMode() {
+        return this.editorMode === 'text-fragment';
+    }
 
     // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
     private textFragmentId = 0;
 
-    private displayedTextFragments: TextFragment[] = [];
-    private displayedTextFragmentsShow: { [key: number]: boolean } = {};
+    private displayedTextFragments: TextFragment[] = []; // Text fragments that are going to be displayed
+    private displayedTextFragmentsShow: { [key: number]: boolean } = {}; // Map - form text fragment id to boolean
     private get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
@@ -153,16 +164,22 @@ export default class TextSide extends Vue {
     }
 
     private async mounted() {
+        console.debug('text-side created in mode ', this.editorMode);
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
-        this.displayedTextFragmentsData.forEach(async (tfd, idx) => {
-            await this.getFragmentText(tfd.id);
-            const tf = this.$state.textFragments.get(tfd.id);
-            if (tf) {
-                this.displayedTextFragments.push(tf);
-                this.displayedTextFragmentsShow[tfd.id] =
-                    idx === 0 ? true : false;
-            }
-        });
+        if (this.textFragmentMode) {
+            this.displayedTextFragments = [this.textFragment];
+            this.displayedTextFragmentsShow[this.textFragment.id] = true;
+        } else {
+            this.displayedTextFragmentsData.forEach(async (tfd, idx) => {
+                await this.getFragmentText(tfd.id);
+                const tf = this.$state.textFragments.get(tfd.id);
+                if (tf) {
+                    this.displayedTextFragments.push(tf);
+                    this.displayedTextFragmentsShow[tfd.id] =
+                        idx === 0 ? true : false;
+                }
+            });
+        }
     }
 
     private async loadFragment(event: Event) {

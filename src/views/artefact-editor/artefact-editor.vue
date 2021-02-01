@@ -80,7 +80,7 @@
                                     v-if="!readOnly"
                                     type="button"
                                     @click="onModeClick('select')"
-                                    :pressed="mode === 'select'"
+                                    :pressed="actionMode === 'select'"
                                     class="m-2"
                                 >
                                     <i
@@ -141,7 +141,19 @@
                         <div class="artefact-image-container">
                             <div class="artefact-container" ref="infoBox">
                                 <div style="height: 60px">
-                                    {{ artefact.name }}
+                                    <span v-if="artefactMode">{{
+                                        artefact.name
+                                    }}</span>
+                                    <b-form-select
+                                        v-if="textFragmentMode"
+                                        @input="selectArtefact($event)"
+                                        :options="artefacts"
+                                        value-field="id"
+                                        text-field="name"
+                                        size="sm"
+                                        class="mt-4 col-3"
+                                        
+                                    ></b-form-select>
                                     <edition-icons
                                         :edition="edition"
                                         :show-text="true"
@@ -200,9 +212,9 @@
                                             <boundary-drawer
                                                 v-show="
                                                     isDrawingEnabled &&
-                                                    mode !== 'select'
+                                                    actionMode !== 'select'
                                                 "
-                                                :mode="mode"
+                                                :mode="actionMode"
                                                 transformRootId="transform-root"
                                                 @new-polygon="
                                                     onNewPolygon($event)
@@ -224,10 +236,10 @@
                             }"
                         >
                             <text-side
+                                :editor-mode="editorMode"
                                 :artefact="artefact"
-                                @sign-interpretation-clicked="
-                                    onSignInterpretationClicked($event)
-                                "
+                                :text-fragment="textFragment"
+                                @sign-interpretation-clicked="onSignInterpretationClicked($event)"
                                 @text-fragment-selected="initVisibleRois()"
                                 @text-fragments-loaded="initVisibleRois()"
                             ></text-side>
@@ -248,12 +260,13 @@ import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import {
+  ArtefactEditorMode,
     ArtefactEditorParams,
     ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
 import { Position } from '@/models/misc';
-import { ArtefactTextFragmentData } from '@/models/text';
+import { ArtefactTextFragmentData, TextFragment } from '@/models/text';
 
 import { normalizeOpacity } from '@/components/image-settings/types';
 import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
@@ -293,17 +306,18 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
 import EditionHeader from '../edition/components/edition-header.vue';
 import { ArtefactEditorState } from '@/state/artefact-editor';
+import { Artefact } from '@/models/artefact';
 
 @Component({
     name: 'artefact-editor',
     components: {
-        waiting: Waiting,
+        'waiting': Waiting,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
@@ -314,7 +328,18 @@ export default class ArtefactEditor
     extends Vue
     implements SavingAgent<ArtefactEditorOperation> {
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
-    private mode: ActionMode = 'box';
+    private actionMode: ActionMode = 'box';
+
+    // Two modes of operation. In artefact mode, the artefact is  chosen, and text fragments can be added to it.
+    // In text-fragment mode, the text fragment is constant, and artefacts can be changed.
+    private editorMode: ArtefactEditorMode = 'artefact';
+    private get artefactMode() {
+        return this.editorMode === 'artefact';
+    }
+    private get textFragmentMode() {
+        return this.editorMode === 'text-fragment';
+    }
+
     private autoMode = false;
 
     private errorMessage = '';
@@ -334,6 +359,12 @@ export default class ArtefactEditor
     );
 
     private visibleRois: InterpretationRoi[] = [];
+    // Arguments retrieved from the URL
+    private editionId: number = 0;
+    private artefactId: number = 0;  // Only relevent in artefact mode
+    private textFragmentId: number = 0; // Only relevent in text-fragment mode
+    private textFragment?: TextFragment; // The single Text Fragment in text-fragment mode
+
     protected get artefact() {
         return this.$state.artefacts.current!;
     }
@@ -504,55 +535,48 @@ export default class ArtefactEditor
             this.isActiveSidebar = true;
         }
 
-        await this.$state.prepare.artefact(
-            parseInt(this.$route.params.editionId),
-            parseInt(this.$route.params.artefactId)
-        );
+        //  verifier url
+        this.editionId = parseInt(this.$route.params.editionId);
+        if (this.$route.params.artefactId) {
+            this.artefactId = parseInt(this.$route.params.artefactId);
+            this.editorMode = 'artefact';
+        }
+        if (this.$route.params.textFragmentId) {
+            this.textFragmentId = parseInt(this.$route.params.textFragmentId);
+            this.editorMode = 'text-fragment';
 
-        if (!this.artefact.isVirtual) {
-            const imagedObject = this.$state.imagedObjects.find(
-                this.artefact.imagedObjectId
-            );
-            if (!imagedObject) {
-                throw new Error(
-                    `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`
-                );
-            }
-            this.imageStack =
-                this.artefact.side === 'recto'
-                    ? imagedObject.recto
-                    : imagedObject.verso;
-            if (!this.imageStack) {
-                throw new Error(
-                    `ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
-                        `${this.artefact.side} side even though artefact ${this.artefact.id} references it`
-                );
-            }
-
-            // Prepare the image manifests of all images
-            const promises = this.imageStack.images.map((img) =>
-                this.$state.prepare.imageManifest(img)
-            );
-            await Promise.all(promises);
+            // Note that artefactId and textFragmentId can't be both specified, because there is no Route that has both.
+            // In case the routes change and suddenly allow this, text-fragment takes precedence.
         }
 
-        this.params.rotationAngle = this.artefact.placement.rotate || 0;
-        this.fillImageSettings();
-        this.calculateBoundingBox();
-        await Promise.all(
-            this.artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
-                this.$state.prepare.textFragment(this.artefact.editionId, tf.id)
-            )
-        );
+        if (this.artefactMode) {
+            await this.prepareArtefact(this.artefactId);
+            await Promise.all(
+                this.artefact.textFragments.map(
+                    (tf: ArtefactTextFragmentData) =>
+                        this.$state.prepare.textFragment(
+                            this.artefact.editionId,
+                            tf.id
+                        )
+                )
+            );
+        } else if (this.textFragmentMode) {
+            await this.$state.prepare.textFragment(this.editionId, this.textFragmentId);
+            this.textFragment = this.$state.textFragments.get(this.textFragmentId);
 
-        this.initVisibleRois();
+            await this.selectArtefact(this.artefacts[0].id);
+        }
+
+        console.debug('artefact editor mounted with mode ', this.editorMode);
         this.waiting = false;
-
-        setTimeout(() => this.setFirstZoom(), 0);
     }
 
     private get edition(): EditionInfo {
         return this.$state.editions.current!;
+    }
+
+    public get artefacts(): Artefact[] {
+        return this.$state.artefacts.items || [];
     }
 
     private get masterImage(): IIIFImage {
@@ -611,6 +635,50 @@ export default class ArtefactEditor
     private get rotationAngle(): number {
         return this.params.rotationAngle;
     }
+
+    private async selectArtefact(artefactId: number) {
+        await this.prepareArtefact(artefactId);
+    }
+
+    private async prepareArtefact(artefactId: number) {
+        await this.$state.prepare.artefact(this.editionId, artefactId);
+
+        if (!this.artefact.isVirtual) {
+            const imagedObject = this.$state.imagedObjects.find(
+                this.artefact.imagedObjectId
+            );
+            if (!imagedObject) {
+                throw new Error(
+                    `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`
+                );
+            }
+            this.imageStack =
+                this.artefact.side === 'recto'
+                    ? imagedObject.recto
+                    : imagedObject.verso;
+            if (!this.imageStack) {
+                throw new Error(
+                    `ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
+                        `${this.artefact.side} side even though artefact ${this.artefact.id} references it`
+                );
+            }
+
+            // Prepare the image manifests of all images
+            const promises = this.imageStack.images.map((img) =>
+                this.$state.prepare.imageManifest(img)
+            );
+            await Promise.all(promises);
+        }
+
+        this.params.rotationAngle = this.artefact.placement.rotate || 0;
+        this.fillImageSettings();
+        this.calculateBoundingBox();
+
+        this.initVisibleRois();
+
+        setTimeout(() => this.setFirstZoom(), 0);
+    }
+
     private statusTextFragment(roi: InterpretationRoi) {
         const si = this.$state.signInterpretations.get(
             roi.signInterpretationId!
@@ -637,7 +705,6 @@ export default class ArtefactEditor
             }
         }
     }
-
     private setFirstZoom() {
         const infoBox = this.$refs.infoBox as Element;
         const height = infoBox.clientHeight;
@@ -840,7 +907,7 @@ export default class ArtefactEditor
     }
 
     private onModeClick(newMode: ActionMode) {
-        this.mode = newMode;
+        this.actionMode = newMode;
     }
 
     private async saveRotation() {

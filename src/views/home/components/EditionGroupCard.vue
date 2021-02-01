@@ -4,7 +4,7 @@
             <!--TODO do not hardcode the image proxy server-->
             <img
                 class="card-img-top"
-                v-if="thumbnailSource"
+                v-if="thumbnailSourceExists"
                 v-lazy="thumbnailSource"
                 :alt="edition.name"
             />
@@ -17,10 +17,10 @@
         </router-link>
         <div class="card-body">
             <router-link tag="div" :to="{ path:`/editions/${edition.id}` }">
-                <h5 class="cart-title">{{ edition.name }} 
+                <h5 class="cart-title">{{ edition.name }}
                     <edition-icons :edition="edition" />
                 </h5>
-                
+
                 <p>
                     <span class="badge badge-info mr-1">{{ publicEditionCount }}</span>
                     {{ $tc('home.publicEditionCount',
@@ -42,25 +42,32 @@ import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 
 @Component({
-    name: 'edition-card',
+    name: 'edition-group-card',
     components: {
         'edition-icons': EditionIcons,
     }
 })
-export default class EditionCard extends Vue {
+export default class EditionGroupCard extends Vue {
+
     @Prop() public edition!: EditionInfo;
 
-    private get lockEdition(): boolean {
-        return this.edition.permission.readOnly;
+    private get thumbnailSourceExists(): boolean {
+        return (undefined !== this.edition
+                 && undefined !== this.edition.thumbnail ) ;
     }
-    private get thumbnailSource(): string | undefined {
-        return this.edition.thumbnail
-            ? this.edition.thumbnail.thumbnailUrl
-            : undefined;
+
+    private get thumbnailSource(): string | null {
+        return (undefined !== this.edition!.thumbnail)
+            ? this.edition!.thumbnail.thumbnailUrl
+            : null;
+    }
+
+    private get lockEdition(): boolean {
+        return this.edition!.permission!.readOnly;
     }
 
     private get publicEditionCount(): number {
-        return this.edition.publicCopies;
+        return this.edition!.publicCopies;
     }
 
     private get personalVersionCount(): number {

@@ -8,12 +8,12 @@
             <b-col cols="2">{{ $t('navbar.currentPassword') }}</b-col>
             <b-col cols="2"><b-form-input v-model="currentPassword" type="password"></b-form-input></b-col>
         </b-row>
-        
+
         <b-row class="mb-3">
             <b-col cols="2">{{ $t('navbar.newPassword') }}</b-col>
             <b-col cols="2"><b-form-input v-model="newPassword" type="password"></b-form-input></b-col>
         </b-row>
-        
+
         <b-row class="mb-3">
             <b-col cols="2">{{ $t('navbar.repassword') }}</b-col>
             <b-col cols="2"><b-form-input v-model="rePassword" type="password"></b-form-input></b-col>
@@ -21,8 +21,8 @@
 
         <b-row>
           <b-col class="text-danger">{{identicalError}}</b-col>
-        </b-row>  
-    
+        </b-row>
+
         <b-button @click="change" variant="primary" :disabled="disableChange">
             {{ $t('navbar.change') }}
             <span v-if="waiting">
@@ -32,45 +32,54 @@
 
         <b-row>
             <b-col class="text-danger">{{ errorMessage }}</b-col>
-        </b-row>  
+        </b-row>
     </form>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import { ResetLoggedInUserPasswordRequestDTO } from '@/dtos/sqe-dtos';
 import router from '@/router';
 
-export default Vue.extend({
-  name: 'change-password',
-  data() {
-    return {
-      currentPassword: '',
-      newPassword: '',
-      rePassword: '',
-      errorMessage: '',
-      sessionService: new SessionService(),
-      errorService: new ErrorService(this),
-      waiting: false,
-    };
-  },
-  computed: {
-    disableChange(): boolean {
-        return this.newPassword !== this.rePassword || !this.currentPassword
-        || !this.newPassword || !this.rePassword || this.waiting;
-    },
-    identicalError(): string {
-      if (this.newPassword && this.rePassword && this.newPassword !== this.rePassword) {
-        return 'Passwords must be identical';
-      }
-      return '';
+
+@Component({
+  name: 'change-password'
+
+})
+
+export default class ChangePassword extends Vue {
+
+  // data
+
+  protected currentPassword: string = '';
+  protected newPassword: string = '';
+  protected rePassword: string = '';
+  protected errorMessage: string = '';
+  protected sessionService: SessionService = new SessionService();
+  protected errorService: ErrorService = new ErrorService(this);
+  protected waiting: boolean = false;
+
+
+  // computed
+  public get disableChange(): boolean {
+      return this.newPassword !== this.rePassword || !this.currentPassword
+      || !this.newPassword || !this.rePassword || this.waiting;
+  }
+
+  public get identicalError(): string {
+    if (this.newPassword && this.rePassword && this.newPassword !== this.rePassword) {
+      return 'Passwords must be identical';
     }
-  },
-  methods: {
-    async change() {
+    return '';
+  }
+
+
+  // methods
+  protected async change() {
         const data = {
             oldPassword: this.currentPassword,
             newPassword: this.newPassword,
@@ -90,9 +99,10 @@ export default Vue.extend({
         } finally {
           this.waiting = false;
         }
-    }
   }
-});
+
+}
+
 </script>
 
 <style scoped>

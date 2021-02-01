@@ -1,6 +1,7 @@
 <template>
     <artefact-svg v-if="loaded"
                   :artefact="artefact"
+                  :imaged-object="imagedObject"
                   :aspect-ratio="aspectRatio">
         <g v-if="!this.artefact.isVirtual">
             <iiif-image 

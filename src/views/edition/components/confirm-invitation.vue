@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Emit, Vue } from 'vue-property-decorator';
 import ErrorService from '@/services/error';
 import router from '@/router';
 import {
@@ -34,18 +34,23 @@ import {
 } from '@/dtos/sqe-dtos';
 import EditionService from '@/services/edition';
 
-export default Vue.extend({
-    name: 'confirm-invitation',
-    data() {
-        return {
-            token: '',
-            errorMessage: '',
-            editionService: new EditionService(),
-            errorService: new ErrorService(this),
-            waiting: false
-        };
-    },
-    mounted() {
+
+@Component({
+        name: 'confirm-invitation',
+    // components: {
+
+    // },
+})
+export default class ConfirmInvitation extends Vue {
+    // data
+
+    protected token: string =  '';
+    protected errorMessage: string = '';
+    protected editionService: EditionService = new EditionService();
+    protected errorService: ErrorService = new ErrorService(this);
+    protected waiting: boolean = false;
+
+    protected mounted() {
         if (!this.isLogged) {
             this.$root.$emit('bv::show::modal', 'loginModal');
         }
@@ -55,32 +60,34 @@ export default Vue.extend({
         if (this.token === '') {
             console.error('There is no token in url');
         }
-    },
-    computed: {
-        currentUser(): DetailedUserDTO {
-            return this.$state.session.user!;
-        },
-        isLogged(): boolean {
-            return this.currentUser !== null && this.currentUser !== undefined;
-        }
-    },
+    }
 
-    methods: {
-        async change() {
-            this.waiting = true;
-            try {
-                await this.editionService.confirmAddEditionEditor(this.token);
-                router.push('/');
-            } catch (e) {
-                this.errorMessage = this.errorService.getErrorMessage(
-                    e.response.data
-                );
-            } finally {
-                this.waiting = false;
-            }
+    // computed: {
+    protected get currentUser(): DetailedUserDTO {
+            return this.$state.session.user!;
+    }
+
+    protected get isLogged(): boolean {
+            return this.currentUser !== null && this.currentUser !== undefined;
+    }
+
+    // methods: {
+    protected async change() {
+        this.waiting = true;
+        try {
+            await this.editionService.confirmAddEditionEditor(this.token);
+            router.push('/');
+        } catch (e) {
+            this.errorMessage = this.errorService.getErrorMessage(
+                e.response.data
+            );
+        } finally {
+            this.waiting = false;
         }
     }
-});
+
+}
+
 </script>
 
 <style scoped>

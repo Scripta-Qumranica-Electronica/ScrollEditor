@@ -8,7 +8,7 @@
             @shown="shown"
         >
          <template v-slot:modal-header>
-                <b-row class="mt-3"> 
+                <b-row class="mt-3">
                     <b-col cols="12">Forgot Password</b-col>
                 </b-row>
             </template>
@@ -53,62 +53,71 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
-import ForgotPassword from '@/views/user/ForgotPassword.vue';
+// import ForgotPassword from '@/views/user/ForgotPassword.vue';
 
-export default Vue.extend({
+@Component({
     name: 'forgot-password',
-    data() {
-        return {
-            email: '',
-            errorMessage: '',
-            sessionService: new SessionService(),
-            errorService: new ErrorService(this),
-            waiting: false,
-        };
-    },
-    computed: {
-        disabledSubmit(): boolean {
-            return !this.email || this.waiting;
-        },
-    },
-    methods: {
-        submit() {
-            if (this.disabledSubmit) {
-                // Can be called due to ENTER key
-                return;
-            }
+})
 
-            try {
-                this.waiting = true;
-                this.sessionService.forgotPassword(this.email);
-                this.close();
+export default class ForgotPassword extends Vue {
 
-                this.$toasted.show(this.$tc('toasts.reset'), {
-                    type: 'info',
-                    position: 'top-right',
-                    duration: 7000,
-                });
-            } catch (err) {
-                this.errorMessage = this.errorService.getErrorMessage(
-                    err.response.data
-                );
-            } finally {
-                this.waiting = false;
-            }
-        },
-        close() {
-            (this.$refs.passwordModalRef as any).hide();
-        },
-        shown() {
-            this.errorMessage = '';
+    // data
+
+    protected email: string = '';
+    protected errorMessage: string = '';
+    protected sessionService: SessionService = new SessionService();
+    protected errorService: ErrorService = new ErrorService(this);
+    protected waiting: boolean = false;
+
+
+    // computed
+    public get disabledSubmit(): boolean {
+        return !this.email || this.waiting;
+    }
+
+    // methods
+
+    protected async submit() {
+        if (this.disabledSubmit) {
+            // Can be called due to ENTER key
+            return;
+        }
+
+        try {
+            this.waiting = true;
+            await this.sessionService.forgotPassword(this.email);
+            this.close();
+
+            this.$toasted.show(this.$tc('toasts.reset'), {
+                type: 'info',
+                position: 'top-right',
+                duration: 7000,
+            });
+        } catch (err) {
+            this.errorMessage = this.errorService.getErrorMessage(
+                err.response.data
+            );
+        } finally {
             this.waiting = false;
-            (this.$refs.emailRef as any).focus();
-        },
-    },
-});
+        }
+    }
+
+    protected close() {
+        (this.$refs.passwordModalRef as any).hide();
+    }
+
+    protected shown() {
+        this.errorMessage = '';
+        this.waiting = false;
+        (this.$refs.emailRef as any).focus();
+    }
+
+}
+
 </script>
 
 <style scoped>

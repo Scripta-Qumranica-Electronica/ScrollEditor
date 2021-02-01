@@ -3,18 +3,18 @@
         <div class="mb-3 border-container">
             <b-row>
                 <b-col class="col-4 mt-4 mb-3">
-                    <router-link :to="{path:`/editions/${edition.id}/artefacts`}">
-                        <span class="name-edition" v-if="edition">{{
-                            versionString(edition)
-                        }}</span>
+                     <router-link :to="{path:`/editions/${editionId}/artefacts`}">
+                        <span class="name-edition" v-if="currentEdition">
+                            {{  versionString(currentEdition)  }}
+                        </span>
                     </router-link>
                 </b-col>
                 <b-col class="col-8 mt-4 mb-3">
-                    <div class="btns-permiss" v-if="current">
+                    <div class="btns-permiss" v-if="currentEdition">
                         <b-button
                             class="mr-3"
                             v-if="isAdmin"
-                            @click="openPermissionModal()"
+                            @click="openPermissionModal"
                             ><i class="fa fa-lock mr-1"></i
                             >Collaborators</b-button
                         >
@@ -25,7 +25,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div v-if="!waiting">
+        <div v-if="!isWaiting">
             <b-row>
                 <b-col class="col-4">
                     <label for="show" class="search-bar">{{
@@ -37,101 +37,161 @@
                 <b-button-group class="btns-groups">
                     <b-button
                         variant="outline-primary"
-                        :to="`/editions/${edition.id}/artefacts`"
+                        :to="`/editions/${editionId}/artefacts`"
                         >Artefacts {{ artefactsLength }}</b-button
                     >
                     <b-button
                         variant="outline-primary"
-                        :to="`/editions/${edition.id}/imaged-objects`"
+                        :to="`/editions/${editionId}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
                     <b-button
                         variant="outline-primary"
-                        :to="`/editions/${edition.id}/scroll-editor`"
+                        :to="`/editions/${editionId}/scroll-editor`"
                         >Entire Manuscript</b-button
                     >
                 </b-button-group>
             </div>
         </div>
         <div>
-            <div v-if="!waiting" class="row">
-                <div class="col" v-if="waiting"><waiting></waiting></div>
-                <div class="col" v-if="!waiting">
+            <div v-if="!isWaiting" class="row">
+                <div class="col" v-if="isWaiting">
+                    <Waiting></Waiting>
+                </div>
+                <div class="col" v-if="!isWaiting">
                     <router-view></router-view>
                 </div>
             </div>
+
+
         </div>
-        <permission-modal v-if="current"></permission-modal>
+        <permission-modal v-if="currentEdition"></permission-modal>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+// import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import EditionSidebar from './components/sidebar.vue';
 import { EditionInfo } from '@/models/edition.js';
 import Waiting from '@/components/misc/Waiting.vue';
+
 import PermissionModal from './components/permission-modal.vue';
 
-export default Vue.extend({
-    name: 'edition-version',
+
+@Component({
+    name: 'edition',
     components: {
         EditionSidebar,
         Waiting,
         PermissionModal,
-    },
-    data() {
-        return {
-            editionId: 0,
-            page: '',
-        };
-    },
-    computed: {
-        current(): EditionInfo | undefined {
-            return this.$state.editions.current;
-        },
-        isAdmin(): boolean {
-            return this.current!.permission.isAdmin;
-        },
-        edition(): EditionInfo | undefined {
-            return this.$state.editions.current;
-        },
-        waiting(): boolean {
-            return !this.edition;
-        },
-        artefactsLength(): number {
-            return this.$state.artefacts.items.length;
-        },
-        imagedObjectsLength(): number {
-            return this.$state.imagedObjects.items.length;
-        },
-    },
-    mounted() {
+    }
+})
+
+export default class Edition extends Vue {
+
+    // protected (not private) to allow future inheritance
+    // =======================================================
+
+    // protected waiting: boolean = true;
+    protected editionId: number = 0;
+    protected page: string = '';
+
+    public get isWaiting(): boolean {
+        return  !this.currentEdition;
+    }
+
+    public get currentEdition(): EditionInfo | null {
+        return this.$state.editions.current!;
+    }
+
+    public get isAdmin(): boolean {
+        return this.currentEdition!.permission.isAdmin;
+    }
+
+    protected get artefactsLength(): number {
+        return this.$state.artefacts.items.length;
+    }
+    protected get imagedObjectsLength(): number {
+        return this.$state.imagedObjects.items.length;
+    }
+
+
+    // This code is not in the created method since it's asynchronous,
+    // and Vue doesn't wait for an asynchornous created to finish
+    // before calling mounted.
+    // Instead of adding synchronization between created and mounted,
+    //  we just moved it to mounted.
+    // ( same mechanism as in scroll-editor.vue )
+
+
+    protected async mounted() {
+
         this.editionId = parseInt(this.$route.params.editionId, 10);
-        this.$state.prepare.edition(this.editionId);
+
+        // Wait for editionInfo object to be valid
+        // (in order not to get run-time undefined errors)
+        // $state.prepare.edition is an async edition(editionId: number): Promise<void>
+        //  returning an editionInternal(id));    }
+
+        await this.$state.prepare.edition(this.editionId);
+
+       // Added as in scroll-editor.vue
+        const currentEdition = this.$state.editions.find(this.editionId);
+
+         // This is done also in scroll-editor
+        if (currentEdition) {
+          this.$state.editions.current = currentEdition;
+         }
+
+      //  this.waiting = false;
         this.getPage(window.location.href);
-    },
-    beforeRouteUpdate(to, from, next) {
+    }
+
+     // Navigation Guards:
+     // Fetching data Before Navigation to new route,
+     // when route changes and this component is already rendered.
+     // We're still in prev view
+     // while resource is being fetched for the incoming view
+     // ==========================================================
+
+
+    protected async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
-        this.$state.prepare.edition(this.editionId);
+
+         // Wait for editionInfo object to be valid
+        await this.$state.prepare.edition(this.editionId);
+
         this.getPage(to.path);
+
+        // call next() when fetch complete
         next();
-    },
-    methods: {
-        openPermissionModal() {
-            this.$root.$emit('bv::show::modal', 'permissionModal');
-        },
-        versionString(ver: EditionInfo) {
-            return ver.name;
-        },
-        getPage(url: string) {
-            if (url.endsWith('artefacts')) {
-                this.page = 'artefacts';
-            } else {
-                this.page = 'imaged-objects';
-            }
-        },
-    },
-});
+    }
+
+
+    // methods => member functions of the class
+    // ============================================================
+
+    protected openPermissionModal() {
+        this.$root.$emit( 'bv::show::modal', 'permissionModal');
+        // event, new_value
+    }
+
+    protected versionString(ver: EditionInfo): string {
+        return ver.name;
+    }
+
+    protected getPage(url: string) {
+        if (url.endsWith('artefacts')) {
+            this.page = 'artefacts';
+        } else {
+            this.page = 'imaged-objects';
+        }
+    }
+
+}
+
 </script>
 
 <style lang="scss">

@@ -275,10 +275,10 @@ export default class StateService {
         }
 
         const promises: Array<Promise<any>> = [];
-        let imagedObject: ImagedObject | undefined;
+        let imagedObject: ImagedObject | null = null; // undefined;
         if (!artefact.isVirtual) {
             imagedObject = this._state.imagedObjects.find(artefact.imagedObjectId);
-            if (!imagedObject) {
+            if (!imagedObject ) {
                 console.error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
                 throw new Error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
             }

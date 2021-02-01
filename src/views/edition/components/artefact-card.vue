@@ -15,24 +15,32 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+
 import { Artefact } from '@/models/artefact';
 import ArtefactImage from '@/components/artefact/artefact-image.vue';
 
-export default Vue.extend({
+@Component({
     name: 'artefact-card',
     components: {
         ArtefactImage,
-    },
-    props: {
-        artefact: Object as () => Artefact,
-    },
-    computed: {
-        editionId(): number {
-            return parseInt(this.$route.params.editionId);
-        },
-    },
-});
+    }
+})
+
+export default class ArtefactCard extends Vue {
+
+
+    // props
+    @Prop() public readonly artefact!: Artefact;
+                        // Object as () => Artefact,
+
+    // computed:
+    public get editionId(): number {
+        return parseInt(this.$route.params.editionId);
+    }
+
+}
+
 </script>
 
 <style lang="scss">

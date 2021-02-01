@@ -61,82 +61,87 @@
                      <p class="sign-link">Can’t login? <b-link
                         @click="register"
                         >Sign up</b-link
-                    > for an account here</p> 
-                </div> 
-                
+                    > for an account here</p>
+                </div>
+
             </template>
-            
+
         </b-modal>
         <forgot-password></forgot-password>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
 import { StateManager } from '@/state';
 import Registration from '@/views/user/Registration.vue';
 
-export default Vue.extend({
+@Component({
     name: 'login',
     components: {
         ForgotPassword,
+    }
+})
 
-    },
-    data() {
-        return {
-            email: '',
-            // email: this.$state.session ? this.$state.session.user!.email : '',
-            password: '',
-            errorMessage: '',
-            sessionService: new SessionService(),
-            errorService: new ErrorService(this),
-            waiting: false,
-        };
-    },
-    computed: {
-        disabledLogin(): boolean {
-            return !this.email || !this.password || this.waiting;
-        },
-    },
-    methods: {
-        async login() {
-            if (this.disabledLogin) {
-                // Can be called due to ENTER key
-                return;
-            }
+export default class Login extends Vue {
 
-            try {
-                this.waiting = true;
-                await this.sessionService.login(this.email, this.password);
-                this.close();
-                location.reload();
-            } catch (err) {
-                this.errorMessage = this.errorService.getErrorMessage(
-                    err.response.data
-                );
-            } finally {
-                this.waiting = false;
-            }
-        },
-        close() {
-            (this.$refs.loginModalRef as any).hide();
-        },
-        shown() {
-            this.errorMessage = '';
+    private email: string = '';
+    // email: this.$state.session ? this.$state.session.user!.email : '',
+    private password: string = '';
+    private errorMessage: string = '';
+    private sessionService: SessionService = new SessionService();
+    private errorService: ErrorService = new ErrorService(this);
+    private waiting: boolean = false;
+
+
+    private get disabledLogin(): boolean {
+        return !this.email || !this.password || this.waiting;
+    }
+
+    private async login() {
+        if (this.disabledLogin) {
+            // Can be called due to ENTER key
+            return;
+        }
+
+        try {
+            this.waiting = true;
+            await this.sessionService.login(this.email, this.password);
+            this.close();
+            location.reload();
+        } catch (err) {
+            this.errorMessage = this.errorService.getErrorMessage(
+                err.response.data
+            );
+        } finally {
             this.waiting = false;
-            (this.$refs.email as any).focus();
-        },
-        forgotPassword() {
-            this.$root.$emit('bv::show::modal', 'passwordModal');
-        },
-        register() {
+        }
+    }
+
+    private close() {
+        (this.$refs.loginModalRef as any).hide();
+    }
+
+    private shown(): void {
+        this.errorMessage = '';
+        this.waiting = false;
+        (this.$refs.email! as any).focus();
+    }
+
+    private forgotPassword() {
+        this.$root.$emit('bv::show::modal', 'passwordModal');
+    }
+
+    private register() {
         this.$root.$emit('bv::show::modal', 'registerModal');
     }
-    }
-});
+
+}
+
 </script>
 
 
@@ -153,7 +158,7 @@ export default Vue.extend({
     justify-content: center !important;
     border: unset !important;
 }
-.title-footer{ 
+.title-footer{
     border: unset !important;
     }
 button.btn.btn-login-modal.btn-primary.btn-block {
