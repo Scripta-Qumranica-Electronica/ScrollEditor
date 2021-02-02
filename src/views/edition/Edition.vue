@@ -77,6 +77,8 @@ import EditionSidebar from './components/sidebar.vue';
 import { EditionInfo } from '@/models/edition.js';
 import Waiting from '@/components/misc/Waiting.vue';
 
+import { Artefact } from '@/models/artefact';
+
 import PermissionModal from './components/permission-modal.vue';
 
 
@@ -111,8 +113,17 @@ export default class Edition extends Vue {
     }
 
     protected get artefactsLength(): number {
-        return this.$state.artefacts.items.length;
+        const virtualCount = this.$state.artefacts.items.reduce(
+                    ( count, art: Artefact) => {
+                        if (art.isVirtual ) {
+                           count++;
+                        }
+                        return count;
+                    }, 0);
+
+        return this.$state.artefacts.items.length - virtualCount ;
     }
+
     protected get imagedObjectsLength(): number {
         return this.$state.imagedObjects.items.length;
     }
