@@ -57,21 +57,25 @@ export default class EditionArtefacts extends Vue {
             .filter((art: Artefact) => {
                 let filter = true;
 
+                if (art.isVirtual) {
+                    return false;
+                }
+
                 if (
                     this.searchValue.view &&
                     this.searchValue.view !== 'recto and verso'
                 ) {
                     filter = filter && art.side === this.searchValue.view;
                 }
-                if (this.searchValue.filter) {
+                if (
+                    this.searchValue.filter
+                    ) {
                     filter =
                         filter &&
                         art.name
                             .toLowerCase()
                             .includes(this.searchValue.filter.toLowerCase());
                 }
-
-                filter = !art.isVirtual;
 
                 return filter;
             })
