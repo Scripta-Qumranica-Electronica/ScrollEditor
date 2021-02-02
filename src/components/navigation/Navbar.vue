@@ -1,6 +1,5 @@
 <template>
     <div>
-
         <!-- variant is BG color, type is text color -->
 
         <b-navbar toggleable="md"
@@ -19,7 +18,6 @@
                 <b-nav-item
                     active
                     to="/search"
-
                 >
                     <span>{{ $t('home.search') }}</span>
                 </b-nav-item>
@@ -100,9 +98,12 @@ export default class Navbar extends Vue {
     private currentLanguage = 'en';
     private allTexts = localizedTexts;
 
-    private get userName(): string | undefined {
+    protected userNameExists(): boolean {
+        return ( undefined !== this.userName );
+    }
 
-        if (this.$state.session && this.$state.session.user ) {
+    private get userName(): string | undefined {
+        if (this.$state.session.user) {
             return (
                 this.$state.session.user.forename +
                 ' ' +
