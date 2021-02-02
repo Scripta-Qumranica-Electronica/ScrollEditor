@@ -24,7 +24,7 @@
 
             </b-navbar-nav>
 
-            <b-navbar-nav c
+            <b-navbar-nav
                 class="ml-auto mt-mb-auto"
                 align="right" fill  >
 
