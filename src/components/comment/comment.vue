@@ -10,10 +10,10 @@
             <b-button @click="onViewComment()" title="View Comment" :disabled="!comment">
                 <i class="fa fa-eye"/>
             </b-button>
-            <b-button @click="onEditComment()" title="Edit Comment">
+            <b-button @click="onEditComment()" title="Edit Comment" :disabled="readOnly">
                 <i class="fa fa-edit"/>
             </b-button>
-            <b-button @click="onDeleteComment()" title="Delete Comment" :disabled="!comment">
+            <b-button @click="onDeleteComment()" title="Delete Comment" :disabled="!comment || readOnly">
                 <i class="fa fa-trash"/>
             </b-button>
         </b-col>
@@ -48,6 +48,10 @@ export default class CommentComponent extends Vue {
 
     private comment: string = ''; // Use v-model to bind here, we can't use v-model to bind to the value property
     private editor = ClassicEditor;
+
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
 
     private get commentDisplay() {
         if (!this.comment) {

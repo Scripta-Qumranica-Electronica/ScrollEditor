@@ -21,7 +21,7 @@ export abstract class ScrollEditorOperation extends Operation<ScrollEditorOperat
     public abstract replaceEntityId(newId: number): void;
 }
 
-export type ArtefactPlacementOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete' | 'z-index';
+export type ArtefactPlacementOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete' | 'z-index' | 'mirror';
 export class ArtefactPlacementOperation extends ScrollEditorOperation {
     public prev: Placement;
     public next: Placement;

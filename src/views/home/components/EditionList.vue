@@ -3,7 +3,7 @@
     <div>
         <p v-b-toggle="title">
             
-             {{ title }} <i class="toggle-icon fa fa-angle-up"/></p>
+             <i class="toggle-icon fa fa-angle-down"/>{{ title }}</p>
          <b-collapse visible :id="title" class="mt-2">
         <div
             v-if="editions.length"
@@ -48,14 +48,16 @@ export default class EditionsList extends Vue {
 @import '@/assets/styles/_fonts.scss';
 
 .collapsed .toggle-icon {
-    transform: rotate(180deg);
-    color: $blue;
-
+    transform: rotate(-90deg);
 }
 
-.not-collapsed .toggle-icon {
-    transform: rotate(0deg);
+.toggle-icon {
     color: $blue;
+    margin-left: 5px;
+}
+
+p:focus {
+    outline: 0;
 }
 
 .text-edition .card {

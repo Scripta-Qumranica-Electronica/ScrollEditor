@@ -9,7 +9,7 @@
                     <div class="col-xl-8 col-lg-8">
                         <edition-header></edition-header>
                     </div>
-                    <b-col class="col-lg-3 pl-4">
+                    <b-col class="col-lg-3 pl-0">
                         <div class="btn-tf">
                             <b-button
                                 size="sm"
@@ -39,7 +39,7 @@
                             >
                         </div>
                     </b-col>
-                    <b-col class="pl-3 pt-3 col-lg-1"
+                    <b-col class="pl-0 pt-2 col-lg-0"
                         ><div>{{ saveStatusMessage }}</div></b-col
                     >
                 </b-row>
@@ -573,6 +573,7 @@ export default class ScrollEditor
                 scale: 1,
                 rotate: 0,
                 zIndex: maxZindex + 1,
+                mirrored: false,
             });
 
             const operation = new ArtefactPlacementOperation(

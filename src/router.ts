@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/home/Home.vue';
+import Search from './views/search/main.vue';
 import Welcome from './components/welcome/welcome.vue';
 import Edition from './views/edition/Edition.vue';
 import EditionImagedObjects from './views/edition/components/imaged-objects.vue';
@@ -14,6 +15,7 @@ import Activation from './views/user/Activation.vue';
 import ConfirmInvitation from './views/edition/components/confirm-invitation.vue';
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
+
 
 Vue.use(Router);
 
@@ -30,6 +32,11 @@ export default new Router({
             path: '/home',
             name: 'home',
             component: Home
+        },
+        {
+            path: '/search',
+            name: 'search',
+            component: Search
         },
         {
             path: '/editions/:editionId',
@@ -56,6 +63,10 @@ export default new Router({
         },
         {
             path: '/editions/:editionId/artefacts/:artefactId',
+            component: ArtefactEditor
+        },
+        {
+            path: '/editions/:editionId/text-fragments/:textFragmentId',
             component: ArtefactEditor
         },
         {

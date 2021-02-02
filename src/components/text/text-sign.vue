@@ -13,7 +13,7 @@
             >{{ si.character || '&nbsp;' }}</span
         >
         <b-popover
-            v-if="withMenu"
+            v-if="withMenu && !readOnly"
             custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
             triggers=""
@@ -67,6 +67,10 @@ export default class TextSign extends Vue {
     @Prop() public sign!: Sign;
     @Prop() public withMenu!: boolean;
     private previousMenuId: string = '';
+
+    private get readOnly(): boolean {
+        return this.$state.editions.current!.permission.readOnly;
+    }
 
     // Each sign offers alternative readings. For now we always show the first suggestion
     private get si() {
