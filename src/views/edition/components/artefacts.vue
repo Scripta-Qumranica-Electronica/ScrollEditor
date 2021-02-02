@@ -56,6 +56,7 @@ export default class EditionArtefacts extends Vue {
         return this.$state.artefacts.items
             .filter((art: Artefact) => {
                 let filter = true;
+
                 if (
                     this.searchValue.view &&
                     this.searchValue.view !== 'recto and verso'
@@ -69,6 +70,9 @@ export default class EditionArtefacts extends Vue {
                             .toLowerCase()
                             .includes(this.searchValue.filter.toLowerCase());
                 }
+
+                filter = !art.isVirtual;
+
                 return filter;
             })
             .sort((a: Artefact, b: Artefact) => {
@@ -92,7 +96,7 @@ export default class EditionArtefacts extends Vue {
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.artefacts(this.editionId);
         this.filteredArtefacts = this.getFilteredArtefacts();
-    }
+   }
 }
 </script>
 <style scoped>
