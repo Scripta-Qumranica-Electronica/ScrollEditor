@@ -48,15 +48,6 @@
         ></roi-layer>
         <template v-if="displayText || reconstructedText">
             <template v-for="(value, propertyName) in siRois">
-                <!-- <text
-                    :key="propertyName"
-                    :transform="`translate(${letterRoiPosition(value)})`"
-                    font-size="200"
-                    text-anchor="middle"
-                    dominant-baseline="central"
-                    class="display-letters"
-                    >{{ propertyName }}
-                </text> -->
                  <text
                     :key="propertyName"
                     :transform="`translate(${letterRoiPosition(value)})`"
@@ -400,20 +391,18 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
                 miny = maxy = roi;
             }
 
-            // This probably caused shift of text from corresponding ROI
-
-            // if (roi.position.x <= minx.position.x) {
-            //     minx = roi;
-            // }
-            // if (roi.position.x >= maxx.position.x) {
-            //     maxx = roi;
-            // }
-            // if (roi.position.y <= miny.position.y) {
-            //     miny = roi;
-            // }
-            // if (roi.position.y >= maxy.position.y) {
-            //     maxy = roi;
-            // }
+            if (roi.position.x <= minx.position.x) {
+                minx = roi;
+            }
+            if (roi.position.x >= maxx.position.x) {
+                maxx = roi;
+            }
+            if (roi.position.y <= miny.position.y) {
+                miny = roi;
+            }
+            if (roi.position.y >= maxy.position.y) {
+                maxy = roi;
+            }
 
         });
 
