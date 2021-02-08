@@ -48,19 +48,28 @@
         ></roi-layer>
         <template v-if="displayText || reconstructedText">
             <template v-for="(value, propertyName) in siRois">
-                <text
+                <!-- <text
                     :key="propertyName"
                     :transform="`translate(${letterRoiPosition(value)})`"
                     font-size="200"
                     text-anchor="middle"
                     dominant-baseline="central"
                     class="display-letters"
-                    >{{ propertyName }}</text
-                >
+                    >{{ propertyName }}
+                </text> -->
+                 <text
+                    :key="propertyName"
+                    :transform="`translate(${letterRoiPosition(value)})`"
+                    font-size="200"
+                    dominant-baseline="middle"
+                    text-anchor="middle"
+                    class="display-letters"
+                    >{{ propertyName }}
+                </text >
             </template>
         </template>
     </g>
-</template> 
+</template>
 
 <!--SVG transformation guide:
 
@@ -199,23 +208,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.allSiRois;
     }
 
-    private get allSiRois(): {
-        [character: string]: InterpretationRoi[];
-    } {
-        const siRois = this.visibleRois.reduce(
-            (result: { [character: string]: InterpretationRoi[] }, roi) => {
-                const character =
-                    this.$state.signInterpretations.get(
-                        roi.signInterpretationId!
-                    )!.character || '';
-                (result[character] = result[character] || []).push(roi);
-                return result;
-            },
-            {}
-        );
-        return siRois;
-    }
-
     private get reconstructedSiRois(): {
         [character: string]: InterpretationRoi[];
     } {
@@ -234,6 +226,24 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         );
         return siRois;
     }
+
+    private get allSiRois(): {
+        [character: string]: InterpretationRoi[];
+    } {
+        const siRois = this.visibleRois.reduce(
+            (result: { [character: string]: InterpretationRoi[] }, roi) => {
+                const character =
+                    this.$state.signInterpretations.get(
+                        roi.signInterpretationId!
+                    )!.character || '';
+                (result[character] = result[character] || []).push(roi);
+                return result;
+            },
+            {}
+        );
+        return siRois;
+    }
+
 
     protected async mounted() {
         await this.mountedDone;
@@ -389,18 +399,22 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
                 minx = maxx = roi;
                 miny = maxy = roi;
             }
-            if (roi.position.x <= minx.position.x) {
-                minx = roi;
-            }
-            if (roi.position.x >= maxx.position.x) {
-                maxx = roi;
-            }
-            if (roi.position.y <= miny.position.y) {
-                miny = roi;
-            }
-            if (roi.position.y >= maxy.position.y) {
-                maxy = roi;
-            }
+
+            // This probably caused shift of text from corresponding ROI
+
+            // if (roi.position.x <= minx.position.x) {
+            //     minx = roi;
+            // }
+            // if (roi.position.x >= maxx.position.x) {
+            //     maxx = roi;
+            // }
+            // if (roi.position.y <= miny.position.y) {
+            //     miny = roi;
+            // }
+            // if (roi.position.y >= maxy.position.y) {
+            //     maxy = roi;
+            // }
+
         });
 
         const newPositionX =
@@ -452,4 +466,4 @@ path.selected {
     fill: black;
     font-weight: 800;
 }
-</style>                 
+</style>
