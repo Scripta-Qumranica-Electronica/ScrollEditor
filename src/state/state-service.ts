@@ -284,6 +284,10 @@ export default class StateService {
     }
 
     private async imageManifestInternal(image: IIIFImage) {
+        if (image.manifest) {
+            return;  // Most images get the manifests straight from the backend
+        }
+
         const svc = new ImageService();
         const manifest = await svc.getImageManifest(image);
 

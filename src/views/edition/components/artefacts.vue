@@ -11,7 +11,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div class="scroll-bar">
+        <div class="scroll-bar" ref="container">
             <div
                 class="card"
                 v-for="artefact in filteredArtefacts"
@@ -24,11 +24,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { EditionInfo } from '@/models/edition';
-import EditionIcons from '@/components/cues/edition-icons.vue';
+import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionCard from './EditionCard.vue';
 import ArtefactCard from './artefact-card.vue';
 import { Artefact } from '@/models/artefact';
 import SearchBar from '@/components/search-bar.vue';
@@ -101,7 +98,12 @@ export default class EditionArtefacts extends Vue {
         await this.$state.prepare.artefacts(this.editionId);
         this.filteredArtefacts = this.getFilteredArtefacts();
    }
+
+   private get containerRef() {
+       return this.$refs.container as Element;
+   }
 }
+
 </script>
 <style scoped>
 .scroll-bar {

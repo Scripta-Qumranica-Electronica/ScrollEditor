@@ -99,10 +99,12 @@ import {
 	EditorInvitationListDTO,
 	AdminEditorRequestListDTO,
 	TextEditionDTO,
-	DeleteTokenDTO,
+	ArchiveTokenDTO,
 	CommentaryCreateDTO,
 	CommentaryDTO,
 	DeleteDTO,
+	DeleteIntIdDTO,
+	DeleteStringIdDTO,
 	EditionUpdateRequestDTO,
 	EditionCopyDTO,
 	UpdateEditionManuscriptMetricsDTO,
@@ -364,14 +366,16 @@ export class SignalRUtilities {
     }
 
     /**
-	 * Provides details about the specified edition and all accessible alternate editions
+	 * Archives an edition so that in no longer appears in user data and searches. An admin
+	 *		 may use the archiveForAllEditors optional parameter in order to archive the edition
+	 *		 for all editors (must be confirmed with an archive token).
 	 *
-	 * @param editionId - Unique Id of the desired edition
-	 * @param optional - Optional parameters: 'deleteForAllEditors'
-	 * @param token - token required when using optional 'deleteForAllEditors'
+	 * @param editionId - Unique Id of the desired edition to be archived
+	 * @param optional - Optional parameters: 'archiveForAllEditors'
+	 * @param token - token required when using optional 'archiveForAllEditors'
 	 *
 	 */
-    public async deleteV1EditionsEditionId(editionId: number, optional: string[], token: string): Promise<DeleteTokenDTO> {
+    public async deleteV1EditionsEditionId(editionId: number, optional: string[], token: string): Promise<ArchiveTokenDTO> {
         return await this._connection.invoke('DeleteV1EditionsEditionId', editionId, optional, token);
     }
 
@@ -807,6 +811,29 @@ export class SignalRUtilities {
 	 */
     public async getV1EditionsEditionIdImagedObjectsImagedObjectId(editionId: number, imagedObjectId: string, optional: string[]): Promise<ImagedObjectDTO> {
         return await this._connection.invoke('GetV1EditionsEditionIdImagedObjectsImagedObjectId', editionId, imagedObjectId, optional);
+    }
+
+    /**
+	 * Add an imaged object to an edition.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param imagedObjectId - Unique Id of the desired object from the imaging Institution
+	 *
+	 */
+    public async postV1EditionsEditionIdImagedObjectsImagedObjectId(editionId: number, imagedObjectId: string): Promise<ImagedObjectDTO> {
+        return await this._connection.invoke('PostV1EditionsEditionIdImagedObjectsImagedObjectId', editionId, imagedObjectId);
+    }
+
+    /**
+	 * Remove an imaged object from an edition. All artefacts must first be removed from the
+	 *		 imaged object.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param imagedObjectId - Unique Id of the desired object from the imaging Institution
+	 *
+	 */
+    public async deleteV1EditionsEditionIdImagedObjectsImagedObjectId(editionId: number, imagedObjectId: string): Promise<void> {
+        return await this._connection.invoke('DeleteV1EditionsEditionIdImagedObjectsImagedObjectId', editionId, imagedObjectId);
     }
 
     /**
@@ -1320,7 +1347,7 @@ export class SignalRUtilities {
 	 * @param artefactGroupId - Unique Id of the artefact group to be deleted
 	 *
 	 */
-    public async deleteV1EditionsEditionIdArtefactGroupsArtefactGroupId(editionId: number, artefactGroupId: number): Promise<DeleteDTO> {
+    public async deleteV1EditionsEditionIdArtefactGroupsArtefactGroupId(editionId: number, artefactGroupId: number): Promise<DeleteIntIdDTO> {
         return await this._connection.invoke('DeleteV1EditionsEditionIdArtefactGroupsArtefactGroupId', editionId, artefactGroupId);
     }
 
@@ -1434,7 +1461,7 @@ export class SignalRUtilities {
 	 * Add a listener for when the server broadcasts an edition has been deleted
 	 *
 	 */
-    public connectDeletedEdition(handler: (msg: DeleteTokenDTO) => void): void {
+    public connectDeletedEdition(handler: (msg: ArchiveTokenDTO) => void): void {
         this._connection.on('DeletedEdition', handler)
     }
 
@@ -1442,7 +1469,7 @@ export class SignalRUtilities {
 	 * Remove an existing listener that triggers when the server broadcasts an edition has been deleted
 	 *
 	 */
-    public disconnectDeletedEdition(handler: (msg: DeleteTokenDTO) => void): void {
+    public disconnectDeletedEdition(handler: (msg: ArchiveTokenDTO) => void): void {
         this._connection.off('DeletedEdition', handler)
     }
 
@@ -1519,7 +1546,7 @@ export class SignalRUtilities {
 	 * Add a listener for when the server broadcasts a ROI has been deleted
 	 *
 	 */
-    public connectDeletedRoi(handler: (msg: DeleteDTO) => void): void {
+    public connectDeletedRoi(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.on('DeletedRoi', handler)
     }
 
@@ -1527,7 +1554,7 @@ export class SignalRUtilities {
 	 * Remove an existing listener that triggers when the server broadcasts a ROI has been deleted
 	 *
 	 */
-    public disconnectDeletedRoi(handler: (msg: DeleteDTO) => void): void {
+    public disconnectDeletedRoi(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.off('DeletedRoi', handler)
     }
 
@@ -1553,7 +1580,7 @@ export class SignalRUtilities {
 	 * Add a listener for when the server broadcasts an artefact has been deleted
 	 *
 	 */
-    public connectDeletedArtefact(handler: (msg: DeleteDTO) => void): void {
+    public connectDeletedArtefact(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.on('DeletedArtefact', handler)
     }
 
@@ -1561,7 +1588,7 @@ export class SignalRUtilities {
 	 * Remove an existing listener that triggers when the server broadcasts an artefact has been deleted
 	 *
 	 */
-    public disconnectDeletedArtefact(handler: (msg: DeleteDTO) => void): void {
+    public disconnectDeletedArtefact(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.off('DeletedArtefact', handler)
     }
 
@@ -1621,7 +1648,7 @@ export class SignalRUtilities {
 	 * Add a listener for when the server broadcasts an artefact group has been deleted
 	 *
 	 */
-    public connectDeletedArtefactGroup(handler: (msg: DeleteDTO) => void): void {
+    public connectDeletedArtefactGroup(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.on('DeletedArtefactGroup', handler)
     }
 
@@ -1629,7 +1656,7 @@ export class SignalRUtilities {
 	 * Remove an existing listener that triggers when the server broadcasts an artefact group has been deleted
 	 *
 	 */
-    public disconnectDeletedArtefactGroup(handler: (msg: DeleteDTO) => void): void {
+    public disconnectDeletedArtefactGroup(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.off('DeletedArtefactGroup', handler)
     }
 
@@ -1706,7 +1733,7 @@ export class SignalRUtilities {
 	 * Add a listener for when the server broadcasts the delete of a sign interpretation
 	 *
 	 */
-    public connectDeletedSignInterpretation(handler: (msg: DeleteDTO) => void): void {
+    public connectDeletedSignInterpretation(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.on('DeletedSignInterpretation', handler)
     }
 
@@ -1714,7 +1741,7 @@ export class SignalRUtilities {
 	 * Remove an existing listener that triggers when the server broadcasts the delete of a sign interpretation
 	 *
 	 */
-    public disconnectDeletedSignInterpretation(handler: (msg: DeleteDTO) => void): void {
+    public disconnectDeletedSignInterpretation(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.off('DeletedSignInterpretation', handler)
     }
 
@@ -1757,7 +1784,7 @@ export class SignalRUtilities {
 	 * Add a listener for when the server broadcasts the delete of an attribute
 	 *
 	 */
-    public connectDeletedAttribute(handler: (msg: DeleteDTO) => void): void {
+    public connectDeletedAttribute(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.on('DeletedAttribute', handler)
     }
 
@@ -1765,7 +1792,7 @@ export class SignalRUtilities {
 	 * Remove an existing listener that triggers when the server broadcasts the delete of an attribute
 	 *
 	 */
-    public disconnectDeletedAttribute(handler: (msg: DeleteDTO) => void): void {
+    public disconnectDeletedAttribute(handler: (msg: DeleteIntIdDTO) => void): void {
         this._connection.off('DeletedAttribute', handler)
     }
 
@@ -1920,6 +1947,40 @@ export class SignalRUtilities {
 	 */
     public disconnectDeletedScribalFont(handler: (msg: DeleteScribalFontDTO) => void): void {
         this._connection.off('DeletedScribalFont', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the addition of an imaged object to an edition
+	 *
+	 */
+    public connectCreatedImagedObject(handler: (msg: ImagedObjectDTO) => void): void {
+        this._connection.on('CreatedImagedObject', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the addition of an imaged object to an edition
+	 *
+	 */
+    public disconnectCreatedImagedObject(handler: (msg: ImagedObjectDTO) => void): void {
+        this._connection.off('CreatedImagedObject', handler)
+    }
+
+
+    /**
+	 * Add a listener for when the server broadcasts the removal of an imaged object from an edition
+	 *
+	 */
+    public connectDeletedImagedObject(handler: (msg: DeleteStringIdDTO) => void): void {
+        this._connection.on('DeletedImagedObject', handler)
+    }
+
+    /**
+	 * Remove an existing listener that triggers when the server broadcasts the removal of an imaged object from an edition
+	 *
+	 */
+    public disconnectDeletedImagedObject(handler: (msg: DeleteStringIdDTO) => void): void {
+        this._connection.off('DeletedImagedObject', handler)
     }
 
 } 

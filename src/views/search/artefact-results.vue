@@ -84,7 +84,8 @@ export default class ArtefactResultComponent extends Vue {
             side: 'recto',
             ppi: dto.ppi,
             master: true,
-            catalogNumber: 0
+            catalogNumber: 0,
+            imageManifest: '',
         };
         const rectoImageStackDTO: ImageStackDTO = {
             id: -1,
