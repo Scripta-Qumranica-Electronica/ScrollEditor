@@ -8,7 +8,7 @@ import {
     UpdatedInterpretationRoiDTO,
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
-    DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO
+    DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO, DeleteIntIdDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
 import { StateManager } from '.';
@@ -49,7 +49,7 @@ export class NotificationHandler {
         }
     }
 
-    public handleDeletedArtefact(dto: DeleteDTO): void {
+    public handleDeletedArtefact(dto: DeleteIntIdDTO): void {
         for (const artefactId of dto.ids) {
             state().artefacts.remove(artefactId, false);
 
@@ -99,7 +99,7 @@ export class NotificationHandler {
         notifyRoiChanged();
     }
 
-    public handleDeletedRoi(dto: DeleteDTO): void {
+    public handleDeletedRoi(dto: DeleteIntIdDTO): void {
         for (const roiId of dto.ids) {
             handleDeletedRoi(roiId);
             notifyRoiChanged();
@@ -135,7 +135,7 @@ export class NotificationHandler {
         handleUpdatedSignInterpretation(dto);
     }
 
-    public handleDeletedSignInterpretation(dto: DeleteDTO): void {
+    public handleDeletedSignInterpretation(dto: DeleteIntIdDTO): void {
         // console.debug('handleDeletedSignInterpretation called on ', dto.ids);
         if (dto.entity !== 'signInterpretation') {
             console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);

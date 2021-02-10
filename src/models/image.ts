@@ -6,11 +6,19 @@ import { EditionInfo } from './edition';
 
 export class IIIFImage {
     public url: string;
-    public manifest: any; // TODO: Create a Typescript interface for this
+    public manifest?: any; // TODO: Create a Typescript interface for this
     public ppiAdjustmentFactor: number;
 
 
-    constructor(url: string) {
+    constructor(url: string, manifestString?: string) {
+        if (manifestString) {
+            try {
+                const manifest = JSON.parse(manifestString);
+                this.manifest = manifest;
+            } catch {
+                console.warn(`Invalid string passed as manifest for imge ${url}: ${manifestString}`);
+            }
+        }
         this.url = url;
         this.ppiAdjustmentFactor = 1;  // Set by the Image class where applicable
     }
@@ -107,7 +115,7 @@ export class Image extends IIIFImage {
     public ppi: number;
 
     constructor(dto: ImageDTO, edition: EditionInfo) {
-        super(dto.url);
+        super(dto.url, dto.imageManifest);  // If no manifest is provided, the IIIF server is going to be contacted
         this.type = dto.type;
         this.side = dto.side;
         this.waveLength = dto.waveLength;
