@@ -1,8 +1,9 @@
 <template>
     <div v-if="artefacts">
-        <p v-b-toggle.artefact-results-main>
+        <p v-b-toggle.artefact-results-main  role="tab">
              <i class="toggle-icon fa fa-angle-down"/> {{ title }} </p>
-        <b-collapse visible id="artefact-results-main" class="mt-2 scroll-bar">
+        <b-collapse  id="artefact-results-main" class="mt-2"
+        accordion="search-accordion" role="tabpanel">
             <div>
                 <b-card
                     class="p-3"
@@ -21,7 +22,7 @@
                             {{ a_e.edition.name }} - {{ a_e.artefact.name }} - {{ a_e.artefact.side }}
                         </label>
                     </router-link>
-                    
+
                 </b-card>
             </div>
         </b-collapse>
@@ -154,11 +155,6 @@ p {
     font-weight: $font-weight-1;
     font-size: $font-size-3;
     font-family: $font-family;
-}
-
-.scroll-bar {
-    overflow-y: auto;
-    max-height: calc(400px);
 }
 
 .toggle-icon {

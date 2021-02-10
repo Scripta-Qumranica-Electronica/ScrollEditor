@@ -1,7 +1,7 @@
 <template>
     <div v-if="results" class="mt-4">
         <p v-if="empty">Search returned no results</p>
-        <div v-else>
+        <div v-else class="accordion" role="tablist">
             <edition-results :editions="results.editions.editions" />
             <artefact-results :artefacts="results.artefacts.artefacts" />
             <imaged-object-results :imaged-objects="results.images.imagedObjects" />
@@ -73,4 +73,5 @@ p {
     font-size: $font-size-3;
     font-family: $font-family;
 }
+
 </style>

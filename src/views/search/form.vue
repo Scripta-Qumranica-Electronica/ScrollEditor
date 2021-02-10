@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row class="mt-5" align-v="center">
-            <b-col class="col-1">
+            <b-col class="col-2">
                 <label>Text</label>
             </b-col>
             <b-col class="col-5">
@@ -13,12 +13,13 @@
             <b-col class="col-1">
                 <b-form-checkbox
                     v-model="searchData.exactTextDesignation"
+                    v-b-tooltip.hover.right="'Exact search'"
                 >
                 </b-form-checkbox>
             </b-col>
         </b-row>
         <b-row class="mt-2" align-v="center">
-            <b-col class="col-1">
+            <b-col class="col-2">
                 <label>Image object</label>
             </b-col>
             <b-col class="col-5">
@@ -28,12 +29,15 @@
                 ></b-form-input>
             </b-col>
             <b-col class="col-1">
-                <b-form-checkbox v-model="searchData.exactImageDesignation">
+                <b-form-checkbox
+                    v-model="searchData.exactImageDesignation"
+                    v-b-tooltip.hover.right="'Exact search'"
+                >
                 </b-form-checkbox>
             </b-col>
         </b-row>
         <b-row class="mt-2" align-v="center">
-            <b-col class="col-1">
+            <b-col class="col-2">
                 <label>Text Reference</label>
             </b-col>
             <b-col class="col-5">
@@ -46,12 +50,15 @@
                 ></b-form-textarea>
             </b-col>
             <b-col class="col-1">
-                <b-form-checkbox v-model="searchData.exactTextReference">
+                <b-form-checkbox
+                    v-model="searchData.exactTextReference"
+                    v-b-tooltip.hover.right="'Exact search'"
+                >
                 </b-form-checkbox>
             </b-col>
         </b-row>
         <b-row class="mt-2" align-v="center">
-            <b-col class="col-1">
+            <b-col class="col-2">
                 <label>Artefact</label>
             </b-col>
             <b-col class="col-5">
@@ -66,11 +73,24 @@
             <b-col class="col-1">
                 <b-form-checkbox
                     v-model="searchData.exactArtefactDesignation"
+                    v-b-tooltip.hover.right="'Exact search'"
                 >
                 </b-form-checkbox>
             </b-col>
         </b-row>
-        <b-button :disabled="noSearch" variant="primary" @click="search()">Search</b-button>
+        <b-row>
+            <b-col class="col-2">
+            </b-col>
+            <b-col class="col-5" align-h="center" >
+                <b-button :disabled="noSearch" variant="primary" block
+                    @click="search()">
+                    Search
+                </b-button>
+
+            </b-col>
+            <b-col class="col-2">
+            </b-col>
+        </b-row>
     </div>
 </template>
 <script lang="ts">
@@ -83,6 +103,7 @@ import { SearchFormData } from './types';
     name: 'search',
 })
 export default class SearchForm extends Vue {
+
     private searchService: SearchService = new SearchService();
     private searchData: SearchFormData = new SearchFormData();
     @Prop( { default: false })
@@ -105,6 +126,8 @@ export default class SearchForm extends Vue {
     private search() {
         return this.searchData;
     }
+
+
 }
 </script>
 
@@ -118,4 +141,11 @@ label, button {
     font-size: $font-size-3;
     font-family: $font-family;
 }
+
+button {
+
+    margin: 2rem 0;
+
+}
+
 </style>

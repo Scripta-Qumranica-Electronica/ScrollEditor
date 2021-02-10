@@ -23,16 +23,17 @@
                     @on-public-editions-load="onPublicEditionsLoad($event)"
                 ></public-editions>
             </b-tab>
-                 <b-tab
+            <!-- <b-tab
                 :title="
                     $tc('home.search')
                 "
                 :title-item-class="'tab-title-class'"
             >
                 <search></search>
-            </b-tab>
+            </b-tab> -->
         </b-tabs>
     </div>
+
 </template>
 
 <script lang="ts">
@@ -42,7 +43,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/PersonalEditions.vue';
 import PublicEditions from './components/PublicEditions.vue';
-import Search from '@/views/search/main.vue';
+// import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */
 
 
@@ -51,8 +52,8 @@ import Search from '@/views/search/main.vue';
   components: {
         Waiting,
         PersonalEditions,
-        PublicEditions,
-        Search
+        PublicEditions // ,
+        // Search
   }
 })
 

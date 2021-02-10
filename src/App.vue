@@ -35,12 +35,10 @@ import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog.vue';
 
 export default class App extends Vue {
 
-    // data
-
-    protected waiting: boolean = true;
+    private waiting: boolean = true;
 
 
-    public created() {
+    private created() {
         // Set the language
         this.$i18n.locale = this.$state.session.language;
         this.initializeApp();
@@ -51,20 +49,20 @@ export default class App extends Vue {
         );
     }
 
-    public destroyed() {
+    private destroyed() {
         this.$state.eventBus.off(
             'corrupted-state',
             this.openCorruptedStateDialog
         );
     }
 
-    public async initializeApp() {
+    private async initializeApp() {
         const session = new SessionService();
         await session.isTokenValid();
         this.waiting = false;
     }
 
-    public openCorruptedStateDialog() {
+    private openCorruptedStateDialog() {
             this.$root.$emit('bv::show::modal', 'corrupted-state-dialog');
     }
 

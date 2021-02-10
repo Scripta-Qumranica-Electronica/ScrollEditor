@@ -4,7 +4,7 @@
             <!--TODO do not hardcode the image proxy server-->
             <img
                 class="card-img-top"
-                v-if="thumbnailSourceExists"
+                v-if="thumbnailSource"
                 v-lazy="thumbnailSource"
                 :alt="edition.name"
             />
@@ -51,15 +51,8 @@ export default class EditionGroupCard extends Vue {
 
     @Prop() public edition!: EditionInfo;
 
-    private get thumbnailSourceExists(): boolean {
-        return (undefined !== this.edition
-                 && undefined !== this.edition.thumbnail ) ;
-    }
-
-    private get thumbnailSource(): string | null {
-        return (undefined !== this.edition!.thumbnail)
-            ? this.edition!.thumbnail.thumbnailUrl
-            : null;
+    private get thumbnailSource(): string | undefined {
+        return this.edition?.thumbnail?.thumbnailUrl;
     }
 
     private get lockEdition(): boolean {

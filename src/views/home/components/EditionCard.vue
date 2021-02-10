@@ -7,7 +7,7 @@
             <b-col class="col-4">
                 <img
                     class="card-img-top"
-                    v-if="thumbnailSourceExists"
+                    v-if="thumbnailSource"
                     v-lazy="thumbnailSource"
                     :alt="edition.name"
                 />
@@ -70,15 +70,9 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 export default class EditionCard extends Vue {
     @Prop() private edition!: EditionInfo;
 
-    private get thumbnailSourceExists(): boolean {
-        return (undefined !== this.edition
-                 && undefined !== this.edition.thumbnail ) ;
-    }
+    private get thumbnailSource(): string | undefined {
+        return this.edition?.thumbnail?.thumbnailUrl;
 
-    private get thumbnailSource(): string | null {
-        return (undefined !== this.edition.thumbnail)
-            ? this.edition.thumbnail.thumbnailUrl
-            : null;
     }
 
 }
