@@ -45,16 +45,20 @@ export default class ArtefactCard extends Vue {
 
     private onObserved(entries: IntersectionObserverEntry[]) {
         if (entries.length !== 1) {
-            console.warn("Intersection handler received numerous entries, 1 expected", entries);
+            console.warn('Intersection handler received numerous entries, 1 expected', entries);
         }
 
         const entry = entries[0];
-        if (entry.isIntersecting) {
-            this.observed = true;
-
-            this.intersectionObserver!.disconnect();
-            this.intersectionObserver = undefined;
+        if (!entry.isIntersecting) {
+            return;
         }
+
+        // We get here whether there is an intersection, or we've received the wrong number of entries. Either way,
+        // we can load the image and stop observing.
+        this.observed = true;
+
+        this.intersectionObserver!.disconnect();
+        this.intersectionObserver = undefined;
     }
     // computed:
     private get editionId(): number {
