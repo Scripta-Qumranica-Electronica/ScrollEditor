@@ -87,13 +87,17 @@
 
                                     :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
                                 >
+
                                     <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
+
                                     <g
                                         v-if="artefact"
                                         :transform="transform"
                                         id="transform-root"
                                     >
                                         <!-- Coordinate system is in master image coordinates -->
+
+
                                         <image-layer
                                             :width="imageWidth"
                                             :height="imageHeight"
@@ -106,18 +110,18 @@
                                             v-for="art in visibleArtefacts"
                                             :artefact="art"
                                             :key="art.id"
-                                            :color="
-                                                removeColor
-                                                    ? 'none'
-                                                    : getArtefactColor(art)
-                                            "
+                                            :color=
+                                                "removeColor ?
+                                                'none' :   getArtefactColor(art)
+                                                "
                                         />
                                         <boundary-drawer
                                             v-if="canEdit && artefact"
-                                            :color="
-                                                isErasing
-                                                    ? 'black'
-                                                    : getArtefactColor(artefact)
+                                            :color=
+                                            " isErasing ?
+                                             'black'
+                                             :
+                                             getArtefactColor(artefact)
                                             "
                                             transform-root-id="transform-root"
                                             @new-polygon="onNewPolygon($event)"
@@ -188,9 +192,10 @@
                                         >Rename</b-button
                                     >
                                     <b-button
-                                        v-if="
-                                            renameInputActive === art &&
-                                            renaming
+                                        v-if=
+                                        "
+                                          renameInputActive === art
+                                           && renaming
                                         "
                                         disabled
                                         class="disable btn btn-sm"
@@ -288,7 +293,7 @@ import { ImagedObjectState } from '../../state/imaged-object';
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
-        zoomer: Zoomer,
+        'zoomer': Zoomer,
         'edition-icons': EditionIcons,
         'edition-header': EditionHeader,
     },
@@ -320,7 +325,7 @@ export default class ImagedObjectEditor
     );
     private side: Side = 'recto';
     private renameInputActive: Artefact | null = null;
-    private waiting: boolean = false;
+    private waiting: boolean = true;
     private masterImage?: IIIFImage | null = null;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
@@ -328,11 +333,9 @@ export default class ImagedObjectEditor
     public async saveEntities(
         ops: ImagedObjectEditorOperation[]
     ): Promise<boolean> {
-        // if (!this.artefact) {
-        //     throw new Error("Can't save if there is no artefact");
-        // }
 
         for (const op of ops) {
+
             const id = op.getId();
             const artefact = this.artefacts.find((x) => x.id === id);
             if (!artefact) {
@@ -344,11 +347,15 @@ export default class ImagedObjectEditor
                     this.editionId,
                     artefact
                 );
+
                 this.showMessage('toasts.imagedObjectSaved', 'success');
+
             } catch (error) {
+
                 console.error("Can't save arterfact to server", error);
                 this.showMessage('toasts.imagedObjectFailed', 'error');
                 continue;
+
             }
         }
 
@@ -368,14 +375,20 @@ export default class ImagedObjectEditor
         (this.$refs.newArtefactName as any).focus();
     }
 
-   // moved code to created()
-   // from  private async mounted() {
-   // in order to have the masterImage ready before mounted
-   // for the <zoomed...><svg> ... part
 
-    private async created() {
+   // moved code to created() from mounted() {
+   // in order to have the masterImage and other items
+   // (i.e this.artefactId ) ready before mounted
+   // for the <zoomed...><svg> ... part
+   // and prevent errors of undefined parts
+   // occuring during render befor mounted,
+   // e.g. selectedRow: art.id === artefact.id returns undefined
+
+   private async created() {
+
         try {
             this.waiting = true;
+
             await this.$state.prepare.edition(this.editionId);
 
             this.$state.imagedObjects.current = this.$state.imagedObjects.find(
@@ -417,7 +430,7 @@ export default class ImagedObjectEditor
 
             // Get the current master image
             const stack = this.imagedObject.getImageStack(this.side)!;
-            this.masterImage = (undefined === stack) ? null : stack.master;
+            this.masterImage = stack?.master;
 
             if (this.imagedObject.artefacts.length) {
                 this.onArtefactChanged(this.visibleArtefacts[0]);
@@ -434,7 +447,6 @@ export default class ImagedObjectEditor
 
         this.fillImageSettings();
     }
-
 
     private get artefact(): Artefact | undefined {
         const artefact = this.artefacts.find((x) => x.id === this.artefactId);
@@ -462,7 +474,7 @@ export default class ImagedObjectEditor
     }
 
     private get canEdit(): boolean {
-        return this.$state.editions.current?.permission.mayWrite || false;
+        return this.$state.editions.current?.permission?.mayWrite || false;
     }
 
     private get visibleArtefacts(): Artefact[] {
@@ -618,12 +630,14 @@ export default class ImagedObjectEditor
 
     private onArtefactChanged(art: Artefact) {
         this.artefactId = art.id;
+
         // const index = this.artefacts.indexOf(art); // index artefact in artefact list.
         // this.artefactEditingData = this.getArtefactEditingData(index);
 
         this.nonSelectedMask = new Polygon();
         for (const artefact of this.visibleArtefacts) {
             if (artefact.id !== art.id) {
+
                 this.nonSelectedMask = Polygon.add(
                     this.nonSelectedMask,
                     artefact.mask
@@ -678,6 +692,7 @@ export default class ImagedObjectEditor
         }
 
         console.log(this.artefact!.mask.svg, newPolygon.svg, 'hasChanged');
+
         this.operationsManager.addOperation(
             new ImagedObjectEditorOperation(
                 this.artefact!.id,
@@ -754,6 +769,7 @@ export default class ImagedObjectEditor
     }
 
     private async onDeleteArtefact(art: Artefact) {
+
         try {
             await this.artefactService.deleteArtefact(art);
             this.showMessage('toasts.artefactDeleted', 'success');
