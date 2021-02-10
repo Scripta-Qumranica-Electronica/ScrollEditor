@@ -140,138 +140,132 @@ export default class SideBar extends Vue {
     private newEditionName: string =  '';
     private renaming: boolean = false;
 
+    public get currentEdition(): EditionInfo | null {
+        return this.$state.editions.current ;
+    }
 
-    // computed
+
+    public get readOnly(): boolean {
+        return this.currentEdition!.permission.readOnly;
+    }
+
+    public get isAdmin(): boolean {
+        return this.currentEdition!.permission.isAdmin;
+    }
+
+    public get canRename(): boolean {
+        return this.currentEdition!.permission.mayWrite;
+    }
+
+    public get user(): boolean {
+        return this.$state.session.user ? true : false;
+    }
+
+    public get canCopy(): boolean {
+        return this.newCopyName.trim().length > 0;
+    }
 
 
-        public get currentEdition(): EditionInfo | null {
-            return this.$state.editions.current ;
+    public get isNew(): boolean {
+        if (this.currentEdition) {
+            return this.currentEdition.id === this.$state.misc.newEditionId;
         }
+        return false;
+    }
 
-
-        public get readOnly(): boolean {
-            return this.currentEdition!.permission.readOnly;
+    public get imagedObjects(): number {
+        if (this.$state.imagedObjects.items) {
+            return this.$state.imagedObjects.items.length;
         }
+        return 0;
+    }
 
-        public get isAdmin(): boolean {
-            return this.currentEdition!.permission.isAdmin;
+    public get artefacts(): number {
+        if (this.$state.imagedObjects.items) {
+            let artLen = 0;
+            this.$state.imagedObjects.items.forEach(
+                (element: ImagedObject) => {
+                    artLen += element.artefacts.length;
+                }
+            );
+            return artLen;
         }
+        return 0;
+    }
 
-        public get canRename(): boolean {
-            return this.currentEdition!.permission.mayWrite;
+
+    private  openPermissionModal() {
+        this.$root.$emit('bv::show::modal', 'permissionModal');
+    }
+
+    private openRename() {
+        this.renaming = true;
+        this.newEditionName = this.currentEdition!.name;
+    }
+
+    private showMessage(msg: string, type: string = 'info') {
+        this.$toasted.show(this.$tc(msg), {
+            type,
+            position: 'top-right',
+            duration: 7000
+        });
+    }
+
+    private versionString(ver: EditionInfo) {
+        return ver.name;
+    }
+
+    private async copyEdition(evt: Event) {
+        evt.preventDefault();
+
+        if (!this.canCopy) {
+            return; // ENTER key calls this handler even if the button is disabled
         }
+        this.newCopyName = this.newCopyName.trim();
 
-        public get user(): boolean {
-            return this.$state.session.user ? true : false;
-        }
+        this.waiting = true;
+        this.errorMessage = '';
+        try {
+            const newEdition = await this.editionService.copyEdition(
+                this.currentEdition!.id,
+                this.newCopyName
+            );
 
-        public get canCopy(): boolean {
-            return this.newCopyName.trim().length > 0;
-        }
+            this.$state.misc.newEditionId = newEdition.id;
 
-
-        public get isNew(): boolean {
-            if (this.currentEdition) {
-                return this.currentEdition.id === this.$state.misc.newEditionId;
-            }
-            return false;
-        }
-
-        public get imagedObjects(): number {
-            if (this.$state.imagedObjects.items) {
-                return this.$state.imagedObjects.items.length;
-            }
-            return 0;
-        }
-
-        public get artefacts(): number {
-            if (this.$state.imagedObjects.items) {
-                let artLen = 0;
-                this.$state.imagedObjects.items.forEach(
-                    (element: ImagedObject) => {
-                        artLen += element.artefacts.length;
-                    }
-                );
-                return artLen;
-            }
-            return 0;
-        }
-
-
-    // methods: {
-
-       private  openPermissionModal() {
-            this.$root.$emit('bv::show::modal', 'permissionModal');
-        }
-
-        private openRename() {
-            this.renaming = true;
-            this.newEditionName = this.currentEdition!.name;
-        }
-
-        private showMessage(msg: string, type: string = 'info') {
-            this.$toasted.show(this.$tc(msg), {
-                type,
-                position: 'top-right',
-                duration: 7000
+            this.$router.push({
+                path: `/editions/${newEdition.id}`
             });
+            (this.$refs.copyModalRef as any).hide();
+        } catch (err) {
+            this.errorMessage = err;
+        } finally {
+            this.waiting = false;
         }
+    }
 
-        private versionString(ver: EditionInfo) {
-            return ver.name;
+    private copyModalShown() {
+        this.newCopyName = this.currentEdition!.name;
+        (this.$refs.newCopyName as any).focus();
+    }
+
+    private async onRename(newName: string) {
+        if (!this.currentEdition) {
+            throw new Error("Can't rename if there is no edition");
         }
-
-        private async copyEdition(evt: Event) {
-            evt.preventDefault();
-
-            if (!this.canCopy) {
-                return; // ENTER key calls this handler even if the button is disabled
-            }
-            this.newCopyName = this.newCopyName.trim();
-
-            this.waiting = true;
-            this.errorMessage = '';
-            try {
-                const newEdition = await this.editionService.copyEdition(
-                    this.currentEdition!.id,
-                    this.newCopyName
-                );
-
-                this.$state.misc.newEditionId = newEdition.id;
-
-                this.$router.push({
-                    path: `/editions/${newEdition.id}`
-                });
-                (this.$refs.copyModalRef as any).hide();
-            } catch (err) {
-                this.errorMessage = err;
-            } finally {
-                this.waiting = false;
-            }
+        this.renaming = true;
+        try {
+            await this.editionService.renameEdition(
+                this.currentEdition!.id,
+                newName
+            );
+            this.showMessage('toasts.editionSuccess', 'success');
+        } catch (err) {
+            this.showMessage('toasts.editionError', 'error');
+        } finally {
+            this.renaming = false;
         }
-
-        private copyModalShown() {
-            this.newCopyName = this.currentEdition!.name;
-            (this.$refs.newCopyName as any).focus();
-        }
-
-        private async onRename(newName: string) {
-            if (!this.currentEdition) {
-                throw new Error("Can't rename if there is no edition");
-            }
-            this.renaming = true;
-            try {
-                await this.editionService.renameEdition(
-                    this.currentEdition!.id,
-                    newName
-                );
-                this.showMessage('toasts.editionSuccess', 'success');
-            } catch (err) {
-                this.showMessage('toasts.editionError', 'error');
-            } finally {
-                this.renaming = false;
-            }
-        }
+    }
 
 }
 

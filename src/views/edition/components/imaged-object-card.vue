@@ -18,28 +18,19 @@ import { ImagedObject } from '@/models/imaged-object';
 
 export default class ImagedObjectCard extends Vue {
 
-    // props
+     @Prop() private imagedObject!: ImagedObject;
 
-    @Prop() protected imagedObject!: ImagedObject;
-                                 // Object as () => ImagedObject,
-
-    // computed:
-
-    public get imageUrl(): string | undefined {
-        if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
-            return this.imagedObject.recto.master.getThumbnailUrl(600);
-        }
-        return undefined;
+    private get imageUrl(): string | undefined {
+        // TS 3.7 and up , optional chaining returns undefined
+        // if any chain member is null or undefined
+         return this.imagedObject?.recto?.master?.getThumbnailUrl(600);
     }
 
-    public get editionId(): number | undefined {
-        if (this.$state.editions.current) {
-            return this.$state.editions.current.id;
-        }
-        return undefined;
+    private get editionId(): number | undefined {
+        return this.$state?.editions?.current?.id;
     }
 
-    public get artefactsNames(): string {
+    private get artefactsNames(): string {
         const names = this.imagedObject.artefacts.map((a) => a.name);
          // Taken from here: https://stackoverflow.com/a/42123984/871910
         const unique = [...new Set(names)];
