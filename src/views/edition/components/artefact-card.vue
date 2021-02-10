@@ -31,10 +31,10 @@ import ArtefactImage from '@/components/artefact/artefact-image.vue';
 })
 export default class ArtefactCard extends Vue {
     @Prop() public readonly artefact!: Artefact;
-    private observed = false;
+    public observed = false;
     private intersectionObserver?: IntersectionObserver;
 
-    private mounted() {
+    public mounted() {
         this.intersectionObserver = new IntersectionObserver((entries) => this.onObserved(entries), {
             root: undefined,
             rootMargin: '0px',
@@ -60,12 +60,12 @@ export default class ArtefactCard extends Vue {
         this.intersectionObserver!.disconnect();
         this.intersectionObserver = undefined;
     }
-    // computed:
-    private get editionId(): number {
+
+    public get editionId(): number {
         return parseInt(this.$route.params.editionId);
     }
 
-    private destroyed() {
+    public destroyed() {
         if (this.intersectionObserver) {
             this.intersectionObserver.disconnect();
             this.intersectionObserver = undefined;
