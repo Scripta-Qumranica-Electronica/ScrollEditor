@@ -267,7 +267,6 @@ export default class StateService {
 
     private async artefactsInternal(editionId: number) {
         this._state.artefacts.items = [];
-        await this.edition(editionId);
         const svc = new ArtefactService();
         const artefacts = await svc.getEditionArtefacts(editionId);
         this._state.artefacts.items = artefacts;
