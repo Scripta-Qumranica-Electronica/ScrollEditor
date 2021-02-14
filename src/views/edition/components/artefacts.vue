@@ -40,10 +40,10 @@ import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
     },
 })
 export default class EditionArtefacts extends Vue {
-    private filteredArtefacts: Artefact[] = [];
-    private searchValue: SearchBarValue = {};
-    private editionId: number = 0;
-    private searchBarParams: SearchBarParams = {
+    public filteredArtefacts: Artefact[] = [];
+    public searchValue: SearchBarValue = {};
+    public editionId: number = 0;
+    public searchBarParams: SearchBarParams = {
         filter: true,
         sort: false,
         view: true,
@@ -95,6 +95,7 @@ export default class EditionArtefacts extends Vue {
 
     protected async mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
+        await this.$state.prepare.edition(this.editionId);
         await this.$state.prepare.artefacts(this.editionId);
         this.filteredArtefacts = this.getFilteredArtefacts();
    }
