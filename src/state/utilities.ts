@@ -147,9 +147,25 @@ abstract class StateCache<T extends ItemWithId<U>, U = number> {
 abstract class StateMap<T extends ItemWithId<U>, U = number> {
     private _entries = new Map<U, T>();
     private _frontendToServerIdMap = new Map<U, U>();
+    private _serverToFrontendIdMap = new Map<U, U>();
 
-    public get(key: U): T | undefined {
-        return this._entries.get(key);
+    public get(key: U, considerServerIds = false): T | undefined {
+        let actualKey: U | undefined = key;
+
+        if (!this._entries.has(key) && considerServerIds) {
+            if (this._frontendToServerIdMap.has(key)) {
+                actualKey = this._frontendToServerIdMap.get(key);
+            } else if (this._serverToFrontendIdMap.has(key)) {
+                actualKey = this._serverToFrontendIdMap.get(key);
+            }
+
+            if (!actualKey) {
+                return undefined;
+            }
+        }
+
+        const entry = this._entries.get(actualKey);
+        return entry;
     }
 
     public put(entry: T) {
@@ -158,6 +174,10 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
 
     public get size() {
         return this._entries.size;
+    }
+
+    public get keys() {
+        return this._entries.keys();
     }
 
     public *getItems() {
@@ -191,6 +211,9 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
     // classes.
     public mapFrontendIdToServerId(frontendId: U, serverId: U) {
         this._frontendToServerIdMap.set(frontendId, serverId);
+        this._serverToFrontendIdMap.set(serverId, frontendId);
+
+        console.debug(`Mapping frontend id ${frontendId} to server id ${serverId}`);
     }
 
     public getServerId(frontendId: U): U | undefined {

@@ -49,6 +49,12 @@ export class StateManager {
         this.prepare = new StateService(this);
     }
 
+    public corrupted(msg: string): never {
+        console.error('State is corrupt: ', msg);
+        this.eventBus.emit('corrupted-state');
+        throw new Error('State is corrupt: ' + msg);
+    }
+
     public static get instance() {
         if (!StateManager._instance) {
             StateManager._instance = new StateManager();
