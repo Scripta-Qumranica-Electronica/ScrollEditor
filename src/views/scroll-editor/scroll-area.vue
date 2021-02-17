@@ -26,7 +26,19 @@
                 @click="onScrollClick"
                 @mousemove="onMouseMove"
             >
+
+
                 <g id="root" :transform="transform">
+                    <defs id="before-root" v-if= "currentScript" >
+                        <path
+                        v-for="g of Object.values(scriptGlyphs)"
+                        :key="g.character"
+                        :d="g.shape.svg"
+                        :id = "`path-${g.character}`"
+                        class="display-letters"
+                        />
+                    </defs>
+
                     <artefact-image-group
                         @on-select="selectArtefact(artefact)"
                         @new-operation="onNewOperation($event)"
@@ -40,6 +52,7 @@
                         :withRois="displayRois"
                         :displayText="displayText"
                         :reconstructedText="displayReconstructedText"
+                        :signYoffsts = "signYoffsts"
                     />
                 </g>
             </svg>
@@ -63,6 +76,8 @@ import { ScrollEditorOperation } from './operations';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactTextFragmentData } from '@/models/text';
 
+import { ScriptData, GlyphData } from '@/models/script';
+
 @Component({
     name: 'scroll-area',
     components: {
@@ -80,6 +95,8 @@ export default class ScrollArea extends Vue {
     private boundingBox = new BoundingBox(1, 1);
     private draggableOptions: DraggableValue = {};
 
+    private signYoffstsSet: { [key: string]: number } = {};
+
     public selectArtefact(artefact: Artefact | undefined) {
         this.$emit('onSelectArtefact', artefact);
     }
@@ -88,7 +105,19 @@ export default class ScrollArea extends Vue {
         this.$state.eventBus.on('select-artefact', (art: Artefact) =>
             this.selectArtefact(art)
         );
+
+        const scrypt = this.$state.editions.current!.script;
+        if (scrypt   ) {
+            for ( const g of Object.values(scrypt.glyphs) ) {
+                if (undefined === this.signYoffstsSet[g.character] ) {
+                    this.signYoffstsSet[g.character] = g.yOffset;
+
+                }
+            }
+        }
+
     }
+
 
     private destroyed() {
         this.$state.eventBus.off('select-artefact');
@@ -107,6 +136,7 @@ export default class ScrollArea extends Vue {
                 )
             );
         });
+
     }
 
     private get scrollEditorState(): ScrollEditorState {
@@ -118,6 +148,11 @@ export default class ScrollArea extends Vue {
     }
     private get displayText(): boolean {
         return this.scrollEditorState.displayText;
+    }
+
+
+   private get signYoffsts(): { [key: string]: number }  {
+        return this.signYoffstsSet;
     }
 
     private get displayReconstructedText(): boolean {
@@ -215,6 +250,14 @@ export default class ScrollArea extends Vue {
         return zoom;
     }
 
+    private get currentScript(): ScriptData | undefined {
+        return this.$state.editions.current!.script;
+    }
+
+    private get scriptGlyphs(): { [key: string]: GlyphData } | null  {
+          return this.$state.editions.current!.script?.glyphs || null;
+    }
+
     private get placedArtefacts() {
         return this.artefacts
             .filter((x) => x.isPlaced)
@@ -267,5 +310,15 @@ export default class ScrollArea extends Vue {
     background: #ccc;
     text-align: center;
     cursor: move;
+}
+
+
+.display-letters {
+    font-family: 'scroll_hebrew';
+     stroke-width: 1px;
+     stroke: white;
+    fill: black;
+    font-size: 2px;
+    font-weight: 800;
 }
 </style>
