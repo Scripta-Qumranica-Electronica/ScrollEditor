@@ -23,7 +23,8 @@
             </clipPath>
         </defs>
         <g @click="onSelect">
-            <g :clip-path="`url(#clip-path-${artefact.id})`" v-if="!artefact.isVirtual">
+            <g :clip-path="`url(#clip-path-${artefact.id})`"
+                v-if="!artefact.isVirtual">
                 <iiif-image
                     :image="masterImage"
                     :boundingBox="boundingBox"
@@ -48,15 +49,15 @@
         ></roi-layer>
         <template v-if="displayText || reconstructedText">
             <template v-for="d in displayedSigns">
-                 <text
+                <use
+                    :href = "`#path-${d.character}`"
                     :key="d.id"
                     :transform="d.svgTransform"
-                    font-size="200"
-                    dominant-baseline="middle"
+                    font-size="100"
+                    dominant-baseline="baseline"
+                    alignment-baseline="central"
                     text-anchor="middle"
-                    class="display-letters"
-                    >{{ d.character }}
-                </text>
+                    />
             </template>
         </template>
     </g>
@@ -96,8 +97,11 @@ class DisplayableSign {
     public id: number;
     public character: string;
     public boundingBox: BoundingBox;
+    public yOffset: number = 0;
 
-    public constructor(si: SignInterpretation, rois: InterpretationRoi[]) {
+    public constructor( si: SignInterpretation,
+                        rois: InterpretationRoi[],
+                        yOffset: number ) {
         if (!si.character) {
             throw new Error('DisplayedSign with no character');
         }
@@ -108,15 +112,9 @@ class DisplayableSign {
 
         this.id = si.id;
         this.character = si.character;
+        this.yOffset = yOffset;
 
         this.boundingBox = this.calculateBoundingBox(rois);
-    }
-
-    public get svgTransform() {
-        const midX = this.boundingBox.x + this.boundingBox.width / 2;
-        const midY = this.boundingBox.y + this.boundingBox.height / 2;
-
-        return `translate(${midX} ${midY})`;
     }
 
     private calculateBoundingBox(rois: InterpretationRoi[]): BoundingBox {
@@ -124,14 +122,22 @@ class DisplayableSign {
 
         for (const roi of rois) {
             const bbox = roi.shape.getBoundingBox();
-            bbox.x = roi.position.x;
-            bbox.y = roi.position.y;
+            bbox.x = roi.position.x ;
+            bbox.y = roi.position.y + this.yOffset;
 
             boundingBoxes.push(bbox);
         }
 
         return BoundingBox.combine(boundingBoxes);
     }
+
+    public get svgTransform() {
+        const midX = this.boundingBox.x ; //removed width, prevent shift right
+        const midY = this.boundingBox.y - this.yOffset / 2 + this.boundingBox.height  / 2;
+
+        return `translate(${midX} ${midY})`;
+    }
+
 }
 
 @Component({
@@ -154,19 +160,26 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         default: false,
     })
     public withRois!: boolean;
+
     @Prop({
         default: false,
     })
     public displayText!: boolean;
+
     @Prop({
         default: false,
     })
     public reconstructedText!: boolean;
+
     @Prop({
         default: undefined,
     })
     public artefact!: Artefact;
+
     @Prop() public readonly transformRootId!: string;
+
+    @Prop({ default: {} }) public signYoffsts!: { [key: string]: number }  ;
+
     private mouseOrigin?: Point;
     private loaded = false;
     private pointerId: number = -1;
@@ -217,8 +230,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private get visibleRois(): InterpretationRoi[] {
+
         const visibleRois: InterpretationRoi[] = [];
         for (const roi of this.$state.interpretationRois.getItems()) {
+
             if (
                 roi.status !== 'deleted' &&
                 roi.artefactId === this.artefact.id
@@ -233,7 +248,9 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private get visibleSignInterpretations(): SignInterpretation[] {
         const siSet = new Set<SignInterpretation>();
 
+
         for (const roi of this.visibleRois) {
+
             const siId = roi.signInterpretationId;
             if (siId === undefined) {
                 continue;
@@ -254,7 +271,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const reconstructedOnly = this.reconstructedText && !this.displayText;
         const displayedSigns: DisplayableSign[] = [];
 
+        let yOffset;
+
         for (const si of this.visibleSignInterpretations) {
+
+
             if (reconstructedOnly && !si.isReconstructed) {
                 continue;
             }
@@ -263,62 +284,18 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
                 continue;
             }
 
-            const displayedSign = new DisplayableSign(si, si.rois);
+            yOffset = this.signYoffsts[si.character];
+            const displayedSign = new DisplayableSign(si, si.rois, yOffset);
             displayedSigns.push(displayedSign);
         }
 
         return displayedSigns;
     }
 
-/*    private get siRois(): {
-        [character: string]: InterpretationRoi[];
-    } {
-        if (this.reconstructedText && !this.displayText) {
-            return this.reconstructedSiRois;
-        }
-
-        return this.allSiRois;
-    }
-
-    private get reconstructedSiRois(): {
-        [character: string]: InterpretationRoi[];
-    } {
-        const siRois = this.visibleRois.reduce(
-            (result: { [character: string]: InterpretationRoi[] }, roi) => {
-                const si = this.$state.signInterpretations.get(
-                    roi.signInterpretationId!
-                )!;
-                if (si.isReconstructed) {
-                    const character = si.character || '';
-                    (result[character] = result[character] || []).push(roi);
-                }
-                return result;
-            },
-            {}
-        );
-        return siRois;
-    }
-
-    private get allSiRois(): {
-        [character: string]: InterpretationRoi[];
-    } {
-        const siRois = this.visibleRois.reduce(
-            (result: { [character: string]: InterpretationRoi[] }, roi) => {
-                const character =
-                    this.$state.signInterpretations.get(
-                        roi.signInterpretationId!
-                    )!.character || '';
-                (result[character] = result[character] || []).push(roi);
-                return result;
-            },
-            {}
-        );
-        return siRois;
-    } */
-
 
     protected async mounted() {
-        await this.mountedDone;
+
+        // await this.mountedDone;
         this.loaded = true;
     }
 
@@ -460,46 +437,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.pointerId = -1;
     }
 
-    /* private letterRoiPosition(value: InterpretationRoi[]) {
-        let minx: InterpretationRoi = {} as InterpretationRoi;
-        let maxx: InterpretationRoi = {} as InterpretationRoi;
-        let miny: InterpretationRoi = {} as InterpretationRoi;
-        let maxy: InterpretationRoi = {} as InterpretationRoi;
 
-        value.forEach((roi, idx) => {
-            if (idx === 0) {
-                minx = maxx = roi;
-                miny = maxy = roi;
-            }
-
-            if (roi.position.x <= minx.position.x) {
-                minx = roi;
-            }
-            if (roi.position.x >= maxx.position.x) {
-                maxx = roi;
-            }
-            if (roi.position.y <= miny.position.y) {
-                miny = roi;
-            }
-            if (roi.position.y >= maxy.position.y) {
-                maxy = roi;
-            }
-
-        });
-
-        const newPositionX =
-            (maxx.position.x +
-                minx.position.x +
-                maxx.shape.getBoundingBox().width) /
-            2;
-        const newPositionY =
-            (maxy.position.y +
-                miny.position.y +
-                maxy.shape.getBoundingBox().height) /
-            2;
-
-        return `${newPositionX} ${newPositionY}`;
-    } */
 
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
@@ -529,11 +467,4 @@ path.selected {
     cursor: not-allowed;
 }
 
-.display-letters {
-    font-family: 'scroll_hebrew';
-    // stroke-width: 10px;
-    // stroke: black;
-    fill: black;
-    font-weight: 800;
-}
 </style>
