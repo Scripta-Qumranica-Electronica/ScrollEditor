@@ -1,17 +1,20 @@
 <template>
-    <router-link
-        :to="{ path: `/editions/${editionId}/artefacts/${artefact.id}` }"
-    >
-        <artefact-image
-            class="card-img-top"
-            v-if="artefact"
-            :artefact="artefact"
-            maxWidth="150"
-        ></artefact-image>
-        <label class="side-edition"
-            >{{ artefact.name }} - {{ artefact.side }}</label
+    <div id="card" ref="card">
+        <router-link
+            :to="{ path: `/editions/${editionId}/artefacts/${artefact.id}` }"
         >
-    </router-link>
+            <artefact-image
+                class="card-img-top"
+                v-if="artefact && observed"
+                :artefact="artefact"
+                maxWidth="150"
+            ></artefact-image>
+            <img class="place-holder" v-if="artefact && !observed" src="@/assets/images/rings.svg"/>
+            <label class="side-edition"
+                >{{ artefact.name }} - {{ artefact.side }}</label
+            >
+        </router-link>
+    </div>
 </template>
 
 <script lang="ts">
@@ -26,17 +29,47 @@ import ArtefactImage from '@/components/artefact/artefact-image.vue';
         ArtefactImage,
     }
 })
-
 export default class ArtefactCard extends Vue {
-
-
-    // props
     @Prop() public readonly artefact!: Artefact;
-                        // Object as () => Artefact,
+    public observed = false;
+    private intersectionObserver?: IntersectionObserver;
 
-    // computed:
+    public mounted() {
+        this.intersectionObserver = new IntersectionObserver((entries) => this.onObserved(entries), {
+            root: undefined,
+            rootMargin: '0px',
+            threshold: 0.1,
+        });
+        this.intersectionObserver.observe(this.$refs.card as Element);
+    }
+
+    private onObserved(entries: IntersectionObserverEntry[]) {
+        if (entries.length !== 1) {
+            console.warn('Intersection handler received numerous entries, 1 expected', entries);
+        }
+
+        const entry = entries[0];
+        if (!entry.isIntersecting) {
+            return;
+        }
+
+        // We get here whether there is an intersection, or we've received the wrong number of entries. Either way,
+        // we can load the image and stop observing.
+        this.observed = true;
+
+        this.intersectionObserver!.disconnect();
+        this.intersectionObserver = undefined;
+    }
+
     public get editionId(): number {
         return parseInt(this.$route.params.editionId);
+    }
+
+    public destroyed() {
+        if (this.intersectionObserver) {
+            this.intersectionObserver.disconnect();
+            this.intersectionObserver = undefined;
+        }
     }
 
 }
@@ -66,4 +99,13 @@ div.card {
         color: $black;
     }
 }
+
+img.place-holder {
+    width: 100%;
+}
+
+div#card {
+    min-height: 60px;
+}
+
 </style>

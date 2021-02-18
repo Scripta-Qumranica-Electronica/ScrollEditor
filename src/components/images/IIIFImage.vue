@@ -107,10 +107,11 @@ export default class IIIFImageComponent extends Vue {
 
     // The IIIF manifest can contain tile information. If not, we have a default tile information we use.
     private get manifestTileInfo(): ManifestTileInfo {
-        if (this.image.manifest.tiles) {
+        if (this.image.manifest?.tiles) {
             // Use the first tile - we haven't seen an example with more than one tile entry
             return this.image.manifest.tiles[0] as ManifestTileInfo;
         }
+
 
         // Default tile information
         return {

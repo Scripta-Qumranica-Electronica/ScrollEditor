@@ -328,6 +328,7 @@ export interface SimpleImageDTO {
     type: string;
     side: SideDesignation;
     ppi: number;
+    imageManifest: string;
     master: boolean;
     catalogNumber: number;
 }
@@ -431,7 +432,7 @@ export interface BatchUpdatedArtefactTransformDTO {
 }
 
 export interface CreateArtefactDTO extends UpdateArtefactDTO {
-    masterImageId: number;
+    masterImageId?: number;
 }
 
 export interface UpdateArtefactGroupDTO {
@@ -446,6 +447,7 @@ export interface CreateArtefactGroupDTO extends UpdateArtefactGroupDTO {
 export interface EditionDTO {
     id: number;
     name: string;
+    manuscriptId: number;
     editionDataEditorId: number;
     permission: PermissionDTO;
     owner: UserDTO;
@@ -524,7 +526,7 @@ export interface TextEditionDTO {
     textFragments: Array<TextFragmentDTO>;
 }
 
-export interface DeleteTokenDTO {
+export interface ArchiveTokenDTO {
     editionId: number;
     token: string;
 }
@@ -540,7 +542,14 @@ export interface CommentaryDTO extends CommentaryCreateDTO {
 
 export interface DeleteDTO {
     entity: EditionEntities;
+}
+
+export interface DeleteIntIdDTO extends DeleteDTO {
     ids: Array<number>;
+}
+
+export interface DeleteStringIdDTO extends DeleteDTO {
+    ids: Array<string>;
 }
 
 export interface EditionUpdateRequestDTO extends EditionCopyDTO {
@@ -844,7 +853,8 @@ export type EditionEntities =
     'textFragment' |
     'line' |
     'signInterpretation' |
-    'roi'
+    'roi' |
+    'imagedObject'
 ;
 
 export type SideDesignation = 

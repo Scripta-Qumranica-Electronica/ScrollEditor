@@ -11,7 +11,7 @@
                 </b-col>
             </b-row>
         </div>
-        <div class="scroll-bar">
+        <div class="scroll-bar" ref="container">
             <div
                 class="card"
                 v-for="artefact in filteredArtefacts"
@@ -24,11 +24,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { EditionInfo } from '@/models/edition';
-import EditionIcons from '@/components/cues/edition-icons.vue';
+import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionCard from './EditionCard.vue';
 import ArtefactCard from './artefact-card.vue';
 import { Artefact } from '@/models/artefact';
 import SearchBar from '@/components/search-bar.vue';
@@ -43,10 +40,10 @@ import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
     },
 })
 export default class EditionArtefacts extends Vue {
-    private filteredArtefacts: Artefact[] = [];
-    private searchValue: SearchBarValue = {};
-    private editionId: number = 0;
-    private searchBarParams: SearchBarParams = {
+    public filteredArtefacts: Artefact[] = [];
+    public searchValue: SearchBarValue = {};
+    public editionId: number = 0;
+    public searchBarParams: SearchBarParams = {
         filter: true,
         sort: false,
         view: true,
@@ -56,19 +53,27 @@ export default class EditionArtefacts extends Vue {
         return this.$state.artefacts.items
             .filter((art: Artefact) => {
                 let filter = true;
+
+                if (art.isVirtual) {
+                    return false;
+                }
+
                 if (
                     this.searchValue.view &&
                     this.searchValue.view !== 'recto and verso'
                 ) {
                     filter = filter && art.side === this.searchValue.view;
                 }
-                if (this.searchValue.filter) {
+                if (
+                    this.searchValue.filter
+                    ) {
                     filter =
                         filter &&
                         art.name
                             .toLowerCase()
                             .includes(this.searchValue.filter.toLowerCase());
                 }
+
                 return filter;
             })
             .sort((a: Artefact, b: Artefact) => {
@@ -90,10 +95,16 @@ export default class EditionArtefacts extends Vue {
 
     protected async mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
+        await this.$state.prepare.edition(this.editionId);
         await this.$state.prepare.artefacts(this.editionId);
         this.filteredArtefacts = this.getFilteredArtefacts();
-    }
+   }
+
+   private get containerRef() {
+       return this.$refs.container as Element;
+   }
 }
+
 </script>
 <style scoped>
 .scroll-bar {

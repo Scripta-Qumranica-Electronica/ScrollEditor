@@ -10,6 +10,8 @@ import { NotificationHandler } from './notification-handler';
 import { ShareInfo, Permissions, AttributeMetadata } from '@/models/edition';
 import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
 import { ImagedObject } from '@/models/imaged-object';
+import { svgPolygonToClipper } from '@/utils/VectorFactory';
+import { ScriptData } from '@/models/script';
 
 /*
  * This service handles all the state data.
@@ -50,7 +52,7 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess' | 'attributeMetadataProcess';
+    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess' | 'attributeMetadataProcess' | 'editionScriptProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -68,6 +70,7 @@ export default class StateService {
     private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
     private artefactGroupsProcess: ProcessTracking | undefined;
     private attributeMetadataProcess: ProcessTracking | undefined;
+    private editionScriptProcess: ProcessTracking | undefined;
     // TODO: Add process for artefactGroups
 
     public constructor(state: StateManager) {
@@ -88,6 +91,10 @@ export default class StateService {
 
     public async edition(editionId: number): Promise<void> {
         return this.wrapInternal('editionProcess', editionId, (id: number) => this.editionInternal(id));
+    }
+
+    public async editionScript(editionId: number): Promise<void> {
+        return this.wrapInternal('editionScriptProcess', editionId, (id: number) => this.editionScriptInternal(id));
     }
 
     public async invitations(editionId: number): Promise<void> {
@@ -203,14 +210,31 @@ export default class StateService {
         this.textFragments(editionId);
         this.artefactGroups(editionId);
         this.attributeMetadata(editionId);
+        this.editionScript(editionId);
         await Promise.all([
             this.imagedObjectsProcess!.promise,
             this.artefactsProcess!.promise,
             this.textFragmentsProcess!.promise,
             this.artefactGroupsProcess!.promise,
             this.attributeMetadataProcess!.promise,
+            this.editionScriptProcess!.promise,
         ]);
         SignalRWrapper.instance.subscribeEdition(editionId);
+    }
+
+    private async editionScriptInternal(editionId: number) {
+        if (this._state.editions.current?.id !== editionId) {
+            throw new Error(`Can't fetch script for non-current edition ${editionId}`);
+        }
+        this._state.editions.current!.script = undefined;
+
+        const svc = new EditionService();
+        const dto = await svc.getScribalFont(editionId);
+        if (!dto.scripts || !dto.scripts.length) {
+            console.warn(`Edition ${editionId} has no script data`);
+            return;
+        }
+        this._state.editions.current!.script = new ScriptData(dto.scripts[0]);
     }
 
     private async textFragmentsInternal(editionId: number) {
@@ -260,6 +284,10 @@ export default class StateService {
     }
 
     private async imageManifestInternal(image: IIIFImage) {
+        if (image.manifest) {
+            return;  // Most images get the manifests straight from the backend
+        }
+
         const svc = new ImageService();
         const manifest = await svc.getImageManifest(image);
 
