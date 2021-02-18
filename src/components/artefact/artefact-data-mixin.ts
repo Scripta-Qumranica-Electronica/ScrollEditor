@@ -1,6 +1,6 @@
 import { Component, Prop } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
-import { ImageStack } from '@/models/image';
+import { IIIFManifest, ImageStack } from '@/models/image';
 import { BoundingBox } from '@/utils/helpers';
 import AsyncMountedMixinBase from './async-mounted-mixin-base';
 import { ImagedObject } from '@/models/imaged-object';
@@ -11,7 +11,7 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     @Prop({ default: undefined }) protected imagedObject: ImagedObject | undefined;
 
     protected imageStack: ImageStack | undefined = undefined;
-    protected masterImageManifest = null;
+    protected masterImageManifest: IIIFManifest | null = null;
     protected boundingBox = new BoundingBox();
 
     protected async asyncMounted() {
@@ -29,7 +29,7 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
                                 `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);
             }
             await this.$state.prepare.imageManifest(this.imageStack.master);
-            this.masterImageManifest = this.imageStack.master.manifest;
+            this.masterImageManifest = this.imageStack.master.manifest || null;
         }
 
         this.boundingBox = this.artefact.mask.getBoundingBox();

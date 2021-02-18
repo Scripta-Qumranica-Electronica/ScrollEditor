@@ -4,9 +4,48 @@ import { Polygon } from '@/utils/Polygons';
 import { BoundingBox } from '@/utils/helpers';
 import { EditionInfo } from './edition';
 
+/* IIIF interfaces */
+interface Size {
+    width: number;
+    height: number;
+}
+
+interface Tile {
+    width: number;
+    scaleFactors: number[];
+    height?: number;
+}
+
+interface Service {
+    id: string;
+    type: string;
+    profile: string;
+}
+
+export interface IIIFManifest {
+    '@context': string[];
+    id: string | undefined;
+    '@id': string | undefined;
+    type: string;
+    protocol: string;
+    profile: string;
+    width: number;
+    height: number;
+    maxWidth: number;
+    maxHeight: number;
+    maxArea: number;
+    sizes: Size[];
+    tiles: Tile[];
+    rights: string;
+    preferredFormats: string[];
+    extraFormats: string[];
+    extraQualities: string[];
+    extraFeatures: string[];
+    service: Service[];
+}
 export class IIIFImage {
     public url: string;
-    public manifest?: any; // TODO: Create a Typescript interface for this
+    public manifest?: IIIFManifest;
     public ppiAdjustmentFactor: number;
 
 
