@@ -132,7 +132,7 @@ class DisplayableSign {
     }
 
     public get svgTransform() {
-        const midX = this.boundingBox.x ; //removed width, prevent shift right
+        const midX = this.boundingBox.x ; // removed width, prevent shift right
         const midY = this.boundingBox.y - this.yOffset / 2 + this.boundingBox.height  / 2;
 
         return `translate(${midX} ${midY})`;
