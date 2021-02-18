@@ -52,7 +52,6 @@
                         :withRois="displayRois"
                         :displayText="displayText"
                         :reconstructedText="displayReconstructedText"
-                        :signYoffsts = "signYoffsts"
                     />
                 </g>
             </svg>
@@ -95,8 +94,6 @@ export default class ScrollArea extends Vue {
     private boundingBox = new BoundingBox(1, 1);
     private draggableOptions: DraggableValue = {};
 
-    private signYoffstsSet: { [key: string]: number } = {};
-
     public selectArtefact(artefact: Artefact | undefined) {
         this.$emit('onSelectArtefact', artefact);
     }
@@ -105,17 +102,6 @@ export default class ScrollArea extends Vue {
         this.$state.eventBus.on('select-artefact', (art: Artefact) =>
             this.selectArtefact(art)
         );
-
-        const scrypt = this.$state.editions.current!.script;
-        if (scrypt   ) {
-            for ( const g of Object.values(scrypt.glyphs) ) {
-                if (undefined === this.signYoffstsSet[g.character] ) {
-                    this.signYoffstsSet[g.character] = g.yOffset;
-
-                }
-            }
-        }
-
     }
 
 
@@ -148,11 +134,6 @@ export default class ScrollArea extends Vue {
     }
     private get displayText(): boolean {
         return this.scrollEditorState.displayText;
-    }
-
-
-   private get signYoffsts(): { [key: string]: number }  {
-        return this.signYoffstsSet;
     }
 
     private get displayReconstructedText(): boolean {

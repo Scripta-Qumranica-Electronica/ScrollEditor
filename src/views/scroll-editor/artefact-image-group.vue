@@ -174,8 +174,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
     @Prop() public readonly transformRootId!: string;
 
-    @Prop({ default: {} }) public signYoffsts!: { [key: string]: number }  ;
-
     private mouseOrigin?: Point;
     private loaded = false;
     private pointerId: number = -1;
@@ -267,8 +265,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const reconstructedOnly = this.reconstructedText && !this.displayText;
         const displayedSigns: DisplayableSign[] = [];
 
-        let yOffset;
-
         for (const si of this.visibleSignInterpretations) {
 
 
@@ -280,7 +276,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
                 continue;
             }
 
-            yOffset = this.signYoffsts[si.character];
+            const yOffset = this.$state.editions.current?.script?.glyphs[si.character]?.yOffset || 0;
             const displayedSign = new DisplayableSign(si, si.rois, yOffset);
             displayedSigns.push(displayedSign);
         }
