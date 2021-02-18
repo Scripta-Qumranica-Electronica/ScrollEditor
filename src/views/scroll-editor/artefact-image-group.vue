@@ -53,10 +53,6 @@
                     :href = "`#path-${d.character}`"
                     :key="d.id"
                     :transform="d.svgTransform"
-                    font-size="100"
-                    dominant-baseline="baseline"
-                    alignment-baseline="central"
-                    text-anchor="middle"
                     />
             </template>
         </template>
