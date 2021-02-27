@@ -2,8 +2,6 @@
 // Originally we used array.filter(x=>criteria(x)).length
 // Bronson replaced it with a less readable but more efficient array.reduce((acc, x) => criteria(x) ? acc+1 : acc, 0)
 
-import { bitXor } from 'mathjs';
-
 // So we just moved it to this handy function
 export function countIf<T>(array: T[], predicate: (element: T) => boolean) {
     // using array.filter creates a new array. array.reduce avoids this and just needs the accumulator
@@ -27,18 +25,6 @@ export class BoundingBox implements BoundingBoxInterface {
         if (!boxes.length) {
             throw new Error("Can't combine no bounding boxes");
         }
-
-        // const x1s = boxes.map(b => b.x);
-        // const x1 = Math.min(...x1s);
-
-        // const x2s = boxes.map(b => b.x + b.width);
-        // const x2 = Math.max(...x2s);
-
-        // const y1s = boxes.map(b => b.y);
-        // const y1 = Math.min(...y1s);
-
-        // const y2s = boxes.map(b => b.y + b.height);
-        // const y2 = Math.max(...y2s);
 
         let minX = Number.POSITIVE_INFINITY;
         let maxX = Number.NEGATIVE_INFINITY;

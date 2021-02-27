@@ -118,8 +118,8 @@ class DisplayableSign {
 
         for (const roi of rois) {
             const bbox = roi.shape.getBoundingBox();
-            bbox.x = roi.position.x ;
-            bbox.y = roi.position.y + this.yOffset;
+            bbox.x = roi.position.x;
+            bbox.y = roi.position.y;
 
             boundingBoxes.push(bbox);
         }
@@ -128,10 +128,10 @@ class DisplayableSign {
     }
 
     public get svgTransform() {
-        const midX = this.boundingBox.x ; // removed width, prevent shift right
-        const midY = this.boundingBox.y - this.yOffset / 2 + this.boundingBox.height  / 2;
+        const x = this.boundingBox.x;
+        const y = this.boundingBox.y - this.yOffset;
 
-        return `translate(${midX} ${midY})`;
+        return `translate(${x} ${y})`;
     }
 
 }

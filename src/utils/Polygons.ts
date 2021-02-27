@@ -166,6 +166,17 @@ export class Polygon {
     }
 
     public static fromWkt(wkt: string, boundingRect?: any) {
+        // Handle multipolygons by splitting them into polygons,
+        // converting them to SVG, then concat the results.
+        if (wkt.includes('MULTIPOLYGON')) {
+            wkt = wkt.replace('MULTIPOLYGON(', '').replace(')))', '))');
+            const wkts = wkt.split(')),');
+            // Remove the trailing '))' (though it doesn't currently matter)
+            wkts[wkts.length - 1] = wkts[wkts.length - 1].replace('))', '');
+            const svgs = wkts.map(x => wktPolygonToSvg('POLYGON' + x + '))', boundingRect));
+            return new Polygon(svgs.join(''));
+        }
+
         const svg = wktPolygonToSvg(wkt, boundingRect);
         return new Polygon(svg);
     }
