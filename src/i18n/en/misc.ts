@@ -5,6 +5,7 @@ export default {
     copy: 'Create a copy',
     permission: 'Permission',
     draw: 'Draw',
+    erase: 'Erase',
     box: 'Box',
     rename: 'Rename',
     remove: 'Remove',

@@ -106,26 +106,10 @@ import {
     ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
-import { Position } from '@/models/misc';
-import { ArtefactTextFragmentData } from '@/models/text';
 
 import {
     ImageSetting,
-    normalizeOpacity,
 } from '@/components/image-settings/types';
-import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
-import { Polygon } from '@/utils/Polygons';
-import { ImagedObject } from '@/models/imaged-object';
-import { BoundingBox } from '@/utils/helpers';
-import ImageLayer from '@/views/artefact-editor/image-layer.vue';
-import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
-import BoundaryDrawer, {
-    ActionMode,
-} from '@/components/polygons/boundary-drawer.vue';
-import Zoomer, {
-    ZoomEventArgs,
-    RotateEventArgs,
-} from '@/components/misc/zoomer.vue';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';

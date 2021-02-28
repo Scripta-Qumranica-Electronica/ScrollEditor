@@ -115,6 +115,19 @@
                                     >
                                 </b-dropdown>
                             </div>
+                            <div class="btn-tf">
+                                <b-button
+                                    v-for="mode in modes"
+                                    :key="mode.val"
+                                    @click="editingModeChanged(mode.val)"
+                                    :pressed="modeChosen(mode.val)"
+                                    class="sidebarCollapse mr-4 pMt-2"
+                                    v-b-tooltip.hover.bottom
+                                    :title="mode.title"
+                                >
+                                    <i :class="mode.icon"></i>
+                                </b-button>
+                            </div>
                         </b-row>
                     </b-col>
                 </b-row>
@@ -146,29 +159,10 @@ import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import { BoundingBox, DropdownOption } from '@/utils/helpers';
-import ImageLayer from '@/views/artefact-editor/image-layer.vue';
-import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
-import BoundaryDrawer, {
-    ActionMode,
-} from '@/components/polygons/boundary-drawer.vue';
-import Zoomer, {
-    ZoomEventArgs,
-    RotateEventArgs,
-} from '@/components/misc/zoomer.vue';
-import TextService from '@/services/text';
-import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
-import EditionIcons from '@/components/cues/edition-icons.vue';
-import { EditionInfo } from '../../models/edition';
-
-import {
-    SavingAgent,
-    OperationsManager,
-} from '@/utils/operations-manager';
-import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
-import { DrawingMode, EditorParamsChangedArgs } from './types';
+import { DrawingMode, EditorParamsChangedArgs, ModeButtonInfo } from './types';
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { PropOptions } from 'vue';
 import { ImagedObjectState } from '../../state/imaged-object';
@@ -190,6 +184,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
 
     @Prop() private artefact!: Artefact;
     @Prop() private imagedObject!: ImagedObject;
+    @Prop() private modes!: ModeButtonInfo[];
 
     @Prop({ type: Array, default: () => [] })
     private artefacts!: PropOptions<Artefact[]>;
@@ -320,42 +315,17 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.imagedObjectState.params!.rotationAngle += degrees;
         // this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
-    // public async newArtefact() {
-    //     this.newArtefactName = this.newArtefactName.trim();
 
-    //     let newArtefact = {} as Artefact;
-    //     this.waiting = true;
-    //     this.errorMessage = '';
-    //     try {
-    //         newArtefact = await this.artefactService.createArtefact(
-    //             this.editionId,
-    //             this.imagedObject,
-    //             this.newArtefactName,
-    //             this.side as Side
-    //         );
-    //     } catch (err) {
-    //         this.errorMessage = err;
-    //     } finally {
-    //         this.waiting = false;
-    //     }
+    private editingModeChanged(val: any) {
+        (this as any).params.drawingMode = DrawingMode[val];
+    }
 
-    //     this.newArtefactName = '';
-    //     (this.$refs.newArtRef as any).hide();
-    //     this.chooseArtefact(newArtefact);
+    private modeChosen(val: DrawingMode): boolean {
+        return (
+            DrawingMode[val].toString() === this.params.drawingMode.toString()
+        );
+    }
 
-    //     this.onDrawChanged('DRAW');
-    //     this.$emit('create', newArtefact);
-    // }
-
-    // public onDrawChanged(val: any) {
-    //     // DrawingMode
-    //     const mode = DrawingMode[val];
-    //     (this as any).params.drawingMode = mode;
-    //     this.notifyChange('drawingMode', mode);
-    // }
-    // public chooseArtefact(art: Artefact) {
-    //     this.$emit('artefactChanged', art);
-    // }
 }
 </script>
 

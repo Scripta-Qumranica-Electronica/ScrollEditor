@@ -3,28 +3,6 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div v-if="!waiting && imagedObject" class="mb-3 header-actions">
-            <b-row class="mx-4 py-2">
-                <b-col class="col-lg-9 col-xl-8">
-                    <!-- <edition-header></edition-header> -->
-                </b-col>
-                <b-col class="col-2 mt-2">
-                    <div class="btn-tf">
-                        <b-button
-                            v-for="mode in editList"
-                            :key="mode.val"
-                            @click="editingModeChanged(mode.val)"
-                            :pressed="modeChosen(mode.val)"
-                            class="sidebarCollapse mr-4 pMt-2"
-                            v-b-tooltip.hover.bottom
-                            :title="mode.title"
-                        >
-                            <i :class="mode.icon"></i>
-                        </b-button>
-                    </div>
-                </b-col>
-            </b-row>
-        </div>
         <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
             <b-row align-v="center" class="border-bottom no-gutters">
                 <b-col class="col-lg-9 col-xl-9">
@@ -35,8 +13,7 @@
                         :artefactId="artefactId"
                         :side="side"
                         :status-indicator="operationsManager"
-                        @undo="onUndo($event)"
-                        @redo="onRedo($event)"
+                        :modes="editList"
                         @onSideArtefactChanged="sideArtefactChanged($event)"
                     ></imaged-object-editor-toolbar>
                 </b-col>
@@ -249,6 +226,7 @@ import {
     DrawingMode,
     EditorParamsChangedArgs,
     ImagedObjectEditorParams,
+    ModeButtonInfo,
 } from './types';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
@@ -526,7 +504,7 @@ export default class ImagedObjectEditor
         return `${scale} ${translate} ${rotate}`;
     }
 
-    private get editList(): any[] {
+    private get editList(): ModeButtonInfo[] {
         if (this.canEdit) {
             return [
                 {
@@ -535,9 +513,9 @@ export default class ImagedObjectEditor
                     title: this.$t('misc.draw'),
                 },
                 {
-                    icon: 'fa fa-trash',
+                    icon: 'fa fa-eraser',
                     val: 'ERASE',
-                    title: this.$t('misc.cancel'),
+                    title: this.$t('misc.erase'),
                 },
             ];
         }
@@ -581,12 +559,6 @@ export default class ImagedObjectEditor
 
     private editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
-    }
-
-    private modeChosen(val: DrawingMode): boolean {
-        return (
-            DrawingMode[val].toString() === this.params.drawingMode.toString()
-        );
     }
 
     private inputRenameChanged(art: Artefact | undefined) {
@@ -656,7 +628,7 @@ export default class ImagedObjectEditor
             return;
         }
 
-        console.log(this.artefact!.mask.svg, newPolygon.svg, 'hasChanged');
+        // console.log(this.artefact!.mask.svg, newPolygon.svg, 'hasChanged');
 
         this.operationsManager.addOperation(
             new ImagedObjectEditorOperation(

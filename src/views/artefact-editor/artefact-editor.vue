@@ -4,114 +4,104 @@
             <waiting></waiting>
         </div>
         <div v-if="!waiting">
-            <div class="mb-3 header-actions">
-                <b-row class="mx-4 py-2">
-                    <b-col cols="8">
-                        <!-- <edition-header></edition-header> -->
-                    </b-col>
-                    <b-col cols="0">
-                        <div class="btn-tf">
-                            <span
-                                tabindex="0"
-                                class="d-inline-block"
-                                :style="{
-                                    pointerEvents: isDrawingEnabled
-                                        ? 'all'
-                                        : 'none',
-                                }"
-                                v-for="mode in [
-                                    {
-                                        icon: 'fa fa-pencil-square-o',
-                                        val: 'polygon',
-                                        title: this.$t('misc.draw'),
-                                    },
-                                    {
-                                        icon: 'fa fa-square-o',
-                                        val: 'box',
-                                        title: this.$t('misc.box'),
-                                    },
-                                ]"
-                                :key="mode.val"
-                                v-b-tooltip.hover.bottom
-                                :title="mode.title"
-                            >
-                                <b-button
-                                    v-show="!readOnly"
-                                    @click="onModeClick(mode.val)"
-                                    :pressed="mode === mode.val"
-                                    :disabled="!isDrawingEnabled"
-                                    class="m-2"
-                                >
-                                    <i :class="mode.icon"></i>
-                                </b-button>
-                            </span>
-                            <span
-                                tabindex="0"
-                                class="d-inline-block"
-                                v-b-tooltip.hover.bottom
-                                :style="{
-                                    pointerEvents: isDrawingEnabled
-                                        ? 'all'
-                                        : 'none',
-                                }"
-                                :title="$t('misc.cancel')"
-                            >
-                                <b-button
-                                    v-if="!readOnly"
-                                    type="button"
-                                    class="m-2"
-                                    @click="onDeleteRoi()"
-                                    :disabled="!isDeleteEnabled"
-                                >
-                                    <i class="fa fa-trash"></i> </b-button
-                            ></span>
-                            <span
-                                tabindex="0"
-                                class="d-inline-block"
-                                v-b-tooltip.hover.bottom
-                                :style="{
-                                    pointerEvents: isDrawingEnabled
-                                        ? 'all'
-                                        : 'none',
-                                }"
-                                :title="$t('misc.select')"
-                            >
-                                <b-button
-                                    v-if="!readOnly"
-                                    type="button"
-                                    @click="onModeClick('select')"
-                                    :pressed="actionMode === 'select'"
-                                    class="m-2"
-                                >
-                                    <i
-                                        class="fa fa-mouse-pointer"
-                                    ></i> </b-button
-                            ></span>
-                        </div>
-                    </b-col>
-                </b-row>
-            </div>
             <div class="mt-4 editor-container">
                 <b-row class="h-100">
                     <b-col class="h-100 col-lg-9">
                         <div class="editor-actions">
                             <b-row class="border-bottom">
-                                <b-col class="col-lg-8">
+                                <b-col class="col-lg-6">
                                     <artefact-editor-toolbar
                                         :artefact="artefact"
                                         @paramsChanged="onParamsChanged($event)"
                                     ></artefact-editor-toolbar>
                                 </b-col>
-                                <div class="pt-4 col-lg-4 row no-gutters">
-                                    <div class="col-xl-6 col-md-12">
+                                <div class="col-lg-6 row no-gutters">
+                                    <div class="col-6 pt-2">
+                                        <span
+                                            tabindex="0"
+                                            class="d-inline-block"
+                                            :style="{
+                                                pointerEvents: isDrawingEnabled
+                                                    ? 'all'
+                                                    : 'none',
+                                            }"
+                                            v-for="mode in [
+                                                {
+                                                    icon: 'fa fa-pencil-square-o',
+                                                    val: 'polygon',
+                                                    title: this.$t('misc.draw'),
+                                                },
+                                                {
+                                                    icon: 'fa fa-square-o',
+                                                    val: 'box',
+                                                    title: this.$t('misc.box'),
+                                                },
+                                            ]"
+                                            :key="mode.val"
+                                            v-b-tooltip.hover.bottom
+                                            :title="mode.title"
+                                        >
+                                            <b-button
+                                                v-show="!readOnly"
+                                                @click="onModeClick(mode.val)"
+                                                :pressed="mode === mode.val"
+                                                :disabled="!isDrawingEnabled"
+                                                class="m-2"
+                                            >
+                                                <i :class="mode.icon"></i>
+                                            </b-button>
+                                        </span>
+                                        <span
+                                            tabindex="0"
+                                            class="d-inline-block"
+                                            v-b-tooltip.hover.bottom
+                                            :style="{
+                                                pointerEvents: isDrawingEnabled
+                                                    ? 'all'
+                                                    : 'none',
+                                            }"
+                                            :title="$t('misc.cancel')"
+                                        >
+                                            <b-button
+                                                v-if="!readOnly"
+                                                type="button"
+                                                class="m-2"
+                                                @click="onDeleteRoi()"
+                                                :disabled="!isDeleteEnabled"
+                                            >
+                                                <i class="fa fa-trash"></i> </b-button
+                                        ></span>
+                                        <span
+                                            tabindex="0"
+                                            class="d-inline-block"
+                                            v-b-tooltip.hover.bottom
+                                            :style="{
+                                                pointerEvents: isDrawingEnabled
+                                                    ? 'all'
+                                                    : 'none',
+                                            }"
+                                            :title="$t('misc.select')"
+                                        >
+                                            <b-button
+                                                v-if="!readOnly"
+                                                type="button"
+                                                @click="onModeClick('select')"
+                                                :pressed="actionMode === 'select'"
+                                                class="m-2"
+                                            >
+                                                <i
+                                                    class="fa fa-mouse-pointer"
+                                                ></i> </b-button
+                                        ></span>
+                                    </div>
+                                    <div class="col pt-4">
                                         <b-form-checkbox
                                             @input="onHighlightComment($event)"
                                             switch
                                             size="sm"
-                                            >Comments</b-form-checkbox
-                                        >
+                                            >Comments</b-form-checkbox>
                                     </div>
-                                    <div class="col-xl-6 col-md-12">
+                                    <div class="col pt-4">
                                         <b-form-checkbox
                                             switch
                                             size="sm"
