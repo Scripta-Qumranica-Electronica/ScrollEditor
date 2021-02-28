@@ -27,9 +27,19 @@
                 <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
             </b-navbar-nav>
 
+            <b-navbar-nav class="ml-auto mb-auto" align="right">
+            </b-navbar-nav>
+
             <b-navbar-nav
                 class="ml-auto mt-mb-auto"
-                align="right" fill  >
+                align="right">
+                    <div v-if="showOperationsManager">
+                        <b-nav-text class="ml-1">{{ operationsManager.saveMessage }}</b-nav-text>
+                        <b-btn-group margin="ml-1 mr-1">
+                            <b-button :disabled="!operationsManager.canUndo" @click="onUndo()">Undo</b-button>
+                            <b-button :disabled="!operationsManager.canRedo" @click="onRedo()">Redo</b-button>
+                        </b-btn-group>
+                    </div>
                     <b-nav-item to="/search" active>
                         <span>{{ $t('home.search') }}</span>
                     </b-nav-item>
@@ -95,6 +105,22 @@ export default class Navbar extends Vue {
 
     protected get edition() {
         return this.$state.editions.current;
+    }
+
+    protected get operationsManager() {
+        return this.$state.operationsManager;
+    }
+
+    protected get showOperationsManager() {
+        return !!this.operationsManager && !!this.edition && !this.edition.permission.readOnly;
+    }
+
+    protected onUndo() {
+        this.operationsManager!.undo();
+    }
+
+    protected onRedo() {
+        this.operationsManager!.redo();
     }
 
     protected get editionBadgeClass() {
@@ -247,11 +273,10 @@ export default class Navbar extends Vue {
     font-size: 1.1rem;
 }
 
-
-
 /* .main-nav-bar .nav-item a.nav-link , */
 .main-nav-bar .nav-item  .nav-link,
-.nav-item-white
+.nav-item-white,
+.navbar-text
 {
      color: #f3f3f3  !important;
 }
@@ -283,5 +308,4 @@ export default class Navbar extends Vue {
 .router-link-active {
     color: #007bff;
 }
-
 </style>

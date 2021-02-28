@@ -446,6 +446,14 @@ export default class ImagedObjectEditor
         this.fillImageSettings();
     }
 
+    public mounted() {
+        this.$state.operationsManager = this.operationsManager;
+    }
+
+    public destroyed() {
+        this.$state.operationsManager = null;
+    }
+
     private get artefact(): Artefact | undefined {
         const artefact = this.artefacts.find((x) => x.id === this.artefactId);
         return artefact;

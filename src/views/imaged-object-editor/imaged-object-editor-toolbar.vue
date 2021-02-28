@@ -163,7 +163,6 @@ import { EditionInfo } from '../../models/edition';
 import {
     SavingAgent,
     OperationsManager,
-    OperationsManagerStatus,
 } from '@/utils/operations-manager';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';

@@ -126,23 +126,6 @@ import Zoomer, {
     ZoomEventArgs,
     RotateEventArgs,
 } from '@/components/misc/zoomer.vue';
-import TextService from '@/services/text';
-import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
-import EditionIcons from '@/components/cues/edition-icons.vue';
-import { EditionInfo } from '../../models/edition';
-import {
-    ArtefactEditorOperation,
-    ArtefactROIOperation,
-    ArtefactRotateOperation,
-    SignInterpretationCommentOperation,
-    TextFragmentAttributeOperation,
-} from './operations';
-import {
-    SavingAgent,
-    OperationsManager,
-    OperationsManagerStatus,
-} from '@/utils/operations-manager';
-import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';

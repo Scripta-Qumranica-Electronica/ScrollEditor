@@ -507,6 +507,8 @@ export default class ScrollEditor
         if (this.observer) {
             this.observer.disconnect();
         }
+
+        this.$state.operationsManager = null;
     }
 
     private async mounted() {
@@ -536,6 +538,7 @@ export default class ScrollEditor
         this.$state.scrollEditor = new ScrollEditorState();
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
+        this.$state.operationsManager = this.operationsManager;
     }
 
     private async beforeRouteUpdate(to: any, from: any, next: () => void) {

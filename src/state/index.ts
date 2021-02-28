@@ -12,6 +12,7 @@ import { ScrollEditorState } from './scroll-editor';
 import { EventBus } from './event-bus';
 import { ArtefactEditorState } from './artefact-editor';
 import { ImagedObjectState } from './imaged-object';
+import { OperationsManagerBase } from '@/utils/operations-manager';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -29,6 +30,7 @@ export class StateManager {
     public artefactEditor: ArtefactEditorState;
     public imagedObject: ImagedObjectState;
     public eventBus: EventBus;
+    public operationsManager: OperationsManagerBase | null;
 
     public prepare: StateService;
 
@@ -47,6 +49,7 @@ export class StateManager {
         this.signInterpretations = new SignInterpretationMap();
         this.eventBus = new EventBus();
         this.prepare = new StateService(this);
+        this.operationsManager = null;
     }
 
     public corrupted(msg: string): never {

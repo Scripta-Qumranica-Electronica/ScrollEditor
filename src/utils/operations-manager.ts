@@ -54,18 +54,20 @@ export abstract class Operation<T extends Operation<T, K>, K = number> {
 
 // Pass this interface to components that implement the undo/redo/save buttons, so they can
 // disable the buttons without being exposed to the entire UndoRedoManager interface
-export interface OperationsManagerStatus {
+export interface OperationsManagerBase {
     canUndo: boolean;
     canRedo: boolean;
-    isDirty: boolean;
-    isSaving: boolean;
+    saveMessage: string;
+
+    undo(): void;
+    redo(): void;
 }
 
 export interface SavingAgent<OP extends Operation<OP, K>, K = number> {
     saveEntities(ids: OP[]): Promise<boolean>;  // Saves elements, returns false if saving failed, true if succeeded
 }
 
-export class OperationsManager<OP extends Operation<OP, K>, K = number> implements OperationsManagerStatus {
+export class OperationsManager<OP extends Operation<OP, K>, K = number> implements OperationsManagerBase {
     private undoStack: OP[][] = [];
     private redoStack: OP[][] = [];
     private dirty: Set<OP> = new Set<OP>();
@@ -129,6 +131,18 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
 
     public get isSaving(): boolean {
         return this.saveInProgress;
+    }
+
+    public get saveMessage(): string {
+        if (this.isSaving) {
+            return 'Saving...';
+        }
+
+        if (this.isDirty) {
+            return 'Save pending';
+        }
+
+        return 'No changes';
     }
 
     public undo() {

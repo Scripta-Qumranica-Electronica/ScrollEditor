@@ -300,7 +300,6 @@ import {
 import {
     SavingAgent,
     OperationsManager,
-    OperationsManagerStatus,
 } from '@/utils/operations-manager';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
@@ -525,6 +524,8 @@ export default class ArtefactEditor
             'new-bulk-operations',
             this.onNewBulkOperations
         );
+
+        this.$state.operationsManager = null;
     }
 
     protected async mounted() {
@@ -567,6 +568,7 @@ export default class ArtefactEditor
 
         console.debug('artefact editor mounted with mode ', this.editorMode);
         this.waiting = false;
+        this.$state.operationsManager = this.operationsManager;
     }
 
     private get edition(): EditionInfo {
