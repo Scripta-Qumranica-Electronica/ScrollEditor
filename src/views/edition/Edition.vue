@@ -45,11 +45,6 @@
                         :to="`/editions/${editionId}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
-                    <b-button
-                        variant="outline-primary"
-                        :to="`/editions/${editionId}/scroll-editor`"
-                        >Entire Manuscript</b-button
-                    >
                 </b-button-group>
             </div>
         </div>
