@@ -6,7 +6,7 @@
         <div v-if="!waiting && imagedObject" class="mb-3 header-actions">
             <b-row class="mx-4 py-2">
                 <b-col class="col-lg-9 col-xl-8">
-                    <edition-header></edition-header>
+                    <!-- <edition-header></edition-header> -->
                 </b-col>
                 <b-col class="col-2 mt-2">
                     <div class="btn-tf">
@@ -281,7 +281,6 @@ import { Polygon } from '@/utils/Polygons';
 import { normalizeOpacity } from '@/components/image-settings/types';
 import ImagedObjectEditorToolbar from './imaged-object-editor-toolbar.vue';
 import { DropdownOption } from '@/utils/helpers';
-import EditionHeader from '../edition/components/edition-header.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { ImagedObjectState } from '../../state/imaged-object';
 
@@ -295,7 +294,6 @@ import { ImagedObjectState } from '../../state/imaged-object';
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
         'zoomer': Zoomer,
         'edition-icons': EditionIcons,
-        'edition-header': EditionHeader,
     },
 })
 export default class ImagedObjectEditor

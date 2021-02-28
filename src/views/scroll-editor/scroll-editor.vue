@@ -7,7 +7,7 @@
             <div class="mb-3 header-actions">
                 <b-row class="mx-4 py-2">
                     <div class="col-xl-8 col-lg-8">
-                        <edition-header></edition-header>
+                        <!-- <edition-header></edition-header> -->
                     </div>
                     <b-col class="col-lg-3 pl-0">
                         <div class="btn-tf">
@@ -231,7 +231,6 @@ import Zoomer, {
 } from '@/components/misc/zoomer.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { ArtefactGroup, EditionInfo } from '../../models/edition';
-import EditionHeader from '../edition/components/edition-header.vue';
 import AddArtefactModal from './add-artefact-modal.vue';
 import ArtefactToolbox from './artefact-toolbox.vue';
 import ScrollArea from './scroll-area.vue';
@@ -263,7 +262,6 @@ import { ArtefactTextFragmentData } from '@/models/text';
         'zoomer': Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
-        'edition-header': EditionHeader,
         'artefact-toolbox': ArtefactToolbox,
         'scroll-area': ScrollArea,
         'scroll-ruler': ScrollRuler,
@@ -524,6 +522,8 @@ export default class ScrollEditor
             this.$router.push({ path: '/' });
         }
         this.$state.editions.current = edition;
+        this.$state.artefacts.current = null;
+        this.$state.imagedObjects.current = null;
         this.waiting = false;
         await this.$nextTick();
         this.$root.$on('bv::modal::hide', (bvEvent: any, modalId: any) => {

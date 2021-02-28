@@ -23,8 +23,8 @@
                 <b-nav-item :to="`/editions/${edition.id}/scroll-editor/`">
                     Manuscript
                 </b-nav-item>
-                <b-nav-item :to="artefactLink">Artefact</b-nav-item>
-                <b-nav-item :to="imagedObjectLink">Imaged Object</b-nav-item>
+                <b-nav-item :to="artefactLink">{{ artefactLabel }}</b-nav-item>
+                <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
             </b-navbar-nav>
 
             <b-navbar-nav
@@ -81,13 +81,11 @@ import SessionService from '@/services/session';
 import Login from './Login.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
-import EditionHeader from '@/views/edition/components/edition-header.vue';
 
 @Component({
     name: 'navbar',
     components: {
         login: Login,
-        'edition-header': EditionHeader,
     },
 })
 export default class Navbar extends Vue {
@@ -121,12 +119,20 @@ export default class Navbar extends Vue {
         return `/editions/${this.edition!.id}/artefacts/`;
     }
 
+    private get artefactLabel() {
+        return this.$state.artefacts.current ? 'Artefact' : 'Artefacts';
+    }
+
     private get imagedObjectLink() {
         if (this.$state.imagedObjects.current) {
             return `/editions/${this.edition!.id}/imaged-objects/${this.$state.imagedObjects.current.id}`;
         }
         return `/editions/${this.edition!.id}/imaged-objects/`;
-    }    
+    }
+
+    private get imagedObjectLabel() {
+        return this.$state.imagedObjects.current ? 'Imaged Object' : 'Imaged Objects';
+    }
 
     protected userNameExists(): boolean {
         return ( undefined !== this.userName );

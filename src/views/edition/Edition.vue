@@ -154,6 +154,8 @@ export default class Edition extends Vue {
          // This is done also in scroll-editor
         if (currentEdition) {
           this.$state.editions.current = currentEdition;
+          this.$state.artefacts.current = null;
+          this.$state.imagedObjects.current = null;
          }
 
       //  this.waiting = false;

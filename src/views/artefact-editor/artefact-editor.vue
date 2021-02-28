@@ -7,7 +7,7 @@
             <div class="mb-3 header-actions">
                 <b-row class="mx-4 py-2">
                     <b-col cols="8">
-                        <edition-header></edition-header>
+                        <!-- <edition-header></edition-header> -->
                     </b-col>
                     <b-col cols="0">
                         <div class="btn-tf">
@@ -304,7 +304,6 @@ import {
 } from '@/utils/operations-manager';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
-import EditionHeader from '../edition/components/edition-header.vue';
 import { ArtefactEditorState } from '@/state/artefact-editor';
 import { Artefact } from '@/models/artefact';
 
@@ -321,7 +320,6 @@ import { Artefact } from '@/models/artefact';
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
-        'edition-header': EditionHeader,
     },
 })
 export default class ArtefactEditor
