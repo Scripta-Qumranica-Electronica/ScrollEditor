@@ -23,9 +23,6 @@
                         </b-button>
                     </div>
                 </b-col>
-                <b-col class="p-3 col-2">
-                    <div>{{ saveStatusMessage }}</div>
-                </b-col>
             </b-row>
         </div>
         <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
@@ -44,18 +41,6 @@
                     ></imaged-object-editor-toolbar>
                 </b-col>
                 <div class="col-lg-3 col-xl-3">
-                    <b-button-group class="btn-sm">
-                        <b-button
-                            class="mr-1"
-                            :disabled="!canUndo"
-                            @click="onUndo()"
-                            >Undo</b-button
-                        >
-                        <b-button :disabled="!canRedo" @click="onRedo()"
-                            >Redo</b-button
-                        >
-                    </b-button-group>
-
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
@@ -557,32 +542,6 @@ export default class ImagedObjectEditor
             ];
         }
         return [];
-    }
-
-    public get canUndo(): boolean {
-        return this.operationsManager.canUndo;
-    }
-
-    public get canRedo(): boolean {
-        return this.operationsManager.canRedo;
-    }
-
-    public onUndo() {
-        this.operationsManager.undo();
-    }
-
-    public onRedo() {
-        this.operationsManager.redo();
-    }
-
-    public get saveStatusMessage() {
-        if (this.operationsManager.isSaving) {
-            return 'Saving...';
-        }
-        if (this.operationsManager.isDirty) {
-            return 'Save pending';
-        }
-        return 'Scroll Saved';
     }
 
     public async newArtefact() {

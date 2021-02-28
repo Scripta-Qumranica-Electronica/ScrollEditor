@@ -23,25 +23,8 @@
                                 @click="removeArtefactOrGroup()"
                                 >{{ $t('misc.remove') }}</b-button
                             >
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!canUndo"
-                                @click="onUndo()"
-                                >Undo</b-button
-                            >
-                            <b-button
-                                class="m-2"
-                                size="sm"
-                                :disabled="!canRedo"
-                                @click="onRedo()"
-                                >Redo</b-button
-                            >
                         </div>
                     </b-col>
-                    <b-col class="pl-0 pt-2 col-lg-0"
-                        ><div>{{ saveStatusMessage }}</div></b-col
-                    >
                 </b-row>
             </div>
             <div class="mt-4 editor-container">
@@ -301,12 +284,6 @@ export default class ScrollEditor
     public get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
-    private get canUndo(): boolean {
-        return this.operationsManager.canUndo;
-    }
-    public get canRedo(): boolean {
-        return this.operationsManager.canRedo;
-    }
     private get params(): ScrollEditorParams {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
@@ -351,15 +328,6 @@ export default class ScrollEditor
             this.params.zoom /
             this.edition.ppm
         ).toFixed(2);
-    }
-    private get saveStatusMessage(): string {
-        if (this.operationsManager.isSaving) {
-            return 'Saving...';
-        }
-        if (this.operationsManager.isDirty) {
-            return 'Save pending';
-        }
-        return 'Scroll Saved';
     }
     public get zoom(): number {
         return Math.round(this.params.zoom * 100);
@@ -689,14 +657,6 @@ export default class ScrollEditor
 
     private updateOperationId(oldId: number, newId: number) {
         this.operationsManager.updateStackIds(oldId, newId);
-    }
-
-    private onUndo() {
-        this.operationsManager.undo();
-    }
-
-    private onRedo() {
-        this.operationsManager.redo();
     }
 
     private createOperation(

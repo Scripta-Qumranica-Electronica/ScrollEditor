@@ -87,21 +87,8 @@
                                         class="fa fa-mouse-pointer"
                                     ></i> </b-button
                             ></span>
-                            <b-button
-                                class="m-2 undo"
-                                :disabled="!canUndo"
-                                @click="onUndo()"
-                                >Undo</b-button
-                            >
-                            <b-button
-                                class="m-2 redo"
-                                :disabled="!canRedo"
-                                @click="onRedo()"
-                                >Redo</b-button
-                            >
                         </div>
                     </b-col>
-                    <div class="pt-3">{{ saveStatusMessage }}</div>
                 </b-row>
             </div>
             <div class="mt-4 editor-container">
@@ -380,13 +367,6 @@ export default class ArtefactEditor
         return this.artefactEditorState.selectedInterpretationRoi;
     }
 
-    public get canUndo(): boolean {
-        return this.operationsManager.canUndo;
-    }
-    public get canRedo(): boolean {
-        return this.operationsManager.canRedo;
-    }
-
     public async saveEntities(
         ops: ArtefactEditorOperation[]
     ): Promise<boolean> {
@@ -486,16 +466,6 @@ export default class ArtefactEditor
 
         this.artefactEditorState.selectRoi(null);
         this.artefactEditorState.selectedSignsInterpretation = [];
-    }
-
-    public get saveStatusMessage() {
-        if (this.operationsManager.isSaving) {
-            return 'Saving...';
-        }
-        if (this.operationsManager.isDirty) {
-            return 'Save pending';
-        }
-        return 'Scroll Saved';
     }
 
     protected async created() {
@@ -1131,14 +1101,6 @@ export default class ArtefactEditor
 
     private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
         this.operationsManager.addBulkOperations(ops);
-    }
-
-    private onUndo() {
-        this.operationsManager.undo();
-    }
-
-    private onRedo() {
-        this.operationsManager.redo();
     }
 }
 </script>
