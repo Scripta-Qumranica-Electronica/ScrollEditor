@@ -119,7 +119,7 @@ class DisplayableSign {
         for (const roi of rois) {
             const bbox = roi.shape.getBoundingBox();
             bbox.x = roi.position.x;
-            bbox.y = roi.position.y;
+            bbox.y = roi.position.y + this.yOffset;
 
             boundingBoxes.push(bbox);
         }
