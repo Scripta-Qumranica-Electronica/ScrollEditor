@@ -4,7 +4,7 @@ version: '3.7'
 
 services:
     sqe-database:
-        image: qumranica/sqe-database:0.23.0
+        image: qumranica/sqe-database:0.23.1
         container_name: SQE_Database
         environment:
             ## These must be updated when used in production

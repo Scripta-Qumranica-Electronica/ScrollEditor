@@ -26,7 +26,19 @@
                 @click="onScrollClick"
                 @mousemove="onMouseMove"
             >
+
+
                 <g id="root" :transform="transform">
+                    <defs id="before-root" v-if= "currentScript" >
+                        <path
+                        v-for="g of Object.values(scriptGlyphs)"
+                        :key="g.character"
+                        :d="g.shape.svg"
+                        :id = "`path-${g.character}`"
+                        class="display-letters"
+                        />
+                    </defs>
+
                     <artefact-image-group
                         @on-select="selectArtefact(artefact)"
                         @new-operation="onNewOperation($event)"
@@ -63,6 +75,8 @@ import { ScrollEditorOperation } from './operations';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactTextFragmentData } from '@/models/text';
 
+import { ScriptData, GlyphData } from '@/models/script';
+
 @Component({
     name: 'scroll-area',
     components: {
@@ -90,6 +104,7 @@ export default class ScrollArea extends Vue {
         );
     }
 
+
     private destroyed() {
         this.$state.eventBus.off('select-artefact');
     }
@@ -107,6 +122,7 @@ export default class ScrollArea extends Vue {
                 )
             );
         });
+
     }
 
     private get scrollEditorState(): ScrollEditorState {
@@ -215,6 +231,14 @@ export default class ScrollArea extends Vue {
         return zoom;
     }
 
+    private get currentScript(): ScriptData | undefined {
+        return this.$state.editions.current!.script;
+    }
+
+    private get scriptGlyphs(): { [key: string]: GlyphData } | null  {
+          return this.$state.editions.current!.script?.glyphs || null;
+    }
+
     private get placedArtefacts() {
         return this.artefacts
             .filter((x) => x.isPlaced)
@@ -267,5 +291,15 @@ export default class ScrollArea extends Vue {
     background: #ccc;
     text-align: center;
     cursor: move;
+}
+
+
+.display-letters {
+    font-family: 'scroll_hebrew';
+     stroke-width: 1px;
+     stroke: white;
+    fill: black;
+    font-size: 2px;
+    font-weight: 800;
 }
 </style>

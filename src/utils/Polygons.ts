@@ -166,6 +166,17 @@ export class Polygon {
     }
 
     public static fromWkt(wkt: string, boundingRect?: any) {
+        // Handle multipolygons by splitting them into polygons,
+        // converting them to SVG, then concat the results.
+        if (wkt.includes('MULTIPOLYGON')) {
+            wkt = wkt.replace('MULTIPOLYGON(', '').replace(')))', '))');
+            const wkts = wkt.split(')),');
+            // Remove the trailing '))' (though it doesn't currently matter)
+            wkts[wkts.length - 1] = wkts[wkts.length - 1].replace('))', '');
+            const svgs = wkts.map(x => wktPolygonToSvg('POLYGON' + x + '))', boundingRect));
+            return new Polygon(svgs.join(''));
+        }
+
         const svg = wktPolygonToSvg(wkt, boundingRect);
         return new Polygon(svg);
     }
@@ -236,14 +247,17 @@ export class Polygon {
         if (match === null) {
             return new BoundingBox();
         }
-        const firstX = parseFloat(match[1]);
-        const firstY = parseFloat(match[3]);
-
+        // const firstX
+        let minX = parseFloat(match[1]);
+        let maxX = minX;
+        // const firstY
+        let minY = parseFloat(match[3]);
+        let maxY = minY;
         // Set the starting values
-        let minX = firstX;
-        let minY = firstY;
-        let maxX = firstX;
-        let maxY = firstY;
+        // let minX = firstX;
+        // let minY = firstY;
+        // let maxX = firstX;
+        // let maxY = firstY;
 
         // Get the next match
         const re = Polygon.numberPairRe;
@@ -251,17 +265,21 @@ export class Polygon {
         while (match !== null) {
             const x = parseFloat(match[1]);
             const y = parseFloat(match[3]);
-            if (x < minX) {
-                minX = x;
-            } else if (x > maxX) {
-                maxX = x;
-            }
+            // if (x < minX) {
+            //     minX = x;
+            // } else if (x > maxX) {
+            //     maxX = x;
+            // }
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
 
-            if (y < minY) {
-                minY = y;
-            } else if (y > maxY) {
-                maxY = y;
-            }
+            // if (y < minY) {
+            //     minY = y;
+            // } else if (y > maxY) {
+            //     maxY = y;
+            // }
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
 
             match = re.exec(source);
         }

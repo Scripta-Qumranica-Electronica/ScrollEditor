@@ -3,6 +3,8 @@
 import { GlyphDataDTO, KernPairDTO, ScriptDataDTO } from '@/dtos/sqe-dtos';
 import { Polygon } from '@/utils/Polygons';
 
+// Glyphs is a  dictionary for how to display a letter
+// where shape can used in SVG <path> tag
 export class GlyphData {
     public character: string;
     public yOffset: number;
