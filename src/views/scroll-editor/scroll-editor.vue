@@ -4,72 +4,10 @@
             <Waiting></Waiting>
         </div>
         <div v-if="!waiting">
-            <div class="mb-3 header-actions">
-                <b-row class="mx-4 py-2">
-                    <div class="col-xl-8 col-lg-8">
-                        <!-- <edition-header></edition-header> -->
-                    </div>
-                    <b-col class="col-lg-3 pl-0">
-                        <div class="btn-tf">
-                            <b-button
-                                size="sm"
-                                class="mr-2"
-                                @click="openAddArtefactModal()"
-                                >{{ $t('misc.add') }} artefact</b-button
-                            >
-                            <b-button
-                                class="btn-remove"
-                                size="sm"
-                                @click="removeArtefactOrGroup()"
-                                >{{ $t('misc.remove') }}</b-button
-                            >
-                        </div>
-                    </b-col>
-                </b-row>
-            </div>
+
             <div class="mt-4 editor-container">
                 <b-row no-gutters class="border-bottom" align-v="center">
-                    <div class="col-2 border-right">
-                        <div>
-                            <b-row align-v="end">
-                                <div class="col-5">
-                                    <b-form-select
-                                        v-model="selectedSide"
-                                        :options="sidesOptions"
-                                        size="sm"
-                                        class="ml-2 mt-2"
-                                    ></b-form-select>
-                                </div>
-                                <div class="col-5">
-                                    <b-form-input
-                                        size="sm"
-                                        min="1"
-                                        type="number"
-                                        v-model="metricsInput"
-                                    ></b-form-input>
-                                </div>
-                                <span>mm</span>
-                            </b-row>
-                            <b-row>
-                                <div class="col-6 ml-5">
-                                    <b-button-group>
-                                        <b-button
-                                            class="m-1"
-                                            size="sm"
-                                            @click="resizeScroll(1)"
-                                            >Add</b-button
-                                        >
-                                        <b-button
-                                            class="m-1"
-                                            size="sm"
-                                            @click="resizeScroll(-1)"
-                                            >Cut</b-button
-                                        >
-                                    </b-button-group>
-                                </div>
-                            </b-row>
-                        </div>
-                    </div>
+
                     <div class="col-10">
                         <b-row align-v="center" class="row ml-2">
                             <!-- <b-col class="col-4 col-sm-5 col-xs-5 position-zoom"> -->
@@ -81,14 +19,6 @@
                                 />
                             </b-col>
 
-
-                            <div class="col-5">
-                                <artefact-toolbox
-                                    @new-operation="newOperation($event)"
-                                    @save-group="saveGroupArtefacts()"
-                                    @cancel-group="cancelGroup()"
-                                ></artefact-toolbox>
-                            </div>
                             <div class="row col-5">
                                 <div  class="col-xl-4 col-md-4">
                                     <b-form-checkbox
@@ -179,6 +109,77 @@
                                 {{ pointerPositionY }}
                             </div>
                         </div>
+
+                        <!-- <b-col class="col-lg-3 pl-0"> -->
+                        <div class="btn-tf ml-3 mb-3">
+                            <b-button
+                                size="sm"
+                                class="mr-2"
+                                @click="openAddArtefactModal()"
+                                >{{ $t('misc.add') }} artefact</b-button
+                            >
+                            <b-button
+                                class="btn-remove"
+                                size="sm"
+                                @click="removeArtefactOrGroup()"
+                                >{{ $t('misc.remove') }}</b-button
+                            >
+                        </div>
+                         <!-- </b-col> -->
+
+                        <div class="col-12 border-right add-cut-side">
+                            <div>
+                                <b-row align-v="end">
+                                    <div class="col-5">
+                                        <b-form-select
+                                            v-model="selectedSide"
+                                            :options="sidesOptions"
+                                            size="sm"
+                                            class="ml-2 mt-2"
+                                        ></b-form-select>
+                                    </div>
+                                    <!-- <div class="col-5"> -->
+                                    <div class="col-4">
+                                        <b-form-input
+                                            size="sm"
+                                            min="1"
+                                            type="number"
+                                            v-model="metricsInput"
+                                        ></b-form-input>
+                                    </div>
+                                    <span>mm</span>
+                                </b-row>
+                                <b-row>
+                                    <div class="col-6 ml-5">
+                                        <b-button-group>
+                                            <b-button
+                                                class="m-1"
+                                                size="sm"
+                                                @click="resizeScroll(1)"
+                                                >Add</b-button
+                                            >
+                                            <b-button
+                                                class="m-1"
+                                                size="sm"
+                                                @click="resizeScroll(-1)"
+                                                >Cut</b-button
+                                            >
+                                        </b-button-group>
+                                    </div>
+                                </b-row>
+                            </div>
+                        </div>
+
+                        <b-row>
+                            <b-col class="col-12">
+                                <artefact-toolbox
+                                    @new-operation="newOperation($event)"
+                                    @save-group="saveGroupArtefacts()"
+                                    @cancel-group="cancelGroup()"
+                                ></artefact-toolbox>
+                            </b-col>
+                        </b-row>
+
                     </div>
                 </b-row>
                 <add-artefact-modal></add-artefact-modal>
