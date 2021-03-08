@@ -3,30 +3,15 @@
         <b-col class="p-3">
             <div>
                 <b-row align-v="center">
-                    <b-col class="col">
-                        <b-button-group>
-                            <b-button
-                                @click="zoomClick(-5)"
-                                :disabled="!canZoomOut"
-                                variant="outline-secondary"
-                                ><i class="fa fa-minus"></i
-                            ></b-button>
-                            <b-input
-                                v-model="zoom"
-                                type="number"
-                                min="1"
-                                max="100"
-                                class="input-lg"
-                            ></b-input>
-                            <b-button
-                                class="mr-0"
-                                @click="zoomClick(5)"
-                                :disabled="!canZoomIn"
-                                variant="outline-secondary"
-                                ><i class="fa fa-plus"></i
-                            ></b-button>
-                        </b-button-group>
+                    <b-col class="col-6 col-md-7 col-sm-6 col-xs-6 position-zoom">
+                        <zoom-toolbar
+                                v-model="params.zoom"
+                                :zoom="params.zoom"
+                                delta="0.05"
+                                @zoomChanged="onZoomChanged($event)"
+                        />
                     </b-col>
+
                     <b-col class="p-0 col">
                         <b-button
                             id="popover-adjust"
@@ -114,12 +99,16 @@ import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vu
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { ArtefactEditorState } from '@/state/artefact-editor';
+import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
+
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
+         'zoom-toolbar': ZoomToolbar,
     },
 })
+
 export default class ArtefactEditorToolbar extends Vue {
     private errorMessage: string = '';
     private imagedObjectService: ImagedObjectService = new ImagedObjectService();
@@ -142,25 +131,19 @@ export default class ArtefactEditorToolbar extends Vue {
         return true;
     }
 
-    public get zoom(): number {
-        return Math.round(this.params.zoom * 100);
+
+    private onZoomChanged(val: number) {
+        this.params.zoom = val; //
+        this.notifyChange('zoomArtefact', this.params.zoom);
     }
 
-    public set zoom(val: number) {
-        if (!val) {
-            val = 10;
-        }
-        this.params.zoom = parseFloat(val.toString()) / 100;
-        this.notifyChange('zoom', val);
-    }
-
-    public get canZoomIn(): boolean {
-        return this.params.zoom + 5 / 100 <= 1;
-    }
-
-    public get canZoomOut(): boolean {
-        return this.params.zoom - 5 / 100 >= 0;
-    }
+    // public set zoom(val: number) {
+    //     if (!val) {
+    //         val = 10;
+    //     }
+    //     this.params.zoom = parseFloat(val.toString()) / 100;
+    //     this.notifyChange('zoom', val);
+    // }
 
     public get rotationAngle(): number {
         return this.params.rotationAngle;
@@ -199,6 +182,7 @@ export default class ArtefactEditorToolbar extends Vue {
             this.imageStack = imagedObject.getImageStack(this.artefact.side)!;
         }
     }
+
 
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
@@ -244,10 +228,10 @@ button {
 .popover-body {
     margin-left: 10px;
 }
-.input-lg {
+/* .input-lg {
     width: 50% !important;
     max-width: 75px;
-}
+} */
 
 #popover-adjust:hover {
     color: #007bff;

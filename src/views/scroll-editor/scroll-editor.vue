@@ -72,33 +72,17 @@
                     </div>
                     <div class="col-10">
                         <b-row align-v="center" class="row ml-2">
-                            <div class="col-2 position-zoom">
-                                <b-button-group>
-                                    <b-button
-                                        size="sm"
-                                        @click="zoomClick(-5)"
-                                        :disabled="!canZoomOut"
-                                        variant="outline-secondary"
-                                        ><i class="fa fa-minus"></i
-                                    ></b-button>
-                                    <b-input
-                                        v-model="zoom"
-                                        type="number"
-                                        min="10"
-                                        max="100"
-                                        size="sm"
-                                        class="input-lg"
-                                    ></b-input>
-                                    <b-button
-                                        size="sm"
-                                        class="mr-0"
-                                        @click="zoomClick(5)"
-                                        :disabled="!canZoomIn"
-                                        variant="outline-secondary"
-                                        ><i class="fa fa-plus"></i
-                                    ></b-button>
-                                </b-button-group>
-                            </div>
+                            <b-col
+                               class="col-4 col-sm-5 col-xs-5 position-zoom">
+                                <zoom-toolbar
+                                        v-model="params.zoom"
+                                        :zoom="params.zoom"
+                                        delta="0.05"
+                                        @zoomChanged="onZoomChanged($event)"
+                                />
+                            </b-col>
+
+
                             <div class="col-5">
                                 <artefact-toolbox
                                     @new-operation="newOperation($event)"
@@ -237,6 +221,8 @@ import ArtefactService from '@/services/artefact';
 import ScrollMap from './scroll-map.vue';
 import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
 import { ArtefactTextFragmentData } from '@/models/text';
+import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
+
 
 @Component({
     name: 'scroll-editor',
@@ -249,6 +235,7 @@ import { ArtefactTextFragmentData } from '@/models/text';
         'scroll-area': ScrollArea,
         'scroll-ruler': ScrollRuler,
         'scroll-map': ScrollMap,
+        'zoom-toolbar': ZoomToolbar,
     },
 })
 export default class ScrollEditor
@@ -285,7 +272,7 @@ export default class ScrollEditor
         return this.scrollEditorState.selectedGroup;
     }
     private get params(): ScrollEditorParams {
-        return this.scrollEditorState.params || new ScrollEditorParams();
+         return this.scrollEditorState.params || new ScrollEditorParams();
     }
     private get edition() {
         return this.$state.editions.current! || {};
@@ -328,17 +315,6 @@ export default class ScrollEditor
             this.params.zoom /
             this.edition.ppm
         ).toFixed(2);
-    }
-    public get zoom(): number {
-        return Math.round(this.params.zoom * 100);
-    }
-
-    public set zoom(val: number) {
-        if (!val) {
-            val = 10;
-        }
-        this.params.zoom = parseFloat(val.toString()) / 100;
-        this.onZoomChanged();
     }
 
     public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
@@ -450,13 +426,7 @@ export default class ScrollEditor
     private get placedArtefacts() {
         return this.artefacts.filter((x) => x.isPlaced);
     }
-    public get canZoomIn(): boolean {
-        return this.zoom + 5 <= 100;
-    }
 
-    public get canZoomOut(): boolean {
-        return this.zoom - 5 > 0;
-    }
 
     protected created() {
         this.$state.eventBus.on('select-group', this.selectGroup);
@@ -515,9 +485,6 @@ export default class ScrollEditor
         next();
     }
 
-    private onZoomChanged() {
-        this.calculateViewport();
-    }
 
     private onMetricsChange() {
         this.calculateViewport();
@@ -578,10 +545,27 @@ export default class ScrollEditor
         this.$emit('paramsChanged', args);
     }
 
-    private zoomClick(percent: number) {
-        this.zoom += percent;
-        this.notifyChange('zoomScrollEditor', this.params.zoom);
+
+    private onZoomChanged(val: number) {
+        this.params.zoom = val; //
+        this.calculateViewport();
     }
+
+    // private zoomClick(percent: number) {
+    //     this.zoom += percent;
+    //     this.notifyChange('zoomScrollEditor', this.params.zoom);
+    //     zoomScrollEditor doesnt exist
+    // }
+
+
+    // public set zoom(val: number) {
+    //     if (!val) {
+    //         val = 10;
+    //     }
+    //     this.params.zoom = parseFloat(val.toString()) / 100;
+    //     this.onZoomChanged(); //
+    // }
+
 
     private selectArtefact(artefact: Artefact | undefined) {
         if (!artefact) {
@@ -924,8 +908,8 @@ export default class ScrollEditor
     width: calc(100vw - 290px);
 }
 
-.input-lg {
+/* .input-lg {
     width: 50% !important;
     max-width: 75px;
-}
+} */
 </style>

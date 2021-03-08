@@ -3,29 +3,13 @@
         <b-col class="p-3">
             <div>
                 <b-row align-v="center">
-                    <b-col class="col-lg-3 col-xl-2">
-                        <b-button-group>
-                            <b-button
-                                @click="zoomClick(-5)"
-                                :disabled="!canZoomOut"
-                                variant="outline-secondary"
-                                ><i class="fa fa-minus"></i
-                            ></b-button>
-                            <b-input
-                                v-model="zoom"
-                                type="number"
-                                min="1"
-                                max="100"
-                                class="input-lg"
-                            ></b-input>
-                            <b-button
-                                class="mr-0"
-                                @click="zoomClick(5)"
-                                :disabled="!canZoomIn"
-                                variant="outline-secondary"
-                                ><i class="fa fa-plus"></i
-                            ></b-button>
-                        </b-button-group>
+                    <b-col class="col-3 col-md-4 col-sm-5 col-xs-5 position-zoom">
+                        <zoom-toolbar
+                            v-model="params.zoom"
+                            :zoom="params.zoom"
+                            delta="0.05"
+                            @zoomChanged="onZoomChanged($event)"
+                        />
                     </b-col>
                     <b-col class="p-0 col-lg-3 col-xl-2">
                         <b-button
@@ -166,10 +150,13 @@ import { DrawingMode, EditorParamsChangedArgs, ModeButtonInfo } from './types';
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { PropOptions } from 'vue';
 import { ImagedObjectState } from '../../state/imaged-object';
+import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
+
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
+        'zoom-toolbar': ZoomToolbar,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
@@ -208,23 +195,18 @@ export default class ImagedObjectEditorToolbar extends Vue {
         return true;
     }
 
-    public get zoom(): number {
-        return Math.round(this.params.zoom * 100);
+    public get zoomImagedObject(): number {
+        return this.params.zoom;
     }
 
-    public set zoom(val: number) {
-        if (!val) {
-            val = 10;
-        }
-        this.imagedObjectState.params!.zoom = parseFloat(val.toString()) / 100;
+    public set zoomImagedObject(val: number) {
+        this.imagedObjectState.params!.zoom = parseFloat(val.toString());
+        // this.notifyChange('zoomImagedObject', val);
     }
 
-    public get canZoomIn(): boolean {
-        return this.zoom + 5 <= 100;
-    }
-
-    public get canZoomOut(): boolean {
-        return this.zoom - 5 > 0;
+    private onZoomChanged(val: number) {
+        this.params.zoom = val; //
+        // this.imagedObjectState.params!.zoom = val  ;
     }
 
     public get rotationAngle(): number {
@@ -237,13 +219,6 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.imagedObjectState.params!.rotationAngle =
             ((parseFloat(val.toString()) % 360) + 360) % 360;
         // this.notifyChange('rotationAngle', val);
-    }
-    public get zoomImagedObject(): number {
-        return this.params.zoom;
-    }
-    public set zoomImagedObject(val: number) {
-        this.imagedObjectState.params!.zoom = parseFloat(val.toString());
-        // this.notifyChange('zoomImagedObject', val);
     }
 
     public get readOnly(): boolean {
@@ -305,9 +280,8 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.$emit('paramsChanged', args);
     }
 
-    public zoomClick(percent: number) {
-        this.imagedObjectState.params!.zoom += percent / 100;
-    }
+
+
     public onImageSettingChanged(settings: ImageSetting) {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
@@ -333,9 +307,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
 .popover-body {
     margin-left: 10px;
 }
-.input-lg {
+/* .input-lg {
     width: 75px;
-}
+} */
 .rotation {
     width: 40px;
     text-align: center;
