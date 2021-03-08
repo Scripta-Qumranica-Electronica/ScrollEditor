@@ -33,8 +33,6 @@
 <script lang="ts">
   import { Component, Prop, Model, Vue } from 'vue-property-decorator';
 
-
-
   @Component({
     name: 'zoom-toolbar',
   })
