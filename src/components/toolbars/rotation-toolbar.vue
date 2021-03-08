@@ -13,7 +13,7 @@
             ></font-awesome-icon>
         </b-button>
         <b-form-input
-            v-if="enableText"
+            :disabled="!enableText"
             type="number"
             v-model="rotationAngle"
             class="input-lg"
@@ -29,7 +29,7 @@
             ></font-awesome-icon>
         </b-button>
       </b-button-group>
-       <span v-if="!enableText" class="rotation"> {{ paramsRotationAngle }} ° </span>
+       <!-- <span v-if="!enableText" class="rotation"> {{ paramsRotationAngle }} ° </span> -->
   </b-container>
 </template>
 
@@ -47,7 +47,7 @@ export default class RotationToolbar extends Vue {
 
     @Model ('rotationAngleChanged', {type: Number}) private paramsRotationAngle!: number;
 
-   @Prop() private delta!: number;
+   @Prop({default : 1}) private delta!: number;
    @Prop() private enableText!: number;
 
    private localRotateAngle: number = this.paramsRotationAngle || 0;
