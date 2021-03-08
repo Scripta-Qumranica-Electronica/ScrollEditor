@@ -72,8 +72,8 @@
                     </div>
                     <div class="col-10">
                         <b-row align-v="center" class="row ml-2">
-                            <b-col
-                               class="col-4 col-sm-5 col-xs-5 position-zoom">
+                            <!-- <b-col class="col-4 col-sm-5 col-xs-5 position-zoom"> -->
+                            <b-col class="col-2 position-zoom">
                                 <zoom-toolbar
                                         v-model="params.zoom"
                                         delta="0.05"

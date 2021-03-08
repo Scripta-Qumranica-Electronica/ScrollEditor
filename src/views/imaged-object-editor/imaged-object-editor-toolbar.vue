@@ -3,7 +3,8 @@
         <b-col class="p-3">
             <div>
                 <b-row align-v="center">
-                    <b-col class="col-3 col-md-4 col-sm-5 col-xs-5 position-zoom">
+                    <!-- <b-col class="col-3 col-md-4 col-sm-5 col-xs-5 position-zoom"> -->
+                    <b-col class="col-lg-3 col-xl-2 position-zoom">
                         <zoom-toolbar
                             v-model="params.zoom"
                             delta="0.05"
@@ -44,7 +45,8 @@
                             </div>
                         </b-popover>
                     </b-col>
-                    <b-col class="p-0 col-3 col-md-4 col-sm-5 col-xs-5 position-rotate">
+                    <!-- <b-col class="p-0 col-3 col-md-4 col-sm-5 col-xs-5 position-rotate"> -->
+                    <b-col class="p-0 col-lg-2 position-rotate">
                         <rotation-toolbar
                                 v-model="params.rotationAngle"
                                 delta="90"
