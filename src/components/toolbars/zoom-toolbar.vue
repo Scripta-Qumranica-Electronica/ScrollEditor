@@ -4,7 +4,7 @@
 
             <b-button-group>
                 <b-button
-                    @click="zoomClick(-5)"
+                    @click="zoomClick(-delta)"
                     :disabled="!canZoomOut"
                     variant="outline-secondary"
                 >
@@ -19,7 +19,7 @@
                 ></b-input>
                 <b-button
                     class="mr-0"
-                    @click="zoomClick(5)"
+                    @click="zoomClick(+delta)"
                     :disabled="!canZoomIn"
                     variant="outline-secondary"
                 >
@@ -41,7 +41,7 @@ export default class ZoomToolbar extends Vue {
 
     @Model ('zoomChanged', {type: Number}) private paramsZoom!: number;
 
-    @Prop() private delta!: number;
+    @Prop({default: 0.05}) private delta!: number;
 
     private localZoom: number = this.paramsZoom || 0.01;
 
@@ -54,17 +54,17 @@ export default class ZoomToolbar extends Vue {
       if (!val) {
         val = 10;
       }
-      // this.params.zoom = parseFloat(val.toString()) / 100;
+
       this.localZoom = parseFloat(val.toString()) / 100;
 
-      // this.notifyChange('zoom', val);
       this.onZoomChanged(this.localZoom);
     }
 
     private zoomClick(percent: number) {
-      if ( this.paramsZoom + percent / 100 < 1
-           && this.paramsZoom + percent / 100 > 0 ) {
-          this.localZoom =  this.paramsZoom + percent / 100;
+
+      if ( this.paramsZoom + percent  < 1
+           && this.paramsZoom + percent  > 0 ) {
+          this.localZoom =  this.paramsZoom + percent;
       }
 
       this.onZoomChanged(this.localZoom);
@@ -75,12 +75,12 @@ export default class ZoomToolbar extends Vue {
     }
 
     private get canZoomIn(): boolean {
-      return this.paramsZoom < 1 && this.paramsZoom + (this.delta / 100) < 1;
+      return this.paramsZoom < 1 && this.paramsZoom + (+this.delta) < 1;
       //  return this.paramsZoom < 1 && Math.round(this.paramsZoom * 100) + this.delta <= 100;
     }
 
     private get canZoomOut(): boolean {
-      return this.paramsZoom > 0  && this.paramsZoom - (this.delta  / 100) > 0;
+      return this.paramsZoom > 0  && this.paramsZoom - (+this.delta ) > 0;
       // return this.paramsZoom > 0 && Math.round(this.paramsZoom * 100) - this.delta > 0;
     }
 
