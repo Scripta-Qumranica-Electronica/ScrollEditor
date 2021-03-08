@@ -76,7 +76,6 @@
                                class="col-4 col-sm-5 col-xs-5 position-zoom">
                                 <zoom-toolbar
                                         v-model="params.zoom"
-                                        :zoom="params.zoom"
                                         delta="0.05"
                                         @zoomChanged="onZoomChanged($event)"
                                 />

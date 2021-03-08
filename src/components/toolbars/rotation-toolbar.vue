@@ -1,19 +1,100 @@
-<!--
+<template>
+  <b-container id="rotation-gadget">
+      <b-button-group>
+        <b-button
+            variant="outline-secondary"
+            @click="onRotateClick(-delta)"
+            v-b-tooltip.hover.bottom
+            :title="$t('misc.leftRotate')"
+            class="mr-0"
+        >
+            <font-awesome-icon
+                icon="undo"
+            ></font-awesome-icon>
+        </b-button>
+        <b-form-input
+            v-if="enableText"
+            type="number"
+            v-model="rotationAngle"
+            class="input-lg"
+        />
+        <b-button
+            variant="outline-secondary"
+            @click="onRotateClick(delta)"
+            v-b-tooltip.hover.bottom
+            :title="$t('misc.RightRotate')"
+        >
+            <font-awesome-icon
+                icon="redo"
+            ></font-awesome-icon>
+        </b-button>
+      </b-button-group>
+       <span v-if="!enableText" class="rotation"> {{ paramsRotationAngle }} ° </span>
+  </b-container>
+</template>
 
-  Create a rotation toolbar component that looks like the rotation in the artefact editor
 
-  Bind the zoom value with v-model https://www.digitalocean.com/community/tutorials/how-to-add-v-model-support-to-custom-vue-js-components
+<script lang="ts">
 
-  Add another property to the component called delta, with a default of 1. This is the increment or decrement when clicking on the left or right buttons
 
-  Add another property enable-text, when true the user can type the rotation angle in the textbox between the buttons, when it's false,
-  the text box is readonly
+  import { Component, Prop, Model, Vue } from 'vue-property-decorator';
 
-  <rotation-toolbar v-model="params.rotate" delta="90" :enable-text"false"/>
+  @Component({
+    name: 'rotation-toolbar',
+  })
 
-  Make sure the rotation angle is always between 0 and 359:
+export default class RotationToolbar extends Vue {
 
-  angle = ((angle % 360) + 360) % 360;
+    @Model ('rotationAngleChanged', {type: Number}) private paramsRotationAngle!: number;
 
-  Use this component in the ARtefact Editor, Imaged Object Editor
--->
+   @Prop() private delta!: number;
+   @Prop() private enableText!: number;
+
+   private localRotateAngle: number = this.paramsRotationAngle || 0;
+
+   //  angle = ((angle % 360) + 360) % 360;
+
+   public onRotateClick(degrees: number) {
+
+      this.localRotateAngle = this.paramsRotationAngle
+                              + degrees / ( (90 === +this.delta) ? 1 : 10 );
+
+      this.localRotateAngle = (( this.localRotateAngle % 360) + 360) % 360;
+
+      this.onRotationAngleChanged(this.localRotateAngle);
+    }
+
+    private onRotationAngleChanged(val: number) {
+      this.$emit('rotationAngleChanged', val);
+    }
+
+    public get rotationAngle(): number {
+        return ((this.paramsRotationAngle % 360) + 360) % 360;
+    }
+
+    public set rotationAngle(val: number) {
+      if (!val) {
+        val = 0;
+      }
+      this.localRotateAngle =
+            ((parseFloat(val.toString()) % 360) + 360) % 360;
+      this.onRotationAngleChanged(this.localRotateAngle);
+    }
+  }
+</script>
+
+
+
+<style lang="scss">
+
+.input-lg {
+    width: 50% !important;
+    max-width: 75px;
+}
+
+.rotation {
+    width: 40px;
+    text-align: center;
+}
+
+</style>

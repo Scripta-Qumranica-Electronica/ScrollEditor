@@ -6,7 +6,6 @@
                     <b-col class="col-3 col-md-4 col-sm-5 col-xs-5 position-zoom">
                         <zoom-toolbar
                             v-model="params.zoom"
-                            :zoom="params.zoom"
                             delta="0.05"
                             @zoomChanged="onZoomChanged($event)"
                         />
@@ -45,32 +44,13 @@
                             </div>
                         </b-popover>
                     </b-col>
-                    <b-col class="p-0 col-lg-2">
-                        <b-button-group>
-                            <b-button
-                                variant="outline-secondary"
-                                @click="onRotateClick(-90)"
-                                v-b-tooltip.hover.bottom
-                                :title="$t('misc.leftRotate')"
-                                class="mr-0"
-                            >
-                                <font-awesome-icon
-                                    icon="undo"
-                                ></font-awesome-icon>
-                            </b-button>
-                            <b-button
-                                variant="outline-secondary"
-                                @click="onRotateClick(90)"
-                                v-b-tooltip.hover.bottom
-                                class="ml-1"
-                                :title="$t('misc.RightRotate')"
-                            >
-                                <font-awesome-icon
-                                    icon="redo"
-                                ></font-awesome-icon>
-                            </b-button>
-                        </b-button-group>
-                        <span class="rotation"> {{ rotationAngle }} ° </span>
+                    <b-col class="p-0 col-3 col-md-4 col-sm-5 col-xs-5 position-rotate">
+                        <rotation-toolbar
+                                v-model="params.rotationAngle"
+                                delta="90"
+                                :enable-text="false"
+                                @rotationAngleChanged="onRotationAngleChanged($event)"
+                        />
                     </b-col>
                     <b-col class="col-lg-4 col-xl-5">
                         <b-row align-v="center">
@@ -151,12 +131,14 @@ import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { PropOptions } from 'vue';
 import { ImagedObjectState } from '../../state/imaged-object';
 import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
+import RotationToolbar from '@/components/toolbars/rotation-toolbar.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
         'zoom-toolbar': ZoomToolbar,
+        'rotation-toolbar': RotationToolbar,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
@@ -209,16 +191,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
         // this.imagedObjectState.params!.zoom = val  ;
     }
 
-    public get rotationAngle(): number {
-        return ((this.params.rotationAngle % 360) + 360) % 360;
-    }
-    public set rotationAngle(val: number) {
-        if (!val) {
-            val = 0;
-        }
-        this.imagedObjectState.params!.rotationAngle =
-            ((parseFloat(val.toString()) % 360) + 360) % 360;
-        // this.notifyChange('rotationAngle', val);
+    public onRotationAngleChanged(val: number) {
+        this.params.rotationAngle = val;
+        this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
 
     public get readOnly(): boolean {
@@ -285,10 +260,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
     public onImageSettingChanged(settings: ImageSetting) {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
-    public onRotateClick(degrees: number) {
-        this.imagedObjectState.params!.rotationAngle += degrees;
-        // this.notifyChange('rotationAngle', this.params.rotationAngle);
-    }
+
 
     private editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
@@ -310,10 +282,10 @@ export default class ImagedObjectEditorToolbar extends Vue {
 /* .input-lg {
     width: 75px;
 } */
-.rotation {
+/* .rotation {
     width: 40px;
     text-align: center;
-}
+} */
 #popover-adjust:hover {
     color: #007bff;
     background-color: white;

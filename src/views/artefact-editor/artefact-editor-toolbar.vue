@@ -6,7 +6,6 @@
                     <b-col class="col-6 col-md-7 col-sm-6 col-xs-6 position-zoom">
                         <zoom-toolbar
                                 v-model="params.zoom"
-                                :zoom="params.zoom"
                                 delta="0.05"
                                 @zoomChanged="onZoomChanged($event)"
                         />
@@ -42,35 +41,14 @@
                             </div>
                         </b-popover>
                     </b-col>
-                    <b-col class="col">
-                        <b-button-group>
-                            <b-button
-                                variant="outline-secondary"
-                                @click="onRotateClick(-10)"
-                                v-b-tooltip.hover.bottom
-                                :title="$t('misc.leftRotate')"
-                                class="mr-0"
-                            >
-                                <font-awesome-icon
-                                    icon="undo"
-                                ></font-awesome-icon>
-                            </b-button>
-                            <b-form-input
-                                type="number"
-                                v-model="rotationAngle"
-                                class="input-lg"
-                            />
-                            <b-button
-                                variant="outline-secondary"
-                                @click="onRotateClick(10)"
-                                v-b-tooltip.hover.bottom
-                                :title="$t('misc.RightRotate')"
-                            >
-                                <font-awesome-icon
-                                    icon="redo"
-                                ></font-awesome-icon>
-                            </b-button>
-                        </b-button-group>
+                    <b-col class="col-5 col-md-6 col-sm-5 col-xs-5 position-rotate">
+                        <rotation-toolbar
+                                v-model="params.rotationAngle"
+                                delta="10"
+                                :enable-text="true"
+                                @rotationAngleChanged="onRotationAngleChanged($event)"
+                        />
+
                     </b-col>
                 </b-row>
             </div>
@@ -99,12 +77,14 @@ import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { ArtefactEditorState } from '@/state/artefact-editor';
 import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
+import RotationToolbar from '@/components/toolbars/rotation-toolbar.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
          'zoom-toolbar': ZoomToolbar,
+         'rotation-toolbar': RotationToolbar,
     },
 })
 
@@ -130,30 +110,6 @@ export default class ArtefactEditorToolbar extends Vue {
         return true;
     }
 
-
-    private onZoomChanged(val: number) {
-        this.params.zoom = val; //
-        this.notifyChange('zoomArtefact', this.params.zoom);
-    }
-
-    // public set zoom(val: number) {
-    //     if (!val) {
-    //         val = 10;
-    //     }
-    //     this.params.zoom = parseFloat(val.toString()) / 100;
-    //     this.notifyChange('zoom', val);
-    // }
-
-    public get rotationAngle(): number {
-        return this.params.rotationAngle;
-    }
-    public set rotationAngle(val: number) {
-        if (!val) {
-            val = 0;
-        }
-        this.params.rotationAngle = parseFloat(val.toString());
-        this.notifyChange('rotationAngle', val);
-    }
     public get zoomArtefact(): number {
         return this.params.zoom;
     }
@@ -194,14 +150,17 @@ export default class ArtefactEditorToolbar extends Vue {
     public onImageSettingChanged(settings: ImageSetting) {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
-    public onRotateClick(degrees: number) {
-        this.params.rotationAngle += degrees / 10;
+
+    public onRotationAngleChanged(val: number) {
+        this.params.rotationAngle = val;
         this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
-    public zoomClick(percent: number) {
-        this.params.zoom += percent / 100;
+
+    private onZoomChanged(val: number) {
+        this.params.zoom = val; //
         this.notifyChange('zoomArtefact', this.params.zoom);
     }
+
 }
 </script>
 
