@@ -1,10 +1,7 @@
 
 <template>
   <b-container id="zoom-gadget">
-      <!-- <b-row align-v="center"> -->
-        <!-- <b-col class="col"> -->
-         <!-- <b-col class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 position-zoom"> -->
-         <!-- <b-col class="col-5 position-zoom"> -->
+
             <b-button-group>
                 <b-button
                     @click="zoomClick(-5)"
@@ -29,8 +26,7 @@
                   <i class="fa fa-plus"></i>
                 </b-button>
             </b-button-group>
-        <!-- </b-col> -->
-      <!-- </b-row> -->
+
     </b-container>
 </template>
 
