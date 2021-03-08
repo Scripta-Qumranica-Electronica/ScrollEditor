@@ -11,7 +11,6 @@
                                 @zoomChanged="onZoomChanged($event)"
                         />
                     </b-col>
-
                     <b-col class="p-0 col">
                         <b-button
                             id="popover-adjust"
