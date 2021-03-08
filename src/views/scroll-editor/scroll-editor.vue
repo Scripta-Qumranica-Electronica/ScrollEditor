@@ -5,55 +5,21 @@
         </div>
         <div v-if="!waiting">
 
-            <div class="mt-4 editor-container">
-                <b-row no-gutters class="border-bottom" align-v="center">
+            <div class="mt-0 editor-container">
 
-                    <div class="col-10">
-                        <b-row align-v="center" class="row ml-2">
-                            <!-- <b-col class="col-4 col-sm-5 col-xs-5 position-zoom"> -->
-                            <b-col class="col-2 position-zoom">
-                                <zoom-toolbar
-                                        v-model="params.zoom"
-                                        delta="0.05"
-                                        @zoomChanged="onZoomChanged($event)"
-                                />
-                            </b-col>
+                <b-row no-gutters class="mb-1 border-bottom" align-v="center">
 
-                            <div class="row col-5">
-                                <div  class="col-xl-4 col-md-4">
-                                    <b-form-checkbox
-                                        switch
-                                        size="sm"
-                                        @input="onDisplayROIs($event)"
-                                        >Display ROIs</b-form-checkbox
-                                    >
-                                </div>
-                                <div class="col-xl-4 col-md-4">
-                                    <b-form-checkbox
-                                        switch
-                                        size="sm"
-                                        @input="
-                                            onDisplayReconstructedText($event)
-                                        "
-                                        >Display Reconstructed
-                                        Text</b-form-checkbox
-                                    >
-                                </div>
-                                <div class="col-xl-4 col-md-4">
-                                    <b-form-checkbox
-                                        switch
-                                        size="sm"
-                                        @input="onDisplayText($event)"
-                                        >Display Text</b-form-checkbox
-                                    >
-                                </div>
-                            </div>
-                        </b-row>
-                    </div>
+                    <b-col class="col-10">
+                        <scroll-top-toolbar
+                            v-model="params.zoom"
+                            @zoomChangedGlobal="onZoomChangedGlobal($event)"
+                        />
+                    </b-col>
                 </b-row>
+
                 <b-row no-gutters>
 
-                    <div class="col-10 artefact-container">
+                    <b-col class="col-10 artefact-container">
                         <div
                             id="artefact-container"
                             ref="artefactContainer"
@@ -67,6 +33,7 @@
                                 :zoom="params.zoom"
                                 :ppm="edition.ppm"
                             ></scroll-ruler>
+
                             <scroll-area
                                 ref="scrollAreaRef"
                                 @onSelectArtefact="selectArtefact($event)"
@@ -75,15 +42,16 @@
                                 @onCancelGroup="cancelGroup()"
                             ></scroll-area>
                         </div>
-                    </div>
+                    </b-col>
 
-                    <div
+                    <b-col
                         class="col-2 border-left map-pane"
                         v-if="scrollEditorState.viewport"
                     >
                         <div class="mb-3">
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
+
                         <div class="ml-3 mb-3">
                             <span
                                 ><b>{{ $t('home.editionSize') }}:</b></span
@@ -127,7 +95,7 @@
                         </div>
                          <!-- </b-col> -->
 
-                        <div class="col-12 border-right add-cut-side">
+                        <div class="col-12 ml-3 mb-3 border-right add-cut-side">
                             <div>
                                 <b-row align-v="end">
                                     <div class="col-5">
@@ -171,7 +139,7 @@
                         </div>
 
                         <b-row>
-                            <b-col class="col-12">
+                            <b-col class="col-12 ">
                                 <artefact-toolbox
                                     @new-operation="newOperation($event)"
                                     @save-group="saveGroupArtefacts()"
@@ -180,9 +148,11 @@
                             </b-col>
                         </b-row>
 
-                    </div>
+                    </b-col>
                 </b-row>
+
                 <add-artefact-modal></add-artefact-modal>
+
             </div>
         </div>
     </div>
@@ -224,7 +194,7 @@ import ScrollMap from './scroll-map.vue';
 import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
 import { ArtefactTextFragmentData } from '@/models/text';
 import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
-
+import ScrollTopToolbar from './scroll-top-toolbar.vue';
 
 @Component({
     name: 'scroll-editor',
@@ -238,6 +208,7 @@ import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
         'scroll-ruler': ScrollRuler,
         'scroll-map': ScrollMap,
         'zoom-toolbar': ZoomToolbar,
+        'scroll-top-toolbar': ScrollTopToolbar,
     },
 })
 export default class ScrollEditor
@@ -548,26 +519,15 @@ export default class ScrollEditor
     }
 
 
-    private onZoomChanged(val: number) {
+    // private onZoomChanged(val: number) {
+    //     this.params.zoom = val; //
+    //     this.calculateViewport();
+    // }
+
+    private onZoomChangedGlobal(val: number) {
         this.params.zoom = val; //
         this.calculateViewport();
     }
-
-    // private zoomClick(percent: number) {
-    //     this.zoom += percent;
-    //     this.notifyChange('zoomScrollEditor', this.params.zoom);
-    //     zoomScrollEditor doesnt exist
-    // }
-
-
-    // public set zoom(val: number) {
-    //     if (!val) {
-    //         val = 10;
-    //     }
-    //     this.params.zoom = parseFloat(val.toString()) / 100;
-    //     this.onZoomChanged(); //
-    // }
-
 
     private selectArtefact(artefact: Artefact | undefined) {
         if (!artefact) {
@@ -869,15 +829,6 @@ export default class ScrollEditor
         }
     }
 
-    private onDisplayROIs(value: boolean) {
-        this.scrollEditorState.displayRois = value;
-    }
-    private onDisplayReconstructedText(value: boolean) {
-        this.scrollEditorState.displayReconstructedText = value;
-    }
-    private onDisplayText(value: boolean) {
-        this.scrollEditorState.displayText = value;
-    }
 }
 </script>
 
