@@ -122,8 +122,33 @@
                     </div>
                 </b-row>
                 <b-row no-gutters>
+
+                    <div class="col-10 artefact-container">
+                        <div
+                            id="artefact-container"
+                            ref="artefactContainer"
+                            @scroll="onScroll"
+                        >
+                            <scroll-ruler
+                                :height="actualHeight"
+                                :width="actualWidth"
+                                :horizontalTicks="editionWidth"
+                                :verticalTicks="editionHeight"
+                                :zoom="params.zoom"
+                                :ppm="edition.ppm"
+                            ></scroll-ruler>
+                            <scroll-area
+                                ref="scrollAreaRef"
+                                @onSelectArtefact="selectArtefact($event)"
+                                @onSaveGroupArtefacts="saveGroupArtefacts()"
+                                @new-operation="newOperation($event)"
+                                @onCancelGroup="cancelGroup()"
+                            ></scroll-area>
+                        </div>
+                    </div>
+
                     <div
-                        class="col-2 border-right"
+                        class="col-2 border-left map-pane"
                         v-if="scrollEditorState.viewport"
                     >
                         <div class="mb-3">
@@ -153,29 +178,6 @@
                                 X: {{ pointerPositionX }}, Y:
                                 {{ pointerPositionY }}
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-10 artefact-container">
-                        <div
-                            id="artefact-container"
-                            ref="artefactContainer"
-                            @scroll="onScroll"
-                        >
-                            <scroll-ruler
-                                :height="actualHeight"
-                                :width="actualWidth"
-                                :horizontalTicks="editionWidth"
-                                :verticalTicks="editionHeight"
-                                :zoom="params.zoom"
-                                :ppm="edition.ppm"
-                            ></scroll-ruler>
-                            <scroll-area
-                                ref="scrollAreaRef"
-                                @onSelectArtefact="selectArtefact($event)"
-                                @onSaveGroupArtefacts="saveGroupArtefacts()"
-                                @new-operation="newOperation($event)"
-                                @onCancelGroup="cancelGroup()"
-                            ></scroll-area>
                         </div>
                     </div>
                 </b-row>
