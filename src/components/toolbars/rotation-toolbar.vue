@@ -20,7 +20,7 @@
         />
         <b-button
             variant="outline-secondary"
-            @click="onRotateClick(delta)"
+            @click="onRotateClick(+delta)"
             v-b-tooltip.hover.bottom
             :title="$t('misc.RightRotate')"
         >
@@ -55,12 +55,7 @@ export default class RotationToolbar extends Vue {
    //  angle = ((angle % 360) + 360) % 360;
 
    public onRotateClick(degrees: number) {
-
-      this.localRotateAngle = this.paramsRotationAngle
-                              + degrees / ( (90 === +this.delta) ? 1 : 10 );
-
-      this.localRotateAngle = (( this.localRotateAngle % 360) + 360) % 360;
-
+      this.localRotateAngle = (( (this.paramsRotationAngle + degrees ) % 360) + 360) % 360;
       this.onRotationAngleChanged(this.localRotateAngle);
     }
 
@@ -76,8 +71,7 @@ export default class RotationToolbar extends Vue {
       if (!val) {
         val = 0;
       }
-      this.localRotateAngle =
-            ((parseFloat(val.toString()) % 360) + 360) % 360;
+      this.localRotateAngle = ( ( (+val) % 360) + 360) % 360;
       this.onRotationAngleChanged(this.localRotateAngle);
     }
   }

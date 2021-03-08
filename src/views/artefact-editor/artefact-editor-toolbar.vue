@@ -44,7 +44,7 @@
                     <b-col class="col-5 col-md-6 col-sm-5 col-xs-5 position-rotate">
                         <rotation-toolbar
                                 v-model="params.rotationAngle"
-                                delta="10"
+                                delta="1"
                                 :enable-text="true"
                                 @rotationAngleChanged="onRotationAngleChanged($event)"
                         />
