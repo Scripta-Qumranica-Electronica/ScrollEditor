@@ -4,25 +4,35 @@
 
         <b-row align-v="center" class="row ml-2" >
             <!-- <b-col class="col-4 col-sm-5 col-xs-5 position-zoom"> -->
-            <b-col class="col-3 col-sm-4 col-xs-4 position-zoom">
+            <b-col class="col-3 col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3 mt-1 mb-3 position-zoom">
             <!-- <b-col class="col-2 position-zoom"> -->
                 <zoom-toolbar
-                        v-model="paramsZoom"
+                        v-model="localZoom"
                         delta="0.05"
                         @zoomChanged="onZoomChanged($event)"
                 />
             </b-col>
+             <b-col class="col-3 col-xl-3 col-md-3 col-sm-2 col-xs-2">
+                <b-form-checkbox
+                    switch
+                    size="sm"
+                    @input="onTextMode($event)"
+                    >Material Mode / Text Mode
+                </b-form-checkbox>
+            </b-col>
 
-            <b-col class="col-6 col-sm-8">
+            <b-col class="col-6 col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <b-row>
-                    <b-col class="col-xl-4 col-md-4">
+
+                    <b-col class="col-xl-3 col-md-3">
                         <b-form-checkbox
                             switch
                             size="sm"
                             @input="onDisplayROIs($event)"
-                            >Display ROIs</b-form-checkbox
-                        >
+                            >Display ROIs
+                        </b-form-checkbox>
                     </b-col>
+
                     <b-col class="col-xl-5 col-md-5">
                         <b-form-checkbox
                             switch
@@ -30,18 +40,19 @@
                             @input="
                                 onDisplayReconstructedText($event)
                             "
-                            >Display Reconstructed
-                            Text</b-form-checkbox
-                        >
+                            >Display Reconstructed Text
+                        </b-form-checkbox>
                     </b-col>
+
                     <b-col class="col-xl-3 col-md-3">
                         <b-form-checkbox
                             switch
                             size="sm"
                             @input="onDisplayText($event)"
-                            >Display Text</b-form-checkbox
-                        >
+                            >Display Text
+                        </b-form-checkbox>
                     </b-col>
+
                 </b-row>
             </b-col>
         </b-row>
@@ -88,7 +99,10 @@ export default class ScrollTopToolbar extends Vue {
     private onDisplayText(value: boolean) {
         this.scrollEditorState.displayText = value;
     }
+    private onTextMode(value: boolean) {
+        this.scrollEditorState.textMode = value;
 
+    }
 }
 </script>
 
@@ -96,5 +110,8 @@ export default class ScrollTopToolbar extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-
+.top-toolbar {
+    height: 3rem;
+    /* height: 70px; */
+}
 </style>

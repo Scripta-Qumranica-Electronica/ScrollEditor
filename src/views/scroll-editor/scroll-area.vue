@@ -8,14 +8,7 @@
             <div ref="handleTools" class="handle-tools">
                 <i class="fa fa-ellipsis-v"></i>
             </div>
-            <artefact-toolbox
-                :keyboard-input="false"
-                :float="true"
-                @new-operation="onNewOperation($event)"
-                @save-group="onSaveGroup()"
-                @cancel-group="cancelGroup()"
-                @manageGroup="manageGroup()"
-            ></artefact-toolbox>
+
         </div>
         <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
             <svg

@@ -17,6 +17,7 @@ export class ScrollEditorState {
     public displayRois: boolean;
     public displayReconstructedText: boolean;
     public displayText: boolean;
+    public textMode: boolean = false;
 
     public constructor() {
         this.params = new ScrollEditorParams();
@@ -24,7 +25,8 @@ export class ScrollEditorState {
         this.displayRois = false;
         this.displayReconstructedText = false;
         this.displayText = false;
-    }
+        this.textMode = false;
+      }
 
     public get selectedArtefacts(): Artefact[] {
         let artefactIds: number[] = [];

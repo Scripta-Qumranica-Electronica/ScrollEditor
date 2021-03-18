@@ -5,7 +5,7 @@
         </div>
         <div v-if="!waiting">
 
-            <div class="mt-0 editor-container">
+            <div class="mt-4  editor-container">
 
                 <b-row no-gutters class="mb-1 border-bottom" align-v="center">
 
@@ -19,7 +19,7 @@
 
                 <b-row no-gutters>
 
-                    <b-col class="col-10 artefact-container">
+                    <b-col class="col-9 artefact-container">
                         <div
                             id="artefact-container"
                             ref="artefactContainer"
@@ -44,110 +44,27 @@
                         </div>
                     </b-col>
 
-                    <b-col
-                        class="col-2 border-left map-pane"
+
+
+
+                    <b-col  class="col-3 border-right artefact-sidebar"
                         v-if="scrollEditorState.viewport"
                     >
                         <div class="mb-3">
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
 
-                        <div class="ml-3 mb-3">
-                            <span
-                                ><b>{{ $t('home.editionSize') }}:</b></span
-                            >
-                            <div>
-                                {{ edition.metrics.width }} mm X
-                                {{ edition.metrics.height }} mm
-                            </div>
-                        </div>
-                        <div class="ml-3 mb-3">
-                            <span
-                                ><b>{{ $t('home.viewPortSize') }}:</b></span
-                            >
-                            <div>
-                                {{ viewportSizeWidth }} mm X
-                                {{ viewportSizeHeight }} mm
-                            </div>
-                        </div>
-                        <div class="ml-3 mb-3">
-                            <span><b>Position:</b></span>
-                            <div>
-                                X: {{ pointerPositionX }}, Y:
-                                {{ pointerPositionY }}
-                            </div>
+                        <div
+                           v-if="isTextMode"
+                           class="text-mode-sidebar">
                         </div>
 
-                        <!-- <b-col class="col-lg-3 pl-0"> -->
-                        <div class="btn-tf ml-3 mb-3">
-                            <b-button
-                                size="sm"
-                                class="mr-2"
-                                @click="openAddArtefactModal()"
-                                >{{ $t('misc.add') }} artefact</b-button
-                            >
-                            <b-button
-                                class="btn-remove"
-                                size="sm"
-                                @click="removeArtefactOrGroup()"
-                                >{{ $t('misc.remove') }}</b-button
-                            >
-                        </div>
-                         <!-- </b-col> -->
-
-                        <div class="col-12 ml-3 mb-3 border-right add-cut-side">
-                            <div>
-                                <b-row align-v="end">
-                                    <div class="col-5">
-                                        <b-form-select
-                                            v-model="selectedSide"
-                                            :options="sidesOptions"
-                                            size="sm"
-                                            class="ml-2 mt-2"
-                                        ></b-form-select>
-                                    </div>
-                                    <!-- <div class="col-5"> -->
-                                    <div class="col-4">
-                                        <b-form-input
-                                            size="sm"
-                                            min="1"
-                                            type="number"
-                                            v-model="metricsInput"
-                                        ></b-form-input>
-                                    </div>
-                                    <span>mm</span>
-                                </b-row>
-                                <b-row>
-                                    <div class="col-6 ml-5">
-                                        <b-button-group>
-                                            <b-button
-                                                class="m-1"
-                                                size="sm"
-                                                @click="resizeScroll(1)"
-                                                >Add</b-button
-                                            >
-                                            <b-button
-                                                class="m-1"
-                                                size="sm"
-                                                @click="resizeScroll(-1)"
-                                                >Cut</b-button
-                                            >
-                                        </b-button-group>
-                                    </div>
-                                </b-row>
-                            </div>
-                        </div>
-
-                        <b-row>
-                            <b-col class="col-12 ">
-                                <artefact-toolbox
-                                    @new-operation="newOperation($event)"
-                                    @save-group="saveGroupArtefacts()"
-                                    @cancel-group="cancelGroup()"
-                                ></artefact-toolbox>
-                            </b-col>
-                        </b-row>
-
+                        <scroll-side-toolbar
+                            v-if="!isTextMode"
+                            @new-operation="newOperation($event)"
+                            @save-group="saveGroupArtefacts()"
+                            @cancel-group="cancelGroup()"
+                        ></scroll-side-toolbar>
                     </b-col>
                 </b-row>
 
@@ -171,7 +88,7 @@ import Zoomer, {
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { ArtefactGroup, EditionInfo } from '../../models/edition';
 import AddArtefactModal from './add-artefact-modal.vue';
-import ArtefactToolbox from './artefact-toolbox.vue';
+import ArtefactToolbox from './artefact-toolbox.vue'; // TBD
 import ScrollArea from './scroll-area.vue';
 import ScrollRuler from './scroll-ruler.vue';
 import {
@@ -195,6 +112,7 @@ import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
 import { ArtefactTextFragmentData } from '@/models/text';
 import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
 import ScrollTopToolbar from './scroll-top-toolbar.vue';
+import ScrollSideToolbar from './scroll-side-toolbar.vue';
 
 @Component({
     name: 'scroll-editor',
@@ -203,12 +121,13 @@ import ScrollTopToolbar from './scroll-top-toolbar.vue';
         'zoomer': Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
-        'artefact-toolbox': ArtefactToolbox,
+        'artefact-toolbox': ArtefactToolbox, // TBD
         'scroll-area': ScrollArea,
         'scroll-ruler': ScrollRuler,
         'scroll-map': ScrollMap,
-        'zoom-toolbar': ZoomToolbar,
+        // 'zoom-toolbar': ZoomToolbar,
         'scroll-top-toolbar': ScrollTopToolbar,
+        'scroll-side-toolbar': ScrollSideToolbar,
     },
 })
 export default class ScrollEditor
@@ -223,6 +142,7 @@ export default class ScrollEditor
     private editionService = new EditionService();
     private artefactService = new ArtefactService();
 
+// TBD
     private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
         { text: 'Right', value: 'right' },
@@ -231,6 +151,7 @@ export default class ScrollEditor
     ];
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
+//
 
     private get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
@@ -256,6 +177,12 @@ export default class ScrollEditor
     public get editionHeight(): number {
         return this.edition.metrics.height;
     }
+
+    private get isTextMode(): boolean {
+        return this.scrollEditorState.textMode;
+    }
+
+   // TBD
     private get viewportSizeWidth() {
         return Math.round(
             this.scrollEditorState.viewport!.width / this.edition.ppm
@@ -266,15 +193,20 @@ export default class ScrollEditor
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
     }
+//
+
     private get actualWidth(): number {
         return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
     }
     private get actualHeight(): number {
         return this.edition.metrics.height * this.edition.ppm * this.zoomLevel;
     }
+
     private get zoomLevel() {
         return (this.params && this.params.zoom) || 1;
     }
+
+// TBD
     private get pointerPositionX() {
         return (
             this.scrollEditorState.pointerPosition.x /
@@ -289,7 +221,7 @@ export default class ScrollEditor
             this.edition.ppm
         ).toFixed(2);
     }
-
+//
     public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
         const allMovedArtefactIds = new Set<number>();
         const allEditedGroupIds = new Set<number>();
@@ -567,9 +499,6 @@ export default class ScrollEditor
         }
     }
 
-    private selectGroup(group: ArtefactGroup | undefined) {
-        this.scrollEditorState.selectGroup(group);
-    }
 
     private onResize(entries: ResizeObserverEntry[]) {
         this.calculateViewport();
@@ -651,6 +580,7 @@ export default class ScrollEditor
         div.scroll(left, top);
     }
 
+// TBD
     private resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
             ...this.edition.metrics,
@@ -745,7 +675,19 @@ export default class ScrollEditor
         return true;
     }
 
+//
+
+
+    private selectGroup(group: ArtefactGroup | undefined) {
+        this.scrollEditorState.selectGroup(group);
+    }
+
+
     private saveGroupArtefacts() {
+        console.log('saveGroupArtefacts this.selectedGroup', this.selectedGroup);
+        console.log('saveGroupArtefacts groupId', this.selectedGroup!.groupId);
+        console.log('saveGroupArtefacts this.edition.artefactGroups', this.edition.artefactGroups);
+
         const group = this.edition.artefactGroups.find(
             (x) => x.groupId === this.selectedGroup!.groupId
         );
@@ -787,11 +729,14 @@ export default class ScrollEditor
         this.params.mode = '';
     }
 
+
+// TBD
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
 
     private newOperation(operation: ScrollEditorOperation) {
+        console.log('scroll editor newOpertion ', operation);
         this.operationsManager.addOperation(operation);
     }
 
@@ -828,6 +773,7 @@ export default class ScrollEditor
             this.deleteGroup(this.selectedGroup.groupId);
         }
     }
+    //
 
 }
 </script>
@@ -843,13 +789,15 @@ export default class ScrollEditor
     background-color: $white;
     margin-right: 1%;
     margin-left: 1%;
-    height: calc(100vh - 180px);
+    height: calc(100vh - 100px);
+    /* height: calc(100vh - 180px); */
 }
 #artefact-container {
     position: relative;
     overflow: auto;
     padding: 0;
-    height: calc(100vh - 249px);
+    height: calc(100vh - 169px);
+    /* height: calc(100vh - 249px); */
     touch-action: none;
 }
 #artefact-container.active {

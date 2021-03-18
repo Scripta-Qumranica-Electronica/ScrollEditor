@@ -398,17 +398,12 @@ import { ScrollEditorState } from '../../state/scroll-editor';
     components: {},
 })
 export default class ArtefactToolbox extends Vue {
-    @Prop({
-        default: -1,
-    })
-    public artefactId!: number;
+    @Prop({ default: -1 }) public artefactId!: number;
 
-    @Prop({ default: false })
-    public float!: boolean;
+    @Prop({ default: false }) public float!: boolean;
 
-    @Prop({ default: true })
+    @Prop({ default: true }) public keyboardInput!: boolean;
 
-    public keyboardInput!: boolean;
     private reset!: number;
     private zoomDelta!: number;
 
