@@ -22,7 +22,7 @@ services:
 
     sqe-http:
         container_name: SQE_HTTP_API
-        image: qumranica/sqe-http-api:0.10.0
+        image: qumranica/sqe-http-api:0.10.1
         restart: always
         ports:
             - 5000:5000
@@ -33,7 +33,7 @@ services:
             - MYSQL_USER=sqe_user
             - MYSQL_PASSWORD=mysecretpw
             - MYSQL_DATABASE=SQE
-            
+
             ## Email settings (account that mails user registration information)
             - MAILER_EMAIL_ADDRESS
             - MAILER_EMAIL_USERNAME
@@ -41,9 +41,9 @@ services:
             - MAILER_EMAIL_SMTP_URL
             - MAILER_EMAIL_SMTP_PORT
             - MAILER_EMAIL_SMTP_SECURITY=Auto #The options are "None", "Auto", "SslOnConnect", "StartTls", and "StartTlsWhenAvailable"
-            
+
             ## Partner website settings (website that calls the user registration functions)
-            - WEBSITE_HOST=http://localhost:8080              
+            - WEBSITE_HOST=http://localhost:8080
             ## Dotnet telemetry optout
             - DOTNET_CLI_TELEMETRY_OPTOUT=1
 
@@ -60,7 +60,7 @@ services:
 
             ## Server options
             - Http_Server=true # Run the API HTTP server
-              
+
             ## Secret string for API JWT generation (the API will error if this is too short)
             - SQE_API_SECRET=kjdsavc987342r8gnx%%6bq1@@lknsdciqeurhfwiurbcea-+++
         depends_on:
