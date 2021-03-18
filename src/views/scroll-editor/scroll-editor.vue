@@ -54,17 +54,14 @@
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
 
-                        <div
-                           v-if="isTextMode"
-                           class="text-mode-sidebar">
-                        </div>
+                        <text-toolbar v-if="isTextMode"></text-toolbar>
 
-                        <scroll-side-toolbar
+                        <manuscript-toolbar
                             v-if="!isTextMode"
                             @new-operation="newOperation($event)"
                             @save-group="saveGroupArtefacts()"
                             @cancel-group="cancelGroup()"
-                        ></scroll-side-toolbar>
+                        ></manuscript-toolbar>
                     </b-col>
                 </b-row>
 
@@ -112,7 +109,8 @@ import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
 import { ArtefactTextFragmentData } from '@/models/text';
 import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
 import ScrollTopToolbar from './scroll-top-toolbar.vue';
-import ScrollSideToolbar from './scroll-side-toolbar.vue';
+import ManuscriptToolbar from './manuscript-toolbar.vue';
+import TextToolbar from './text-toolbar.vue';
 
 @Component({
     name: 'scroll-editor',
@@ -127,7 +125,8 @@ import ScrollSideToolbar from './scroll-side-toolbar.vue';
         'scroll-map': ScrollMap,
         // 'zoom-toolbar': ZoomToolbar,
         'scroll-top-toolbar': ScrollTopToolbar,
-        'scroll-side-toolbar': ScrollSideToolbar,
+        'manuscript-toolbar': ManuscriptToolbar,
+        'text-toolbar': TextToolbar
     },
 })
 export default class ScrollEditor

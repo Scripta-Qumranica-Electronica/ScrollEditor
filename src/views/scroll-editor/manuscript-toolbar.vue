@@ -636,13 +636,13 @@ import {
 } from './operations';
 
 @Component({
-    name: 'scroll-side-toolbar',
+    name: 'manuscript-toolbar',
     components: {
         // 'artefact-toolbox': ArtefactToolbox,
     },
 })
 
-export default class ScrollSideToolbar extends Vue {
+export default class ManuscriptToolbar extends Vue {
 
     // @Prop() private params!: ScrollEditorParams;
     @Prop({ default: -1 }) public artefactId!: number;
