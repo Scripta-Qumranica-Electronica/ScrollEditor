@@ -8,6 +8,8 @@ import { ScrollEditorParams } from '@/views/artefact-editor/types';
 function state() {
     return StateManager.instance;
 }
+
+export type ScrollEditorMode = 'text' | 'manuscript';
 export class ScrollEditorState {
     public selectedArtefact: Artefact | null = null;
     public selectedGroup: ArtefactGroup | null = null;
@@ -17,7 +19,7 @@ export class ScrollEditorState {
     public displayRois: boolean;
     public displayReconstructedText: boolean;
     public displayText: boolean;
-    public textMode: boolean = false;
+    public mode: ScrollEditorMode;
 
     public constructor() {
         this.params = new ScrollEditorParams();
@@ -25,7 +27,7 @@ export class ScrollEditorState {
         this.displayRois = false;
         this.displayReconstructedText = false;
         this.displayText = false;
-        this.textMode = false;
+        this.mode =  'manuscript';
       }
 
     public get selectedArtefacts(): Artefact[] {

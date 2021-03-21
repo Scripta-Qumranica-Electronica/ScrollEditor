@@ -178,7 +178,7 @@ export default class ScrollEditor
     }
 
     private get isTextMode(): boolean {
-        return this.scrollEditorState.textMode;
+        return this.scrollEditorState.mode === 'text';
     }
 
    // TBD

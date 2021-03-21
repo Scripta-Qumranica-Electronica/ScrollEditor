@@ -100,8 +100,7 @@ export default class ScrollTopToolbar extends Vue {
         this.scrollEditorState.displayText = value;
     }
     private onTextMode(value: boolean) {
-        this.scrollEditorState.textMode = value;
-
+        this.scrollEditorState.mode = value ? 'text' : 'manuscript';
     }
 }
 </script>
