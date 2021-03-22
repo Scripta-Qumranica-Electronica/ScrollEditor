@@ -6,10 +6,11 @@
         :transform="groupTransform"
         :data="artefact.zOrder"
         pointer-events="all"
-        @pointerdown="pointerDown($event)"
-        @pointermove="pointerMove($event)"
-        @pointerup="pointerUp($event)"
-        @pointercancel="pointerCancel($event)"
+        @pointerdown="onPointerDown($event)"
+        @pointermove="onPointerMove($event)"
+        @pointerup="onPointerUp($event)"
+        @pointercancel="onPointerCancel($event)"
+        @click="onClick($event)"
     >
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
@@ -48,13 +49,13 @@
             :rois="visibleRois"
         ></roi-layer>
         <template v-if="displayText || reconstructedText">
-            <template v-for="d in displayedSigns">
-                <use
-                    :href = "`#path-${d.character}`"
-                    :key="d.id"
-                    :transform="d.svgTransform"
-                    />
-            </template>
+            <use v-for="d in displayedSigns"
+                 :data-sign-id="d.id"
+                 :key="d.id"
+                 :href="`#path-${d.character}`"
+                 class="sign"
+                 :class="{selected: d.id === selectedSignInterpretationId}"
+                 :transform="d.svgTransform" />
         </template>
     </g>
 </template>
@@ -129,11 +130,10 @@ class DisplayableSign {
 
     public get svgTransform() {
         const x = this.boundingBox.x;
-        const y = this.boundingBox.y - this.yOffset;
+        const y = this.boundingBox.y; //  - this.yOffset;
 
         return `translate(${x} ${y})`;
     }
-
 }
 
 @Component({
@@ -261,6 +261,14 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return [...siSet];
     }
 
+    public get selectedSignInterpretationId() {
+        if (this.$state.scrollEditor.selectedSignInterpretations.length !== 1) {
+            return null;
+        }
+
+        return this.$state.scrollEditor.selectedSignInterpretations[0].signInterpretationId;
+    }
+
     public get displayedSigns(): DisplayableSign[] {
         const reconstructedOnly = this.reconstructedText && !this.displayText;
         const displayedSigns: DisplayableSign[] = [];
@@ -283,7 +291,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         return displayedSigns;
     }
-
 
     protected async mounted() {
 
@@ -322,7 +329,12 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 
-    private pointerDown($event: PointerEvent) {
+    // Implement dragging artefacts - but only in material mode.
+    private onPointerDown($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         if (this.pointerId > 0) {
             return;
         }
@@ -342,7 +354,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin = { x: pt.x, y: pt.y };
     }
 
-    private pointerMove($event: PointerEvent) {
+    private onPointerMove($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         if (
             !this.mouseOrigin ||
             !this.selected ||
@@ -367,7 +383,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin.y = pt.y;
     }
 
-    private pointerUp($event: PointerEvent) {
+    private onPointerUp($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         const operations: ScrollEditorOperation[] = [];
         if (this.pointerId !== $event.pointerId || !this.selected) {
             this.cancelOperation($event.target as HTMLBaseElement);
@@ -399,7 +419,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.cancelOperation($event.target as HTMLBaseElement);
     }
 
-    private pointerCancel() {
+    private onPointerCancel() {
+        if (!this.materialMode) {
+            return;
+        }
+
         this.cancelOperation();
     }
 
@@ -429,11 +453,39 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.pointerId = -1;
     }
 
+    private get materialMode() {
+        return this.$state.scrollEditor.mode === 'material';
+    }
 
 
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
+    }
+
+    public onClick(event: MouseEvent) {
+        if (this.materialMode) {
+            return;
+        }
+        this.$state.scrollEditor.selectedSignInterpretations = [];
+
+        // Find the letter this this event applies to, if any
+        const element = (event.target! as HTMLBaseElement)!.closest('use');
+        if (!element) {
+            return;
+        }
+
+        const sid = element.getAttribute('data-sign-id');
+        if (!sid) {
+            return;
+        }
+
+        const id = parseInt(sid);
+        const si = this.$state.signInterpretations.get(id, true);
+
+        if (si) {
+            this.$state.scrollEditor.selectedSignInterpretations = [si];
+        }
     }
 }
 </script>
@@ -457,6 +509,16 @@ path.selected {
 
 .disabled {
     cursor: not-allowed;
+}
+
+.sign {
+    fill: black;
+    stroke: black;
+}
+
+.sign.selected {
+    fill: red;
+    stroke: red;
 }
 
 </style>

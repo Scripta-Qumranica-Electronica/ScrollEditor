@@ -24,11 +24,11 @@
                 <g id="root" :transform="transform">
                     <defs id="before-root" v-if= "currentScript" >
                         <path
-                        v-for="g of Object.values(scriptGlyphs)"
-                        :key="g.character"
-                        :d="g.shape.svg"
-                        :id = "`path-${g.character}`"
-                        class="display-letters"
+                            v-for="g of Object.values(scriptGlyphs)"
+                            :key="g.character"
+                            :d="g.shape.svg"
+                            :id="`path-${g.character}`"
+                            class="sign"
                         />
                     </defs>
 
@@ -286,6 +286,11 @@ export default class ScrollArea extends Vue {
     cursor: move;
 }
 
+
+.sign {
+    fill: inherit;
+    stroke: inherit;
+}
 
 .display-letters {
     font-family: 'scroll_hebrew';

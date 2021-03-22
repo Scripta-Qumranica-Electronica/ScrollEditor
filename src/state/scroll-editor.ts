@@ -1,5 +1,6 @@
 import { Artefact } from '@/models/artefact';
 import { ArtefactGroup } from '@/models/edition';
+import { SignInterpretation } from '@/models/text';
 import { StateManager } from '@/state';
 import { BoundingBox, Point } from '@/utils/helpers';
 import { ScrollEditorParams } from '@/views/artefact-editor/types';
@@ -9,7 +10,7 @@ function state() {
     return StateManager.instance;
 }
 
-export type ScrollEditorMode = 'text' | 'manuscript';
+export type ScrollEditorMode = 'text' | 'material';
 export class ScrollEditorState {
     public selectedArtefact: Artefact | null = null;
     public selectedGroup: ArtefactGroup | null = null;
@@ -21,13 +22,16 @@ export class ScrollEditorState {
     public displayText: boolean;
     public mode: ScrollEditorMode;
 
+    public selectedSignInterpretations: SignInterpretation[];
+
     public constructor() {
         this.params = new ScrollEditorParams();
         this.pointerPosition = {x: 0, y: 0};
         this.displayRois = false;
         this.displayReconstructedText = false;
         this.displayText = false;
-        this.mode =  'manuscript';
+        this.mode = 'material';
+        this.selectedSignInterpretations = [];
       }
 
     public get selectedArtefacts(): Artefact[] {
