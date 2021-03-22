@@ -136,10 +136,7 @@
                                         :show-text="true"
                                     />
                                     <sign-wheel
-                                        v-if="
-                                            selectedSignsInterpretation.length ==
-                                            1
-                                        "
+                                        v-if="selectedSignInterpretations.length === 1"
                                         :line="selectedLine"
                                     />
                                 </div>
@@ -349,8 +346,8 @@ export default class ArtefactEditor
         return this.$state.artefactEditor;
     }
 
-    public get selectedSignsInterpretation(): SignInterpretation[] {
-        return this.artefactEditorState.selectedSignsInterpretation;
+    public get selectedSignInterpretations(): SignInterpretation[] {
+        return this.artefactEditorState.selectedSignInterpretations;
     }
 
     public get selectedInterpretationRoi(): InterpretationRoi | null {
@@ -393,7 +390,7 @@ export default class ArtefactEditor
     }
 
     public onNewPolygon(poly: Polygon) {
-        if (!this.selectedSignsInterpretation.length) {
+        if (!this.selectedSignInterpretations.length) {
             console.error("Can't add ROI with no selected sign");
             return;
         }
@@ -455,7 +452,7 @@ export default class ArtefactEditor
         this.statusTextFragment(roi);
 
         this.artefactEditorState.selectRoi(null);
-        this.artefactEditorState.selectedSignsInterpretation = [];
+        this.artefactEditorState.selectedSignInterpretations = [];
     }
 
     protected async created() {
@@ -677,7 +674,7 @@ export default class ArtefactEditor
 
     private onDeleteRoi() {
         const roi = this.selectedInterpretationRoi;
-        const si = this.selectedSignsInterpretation;
+        const si = this.selectedSignInterpretations;
         if (!roi || !si) {
             console.error("Can't delete an ROI if nothing is selected");
             return;
@@ -769,7 +766,7 @@ export default class ArtefactEditor
 
     private onAuto() {
         if (
-            this.artefactEditorState.selectedSignsInterpretation.length > 1 &&
+            this.artefactEditorState.selectedSignInterpretations.length > 1 &&
             this.autoMode
         ) {
             this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
@@ -854,10 +851,10 @@ export default class ArtefactEditor
 
     private onRoiClicked(roi: InterpretationRoi) {
         this.artefactEditorState.selectRoi(roi);
-        this.artefactEditorState.selectedSignsInterpretation = [];
+        this.artefactEditorState.selectedSignInterpretations = [];
 
         if (!roi.signInterpretationId) {
-            this.artefactEditorState.selectedSignsInterpretation = [];
+            this.artefactEditorState.selectedSignInterpretations = [];
         } else {
             const si = this.$state.signInterpretations.get(
                 roi.signInterpretationId

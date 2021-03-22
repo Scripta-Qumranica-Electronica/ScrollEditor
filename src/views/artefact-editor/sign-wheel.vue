@@ -49,11 +49,11 @@ export default class SignWheel extends Vue {
     public get artefactEditor() {
         return this.$state.artefactEditor;
     }
-    public get selectedSignsInterpretation(): SignInterpretation[] {
-        return this.artefactEditor.selectedSignsInterpretation;
+    public get selectedSignInterpretations(): SignInterpretation[] {
+        return this.artefactEditor.selectedSignInterpretations;
     }
 
-    @Watch('selectedSignsInterpretation')
+    @Watch('selectedSignInterpretations')
     private onSelectedSignInterpretationChanged(
         curSign: SignInterpretation,
         oldSign: SignInterpretation

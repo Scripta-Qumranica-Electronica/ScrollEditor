@@ -224,7 +224,7 @@ export default class TextSide extends Vue {
         ) {
             return;
         }
-        this.$state.artefactEditor.selectedSignsInterpretation = [];
+        this.$state.artefactEditor.selectedSignInterpretations = [];
         this.$state.artefactEditor.selectRoi(null);
     }
     private changePosition(index: number, up: boolean) {

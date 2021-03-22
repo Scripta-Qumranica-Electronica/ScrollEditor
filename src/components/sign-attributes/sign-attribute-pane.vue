@@ -4,7 +4,7 @@
             <li class="pr-1" v-if="!readOnly">
                 <b-dropdown
                     ref="attributesMenu"
-                    :disabled="!selectedSignsInterpretation.length"
+                    :disabled="!selectedSignInterpretations.length"
                     size="sm"
                     no-caret
                     @hide="onAttributesMenuHide($event)"
@@ -90,26 +90,26 @@ export default class SignAttributePane extends Vue {
         return this.$state.artefactEditor;
     }
 
-    public get selectedSignsInterpretation(): SignInterpretation[] {
-        return this.artefactEditor.selectedSignsInterpretation;
+    public get selectedSignInterpretations(): SignInterpretation[] {
+        return this.artefactEditor.selectedSignInterpretations;
     }
 
     // The comment in the state.
     private get comment(): string {
-        if (this.selectedSignsInterpretation.length !== 1) {
+        if (this.selectedSignInterpretations.length !== 1) {
             return '';
         }
 
-        return this.selectedSignsInterpretation[0].commentary || '';
+        return this.selectedSignInterpretations[0].commentary || '';
     }
 
     private set comment(val: string) {
-        if (this.selectedSignsInterpretation.length !== 1) {
+        if (this.selectedSignInterpretations.length !== 1) {
             console.warn("Can't change ta comment without one selected sign interperation");
             return;
         }
 
-        const op = new SignInterpretationCommentOperation(this.selectedSignsInterpretation[0].id, val);
+        const op = new SignInterpretationCommentOperation(this.selectedSignInterpretations[0].id, val);
         op.redo(true);
         this.$state.eventBus.emit('new-operation', op);
     }
@@ -126,12 +126,12 @@ export default class SignAttributePane extends Vue {
         let attributeValues: number[] = [];
         let first = true;
 
-        if (!this.selectedSignsInterpretation.length) {
+        if (!this.selectedSignInterpretations.length) {
             return [];
         }
 
         // Calculate the intersection of the attributes of all the sign interpretations
-        for (const si of this.selectedSignsInterpretation) {
+        for (const si of this.selectedSignInterpretations) {
             const siValues = si.attributes.map((attr) => attr.attributeValueId);
             if (first) {
                 first = false;
@@ -143,8 +143,8 @@ export default class SignAttributePane extends Vue {
             }
         }
 
-        // selectedSignsInterpretations has at least one element
-        const attributes = this.selectedSignsInterpretation[0].attributes.filter(
+        // selectedSignInterpretations has at least one element
+        const attributes = this.selectedSignInterpretations[0].attributes.filter(
             (attr) => attributeValues.includes(attr.attributeValueId)
         );
         return attributes;
@@ -152,7 +152,7 @@ export default class SignAttributePane extends Vue {
 
     private get isMultiSelect() {
         return (
-            this.$state.artefactEditor.selectedSignsInterpretation.length !== 1
+            this.$state.artefactEditor.selectedSignInterpretations.length !== 1
         );
     }
 
@@ -163,8 +163,7 @@ export default class SignAttributePane extends Vue {
 
     private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.artefactEditor
-            .selectedSignsInterpretation) {
+        for (const si of this.$state.artefactEditor.selectedSignInterpretations) {
             const op = new TextFragmentAttributeOperation(si.id, attrVal.id, {
                 attributeId: attr.attributeId,
                 attributeString: attr.attributeName,
@@ -184,7 +183,7 @@ export default class SignAttributePane extends Vue {
     }
 
     private prepareAttributesMenu(): AttributeDTO[] {
-        if (!this.selectedSignsInterpretation.length) {
+        if (!this.selectedSignInterpretations.length) {
             return [];
         }
 
@@ -192,7 +191,7 @@ export default class SignAttributePane extends Vue {
         const attributesSet: Set<number> = new Set<number>();
         const attributesValuesSet: Set<number> = new Set<number>();
 
-        for (const si of this.selectedSignsInterpretation) {
+        for (const si of this.selectedSignInterpretations) {
             for (const attribute of si.attributes) {
                 attributesSet.add(attribute.attributeId);
                 attributesValuesSet.add(attribute.attributeValueId);
@@ -211,7 +210,7 @@ export default class SignAttributePane extends Vue {
 
             // multiple: only batchEditable
             if (
-                this.selectedSignsInterpretation.length > 1 &&
+                this.selectedSignInterpretations.length > 1 &&
                 !attributeMeta.batchEditable
             ) {
                 continue;
@@ -219,7 +218,7 @@ export default class SignAttributePane extends Vue {
 
             // single: only editable
             if (
-                this.selectedSignsInterpretation.length === 1 &&
+                this.selectedSignInterpretations.length === 1 &&
                 !attributeMeta.editable
             ) {
                 continue;

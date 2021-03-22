@@ -10,7 +10,7 @@ function state() {
 }
 export type editSignInterpretationModeType = 'edit' | 'create';
 export class ArtefactEditorState {
-    public selectedSignsInterpretation: SignInterpretation[];
+    public selectedSignInterpretations: SignInterpretation[];
     public selectedInterpretationRoi: InterpretationRoi | null = null;
     public selectedAttribute: InterpretationAttributeDTO | null = null;
     public highlightCommentMode: boolean = false;
@@ -19,12 +19,12 @@ export class ArtefactEditorState {
 
     constructor() {
         this.params = new ArtefactEditorParams();
-        this.selectedSignsInterpretation = [];
+        this.selectedSignInterpretations = [];
     }
 
     public get singleSelectedSi(): SignInterpretation | null {
-        if (this.selectedSignsInterpretation.length === 1) {
-            return this.selectedSignsInterpretation[0];
+        if (this.selectedSignInterpretations.length === 1) {
+            return this.selectedSignInterpretations[0];
         }
         return null;
     }
@@ -34,12 +34,12 @@ export class ArtefactEditorState {
 
     public toggleSelectSign(si: SignInterpretation | undefined, removeIfExist: boolean = true) {
         if (si && si.character) {
-            const existingIdx = this.selectedSignsInterpretation.findIndex((x: SignInterpretation) => x.id === si.id);
+            const existingIdx = this.selectedSignInterpretations.findIndex((x: SignInterpretation) => x.id === si.id);
             if (existingIdx === -1) {
-                this.selectedSignsInterpretation.push(si);
+                this.selectedSignInterpretations.push(si);
                 this.addTextFragementToArtefact(si);
             } else if (removeIfExist) {
-                this.selectedSignsInterpretation.splice(existingIdx, 1);
+                this.selectedSignInterpretations.splice(existingIdx, 1);
                 this.removeTextFragementToArtefact(si);
             }
             this.onSignInterpretationClicked();
@@ -47,11 +47,11 @@ export class ArtefactEditorState {
     }
 
     public selectSign(si?: SignInterpretation) {
-        this.selectedSignsInterpretation = si ? [si] : [];
+        this.selectedSignInterpretations = si ? [si] : [];
     }
 
     public isSiSelected(si: SignInterpretation): boolean {
-        return this.selectedSignsInterpretation.some(x => x.id === si.id);
+        return this.selectedSignInterpretations.some(x => x.id === si.id);
     }
 
     public selectRoi(roi: InterpretationRoi | null) {

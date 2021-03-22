@@ -467,7 +467,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         if (this.materialMode) {
             return;
         }
-        this.$state.scrollEditor.selectedSignInterpretations = [];
+        this.$state.scrollEditor.selectSignInterpretation(null);
 
         // Find the letter this this event applies to, if any
         const element = (event.target! as HTMLBaseElement)!.closest('use');
@@ -481,11 +481,8 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         }
 
         const id = parseInt(sid);
-        const si = this.$state.signInterpretations.get(id, true);
-
-        if (si) {
-            this.$state.scrollEditor.selectedSignInterpretations = [si];
-        }
+        const si = this.$state.signInterpretations.get(id, true) || null;
+        this.$state.scrollEditor.selectSignInterpretation(si);
     }
 }
 </script>

@@ -88,7 +88,7 @@ export default class SignAttributeModal extends Vue {
             return;
         }
 
-        const si = this.$state.artefactEditor.selectedSignsInterpretation[0]; // Only one element, since !isMultiSelect
+        const si = this.$state.artefactEditor.selectedSignInterpretations[0]; // Only one element, since !isMultiSelect
         const newAttr: InterpretationAttributeDTO = { ...this.attribute! };
 
         newAttr.commentary = val
@@ -137,8 +137,7 @@ export default class SignAttributeModal extends Vue {
         let values = this.attributeMetadata.values;
 
         // Remove the values that are selected by other attributes of the same id
-        for (const si of this.$state.artefactEditor
-            .selectedSignsInterpretation) {
+        for (const si of this.$state.artefactEditor.selectedSignInterpretations) {
             for (const attr of si.attributes.filter(
                 (a) => a.attributeId === this.attribute!.attributeId
             )) {
@@ -151,7 +150,7 @@ export default class SignAttributeModal extends Vue {
 
     private get isMultiSelect() {
         return (
-            this.$state.artefactEditor.selectedSignsInterpretation.length !== 1
+            this.$state.artefactEditor.selectedSignInterpretations.length !== 1
         );
     }
 
@@ -181,8 +180,7 @@ export default class SignAttributeModal extends Vue {
 
     private onDeleteAttribute() {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.artefactEditor
-            .selectedSignsInterpretation) {
+        for (const si of this.$state.artefactEditor.selectedSignInterpretations) {
             const op = new TextFragmentAttributeOperation(
                 si.id,
                 this.attribute!.attributeValueId,
@@ -197,8 +195,7 @@ export default class SignAttributeModal extends Vue {
 
     private onAttributeValueChanged(attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.artefactEditor
-            .selectedSignsInterpretation) {
+        for (const si of this.$state.artefactEditor.selectedSignInterpretations) {
             for (const attr of si.attributes.filter(
                 (a) => a.attributeValueId === this.attribute!.attributeValueId
             )) {

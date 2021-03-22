@@ -65,4 +65,14 @@ export class ScrollEditorState {
         }
         this.selectedArtefact = null;
     }
+
+    public selectSignInterpretation(signInterpretation: SignInterpretation | null, replace = true) {
+        if (!signInterpretation) {
+            this.selectedSignInterpretations = [];
+        } else if (replace) {
+            this.selectedSignInterpretations = [signInterpretation];
+        } else {
+            this.selectedSignInterpretations.push(signInterpretation);
+        }
+    }
 }
