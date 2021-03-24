@@ -7,7 +7,7 @@
 <script lang="ts">
 import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
 import { ScrollEditorState } from '@/state/scroll-editor';
-import { ScrollEditorParams, ScrollEditorMode } from '../artefact-editor/types';
+import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
 
 @Component({
     name: 'text-toolbar',

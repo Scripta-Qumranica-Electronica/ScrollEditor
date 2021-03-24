@@ -5,13 +5,15 @@
         </div>
         <div v-if="!waiting">
 
-            <div class="mt-4  editor-container">
+            <div class="mt-4 editor-container">
 
-                <b-row no-gutters class="mb-1 border-bottom" align-v="center">
+                <b-row no-gutters align-v="center"
+                         class="mb-1 border-bottom " >
 
-                    <b-col class="col-10">
+                    <b-col class="col-12 ">
                         <scroll-top-toolbar
                             v-model="params.zoom"
+                             @new-operation="newOperation($event)"
                             @zoomChangedGlobal="onZoomChangedGlobal($event)"
                         />
                     </b-col>
@@ -812,4 +814,5 @@ export default class ScrollEditor
     width: 50% !important;
     max-width: 75px;
 } */
+
 </style>

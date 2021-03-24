@@ -3,7 +3,7 @@
      <b-container no-gutters class="side-toolbar ml-0 mr-0 pl-0 pr-0">
         <!-- <b-row class="ml-3 mb-3"> -->
 
-        <b-row class="m-0 mb-3 ml-1 pl-0 pr-0">
+        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0">
             <b-col cols="12" md="auto"  class="col-lg-6  no-gutters">
                 <span
                     ><b>{{ $t('home.editionSize') }}:</b></span
@@ -15,7 +15,7 @@
             </b-col>
         </b-row>
 
-        <b-row class="m-0 mb-3 ml-1 pl-0 pr-0">
+        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0">
              <b-col cols="12" md="auto"  class="col-xl-6 col-lg-7 no-gutters">
                 <span
                     ><b>{{ $t('home.viewPortSize') }}:</b></span
@@ -27,7 +27,7 @@
             </b-col>
         </b-row>
 
-        <b-row class="m-0 mb-3 ml-1 pl-0 pr-0">
+        <b-row class="m-0 mb-0 ml-1 pl-0 pr-0">
              <b-col cols="12" md="auto"  class="col-lg-6 no-gutters">
                 <span><b>Position:</b></span>
             </b-col>
@@ -38,7 +38,59 @@
         </b-row>
 
 
-         <b-row no-gutters class="btn-tf m-1 p-1 col-12">
+    <b-container fluid class="operations-bar scroll-bar mt-3 mb-3 pb-2">
+<!--
+        <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12">
+
+             <b-col class="col-12 ">
+                <b-form-checkbox
+                    switch
+                    size="sm"
+                    @input="onTextMode($event)"
+                    >Material Mode / Text Mode
+                </b-form-checkbox>
+            </b-col>
+        </b-row> -->
+
+        <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12">
+            <b-col class="col-12 ">
+                <b-form-checkbox
+                    switch
+                    size="sm"
+                    @input="onDisplayROIs($event)"
+                    >Display ROIs
+                </b-form-checkbox>
+            </b-col>
+        </b-row>
+
+        <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12">
+            <b-col class="col-12 ">
+                <b-form-checkbox
+                    switch
+                    size="sm"
+                    @input="
+                        onDisplayReconstructedText($event)
+                    "
+                    >Display Reconstructed Text
+                </b-form-checkbox>
+            </b-col>
+        </b-row>
+
+
+         <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12">
+            <b-col class="col-12 ">
+                <b-form-checkbox
+                    switch
+                    size="sm"
+                    @input="onDisplayText($event)"
+                    >Display Text
+                </b-form-checkbox>
+            </b-col>
+        </b-row>
+
+        <hr class="solid">
+
+         <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12">
 
                 <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2">
                     <b-button
@@ -93,6 +145,7 @@
                 </b-form-row>
             </b-col>
 
+
             <b-col no-gutters cols="6" md="auto" lg="auto"
                    class="col-xl-3 col-lg-4 m-0" >
 
@@ -119,6 +172,7 @@
             </b-col>
 
         </b-row>
+
 
         <hr class="solid">
 
@@ -234,384 +288,9 @@
 
         </b-row>
 
-  <hr class="solid">
 
-        <b-row class="move-artefact-area">
-            <b-col>
 
-                 <b-card no-body>
-                    <b-card-header header-tag="header" class="p-1" role="tab">
-                        <b-button-group size="sm" class="m-1">
-                            <b-button
-                                class="btn-move"
-                                :pill="float"
-                                :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                "
-                                :pressed="mode === 'move'"
-                                @click="setMode('move')"
-                             >
-                                <span v-if="!float"> <u>M</u>ove </span>
-                                <font-awesome-icon
-                                    v-if="float"
-                                    icon="arrows-alt"
-                                    size="xs"
-                                ></font-awesome-icon>
-                            </b-button>
-                            <b-button
-                                class="btn-scale"
-                                :pill="float"
-                                :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                "
-                                :pressed="mode === 'scale'"
-                                @click="setMode('scale')"
-                            >
-                                <span v-if="!float"> <u>S</u>cale </span>
-                                <font-awesome-icon
-                                    v-if="float"
-                                    icon="search"
-                                    size="xs"
-                                ></font-awesome-icon>
-                            </b-button>
-                            <b-button
-                                class="btn-rotate"
-                                :pill="float"
-                                :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                "
-                                :pressed="mode === 'rotate'"
-                                @click="setMode('rotate')"
-                            >
-                                <span v-if="!float"> <u>R</u>otate </span>
-                                <font-awesome-icon
-                                    v-if="float"
-                                    icon="sync"
-                                    size="xs"
-                                ></font-awesome-icon>
-                            </b-button>
-                            <b-button :pill="float" @click="statusMirror()"
-                                        :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                        "
-                            >
-                           mirror
-                            </b-button>
-                        </b-button-group>
-                    </b-card-header>
-                    <b-collapse
-                        id="accordion-pill-actions"
-                        style="display: block"
-                        accordion="my-accordion-pill-actions"
-                        role="tabpanel"
-                    >
-                        <b-card-body class="card-body-cancel"
-
-                        >
-                            <section class="center-btn" >
-                                <b-row
-                                    v-if="mode === 'move'"
-                                    no-gutters
-                                    align-v="end"
-                                >
-                                    <div>
-                                        <table>
-                                            <tr>
-                                                <td></td>
-                                                <td>
-                                                    <b-button
-                                                        :class="[
-                                                            float
-                                                                ? 'btn-xs'
-                                                                : 'btn-xs',
-                                                            'mt-1',
-                                                        ]"
-                                                        size="sm"
-                                                        :disabled="
-                                                            !(
-                                                                selectedArtefacts &&
-                                                                selectedArtefacts.length
-                                                            )
-                                                        "
-                                                        @click="
-                                                            dragArtefact(0, -1)
-                                                        "
-                                                    >
-                                                        <i
-                                                            class="fa fa-arrow-up"
-                                                        ></i>
-                                                    </b-button>
-                                                </td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <b-button
-                                                        :class="[
-                                                            float
-                                                                ? 'btn-xs'
-                                                                : 'btn-xs',
-                                                            ' ml-2 mb-2',
-                                                        ]"
-                                                        size="sm"
-                                                        :disabled="
-                                                            !(
-                                                                selectedArtefacts &&
-                                                                selectedArtefacts.length
-                                                            )
-                                                        "
-                                                        @click="
-                                                            dragArtefact(-1, 0)
-                                                        "
-                                                    >
-                                                        <i
-                                                            class="fa fa-arrow-left"
-                                                        ></i>
-                                                    </b-button>
-                                                </td>
-                                                <td>
-                                                    <b-button
-                                                        :class="[
-                                                            float
-                                                                ? 'btn-xs'
-                                                                : 'btn-xs',
-                                                            'mb-2',
-                                                        ]"
-                                                        size="sm"
-                                                        :disabled="
-                                                            !(
-                                                                selectedArtefacts &&
-                                                                selectedArtefacts.length
-                                                            )
-                                                        "
-                                                        @click="
-                                                            dragArtefact(0, 1)
-                                                        "
-                                                    >
-                                                        <i
-                                                            class="fa fa-arrow-down"
-                                                        ></i>
-                                                    </b-button>
-                                                </td>
-                                                <td>
-                                                    <b-button
-                                                        :class="[
-                                                            float
-                                                                ? 'btn-xs'
-                                                                : 'btn-xs',
-                                                            'mb-2',
-                                                        ]"
-                                                        size="sm"
-                                                        :disabled="
-                                                            !(
-                                                                selectedArtefacts &&
-                                                                selectedArtefacts.length
-                                                            )
-                                                        "
-                                                        @click="
-                                                            dragArtefact(1, 0)
-                                                        "
-                                                    >
-                                                        <i
-                                                            class="fa fa-arrow-right"
-                                                        ></i>
-                                                    </b-button>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <b-col cols="4" class="m-1">
-                                        <b-form-input
-                                            id="input-small"
-                                            size="sm"
-                                            type="number"
-                                            v-model="paramsmove"
-                                            :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                        ></b-form-input>
-                                    </b-col>
-                                    <b-col no-gutters
-                                        :class="[
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )? 'text-muted' : ''
-                                            ]"
-                                    > mm
-                                    </b-col>
-                                </b-row>
-                                <b-row
-                                    v-if="mode === 'scale'"
-                                    no-gutters
-                                    align-v="end"
-                                >
-                                    <b-button-group>
-                                        <b-button
-                                            :class="[
-                                                float ? 'btn-xs' : 'btn-xs',
-                                                'ml-1 mb-2',
-                                            ]"
-                                            size="sm"                                                                                                                                  :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                            @click="zoomArtefact(1)"
-                                        >
-                                            <i class="fa fa-plus"></i>
-                                        </b-button>
-                                        <b-button
-                                            :class="[
-                                                float ? 'btn-xs' : 'btn-xs',
-                                                'ml-1 mb-2',
-                                            ]"
-                                            size="sm"
-                                            :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                            @click="zoomArtefact(-1)"
-                                        >
-                                            <i class="fa fa-minus"></i>
-                                        </b-button>
-                                        <b-button
-                                            :class="[
-                                                float ? 'btn-xs' : 'btn-xs',
-                                                'ml-1 mb-2',
-                                            ]"
-                                            size="sm"
-                                            :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                            @click="resetZoom()"
-                                            >reset</b-button
-                                        >
-                                    </b-button-group>
-                                    <b-col cols="4" class="mb-1 mt-3 ml-1">
-                                        <b-form-input
-                                            id="input-small"
-                                            size="sm"
-                                            type="number"
-                                            v-model="params.scale"
-                                            :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                        ></b-form-input> </b-col
-                                    >
-                                   <b-col no-gutters
-                                        :class="[
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )? 'text-muted' : ''
-                                            ]"
-                                    > %
-                                    </b-col>
-
-                                </b-row>
-                                <b-row
-                                    v-if="mode === 'rotate'"
-                                    no-gutters
-                                    align-v="end"
-                                >
-                                    <b-button-group>
-                                        <b-button
-                                            :class="[
-                                                float ? 'btn-xs' : 'btn-xs',
-                                                'ml-2 mb-2',
-                                            ]"
-                                            size="sm"
-                                            :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                            @click="rotateGroupArtefact(-1)"
-                                        >
-                                            <font-awesome-icon
-                                                icon="undo"
-                                            ></font-awesome-icon>
-                                        </b-button>
-                                        <b-button
-                                            :class="[
-                                                float ? 'btn-xs' : 'btn-xs',
-                                                'ml-2 mb-2',
-                                            ]"
-                                            size="sm"
-                                            :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                            @click="rotateGroupArtefact(1)"
-                                        >
-                                            <font-awesome-icon
-                                                icon="redo"
-                                            ></font-awesome-icon>
-                                        </b-button>
-                                    </b-button-group>
-                                    <b-col cols="4" class="mb-1 mt-3 ml-2 mr-1">
-                                        <b-form-input
-                                            id="input-small"
-                                            size="sm"
-                                            type="number"
-                                            v-model="params.rotate"
-                                             :disabled="
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )
-                                            "
-                                        ></b-form-input> </b-col
-                                    >
-                                   <b-col no-gutters
-                                        :class="[
-                                            !(
-                                                selectedArtefacts &&
-                                                selectedArtefacts.length
-                                            )? 'text-muted' : ''
-                                            ]"
-                                    > degree
-                                    </b-col>
-
-                                </b-row>
-
-                            </section>
-                        </b-card-body>
-                    </b-collapse>
-
-                </b-card>
-
-            </b-col>
-        </b-row>
-
+    </b-container>
     </b-container>
 
 </template>
@@ -620,16 +299,16 @@
 import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
-import { ScrollEditorParams, ScrollEditorMode } from '../artefact-editor/types';
+import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
 import { Placement } from '@/utils/Placement';
 import { Artefact } from '@/models/artefact';
-import { ArtefactGroup } from '../../models/edition';
+// import { ArtefactGroup } from '../../models/edition';
 import { Point } from '../../utils/helpers';
 // import ArtefactToolbox from './artefact-toolbox.vue';
 import {
     ArtefactPlacementOperation,
     ArtefactPlacementOperationType,
-    EditGroupOperation,
+    // EditGroupOperation,
     EditionMetricOperation,
     GroupPlacementOperation,
     ScrollEditorOperation,
@@ -659,6 +338,7 @@ export default class ManuscriptToolbar extends Vue {
 
     private keyboardInput: boolean = true;
     private float: boolean = true;
+    private ver1: boolean = true;
     private zoomDelta!: number;
 
     @Emit()
@@ -679,17 +359,17 @@ export default class ManuscriptToolbar extends Vue {
     }
 
 
-    protected mounted() {
-        if (this.keyboardInput) {
-            window.addEventListener('keydown', this.onKeyPress);
-        }
-    }
+    // protected mounted() {
+    //     if (this.keyboardInput) {
+    //         window.addEventListener('keydown', this.onKeyPress);
+    //     }
+    // }
 
-    public destroyed() {
-        if (this.keyboardInput) {
-            window.removeEventListener('keydown', this.onKeyPress);
-        }
-    }
+    // public destroyed() {
+    //     if (this.keyboardInput) {
+    //         window.removeEventListener('keydown', this.onKeyPress);
+    //     }
+    // }
 
     private get edition() {
         return this.$state.editions.current! || {};
@@ -747,6 +427,16 @@ export default class ManuscriptToolbar extends Vue {
 
     public get selectedArtefact() {
         return this.scrollEditorState.selectedArtefact;
+    }
+
+    private onDisplayROIs(value: boolean) {
+        this.scrollEditorState.displayRois = value;
+    }
+    private onDisplayReconstructedText(value: boolean) {
+        this.scrollEditorState.displayReconstructedText = value;
+    }
+    private onDisplayText(value: boolean) {
+        this.scrollEditorState.displayText = value;
     }
 
 
@@ -813,11 +503,11 @@ export default class ManuscriptToolbar extends Vue {
 
 
 
-    private get mode(): ScrollEditorMode {
+    private get mode(): ScrollEditorOpMode {
         return this.params!.mode;
     }
 
-    private setMode(mode: ScrollEditorMode) {
+    private setMode(mode: ScrollEditorOpMode) {
         this.params.mode = mode;
     }
 
@@ -971,291 +661,6 @@ export default class ManuscriptToolbar extends Vue {
         return op;
     }
 
-
-    private onKeyPress(event: KeyboardEvent) {
-        if (this.artefact) {
-            return;
-        }
-
-        console.log(event);
-        switch (event.code) {
-            case 'KeyM':
-                this.setMode('move');
-                break;
-            case 'KeyR':
-                this.setMode('rotate');
-                break;
-            case 'KeyS':
-                this.setMode('scale');
-                break;
-            case 'ArrowLeft':
-                if (this.mode === 'move') {
-                    this.dragArtefact(-1, 0);
-                    event.preventDefault();
-                } else if (this.mode === 'rotate') {
-                    this.rotateGroupArtefact(-1);
-                    event.preventDefault();
-                }
-                break;
-            case 'ArrowRight':
-                if (this.mode === 'move') {
-                    this.dragArtefact(1, 0);
-                    event.preventDefault();
-                } else if (this.mode === 'rotate') {
-                    this.rotateGroupArtefact(1);
-                    event.preventDefault();
-                }
-                break;
-            case 'ArrowUp':
-                if (this.mode === 'move') {
-                    this.dragArtefact(0, -1);
-                    event.preventDefault();
-                } else if (this.mode === 'scale') {
-                    this.zoomArtefact(1);
-                    event.preventDefault();
-                }
-                break;
-            case 'ArrowDown':
-                if (this.mode === 'move') {
-                    this.dragArtefact(0, 1);
-                    event.preventDefault();
-                } else if (this.mode === 'scale') {
-                    this.zoomArtefact(-1);
-                    event.preventDefault();
-                }
-                break;
-        }
-    }
-
-    public statusMirror() {
-        const operations: ArtefactPlacementOperation[] = [];
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-        if (this.selectedArtefact) {
-            const placement = this.selectedArtefact.placement.clone();
-            placement.mirrored = !placement.mirrored;
-            operation = this.createOperation(
-                'mirror',
-                placement,
-                this.selectedArtefact
-            );
-        }
-        if (this.selectedGroup) {
-            this.selectedArtefacts.forEach((art) => {
-                const placement = art.placement.clone();
-                placement.mirrored = !placement.mirrored;
-                operations.push(
-                    this.createOperation('mirror', placement, art)
-                );
-            });
-            operation = new GroupPlacementOperation(
-                this.selectedGroup.groupId,
-                operations,
-                'placement'
-            );
-        }
-        this.newOperation(operation);
-
-    }
-
-
-    public getGroupCenter(): Point {
-        const minX = Math.min(
-            ...this.selectedArtefacts.map((art) => art.placement.translate.x!)
-        );
-        const minY = Math.min(
-            ...this.selectedArtefacts.map((art) => art.placement.translate.y!)
-        );
-        const maxX = Math.max(
-            ...this.selectedArtefacts.map(
-                (art) => art.placement.translate.x! + art.boundingBox.width
-            )
-        );
-        const maxY = Math.max(
-            ...this.selectedArtefacts.map(
-                (art) => art.placement.translate.y! + art.boundingBox.height
-            )
-        );
-
-        const x = (maxX - minX) / 2 + minX;
-        const y = (maxY - minY) / 2 + minY;
-
-        return { x, y };
-    }
-
-    public getArtefactCenter(art: Artefact): Point {
-        // The artefact's center is the translate (x,y) + the bounding box's center
-        const x = art.placement.translate.x! + art.boundingBox.width / 2;
-        const y = art.placement.translate.y! + art.boundingBox.height / 2;
-
-        return { x, y };
-    }
-
-    public dragArtefact(dirX: number, dirY: number) {
-        const operations: ScrollEditorOperation[] = [];
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-        if (this.selectedArtefact) {
-            const placement = this.selectedArtefact.placement.clone();
-            const jump =
-                parseInt(this.params.move.toString()) * this.edition.ppm;
-            placement!.translate.x! += jump * dirX;
-            placement!.translate.y! += jump * dirY;
-            operation = this.createOperation(
-                'translate',
-                placement,
-                this.selectedArtefact
-            );
-        }
-        if (this.selectedGroup) {
-            this.selectedArtefacts.forEach((art) => {
-                const placement = art.placement.clone();
-                const jump =
-                    parseInt(this.params.move.toString()) * this.edition.ppm;
-                placement!.translate.x! += jump * dirX;
-                placement!.translate.y! += jump * dirY;
-                operations.push(
-                    this.createOperation('translate', placement, art)
-                );
-            });
-            operation = new GroupPlacementOperation(
-                this.selectedGroup.groupId,
-                operations
-            );
-        }
-        this.newOperation(operation);
-    }
-
-
-    public translateArtefactAfterGroupRotation(
-        art: Artefact,
-        groupCenterPoint: Point,
-        deltaAngleRadians: number
-    ): Point {
-        const sin = Math.sin(deltaAngleRadians);
-        const cos = Math.cos(deltaAngleRadians);
-        const artefactCenterPoint = this.getArtefactCenter(art);
-
-        const xFromOrigin = artefactCenterPoint.x - groupCenterPoint.x;
-        const yFromOrigin = artefactCenterPoint.y - groupCenterPoint.y;
-
-        const newMidXArt = cos * xFromOrigin - sin * yFromOrigin;
-        const newMidYArt = cos * yFromOrigin + sin * xFromOrigin;
-
-        const deltaX = newMidXArt - xFromOrigin;
-        const deltaY = newMidYArt - yFromOrigin;
-
-        return {
-            x: art.placement.translate.x! + deltaX,
-            y: art.placement.translate.y! + deltaY,
-        } as Point;
-    }
-
-    public zoomArtefact(direction: number) {
-        const operations: ScrollEditorOperation[] = [];
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-        if (this.selectedArtefact) {
-            const trans = this.selectedArtefact.placement.clone();
-            if (direction === 1) {
-                this.zoomDelta = trans.scale + this.params.scale / 100;
-            } else {
-                this.zoomDelta = trans.scale - this.params.scale / 100;
-            }
-            if (!trans.scale) {
-                trans.scale = 1;
-            }
-            trans.scale = this.zoomDelta;
-            trans.scale = +trans.scale.toFixed(4);
-            operation = this.createOperation(
-                'scale',
-                trans,
-                this.selectedArtefact
-            );
-        }
-        if (this.selectedGroup) {
-            this.selectedArtefacts.forEach((art) => {
-                const trans = art.placement.clone();
-                if (direction === 1) {
-                    this.zoomDelta = trans.scale + this.params.scale / 100;
-                } else {
-                    this.zoomDelta = trans.scale - this.params.scale / 100;
-                }
-                if (!trans.scale) {
-                    trans.scale = 1;
-                }
-                trans.scale = this.zoomDelta;
-                trans.scale = +trans.scale.toFixed(4);
-                operations.push(this.createOperation('scale', trans, art));
-            });
-
-            operation = new GroupPlacementOperation(
-                this.selectedGroup.groupId,
-                operations
-            );
-        }
-        this.newOperation(operation);
-    }
-
-
-    public rotateGroupArtefact(direction: number) {
-        const operations: ScrollEditorOperation[] = [];
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-        const groupCenterPoint = this.getGroupCenter();
-
-        const deltaAngleDegrees = direction * this.params.rotate;
-        const deltaAngleRadians = deltaAngleDegrees * (Math.PI / 180);
-        if (this.selectedArtefact) {
-            const newRotate = this.rotateArtefact(
-                this.selectedArtefact,
-                deltaAngleDegrees
-            );
-            const newPlacement = this.selectedArtefact.placement.clone();
-            newPlacement.rotate = newRotate;
-            operation = this.createOperation(
-                'rotate',
-                newPlacement,
-                this.selectedArtefact
-            );
-        }
-        if (this.selectedGroup) {
-            this.selectedArtefacts.forEach((art) => {
-                // Rotate each artefact by deltaAngleDegrees
-                const newRotate = this.rotateArtefact(art, deltaAngleDegrees);
-
-                // Translate each artefact
-                const newTranslate = this.translateArtefactAfterGroupRotation(
-                    art,
-                    groupCenterPoint,
-                    deltaAngleRadians
-                );
-
-                const newPlacement = art.placement.clone();
-                newPlacement.rotate = newRotate;
-                newPlacement.translate = newTranslate;
-
-                operations.push(
-                    this.createOperation('rotate', newPlacement, art)
-                );
-            });
-            operation = new GroupPlacementOperation(
-                this.selectedGroup.groupId,
-                operations
-            );
-        }
-        this.newOperation(operation);
-    }
-
-    public rotateArtefact(
-        artefact: Artefact,
-        deltaAngleDegrees: number
-    ): number {
-        const oldAngle = artefact.placement.rotate!;
-
-        const newAngle = oldAngle + deltaAngleDegrees;
-        const normalizedAngle = ((newAngle % 360) + 360) % 360;
-        return normalizedAngle;
-    }
-
-
-
 }
 </script>
 
@@ -1282,5 +687,18 @@ hr.solid {
     font-size: 0.75rem;
     line-height: 1;
     border-radius: 0.2rem;
+}
+
+
+.card-body-cancel {
+    padding: 0rem !important;
+}
+
+.scroll-bar {
+    position: relative;
+    padding: 0;
+    max-height: calc(50vh - 2rem);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 </style>

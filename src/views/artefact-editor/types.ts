@@ -1,7 +1,8 @@
 import { ImageSetting } from '@/components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
 
-export type ScrollEditorMode = '' | 'move'| 'scale' |'rotate' | 'manageGroup';
+// export type ScrollEditorMode = '' | 'move'| 'scale' |'rotate' | 'manageGroup';
+export type ScrollEditorOpMode = '' | 'move'| 'scale' |'rotate' | 'manageGroup';
 export type ArtefactEditorMode = 'artefact' | 'text-fragment';
 export class ArtefactEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;
@@ -10,7 +11,7 @@ export class ArtefactEditorParams implements BaseEditorParams {
 }
 
 export class ScrollEditorParams extends ArtefactEditorParams {
-    public mode: ScrollEditorMode = '';
+    public mode: ScrollEditorOpMode = '';
     public move = 5;
     public scale = 5;
     public rotate = 45;

@@ -382,7 +382,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
-import { ScrollEditorParams, ScrollEditorMode } from '../artefact-editor/types';
+import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
 import {
     ScrollEditorOperation,
     ArtefactPlacementOperationType,
@@ -424,7 +424,7 @@ export default class ArtefactToolbox extends Vue {
         return this.$state.editions.current! || {};
     }
 
-    private get mode(): ScrollEditorMode {
+    private get mode(): ScrollEditorOpMode {
         return this.params!.mode;
     }
 
@@ -750,7 +750,7 @@ export default class ArtefactToolbox extends Vue {
         artefact.placement = newPlacement;
         return op;
     }
-    private setMode(mode: ScrollEditorMode) {
+    private setMode(mode: ScrollEditorOpMode) {
         this.params.mode = mode;
     }
 

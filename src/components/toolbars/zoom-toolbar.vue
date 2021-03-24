@@ -1,33 +1,51 @@
 
 <template>
-  <b-container id="zoom-gadget">
+  <b-container no-gutters id="zoom-gadget" >
 
-            <b-button-group>
-                <b-button
-                    @click="zoomClick(-delta)"
-                    :disabled="!canZoomOut"
-                    variant="outline-secondary"
-                >
-                   <i class="fa fa-minus"></i>
-                </b-button>
-                <b-input
-                    v-model="zoom"
-                    type="number"
-                    min="1"
-                    max="100"
-                    class="input-lg"
-                ></b-input>
-                <b-button
-                    class="mr-0"
-                    @click="zoomClick(+delta)"
-                    :disabled="!canZoomIn"
-                    variant="outline-secondary"
-                >
-                  <i class="fa fa-plus"></i>
-                </b-button>
-            </b-button-group>
+      <section class="m-0 p-0" >
 
-    </b-container>
+          <b-button-group>
+              <b-button
+
+                  class="btn-sm btn-ex-z ml-1 mr-0 mb-2 mt-2 p-0 pb-3"
+                  size="sm"
+                  variant="dark"
+                  text-center
+                  align-v="center"
+                  align-h="center"
+                  @click="zoomClick(-delta)"
+                  :disabled="!canZoomOut"
+                >
+                  <i class="fa fa-minus" align-self="center"></i>
+                </b-button>
+
+              <b-input
+                v-model="zoom"
+                type="number"
+                min="1"
+                max="100"
+                size="sm"
+                class="input-lg m-1 mb-1 mt-1"
+              ></b-input>
+
+              <b-button
+                  class="btn-sm btn-ex-z ml-0 mr-0 mb-2 mt-2 p-0 pb-3"
+                  size="sm"
+                  variant="dark"
+                  text-center
+                  align-v="center"
+                  align-h="center"
+                  @click="zoomClick(+delta)"
+                  :disabled="!canZoomIn"
+                >
+                  <i class="fa fa-plus" align-self="center"></i>
+                </b-button>
+
+          </b-button-group>
+
+      </section>
+
+  </b-container>
 </template>
 
 <script lang="ts">
@@ -91,8 +109,21 @@ export default class ZoomToolbar extends Vue {
 <style lang="scss">
 
 .input-lg {
+    /* width: 50% !important;
+    max-width: 75px; */
     width: 50% !important;
-    max-width: 75px;
+    max-width: 9rem;
 }
+
+
+.btn-ex-z {
+    /* padding: 0.1rem 0.15rem; */
+    font-size: 0.75rem;
+    line-height: 1.0;
+    border-radius: 0.2rem;
+    width: 1rem;
+    height: 1.4rem;
+}
+
 
 </style>
