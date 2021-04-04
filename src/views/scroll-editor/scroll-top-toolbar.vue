@@ -22,7 +22,7 @@
                         text-center
                         @click="onTextMode('material')"
                     >
-                        Manuscript Mode
+                        Material Mode
                     </b-button>
 
                     <b-button

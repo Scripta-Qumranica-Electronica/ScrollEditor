@@ -4,6 +4,7 @@ import { SignInterpretation } from '@/models/text';
 import { StateManager } from '@/state';
 import { BoundingBox, Point } from '@/utils/helpers';
 import { ScrollEditorParams } from '@/views/artefact-editor/types';
+import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 
 
 function state() {
@@ -20,7 +21,7 @@ export class ScrollEditorState {
     public displayRois: boolean;
     public displayReconstructedText: boolean;
     public displayText: boolean;
-    public mode: ScrollEditorMode;
+    private _mode: ScrollEditorMode;
 
     public selectedSignInterpretations: SignInterpretation[];
 
@@ -30,9 +31,9 @@ export class ScrollEditorState {
         this.displayRois = false;
         this.displayReconstructedText = false;
         this.displayText = false;
-        this.mode = 'material';
+        this._mode = 'material';
         this.selectedSignInterpretations = [];
-      }
+    }
 
     public get selectedArtefacts(): Artefact[] {
         let artefactIds: number[] = [];
@@ -74,5 +75,26 @@ export class ScrollEditorState {
         } else {
             this.selectedSignInterpretations.push(signInterpretation);
         }
+    }
+
+    public get mode() {
+        return this._mode;
+    }
+
+    public set mode(val: ScrollEditorMode) {
+        if (val === this._mode) {
+            return;
+        }
+
+        // Undo all selections when switching modes
+        this.selectedArtefact = null;
+        this.selectedSignInterpretations = [];
+
+        if (val === 'text') {
+            this.displayReconstructedText = this.displayText = true;
+            this.displayRois = false;
+        }
+
+        this._mode = val;
     }
 }
