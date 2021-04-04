@@ -113,6 +113,7 @@ import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
 import ScrollTopToolbar from './scroll-top-toolbar.vue';
 import ManuscriptToolbar from './manuscript-toolbar.vue';
 import TextToolbar from './text-toolbar.vue';
+import { ArtefactEditorOperation } from '../artefact-editor/operations';
 
 @Component({
     name: 'scroll-editor',
@@ -134,7 +135,7 @@ import TextToolbar from './text-toolbar.vue';
 export default class ScrollEditor
     extends Vue
     implements SavingAgent<ScrollEditorOperation> {
-    private operationsManager = new OperationsManager<ScrollEditorOperation>(
+    private operationsManager = new OperationsManager<ScrollEditorOperation | ArtefactEditorOperation>(
         this
     );
     private waiting: boolean = true;
@@ -339,6 +340,11 @@ export default class ScrollEditor
         this.$state.eventBus.on('save-group', this.saveGroupArtefacts);
         this.$state.eventBus.on('delete-group', this.deleteGroup);
         this.$state.eventBus.on('update-operation-id', this.updateOperationId);
+        this.$state.eventBus.on('new-operation', this.onNewOperation);
+        this.$state.eventBus.on(
+            'new-bulk-operations',
+            this.onNewBulkOperations
+        );
         this.observer = new ResizeObserver((entries) => this.onResize(entries));
     }
 
@@ -347,6 +353,11 @@ export default class ScrollEditor
         this.$state.eventBus.off('save-group', this.saveGroupArtefacts);
         this.$state.eventBus.off('delete-group', this.deleteGroup);
         this.$state.eventBus.off('update-operation-id', this.updateOperationId);
+        this.$state.eventBus.off('new-operation', this.onNewOperation);
+        this.$state.eventBus.off(
+            'new-bulk-operations',
+            this.onNewBulkOperations
+        );
 
         if (this.observer) {
             this.observer.disconnect();
@@ -394,6 +405,14 @@ export default class ScrollEditor
 
     private onMetricsChange() {
         this.calculateViewport();
+    }
+
+    private onNewOperation(op: ArtefactEditorOperation) {
+        this.operationsManager.addOperation(op);
+    }
+
+    private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
+        this.operationsManager.addBulkOperations(ops);
     }
 
     private async onAddArtefactModalClose(artId: number) {
