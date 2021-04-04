@@ -863,7 +863,7 @@ export default class ArtefactEditor
         } else {
             const si = this.$state.signInterpretations.get(
                 roi.signInterpretationId
-            );
+            ) || null;
             this.textFragmentEditorState.selectSign(si);
         }
     }

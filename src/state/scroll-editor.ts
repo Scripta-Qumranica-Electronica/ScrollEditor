@@ -23,8 +23,6 @@ export class ScrollEditorState {
     public displayText: boolean;
     private _mode: ScrollEditorMode;
 
-    public selectedSignInterpretations: SignInterpretation[];
-
     public constructor() {
         this.params = new ScrollEditorParams();
         this.pointerPosition = {x: 0, y: 0};
@@ -32,7 +30,6 @@ export class ScrollEditorState {
         this.displayReconstructedText = false;
         this.displayText = false;
         this._mode = 'material';
-        this.selectedSignInterpretations = [];
     }
 
     public get selectedArtefacts(): Artefact[] {
@@ -67,16 +64,6 @@ export class ScrollEditorState {
         this.selectedArtefact = null;
     }
 
-    public selectSignInterpretation(signInterpretation: SignInterpretation | null, replace = true) {
-        if (!signInterpretation) {
-            this.selectedSignInterpretations = [];
-        } else if (replace) {
-            this.selectedSignInterpretations = [signInterpretation];
-        } else {
-            this.selectedSignInterpretations.push(signInterpretation);
-        }
-    }
-
     public get mode() {
         return this._mode;
     }
@@ -88,7 +75,7 @@ export class ScrollEditorState {
 
         // Undo all selections when switching modes
         this.selectedArtefact = null;
-        this.selectedSignInterpretations = [];
+        state().textFragmentEditor.selectedSignInterpretations = [];
 
         if (val === 'text') {
             this.displayReconstructedText = this.displayText = true;

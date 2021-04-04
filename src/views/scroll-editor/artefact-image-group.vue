@@ -262,11 +262,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     public get selectedSignInterpretationId() {
-        if (this.$state.scrollEditor.selectedSignInterpretations.length !== 1) {
+        if (this.$state.textFragmentEditor.selectedSignInterpretations.length !== 1) {
             return null;
         }
 
-        return this.$state.scrollEditor.selectedSignInterpretations[0].signInterpretationId;
+        return this.$state.textFragmentEditor.selectedSignInterpretations[0].signInterpretationId;
     }
 
     public get displayedSigns(): DisplayableSign[] {
@@ -467,7 +467,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         if (this.materialMode) {
             return;
         }
-        this.$state.scrollEditor.selectSignInterpretation(null);
+        this.$state.textFragmentEditor.selectSign(null);
 
         // Find the letter this this event applies to, if any
         const element = (event.target! as HTMLBaseElement)!.closest('use');
@@ -482,7 +482,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         const id = parseInt(sid);
         const si = this.$state.signInterpretations.get(id, true) || null;
-        this.$state.scrollEditor.selectSignInterpretation(si);
+        this.$state.textFragmentEditor.selectSign(si);
     }
 }
 </script>

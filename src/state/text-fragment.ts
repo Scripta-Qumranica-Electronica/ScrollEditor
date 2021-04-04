@@ -1,5 +1,5 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
-import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData } from '@/models/text';
+import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData, TextFragment } from '@/models/text';
 import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 import { StateManager } from '.';
 import { ArtefactEditorParams } from '../views/artefact-editor/types';
@@ -26,21 +26,44 @@ export class TextFragmentState {
         return null;
     }
 
+    public get selectedTextFragment(): TextFragment | null {
+        if (!this.selectedSignInterpretations.length) {
+            return null;
+        }
+
+        return this.selectedSignInterpretations[0].sign.line.textFragment;
+    }
+
     public toggleSelectSign(si: SignInterpretation | undefined, removeIfExist: boolean = true) {
-        if (si && si.character) {
-            const existingIdx = this.selectedSignInterpretations.findIndex((x: SignInterpretation) => x.id === si.id);
-            if (existingIdx === -1) {
-                this.selectedSignInterpretations.push(si);
-                this.addTextFragementToArtefact(si);
-            } else if (removeIfExist) {
-                this.selectedSignInterpretations.splice(existingIdx, 1);
-                this.removeTextFragementFromArtefact(si);
+        if (!si || !si.character) {
+            return;
+        }
+
+        // Make sure only signs from one text fragment are selected
+        if (si.sign.line.textFragment !== this.selectedTextFragment) {
+            for (const oldSi of this.selectedSignInterpretations) {
+                // Remove all the old signs
+                this.removeTextFragementFromArtefact(oldSi);
             }
-            state().artefactEditor.onSignInterpretationSelected();
+
+            this.selectedSignInterpretations = [si];
+            this.addTextFragementToArtefact(si);
+        } else {
+            if (si && si.character) {
+                const existingIdx = this.selectedSignInterpretations.findIndex((x: SignInterpretation) => x.id === si.id);
+                if (existingIdx === -1) {
+                    this.selectedSignInterpretations.push(si);
+                    this.addTextFragementToArtefact(si);
+                } else if (removeIfExist) {
+                    this.selectedSignInterpretations.splice(existingIdx, 1);
+                    this.removeTextFragementFromArtefact(si);
+                }
+                state().artefactEditor.onSignInterpretationSelected();
+            }
         }
     }
 
-    public selectSign(si?: SignInterpretation) {
+    public selectSign(si: SignInterpretation | null) {
         this.selectedSignInterpretations = si ? [si] : [];
     }
 
