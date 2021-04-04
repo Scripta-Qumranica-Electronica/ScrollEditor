@@ -86,12 +86,12 @@ export default class SignAttributePane extends Vue {
     }
 
 
-    public get artefactEditor() {
-        return this.$state.artefactEditor;
+    public get editorState() {
+        return this.$state.textFragmentEditor;
     }
 
     public get selectedSignInterpretations(): SignInterpretation[] {
-        return this.artefactEditor.selectedSignInterpretations;
+        return this.editorState.selectedSignInterpretations;
     }
 
     // The comment in the state.
@@ -152,18 +152,18 @@ export default class SignAttributePane extends Vue {
 
     private get isMultiSelect() {
         return (
-            this.$state.artefactEditor.selectedSignInterpretations.length !== 1
+            this.$state.textFragmentEditor.selectedSignInterpretations.length !== 1
         );
     }
 
     private onAttributeClick(attribute: InterpretationAttributeDTO) {
-        this.$state.artefactEditor.selectedAttribute = attribute;
+        this.$state.textFragmentEditor.selectedAttribute = attribute;
         this.$root.$emit('bv::show::modal', 'sign-attribute-modal');
     }
 
     private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.artefactEditor.selectedSignInterpretations) {
+        for (const si of this.$state.textFragmentEditor.selectedSignInterpretations) {
             const op = new TextFragmentAttributeOperation(si.id, attrVal.id, {
                 attributeId: attr.attributeId,
                 attributeString: attr.attributeName,

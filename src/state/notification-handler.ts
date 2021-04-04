@@ -279,19 +279,19 @@ function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
     }
 
     // Update the selected sign interpretations
-    const selectedIndex = state().artefactEditor.selectedSignInterpretations.findIndex(si => si.id === newSI.id);
+    const selectedIndex = state().textFragmentEditor.selectedSignInterpretations.findIndex(si => si.id === newSI.id);
     if (selectedIndex !== -1) {
-        Vue.set(state().artefactEditor.selectedSignInterpretations, selectedIndex, newSI);
+        Vue.set(state().textFragmentEditor.selectedSignInterpretations, selectedIndex, newSI);
 
         // Update the selected attribute, too
-        const selectedAttribute = state().artefactEditor.selectedAttribute;
+        const selectedAttribute = state().textFragmentEditor.selectedAttribute;
         if (selectedAttribute) {
             // Find the attribute in the new sign interpretation
             const attrInNewSI = newSI.attributes.filter(attr => attr.attributeValueId === selectedAttribute.attributeValueId);
             if (attrInNewSI.length === 1) {
-                state().artefactEditor.selectedAttribute = attrInNewSI[0];
+                state().textFragmentEditor.selectedAttribute = attrInNewSI[0];
             } else {
-                state().artefactEditor.selectedAttribute = null;
+                state().textFragmentEditor.selectedAttribute = null;
             }
         }
     }

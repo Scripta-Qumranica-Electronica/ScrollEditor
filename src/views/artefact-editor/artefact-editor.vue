@@ -279,6 +279,7 @@ import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
 import { ArtefactEditorState } from '@/state/artefact-editor';
 import { Artefact } from '@/models/artefact';
+import { TextFragmentState } from '@/state/text-fragment';
 
 @Component({
     name: 'artefact-editor',
@@ -340,14 +341,18 @@ export default class ArtefactEditor
         return this.$state.artefacts.current!;
     }
     private get params(): ArtefactEditorParams {
-        return this.artefactEditorState.params || new ArtefactEditorParams();
+        return this.$state.artefactEditor.params || new ArtefactEditorParams();
     }
-    public get artefactEditorState(): ArtefactEditorState {
+
+    public get artefactEditorState() {
         return this.$state.artefactEditor;
+    }
+    public get textFragmentEditorState() {
+        return this.$state.textFragmentEditor;
     }
 
     public get selectedSignInterpretations(): SignInterpretation[] {
-        return this.artefactEditorState.selectedSignInterpretations;
+        return this.textFragmentEditorState.selectedSignInterpretations;
     }
 
     public get selectedInterpretationRoi(): InterpretationRoi | null {
@@ -399,7 +404,7 @@ export default class ArtefactEditor
         const normalized = Polygon.offset(poly, -bbox.x, -bbox.y);
         const roi = InterpretationRoi.new(
             this.artefact,
-            this.artefactEditorState.singleSelectedSi!,
+            this.textFragmentEditorState.singleSelectedSi!,
             normalized,
             bbox
         );
@@ -452,7 +457,7 @@ export default class ArtefactEditor
         this.statusTextFragment(roi);
 
         this.artefactEditorState.selectRoi(null);
-        this.artefactEditorState.selectedSignInterpretations = [];
+        this.textFragmentEditorState.selectedSignInterpretations = [];
     }
 
     protected async created() {
@@ -580,8 +585,8 @@ export default class ArtefactEditor
 
     private get isDrawingEnabled() {
         return (
-            !!this.artefactEditorState.singleSelectedSi &&
-            !this.artefactEditorState.singleSelectedSi.isReconstructed
+            !!this.textFragmentEditorState.singleSelectedSi &&
+            !this.textFragmentEditorState.singleSelectedSi.isReconstructed
         );
     }
 
@@ -655,10 +660,10 @@ export default class ArtefactEditor
             );
             // if any ROI found in current text fragment, put tf.certain = false
             if (!anyRoiOfSelectedTf && tfToMove) {
-                this.artefactEditorState.removeTextFragementToArtefact(si);
+                this.textFragmentEditorState.removeTextFragementFromArtefact(si);
                 // if new ROI and new text fragment, add text fragment to artefact
             } else if (!tfToMove && anyRoiOfSelectedTf) {
-                this.artefactEditorState.addTextFragementToArtefact(si);
+                this.textFragmentEditorState.addTextFragementToArtefact(si);
             }
         }
     }
@@ -702,22 +707,22 @@ export default class ArtefactEditor
     }
 
     private get selectedLine(): Line | null {
-        if (!this.artefactEditorState.singleSelectedSi) {
+        if (!this.textFragmentEditorState.singleSelectedSi) {
             return null;
         }
 
-        return this.artefactEditorState.singleSelectedSi!.sign.line;
+        return this.textFragmentEditorState.singleSelectedSi!.sign.line;
     }
 
     private nextSign() {
-        if (this.artefactEditorState.singleSelectedSi) {
+        if (this.textFragmentEditorState.singleSelectedSi) {
             let newIndex =
-                this.artefactEditorState.singleSelectedSi!.sign.indexInLine + 1;
+                this.textFragmentEditorState.singleSelectedSi!.sign.indexInLine + 1;
             while (newIndex < this.selectedLine!.signs.length) {
                 const newSI = this.selectedLine!.signs[newIndex]
                     .signInterpretations[0];
                 if (newSI.character && !newSI.isReconstructed) {
-                    this.artefactEditorState.selectSign(newSI);
+                    this.textFragmentEditorState.selectSign(newSI);
                     break;
                 }
                 newIndex++;
@@ -766,7 +771,7 @@ export default class ArtefactEditor
 
     private onAuto() {
         if (
-            this.artefactEditorState.selectedSignInterpretations.length > 1 &&
+            this.textFragmentEditorState.selectedSignInterpretations.length > 1 &&
             this.autoMode
         ) {
             this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
@@ -851,15 +856,15 @@ export default class ArtefactEditor
 
     private onRoiClicked(roi: InterpretationRoi) {
         this.artefactEditorState.selectRoi(roi);
-        this.artefactEditorState.selectedSignInterpretations = [];
+        this.textFragmentEditorState.selectedSignInterpretations = [];
 
         if (!roi.signInterpretationId) {
-            this.artefactEditorState.selectedSignInterpretations = [];
+            this.textFragmentEditorState.selectedSignInterpretations = [];
         } else {
             const si = this.$state.signInterpretations.get(
                 roi.signInterpretationId
             );
-            this.artefactEditorState.selectSign(si);
+            this.textFragmentEditorState.selectSign(si);
         }
     }
 
@@ -883,7 +888,7 @@ export default class ArtefactEditor
     }
 
     private async saveROIs(mode: 'created' | 'deleted') {
-        const selected = this.artefactEditorState.singleSelectedSi;
+        const selected = this.textFragmentEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
             this.artefact,

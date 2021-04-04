@@ -83,11 +83,11 @@ export default class EditSignModal extends Vue {
     private isReconstructed: boolean = false;
 
     public get isEditMode(): boolean {
-        return this.$state.artefactEditor.modeSignModal === 'edit';
+        return this.$state.textFragmentEditor.modeSignModal === 'edit';
     }
 
     public shown(): void {
-        this.editedSi = this.$state.artefactEditor.singleSelectedSi!;
+        this.editedSi = this.$state.textFragmentEditor.singleSelectedSi!;
 
         this.newCharacter = this.editedSi.character || '';
         this.newAttributeValueId = this.editedSi.signType[0];

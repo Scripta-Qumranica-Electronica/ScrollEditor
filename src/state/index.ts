@@ -13,6 +13,7 @@ import { EventBus } from './event-bus';
 import { ArtefactEditorState } from './artefact-editor';
 import { ImagedObjectState } from './imaged-object';
 import { OperationsManagerBase } from '@/utils/operations-manager';
+import { TextFragmentState } from './text-fragment';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -28,6 +29,7 @@ export class StateManager {
     public misc: MiscState;
     public scrollEditor: ScrollEditorState;
     public artefactEditor: ArtefactEditorState;
+    public textFragmentEditor: TextFragmentState;
     public imagedObject: ImagedObjectState;
     public eventBus: EventBus;
     public operationsManager: OperationsManagerBase | null;
@@ -44,6 +46,7 @@ export class StateManager {
         this.misc = new MiscState();
         this.scrollEditor = new ScrollEditorState();
         this.artefactEditor = new ArtefactEditorState();
+        this.textFragmentEditor = new TextFragmentState();
         this.imagedObject = new ImagedObjectState();
         this.interpretationRois = new InterpretationRoiMap();
         this.signInterpretations = new SignInterpretationMap();
