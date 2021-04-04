@@ -1,22 +1,32 @@
 <template>
      <b-container no-gutters class="side-toolbar ml-0 mr-0 pl-0 pr-0">
-         <p>Text Toolbar</p>
+        <text-fragment
+            v-if="textFragment"
+            :fragment="textFragment"
+            id="text-box"
+        ></text-fragment>
+        <sign-attribute-pane />
     </b-container>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
-import { ScrollEditorState } from '@/state/scroll-editor';
-import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
+import TextFragmentComponent from '@/components/text/text-fragment.vue';
+import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 
 @Component({
     name: 'text-toolbar',
     components: {
+        'text-fragment': TextFragmentComponent,
+        'sign-attribute-pane': SignAttributePane,
         // 'artefact-toolbox': ArtefactToolbox,
     },
 })
 
 export default class TextToolbar extends Vue {
+    public get textFragment() {
+        return this.$state.textFragmentEditor.selectedTextFragment;
+    }
 }
 </script>
 
