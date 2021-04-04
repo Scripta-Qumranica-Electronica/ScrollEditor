@@ -1,6 +1,6 @@
 <template>
     <div class="attributes">
-        <ul class="row">
+        <ul class="row mt-3">
             <li class="pr-1" v-if="!readOnly">
                 <b-dropdown
                     ref="attributesMenu"
@@ -292,7 +292,7 @@ export default class SignAttributePane extends Vue {
         font-size: 14px;
         color: black;
 
-        
+
     }
     .btn-link {
         font-weight: 400;
@@ -304,7 +304,7 @@ export default class SignAttributePane extends Vue {
         padding-bottom: 0;
         color: inherit;
 
-        
+
     }
     ul {
         font-size: 12px;
@@ -321,7 +321,7 @@ export default class SignAttributePane extends Vue {
         font-size: 14px;
         color: black;
 
-        
+
     }
     .btn-link {
         font-weight: 400;
