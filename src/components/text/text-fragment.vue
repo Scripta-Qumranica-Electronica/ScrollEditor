@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="bottom-scrollbar">
         <text-line
             v-for="line in fragment.lines"
             :key="line.lineId"
@@ -26,4 +26,10 @@ export default class TextFragmentComponent extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.bottom-scrollbar {
+    margin-left: 0.1rem;
+    /* margin-right: 1rem; */
+    overflow:  none;
+    overflow-x: auto;
+}
 </style>
