@@ -39,6 +39,17 @@ export class Artefact {
         return !this.imagedObjectId;
     }
 
+    public get inViewport() {
+        // Tsvia:
+        // Returns true if this artefact is inside the scroll editor's viewport.
+        // The viewport is in state().scrollEditor.viewport.
+        //
+        // If the artefact is not placed, return false.
+        // Otherwise, check whether the artefact's bounding box, translated by artefact.placement.translate, intersects with the viewport
+
+        return false;
+    }
+
     // TBD: Perhaps rename to setTransformation, or maybe even drop this function entirely
     // and manipulate mask from the outside
     public placeOnScroll(placement: Placement) {

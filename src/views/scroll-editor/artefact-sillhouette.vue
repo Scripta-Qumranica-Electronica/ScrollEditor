@@ -9,6 +9,7 @@
                 <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
             </clipPath>
         </defs>
+        <!-- Tsvia: Add a CSS class if the artefact is inViewport, and change its background to pink -->
         <path
             class="sillhouette"
             :d="artefact.mask.svg"
