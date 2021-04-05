@@ -1,11 +1,19 @@
 <template>
-    <div class="bottom-scrollbar">
-        <text-line
-            v-for="line in fragment.lines"
-            :key="line.lineId"
-            :line="line"
-            direction="rtl"
-        ></text-line>
+
+    <div direction="rtl"
+         class="bottom-scrollbar ml-auto mr-auto "
+      >
+        <div direction="rtl"
+             class="inner-box" >
+
+            <text-line
+                v-for="line in fragment.lines"
+                :key="line.lineId"
+                :line="line"
+                direction="rtl"
+                class="d-flex w-100"
+            ></text-line>
+        </div>
     </div>
 </template>
 
@@ -27,9 +35,22 @@ export default class TextFragmentComponent extends Vue {
 
 <style lang="scss" scoped>
 .bottom-scrollbar {
-    margin-left: 0.1rem;
+   display: flex;
+   flex: 0 0 100%;
+   justify-content: center;
     /* margin-right: 1rem; */
     overflow:  none;
     overflow-x: auto;
+
+}
+
+.inner-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: end;
+    flex: 0 0 60rem;
+    width: 60rem;
+    min-width: 100%;
+    max-width: 100rem;
 }
 </style>

@@ -1,11 +1,13 @@
 <template>
-     <b-container no-gutters class="side-toolbar ml-0 mr-0 pl-0 pr-0">
+     <b-container no-gutters class="side-toolbar ml-0 mr-0 pl-1 pr-1">
         <text-fragment
             v-if="textFragment"
             :fragment="textFragment"
             id="text-box"
+            class="mb-3"
+            direction="rtl"
         ></text-fragment>
-        <sign-attribute-pane />
+        <sign-attribute-pane/>
     </b-container>
 </template>
 
