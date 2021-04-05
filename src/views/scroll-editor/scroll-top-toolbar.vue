@@ -596,7 +596,7 @@ export default class ScrollTopToolbar extends Vue {
             const newPlacement = this.selectedArtefact.placement.clone();
 
             console.log('before mirored' , newPlacement.mirrored);
-            newPlacement.mirrored = true; //!newPlacement.mirrored;
+            newPlacement.mirrored = !newPlacement.mirrored;
             console.log('after mirrored', newPlacement.mirrored);
 
             operation = this.createOperation(
@@ -606,7 +606,7 @@ export default class ScrollTopToolbar extends Vue {
                 this.selectedArtefact
             );
             operation.needsSaving = true;
-        ;
+
             console.log('topbar createOperation operation', operation);
             console.log('topbar createOperation operation.needsSaving', operation.needsSaving);
         }
@@ -831,6 +831,25 @@ export default class ScrollTopToolbar extends Vue {
     }
 
 
+    // private createOperation(
+    //     opType: ArtefactPlacementOperationType,
+    //     newPlacement: Placement,
+    //     artefact: Artefact | undefined,
+    //     newIsPlaced: boolean
+    // ): ArtefactPlacementOperation {
+    //     const op = new ArtefactPlacementOperation(
+    //         artefact!.id,
+    //         opType,
+    //         artefact!.placement,
+    //         newPlacement,
+    //         artefact!.isPlaced,
+    //         newIsPlaced
+    //     );
+    //     artefact!.placement = newPlacement;
+    //     artefact!.isPlaced = newIsPlaced;
+
+    //     return op;
+    // }
 
 
     private createOperation(
@@ -839,8 +858,6 @@ export default class ScrollTopToolbar extends Vue {
         artefact: Artefact,
         newIsPlaced: boolean = true
     ): ArtefactPlacementOperation {
-
-        console.log('topbar newPlacement', newPlacement);
 
         artefact.placement = newPlacement;
         const op = new ArtefactPlacementOperation(
@@ -857,8 +874,6 @@ export default class ScrollTopToolbar extends Vue {
             op.needsSaving = true;
         }
 
-
-  console.log('op', op);
 
         return op;
     }

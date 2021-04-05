@@ -355,19 +355,6 @@ export default class ManuscriptToolbar extends Vue {
         return true;
     }
 
-
-    protected mounted() {
-        if (this.keyboardInput) {
-            window.addEventListener('keydown', this.onKeyPress);
-        }
-    }
-
-    public destroyed() {
-        if (this.keyboardInput) {
-            window.removeEventListener('keydown', this.onKeyPress);
-        }
-    }
-
     private get edition() {
         return this.$state.editions.current! || {};
     }
@@ -433,7 +420,7 @@ export default class ManuscriptToolbar extends Vue {
         this.scrollEditorState.displayReconstructedText = value;
     }
 
-    private get isDisplayText() : boolean {
+    private get isDisplayText(): boolean {
         return this.scrollEditorState.displayText;
     }
     private onDisplayText(value: boolean) {
