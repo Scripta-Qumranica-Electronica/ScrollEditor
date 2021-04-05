@@ -233,7 +233,7 @@
                                 class="btn-sm btn-sm-ex ml-1 mb-4 mt-2"
                                 size="sm"
                                 variant="dark"
-                                @click="mirrorMode()"
+                                @click="statusMirror()"
 
                                 :disabled="
                                     !(
@@ -457,18 +457,82 @@ export default class ScrollTopToolbar extends Vue {
 
     }
 
-    // protected mounted() {
-    //     if (this.keyboardInput) {
-    //         window.addEventListener('keydown', this.onKeyPress);
-    //     }
-    // }
+    protected mounted() {
+        if (this.keyboardInput) {
+            window.addEventListener('keydown', this.onKeyPress);
+        }
+    }
 
-    // public destroyed() {
-    //     if (this.keyboardInput) {
-    //         window.removeEventListener('keydown', this.onKeyPress);
-    //     }
-    // }
+    public destroyed() {
+        if (this.keyboardInput) {
+            window.removeEventListener('keydown', this.onKeyPress);
+        }
+    }
 
+
+
+    private get mode(): ScrollEditorOpMode {
+        return this.params!.mode;
+    }
+
+    private setMode(mode: ScrollEditorOpMode) {
+        this.params.mode = mode;
+    }
+
+    private onKeyPress(event: KeyboardEvent) {
+        if (this.artefact) {
+            return;
+        }
+
+        console.log(event);
+        switch (event.code) {
+            case 'KeyM':
+                this.setMode('move');
+                break;
+            case 'KeyR':
+                this.setMode('rotate');
+                break;
+            case 'KeyS':
+                this.setMode('scale');
+                break;
+            case 'ArrowLeft':
+                if (this.mode === 'move') {
+                    this.dragArtefact(-1, 0);
+                    event.preventDefault();
+                } else if (this.mode === 'rotate') {
+                    this.rotateGroupArtefact(-1);
+                    event.preventDefault();
+                }
+                break;
+            case 'ArrowRight':
+                if (this.mode === 'move') {
+                    this.dragArtefact(1, 0);
+                    event.preventDefault();
+                } else if (this.mode === 'rotate') {
+                    this.rotateGroupArtefact(1);
+                    event.preventDefault();
+                }
+                break;
+            case 'ArrowUp':
+                if (this.mode === 'move') {
+                    this.dragArtefact(0, -1);
+                    event.preventDefault();
+                } else if (this.mode === 'scale') {
+                    this.zoomArtefact(1);
+                    event.preventDefault();
+                }
+                break;
+            case 'ArrowDown':
+                if (this.mode === 'move') {
+                    this.dragArtefact(0, 1);
+                    event.preventDefault();
+                } else if (this.mode === 'scale') {
+                    this.zoomArtefact(-1);
+                    event.preventDefault();
+                }
+                break;
+        }
+    }
 
     private get edition() {
         return this.$state.editions.current! || {};
@@ -489,13 +553,6 @@ export default class ScrollTopToolbar extends Vue {
     }
 
 
-    private get mode(): ScrollEditorOpMode {
-        return this.params!.mode;
-    }
-
-    private setMode(mode: ScrollEditorOpMode) {
-        this.params.mode = mode;
-    }
 
 
     private get artefacts() {
@@ -525,35 +582,43 @@ export default class ScrollTopToolbar extends Vue {
 
 
     public mirrorMode() {
-        this.setMode('');
-        console.log('mode', this.mode);
+        this.setMode('mirror');
         this.statusMirror();
 
     }
+
 
     public statusMirror() {
         const operations: ArtefactPlacementOperation[] = [];
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
 
         if (this.selectedArtefact) {
-            const placement = this.selectedArtefact.placement.clone();
-            placement.mirrored = !placement.mirrored;
+            const newPlacement = this.selectedArtefact.placement.clone();
+
+            console.log('before mirored' , newPlacement.mirrored);
+            newPlacement.mirrored = true; //!newPlacement.mirrored;
+            console.log('after mirrored', newPlacement.mirrored);
+
             operation = this.createOperation(
+                // 'mirror',
                 'mirror',
-                placement,
+                newPlacement,
                 this.selectedArtefact
             );
-            console.log('operation', operation);
+            operation.needsSaving = true;
+        ;
+            console.log('topbar createOperation operation', operation);
+            console.log('topbar createOperation operation.needsSaving', operation.needsSaving);
         }
 
         // needsSaving: false ?
 
         if (this.selectedGroup) {
             this.selectedArtefacts.forEach((art) => {
-                const placement = art.placement.clone();
-                placement.mirrored = !placement.mirrored;
+                const newPlacement = art.placement.clone();
+                newPlacement.mirrored = !newPlacement.mirrored;
                 operations.push(
-                    this.createOperation('mirror', placement, art)
+                    this.createOperation('mirror', newPlacement, art)
                 );
             });
             operation = new GroupPlacementOperation(
@@ -774,6 +839,10 @@ export default class ScrollTopToolbar extends Vue {
         artefact: Artefact,
         newIsPlaced: boolean = true
     ): ArtefactPlacementOperation {
+
+        console.log('topbar newPlacement', newPlacement);
+
+        artefact.placement = newPlacement;
         const op = new ArtefactPlacementOperation(
             artefact.id,
             opType,
@@ -782,7 +851,15 @@ export default class ScrollTopToolbar extends Vue {
             artefact.isPlaced,
             newIsPlaced
         );
-        artefact.placement = newPlacement;
+
+        if ( opType === 'mirror' ) {
+            op.next.mirrored = true;
+            op.needsSaving = true;
+        }
+
+
+  console.log('op', op);
+
         return op;
     }
 

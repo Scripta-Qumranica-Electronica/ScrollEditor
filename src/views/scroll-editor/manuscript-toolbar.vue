@@ -68,6 +68,7 @@
                 <b-form-checkbox
                     switch
                     size="sm"
+
                     @input="
                         onDisplayReconstructedText($event)
                     "
@@ -82,6 +83,7 @@
                 <b-form-checkbox
                     switch
                     size="sm"
+                    v-model ="isDisplayText"
                     @input="onDisplayText($event)"
                     >Display Text
                 </b-form-checkbox>
@@ -302,9 +304,7 @@ import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
 import { Placement } from '@/utils/Placement';
 import { Artefact } from '@/models/artefact';
-// import { ArtefactGroup } from '../../models/edition';
 import { Point } from '../../utils/helpers';
-// import ArtefactToolbox from './artefact-toolbox.vue';
 import {
     ArtefactPlacementOperation,
     ArtefactPlacementOperationType,
@@ -317,7 +317,6 @@ import {
 @Component({
     name: 'manuscript-toolbar',
     components: {
-        // 'artefact-toolbox': ArtefactToolbox,
     },
 })
 
@@ -337,8 +336,6 @@ export default class ManuscriptToolbar extends Vue {
     ];
 
     private keyboardInput: boolean = true;
-    private float: boolean = true;
-    private ver1: boolean = true;
     private zoomDelta!: number;
 
     @Emit()
@@ -359,17 +356,17 @@ export default class ManuscriptToolbar extends Vue {
     }
 
 
-    // protected mounted() {
-    //     if (this.keyboardInput) {
-    //         window.addEventListener('keydown', this.onKeyPress);
-    //     }
-    // }
+    protected mounted() {
+        if (this.keyboardInput) {
+            window.addEventListener('keydown', this.onKeyPress);
+        }
+    }
 
-    // public destroyed() {
-    //     if (this.keyboardInput) {
-    //         window.removeEventListener('keydown', this.onKeyPress);
-    //     }
-    // }
+    public destroyed() {
+        if (this.keyboardInput) {
+            window.removeEventListener('keydown', this.onKeyPress);
+        }
+    }
 
     private get edition() {
         return this.$state.editions.current! || {};
@@ -435,8 +432,14 @@ export default class ManuscriptToolbar extends Vue {
     private onDisplayReconstructedText(value: boolean) {
         this.scrollEditorState.displayReconstructedText = value;
     }
+
+    private get isDisplayText() : boolean {
+        return this.scrollEditorState.displayText;
+    }
     private onDisplayText(value: boolean) {
+        console.log('onDisplayText ', this.scrollEditorState.displayText);
         this.scrollEditorState.displayText = value;
+        console.log('onDisplayText ', this.scrollEditorState.displayText);
     }
 
 
@@ -445,10 +448,6 @@ export default class ManuscriptToolbar extends Vue {
         return this.scrollEditorState.selectedGroup;
     }
 
-    // private selectGroup(group: ArtefactGroup | undefined) {
-    //     this.scrollEditorState.selectGroup(group);
-    // }
-
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
@@ -456,9 +455,6 @@ export default class ManuscriptToolbar extends Vue {
 
     private removeArtefactOrGroup() {
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-
-        console.log('removeArtefactOrGroup this.selectedArtefact', this.selectedArtefact);
-        console.log('removeArtefactOrGroup this.selectedGroup', this.selectedGroup);
 
         if (this.selectedArtefact) {
             operation = this.createOperation(
