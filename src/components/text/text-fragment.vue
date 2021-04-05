@@ -39,8 +39,11 @@ export default class TextFragmentComponent extends Vue {
    flex: 0 0 100%;
    justify-content: center;
     /* margin-right: 1rem; */
-    overflow:  none;
-    overflow-x: auto;
+    height: 30%;
+    min-height: 30%;
+    max-height: 23rem;
+    /* overflow-y:  auto; */
+    overflow: auto;
 
 }
 
@@ -52,5 +55,9 @@ export default class TextFragmentComponent extends Vue {
     width: 60rem;
     min-width: 100%;
     max-width: 100rem;
+    height: 150%;
+    min-height: 100%;
+    max-height: 100rem;
+    padding-right: 0.5rem;
 }
 </style>
