@@ -42,7 +42,7 @@ export default class TextFragmentComponent extends Vue {
     height: 30%;
     min-height: 30%;
     max-height: 23rem;
-    /* overflow-y:  auto; */
+    /* overflow-x:  auto; */
     overflow: auto;
 
 }
@@ -50,7 +50,7 @@ export default class TextFragmentComponent extends Vue {
 .inner-box {
     display: flex;
     flex-wrap: wrap;
-    justify-content: end;
+    justify-content: flex-end;
     flex: 0 0 60rem;
     width: 60rem;
     min-width: 100%;
