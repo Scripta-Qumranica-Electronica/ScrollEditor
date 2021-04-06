@@ -245,7 +245,13 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
         if (!artefact) {
             console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
         } else {
-            artefact.rois.push(entry);
+            const roiIndex = artefact.rois.findIndex(roi => roi.id === entry.id);
+            if (roiIndex === -1) {
+                console.debug(`Adding ROI ${entry.id} to artefact ${artefact.id}`);
+                artefact.rois.push(entry);
+            } else {
+                console.debug(`ROI ${entry.id} is already found in artefact ${artefact.id}`);
+            }
         }
         return super.put(entry);
     }
@@ -265,6 +271,7 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
             if (roiIndex === -1) {
                 console.warn(`Can't removing ROI ${entry.id} from artefact ${entry.artefactId}, it is not in its ROI list`);
             } else {
+                console.debug(`Removing ROI ${id} from artefact ${artefact.id}`);
                 artefact.rois.splice(roiIndex, 1);
             }
         }

@@ -843,15 +843,7 @@ export default class ArtefactEditor
     }
 
     private initVisibleRois() {
-        this.visibleRois = [];
-        for (const roi of this.$state.interpretationRois.getItems()) {
-            if (
-                roi.status !== 'deleted' &&
-                roi.artefactId === this.artefact.id
-            ) {
-                this.visibleRois.push(roi);
-            }
-        }
+        this.visibleRois = this.artefact.rois.filter(roi => roi.status !== 'deleted');
     }
 
     private onRoiClicked(roi: InterpretationRoi) {
