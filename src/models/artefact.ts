@@ -1,7 +1,7 @@
 import { Polygon } from '@/utils/Polygons';
 import { ArtefactDTO } from '@/dtos/sqe-dtos';
 import { Side } from './misc';
-import { ArtefactTextFragmentData } from './text';
+import { ArtefactTextFragmentData, InterpretationRoi, SignInterpretation } from './text';
 import { BoundingBox } from '@/utils/helpers';
 import { Placement } from '@/utils/Placement';
 // import { StateManager } from '@/state/.';
@@ -23,6 +23,8 @@ export class Artefact {
 
     public textFragments: ArtefactTextFragmentData[] = [];
 
+    public rois: InterpretationRoi[] = []; // ROIs for this artefact
+    public signInterpretations: SignInterpretation[] = []; // Sign Interpretations for this artefact
 
     constructor(obj: ArtefactDTO) {
         this.id = obj.id;
