@@ -6,6 +6,7 @@ import { BoundingBox } from '@/utils/helpers';
 import { Placement } from '@/utils/Placement';
 // import { StateManager } from '@/state/.';
 import { StateManager } from '@/state';
+import { TimeoutError } from '@microsoft/signalr';
 
 export class Artefact {
     // Default values specified to remove an error - we initialize them in the constructor or in copyFrom.
@@ -48,23 +49,33 @@ export class Artefact {
             return false;
         }
 
-        // Tsvia:
-        // Returns true if this artefact is inside the scroll editor's viewport.
-        // The viewport is in state().scrollEditor.viewport.
-        //
-        // If the artefact is not placed, return false.
-        // Otherwise, check whether the artefact's bounding box, translated by artefact.placement.translate, intersects with the viewport
+        const viewport = StateManager.instance.scrollEditor.viewport;
+        if (!viewport) {
+            return false;
+        }
 
-        const currViewPort =  this.viewport! ;
+        const x2 = viewport!.x + viewport!.width;
+        const y2 = viewport!.y + viewport!.height;
 
-        if (
-            currViewPort.x < this.placement.translate.x
-            && (currViewPort.x + currViewPort.width) > this.placement.translate.x
-            && currViewPort.y < this.placement.translate.y
-            && ( currViewPort.y + currViewPort.height ) > this.placement.translate.y
-            ) {
-                return true;
-            }
+        function inside(x: number, y: number) {
+            return viewport!.x <= x && x <= x2 && viewport!.y <= y && y <= y2;
+        }
+
+        if (inside(this.placement.translate.x, this.placement.translate.y)) {
+            return true;
+        }
+
+        if (inside(this.placement.translate.x + this.boundingBox.width, this.placement.translate.y)) {
+            return true;
+        }
+
+        if (inside(this.placement.translate.x, this.placement.translate.y + this.boundingBox.height)) {
+            return true;
+        }
+
+        if (inside(this.placement.translate.x + this.boundingBox.width, this.placement.translate.y + this.boundingBox.height)) {
+            return true;
+        }
 
         return false;
     }
@@ -78,12 +89,6 @@ export class Artefact {
 
     public get boundingBox(): BoundingBox {
         return this.mask.getBoundingBox();
-    }
-
-    private get viewport() {
-        // return this.$state.scrollEditor.viewport;
-        return StateManager!.instance!.scrollEditor!.viewport;
-
     }
 
     public clonePlacement(): Placement {
