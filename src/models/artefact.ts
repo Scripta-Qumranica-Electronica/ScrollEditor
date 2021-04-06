@@ -50,8 +50,6 @@ export class Artefact {
         // If the artefact is not placed, return false.
         // Otherwise, check whether the artefact's bounding box, translated by artefact.placement.translate, intersects with the viewport
 
-        console.log('this.boundingBox;', this.boundingBox);
-
         const currViewPort =  this.viewport! ;
 
         let counter = 0;
