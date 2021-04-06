@@ -58,9 +58,7 @@ class TextService {
         const newROIs: InterpretationRoi[] = [];
         const deletedROIs: InterpretationRoi[] = [];
 
-        for (const roi of this.stateManager.interpretationRois.getArtefactRois(
-            artefact
-        )) {
+        for (const roi of artefact.rois) {
             if (roi.status === 'new' && mode !== 'deleted') {
                 newROIs.push(roi);
             } else if (roi.status === 'deleted' && mode !== 'created') {

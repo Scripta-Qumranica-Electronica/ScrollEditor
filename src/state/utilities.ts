@@ -3,6 +3,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
 import { TextFragment, InterpretationRoi, SignInterpretation } from '@/models/text';
+import { StateManager } from '.';
 
 export interface ItemWithId<U> {
     id: U;
@@ -235,17 +236,105 @@ export class TextFragmentMap extends StateMap<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
 
+function state() {
+    return StateManager.instance;
+}
 export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
-    public *getArtefactRois(artefact: Artefact) {
-        for (const item of this.getItems()) {
-            if (item.artefactId === artefact.id) {
-                yield item;
+    public put(entry: InterpretationRoi) {
+        const artefact = state().artefacts.find(entry.artefactId);
+        if (!artefact) {
+            console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
+        } else {
+            const roiIndex = artefact.rois.findIndex(roi => roi.id === entry.id);
+            if (roiIndex === -1) {
+                console.debug(`Adding ROI ${entry.id} to artefact ${artefact.id}`);
+                artefact.rois.push(entry);
+            } else {
+                console.debug(`ROI ${entry.id} is already found in artefact ${artefact.id}`);
             }
         }
+        return super.put(entry);
+    }
+
+    public delete(id: number) {
+        const entry = this.get(id);
+        if (!entry) {
+            console.warn(`Can't remove ROI ${id} - it is not in the ROI state map`);
+            return;
+        }
+
+        const artefact = state().artefacts.find(entry.artefactId);
+        if (!artefact) {
+            console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
+        } else {
+            const roiIndex = artefact.rois.findIndex(roi => roi.id === entry.id);
+            if (roiIndex === -1) {
+                console.warn(`Can't removing ROI ${entry.id} from artefact ${entry.artefactId}, it is not in its ROI list`);
+            } else {
+                console.debug(`Removing ROI ${id} from artefact ${artefact.id}`);
+                artefact.rois.splice(roiIndex, 1);
+            }
+        }
+
+        return super.delete(id);
+    }
+
+    public clear() {
+        for (const artefact of state().artefacts.items) {
+            artefact.rois = [];
+        }
+        super.clear();
     }
 }
 
-export class SignInterpretationMap extends StateMap<SignInterpretation> { }
+export class SignInterpretationMap extends StateMap<SignInterpretation> {
+    public put(entry: SignInterpretation) {
+        for (const roi of entry.rois) {
+            const artefact = state().artefacts.find(roi.artefactId);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${roi.artefactId} for ROI ${roi.id}`);
+                continue;
+            }
+
+            const index = artefact.signInterpretations.findIndex(si => si.id === entry.id);
+            if (index === -1) {
+                artefact.signInterpretations.push(entry);
+            }
+        }
+
+        return super.put(entry);
+    }
+
+    public delete(id: number) {
+        const si = state().signInterpretations.get(id);
+        if (!si) {
+            console.warn(`Can't delete sign interpretaetion ${id}, it is not in the state`);
+            return;
+        }
+
+        for (const roi of si.rois) {
+            const artefact = state().artefacts.find(roi.artefactId);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${roi.artefactId} for ROI ${roi.id}`);
+                continue;
+            }
+
+            const index = artefact.signInterpretations.findIndex(s => s.id === id);
+            if (index === -1) {
+                console.warn(`Can't remove sign interpretation ${id} from artefact ${artefact.id} - it is not in its signInterpretations array`);
+            } else {
+                artefact.signInterpretations.splice(index, 1);
+            }
+        }
+    }
+
+    public clear() {
+        for (const artefact of state().artefacts.items) {
+            artefact.signInterpretations = [];
+        }
+        super.clear();
+    }
+}
 
 export class MiscState {
     public newEditionId!: number ;
