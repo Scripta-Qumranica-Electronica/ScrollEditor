@@ -234,7 +234,7 @@ export default class ScrollArea extends Vue {
 
     private get placedArtefacts() {
         return this.artefacts
-            .filter((x) => x.isPlaced)
+            .filter((x) => x.isPlaced && x.inViewport)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
     }
 

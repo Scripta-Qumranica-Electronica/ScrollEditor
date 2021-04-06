@@ -44,6 +44,10 @@ export class Artefact {
     }
 
     public get inViewport(): boolean {
+        if (!this.isPlaced) {
+            return false;
+        }
+
         // Tsvia:
         // Returns true if this artefact is inside the scroll editor's viewport.
         // The viewport is in state().scrollEditor.viewport.

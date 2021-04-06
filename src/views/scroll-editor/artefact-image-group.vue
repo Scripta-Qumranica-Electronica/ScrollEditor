@@ -224,41 +224,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private get visibleRois(): InterpretationRoi[] {
-
-        const visibleRois: InterpretationRoi[] = [];
-        for (const roi of this.$state.interpretationRois.getItems()) {
-
-            if (
-                roi.status !== 'deleted' &&
-                roi.artefactId === this.artefact.id
-            ) {
-                visibleRois.push(roi);
-            }
-        }
-
-        return visibleRois;
+        return this.artefact.rois.filter(roi => roi.status !== 'deleted');
     }
 
     private get visibleSignInterpretations(): SignInterpretation[] {
-        const siSet = new Set<SignInterpretation>();
-
-
-        for (const roi of this.visibleRois) {
-
-            const siId = roi.signInterpretationId;
-            if (siId === undefined) {
-                continue;
-            }
-            const si = this.$state.signInterpretations.get(siId);
-            if (!si) {
-                console.warn(`Can't locate sin ${siId} in manuscript editor`);
-                continue;
-            }
-
-            siSet.add(si);
-        }
-
-        return [...siSet];
+        return this.artefact.signInterpretations;
     }
 
     public get selectedSignInterpretationId() {
