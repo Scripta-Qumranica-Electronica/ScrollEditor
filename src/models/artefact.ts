@@ -42,25 +42,62 @@ export class Artefact {
     }
 
     public get inViewport(): boolean {
-        // Tsvia:
-        // Returns true if this artefact is inside the scroll editor's viewport.
-        // The viewport is in state().scrollEditor.viewport.
-        //
+
+        // Returns true if this artefact is inside the scroll editor's viewport even partially
+        // The viewport is in state(.scrollEditor.viewport.
         // If the artefact is not placed, return false.
         // Otherwise, check whether the artefact's bounding box, translated by artefact.placement.translate, intersects with the viewport
 
+        console.log('this.boundingBox;', this.boundingBox);
+
         const currViewPort =  this.viewport! ;
 
-        if (
-            currViewPort.x < this.placement.translate.x
-            && (currViewPort.x + currViewPort.width) > this.placement.translate.x
-            && currViewPort.y < this.placement.translate.y
-            && ( currViewPort.y + currViewPort.height ) > this.placement.translate.y
-            ) {
-                return true;
-            }
+        let counter = 0;
 
-        return false;
+
+         const UpperLeftInside =
+                currViewPort.x <= this.placement.translate.x
+                && (currViewPort.x + currViewPort.width) >=
+                   this.placement.translate.x
+                && currViewPort.y <= this.placement.translate.y
+                && ( currViewPort.y + currViewPort.height ) >=
+                     this.placement.translate.y;
+
+         const LowerLeftInside =
+                currViewPort.x <= this.placement.translate.x
+                && (currViewPort.x + currViewPort.width) >= this.placement.translate.x
+                && currViewPort.y <=
+                   this.placement.translate.y + this.boundingBox.height
+                && ( currViewPort.y + currViewPort.height ) >=
+                   this.placement.translate.y + this.boundingBox.height;
+
+         const UpperRightInside =
+                currViewPort.x <=
+                  (this.placement.translate.x + this.boundingBox.width)
+                && (currViewPort.x + currViewPort.width) >=
+                   (this.placement.translate.x + this.boundingBox.width)
+                && currViewPort.y <= this.placement.translate.y
+                && ( currViewPort.y + currViewPort.height ) >=
+                   this.placement.translate.y;
+
+         const LowerRighttInside =
+                currViewPort.x <=
+                  (this.placement.translate.x + this.boundingBox.width)
+                && (currViewPort.x + currViewPort.width) >=
+                   (this.placement.translate.x + this.boundingBox.width)
+                && currViewPort.y <=
+                   this.placement.translate.y + this.boundingBox.height
+                && ( currViewPort.y + currViewPort.height ) >=
+                    this.placement.translate.y + this.boundingBox.height;
+
+
+
+        return ( ( UpperLeftInside || LowerLeftInside
+                     || UpperRightInside || LowerRighttInside ) ?
+                 true : false
+                );
+
+
     }
 
     // TBD: Perhaps rename to setTransformation, or maybe even drop this function entirely
