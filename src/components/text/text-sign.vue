@@ -7,11 +7,8 @@
                 cssStrings,
             ]"
             @click="onSignInterpretationClicked($event)"
-            @contextmenu="
-                openSignMenu($event, 'popover-si-' + si.signInterpretationId)
-            "
-            >{{ si.character || '&nbsp;' }}</span
-        >
+            @contextmenu="openSignMenu($event, 'popover-si-' + si.signInterpretationId)"
+            v-html="si.htmlCharacter" />
         <b-popover
             v-if="withMenu && !readOnly"
             custom-class="popover-sign-body"

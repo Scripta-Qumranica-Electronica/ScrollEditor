@@ -257,11 +257,20 @@ class SignInterpretation {
         this.attributes = newAttrs;
     }
 
+
+    public get htmlCharacter() {
+        if (!this.character || this.character === ' ' || this.signType[1] !== 'LETTER') {
+            return '&nbsp;';
+        }
+
+        return this.character;
+    }
+
     // Set the sign type
     public get signType(): [number, string] {
         const attr = this.attributes.find(a => a.attributeString === 'sign_type');
         if (!attr) {
-            return this.character ? [1, 'LETTER'] : [2, 'SPACE'];
+            return this.character && this.character !== ' ' ? [1, 'LETTER'] : [2, 'SPACE'];
         }
         return [attr.attributeValueId, attr.attributeValueString];
     }
