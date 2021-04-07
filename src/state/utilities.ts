@@ -241,6 +241,30 @@ function state() {
 }
 export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
     public put(entry: InterpretationRoi) {
+        this.attachRoiToArtefact(entry);
+        return super.put(entry);
+    }
+
+    public delete(id: number) {
+        const entry = this.get(id);
+        if (!entry) {
+            console.warn(`Can't remove ROI ${id} - it is not in the ROI state map`);
+            return;
+        }
+        this.detachRoiFromArtefact(entry);
+        return super.delete(id);
+    }
+
+    public clear() {
+        for (const artefact of state().artefacts.items) {
+            artefact.rois = [];
+        }
+        super.clear();
+    }
+
+    // InterperationROIs are marked as deleted and not actually deleted (so undeleting is easy)
+    // We do not want to track deleted ROIs in artefacts
+    public attachRoiToArtefact(entry: InterpretationRoi) {
         const artefact = state().artefacts.find(entry.artefactId);
         if (!artefact) {
             console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
@@ -253,16 +277,9 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
                 console.debug(`ROI ${entry.id} is already found in artefact ${artefact.id}`);
             }
         }
-        return super.put(entry);
     }
 
-    public delete(id: number) {
-        const entry = this.get(id);
-        if (!entry) {
-            console.warn(`Can't remove ROI ${id} - it is not in the ROI state map`);
-            return;
-        }
-
+    public detachRoiFromArtefact(entry: InterpretationRoi) {
         const artefact = state().artefacts.find(entry.artefactId);
         if (!artefact) {
             console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
@@ -271,19 +288,10 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
             if (roiIndex === -1) {
                 console.warn(`Can't removing ROI ${entry.id} from artefact ${entry.artefactId}, it is not in its ROI list`);
             } else {
-                console.debug(`Removing ROI ${id} from artefact ${artefact.id}`);
+                console.debug(`Removing ROI ${entry.id} from artefact ${artefact.id}`);
                 artefact.rois.splice(roiIndex, 1);
             }
         }
-
-        return super.delete(id);
-    }
-
-    public clear() {
-        for (const artefact of state().artefacts.items) {
-            artefact.rois = [];
-        }
-        super.clear();
     }
 }
 

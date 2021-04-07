@@ -16,6 +16,7 @@ import {
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
 import { Position } from '@/models/misc';
+import { StateManager } from '@/state';
 
 class TextFragmentData {
     public id: number;
@@ -329,7 +330,7 @@ class InterpretationRoi {
     public position: Position;
     public exceptional: boolean;
     public valuesSet: boolean;
-    public status: RoiStatus;
+    private _status: RoiStatus;
     public rotation: number;
 
     // UI related fields
@@ -353,7 +354,7 @@ class InterpretationRoi {
             this.interpretationRoiId = (obj as InterpretationRoiDTO).interpretationRoiId;
         }
 
-        this.status = 'original';
+        this._status = 'original';
     }
 
     public get id() {
@@ -376,6 +377,25 @@ class InterpretationRoi {
         copy.interpretationRoiId = this.interpretationRoiId;
 
         return copy;
+    }
+
+    public get status() {
+        return this._status;
+    }
+
+    public set status(newStatus: RoiStatus) {
+        if (newStatus === this._status) {
+            return;
+        }
+        if (newStatus === 'deleted') {
+            // Remove the ROI from the artefact controlling it
+            StateManager.instance.interpretationRois.detachRoiFromArtefact(this);
+        } else if (this._status === 'deleted') {
+            // Add the ROI to the artefact
+            StateManager.instance.interpretationRois.attachRoiToArtefact(this);
+        }
+
+        this._status = newStatus;
     }
 }
 

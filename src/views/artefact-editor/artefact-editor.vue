@@ -330,7 +330,6 @@ export default class ArtefactEditor
         this
     );
 
-    private visibleRois: InterpretationRoi[] = [];
     // Arguments retrieved from the URL
     private editionId: number = 0;
     private artefactId: number = 0;  // Only relevent in artefact mode
@@ -342,6 +341,10 @@ export default class ArtefactEditor
     }
     private get params(): ArtefactEditorParams {
         return this.$state.artefactEditor.params || new ArtefactEditorParams();
+    }
+
+    protected get visibleRois() {
+        return this.artefact.rois;
     }
 
     public get artefactEditorState() {
@@ -464,7 +467,6 @@ export default class ArtefactEditor
         await this.$state.prepare.edition(
             parseInt(this.$route.params.editionId)
         );
-        this.$state.eventBus.on('roi-changed', this.initVisibleRois);
         this.$state.eventBus.on(
             'change-artefact-rotation',
             (angle: number) => (this.params.rotationAngle = angle)
@@ -478,7 +480,6 @@ export default class ArtefactEditor
     }
 
     protected destroyed() {
-        this.$state.eventBus.off('roi-changed', this.initVisibleRois);
         this.$state.eventBus.off('change-artefact-rotation');
         this.$state.eventBus.off('remove-roi', this.removeRoi);
         this.$state.eventBus.off('new-operation', this.onNewOperation);
@@ -635,8 +636,6 @@ export default class ArtefactEditor
         this.params.rotationAngle = this.artefact.placement.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
-
-        this.initVisibleRois();
 
         setTimeout(() => this.setFirstZoom(), 0);
     }
@@ -842,10 +841,6 @@ export default class ArtefactEditor
         };
     }
 
-    private initVisibleRois() {
-        this.visibleRois = this.artefact.rois.filter(roi => roi.status !== 'deleted');
-    }
-
     private onRoiClicked(roi: InterpretationRoi) {
         this.artefactEditorState.selectRoi(roi);
         this.textFragmentEditorState.selectedSignInterpretations = [];
@@ -886,7 +881,6 @@ export default class ArtefactEditor
             this.artefact,
             mode
         );
-        this.initVisibleRois();
         // if (selected) {
         //     // Make sure we select again, as the ROIs might have changed
         //     this.artefactEditorState.onSignInterpretationClicked(selected, false);
