@@ -4,7 +4,7 @@ import { Side } from './misc';
 import { ArtefactTextFragmentData, InterpretationRoi, SignInterpretation } from './text';
 import { BoundingBox } from '@/utils/helpers';
 import { Placement } from '@/utils/Placement';
-// import { StateManager } from '@/state/.';
+import { Point } from '@/utils/helpers';
 import { StateManager } from '@/state';
 import { TimeoutError } from '@microsoft/signalr';
 
@@ -45,6 +45,7 @@ export class Artefact {
     }
 
     public get inViewport(): boolean {
+
         if (!this.isPlaced) {
             return false;
         }
@@ -54,30 +55,116 @@ export class Artefact {
             return false;
         }
 
+        const actualPoints = this.calculateNewPoints();
+
         const x2 = viewport!.x + viewport!.width;
         const y2 = viewport!.y + viewport!.height;
 
-        function inside(x: number, y: number) {
-            return viewport!.x <= x && x <= x2 && viewport!.y <= y && y <= y2;
-        }
+        const inside = (x: number, y: number) => {
+            return     viewport!.x <= x && x <= x2
+                    && viewport!.y <= y && y <= y2;
+        };
 
-        if (inside(this.placement.translate.x, this.placement.translate.y)) {
+        // top lrft
+        if (inside(actualPoints.x, actualPoints.y)) {
             return true;
         }
 
-        if (inside(this.placement.translate.x + this.boundingBox.width, this.placement.translate.y)) {
+        // top right
+        if (inside(actualPoints.x + actualPoints.width,
+                   actualPoints.y)) {
             return true;
         }
 
-        if (inside(this.placement.translate.x, this.placement.translate.y + this.boundingBox.height)) {
+        // bottom left
+        if (inside(actualPoints.x,
+                    actualPoints.y + actualPoints.height)) {
             return true;
         }
 
-        if (inside(this.placement.translate.x + this.boundingBox.width, this.placement.translate.y + this.boundingBox.height)) {
+        // bottom right
+        if (inside(actualPoints.x + actualPoints.width,
+                    actualPoints.y + actualPoints.height)) {
             return true;
         }
 
         return false;
+    }
+
+
+    private getArtefactCenter(): Point {
+        // The artefact's center is the translate (x,y) + the bounding box's center
+        const x = this.placement.translate.x! +
+                  this.boundingBox.width / 2;
+        const y = this.placement.translate.y! +
+                  this.boundingBox.height / 2;
+
+        return { x, y };
+    }
+
+    private calculateNewPoints(): BoundingBox {
+
+        if (this.placement.rotate > 0) {
+
+            const theta = this.placement.rotate * Math.PI / 180.;
+
+            // Find the middle rotating point
+            const center = this.getArtefactCenter();
+
+            // Find all the corners relative to the center
+            const cornersX = [
+                this.placement.translate.x! - center.x!,
+                this.placement.translate.x! - center.x!,
+                this.placement.translate.x! +
+                    this.boundingBox.width! - center.x!,
+                this.placement.translate.x! +
+                    this.boundingBox.width! - center.x!
+            ];
+
+            const cornersY = [
+                this.placement.translate.y! - center.y!,
+                this.placement.translate.y! +
+                    this.boundingBox.height! - center.y!,
+                center.y! - this.placement.translate.y!,
+                this.placement.translate.y! +
+                    this.boundingBox.height! - center.y!
+            ];
+
+            // Find new the minimum corner X and Y by taking the minimum of the bounding box
+            let newX = 1e10;
+            let newY = 1e10;
+
+            for (let i = 0; i < 4; i = i + 1 ) {
+                newX = Math.min(
+                        newX,
+                        cornersX[i] * Math.cos(theta) -
+                            cornersY[i] * Math.sin(theta) + center.x!
+                    );
+                newY = Math.min(
+                        newY,
+                        cornersX[i] * Math.sin(theta) +
+                            cornersY[i] * Math.cos(theta) + center.y!
+                    );
+            }
+
+            // new width and height
+            // const newWidth = newMaxX - newX;
+            // const newHeight = newMaxY - newY;
+
+            const newWidth = (center.x! - newX) * 2;
+            const newHeight = ( center.y! - newY) * 2;
+
+            return new BoundingBox ( newX, newY, newWidth , newHeight);
+
+        }
+
+        return new BoundingBox (
+            this.placement.translate.x,
+            this.placement.translate.y,
+            this.boundingBox.width ,
+            this.boundingBox.height
+        );
+
     }
 
     // TBD: Perhaps rename to setTransformation, or maybe even drop this function entirely
