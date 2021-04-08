@@ -8,6 +8,7 @@
             direction="rtl"
         ></text-fragment>
         <sign-attribute-pane/>
+        <edit-sign-modal></edit-sign-modal>
     </b-container>
 </template>
 
@@ -15,12 +16,14 @@
 import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
+import EditSignModal from '@/components/text/edit-sign-modal.vue';
 
 @Component({
     name: 'text-toolbar',
     components: {
         'text-fragment': TextFragmentComponent,
         'sign-attribute-pane': SignAttributePane,
+        'edit-sign-modal': EditSignModal,
         // 'artefact-toolbox': ArtefactToolbox,
     },
 })

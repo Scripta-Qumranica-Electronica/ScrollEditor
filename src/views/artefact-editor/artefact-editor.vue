@@ -532,6 +532,7 @@ export default class ArtefactEditor
         console.debug('artefact editor mounted with mode ', this.editorMode);
         this.waiting = false;
         this.$state.operationsManager = this.operationsManager;
+        this.$state.textFragmentEditor.textEditingMode = 'artefact';
     }
 
     private get edition(): EditionInfo {

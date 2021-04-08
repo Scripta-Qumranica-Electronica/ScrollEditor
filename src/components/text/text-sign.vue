@@ -31,12 +31,12 @@
                             >{{ $t('misc.deleteSign') }}</p
                         >
                     </li>
-                    <li>
+                    <li v-if="editingMode==='artefact'">
                         <p @click="openAddLeftSignModal()"
                             >{{ $t('misc.addToLeft') }}</p
                         >
                     </li>
-                    <li>
+                    <li v-if="editingMode==='artefact'">
                         <p @click="openAddRightSignModal()"
                             >{{ $t('misc.addToRight') }}</p
                         >
@@ -67,6 +67,10 @@ export default class TextSign extends Vue {
 
     private get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
+    }
+
+    private get editingMode() {
+        return this.$state.textFragmentEditor.textEditingMode;
     }
 
     // Each sign offers alternative readings. For now we always show the first suggestion

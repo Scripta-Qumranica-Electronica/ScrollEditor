@@ -9,11 +9,13 @@ function state() {
     return StateManager.instance;
 }
 export type editSignInterpretationModeType = 'edit' | 'create';
+export type TextEditingMode = 'scroll' | 'artefact';
 export class TextFragmentState {
     public selectedSignInterpretations: SignInterpretation[];
     public selectedAttribute: InterpretationAttributeDTO | null = null;
     public highlightCommentMode: boolean = false;
     public modeSignModal: editSignInterpretationModeType = 'edit';
+    public textEditingMode: TextEditingMode = 'artefact'; // Provides an indication which module edits the text now
 
     constructor() {
         this.selectedSignInterpretations = [];
