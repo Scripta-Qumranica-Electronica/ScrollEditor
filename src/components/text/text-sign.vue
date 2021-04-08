@@ -102,10 +102,10 @@ export default class TextSign extends Vue {
         );
         const op = new DeleteSignInterpretationOperation(this.si.id);
 
-        for (const delOp of delOps) {
+        op.redo(true);   // First delete the sign, which uses the ROIs to update the artefacts SI caches
+        for (const delOp of delOps) {  // Now delete the ROIs
             delOp.redo(true);
         }
-        op.redo(true);
         this.$state.eventBus.emit('new-bulk-operations', [...delOps, op]);
     }
 
