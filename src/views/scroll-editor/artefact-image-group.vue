@@ -224,7 +224,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private get visibleRois(): InterpretationRoi[] {
-        return this.artefact.rois.filter(roi => roi.status !== 'deleted');
+        return this.artefact.rois;
     }
 
     private get visibleSignInterpretations(): SignInterpretation[] {

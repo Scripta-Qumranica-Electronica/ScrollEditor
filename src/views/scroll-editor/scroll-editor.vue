@@ -373,6 +373,7 @@ export default class ScrollEditor
         // between created and mounted, we just moved it to mounted.
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
+        await this.$state.prepare.editionFullText(this.editionId);
 
         const edition = this.$state.editions.find(this.editionId); // Set the current scroll
         if (!edition) {
@@ -399,6 +400,7 @@ export default class ScrollEditor
     private async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
+        await this.$state.prepare.editionFullText(this.editionId);
         next();
     }
 
@@ -450,11 +452,13 @@ export default class ScrollEditor
             artefact.placeOnScroll(placement);
 
             // load artefact Rois
+            /*
+            No need, ROIs were already loaded
             await Promise.all(
-                artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
-                    this.$state.prepare.textFragment(artefact.editionId, tf.id)
-                )
-            );
+                artefact.textFragments.map((tf: ArtefactTextFragmentData) => {
+                    this.$state.prepare.textFragment(artefact.editionId, tf.id);
+                })
+            ); */
 
             this.newOperation(operation);
             this.selectArtefact(artefact);

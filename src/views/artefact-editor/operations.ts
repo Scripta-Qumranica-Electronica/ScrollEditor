@@ -393,6 +393,8 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
         const SI = this.sign.signInterpretations[0];
         const prevSI = this.prevSign.signInterpretations[0];
         prevSI.nextSignInterpretations = SI.nextSignInterpretations;
+
+        state().signInterpretations.detachSignInterprerationFromArtefact(SI);
     }
 
     protected internalUndo() {
@@ -404,6 +406,7 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
         const prevSI = this.prevSign.signInterpretations[0];
         SI.nextSignInterpretations = prevSI.nextSignInterpretations;
         prevSI.nextSignInterpretations[0].nextSignInterpretationId = SI.signInterpretationId;
+        state().signInterpretations.attachSignInterpretationToArtefact(SI);
     }
 }
 

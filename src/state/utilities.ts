@@ -297,19 +297,7 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
 
 export class SignInterpretationMap extends StateMap<SignInterpretation> {
     public put(entry: SignInterpretation) {
-        for (const roi of entry.rois) {
-            const artefact = state().artefacts.find(roi.artefactId);
-            if (!artefact) {
-                console.warn(`Can't find artefact ${roi.artefactId} for ROI ${roi.id}`);
-                continue;
-            }
-
-            const index = artefact.signInterpretations.findIndex(si => si.id === entry.id);
-            if (index === -1) {
-                artefact.signInterpretations.push(entry);
-            }
-        }
-
+        this.attachSignInterpretationToArtefact(entry);
         return super.put(entry);
     }
 
@@ -320,6 +308,10 @@ export class SignInterpretationMap extends StateMap<SignInterpretation> {
             return;
         }
 
+        this.detachSignInterprerationFromArtefact(si);
+    }
+
+    public attachSignInterpretationToArtefact(si: SignInterpretation) {
         for (const roi of si.rois) {
             const artefact = state().artefacts.find(roi.artefactId);
             if (!artefact) {
@@ -327,10 +319,27 @@ export class SignInterpretationMap extends StateMap<SignInterpretation> {
                 continue;
             }
 
-            const index = artefact.signInterpretations.findIndex(s => s.id === id);
+            const index = artefact.signInterpretations.findIndex(s => s.id === si.id);
             if (index === -1) {
-                console.warn(`Can't remove sign interpretation ${id} from artefact ${artefact.id} - it is not in its signInterpretations array`);
+                console.debug(`Adding SI ${si.id} to artefact ${artefact.id}`);
+                artefact.signInterpretations.push(si);
+            }
+        }
+    }
+
+    public detachSignInterprerationFromArtefact(si: SignInterpretation) {
+        for (const roi of si.rois) {
+            const artefact = state().artefacts.find(roi.artefactId);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${roi.artefactId} for ROI ${roi.id}`);
+                continue;
+            }
+
+            const index = artefact.signInterpretations.findIndex(s => s.id === si.id);
+            if (index === -1) {
+                console.warn(`Can't remove sign interpretation ${si.id} from artefact ${artefact.id} - it is not in its signInterpretations array`);
             } else {
+                console.debug(`Deleting SI ${si.id} from artefact ${artefact.id}`);
                 artefact.signInterpretations.splice(index, 1);
             }
         }
