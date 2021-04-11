@@ -1,6 +1,7 @@
 <template>
     <b-modal
         v-if="currentEdition"
+        :visible="currentEdition !== null"
         id="copy-edition-modal"
         ref="copyModalRef"
         header-class="title-header"
@@ -104,6 +105,10 @@ export default class CopyEditionModal extends Vue {
     private copyModalShown() {
         this.newCopyName = this.currentEdition!.name;
         (this.$refs.newCopyName as any).focus();
+    }
+
+    private onShow( bvModalevt: Event ) {
+        bvModalevt.preventDefault();
     }
 
     private async copyEdition(evt: Event) {

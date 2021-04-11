@@ -15,7 +15,7 @@
         </div>
         <copy-edition-modal />
     </div>
-</template>       
+</template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
@@ -36,10 +36,22 @@ import CopyEditionModal from './CopyEditionModal.vue';
 export default class EditionsPublicList extends Vue {
     @Prop( ) public editions!: EditionInfo[];
 
+
     private openCopyEditionModal(edition: EditionInfo) {
-            // console.log(edition);
+
         this.$state.editions.current = edition;
-        this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+
+        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+
+        // BootstrapVue recomends to use this method:
+        this.$bvModal.show('copy-edition-modal');
+
+        // this.$nextTick(function() {
+        //     this.$state.editions.current = edition;
+        //     console.log('EditionsPublicList nextTick', edition);
+        //     this.$bvModal.show('copy-edition-modal');
+        // });
+
     }
 }
 </script>
