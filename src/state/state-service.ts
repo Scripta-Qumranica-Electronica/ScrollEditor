@@ -12,6 +12,7 @@ import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
 import { ImagedObject } from '@/models/imaged-object';
 import { svgPolygonToClipper } from '@/utils/VectorFactory';
 import { ScriptData } from '@/models/script';
+import { TextFragment } from '@/models/text';
 
 /*
  * This service handles all the state data.
@@ -52,7 +53,8 @@ class ProcessTracking {
 }
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess' | 'attributeMetadataProcess' | 'editionScriptProcess';
+    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess' | 'attributeMetadataProcess' | 'editionScriptProcess' |
+    'editionFullTextProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -71,6 +73,7 @@ export default class StateService {
     private artefactGroupsProcess: ProcessTracking | undefined;
     private attributeMetadataProcess: ProcessTracking | undefined;
     private editionScriptProcess: ProcessTracking | undefined;
+    private editionFullTextProcess: ProcessTracking | undefined;
     // TODO: Add process for artefactGroups
 
     public constructor(state: StateManager) {
@@ -124,6 +127,12 @@ export default class StateService {
     public textFragment(editionId: number, textFragmentId: number): Promise<void> {
         return this.wrapInternal(
             'textFragmentProcess', textFragmentId, (id) => this.textFragmentInternal(editionId, id));
+    }
+
+    public editionFullText(editionId: number): Promise<void> {
+        return this.wrapInternal(
+            'editionFullTextProcess', editionId, (id: number) => this.editionFullTextInternal(id)
+        );
     }
 
     public async attributeMetadata(editionId: number): Promise<void> {
@@ -362,11 +371,30 @@ export default class StateService {
         }
 
         const current = textEdition.textFragments[0];
-        this._state.textFragments.put(current);
+        this.addTextFragmentToState(current);
+    }
+
+    private async editionFullTextInternal(editionId: number) {
+        this._state.signInterpretations.clear();
+        this._state.interpretationRois.clear();
+        this._state.textFragments.clear();
+
+        await this.edition(editionId);
+
+        const svc = new TextService();
+        const fullText = await svc.getEditionFullText(editionId);
+
+        for (const tf of fullText.textFragments) {
+            this.addTextFragmentToState(tf);
+        }
+    }
+
+    private addTextFragmentToState(tf: TextFragment) {
+        this._state.textFragments.put(tf);
 
         // Add all the sign interpretations and ROIs
 
-        for (const line of current.lines) {
+        for (const line of tf.lines) {
             for (const sign of line.signs) {
                 for (const si of sign.signInterpretations) {
                     this._state.signInterpretations.put(si);

@@ -13,31 +13,36 @@
                 {{ $t('home.home') }}
             </b-navbar-brand >
 
-            <b-navbar-nav fill
-                class="mt-mb-auto d-flex">
-                <b-nav-item
-                    active
-                    to="/search"
-                >
-                    <span>{{ $t('home.search') }}</span>
+            <b-navbar-nav class="mt-mb-auto ml-5 d-flex" v-if="edition">
+                <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
+                    <span>
+                        {{ edition.name }}
+                        <b-badge :class="editionBadgeClass"> {{ editionBadge }}</b-badge>
+                    </span>
                 </b-nav-item>
+                <b-nav-item :to="`/editions/${edition.id}/scroll-editor/`">
+                    Manuscript
+                </b-nav-item>
+                <b-nav-item :to="artefactLink">{{ artefactLabel }}</b-nav-item>
+                <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
+            </b-navbar-nav>
 
+            <b-navbar-nav class="ml-auto mb-auto" align="right">
             </b-navbar-nav>
 
             <b-navbar-nav
                 class="ml-auto mt-mb-auto"
-                align="right" fill  >
-
-
-    <!--                <b-nav-item
-                        :active="language === currentLanguage"
-                        @click="changeLanguage(language)"
-                        :key="language"
-                        v-for="(texts, language) in allTexts"
-                        >{{ texts.display }}</b-nav-item
-                    > -->
-
-
+                align="right">
+                    <div v-if="showOperationsManager">
+                        <b-nav-text class="ml-1">{{ operationsManager.saveMessage }}</b-nav-text>
+                        <b-btn-group margin="ml-1 mr-1">
+                            <b-button :disabled="!operationsManager.canUndo" @click="onUndo()">Undo</b-button>
+                            <b-button :disabled="!operationsManager.canRedo" @click="onRedo()">Redo</b-button>
+                        </b-btn-group>
+                    </div>
+                    <b-nav-item to="/search" active>
+                        <span>{{ $t('home.search') }}</span>
+                    </b-nav-item>
                     <b-nav-item-dropdown
                         v-if="userNameExists"
                         :text="userName"
@@ -71,9 +76,7 @@
                                 $t('navbar.updateUserDetails')
                             }}
                         </b-dropdown-item-button>
-
                     </b-nav-item-dropdown>
-
             </b-navbar-nav>
 
         </b-navbar>
@@ -91,12 +94,71 @@ import { EditionInfo } from '../../models/edition';
 
 @Component({
     name: 'navbar',
-    components: { login: Login },
+    components: {
+        login: Login,
+    },
 })
 export default class Navbar extends Vue {
     private sessionService = new SessionService();
     private currentLanguage = 'en';
     private allTexts = localizedTexts;
+
+    protected get edition() {
+        return this.$state.editions.current;
+    }
+
+    protected get operationsManager() {
+        return this.$state.operationsManager;
+    }
+
+    protected get showOperationsManager() {
+        return !!this.operationsManager && !!this.edition && !this.edition.permission.readOnly;
+    }
+
+    protected onUndo() {
+        this.operationsManager!.undo();
+    }
+
+    protected onRedo() {
+        this.operationsManager!.redo();
+    }
+
+    protected get editionBadgeClass() {
+        if (!this.edition) {
+            return '';
+        }
+        return this.edition.isPublic ? 'status-badge-published' : 'status-badge-draft';
+    }
+
+    protected get editionBadge() {
+        if (!this.edition) {
+            return '';
+        }
+
+        return this.edition.isPublic ? 'Published' : 'Draft';
+    }
+
+    private get artefactLink() {
+        if (this.$state.artefacts.current) {
+            return `/editions/${this.edition!.id}/artefacts/${this.$state.artefacts.current.id}`;
+        }
+        return `/editions/${this.edition!.id}/artefacts/`;
+    }
+
+    private get artefactLabel() {
+        return this.$state.artefacts.current ? 'Artefact' : 'Artefacts';
+    }
+
+    private get imagedObjectLink() {
+        if (this.$state.imagedObjects.current) {
+            return `/editions/${this.edition!.id}/imaged-objects/${this.$state.imagedObjects.current.id}`;
+        }
+        return `/editions/${this.edition!.id}/imaged-objects/`;
+    }
+
+    private get imagedObjectLabel() {
+        return this.$state.imagedObjects.current ? 'Imaged Object' : 'Imaged Objects';
+    }
 
     protected userNameExists(): boolean {
         return ( undefined !== this.userName );
@@ -154,6 +216,7 @@ export default class Navbar extends Vue {
 
 
 <style lang="scss" >
+@import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
 /* scoped has to be removed in order to set b-nav-dropdown color  */
@@ -210,11 +273,10 @@ export default class Navbar extends Vue {
     font-size: 1.1rem;
 }
 
-
-
 /* .main-nav-bar .nav-item a.nav-link , */
 .main-nav-bar .nav-item  .nav-link,
-.nav-item-white
+.nav-item-white,
+.navbar-text
 {
      color: #f3f3f3  !important;
 }
@@ -224,5 +286,26 @@ export default class Navbar extends Vue {
     color: #f3f3f3;
 }
 
+.status-badge {
+    font-family: $font-family;
+    text-align: center;
+    font-size: $font-size-1;
+    width: 68px;
+    height: 29.58px;
+    line-height: 20px;
+}
 
+.status-badge-draft {
+    background-color: $orange !important;
+    color: $light-orange !important;
+}
+
+.status-badge-published {
+    background-color: $green !important;
+    color: $light-greend !important;
+}
+
+.router-link-active {
+    color: #007bff;
+}
 </style>

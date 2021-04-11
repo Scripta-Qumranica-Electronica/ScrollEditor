@@ -3,29 +3,13 @@
         <b-col class="p-3">
             <div>
                 <b-row align-v="center">
-                    <b-col class="col-lg-3 col-xl-2">
-                        <b-button-group>
-                            <b-button
-                                @click="zoomClick(-5)"
-                                :disabled="!canZoomOut"
-                                variant="outline-secondary"
-                                ><i class="fa fa-minus"></i
-                            ></b-button>
-                            <b-input
-                                v-model="zoom"
-                                type="number"
-                                min="1"
-                                max="100"
-                                class="input-lg"
-                            ></b-input>
-                            <b-button
-                                class="mr-0"
-                                @click="zoomClick(5)"
-                                :disabled="!canZoomIn"
-                                variant="outline-secondary"
-                                ><i class="fa fa-plus"></i
-                            ></b-button>
-                        </b-button-group>
+                    <!-- <b-col class="col-3 col-md-4 col-sm-5 col-xs-5 position-zoom"> -->
+                    <b-col class="col-lg-3 col-xl-2 position-zoom">
+                        <zoom-toolbar
+                            v-model="params.zoom"
+                            delta="0.05"
+                            @zoomChanged="onZoomChanged($event)"
+                        />
                     </b-col>
                     <b-col class="p-0 col-lg-3 col-xl-2">
                         <b-button
@@ -61,32 +45,14 @@
                             </div>
                         </b-popover>
                     </b-col>
-                    <b-col class="p-0 col-lg-2">
-                        <b-button-group>
-                            <b-button
-                                variant="outline-secondary"
-                                @click="onRotateClick(-90)"
-                                v-b-tooltip.hover.bottom
-                                :title="$t('misc.leftRotate')"
-                                class="mr-0"
-                            >
-                                <font-awesome-icon
-                                    icon="undo"
-                                ></font-awesome-icon>
-                            </b-button>
-                            <b-button
-                                variant="outline-secondary"
-                                @click="onRotateClick(90)"
-                                v-b-tooltip.hover.bottom
-                                class="ml-1"
-                                :title="$t('misc.RightRotate')"
-                            >
-                                <font-awesome-icon
-                                    icon="redo"
-                                ></font-awesome-icon>
-                            </b-button>
-                        </b-button-group>
-                        <span class="rotation"> {{ rotationAngle }} ° </span>
+                    <!-- <b-col class="p-0 col-3 col-md-4 col-sm-5 col-xs-5 position-rotate"> -->
+                    <b-col class="p-0 col-lg-2 position-rotate">
+                        <rotation-toolbar
+                                v-model="params.rotationAngle"
+                                delta="90"
+                                :enable-text="false"
+                                @rotationAngleChanged="onRotationAngleChanged($event)"
+                        />
                     </b-col>
                     <b-col class="col-lg-4 col-xl-5">
                         <b-row align-v="center">
@@ -114,6 +80,19 @@
                                         }}</b-dropdown-item
                                     >
                                 </b-dropdown>
+                            </div>
+                            <div class="btn-tf">
+                                <b-button
+                                    v-for="mode in modes"
+                                    :key="mode.val"
+                                    @click="editingModeChanged(mode.val)"
+                                    :pressed="modeChosen(mode.val)"
+                                    class="sidebarCollapse mr-4 pMt-2"
+                                    v-b-tooltip.hover.bottom
+                                    :title="mode.title"
+                                >
+                                    <i :class="mode.icon"></i>
+                                </b-button>
                             </div>
                         </b-row>
                     </b-col>
@@ -146,37 +125,22 @@ import { SignInterpretation, InterpretationRoi, Line } from '@/models/text';
 import { Polygon } from '@/utils/Polygons';
 import { ImagedObject } from '@/models/imaged-object';
 import { BoundingBox, DropdownOption } from '@/utils/helpers';
-import ImageLayer from '@/views/artefact-editor/image-layer.vue';
-import RoiLayer from '@/views/artefact-editor/roi-layer.vue';
-import BoundaryDrawer, {
-    ActionMode,
-} from '@/components/polygons/boundary-drawer.vue';
-import Zoomer, {
-    ZoomEventArgs,
-    RotateEventArgs,
-} from '@/components/misc/zoomer.vue';
-import TextService from '@/services/text';
-import SignWheel from '@/views/artefact-editor/sign-wheel.vue';
-import EditionIcons from '@/components/cues/edition-icons.vue';
-import { EditionInfo } from '../../models/edition';
-
-import {
-    SavingAgent,
-    OperationsManager,
-    OperationsManagerStatus,
-} from '@/utils/operations-manager';
-import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
-import { DrawingMode, EditorParamsChangedArgs } from './types';
+import { DrawingMode, EditorParamsChangedArgs, ModeButtonInfo } from './types';
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { PropOptions } from 'vue';
 import { ImagedObjectState } from '../../state/imaged-object';
+import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
+import RotationToolbar from '@/components/toolbars/rotation-toolbar.vue';
+
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
+        'zoom-toolbar': ZoomToolbar,
+        'rotation-toolbar': RotationToolbar,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
@@ -191,6 +155,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
 
     @Prop() private artefact!: Artefact;
     @Prop() private imagedObject!: ImagedObject;
+    @Prop() private modes!: ModeButtonInfo[];
 
     @Prop({ type: Array, default: () => [] })
     private artefacts!: PropOptions<Artefact[]>;
@@ -214,42 +179,23 @@ export default class ImagedObjectEditorToolbar extends Vue {
         return true;
     }
 
-    public get zoom(): number {
-        return Math.round(this.params.zoom * 100);
-    }
-
-    public set zoom(val: number) {
-        if (!val) {
-            val = 10;
-        }
-        this.imagedObjectState.params!.zoom = parseFloat(val.toString()) / 100;
-    }
-
-    public get canZoomIn(): boolean {
-        return this.zoom + 5 <= 100;
-    }
-
-    public get canZoomOut(): boolean {
-        return this.zoom - 5 > 0;
-    }
-
-    public get rotationAngle(): number {
-        return ((this.params.rotationAngle % 360) + 360) % 360;
-    }
-    public set rotationAngle(val: number) {
-        if (!val) {
-            val = 0;
-        }
-        this.imagedObjectState.params!.rotationAngle =
-            ((parseFloat(val.toString()) % 360) + 360) % 360;
-        // this.notifyChange('rotationAngle', val);
-    }
     public get zoomImagedObject(): number {
         return this.params.zoom;
     }
+
     public set zoomImagedObject(val: number) {
         this.imagedObjectState.params!.zoom = parseFloat(val.toString());
         // this.notifyChange('zoomImagedObject', val);
+    }
+
+    private onZoomChanged(val: number) {
+        this.params.zoom = val; //
+        // this.imagedObjectState.params!.zoom = val  ;
+    }
+
+    public onRotationAngleChanged(val: number) {
+        this.params.rotationAngle = val;
+        this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
 
     public get readOnly(): boolean {
@@ -311,52 +257,23 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.$emit('paramsChanged', args);
     }
 
-    public zoomClick(percent: number) {
-        this.imagedObjectState.params!.zoom += percent / 100;
-    }
+
+
     public onImageSettingChanged(settings: ImageSetting) {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
-    public onRotateClick(degrees: number) {
-        this.imagedObjectState.params!.rotationAngle += degrees;
-        // this.notifyChange('rotationAngle', this.params.rotationAngle);
+
+
+    private editingModeChanged(val: any) {
+        (this as any).params.drawingMode = DrawingMode[val];
     }
-    // public async newArtefact() {
-    //     this.newArtefactName = this.newArtefactName.trim();
 
-    //     let newArtefact = {} as Artefact;
-    //     this.waiting = true;
-    //     this.errorMessage = '';
-    //     try {
-    //         newArtefact = await this.artefactService.createArtefact(
-    //             this.editionId,
-    //             this.imagedObject,
-    //             this.newArtefactName,
-    //             this.side as Side
-    //         );
-    //     } catch (err) {
-    //         this.errorMessage = err;
-    //     } finally {
-    //         this.waiting = false;
-    //     }
+    private modeChosen(val: DrawingMode): boolean {
+        return (
+            DrawingMode[val].toString() === this.params.drawingMode.toString()
+        );
+    }
 
-    //     this.newArtefactName = '';
-    //     (this.$refs.newArtRef as any).hide();
-    //     this.chooseArtefact(newArtefact);
-
-    //     this.onDrawChanged('DRAW');
-    //     this.$emit('create', newArtefact);
-    // }
-
-    // public onDrawChanged(val: any) {
-    //     // DrawingMode
-    //     const mode = DrawingMode[val];
-    //     (this as any).params.drawingMode = mode;
-    //     this.notifyChange('drawingMode', mode);
-    // }
-    // public chooseArtefact(art: Artefact) {
-    //     this.$emit('artefactChanged', art);
-    // }
 }
 </script>
 
@@ -364,13 +281,13 @@ export default class ImagedObjectEditorToolbar extends Vue {
 .popover-body {
     margin-left: 10px;
 }
-.input-lg {
+/* .input-lg {
     width: 75px;
-}
-.rotation {
+} */
+/* .rotation {
     width: 40px;
     text-align: center;
-}
+} */
 #popover-adjust:hover {
     color: #007bff;
     background-color: white;

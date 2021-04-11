@@ -7,11 +7,8 @@
                 cssStrings,
             ]"
             @click="onSignInterpretationClicked($event)"
-            @contextmenu="
-                openSignMenu($event, 'popover-si-' + si.signInterpretationId)
-            "
-            >{{ si.character || '&nbsp;' }}</span
-        >
+            @contextmenu="openSignMenu($event, 'popover-si-' + si.signInterpretationId)"
+            v-html="si.htmlCharacter" />
         <b-popover
             v-if="withMenu && !readOnly"
             custom-class="popover-sign-body"
@@ -34,12 +31,12 @@
                             >{{ $t('misc.deleteSign') }}</p
                         >
                     </li>
-                    <li>
+                    <li v-if="editingMode==='artefact'">
                         <p @click="openAddLeftSignModal()"
                             >{{ $t('misc.addToLeft') }}</p
                         >
                     </li>
-                    <li>
+                    <li v-if="editingMode==='artefact'">
                         <p @click="openAddRightSignModal()"
                             >{{ $t('misc.addToRight') }}</p
                         >
@@ -72,13 +69,17 @@ export default class TextSign extends Vue {
         return this.$state.editions.current!.permission.readOnly;
     }
 
+    private get editingMode() {
+        return this.$state.textFragmentEditor.textEditingMode;
+    }
+
     // Each sign offers alternative readings. For now we always show the first suggestion
     private get si() {
         return this.sign.signInterpretations[0];
     }
 
     private get isSelected() {
-        return this.$state.artefactEditor.isSiSelected(this.si);
+        return this.$state.textFragmentEditor.isSiSelected(this.si);
     }
 
     private get isHighlighted() {
@@ -105,43 +106,43 @@ export default class TextSign extends Vue {
         );
         const op = new DeleteSignInterpretationOperation(this.si.id);
 
-        for (const delOp of delOps) {
+        op.redo(true);   // First delete the sign, which uses the ROIs to update the artefacts SI caches
+        for (const delOp of delOps) {  // Now delete the ROIs
             delOp.redo(true);
         }
-        op.redo(true);
         this.$state.eventBus.emit('new-bulk-operations', [...delOps, op]);
     }
 
     private onSignInterpretationClicked(event: MouseEvent) {
         if (event.ctrlKey || event.metaKey) {
-            this.$state.artefactEditor.toggleSelectSign(this.si);
+            this.$state.textFragmentEditor.toggleSelectSign(this.si);
         } else {
-            this.$state.artefactEditor.selectSign(this.si);
+            this.$state.textFragmentEditor.selectSign(this.si);
         }
     }
 
     private openEditSignModal() {
-        this.$state.artefactEditor.modeSignModal = 'edit';
+        this.$state.textFragmentEditor.modeSignModal = 'edit';
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
     private openAddLeftSignModal() {
-        this.$state.artefactEditor.modeSignModal = 'create';
+        this.$state.textFragmentEditor.modeSignModal = 'create';
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
     private openAddRightSignModal() {
-        this.$state.artefactEditor.modeSignModal = 'create';
+        this.$state.textFragmentEditor.modeSignModal = 'create';
         const si = this.si.sign.line.signs[this.si.sign.indexInLine - 1]
             .signInterpretations[0];
-        this.$state.artefactEditor.selectSign(si);
+        this.$state.textFragmentEditor.selectSign(si);
         this.$root.$emit('bv::show::modal', 'editSignModal');
     }
 
     private openSignMenu(event: MouseEvent, signMenuId: string) {
         // prevent usual menu to display
         event.preventDefault();
-        this.$state.artefactEditor.selectSign(this.si);
+        this.$state.textFragmentEditor.selectSign(this.si);
 
         this.$root.$emit('bv::show::popover', signMenuId);
         this.previousMenuId = signMenuId;

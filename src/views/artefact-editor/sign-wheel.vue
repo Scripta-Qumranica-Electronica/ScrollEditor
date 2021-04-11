@@ -46,14 +46,14 @@ export default class SignWheel extends Vue {
 
 
 
-    public get artefactEditor() {
-        return this.$state.artefactEditor;
+    public get textFragmentEditor() {
+        return this.$state.textFragmentEditor;
     }
-    public get selectedSignsInterpretation(): SignInterpretation[] {
-        return this.artefactEditor.selectedSignsInterpretation;
+    public get selectedSignInterpretations(): SignInterpretation[] {
+        return this.textFragmentEditor.selectedSignInterpretations;
     }
 
-    @Watch('selectedSignsInterpretation')
+    @Watch('selectedSignInterpretations')
     private onSelectedSignInterpretationChanged(
         curSign: SignInterpretation,
         oldSign: SignInterpretation
@@ -93,7 +93,7 @@ export default class SignWheel extends Vue {
     }
 
     private findSignIndex() {
-        if (!this.artefactEditor.singleSelectedSi) {
+        if (!this.textFragmentEditor.singleSelectedSi) {
             return -1;
         }
 
@@ -101,7 +101,7 @@ export default class SignWheel extends Vue {
         for (let i = 0; i < this.line.signs.length; i++) {
             const sign = this.line.signs[i];
             const siIndex = sign.signInterpretations.findIndex(
-                si => si.id === this.artefactEditor.singleSelectedSi!.id
+                si => si.id === this.textFragmentEditor.singleSelectedSi!.id
             );
             if (siIndex !== -1) {
                 return i;

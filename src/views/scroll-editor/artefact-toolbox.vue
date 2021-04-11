@@ -1,5 +1,5 @@
 <template>
-    <div class="row" :class="{ 'mt-2': !float }">
+    <b-row class="row" :class="{ 'mt-2': !float }">
         <b-col class="col-10" v-if="float">
             <section>
                 <b-card no-body>
@@ -64,7 +64,7 @@
                             </b-button>
                             <b-button :pill="float" @click="statusMirror()">
                            mirror
-                            </b-button> 
+                            </b-button>
                         </b-button-group>
                     </b-card-header>
                     <b-collapse
@@ -286,63 +286,69 @@
                 </b-card>
             </section>
         </b-col>
-        <b-col class="col-8">
-            <section v-if="!float" class="center-btn" style="border:1px solid #dee2e6">
-                        <div class="row">
-                        <b-button-group class="ml-4">
-                            <b-button
-                                 class="m-1"
-                                 size="sm"
-                                :pill="float"
-                                :pressed="mode === 'manageGroup'"
-                                @click="setMode('manageGroup')"
-                                :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                "
-                            >
-                                <span>Manage group</span>
-                            </b-button>
-                        </b-button-group>
-                        <b-collapse
-                            id="accordion-actions-group"
-                            style="display: block"
-                            accordion="my-accordion-side-actions"
-                            role="tabpanel"
-                            class="ml-3"
-                        >
-                            <b-row no-gutters>
-                                <b-button-group>
-                                    <b-button
-                                        v-if="!float"
-                                        :disabled="
-                                            params.mode !== 'manageGroup'
-                                        "
-                                        class="m-1"
-                                        size="sm"
-                                        @click="saveGroup()"
-                                        >save Group</b-button
-                                    >
 
-                                    <b-button
-                                        v-if="!float"
-                                        size="sm"
-                                        class="m-1"
-                                        :disabled="
-                                            params.mode !== 'manageGroup'
-                                        "
-                                        @click="cancelGroup()"
-                                        >cancel</b-button
-                                    >
-                                </b-button-group>
-                            </b-row>
-                        </b-collapse>
-                        </div>
+        <b-col class="col-11">
+            <section v-if="!float" class="center-btn ml-4" style="border:1px solid #dee2e6">
+                <b-row class="row ml-2">
+
+                    <b-button-group class="ml-4">
+                        <b-button
+                                class="m-1"
+                                size="sm"
+                            :pill="float"
+                            :pressed="mode === 'manageGroup'"
+                            @click="setMode('manageGroup')"
+                            :disabled="
+                                !(
+                                    selectedArtefacts &&
+                                    selectedArtefacts.length
+                                )
+                            "
+                        >
+                            <span>Manage group</span>
+                        </b-button>
+                    </b-button-group>
+
+                    <b-collapse
+                        id="accordion-actions-group"
+                        style="display: block"
+                        accordion="my-accordion-side-actions"
+                        role="tabpanel"
+                        class="ml-0 mr-4"
+                    >
+                        <b-row no-gutters>
+                            <b-button-group>
+                                <b-button
+                                    v-if="!float"
+                                    :disabled="
+                                        params.mode !== 'manageGroup'
+                                    "
+                                    class="m-1"
+                                    size="sm"
+                                    @click="saveGroup()"
+                                    >save Group</b-button
+                                >
+
+                                <b-button
+                                    v-if="!float"
+                                    size="sm"
+                                    class="m-1"
+                                    :disabled="
+                                        params.mode !== 'manageGroup'
+                                    "
+                                    @click="cancelGroup()"
+                                    >cancel</b-button
+                                >
+                            </b-button-group>
+                        </b-row>
+                    </b-collapse>
+
+                </b-row>
+
             </section>
         </b-col>
-        <b-col>
+
+        <b-col class="ml-5 pl-5 center-btn">
             <section  class="mt-1" v-if="!float">
                 <b-button-group
                     size="sm"
@@ -368,14 +374,15 @@
                 </b-button-group>
             </section>
         </b-col>
-    </div>
+
+    </b-row>
 </template>
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
-import { ScrollEditorParams, ScrollEditorMode } from '../artefact-editor/types';
+import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
 import {
     ScrollEditorOperation,
     ArtefactPlacementOperationType,
@@ -391,17 +398,12 @@ import { ScrollEditorState } from '../../state/scroll-editor';
     components: {},
 })
 export default class ArtefactToolbox extends Vue {
-    @Prop({
-        default: -1,
-    })
-    public artefactId!: number;
+    @Prop({ default: -1 }) public artefactId!: number;
 
-    @Prop({ default: false })
-    public float!: boolean;
+    @Prop({ default: false }) public float!: boolean;
 
-    @Prop({ default: true })
+    @Prop({ default: true }) public keyboardInput!: boolean;
 
-    public keyboardInput!: boolean;
     private reset!: number;
     private zoomDelta!: number;
 
@@ -422,7 +424,7 @@ export default class ArtefactToolbox extends Vue {
         return this.$state.editions.current! || {};
     }
 
-    private get mode(): ScrollEditorMode {
+    private get mode(): ScrollEditorOpMode {
         return this.params!.mode;
     }
 
@@ -748,7 +750,7 @@ export default class ArtefactToolbox extends Vue {
         artefact.placement = newPlacement;
         return op;
     }
-    private setMode(mode: ScrollEditorMode) {
+    private setMode(mode: ScrollEditorOpMode) {
         this.params.mode = mode;
     }
 

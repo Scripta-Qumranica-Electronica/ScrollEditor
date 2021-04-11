@@ -8,14 +8,7 @@
             <div ref="handleTools" class="handle-tools">
                 <i class="fa fa-ellipsis-v"></i>
             </div>
-            <artefact-toolbox
-                :keyboard-input="false"
-                :float="true"
-                @new-operation="onNewOperation($event)"
-                @save-group="onSaveGroup()"
-                @cancel-group="cancelGroup()"
-                @manageGroup="manageGroup()"
-            ></artefact-toolbox>
+
         </div>
         <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
             <svg
@@ -31,11 +24,11 @@
                 <g id="root" :transform="transform">
                     <defs id="before-root" v-if= "currentScript" >
                         <path
-                        v-for="g of Object.values(scriptGlyphs)"
-                        :key="g.character"
-                        :d="g.shape.svg"
-                        :id = "`path-${g.character}`"
-                        class="display-letters"
+                            v-for="g of Object.values(scriptGlyphs)"
+                            :key="g.character"
+                            :d="g.shape.svg"
+                            :id="`path-${g.character}`"
+                            class="sign"
                         />
                     </defs>
 
@@ -241,7 +234,7 @@ export default class ScrollArea extends Vue {
 
     private get placedArtefacts() {
         return this.artefacts
-            .filter((x) => x.isPlaced)
+            .filter((x) => x.isPlaced && x.inViewport)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
     }
 
@@ -293,6 +286,11 @@ export default class ScrollArea extends Vue {
     cursor: move;
 }
 
+
+.sign {
+    fill: inherit;
+    stroke: inherit;
+}
 
 .display-letters {
     font-family: 'scroll_hebrew';

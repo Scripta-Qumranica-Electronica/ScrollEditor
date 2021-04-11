@@ -6,10 +6,11 @@
         :transform="groupTransform"
         :data="artefact.zOrder"
         pointer-events="all"
-        @pointerdown="pointerDown($event)"
-        @pointermove="pointerMove($event)"
-        @pointerup="pointerUp($event)"
-        @pointercancel="pointerCancel($event)"
+        @pointerdown="onPointerDown($event)"
+        @pointermove="onPointerMove($event)"
+        @pointerup="onPointerUp($event)"
+        @pointercancel="onPointerCancel($event)"
+        @click="onClick($event)"
     >
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
@@ -48,13 +49,13 @@
             :rois="visibleRois"
         ></roi-layer>
         <template v-if="displayText || reconstructedText">
-            <template v-for="d in displayedSigns">
-                <use
-                    :href = "`#path-${d.character}`"
-                    :key="d.id"
-                    :transform="d.svgTransform"
-                    />
-            </template>
+            <use v-for="d in displayedSigns"
+                 :data-sign-id="d.id"
+                 :key="d.id"
+                 :href="`#path-${d.character}`"
+                 class="sign"
+                 :class="{selected: d.id === selectedSignInterpretationId}"
+                 :transform="d.svgTransform" />
         </template>
     </g>
 </template>
@@ -129,11 +130,10 @@ class DisplayableSign {
 
     public get svgTransform() {
         const x = this.boundingBox.x;
-        const y = this.boundingBox.y - this.yOffset;
+        const y = this.boundingBox.y; //  - this.yOffset;
 
         return `translate(${x} ${y})`;
     }
-
 }
 
 @Component({
@@ -224,41 +224,19 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private get visibleRois(): InterpretationRoi[] {
-
-        const visibleRois: InterpretationRoi[] = [];
-        for (const roi of this.$state.interpretationRois.getItems()) {
-
-            if (
-                roi.status !== 'deleted' &&
-                roi.artefactId === this.artefact.id
-            ) {
-                visibleRois.push(roi);
-            }
-        }
-
-        return visibleRois;
+        return this.artefact.rois;
     }
 
     private get visibleSignInterpretations(): SignInterpretation[] {
-        const siSet = new Set<SignInterpretation>();
+        return this.artefact.signInterpretations;
+    }
 
-
-        for (const roi of this.visibleRois) {
-
-            const siId = roi.signInterpretationId;
-            if (siId === undefined) {
-                continue;
-            }
-            const si = this.$state.signInterpretations.get(siId);
-            if (!si) {
-                console.warn(`Can't locate sin ${siId} in manuscript editor`);
-                continue;
-            }
-
-            siSet.add(si);
+    public get selectedSignInterpretationId() {
+        if (this.$state.textFragmentEditor.selectedSignInterpretations.length !== 1) {
+            return null;
         }
 
-        return [...siSet];
+        return this.$state.textFragmentEditor.selectedSignInterpretations[0].signInterpretationId;
     }
 
     public get displayedSigns(): DisplayableSign[] {
@@ -283,7 +261,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         return displayedSigns;
     }
-
 
     protected async mounted() {
 
@@ -322,7 +299,12 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 
-    private pointerDown($event: PointerEvent) {
+    // Implement dragging artefacts - but only in material mode.
+    private onPointerDown($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         if (this.pointerId > 0) {
             return;
         }
@@ -342,7 +324,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin = { x: pt.x, y: pt.y };
     }
 
-    private pointerMove($event: PointerEvent) {
+    private onPointerMove($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         if (
             !this.mouseOrigin ||
             !this.selected ||
@@ -367,7 +353,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin.y = pt.y;
     }
 
-    private pointerUp($event: PointerEvent) {
+    private onPointerUp($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         const operations: ScrollEditorOperation[] = [];
         if (this.pointerId !== $event.pointerId || !this.selected) {
             this.cancelOperation($event.target as HTMLBaseElement);
@@ -399,7 +389,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.cancelOperation($event.target as HTMLBaseElement);
     }
 
-    private pointerCancel() {
+    private onPointerCancel() {
+        if (!this.materialMode) {
+            return;
+        }
+
         this.cancelOperation();
     }
 
@@ -429,11 +423,36 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.pointerId = -1;
     }
 
+    private get materialMode() {
+        return this.$state.scrollEditor.mode === 'material';
+    }
 
 
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
+    }
+
+    public onClick(event: MouseEvent) {
+        if (this.materialMode) {
+            return;
+        }
+        this.$state.textFragmentEditor.selectSign(null);
+
+        // Find the letter this this event applies to, if any
+        const element = (event.target! as HTMLBaseElement)!.closest('use');
+        if (!element) {
+            return;
+        }
+
+        const sid = element.getAttribute('data-sign-id');
+        if (!sid) {
+            return;
+        }
+
+        const id = parseInt(sid);
+        const si = this.$state.signInterpretations.get(id, true) || null;
+        this.$state.textFragmentEditor.selectSign(si);
     }
 }
 </script>
@@ -457,6 +476,16 @@ path.selected {
 
 .disabled {
     cursor: not-allowed;
+}
+
+.sign {
+    fill: black;
+    stroke: black;
+}
+
+.sign.selected {
+    fill: red;
+    stroke: red;
 }
 
 </style>

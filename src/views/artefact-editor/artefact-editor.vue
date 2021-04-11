@@ -4,127 +4,104 @@
             <waiting></waiting>
         </div>
         <div v-if="!waiting">
-            <div class="mb-3 header-actions">
-                <b-row class="mx-4 py-2">
-                    <b-col cols="8">
-                        <edition-header></edition-header>
-                    </b-col>
-                    <b-col cols="0">
-                        <div class="btn-tf">
-                            <span
-                                tabindex="0"
-                                class="d-inline-block"
-                                :style="{
-                                    pointerEvents: isDrawingEnabled
-                                        ? 'all'
-                                        : 'none',
-                                }"
-                                v-for="mode in [
-                                    {
-                                        icon: 'fa fa-pencil-square-o',
-                                        val: 'polygon',
-                                        title: this.$t('misc.draw'),
-                                    },
-                                    {
-                                        icon: 'fa fa-square-o',
-                                        val: 'box',
-                                        title: this.$t('misc.box'),
-                                    },
-                                ]"
-                                :key="mode.val"
-                                v-b-tooltip.hover.bottom
-                                :title="mode.title"
-                            >
-                                <b-button
-                                    v-show="!readOnly"
-                                    @click="onModeClick(mode.val)"
-                                    :pressed="mode === mode.val"
-                                    :disabled="!isDrawingEnabled"
-                                    class="m-2"
-                                >
-                                    <i :class="mode.icon"></i>
-                                </b-button>
-                            </span>
-                            <span
-                                tabindex="0"
-                                class="d-inline-block"
-                                v-b-tooltip.hover.bottom
-                                :style="{
-                                    pointerEvents: isDrawingEnabled
-                                        ? 'all'
-                                        : 'none',
-                                }"
-                                :title="$t('misc.cancel')"
-                            >
-                                <b-button
-                                    v-if="!readOnly"
-                                    type="button"
-                                    class="m-2"
-                                    @click="onDeleteRoi()"
-                                    :disabled="!isDeleteEnabled"
-                                >
-                                    <i class="fa fa-trash"></i> </b-button
-                            ></span>
-                            <span
-                                tabindex="0"
-                                class="d-inline-block"
-                                v-b-tooltip.hover.bottom
-                                :style="{
-                                    pointerEvents: isDrawingEnabled
-                                        ? 'all'
-                                        : 'none',
-                                }"
-                                :title="$t('misc.select')"
-                            >
-                                <b-button
-                                    v-if="!readOnly"
-                                    type="button"
-                                    @click="onModeClick('select')"
-                                    :pressed="actionMode === 'select'"
-                                    class="m-2"
-                                >
-                                    <i
-                                        class="fa fa-mouse-pointer"
-                                    ></i> </b-button
-                            ></span>
-                            <b-button
-                                class="m-2 undo"
-                                :disabled="!canUndo"
-                                @click="onUndo()"
-                                >Undo</b-button
-                            >
-                            <b-button
-                                class="m-2 redo"
-                                :disabled="!canRedo"
-                                @click="onRedo()"
-                                >Redo</b-button
-                            >
-                        </div>
-                    </b-col>
-                    <div class="pt-3">{{ saveStatusMessage }}</div>
-                </b-row>
-            </div>
             <div class="mt-4 editor-container">
                 <b-row class="h-100">
                     <b-col class="h-100 col-lg-9">
                         <div class="editor-actions">
                             <b-row class="border-bottom">
-                                <b-col class="col-lg-8">
+                                <b-col class="col-lg-6">
                                     <artefact-editor-toolbar
                                         :artefact="artefact"
                                         @paramsChanged="onParamsChanged($event)"
                                     ></artefact-editor-toolbar>
                                 </b-col>
-                                <div class="pt-4 col-lg-4 row no-gutters">
-                                    <div class="col-xl-6 col-md-12">
+                                <div class="col-lg-6 row no-gutters">
+                                    <div class="col-6 pt-2">
+                                        <span
+                                            tabindex="0"
+                                            class="d-inline-block"
+                                            :style="{
+                                                pointerEvents: isDrawingEnabled
+                                                    ? 'all'
+                                                    : 'none',
+                                            }"
+                                            v-for="mode in [
+                                                {
+                                                    icon: 'fa fa-pencil-square-o',
+                                                    val: 'polygon',
+                                                    title: this.$t('misc.draw'),
+                                                },
+                                                {
+                                                    icon: 'fa fa-square-o',
+                                                    val: 'box',
+                                                    title: this.$t('misc.box'),
+                                                },
+                                            ]"
+                                            :key="mode.val"
+                                            v-b-tooltip.hover.bottom
+                                            :title="mode.title"
+                                        >
+                                            <b-button
+                                                v-show="!readOnly"
+                                                @click="onModeClick(mode.val)"
+                                                :pressed="mode === mode.val"
+                                                :disabled="!isDrawingEnabled"
+                                                class="m-2"
+                                            >
+                                                <i :class="mode.icon"></i>
+                                            </b-button>
+                                        </span>
+                                        <span
+                                            tabindex="0"
+                                            class="d-inline-block"
+                                            v-b-tooltip.hover.bottom
+                                            :style="{
+                                                pointerEvents: isDrawingEnabled
+                                                    ? 'all'
+                                                    : 'none',
+                                            }"
+                                            :title="$t('misc.cancel')"
+                                        >
+                                            <b-button
+                                                v-if="!readOnly"
+                                                type="button"
+                                                class="m-2"
+                                                @click="onDeleteRoi()"
+                                                :disabled="!isDeleteEnabled"
+                                            >
+                                                <i class="fa fa-trash"></i> </b-button
+                                        ></span>
+                                        <span
+                                            tabindex="0"
+                                            class="d-inline-block"
+                                            v-b-tooltip.hover.bottom
+                                            :style="{
+                                                pointerEvents: isDrawingEnabled
+                                                    ? 'all'
+                                                    : 'none',
+                                            }"
+                                            :title="$t('misc.select')"
+                                        >
+                                            <b-button
+                                                v-if="!readOnly"
+                                                type="button"
+                                                @click="onModeClick('select')"
+                                                :pressed="actionMode === 'select'"
+                                                class="m-2"
+                                            >
+                                                <i
+                                                    class="fa fa-mouse-pointer"
+                                                ></i> </b-button
+                                        ></span>
+                                    </div>
+                                    <div class="col pt-4">
                                         <b-form-checkbox
                                             @input="onHighlightComment($event)"
                                             switch
                                             size="sm"
-                                            >Comments</b-form-checkbox
-                                        >
+                                            >Comments</b-form-checkbox>
                                     </div>
-                                    <div class="col-xl-6 col-md-12">
+                                    <div class="col pt-4">
                                         <b-form-checkbox
                                             switch
                                             size="sm"
@@ -159,10 +136,7 @@
                                         :show-text="true"
                                     />
                                     <sign-wheel
-                                        v-if="
-                                            selectedSignsInterpretation.length ==
-                                            1
-                                        "
+                                        v-if="selectedSignInterpretations.length === 1"
                                         :line="selectedLine"
                                     />
                                 </div>
@@ -300,13 +274,12 @@ import {
 import {
     SavingAgent,
     OperationsManager,
-    OperationsManagerStatus,
 } from '@/utils/operations-manager';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
-import EditionHeader from '../edition/components/edition-header.vue';
 import { ArtefactEditorState } from '@/state/artefact-editor';
 import { Artefact } from '@/models/artefact';
+import { TextFragmentState } from '@/state/text-fragment';
 
 @Component({
     name: 'artefact-editor',
@@ -321,7 +294,6 @@ import { Artefact } from '@/models/artefact';
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
-        'edition-header': EditionHeader,
     },
 })
 export default class ArtefactEditor
@@ -358,7 +330,6 @@ export default class ArtefactEditor
         this
     );
 
-    private visibleRois: InterpretationRoi[] = [];
     // Arguments retrieved from the URL
     private editionId: number = 0;
     private artefactId: number = 0;  // Only relevent in artefact mode
@@ -369,25 +340,26 @@ export default class ArtefactEditor
         return this.$state.artefacts.current!;
     }
     private get params(): ArtefactEditorParams {
-        return this.artefactEditorState.params || new ArtefactEditorParams();
-    }
-    public get artefactEditorState(): ArtefactEditorState {
-        return this.$state.artefactEditor;
+        return this.$state.artefactEditor.params || new ArtefactEditorParams();
     }
 
-    public get selectedSignsInterpretation(): SignInterpretation[] {
-        return this.artefactEditorState.selectedSignsInterpretation;
+    protected get visibleRois() {
+        return this.artefact.rois;
+    }
+
+    public get artefactEditorState() {
+        return this.$state.artefactEditor;
+    }
+    public get textFragmentEditorState() {
+        return this.$state.textFragmentEditor;
+    }
+
+    public get selectedSignInterpretations(): SignInterpretation[] {
+        return this.textFragmentEditorState.selectedSignInterpretations;
     }
 
     public get selectedInterpretationRoi(): InterpretationRoi | null {
         return this.artefactEditorState.selectedInterpretationRoi;
-    }
-
-    public get canUndo(): boolean {
-        return this.operationsManager.canUndo;
-    }
-    public get canRedo(): boolean {
-        return this.operationsManager.canRedo;
     }
 
     public async saveEntities(
@@ -426,7 +398,7 @@ export default class ArtefactEditor
     }
 
     public onNewPolygon(poly: Polygon) {
-        if (!this.selectedSignsInterpretation.length) {
+        if (!this.selectedSignInterpretations.length) {
             console.error("Can't add ROI with no selected sign");
             return;
         }
@@ -435,7 +407,7 @@ export default class ArtefactEditor
         const normalized = Polygon.offset(poly, -bbox.x, -bbox.y);
         const roi = InterpretationRoi.new(
             this.artefact,
-            this.artefactEditorState.singleSelectedSi!,
+            this.textFragmentEditorState.singleSelectedSi!,
             normalized,
             bbox
         );
@@ -488,24 +460,13 @@ export default class ArtefactEditor
         this.statusTextFragment(roi);
 
         this.artefactEditorState.selectRoi(null);
-        this.artefactEditorState.selectedSignsInterpretation = [];
-    }
-
-    public get saveStatusMessage() {
-        if (this.operationsManager.isSaving) {
-            return 'Saving...';
-        }
-        if (this.operationsManager.isDirty) {
-            return 'Save pending';
-        }
-        return 'Scroll Saved';
+        this.textFragmentEditorState.selectedSignInterpretations = [];
     }
 
     protected async created() {
         await this.$state.prepare.edition(
             parseInt(this.$route.params.editionId)
         );
-        this.$state.eventBus.on('roi-changed', this.initVisibleRois);
         this.$state.eventBus.on(
             'change-artefact-rotation',
             (angle: number) => (this.params.rotationAngle = angle)
@@ -519,7 +480,6 @@ export default class ArtefactEditor
     }
 
     protected destroyed() {
-        this.$state.eventBus.off('roi-changed', this.initVisibleRois);
         this.$state.eventBus.off('change-artefact-rotation');
         this.$state.eventBus.off('remove-roi', this.removeRoi);
         this.$state.eventBus.off('new-operation', this.onNewOperation);
@@ -527,6 +487,8 @@ export default class ArtefactEditor
             'new-bulk-operations',
             this.onNewBulkOperations
         );
+
+        this.$state.operationsManager = null;
     }
 
     protected async mounted() {
@@ -569,6 +531,8 @@ export default class ArtefactEditor
 
         console.debug('artefact editor mounted with mode ', this.editorMode);
         this.waiting = false;
+        this.$state.operationsManager = this.operationsManager;
+        this.$state.textFragmentEditor.textEditingMode = 'artefact';
     }
 
     private get edition(): EditionInfo {
@@ -623,8 +587,8 @@ export default class ArtefactEditor
 
     private get isDrawingEnabled() {
         return (
-            !!this.artefactEditorState.singleSelectedSi &&
-            !this.artefactEditorState.singleSelectedSi.isReconstructed
+            !!this.textFragmentEditorState.singleSelectedSi &&
+            !this.textFragmentEditorState.singleSelectedSi.isReconstructed
         );
     }
 
@@ -674,8 +638,6 @@ export default class ArtefactEditor
         this.fillImageSettings();
         this.calculateBoundingBox();
 
-        this.initVisibleRois();
-
         setTimeout(() => this.setFirstZoom(), 0);
     }
 
@@ -698,10 +660,10 @@ export default class ArtefactEditor
             );
             // if any ROI found in current text fragment, put tf.certain = false
             if (!anyRoiOfSelectedTf && tfToMove) {
-                this.artefactEditorState.removeTextFragementToArtefact(si);
+                this.textFragmentEditorState.removeTextFragementFromArtefact(si);
                 // if new ROI and new text fragment, add text fragment to artefact
             } else if (!tfToMove && anyRoiOfSelectedTf) {
-                this.artefactEditorState.addTextFragementToArtefact(si);
+                this.textFragmentEditorState.addTextFragementToArtefact(si);
             }
         }
     }
@@ -717,7 +679,7 @@ export default class ArtefactEditor
 
     private onDeleteRoi() {
         const roi = this.selectedInterpretationRoi;
-        const si = this.selectedSignsInterpretation;
+        const si = this.selectedSignInterpretations;
         if (!roi || !si) {
             console.error("Can't delete an ROI if nothing is selected");
             return;
@@ -745,22 +707,22 @@ export default class ArtefactEditor
     }
 
     private get selectedLine(): Line | null {
-        if (!this.artefactEditorState.singleSelectedSi) {
+        if (!this.textFragmentEditorState.singleSelectedSi) {
             return null;
         }
 
-        return this.artefactEditorState.singleSelectedSi!.sign.line;
+        return this.textFragmentEditorState.singleSelectedSi!.sign.line;
     }
 
     private nextSign() {
-        if (this.artefactEditorState.singleSelectedSi) {
+        if (this.textFragmentEditorState.singleSelectedSi) {
             let newIndex =
-                this.artefactEditorState.singleSelectedSi!.sign.indexInLine + 1;
+                this.textFragmentEditorState.singleSelectedSi!.sign.indexInLine + 1;
             while (newIndex < this.selectedLine!.signs.length) {
                 const newSI = this.selectedLine!.signs[newIndex]
                     .signInterpretations[0];
                 if (newSI.character && !newSI.isReconstructed) {
-                    this.artefactEditorState.selectSign(newSI);
+                    this.textFragmentEditorState.selectSign(newSI);
                     break;
                 }
                 newIndex++;
@@ -809,7 +771,7 @@ export default class ArtefactEditor
 
     private onAuto() {
         if (
-            this.artefactEditorState.selectedSignsInterpretation.length > 1 &&
+            this.textFragmentEditorState.selectedSignInterpretations.length > 1 &&
             this.autoMode
         ) {
             this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
@@ -880,29 +842,17 @@ export default class ArtefactEditor
         };
     }
 
-    private initVisibleRois() {
-        this.visibleRois = [];
-        for (const roi of this.$state.interpretationRois.getItems()) {
-            if (
-                roi.status !== 'deleted' &&
-                roi.artefactId === this.artefact.id
-            ) {
-                this.visibleRois.push(roi);
-            }
-        }
-    }
-
     private onRoiClicked(roi: InterpretationRoi) {
         this.artefactEditorState.selectRoi(roi);
-        this.artefactEditorState.selectedSignsInterpretation = [];
+        this.textFragmentEditorState.selectedSignInterpretations = [];
 
         if (!roi.signInterpretationId) {
-            this.artefactEditorState.selectedSignsInterpretation = [];
+            this.textFragmentEditorState.selectedSignInterpretations = [];
         } else {
             const si = this.$state.signInterpretations.get(
                 roi.signInterpretationId
-            );
-            this.artefactEditorState.selectSign(si);
+            ) || null;
+            this.textFragmentEditorState.selectSign(si);
         }
     }
 
@@ -926,13 +876,12 @@ export default class ArtefactEditor
     }
 
     private async saveROIs(mode: 'created' | 'deleted') {
-        const selected = this.artefactEditorState.singleSelectedSi;
+        const selected = this.textFragmentEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
             this.artefact,
             mode
         );
-        this.initVisibleRois();
         // if (selected) {
         //     // Make sure we select again, as the ROIs might have changed
         //     this.artefactEditorState.onSignInterpretationClicked(selected, false);
@@ -1131,14 +1080,6 @@ export default class ArtefactEditor
 
     private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
         this.operationsManager.addBulkOperations(ops);
-    }
-
-    private onUndo() {
-        this.operationsManager.undo();
-    }
-
-    private onRedo() {
-        this.operationsManager.redo();
     }
 }
 </script>

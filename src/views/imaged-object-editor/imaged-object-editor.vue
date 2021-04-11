@@ -3,31 +3,6 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div v-if="!waiting && imagedObject" class="mb-3 header-actions">
-            <b-row class="mx-4 py-2">
-                <b-col class="col-lg-9 col-xl-8">
-                    <edition-header></edition-header>
-                </b-col>
-                <b-col class="col-2 mt-2">
-                    <div class="btn-tf">
-                        <b-button
-                            v-for="mode in editList"
-                            :key="mode.val"
-                            @click="editingModeChanged(mode.val)"
-                            :pressed="modeChosen(mode.val)"
-                            class="sidebarCollapse mr-4 pMt-2"
-                            v-b-tooltip.hover.bottom
-                            :title="mode.title"
-                        >
-                            <i :class="mode.icon"></i>
-                        </b-button>
-                    </div>
-                </b-col>
-                <b-col class="p-3 col-2">
-                    <div>{{ saveStatusMessage }}</div>
-                </b-col>
-            </b-row>
-        </div>
         <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
             <b-row align-v="center" class="border-bottom no-gutters">
                 <b-col class="col-lg-9 col-xl-9">
@@ -38,24 +13,11 @@
                         :artefactId="artefactId"
                         :side="side"
                         :status-indicator="operationsManager"
-                        @undo="onUndo($event)"
-                        @redo="onRedo($event)"
+                        :modes="editList"
                         @onSideArtefactChanged="sideArtefactChanged($event)"
                     ></imaged-object-editor-toolbar>
                 </b-col>
                 <div class="col-lg-3 col-xl-3">
-                    <b-button-group class="btn-sm">
-                        <b-button
-                            class="mr-1"
-                            :disabled="!canUndo"
-                            @click="onUndo()"
-                            >Undo</b-button
-                        >
-                        <b-button :disabled="!canRedo" @click="onRedo()"
-                            >Redo</b-button
-                        >
-                    </b-button-group>
-
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
@@ -264,6 +226,7 @@ import {
     DrawingMode,
     EditorParamsChangedArgs,
     ImagedObjectEditorParams,
+    ModeButtonInfo,
 } from './types';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import BoundaryDrawer from '@/components/polygons/boundary-drawer.vue';
@@ -281,7 +244,6 @@ import { Polygon } from '@/utils/Polygons';
 import { normalizeOpacity } from '@/components/image-settings/types';
 import ImagedObjectEditorToolbar from './imaged-object-editor-toolbar.vue';
 import { DropdownOption } from '@/utils/helpers';
-import EditionHeader from '../edition/components/edition-header.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { ImagedObjectState } from '../../state/imaged-object';
 
@@ -295,7 +257,6 @@ import { ImagedObjectState } from '../../state/imaged-object';
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
         'zoomer': Zoomer,
         'edition-icons': EditionIcons,
-        'edition-header': EditionHeader,
     },
 })
 export default class ImagedObjectEditor
@@ -448,6 +409,14 @@ export default class ImagedObjectEditor
         this.fillImageSettings();
     }
 
+    public mounted() {
+        this.$state.operationsManager = this.operationsManager;
+    }
+
+    public destroyed() {
+        this.$state.operationsManager = null;
+    }
+
     private get artefact(): Artefact | undefined {
         const artefact = this.artefacts.find((x) => x.id === this.artefactId);
         return artefact;
@@ -535,7 +504,7 @@ export default class ImagedObjectEditor
         return `${scale} ${translate} ${rotate}`;
     }
 
-    private get editList(): any[] {
+    private get editList(): ModeButtonInfo[] {
         if (this.canEdit) {
             return [
                 {
@@ -544,39 +513,13 @@ export default class ImagedObjectEditor
                     title: this.$t('misc.draw'),
                 },
                 {
-                    icon: 'fa fa-trash',
+                    icon: 'fa fa-eraser',
                     val: 'ERASE',
-                    title: this.$t('misc.cancel'),
+                    title: this.$t('misc.erase'),
                 },
             ];
         }
         return [];
-    }
-
-    public get canUndo(): boolean {
-        return this.operationsManager.canUndo;
-    }
-
-    public get canRedo(): boolean {
-        return this.operationsManager.canRedo;
-    }
-
-    public onUndo() {
-        this.operationsManager.undo();
-    }
-
-    public onRedo() {
-        this.operationsManager.redo();
-    }
-
-    public get saveStatusMessage() {
-        if (this.operationsManager.isSaving) {
-            return 'Saving...';
-        }
-        if (this.operationsManager.isDirty) {
-            return 'Save pending';
-        }
-        return 'Scroll Saved';
     }
 
     public async newArtefact() {
@@ -616,12 +559,6 @@ export default class ImagedObjectEditor
 
     private editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
-    }
-
-    private modeChosen(val: DrawingMode): boolean {
-        return (
-            DrawingMode[val].toString() === this.params.drawingMode.toString()
-        );
     }
 
     private inputRenameChanged(art: Artefact | undefined) {
@@ -691,7 +628,7 @@ export default class ImagedObjectEditor
             return;
         }
 
-        console.log(this.artefact!.mask.svg, newPolygon.svg, 'hasChanged');
+        // console.log(this.artefact!.mask.svg, newPolygon.svg, 'hasChanged');
 
         this.operationsManager.addOperation(
             new ImagedObjectEditorOperation(

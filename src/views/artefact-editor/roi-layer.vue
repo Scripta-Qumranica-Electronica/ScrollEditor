@@ -68,7 +68,7 @@ export default class RoiLayer extends Vue {
     }
 
     private get si() {
-        return this.$state.artefactEditor.singleSelectedSi;
+        return this.$state.textFragmentEditor.singleSelectedSi;
     }
 
     public get artefactEditorState() {

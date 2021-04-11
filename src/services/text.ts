@@ -50,6 +50,12 @@ class TextService {
         return new TextEdition(response.data);
     }
 
+    public async getEditionFullText(editionId: number) {
+        const response = await CommHelper.get<TextEditionDTO>(ApiRoutes.editionFullTextUrl(editionId));
+
+        return new TextEdition(response.data);
+    }
+
     public async updateArtefactROIs(artefact: Artefact, mode: 'created' | 'deleted' | 'both' = 'both') {
         // Updates all the ROIs of the artefact.
         // This function scans the state and updates ROIs based on their status.
@@ -58,9 +64,7 @@ class TextService {
         const newROIs: InterpretationRoi[] = [];
         const deletedROIs: InterpretationRoi[] = [];
 
-        for (const roi of this.stateManager.interpretationRois.getArtefactRois(
-            artefact
-        )) {
+        for (const roi of artefact.rois) {
             if (roi.status === 'new' && mode !== 'deleted') {
                 newROIs.push(roi);
             } else if (roi.status === 'deleted' && mode !== 'created') {

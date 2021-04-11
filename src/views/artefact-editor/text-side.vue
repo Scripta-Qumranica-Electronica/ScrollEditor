@@ -131,8 +131,8 @@ export default class TextSide extends Vue {
     }
 
     private get openedTextFragement() {
-        if (this.$state.artefactEditor.singleSelectedSi) {
-            const tfId = this.$state.artefactEditor.singleSelectedSi.sign.line
+        if (this.$state.textFragmentEditor.singleSelectedSi) {
+            const tfId = this.$state.textFragmentEditor.singleSelectedSi.sign.line
                 .textFragment.textFragmentId;
             return this.displayedTextFragments.findIndex(
                 (tf) => tf.id === tfId
@@ -218,13 +218,13 @@ export default class TextSide extends Vue {
     private emptySelectedState(id?: number) {
         if (
             id &&
-            this.$state.artefactEditor.singleSelectedSi &&
-            this.$state.artefactEditor.singleSelectedSi.sign.line.textFragment
+            this.$state.textFragmentEditor.singleSelectedSi &&
+            this.$state.textFragmentEditor.singleSelectedSi.sign.line.textFragment
                 .textFragmentId === id
         ) {
             return;
         }
-        this.$state.artefactEditor.selectedSignsInterpretation = [];
+        this.$state.textFragmentEditor.selectedSignInterpretations = [];
         this.$state.artefactEditor.selectRoi(null);
     }
     private changePosition(index: number, up: boolean) {

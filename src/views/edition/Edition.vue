@@ -45,11 +45,6 @@
                         :to="`/editions/${editionId}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
-                    <b-button
-                        variant="outline-primary"
-                        :to="`/editions/${editionId}/scroll-editor`"
-                        >Entire Manuscript</b-button
-                    >
                 </b-button-group>
             </div>
         </div>
@@ -154,6 +149,8 @@ export default class Edition extends Vue {
          // This is done also in scroll-editor
         if (currentEdition) {
           this.$state.editions.current = currentEdition;
+          this.$state.artefacts.current = null;
+          this.$state.imagedObjects.current = null;
          }
 
       //  this.waiting = false;

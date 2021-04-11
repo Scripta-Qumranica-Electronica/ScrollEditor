@@ -16,6 +16,7 @@ import {
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
 import { Position } from '@/models/misc';
+import { StateManager } from '@/state';
 
 class TextFragmentData {
     public id: number;
@@ -257,11 +258,20 @@ class SignInterpretation {
         this.attributes = newAttrs;
     }
 
+
+    public get htmlCharacter() {
+        if (!this.character || this.character === ' ' || this.signType[1] !== 'LETTER') {
+            return '&nbsp;';
+        }
+
+        return this.character;
+    }
+
     // Set the sign type
     public get signType(): [number, string] {
         const attr = this.attributes.find(a => a.attributeString === 'sign_type');
         if (!attr) {
-            return this.character ? [1, 'LETTER'] : [2, 'SPACE'];
+            return this.character && this.character !== ' ' ? [1, 'LETTER'] : [2, 'SPACE'];
         }
         return [attr.attributeValueId, attr.attributeValueString];
     }
@@ -320,7 +330,7 @@ class InterpretationRoi {
     public position: Position;
     public exceptional: boolean;
     public valuesSet: boolean;
-    public status: RoiStatus;
+    private _status: RoiStatus;
     public rotation: number;
 
     // UI related fields
@@ -344,7 +354,7 @@ class InterpretationRoi {
             this.interpretationRoiId = (obj as InterpretationRoiDTO).interpretationRoiId;
         }
 
-        this.status = 'original';
+        this._status = 'original';
     }
 
     public get id() {
@@ -367,6 +377,25 @@ class InterpretationRoi {
         copy.interpretationRoiId = this.interpretationRoiId;
 
         return copy;
+    }
+
+    public get status() {
+        return this._status;
+    }
+
+    public set status(newStatus: RoiStatus) {
+        if (newStatus === this._status) {
+            return;
+        }
+        if (newStatus === 'deleted') {
+            // Remove the ROI from the artefact controlling it
+            StateManager.instance.interpretationRois.detachRoiFromArtefact(this);
+        } else if (this._status === 'deleted') {
+            // Add the ROI to the artefact
+            StateManager.instance.interpretationRois.attachRoiToArtefact(this);
+        }
+
+        this._status = newStatus;
     }
 }
 
