@@ -395,7 +395,7 @@ export default class ScrollEditor
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
         this.$state.operationsManager = this.operationsManager;
-        this.$state.textFragmentEditor.textEditingMode = 'scroll';
+        this.$state.textFragmentEditor.textEditingMode = 'manuscript';
     }
 
     private async beforeRouteUpdate(to: any, from: any, next: () => void) {

@@ -9,7 +9,7 @@ function state() {
     return StateManager.instance;
 }
 export type editSignInterpretationModeType = 'edit' | 'create';
-export type TextEditingMode = 'scroll' | 'artefact';
+export type TextEditingMode = 'manuscript' | 'artefact';
 export class TextFragmentState {
     public selectedSignInterpretations: SignInterpretation[];
     public selectedAttribute: InterpretationAttributeDTO | null = null;
