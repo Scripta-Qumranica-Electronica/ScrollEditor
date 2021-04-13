@@ -166,6 +166,11 @@ export default class TextSign extends Vue {
     }
 
     private openEditVirtualArtefact() {
+        if (!this.virtualArtefact) {
+            console.warn("Can't edit virtual artefact when no virtual artefact is set");
+            return;
+        }
+        this.$state.textFragmentEditor.editedVirtualArtefact = this.virtualArtefact;
         this.$root.$emit('bv::show::modal', 'editVirtualArtefactText');
     }
 

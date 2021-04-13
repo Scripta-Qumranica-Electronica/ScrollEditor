@@ -19,7 +19,7 @@ import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 
 import Navbar from '@/components/navigation/Navbar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import SessionService from '@/services/session.ts';
+import SessionService from '@/services/session';
 import { StateManager } from './state';
 import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog.vue';
 

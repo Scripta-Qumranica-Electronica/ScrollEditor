@@ -1,4 +1,5 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import { Artefact } from '@/models/artefact';
 import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData, TextFragment } from '@/models/text';
 import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 import { StateManager } from '.';
@@ -16,6 +17,9 @@ export class TextFragmentState {
     public highlightCommentMode: boolean = false;
     public modeSignModal: editSignInterpretationModeType = 'edit';
     public textEditingMode: TextEditingMode = 'artefact'; // Provides an indication which module edits the text now
+
+    // Editing the text of a virtual artefact
+    public editedVirtualArtefact: Artefact | null = null;
 
     constructor() {
         this.selectedSignInterpretations = [];
