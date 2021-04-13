@@ -9,6 +9,7 @@
         ></text-fragment>
         <sign-attribute-pane/>
         <edit-sign-modal></edit-sign-modal>
+        <edit-virtual-artefact-text-modal></edit-virtual-artefact-text-modal>
     </b-container>
 </template>
 
@@ -17,6 +18,7 @@ import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
+import EditVirtualArtefactTextModal from '@/components/text/edit-virtual-artefact-text.vue';
 
 @Component({
     name: 'text-toolbar',
@@ -24,6 +26,7 @@ import EditSignModal from '@/components/text/edit-sign-modal.vue';
         'text-fragment': TextFragmentComponent,
         'sign-attribute-pane': SignAttributePane,
         'edit-sign-modal': EditSignModal,
+        'edit-virtual-artefact-text-modal': EditVirtualArtefactTextModal,
         // 'artefact-toolbox': ArtefactToolbox,
     },
 })

@@ -166,7 +166,7 @@ export default class TextSign extends Vue {
     }
 
     private openEditVirtualArtefact() {
-        this.$root.$emit('bv::show::modal', 'editVirtualArtefact');
+        this.$root.$emit('bv::show::modal', 'editVirtualArtefactText');
     }
 
     private closeSignMenu() {
