@@ -17,6 +17,7 @@ import { Artefact } from '@/models/artefact';
 import { InterpretationRoi, Sign, SignInterpretation, TextFragment } from '@/models/text';
 import { StateManager } from '@/state';
 import { BoundingBox, Point } from '@/utils/helpers';
+import { Placement } from '@/utils/Placement';
 import { Polygon } from '@/utils/Polygons';
 
 type SignROI = [Sign, InterpretationRoi | undefined];
@@ -34,7 +35,8 @@ export class VirtualArtefactEditor {
     // Measurements for building ROIs
     private anchor: Anchor;  // Anchor artefact text to Left, Right or Both
     private maxWidth?: number; // Maximum width of artefact - undefined if there isn't any
-    private base: Point;    // Base point of first ROI - X is the right/left corner, y is the character's baseline.
+    private anchorPoint: Point; // Anchor point nn the manuscript, the artefact will always start there - top left or top right, depending on anchor
+    private baseline: number; // Baseline height inside the artefact
 
     private get script() {
         return this.$state.editions.current!.script!;
@@ -58,7 +60,7 @@ export class VirtualArtefactEditor {
         this._text = this.extractOriginalText();
         // this.shadowSignROIs = this.populateShadowSigns();
 
-        [this.anchor, this.base, this.maxWidth] = this.getBaseMeasurements();
+        [this.anchor, this.anchorPoint, this.baseline, this.maxWidth] = this.getBaseMeasurements();
 
         this.populateShadows();
 
@@ -211,13 +213,7 @@ export class VirtualArtefactEditor {
         return sign;
     }
 
-    private shadowROI(roi: InterpretationRoi, si: SignInterpretation) {
-        const shadow = InterpretationRoi.new(this.shadowArtefact, si, roi.shape, roi.position, roi.rotation);
-
-        return shadow;
-    }
-
-    private getBaseMeasurements(): [Anchor, Point, number?] {
+    private getBaseMeasurements(): [Anchor, Point, number, number?] {
         // Getting the base measurements is delicate.
         const origin = this.originSignROIs;
         const defaultBaseline = this.originalArtefact.boundingBox.height - 5;
@@ -237,9 +233,13 @@ export class VirtualArtefactEditor {
             let rightAnchor: Sign | undefined;  // tslint:disable-line
 
             const firstSign = origin[0][0];
-            if (firstSign.indexInLine > 0) {
-                // The artefact has a right anchor if the first sign is not the first in line
-                rightAnchor = line.signs[firstSign.indexInLine - 1];
+            if (firstSign.indexInLine !== 0) {
+                // The artefact has a right anchor if it is first in line, or the only
+                // sign before it is a break;
+                const prevSign = line.signs[firstSign.indexInLine - 1];
+                if (prevSign.signInterpretations[0].signType[1] !== 'BREAK') {
+                    rightAnchor = line.signs[firstSign.indexInLine - 1];
+                }
             }
 
             let leftAnchor: Sign | undefined;  // tslint:disable-line
@@ -259,6 +259,8 @@ export class VirtualArtefactEditor {
         }
         const [anchor, leftAnchor, rightAnchor] = getAnchors();
 
+        console.debug(anchor, leftAnchor, rightAnchor);
+
         const maxWidth = rightAnchor && leftAnchor ? this.originalArtefact.boundingBox.width : undefined;
 
         // We need the baseline of the artefact, which is the baseline of any of the existing signs on the
@@ -271,13 +273,12 @@ export class VirtualArtefactEditor {
             }
             return firstSR[1]!.position.y;
         }
-        const baseY = getBaseline();
-
         // The base X point is the artefact's left corner if we anchor to the left, or its right
         // corner if we anchor to the right
 
         const baseX = this.originalArtefact.placement!.translate.x + (anchor === 'right' ? this.originalArtefact.boundingBox.width : 0);
-        return [anchor, { x: baseX, y: baseY }, maxWidth];
+        const baseY = this.originalArtefact.placement!.translate.y;
+        return [anchor, { x: baseX, y: baseY }, getBaseline(), maxWidth];
     }
 
     private populateShadows() {
@@ -415,7 +416,7 @@ export class VirtualArtefactEditor {
 
             // Now we can create the ROI
             // We basically replicate the same calculation done in the backend
-            const roiPosition = { x: rightX - gd.boundingBox.width, y: this.base.y };
+            const roiPosition = { x: rightX - gd.boundingBox.width, y: this.baseline };
             const roiBox: BoundingBox = {
                 x: 0,
                 y: -gd.yOffset - (kerning?.yKern || 0),
@@ -443,44 +444,13 @@ export class VirtualArtefactEditor {
     }
 
     private placeShadowArtefact() {
-        // Do nothing yet
-    }
+        const width = this.calcArtefactWidth();
+        const top = this.anchorPoint.y;
+        const left = this.anchorPoint.x - (this.anchor === 'right' ? width : 0);
+        const height = this.originalArtefact.boundingBox.height;
 
-    private reportROIs() {
-        console.debug(`Anchor ${this.anchor}, base: (${this.base.x}, ${this.base.y})`);
-        console.debug(`Dimensions: width ${this.originalArtefact.boundingBox.width}, height: ${this.originalArtefact.boundingBox.height}`);
-
-        if (this.shadowSignROIs.length !== this.originSignROIs.length) {
-            console.warn("Can't report if shadow has been updated");
-            return;
-        }
-
-        for (let i = 0; i < this.shadowSignROIs.length; i++) {
-            const shadowSR = this.shadowSignROIs[i];
-            const originalSR = this.originSignROIs[i];
-
-            const shadowSI = shadowSR[0].signInterpretations[0];
-            const originalSI = originalSR[0].signInterpretations[0];
-
-            if (shadowSI.signType[1] !== originalSI.signType[1] || shadowSI.character !== originalSI.character) {
-                console.warn(`${i}: inconsistent SIs: shadow: '${shadowSI.character}', ${shadowSI.signType[1]}, original: '${originalSI.character}', ${originalSI.signType[1]}`);
-                continue;
-            }
-
-            if (!shadowSR[1] && originalSR[1] || shadowSR[1] && !originalSR[1]) {
-                console.warn(`${i}: inconsistent ROIs: shadow: ${!!shadowSR[1]}, original: ${!!originalSR}`);
-                continue;
-            }
-
-            if (!shadowSR[1]) { // No ROI for both
-                console.debug(`${i}: ${shadowSI.signType[1]}`);
-            } else {
-                // We have ROIs
-                const glyph = this.script.glyphs[shadowSI.character || ' '];
-                console.debug(`${i}: '${shadowSI.character}', glyph ${glyph.boundingBox}, ${glyph.yOffset}`);
-                console.debug(`\toriginal\t${originalSR[1]!.position.x}, ${originalSR[1]!.position.y}\t${originalSR[1]!.shape.svg}`);
-                console.debug(`\tshadow\t${shadowSR[1]!.position.x}, ${shadowSR[1]!.position.y}\t${shadowSR[1]!.shape.svg}`);
-            }
-        }
+        // Now we place the artefact at (top, left) and set its shape to the box
+        this.shadowArtefact.placement.translate = { x: left, y: top };
+        this.shadowArtefact.mask = Polygon.fromBox( { x: 0, y: 0, width, height });
     }
 }
