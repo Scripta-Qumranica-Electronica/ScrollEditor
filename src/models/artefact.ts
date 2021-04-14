@@ -102,68 +102,58 @@ export class Artefact {
         return { x, y };
     }
 
-    private calculateNewPoints(): BoundingBox {
 
-        if (this.placement.rotate > 0) {
+    public calculateNewPoints(): BoundingBox {
 
-            const theta = this.placement.rotate * Math.PI / 180.;
+        const theta = this.placement.rotate * Math.PI / 180;
 
-            // Find the middle rotating point
-            const center = this.getArtefactCenter();
+        // Find the middle rotating point
+        const center = this.getArtefactCenter();
 
-            // Find all the corners relative to the center
-            const cornersX = [
-                this.placement.translate.x! - center.x!,
-                this.placement.translate.x! - center.x!,
-                this.placement.translate.x! +
-                    this.boundingBox.width! - center.x!,
-                this.placement.translate.x! +
-                    this.boundingBox.width! - center.x!
-            ];
+        // Find all the corners relative to the center
+        const cornersX = [
+            this.placement.translate.x! - center.x!,
+            this.placement.translate.x! - center.x!,
+            this.placement.translate.x! +
+                this.boundingBox.width! - center.x!,
+            this.placement.translate.x! +
+                this.boundingBox.width! - center.x!
+        ];
 
-            const cornersY = [
-                this.placement.translate.y! - center.y!,
-                this.placement.translate.y! +
-                    this.boundingBox.height! - center.y!,
-                center.y! - this.placement.translate.y!,
-                this.placement.translate.y! +
-                    this.boundingBox.height! - center.y!
-            ];
+        const cornersY = [
+            this.placement.translate.y! - center.y!,
+            this.placement.translate.y! +
+                this.boundingBox.height! - center.y!,
+            center.y! - this.placement.translate.y!,
+            this.placement.translate.y! +
+                this.boundingBox.height! - center.y!
+        ];
 
-            // Find new the minimum corner X and Y by taking the minimum of the bounding box
-            let newX = 1e10;
-            let newY = 1e10;
+        // Find new the minimum corner X and Y by taking the minimum of the bounding box
+        let newX = 1e10;
+        let newY = 1e10;
+        const sinTeta = Math.sin(theta);
+        const cosTeta = Math.cos(theta);
 
-            for (let i = 0; i < 4; i = i + 1 ) {
-                newX = Math.min(
-                        newX,
-                        cornersX[i] * Math.cos(theta) -
-                            cornersY[i] * Math.sin(theta) + center.x!
-                    );
-                newY = Math.min(
-                        newY,
-                        cornersX[i] * Math.sin(theta) +
-                            cornersY[i] * Math.cos(theta) + center.y!
-                    );
-            }
-
-            // new width and height
-            // const newWidth = newMaxX - newX;
-            // const newHeight = newMaxY - newY;
-
-            const newWidth = (center.x! - newX) * 2;
-            const newHeight = ( center.y! - newY) * 2;
-
-            return new BoundingBox ( newX, newY, newWidth , newHeight);
+        for (let i = 0; i < 4; i = i + 1 ) {
+            newX = Math.min(
+                    newX,
+                    cornersX[i] * cosTeta -
+                        cornersY[i] * sinTeta + center.x!
+                );
+            newY = Math.min(
+                    newY,
+                    cornersX[i] * sinTeta +
+                        cornersY[i] * cosTeta + center.y!
+                );
 
         }
 
-        return new BoundingBox (
-            this.placement.translate.x,
-            this.placement.translate.y,
-            this.boundingBox.width ,
-            this.boundingBox.height
-        );
+        // new width and height
+        const newWidth = (center.x! - newX) * 2;
+        const newHeight = ( center.y! - newY) * 2;
+
+        return new BoundingBox ( newX, newY, newWidth , newHeight);
 
     }
 
