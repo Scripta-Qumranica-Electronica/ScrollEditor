@@ -1,6 +1,7 @@
 /* This file contains types describing the manuscript's script */
 
 import { GlyphDataDTO, KernPairDTO, ScriptDataDTO } from '@/dtos/sqe-dtos';
+import { BoundingBox } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 
 // Glyphs is a  dictionary for how to display a letter
@@ -9,11 +10,13 @@ export class GlyphData {
     public character: string;
     public yOffset: number;
     public shape: Polygon;
+    public boundingBox: BoundingBox;
 
     constructor(dto: GlyphDataDTO) {
         this.character = dto.character;
         this.yOffset = dto.yOffset;
         this.shape = Polygon.fromWkt(dto.shape);
+        this.boundingBox = this.shape.getBoundingBox();
     }
 }
 

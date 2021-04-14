@@ -12,10 +12,12 @@
  * removed, and the original artefact and text fragment are updated by the server.
  */
 
+import { KernPairDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import { InterpretationRoi, Sign, SignInterpretation, TextFragment } from '@/models/text';
 import { StateManager } from '@/state';
-import { Point } from '@/utils/helpers';
+import { BoundingBox, Point } from '@/utils/helpers';
+import { Polygon } from '@/utils/Polygons';
 
 type SignROI = [Sign, InterpretationRoi | undefined];
 type Anchor = 'left' | 'right';
@@ -24,8 +26,9 @@ export class VirtualArtefactEditor {
     private shadowArtefact: Artefact;
     private shadowTextFragment: TextFragment;
     private originSignROIs: SignROI[];
-    private shadowSignROIs: SignROI[];
+    private shadowSignROIs: SignROI[] = [];
     private breakAtEnd = false;  // When true, a BREAK sign needs to be added to the end
+    private _text = '';
     private disposed = false;
 
     // Measurements for building ROIs
@@ -52,10 +55,14 @@ export class VirtualArtefactEditor {
         this.shadowTextFragment = this.createShadowTextFragment();
         this.$state.textFragments.put(this.shadowTextFragment);
         this.originSignROIs = this.getOriginalSignROIs();
-        this.shadowSignROIs = this.populateShadows();
+        this._text = this.extractOriginalText();
+        // this.shadowSignROIs = this.populateShadowSigns();
 
         [this.anchor, this.base, this.maxWidth] = this.getBaseMeasurements();
-        this.reportROIs();
+
+        this.populateShadows();
+
+        // this.reportROIs();
     }
 
     public dispose() {
@@ -64,14 +71,7 @@ export class VirtualArtefactEditor {
             return;
         }
 
-        // Remove all sign interpretations and ROIs
-        for (const signROI of this.shadowSignROIs) {
-            this.$state.signInterpretations.delete(signROI[0].signInterpretations[0].id);
-
-            if (signROI[1]) {
-                this.$state.interpretationRois.delete(signROI[1].id);
-            }
-        }
+        this.clearShadowModels();
 
         // Remove the shadow models
         this.$state.artefacts.remove(this.shadowArtefact.id);
@@ -79,14 +79,13 @@ export class VirtualArtefactEditor {
         this.disposed = true;
     }
 
-    public get text(): string {
-        function signChar(si: SignInterpretation) {
-            if (si.signType[1] === 'SPACE') {
-                return ' ';
-            }
-            return si.character || '';
-        }
-        return this.shadowSignROIs.map(sr => signChar(sr[0].signInterpretations[0])).join('');
+    public get text() {
+        return this._text;
+    }
+
+    public set text(newText: string) {
+        this._text = newText;
+        this.populateShadows();
     }
 
     private createShadowArtefact() {
@@ -121,48 +120,6 @@ export class VirtualArtefactEditor {
         });
 
         return textFragment;
-    }
-
-    private populateShadows() {
-        const origin = this.originSignROIs;
-        const shadow: SignROI[] = [];
-
-        // First we create new signs and sign interpretations for the new artefact
-        let prevSign: Sign | undefined;
-        for (const [idx, signROI] of origin.entries()) {
-            const sign = this.shadowSign(signROI[0], idx);
-
-            this.shadowTextFragment.lines[0].addSign(sign);
-            if (prevSign) {
-                prevSign.signInterpretations[0].nextSignInterpretations = [{
-                    creatorId: -1,
-                    editorId: -1,
-                    nextSignInterpretationId: sign.signInterpretations[0].id
-                }];
-            }
-            prevSign = sign;
-            shadow.push([sign, undefined]);
-        }
-
-        // Now, create the new ROIs
-        for (const [idx, signROI] of origin.entries()) {
-            if (signROI[1]) {
-                const roi = this.shadowROI(signROI[1], signROI[0].signInterpretations[0]);
-
-                shadow[idx][1] = roi;
-                this.$state.interpretationRois.put(roi);
-            }
-        }
-
-        // Map the ROIs into the shadow sign interpretaitons
-        for (const signROI of shadow) {
-            if (signROI[1]) {
-                signROI[0].signInterpretations[0].rois = [signROI[1]];
-            }
-            this.$state.signInterpretations.put(signROI[0].signInterpretations[0]);
-        }
-
-        return shadow;
     }
 
     private getOriginalSignROIs(): SignROI[] {
@@ -200,6 +157,16 @@ export class VirtualArtefactEditor {
         }
 
         return signROIs;
+    }
+
+    private extractOriginalText(): string {
+        function signChar(si: SignInterpretation) {
+            if (si.signType[1] === 'SPACE') {
+                return ' ';
+            }
+            return si.character || '';
+        }
+        return this.originSignROIs.map(sr => signChar(sr[0].signInterpretations[0])).join('');
     }
 
     private ROItoSI(roi: InterpretationRoi) {
@@ -313,6 +280,77 @@ export class VirtualArtefactEditor {
         return [anchor, { x: baseX, y: baseY }, maxWidth];
     }
 
+    private populateShadows() {
+        this.clearShadowModels();
+        this.populateShadowSigns();
+        this.populateShadowROIs();
+        this.registerShadowModels();
+        this.placeShadowArtefact();
+    }
+
+    private clearShadowModels() {
+        for (const sr of this.shadowSignROIs) {
+            this.$state.signInterpretations.delete(sr[0].signInterpretations[0].id);
+            if (sr[1]) {
+                this.$state.interpretationRois.delete(sr[1].id);
+            }
+        }
+        this.shadowSignROIs = [];
+        this.shadowTextFragment.lines[0].signs = [];
+    }
+
+    private attachSign(prev: Sign | undefined, next: Sign) {
+        if (!prev) {
+            return;
+        }
+
+        prev.signInterpretations[0].nextSignInterpretations = [{
+            creatorId: -1,
+            editorId: -1,
+            nextSignInterpretationId: next.signInterpretations[0].id
+        }];
+    }
+
+    private createShadowSign(char: string, idx: number, type?: string) {
+        const sign = new Sign({ signInterpretations: [] }, this.shadowTextFragment.lines[0], idx);
+
+        const si = new SignInterpretation({
+                        signId: -1,   // Patch, we don't really need the signID, but the DTO requires it
+                        character: char,
+                        isVariant: false,
+                        signInterpretationId: SignInterpretation.nextAvailableId,
+                        nextSignInterpretations: [],
+                        attributes: [],
+                        rois: [],
+                    }, sign);
+        sign.signInterpretations = [si];
+
+        if (!type) {
+            type = char === ' ' ? 'SPACE' : 'LETTER';
+        }
+        const typeId = type === 'LETTER' ? 1 : type === 'BREAK' ? 4 : 2;
+        si.signType = [typeId, type];
+
+        return sign;
+    }
+
+    private populateShadowSigns() {
+        if (this.shadowSignROIs.length) {
+            throw new Error('popualteShadowSign must be called with an empty shadowSignROIs list');
+        }
+
+        let prevSign: Sign | undefined;
+
+        for (let idx = 0; idx < this.text.length; idx++) {
+            const char = this.text[idx];
+            const sign = this.createShadowSign(char, idx);
+            this.attachSign(prevSign, sign);
+            prevSign = sign;
+
+            this.shadowSignROIs.push([sign, undefined]);
+        }
+    }
+
     private calcArtefactWidth() {
         let width = 0;
         let trailingSpaces = 0;
@@ -327,12 +365,12 @@ export class VirtualArtefactEditor {
                 continue;
             }
 
-            if (prevSI && prevSI.signType[1] === 'LETTER') {
+            if (prevSI) {
                 const kerning = this.script.getKerning(prevSI.character!, si.character!);
                 width += kerning?.xKern || 0;
             }
 
-            width += this.script.glyphs[si.character!]!.shape.getBoundingBox().width;
+            width += this.script.glyphs[si.character!]!.boundingBox.width;
             trailingSpaces = 0;
             prevSI = si;
         }
@@ -341,7 +379,8 @@ export class VirtualArtefactEditor {
 
         return width;
     }
-    /* private fillROIs() {
+
+    private populateShadowROIs() {
         // Fill the ROIs based on the sign stream, using the base measurements
 
         // First thing, clear the existing ROIs
@@ -352,28 +391,96 @@ export class VirtualArtefactEditor {
             }
         }
 
-        let x = this.base.x;
+        // Now create all the ROIs
+        const width = this.calcArtefactWidth();
+        let rightX = width;  // rightX of next ROI
+        let prevSI: SignInterpretation | undefined;
         for (const sr of this.shadowSignROIs) {
-            const sign = sr[0];
+            const si = sr[0].signInterpretations[0];
+            if (si.signType[1] === 'SPACE') {
+                // In case of space, add no ROI, just push the X coordinate
+                rightX -= this.script.wordSpace;
+                prevSI = undefined;
+                continue;
+            }
 
+            const gd = this.script.glyphs[si.character || 'א']; // Glyph data of sign
+
+            let kerning: KernPairDTO | undefined; // Kerning between this sign and the previous sign
+            if (prevSI) {
+                kerning = this.script.getKerning(prevSI.character!, si.character!);
+            }
+
+            rightX -= kerning?.xKern || 0;
+
+            // Now we can create the ROI
+            // We basically replicate the same calculation done in the backend
+            const roiPosition = { x: rightX - gd.boundingBox.width, y: this.base.y };
+            const roiBox: BoundingBox = {
+                x: 0,
+                y: -gd.yOffset - (kerning?.yKern || 0),
+                width: gd.boundingBox.width,
+                height: gd.boundingBox.height,
+            };
+            const roiShape = Polygon.fromBox(roiBox);
+
+            const roi = InterpretationRoi.new(this.shadowArtefact, si, roiShape, roiPosition, 0);
+            si.rois = [roi];
+            sr[1] = roi;
+
+            rightX = roiPosition.x;
+            prevSI = si;
         }
-    } */
+    }
+
+    private registerShadowModels() {
+        for (const sr of this.shadowSignROIs) {
+            if (sr[1]) {
+                this.$state.interpretationRois.put(sr[1]);
+            }
+            this.$state.signInterpretations.put(sr[0].signInterpretations[0]);
+        }
+    }
+
+    private placeShadowArtefact() {
+        // Do nothing yet
+    }
 
     private reportROIs() {
         console.debug(`Anchor ${this.anchor}, base: (${this.base.x}, ${this.base.y})`);
         console.debug(`Dimensions: width ${this.originalArtefact.boundingBox.width}, height: ${this.originalArtefact.boundingBox.height}`);
 
-        for (const sr of this.shadowSignROIs) {
-            const si = sr[0].signInterpretations[0];
-            if (!sr[1]) {
-                console.debug(`${sr[0].indexInLine}: ${si.signType[1]}`);
-            } else {
-                const glyph = this.script.glyphs[si.character || ' '];
-                console.debug(`${sr[0].indexInLine}: '${si.character}' at (${sr[1].position.x}, ${sr[1].position.y}) ${sr[1].shape.wkt} ${glyph.shape.getBoundingBox()} ${glyph.yOffset}`);
-            }
+        if (this.shadowSignROIs.length !== this.originSignROIs.length) {
+            console.warn("Can't report if shadow has been updated");
+            return;
         }
 
-        const calculatedWidth = this.calcArtefactWidth();
-        console.debug(`Calculated width: ${calculatedWidth}`);
+        for (let i = 0; i < this.shadowSignROIs.length; i++) {
+            const shadowSR = this.shadowSignROIs[i];
+            const originalSR = this.originSignROIs[i];
+
+            const shadowSI = shadowSR[0].signInterpretations[0];
+            const originalSI = originalSR[0].signInterpretations[0];
+
+            if (shadowSI.signType[1] !== originalSI.signType[1] || shadowSI.character !== originalSI.character) {
+                console.warn(`${i}: inconsistent SIs: shadow: '${shadowSI.character}', ${shadowSI.signType[1]}, original: '${originalSI.character}', ${originalSI.signType[1]}`);
+                continue;
+            }
+
+            if (!shadowSR[1] && originalSR[1] || shadowSR[1] && !originalSR[1]) {
+                console.warn(`${i}: inconsistent ROIs: shadow: ${!!shadowSR[1]}, original: ${!!originalSR}`);
+                continue;
+            }
+
+            if (!shadowSR[1]) { // No ROI for both
+                console.debug(`${i}: ${shadowSI.signType[1]}`);
+            } else {
+                // We have ROIs
+                const glyph = this.script.glyphs[shadowSI.character || ' '];
+                console.debug(`${i}: '${shadowSI.character}', glyph ${glyph.boundingBox}, ${glyph.yOffset}`);
+                console.debug(`\toriginal\t${originalSR[1]!.position.x}, ${originalSR[1]!.position.y}\t${originalSR[1]!.shape.svg}`);
+                console.debug(`\tshadow\t${shadowSR[1]!.position.x}, ${shadowSR[1]!.position.y}\t${shadowSR[1]!.shape.svg}`);
+            }
+        }
     }
 }
