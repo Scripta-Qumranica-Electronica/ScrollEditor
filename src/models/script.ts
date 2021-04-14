@@ -20,6 +20,8 @@ export class GlyphData {
 export class ScriptData {
     public glyphs: { [key: string]: GlyphData } = {};
     private kerning = new Map<string, KernPairDTO>();  // Key is encoded - char1-char2, as tuples can't serve as keys
+    public wordSpace: number;
+    public lineSpace: number;
 
     private getKey(char1: string, char2: string) {
         return `${char1}-${char2}`;
@@ -40,6 +42,9 @@ export class ScriptData {
                 this.kerning.set(key, pair);
             }
         }
+
+        this.lineSpace = dto.lineSpace;
+        this.wordSpace = dto.wordSpace;
     }
 
     public getKerning(char1: string, char2: string): KernPairDTO | undefined {

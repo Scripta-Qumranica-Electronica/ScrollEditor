@@ -66,6 +66,7 @@ export default class EditVirtualArtefactTextModal extends Vue {
     }
 
     private onTextChanged() {
+        // TODO: Break each change into deleted characters and inserted characters
         console.debug(`Changed ${this.prevText} --> ${this.text}`);
         this.prevText = this.text;
     }
