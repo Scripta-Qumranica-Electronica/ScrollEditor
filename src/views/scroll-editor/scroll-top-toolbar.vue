@@ -834,20 +834,20 @@ export default class ScrollTopToolbar extends Vue {
 
     public getGroupCenter( theta: number ): Point {
 
-        let counter =0;
-        let Cy = 0;
-        let Cx = 0;
+        let counter = 0;
+        let cY = 0;
+        let cX = 0;
         let artC;
 
         for ( const art of this.selectedArtefacts) {
               artC = this.getArtefactCenter(art);
-              Cx += artC.x;
-              Cy += artC.y;
+              cX += artC.x;
+              cY += artC.y;
               counter++;
         }
 
-        const x = Cx / counter;
-        const y = Cy / counter;
+        const x = cX / counter;
+        const y = cY / counter;
 
         // const x = (maxX + minX) / 2 ;
         // const y = (maxY + minY) / 2 ;
