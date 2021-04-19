@@ -1,6 +1,6 @@
 <template>
     <div class="card">
-        <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imagedObject.id}` }">
+        <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imageObjectId}` }">
             <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
         </router-link>
         <label>{{artefactsNames}}</label>
@@ -24,6 +24,11 @@ export default class ImagedObjectCard extends Vue {
         // TS 3.7 and up , optional chaining returns undefined
         // if any chain member is null or undefined
          return this.imagedObject?.recto?.master?.getThumbnailUrl(600);
+    }
+
+    private get imageObjectId(): string  {
+        // encodes characters such as ?,=,/,&,:
+         return encodeURIComponent( this.imagedObject?.id) ;
     }
 
     private get editionId(): number | undefined {
