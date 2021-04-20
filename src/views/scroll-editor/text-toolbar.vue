@@ -10,6 +10,9 @@
         <sign-attribute-pane/>
         <edit-sign-modal></edit-sign-modal>
         <edit-virtual-artefact-text-modal></edit-virtual-artefact-text-modal>
+
+        <!-- Tsvia: Convert the edit-virtual-artefact-text-modal into a text-pane that will be shown
+             in place of the sign-attribute-pane when editing reconstructed text -->
     </b-container>
 </template>
 

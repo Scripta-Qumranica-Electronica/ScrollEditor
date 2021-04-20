@@ -66,6 +66,8 @@ export default class EditVirtualArtefactTextModal extends Vue {
     }
 
     private onTextChanged() {
+        // Tsvia: If the new text contains illegal characters (non Hebrew and not space), remove the illegal
+        // characters
         if (!this.editor) {
             throw new Error('Editor object disppeared');
         }
