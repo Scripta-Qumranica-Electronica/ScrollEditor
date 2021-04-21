@@ -16,7 +16,7 @@
 
                         class="btn-xs mode-btn ml-0 mr-1 mb-4 mt-2"
                         size="sm"
-
+                        autofocus
                         variant="outline-info"
                         :pressed="scrollEditorState.mode === 'material'"
                         text-center
