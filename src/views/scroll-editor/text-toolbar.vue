@@ -7,12 +7,16 @@
             class="mb-3"
             direction="rtl"
         ></text-fragment>
-        <sign-attribute-pane/>
-        <edit-sign-modal></edit-sign-modal>
-        <edit-virtual-artefact-text-modal></edit-virtual-artefact-text-modal>
 
-        <!-- Tsvia: Convert the edit-virtual-artefact-text-modal into a text-pane that will be shown
-             in place of the sign-attribute-pane when editing reconstructed text -->
+        <sign-attribute-pane v-if="!showEditReconTextBar"/>
+
+        <edit-sign-modal></edit-sign-modal>
+
+        <edit-virtual-artefact-text-pane
+            v-if="showEditReconTextBar"
+        >
+        </edit-virtual-artefact-text-pane>
+
     </b-container>
 </template>
 
@@ -21,7 +25,7 @@ import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
-import EditVirtualArtefactTextModal from '@/components/text/edit-virtual-artefact-text.vue';
+import EditVirtualArtefactTextPane from '@/components/text/edit-virtual-artefact-text.vue';
 
 @Component({
     name: 'text-toolbar',
@@ -29,15 +33,21 @@ import EditVirtualArtefactTextModal from '@/components/text/edit-virtual-artefac
         'text-fragment': TextFragmentComponent,
         'sign-attribute-pane': SignAttributePane,
         'edit-sign-modal': EditSignModal,
-        'edit-virtual-artefact-text-modal': EditVirtualArtefactTextModal,
-        // 'artefact-toolbox': ArtefactToolbox,
+        'edit-virtual-artefact-text-pane': EditVirtualArtefactTextPane,
+
     },
 })
 
 export default class TextToolbar extends Vue {
+
     public get textFragment() {
         return this.$state.textFragmentEditor.selectedTextFragment;
     }
+
+    private get showEditReconTextBar(): boolean {
+        return this.$state.showEditReconTextBar ;
+    }
+
 }
 </script>
 

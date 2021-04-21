@@ -1,29 +1,38 @@
 <template>
-    <div>
-        <b-modal
-            :draggable="true"
-            id="editVirtualArtefactText"
-            title="Edit Reconstructed Text"
-            hide-footer
-            @shown="onShown"
-            @hide="onHide"
-            ref="my-modal"
-        >
-            <b-row>
-                <b-col>
-                    <div>
-                        <b-input
-                            type="text"
-                            dir="rtl"
-                            @input="onTextChanged"
-                            v-model.lazy="text"
-                            class="w-input"
-                            autofocus
-                        ></b-input>
-                    </div>
-                </b-col>
-            </b-row>
-        </b-modal>
+    <div class="border-around">
+        <b-row>
+            <b-col class="col-10">
+                <label for="w-text-input" class="text-bar m-2 ml-3">
+                Edit Reconstructed Text
+                </label>
+            </b-col>
+                <b-col class="col-2">
+                <b-button @click="onHide()" size="sm"
+                    title="Close" aria-label="Close"
+                    class="close m-0 mr-1" variant="secondary">
+                        <span aria-hidden="true">×</span>
+                </b-button>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col>
+                <div class="bottom-scroll-bar m-2 ml-1 mr-1">
+                    <b-input
+                        id="w-text-input"
+                        type="text"
+                        dir="rtl"
+                        @input="onTextChanged"
+                        v-model.lazy="text"
+                        class="w-input"
+                        autofocus
+                        rows="1"
+                        cols="100"
+                        max-rows="0"
+                    >
+                    </b-input>
+                </div>
+            </b-col>
+        </b-row>
     </div>
 </template>
 
@@ -33,15 +42,21 @@ import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 import { Artefact } from '@/models/artefact';
 
 @Component({
-    name: 'edit-virtual-artefact-text-modal',
+    name: 'edit-virtual-artefact-text-pane',
 })
-export default class EditVirtualArtefactTextModal extends Vue {
+// export default class EditVirtualArtefactTextModal extends Vue {
+export default class EditVirtualArtefactTextPane extends Vue {
     private text = '';
     private prevText = '';
     private editor?: VirtualArtefactEditor;
     private originalArtefact?: Artefact;
 
+    private mounted() {
+        this.onShown();
+    }
+
     private onShown() {
+
         if (!this.$state.textFragmentEditor.editedVirtualArtefact) {
             this.$state.corrupted('EditorVirtualArtefact modal is shown with no edited virtual artefact');
         }
@@ -55,6 +70,7 @@ export default class EditVirtualArtefactTextModal extends Vue {
     }
 
     private onHide() {
+
         if (!this.editor) {
             return;
         }
@@ -63,6 +79,12 @@ export default class EditVirtualArtefactTextModal extends Vue {
         this.editor = undefined;
 
         this.originalArtefact!.isPlaced = true;
+
+        this.$state.showEditReconTextBar  = false;
+    }
+
+    private destroyed() {
+        this.onHide();
     }
 
     private onTextChanged() {
@@ -71,10 +93,61 @@ export default class EditVirtualArtefactTextModal extends Vue {
         if (!this.editor) {
             throw new Error('Editor object disppeared');
         }
-        this.editor.text = this.text;
+
+        const hebTextOnly = this.stripNonHebChars(this.text);
+        this.editor.text = hebTextOnly;
+    }
+
+    private stripNonHebChars(input: string): string {
+        const hebrewAlphabet = 'אבגדהוזחטיכךלמנסעפצקרשתםןףץ';
+        let output = '';
+
+        for ( const letter of input ) {
+            if ( hebrewAlphabet.indexOf( letter ) > 0
+                 || letter === ' ' ) {
+                output += letter;
+            }
+        }
+        return output;
     }
 }
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+
+.text-bar {
+    font-style: $font-style;
+    font-weight: $font-weight-1;
+    font-size: $font-size-1;
+    font-family: $font-family;
+    color: $black;
+    justify-content: inherit;
+}
+
+.border-around {
+    border: 0.25rem outset   #C0C0C0;
+    border-radius: 0.3rem;
+}
+
+.bottom-scroll-bar {
+    width: 94%;
+    direction: rtl;
+    overflow-x: auto;
+    /* overflow-x: scroll; */
+    /* overflow: auto; */
+    overflow-y: none;
+}
+
+.w-input {
+    min-width: 100%;
+    width: 500em;
+    max-width: 100rem;
+    direction: rtl;
+    padding-left: 3rem;
+    margin-left: 1rem;
+
+}
+
 </style>

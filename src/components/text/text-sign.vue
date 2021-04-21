@@ -13,8 +13,9 @@
             v-if="withMenu && !readOnly"
             custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
-            triggers=""
+            triggers="click blur"
             @shown="focusPopover($event)"
+
         >
             <div
                 class="character-popover"
@@ -51,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 import EditSignModal from './edit-sign-modal.vue';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
@@ -171,7 +172,18 @@ export default class TextSign extends Vue {
             return;
         }
         this.$state.textFragmentEditor.editedVirtualArtefact = this.virtualArtefact;
-        this.$root.$emit('bv::show::modal', 'editVirtualArtefactText');
+
+        this.$state.showEditReconTextBar = true;
+        // this.showReconTextEditor();
+        // this.$emit('showReconTextEditor');
+
+        // this.$root.$emit('bv::show::modal', 'editVirtualArtefactText');
+
+    }
+
+    @Emit()
+    private showReconTextEditor() {
+        return true;
     }
 
     private closeSignMenu() {
