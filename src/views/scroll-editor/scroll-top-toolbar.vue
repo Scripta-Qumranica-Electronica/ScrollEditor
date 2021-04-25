@@ -11,25 +11,25 @@
 
                <b-button-group>
 
-
                     <b-button
-
+                        id="material-mode-btn"
                         class="btn-xs mode-btn ml-0 mr-1 mb-4 mt-2"
                         size="sm"
-
-                        variant="outline-info"
-                        :pressed="scrollEditorState.mode === 'material'"
+                        :variant="materialVariant"
+                        :pressed.sync="inMaterialMode"
                         text-center
                         @click="onTextMode('material')"
+                        autofocus
                     >
                         Material Mode
                     </b-button>
 
                     <b-button
-
-                        class="btn-xs mode-btn btn-sm-ex ml-1 mr-0 mb-4 mt-2"
+                        id="text-mode-btn"
+                        class="btn-xs mode-btn btn-sm-ex ml-1 mr-0 mb-4 mt-2 "
                         size="sm"
-                        variant="outline-dark"
+                        :variant="textVariant"
+                        :pressed.sync="inTextMode"
                         text-center
                         @click="onTextMode('text')"
                     >
@@ -459,10 +459,72 @@ export default class ScrollTopToolbar extends Vue {
 
     }
 
+    private get inTextMode(): boolean {
+        return ('text' === this.scrollEditorState.mode);
+    }
+    private set inTextMode(val: boolean) {
+        const param = 1;
+    }
+    private get inMaterialMode(): boolean {
+        return  ( 'material' === this.scrollEditorState.mode);
+    }
+
+    private set inMaterialMode(val: boolean) {
+         const param = 1;
+    }
+
+    private get textVariant(): string {
+       return ( ('text' === this.scrollEditorState.mode) ?
+                 'info' : 'outline-secondary' );
+    }
+
+    private get materialVariant(): string {
+       return ( ('material' === this.scrollEditorState.mode) ?
+                'info' : 'outline-secondary' );
+    }
+
+
     protected mounted() {
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
         }
+
+        const materialBtn =
+                document.querySelector('#material-mode-btn')!;
+
+        const textBtn =
+                document.querySelector('#text-mode-btn')!;
+
+        if ( 'material' === this.scrollEditorState.mode) {
+            materialBtn.classList.add('btn-selected');
+        } else if ( 'text' === this.scrollEditorState.mode) {
+            materialBtn.classList.remove('btn-selected');
+        }
+
+        if ( 'text' === this.scrollEditorState.mode) {
+            textBtn.classList.add('btn-selected');
+        } else if ( 'material' === this.scrollEditorState.mode) {
+            textBtn.classList.remove('btn-selected');
+        }
+
+        materialBtn.addEventListener('focusout', (event) => {
+            if ( 'material' === this.scrollEditorState.mode) {
+                materialBtn.classList.add('btn-selected');
+            } else if ( 'text' === this.scrollEditorState.mode) {
+                materialBtn.classList.remove('btn-selected');
+            }
+        });
+
+        textBtn.addEventListener('focusout', (event) => {
+            if ( 'text' === this.scrollEditorState.mode) {
+                textBtn.classList.add('btn-selected');
+            } else if ( 'material' === this.scrollEditorState.mode) {
+                textBtn.classList.remove('btn-selected');
+            }
+
+        });
+
+
     }
 
     public destroyed() {
@@ -549,8 +611,26 @@ export default class ScrollTopToolbar extends Vue {
     }
 
 
-    private onTextMode(value: ScrollEditorMode) {
-        this.scrollEditorState.mode = value;
+    private onTextMode(mode: ScrollEditorMode) {
+        this.scrollEditorState.mode = mode;
+
+        const materialBtn =
+                document.querySelector('#material-mode-btn')!;
+
+        const textBtn =
+                document.querySelector('#text-mode-btn')!;
+
+        if ( 'material' === this.scrollEditorState.mode) {
+            materialBtn.classList.add('btn-selected');
+        } else if ( 'text' === this.scrollEditorState.mode) {
+            materialBtn.classList.remove('btn-selected');
+        }
+
+        if ( 'text' === this.scrollEditorState.mode) {
+            textBtn.classList.add('btn-selected');
+        } else if ( 'material' === this.scrollEditorState.mode) {
+            textBtn.classList.remove('btn-selected');
+        }
 
     }
 
@@ -995,7 +1075,23 @@ export default class ScrollTopToolbar extends Vue {
     background-color: #fff !important;
 }
 
+.mode-btn:focus {
+  outline: 3px solid rgb(113, 230, 210);
+  /* box-shadow: none; */
+  border-width: 3px;
+}
 
+.mode-btn:focus-visible {
+  outline: 3px solid rgb(113, 230, 210);
+  box-shadow: rgb(155, 233, 220);
+  border-width: 3px;
+}
+
+.btn-selected {
+    outline: 3px solid rgb(113, 230, 210);
+    box-shadow: rgb(155, 233, 220);
+    border-width: 3px;
+}
 
 .col-zm-sm {
     /* max-width: 13vw; */

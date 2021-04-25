@@ -364,6 +364,10 @@ export default class ScrollEditor
         }
 
         this.$state.operationsManager = null;
+
+        // this was moved here for text-toolbar and manuscript-toolbar
+        // and top-toolbar
+        this.$state.scrollEditor = new ScrollEditorState();
     }
 
     private async mounted() {
@@ -391,7 +395,7 @@ export default class ScrollEditor
             }
         });
 
-        this.$state.scrollEditor = new ScrollEditorState();
+        // this.$state.scrollEditor = new ScrollEditorState();
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
         this.$state.operationsManager = this.operationsManager;
