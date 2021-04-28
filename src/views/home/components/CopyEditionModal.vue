@@ -10,6 +10,12 @@
         @ok="copyEdition"
         :ok-disabled="waiting || !canCopy"
         :cancel-disabled="waiting"
+        :title-sr-only="true"
+        :aria-label="$t('home.copyTitle', {
+                            name: currentEdition.name,
+                            owner: currentEdition.owner.forename,
+                        })"
+        aria-labelledby="copy-edition-modal"
     >
         <template v-slot:modal-header>
             <b-row class="mt-3">
@@ -25,8 +31,8 @@
         </template>
         <form @submit.stop.prevent="copyEdition">
             <b-form-input
-                ref="newCopyName"
-                id="newName"
+                ref="newCopyNameRef"
+                id="newCopyName"
                 v-model="newCopyName"
                 type="text"
                 @keyup.enter="copyEdition"
@@ -52,7 +58,7 @@
         <template v-slot:modal-footer>
             <div class="w-100">
                 <b-button
-                    @click="copyEdition"
+                    @click.once="copyEdition"
                     block
                     variant="primary"
                     class="btn-login-modal"
@@ -71,9 +77,9 @@
     </b-modal>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
-import EditionIcons from '@/components/cues/edition-icons.vue';
+// import EditionIcons from '@/components/cues/edition-icons.vue';
 import EditionService from '@/services/edition';
 
 @Component({
@@ -89,7 +95,6 @@ export default class CopyEditionModal extends Vue {
         return this.$state.session.user ? true : false;
     }
 
-
     private get isWaiting(): boolean {
         return  !this.currentEdition;
     }
@@ -104,12 +109,13 @@ export default class CopyEditionModal extends Vue {
 
     private copyModalShown() {
         this.newCopyName = this.currentEdition!.name;
-        (this.$refs.newCopyName as any).focus();
+        (this.$refs.newCopyNameRef as any).focus();
     }
 
     private onShow( bvModalevt: Event ) {
         bvModalevt.preventDefault();
     }
+
 
     private async copyEdition(evt: Event) {
         evt.preventDefault();
@@ -121,20 +127,33 @@ export default class CopyEditionModal extends Vue {
 
         this.waiting = true;
         this.errorMessage = '';
+
         try {
             const newEdition = await this.editionService.copyEdition(
                 this.currentEdition!.id,
                 this.newCopyName
             );
 
+            this.$state.editions.current = newEdition;
+
             this.$state.misc.newEditionId = newEdition.id;
 
-            this.$router.push({
-                path: `/editions/${newEdition.id}`,
-            });
             (this.$refs.copyModalRef as any).hide();
+
+            this.$router.push({
+                path: `/editions/${this.$state.misc.newEditionId}`,
+            });
+
+
+            // force refresh of the new artefact page so that
+            // \components\artefact\artefact-image.vue
+            // in artefact-card.vue
+            // async mounted() will be successfully fullfiled
+            this.$router.go(0);
+
         } catch (err) {
             this.errorMessage = err;
+            console.log('error!', err);
         } finally {
             this.waiting = false;
         }

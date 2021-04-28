@@ -47,7 +47,7 @@
         <div class="mt-2">
             <b-button
                 v-if="user"
-                @click="editionCopyClick()"
+                @click.once="editionCopyClick()"
                 variant="primary"
                 class="direction"
                 >{{ $t('misc.copy') }}</b-button

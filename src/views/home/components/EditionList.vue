@@ -2,7 +2,7 @@
 
     <div>
         <p v-b-toggle="title">
-            
+
              <i class="toggle-icon fa fa-angle-down"/>{{ title }}</p>
          <b-collapse visible :id="title" class="mt-2">
         <div
@@ -11,16 +11,22 @@
             >
             <b-card
                 class="p-3"
-                 no-body
+                no-body
                 v-for="edition in editions"
-                :key="edition.versionId"
-            >
-                <edition-card :edition="edition"></edition-card>
+                :key="edition.id"
+             >
+             <!-- :key="edition.versionId"  does not exist-->
+
+                <edition-card
+                    @edition-copy-click=
+                       "openCopyEditionModal(edition)"
+                    :edition="edition">
+                </edition-card>
             </b-card>
         </div>
           </b-collapse>
     </div>
-</template>       
+</template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
@@ -28,18 +34,33 @@ import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import EditionCard from './EditionCard.vue';
+import CopyEditionModal from './CopyEditionModal.vue';
 
 @Component({
     name: 'editions-list',
     components: {
         Waiting,
         EditionCard,
+        // CopyPersonalEditionModal
+        CopyEditionModal
      },
 })
 export default class EditionsList extends Vue {
     @Prop() public title!: string;
-    @Prop(
-    ) public editions!: EditionInfo[];
+    @Prop() public editions!: EditionInfo[];
+
+    private openCopyEditionModal(edition: EditionInfo) {
+
+        this.$state.editions.current = edition;
+
+        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+
+        // BootstrapVue recomends to use this method:
+        // this.$bvModal.show('copy-edition-modal');
+        this.$root.$bvModal.show('copy-edition-modal');
+
+      }
+
 }
 </script>
 
