@@ -496,7 +496,12 @@ export default class ImagedObjectEditor
             // The band is caused by the new width (old height) being smaller than the old width.
             // There actually two bands, one to the left and one to the right. The right one can't be seen.
             const bandWidth = (this.imageWidth - this.imageHeight) / 2;
-            translate = `translate(-${bandWidth}, ${bandWidth})`;
+
+            // Take absolute value, thus preventing a case of negative values turning into non numbers, e.g. --1878.278443113… for IQ7
+            translate = `translate(-${Math.abs(bandWidth)}, ${bandWidth})`;
+            // translate = `translate(-${bandWidth}, ${bandWidth})`;
+
+            console.log('imaged-object-editor.vue transform translate', translate);
         }
 
         const scale = `scale(${this.zoomLevel})`;
