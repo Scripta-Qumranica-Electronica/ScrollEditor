@@ -500,7 +500,6 @@ export default class ImagedObjectEditor
             // Take absolute value, thus preventing a case of negative values turning into non numbers, e.g. --1878.278443113… for IQ7
             translate = `translate(-${Math.abs(bandWidth)}, ${bandWidth})`;
             // translate = `translate(-${bandWidth}, ${bandWidth})`;
-
         }
 
         const scale = `scale(${this.zoomLevel})`;
