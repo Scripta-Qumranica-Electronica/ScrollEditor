@@ -16,11 +16,7 @@ export default class AsyncMountedMixinBase extends Vue {
     protected mountedDone!: Promise<void>;
 
     protected mounted() {
-        this.mountedDone = this.asyncMounted()
-        .catch(err =>  {
-            console.error('async mounted promise error!', err);
-        });
-
+        this.mountedDone = this.asyncMounted();
     }
 
     // tslint:disable-next-line:no-empty
