@@ -129,7 +129,7 @@
                                         text-field="name"
                                         size="sm"
                                         class="mt-4 col-3"
-                                        
+
                                     ></b-form-select>
                                     <edition-icons
                                         :edition="edition"
@@ -202,11 +202,11 @@
                     </b-col>
                     <b-col class="border-left px-0 h-100 col-lg-3">
                         <div
-                            class="h-100"
                             v-if="!waiting && artefact"
                             :class="{
-                                sidebar: isActiveSidebar,
-                                text: isActiveText,
+                                'sidebar': isActiveSidebar,
+                                'text': isActiveText,
+                                'h-100 w-100': true
                             }"
                         >
                             <text-side
@@ -217,7 +217,7 @@
                                 @text-fragment-selected="initVisibleRois()"
                                 @text-fragments-loaded="initVisibleRois()"
                             ></text-side>
-                            <sign-attribute-pane />
+                            <sign-attribute-pane class="" />
                         </div>
                     </b-col>
                 </b-row>
@@ -1115,14 +1115,42 @@ export default class ArtefactEditor
 }
 .editor-container {
     background-color: $white;
-    margin-right: 5%;
-    margin-left: 5%;
-    height: calc(100vh - 180px);
+    margin-right: 1.5rem;
+    margin-left: 1.5rem;
+    height: calc(100vh - 95px);
+    /* height: calc(100vh - 2rem); */
 }
+
+@media (max-width: 1100px) {
+
+
 .editor-actions {
-    height: 70px;
+    /* height: 70px; */
+    height: 10rem;
 }
+
 .artefact-image-container {
     height: calc(100vh - 310px);
 }
+
+@media (max-width: 1100px) {
+        .editor-container{
+        /* margin-top: 0.7rem;
+        margin-bottom: 0.7rem; */
+        padding-top: 3rem;
+        margin-right: 0.7rem;
+        padding-right: 0.3rem;
+        margin-left: 0.7rem;
+        padding-left: 2rem;
+        height: calc(100vh - 90px);
+        overflow: auto;
+    }
+}
+    .artefact-image-container{
+        margin-top: 0.1rem;
+        height: 60%;
+    }
+
+}
+
 </style>

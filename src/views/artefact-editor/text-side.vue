@@ -1,5 +1,5 @@
 <template>
-    <div class="text-side-container">
+    <div class="text-side-container" >
         <div class="border-bottom load-fragment" v-if="artefactMode">
             <input
                 class="select-text"
@@ -23,6 +23,7 @@
                 :key="textFragment.id"
                 role="tablist"
                 class="text-side-border p-2"
+                direction="rtl"
             >
                 <b-card-header header-tag="header" class="p-0 mt-3">
                     <b-row no-gutters>
@@ -63,6 +64,7 @@
                     accordion="my-accordion"
                     role="tabpanel"
                     @show="emptySelectedState(textFragment.textFragmentId)"
+                    direction="rtl"
                 >
                     <text-fragment
                         :fragment="textFragment"
@@ -264,7 +266,8 @@ export default class TextSide extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 .text-side-container {
-    height: calc(100vh - 285px);
+    height: calc(60vh - 2rem);
+    /* height: calc(100vh - 285px); */
 }
 .load-fragment {
     height: 71px;
@@ -278,7 +281,14 @@ export default class TextSide extends Vue {
     overflow-y: auto;
     overflow-x: hidden;
     margin-right: 15px;
-    height: calc(100% - 100px);
+
+}
+
+@media (max-width: 1100px) {
+   #text-side {
+        overflow-y: scroll;
+        /* height: calc(100% - 80px); */
+    }
 }
 
 button {
@@ -295,8 +305,19 @@ button {
     margin-top: 30px;
     overflow-x: overlay;
     padding-bottom: 16px;
-    display: grid;
+    padding-right: 0.1rem;
+    margin-right:0.1rem;
+    /* display: grid; */
+    display:flex;
+    justify-content: flex-start;
     direction: rtl;
+}
+
+@media (max-width: 1100px) {
+    #text-box {
+        margin-top: 10px;
+        overflow: auto;
+    }
 }
 
 .isa_error {
@@ -310,13 +331,7 @@ button {
     width: 100%;
     padding: 10px;
 }
-@media (max-width: 1100px) {
-    #text-box {
-        margin-top: 30px;
-        overflow: auto;
-        display: grid;
-    }
-}
+
 
 a.btn.btn-secondary {
     background-color: white;

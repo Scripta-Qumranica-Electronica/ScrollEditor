@@ -1,7 +1,7 @@
 <template>
-    <div class="attributes">
-        <ul class="row mt-3">
-            <li class="pr-1" v-if="!readOnly">
+    <div class="attributes ">
+        <ul class="row m-0 mt-1 p-0 ">
+            <li class="m-0 p-0 pr-1" v-if="!readOnly">
                 <b-dropdown
                     ref="attributesMenu"
                     :disabled="!selectedSignInterpretations.length"
@@ -50,7 +50,7 @@
                 />
             </li>
         </ul>
-        <comment v-model="comment" v-if="!isMultiSelect" class="mt-3" />
+        <comment v-model="comment" v-if="!isMultiSelect" class="row mt-1" />
         <sign-attribute-modal />
     </div>
 </template>
@@ -264,15 +264,17 @@ export default class SignAttributePane extends Vue {
 
 <style lang="scss" scoped>
 .attributes {
-    height: 10%;
+    height: calc(36vh - 2rem);
     border-top: 3px solid #6c757d;
     padding: 10px;
     margin-right: 13px;
+    overflow-y: auto;
 
     ul {
         list-style: none;
     }
 }
+
 .btn-group > .btn,
 .btn-group-vertical > .btn {
     position: relative;
@@ -286,6 +288,7 @@ export default class SignAttributePane extends Vue {
 
 .dropdown-attr {
     width: 100%;
+    height: 100%;
     .attr-name {
         width: 100%;
         display: inline-block;
@@ -315,6 +318,7 @@ export default class SignAttributePane extends Vue {
 <style lang="scss">
 .dropdown-attr {
     width: 100%;
+
     .attr-name {
         width: 100%;
         display: inline-block;

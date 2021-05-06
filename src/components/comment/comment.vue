@@ -1,31 +1,56 @@
 <template>
-    <b-row>
-        <b-col cols="3" class="align-self-center">
-            <label class="m-0 p-3" for="comment">Comment:</label>
+    <b-row class="comment-area w-100 ">
+        <b-col cols="11" class="col-md-10 mr-0 pr-0 ">
+            <b-row class="w-100 ">
+                <b-col cols="10"
+                   class=" ml-0 pl-0 pr-0 align-self-center ">
+                    <label class="m-0 p-3 pl-1" for="comment">
+                        Comment:
+                    </label>
+                </b-col>
+
+                <b-col cols="12"
+                    class="comment-preview align-self-center h-50">
+                    <p class="lg" v-html="comment"
+                       @click="onViewComment()"></p>
+                </b-col>
+            </b-row>
         </b-col>
-        <b-col cols="5" class="comment-preview align-self-center">
-            <p class="sm" v-html="comment" @click="onViewComment()"></p>
+
+        <b-col cols="1" class="col-md-2 mb-1">
+            <b-row>
+                <b-col cols="10" class="">
+                    <b-button @click="onViewComment()"
+                            title="View Comment" :disabled="!comment" size="sm">
+                        <i class="fa fa-eye"/>
+                    </b-button>
+                </b-col>
+                <b-col cols="10" class="mt-1">
+                    <b-button @click="onEditComment()"
+                            title="Edit Comment" :disabled="readOnly" size="sm">
+                        <i class="fa fa-edit"/>
+                    </b-button>
+                 </b-col>
+                <b-col cols="12" class="mt-1" >
+                    <b-button @click="onDeleteComment()"
+                            title="Delete Comment" :disabled="!comment || readOnly" size="sm">
+                        <i class="fa fa-trash larger-btn"/>
+                    </b-button>
+                 </b-col>
+            </b-row>
         </b-col>
-        <b-col cols="4">
-            <b-button @click="onViewComment()" title="View Comment" :disabled="!comment">
-                <i class="fa fa-eye"/>
-            </b-button>
-            <b-button @click="onEditComment()" title="Edit Comment" :disabled="readOnly">
-                <i class="fa fa-edit"/>
-            </b-button>
-            <b-button @click="onDeleteComment()" title="Delete Comment" :disabled="!comment || readOnly">
-                <i class="fa fa-trash"/>
-            </b-button>
-        </b-col>
+
         <b-modal ref="viewCommentModalRef" id="viewCommentModal" title="Comment" hide-footer hide-header>
             <div id="comment-view" v-html="comment">
             </div>
         </b-modal>
+
         <b-modal ref="editCommentModalRef" id="editCommentModal" title="Comment" hide-footer hide-header>
             <div id="comment-edit">
                 <ckeditor :editor="editor" v-model="comment" @input="onCommentUpdated" />
             </div>
         </b-modal>
+
     </b-row>
 </template>
 
@@ -97,7 +122,7 @@ export default class CommentComponent extends Vue {
 
 <style lang="scss">
 #comment-view {
-    max-height: 200px;
+    max-height: 20rem;
     overflow: auto;
 }
 
@@ -112,7 +137,12 @@ export default class CommentComponent extends Vue {
 
     * {
         display: inline;
-        padding-left: 3px;
+        padding-left: 0.3rem;
     }
+}
+
+.larger-btn {
+   padding-left: 0.1rem;
+   padding-right: 0.1rem;
 }
 </style>
