@@ -277,8 +277,8 @@ export default class TextSide extends Vue {
 }
 #text-side {
     touch-action: pan-y;
-    height: 90%;
-    overflow-y: auto;
+    height: 98%;
+    /* overflow-y: auto; */
     overflow-x: hidden;
     margin-right: 15px;
 

@@ -264,9 +264,11 @@ export default class SignAttributePane extends Vue {
 
 <style lang="scss" scoped>
 .attributes {
-    height: calc(36vh - 2rem);
+    /* height: calc(36vh - 2rem); */
+    height: calc(30vh - 2rem);
     border-top: 3px solid #6c757d;
     padding: 10px;
+    margin-top: 3.5rem;
     margin-right: 13px;
     overflow-y: auto;
 
@@ -299,7 +301,6 @@ export default class SignAttributePane extends Vue {
     }
     .btn-link {
         font-weight: 400;
-        // color: #007bff;
         text-decoration: none;
         width: 100%;
         text-align: left;
