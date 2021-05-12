@@ -28,7 +28,7 @@
         "element-ui": "^2.4.9",
         "js-clipper": "^1.0.1",
         "jsts": "^2.1.0",
-        "mathjs": "^5.4.1",
+        "mathjs": "^7.5.1",
         "vue": "^2.6.10",
         "vue-class-component": "^7.0.2",
         "vue-i18n": "^8.3.0",
