@@ -47,7 +47,7 @@ import { Artefact } from '@/models/artefact';
 // export default class EditVirtualArtefactTextModal extends Vue {
 export default class EditVirtualArtefactTextPane extends Vue {
     private text = '';
-    private prevText = '';
+    private originalText = '';
     private editor?: VirtualArtefactEditor;
     private originalArtefact?: Artefact;
 
@@ -66,7 +66,7 @@ export default class EditVirtualArtefactTextPane extends Vue {
 
         // Hide our artefact, and show the shadow artefact
         this.originalArtefact.isPlaced = false;
-        this.text = this.prevText = this.editor.text;
+        this.text = this.originalText = this.editor.text;
     }
 
     private onHide() {
@@ -79,8 +79,7 @@ export default class EditVirtualArtefactTextPane extends Vue {
         this.editor = undefined;
 
         this.originalArtefact!.isPlaced = true;
-
-        this.$state.showEditReconTextBar  = false;
+        this.$emit('close', { text: this.text, originalText: this.originalText });
     }
 
     private destroyed() {

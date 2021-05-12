@@ -1,9 +1,7 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
-import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData, TextFragment } from '@/models/text';
-import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
+import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData, TextFragment, Sign, Line } from '@/models/text';
 import { StateManager } from '.';
-import { ArtefactEditorParams } from '../views/artefact-editor/types';
 
 
 function state() {
@@ -20,6 +18,7 @@ export class TextFragmentState {
 
     // Editing the text of a virtual artefact
     public editedVirtualArtefact: Artefact | null = null;
+    public editedTextLine: Line | null = null;
 
     constructor() {
         this.selectedSignInterpretations = [];

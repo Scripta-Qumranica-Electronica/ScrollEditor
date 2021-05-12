@@ -14,6 +14,7 @@
 
         <edit-virtual-artefact-text-pane
             v-if="showEditReconTextBar"
+            @close="onVirtualTextClose($event)"
         >
         </edit-virtual-artefact-text-pane>
 
@@ -45,7 +46,15 @@ export default class TextToolbar extends Vue {
     }
 
     private get showEditReconTextBar(): boolean {
-        return this.$state.showEditReconTextBar ;
+        return this.$state.showEditReconTextBar;
+    }
+
+    protected onVirtualTextClose(param: { text: string, originalText: string }) {
+        this.$state.showEditReconTextBar = false;
+
+        if (param.text !== param.originalText) {
+            this.$emit('text-changed', param.text);
+        }
     }
 
 }

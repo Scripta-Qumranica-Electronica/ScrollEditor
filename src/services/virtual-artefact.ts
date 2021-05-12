@@ -12,13 +12,16 @@
  * removed, and the original artefact and text fragment are updated by the server.
  */
 
-import { KernPairDTO } from '@/dtos/sqe-dtos';
+import { DiffReplaceRequestDTO, DiffReplaceResponseDTO, KernPairDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
-import { InterpretationRoi, Sign, SignInterpretation, TextFragment } from '@/models/text';
+import { EditionInfo } from '@/models/edition';
+import { InterpretationRoi, Line, Sign, SignInterpretation, TextFragment } from '@/models/text';
 import { StateManager } from '@/state';
 import { BoundingBox, Point } from '@/utils/helpers';
 import { Placement } from '@/utils/Placement';
 import { Polygon } from '@/utils/Polygons';
+import { ApiRoutes } from './api-routes';
+import { CommHelper } from './comm-helper';
 
 type SignROI = [Sign, InterpretationRoi | undefined];
 type Anchor = 'left' | 'right';
@@ -452,5 +455,21 @@ export class VirtualArtefactEditor {
         // Now we place the artefact at (top, left) and set its shape to the box
         this.shadowArtefact.placement.translate = { x: left, y: top };
         this.shadowArtefact.mask = Polygon.fromBox( { x: 0, y: 0, width, height });
+    }
+}
+
+export class VirtualArtefactService {
+    public async updateText(edition: EditionInfo, priorSI: SignInterpretation, followingSI: SignInterpretation, newText: string) {
+        const dto: DiffReplaceRequestDTO = {
+            priorSignInterpretationId: priorSI.id,
+            followingSignInterpretationId: followingSI.id,
+            newText
+        };
+
+        const url = ApiRoutes.diffReplaceTextUrl(edition.id);
+        const response = CommHelper.put<DiffReplaceResponseDTO>(url, dto);
+
+        console.debug('Got response from diff-replace-text: ', response);
+        // The data should be updated via the SignalR notifications
     }
 }
