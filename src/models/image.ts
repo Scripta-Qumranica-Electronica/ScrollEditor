@@ -147,7 +147,6 @@ export class Image extends IIIFImage {
     public waveLength: string[];
     public regionInMaster?: Polygon;
     public regionOfMaster?: Polygon;
-    public transformToMaster?: string;
     public master: boolean;
     public catalogNumber: number;
     public id: number;
@@ -160,7 +159,6 @@ export class Image extends IIIFImage {
         this.waveLength = dto.waveLength;
         this.regionInMaster = dto.regionInMasterImage ? new Polygon(dto.regionInMasterImage) : undefined;
         this.regionOfMaster = dto.regionInMasterImage ? new Polygon(dto.regionInMasterImage) : undefined;
-        this.transformToMaster = dto.transformToMaster;
         this.master = dto.master;
         this.catalogNumber = dto.catalogNumber;
         this.id = dto.id;

@@ -214,7 +214,7 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
         this._frontendToServerIdMap.set(frontendId, serverId);
         this._serverToFrontendIdMap.set(serverId, frontendId);
 
-        console.debug(`Mapping frontend id ${frontendId} to server id ${serverId}`);
+        // console.debug(`Mapping frontend id ${frontendId} to server id ${serverId}`);
     }
 
     public getServerId(frontendId: U): U | undefined {
@@ -271,11 +271,11 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
         } else {
             const roiIndex = artefact.rois.findIndex(roi => roi.id === entry.id);
             if (roiIndex === -1) {
-                console.debug(`Adding ROI ${entry.id} to artefact ${artefact.id}`);
+                // console.debug(`Adding ROI ${entry.id} to artefact ${artefact.id}`);
                 artefact.rois.push(entry);
-            } else {
+            } /*else {
                 console.debug(`ROI ${entry.id} is already found in artefact ${artefact.id}`);
-            }
+            } */
         }
     }
 
@@ -288,7 +288,7 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
             if (roiIndex === -1) {
                 console.warn(`Can't removing ROI ${entry.id} from artefact ${entry.artefactId}, it is not in its ROI list`);
             } else {
-                console.debug(`Removing ROI ${entry.id} from artefact ${artefact.id}`);
+                // console.debug(`Removing ROI ${entry.id} from artefact ${artefact.id}`);
                 artefact.rois.splice(roiIndex, 1);
             }
         }
@@ -321,7 +321,7 @@ export class SignInterpretationMap extends StateMap<SignInterpretation> {
 
             const index = artefact.signInterpretations.findIndex(s => s.id === si.id);
             if (index === -1) {
-                console.debug(`Adding SI ${si.id} to artefact ${artefact.id}`);
+                // console.debug(`Adding SI ${si.id} to artefact ${artefact.id}`);
                 artefact.signInterpretations.push(si);
             }
         }
@@ -339,7 +339,7 @@ export class SignInterpretationMap extends StateMap<SignInterpretation> {
             if (index === -1) {
                 console.warn(`Can't remove sign interpretation ${si.id} from artefact ${artefact.id} - it is not in its signInterpretations array`);
             } else {
-                console.debug(`Deleting SI ${si.id} from artefact ${artefact.id}`);
+                // console.debug(`Deleting SI ${si.id} from artefact ${artefact.id}`);
                 artefact.signInterpretations.splice(index, 1);
             }
         }

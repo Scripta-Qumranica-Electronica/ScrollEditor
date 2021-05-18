@@ -1,21 +1,24 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
-import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData, TextFragment } from '@/models/text';
-import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
+import { Artefact } from '@/models/artefact';
+import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData, TextFragment, Sign, Line } from '@/models/text';
 import { StateManager } from '.';
-import { ArtefactEditorParams } from '../views/artefact-editor/types';
 
 
 function state() {
     return StateManager.instance;
 }
 export type editSignInterpretationModeType = 'edit' | 'create';
-export type TextEditingMode = 'scroll' | 'artefact';
+export type TextEditingMode = 'manuscript' | 'artefact';
 export class TextFragmentState {
     public selectedSignInterpretations: SignInterpretation[];
     public selectedAttribute: InterpretationAttributeDTO | null = null;
     public highlightCommentMode: boolean = false;
     public modeSignModal: editSignInterpretationModeType = 'edit';
     public textEditingMode: TextEditingMode = 'artefact'; // Provides an indication which module edits the text now
+
+    // Editing the text of a virtual artefact
+    public editedVirtualArtefact: Artefact | null = null;
+    public editedTextLine: Line | null = null;
 
     constructor() {
         this.selectedSignInterpretations = [];

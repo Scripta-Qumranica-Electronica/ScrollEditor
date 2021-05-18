@@ -97,9 +97,7 @@ export default class SignInterpretationService {
         const response = await CommHelper.post<SignInterpretationCreatedDTO>(url, dto);
 
         if (response.data.created?.length !== 1) {
-            console.warn('Received a bad response from the server - expected exactly one sign to be created');
-            return;
-            // TODO: Raise the inconsistent event to reload the page
+            this.stateManager.corrupted('Received a bad response from the server - expected exactly one sign to be created');
         }
 
         const siDto = response.data.created![0];

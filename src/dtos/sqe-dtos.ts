@@ -9,359 +9,6 @@
  */
 
 
-export interface EditionScriptCollectionDTO {
-    letters: Array<CharacterShapeDTO>;
-}
-
-export interface EditionScriptLinesDTO {
-    textFragments: Array<ScriptTextFragmentDTO>;
-}
-
-export interface CharacterShapeDTO {
-    id: number;
-    character: string;
-    polygon: string;
-    imageURL: string;
-    rotation: number;
-    attributes: Array<string>;
-}
-
-export interface ScriptTextFragmentDTO {
-    textFragmentName: string;
-    textFragmentId: number;
-    lines: Array<ScriptLineDTO>;
-}
-
-export interface ScriptLineDTO {
-    lineName: string;
-    lineId: number;
-    artefacts: Array<ScriptArtefactCharactersDTO>;
-}
-
-export interface ScriptArtefactCharactersDTO {
-    artefactName: string;
-    artefactId: number;
-    placement: PlacementDTO;
-    characters: Array<SignInterpretationDTO>;
-}
-
-export interface TextFragmentDataDTO {
-    id: number;
-    name: string;
-    editorId: number;
-}
-
-export interface ArtefactTextFragmentMatchDTO extends TextFragmentDataDTO {
-    suggested: boolean;
-}
-
-export interface ImagedObjectTextFragmentMatchDTO {
-    editionId: number;
-    manuscriptName: string;
-    textFragmentId: number;
-    textFragmentName: string;
-    side: SideDesignation;
-}
-
-export interface ImagedObjectTextFragmentMatchListDTO {
-    matches?: Array<ImagedObjectTextFragmentMatchDTO>;
-}
-
-export interface TextFragmentDataListDTO {
-    textFragments: Array<TextFragmentDataDTO>;
-}
-
-export interface ArtefactTextFragmentMatchListDTO {
-    textFragments: Array<ArtefactTextFragmentMatchDTO>;
-}
-
-export interface TextFragmentDTO {
-    textFragmentId: number;
-    textFragmentName: string;
-    editorId: number;
-    lines: Array<LineDTO>;
-}
-
-export interface LineDataDTO {
-    lineId: number;
-    lineName: string;
-}
-
-export interface LineDataListDTO {
-    lines: Array<LineDataDTO>;
-}
-
-export interface LineDTO {
-    lineId: number;
-    lineName: string;
-    editorId: number;
-    signs: Array<SignDTO>;
-}
-
-export interface LineTextDTO extends LineDTO {
-    licence: string;
-    editors: { [key: string] : EditorDTO };
-}
-
-export interface UpdateTextFragmentDTO {
-    name?: string;
-    previousTextFragmentId?: number;
-    nextTextFragmentId?: number;
-}
-
-export interface CreateTextFragmentDTO extends UpdateTextFragmentDTO {
-    name: string;
-}
-
-export interface RequestMaterializationDTO {
-    editionIds: Array<number>;
-}
-
-export interface CreateScriptDataDTO {
-    wordSpace: number;
-    lineSpace: number;
-}
-
-export interface ScriptDataDTO extends CreateScriptDataDTO {
-    kerningPairs?: Array<KernPairDTO>;
-    glyphs?: Array<GlyphDataDTO>;
-    creatorId: number;
-    editorId: number;
-    scribalFontId: number;
-}
-
-export interface ScriptDataListDTO {
-    scripts?: Array<ScriptDataDTO>;
-}
-
-export interface CreateKernPairDTO {
-    firstCharacter: string;
-    secondCharacter: string;
-    xKern: number;
-    yKern: number;
-}
-
-export interface KernPairDTO extends CreateKernPairDTO {
-    creatorId: number;
-    editorId: number;
-    scribalFontId: number;
-}
-
-export interface DeleteKernPairDTO {
-    firstCharacter: string;
-    secondCharacter: string;
-    editorId: number;
-    scribalFontId: number;
-}
-
-export interface CreateGlyphDataDTO {
-    character: string;
-    shape: string;
-    yOffset: number;
-}
-
-export interface GlyphDataDTO extends CreateGlyphDataDTO {
-    creatorId: number;
-    editorId: number;
-    scribalFontId: number;
-}
-
-export interface DeleteGlyphDataDTO {
-    character: string;
-    editorId: number;
-    scribalFontId: number;
-}
-
-export interface DeleteScribalFontDTO {
-    scribalFontId: number;
-    editionEditorId: number;
-}
-
-export interface SignDTO {
-    signInterpretations: Array<SignInterpretationDTO>;
-}
-
-export interface NextSignInterpretationDTO {
-    nextSignInterpretationId: number;
-    creatorId: number;
-    editorId: number;
-}
-
-export interface SignInterpretationBaseDTO {
-    character?: string;
-    isVariant: boolean;
-}
-
-export interface SignInterpretationCreateDTO extends SignInterpretationBaseDTO {
-    lineId?: number;
-    previousSignInterpretationIds?: Array<number>;
-    nextSignInterpretationIds?: Array<number>;
-    attributes: Array<InterpretationAttributeCreateDTO>;
-    rois: Array<SetInterpretationRoiDTO>;
-    commentary?: CommentaryCreateDTO;
-    breakPreviousAndNextSignInterpretations: boolean;
-}
-
-export interface SignInterpretationVariantDTO extends InterpretationAttributeBaseDTO {
-    character: string;
-}
-
-export interface SignInterpretationCharacterUpdateDTO {
-    character?: string;
-    attributeValueId?: number;
-    priority: number;
-}
-
-export interface SignInterpretationDTO extends SignInterpretationBaseDTO {
-    signId: number;
-    signInterpretationId: number;
-    nextSignInterpretations: Array<NextSignInterpretationDTO>;
-    attributes: Array<InterpretationAttributeDTO>;
-    rois: Array<InterpretationRoiDTO>;
-    commentary?: CommentaryDTO;
-    signStreamSectionIds?: Array<number>;
-    qwbWordIds?: Array<number>;
-}
-
-export interface SignInterpretationListDTO {
-    signInterpretations?: Array<SignInterpretationDTO>;
-}
-
-export interface SignInterpretationCreatedDTO {
-    created?: Array<SignInterpretationDTO>;
-    updated?: Array<SignInterpretationDTO>;
-}
-
-export interface SignInterpretationDeleteDTO {
-    updates?: SignInterpretationListDTO;
-    deletes?: Array<number>;
-}
-
-export interface InterpretationAttributeBaseDTO {
-    sequence?: number;
-    attributeId: number;
-    attributeValueId: number;
-}
-
-export interface InterpretationAttributeCreateDTO extends InterpretationAttributeBaseDTO {
-    commentary?: string;
-}
-
-export interface InterpretationAttributeDTO extends InterpretationAttributeBaseDTO {
-    interpretationAttributeId: number;
-    attributeString: string;
-    attributeValueString: string;
-    creatorId: number;
-    editorId: number;
-    commentary?: CommentaryDTO;
-}
-
-export interface CreateAttributeValueDTO {
-    value: string;
-    description?: string;
-    cssDirectives?: string;
-}
-
-export interface UpdateAttributeValueDTO extends CreateAttributeValueDTO {
-    id: number;
-}
-
-export interface AttributeValueDTO extends UpdateAttributeValueDTO {
-    creatorId: number;
-    editorId: number;
-}
-
-export interface AttributeBaseDTO {
-    description?: string;
-    editable: boolean;
-    removable: boolean;
-    repeatable: boolean;
-    batchEditable: boolean;
-}
-
-export interface CreateAttributeDTO extends AttributeBaseDTO {
-    attributeName: string;
-    values: Array<CreateAttributeValueDTO>;
-}
-
-export interface UpdateAttributeDTO {
-    createValues: Array<CreateAttributeValueDTO>;
-    updateValues: Array<UpdateAttributeValueDTO>;
-    deleteValues: Array<number>;
-    editable: boolean;
-    removable: boolean;
-    repeatable: boolean;
-    batchEditable: boolean;
-}
-
-export interface AttributeDTO extends AttributeBaseDTO {
-    attributeId: number;
-    attributeName: string;
-    values: Array<AttributeValueDTO>;
-    creatorId: number;
-    editorId: number;
-}
-
-export interface AttributeListDTO {
-    attributes: Array<AttributeDTO>;
-}
-
-export interface PlacementDTO {
-    scale: number;
-    rotate: number;
-    zIndex: number;
-    translate?: TranslateDTO;
-    mirrored: boolean;
-}
-
-export interface TranslateDTO {
-    x: number;
-    y: number;
-}
-
-export interface SimpleImageDTO {
-    id: number;
-    url: string;
-    lightingType: Lighting;
-    lightingDirection: Direction;
-    waveLength: Array<string>;
-    type: string;
-    side: SideDesignation;
-    ppi: number;
-    imageManifest: string;
-    master: boolean;
-    catalogNumber: number;
-}
-
-export interface ImageDTO extends SimpleImageDTO {
-    imageToImageMapEditorId?: number;
-    regionInMasterImage?: string;
-    regionInImage?: string;
-    transformToMaster?: string;
-}
-
-export interface SimpleImageListDTO {
-    images: Array<SimpleImageDTO>;
-}
-
-export interface ImageInstitutionDTO {
-    name: string;
-}
-
-export interface ImageInstitutionListDTO {
-    institutions: Array<ImageInstitutionDTO>;
-}
-
-export interface InstitutionalImageDTO {
-    id: string;
-    thumbnailUrl: string;
-    license: string;
-}
-
-export interface InstitutionalImageListDTO {
-    institutionalImages: Array<InstitutionalImageDTO>;
-}
-
 export interface ArtefactDataDTO {
     id: number;
     name: string;
@@ -442,6 +89,46 @@ export interface UpdateArtefactGroupDTO {
 
 export interface CreateArtefactGroupDTO extends UpdateArtefactGroupDTO {
     name: string;
+}
+
+export interface CatalogueMatchInputDTO {
+    catalogSide?: SideDesignation;
+    imagedObjectId: string;
+    manuscriptId: number;
+    manuscriptName: string;
+    editionName: string;
+    editionVolume: string;
+    editionLocation1: string;
+    editionLocation2: string;
+    editionSide: SideDesignation;
+    comment?: string;
+    textFragmentId: number;
+    editionId: number;
+    confirmed?: boolean;
+}
+
+export interface CatalogueMatchDTO extends CatalogueMatchInputDTO {
+    imageCatalogId: number;
+    institution: string;
+    catalogueNumber1: string;
+    catalogueNumber2?: string;
+    proxy?: string;
+    url: string;
+    filename: string;
+    suffix: string;
+    thumbnail: string;
+    license: string;
+    iaaEditionCatalogueId: number;
+    name: string;
+    matchAuthor: string;
+    matchConfirmationAuthor?: string;
+    matchId: number;
+    dateOfMatch: string;
+    dateOfConfirmation?: string;
+}
+
+export interface CatalogueMatchListDTO {
+    matches: Array<CatalogueMatchDTO>;
 }
 
 export interface EditionDTO {
@@ -574,6 +261,549 @@ export interface EditionManuscriptMetricsDTO extends UpdateEditionManuscriptMetr
     editorId: number;
 }
 
+export interface SimpleImageDTO {
+    id: number;
+    url: string;
+    lightingType: Lighting;
+    lightingDirection: Direction;
+    waveLength: Array<string>;
+    type: string;
+    side: SideDesignation;
+    ppi: number;
+    imageManifest: string;
+    master: boolean;
+    catalogNumber: number;
+}
+
+export interface ImageDTO extends SimpleImageDTO {
+    imageToImageMapEditorId?: number;
+    regionInMasterImage?: string;
+    regionInImage?: string;
+    placement?: PlacementDTO;
+}
+
+export interface SimpleImageListDTO {
+    images: Array<SimpleImageDTO>;
+}
+
+export interface ImageInstitutionDTO {
+    name: string;
+}
+
+export interface ImageInstitutionListDTO {
+    institutions: Array<ImageInstitutionDTO>;
+}
+
+export interface InstitutionalImageDTO {
+    id: string;
+    thumbnailUrl: string;
+    license: string;
+}
+
+export interface InstitutionalImageListDTO {
+    institutionalImages: Array<InstitutionalImageDTO>;
+}
+
+export interface ImageStackDTO {
+    id?: number;
+    images: Array<ImageDTO>;
+    masterIndex?: number;
+}
+
+export interface ImagedObjectDTO {
+    id: string;
+    recto: ImageStackDTO;
+    verso: ImageStackDTO;
+    artefacts: Array<ArtefactDTO>;
+}
+
+export interface ImagedObjectListDTO {
+    imagedObjects: Array<ImagedObjectDTO>;
+}
+
+export interface WktPolygonDTO {
+    wktPolygon: string;
+}
+
+export interface QwbWordVariantListDTO {
+    variants?: Array<QwbWordVariantDTO>;
+}
+
+export interface QwbWordVariantDTO {
+    variantReading?: string;
+    bibliography?: Array<QwbBibliographyDTO>;
+}
+
+export interface QwbBibliographyDTO {
+    bibliographyId: number;
+    shortTitle?: string;
+    comment?: string;
+    pageReference?: string;
+}
+
+export interface QwbParallelWordDTO {
+    isVariant: boolean;
+    isReconstructed: boolean;
+    qwbWordId: number;
+    relatedQwbWordId: number;
+    word?: string;
+}
+
+export interface QwbParallelDTO {
+    qwbTextReference?: string;
+    parallelWords?: Array<QwbParallelWordDTO>;
+}
+
+export interface QwbParallelListDTO {
+    parallels?: Array<QwbParallelDTO>;
+}
+
+export interface QwbBibliographyEntryDTO {
+    entry?: string;
+}
+
+export interface SetReconstructedInterpretationRoiDTO {
+    shape: string;
+    translate: TranslateDTO;
+}
+
+export interface SetInterpretationRoiDTO extends SetReconstructedInterpretationRoiDTO {
+    artefactId: number;
+    signInterpretationId: number;
+    stanceRotation: number;
+    exceptional: boolean;
+    valuesSet: boolean;
+}
+
+export interface UpdateInterpretationRoiDTO extends SetInterpretationRoiDTO {
+    interpretationRoiId: number;
+}
+
+export interface InterpretationRoiDTO extends UpdateInterpretationRoiDTO {
+    creatorId: number;
+    editorId: number;
+}
+
+export interface UpdatedInterpretationRoiDTO extends InterpretationRoiDTO {
+    oldInterpretationRoiId: number;
+}
+
+export interface SetInterpretationRoiDTOList {
+    rois: Array<SetInterpretationRoiDTO>;
+}
+
+export interface InterpretationRoiDTOList {
+    rois: Array<InterpretationRoiDTO>;
+}
+
+export interface UpdateInterpretationRoiDTOList {
+    rois: Array<UpdateInterpretationRoiDTO>;
+}
+
+export interface UpdatedInterpretationRoiDTOList {
+    rois: Array<UpdatedInterpretationRoiDTO>;
+}
+
+export interface BatchEditRoiDTO {
+    createRois?: Array<SetInterpretationRoiDTO>;
+    updateRois?: Array<UpdateInterpretationRoiDTO>;
+    deleteRois?: Array<number>;
+}
+
+export interface BatchEditRoiResponseDTO {
+    createRois: Array<InterpretationRoiDTO>;
+    updateRois: Array<UpdatedInterpretationRoiDTO>;
+    deleteRois: Array<number>;
+}
+
+export interface CreateScriptDataDTO {
+    wordSpace: number;
+    lineSpace: number;
+}
+
+export interface ScriptDataDTO extends CreateScriptDataDTO {
+    kerningPairs?: Array<KernPairDTO>;
+    glyphs?: Array<GlyphDataDTO>;
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface ScriptDataListDTO {
+    scripts?: Array<ScriptDataDTO>;
+}
+
+export interface CreateKernPairDTO {
+    firstCharacter: string;
+    secondCharacter: string;
+    xKern: number;
+    yKern: number;
+}
+
+export interface KernPairDTO extends CreateKernPairDTO {
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteKernPairDTO {
+    firstCharacter: string;
+    secondCharacter: string;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface CreateGlyphDataDTO {
+    character: string;
+    shape: string;
+    yOffset: number;
+}
+
+export interface GlyphDataDTO extends CreateGlyphDataDTO {
+    creatorId: number;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteGlyphDataDTO {
+    character: string;
+    editorId: number;
+    scribalFontId: number;
+}
+
+export interface DeleteScribalFontDTO {
+    scribalFontId: number;
+    editionEditorId: number;
+}
+
+export interface DetailedSearchRequestDTO {
+    textDesignation?: string;
+    exactTextDesignation: boolean;
+    imageDesignation?: string;
+    exactImageDesignation: boolean;
+    textReference?: Array<string>;
+    exactTextReference: boolean;
+    artefactDesignation?: Array<string>;
+    exactArtefactDesignation: boolean;
+}
+
+export interface DetailedSearchResponseDTO {
+    editions?: FlatEditionListDTO;
+    textFragments?: TextFragmentSearchResponseListDTO;
+    artefacts?: ExtendedArtefactListDTO;
+    images?: ImageSearchResponseListDTO;
+}
+
+export interface TextFragmentSearchResponseListDTO {
+    textFragments?: Array<TextFragmentSearchResponseDTO>;
+}
+
+export interface TextFragmentSearchResponseDTO {
+    id: number;
+    editionId: number;
+    name?: string;
+    editionName?: string;
+    editionEditors?: Array<string>;
+}
+
+export interface ImageSearchResponseListDTO {
+    imagedObjects?: Array<ImageSearchResponseDTO>;
+}
+
+export interface ImageSearchResponseDTO {
+    id?: string;
+    rectoThumbnail?: string;
+    versoThumbnail?: string;
+    editionIds?: Array<number>;
+}
+
+export interface SignDTO {
+    signInterpretations: Array<SignInterpretationDTO>;
+}
+
+export interface NextSignInterpretationDTO {
+    nextSignInterpretationId: number;
+    creatorId: number;
+    editorId: number;
+}
+
+export interface SignInterpretationBaseDTO {
+    character?: string;
+    isVariant: boolean;
+}
+
+export interface SignInterpretationCreateDTO extends SignInterpretationBaseDTO {
+    lineId?: number;
+    previousSignInterpretationIds?: Array<number>;
+    nextSignInterpretationIds?: Array<number>;
+    attributes: Array<InterpretationAttributeCreateDTO>;
+    rois: Array<SetInterpretationRoiDTO>;
+    commentary?: CommentaryCreateDTO;
+    breakPreviousAndNextSignInterpretations: boolean;
+}
+
+export interface SignInterpretationVariantDTO extends InterpretationAttributeBaseDTO {
+    character: string;
+}
+
+export interface SignInterpretationCharacterUpdateDTO {
+    character?: string;
+    attributeValueId?: number;
+    priority: number;
+}
+
+export interface SignInterpretationDTO extends SignInterpretationBaseDTO {
+    signId: number;
+    signInterpretationId: number;
+    nextSignInterpretations: Array<NextSignInterpretationDTO>;
+    attributes: Array<InterpretationAttributeDTO>;
+    rois: Array<InterpretationRoiDTO>;
+    commentary?: CommentaryDTO;
+    signStreamSectionIds?: Array<number>;
+    qwbWordIds?: Array<number>;
+}
+
+export interface SignInterpretationListDTO {
+    signInterpretations?: Array<SignInterpretationDTO>;
+}
+
+export interface SignInterpretationCreatedDTO {
+    created?: Array<SignInterpretationDTO>;
+    updated?: Array<SignInterpretationDTO>;
+}
+
+export interface SignInterpretationDeleteDTO {
+    updates?: SignInterpretationListDTO;
+    deletes?: Array<number>;
+}
+
+export interface InterpretationAttributeBaseDTO {
+    sequence?: number;
+    attributeId: number;
+    attributeValueId: number;
+}
+
+export interface InterpretationAttributeCreateDTO extends InterpretationAttributeBaseDTO {
+    commentary?: string;
+}
+
+export interface InterpretationAttributeDTO extends InterpretationAttributeBaseDTO {
+    interpretationAttributeId: number;
+    attributeString: string;
+    attributeValueString: string;
+    creatorId: number;
+    editorId: number;
+    commentary?: CommentaryDTO;
+}
+
+export interface CreateAttributeValueDTO {
+    value: string;
+    description?: string;
+    cssDirectives?: string;
+}
+
+export interface UpdateAttributeValueDTO extends CreateAttributeValueDTO {
+    id: number;
+}
+
+export interface AttributeValueDTO extends UpdateAttributeValueDTO {
+    creatorId: number;
+    editorId: number;
+}
+
+export interface AttributeBaseDTO {
+    description?: string;
+    editable: boolean;
+    removable: boolean;
+    repeatable: boolean;
+    batchEditable: boolean;
+}
+
+export interface CreateAttributeDTO extends AttributeBaseDTO {
+    attributeName: string;
+    values: Array<CreateAttributeValueDTO>;
+}
+
+export interface UpdateAttributeDTO {
+    createValues: Array<CreateAttributeValueDTO>;
+    updateValues: Array<UpdateAttributeValueDTO>;
+    deleteValues: Array<number>;
+    editable: boolean;
+    removable: boolean;
+    repeatable: boolean;
+    batchEditable: boolean;
+}
+
+export interface AttributeDTO extends AttributeBaseDTO {
+    attributeId: number;
+    attributeName: string;
+    values: Array<AttributeValueDTO>;
+    creatorId: number;
+    editorId: number;
+}
+
+export interface AttributeListDTO {
+    attributes: Array<AttributeDTO>;
+}
+
+export interface DiffReplaceRequestDTO {
+    newText: string;
+    priorSignInterpretationId: number;
+    followingSignInterpretationId: number;
+}
+
+export interface DiffReplaceReconstructionRequestDTO {
+    textRois: Array<IndexedReplacementTextRoi>;
+    newText: string;
+    virtualArtefactShape: string;
+    virtualArtefactPlacement: PlacementDTO;
+}
+
+export interface IndexedReplacementTextRoi {
+    index: number;
+    roi?: SetReconstructedInterpretationRoiDTO;
+}
+
+export interface DiffReplaceResponseDTO {
+    created?: SignInterpretationListDTO;
+    updated?: SignInterpretationListDTO;
+    deleted?: DeleteIntIdDTO;
+}
+
+export interface DiffReconstructedResponseDTO extends DiffReplaceResponseDTO {
+    virtualArtefact?: ArtefactDTO;
+}
+
+export interface EditionScriptCollectionDTO {
+    letters: Array<CharacterShapeDTO>;
+}
+
+export interface EditionScriptLinesDTO {
+    textFragments: Array<ScriptTextFragmentDTO>;
+}
+
+export interface CharacterShapeDTO {
+    id: number;
+    character: string;
+    polygon: string;
+    imageURL: string;
+    rotation: number;
+    attributes: Array<string>;
+}
+
+export interface ScriptTextFragmentDTO {
+    textFragmentName: string;
+    textFragmentId: number;
+    lines: Array<ScriptLineDTO>;
+}
+
+export interface ScriptLineDTO {
+    lineName: string;
+    lineId: number;
+    artefacts: Array<ScriptArtefactCharactersDTO>;
+}
+
+export interface ScriptArtefactCharactersDTO {
+    artefactName: string;
+    artefactId: number;
+    placement: PlacementDTO;
+    characters: Array<SignInterpretationDTO>;
+}
+
+export interface TextFragmentDataDTO {
+    id: number;
+    name: string;
+    editorId: number;
+}
+
+export interface ArtefactTextFragmentMatchDTO extends TextFragmentDataDTO {
+    suggested: boolean;
+}
+
+export interface ImagedObjectTextFragmentMatchDTO {
+    editionId: number;
+    manuscriptName: string;
+    textFragmentId: number;
+    textFragmentName: string;
+    side: SideDesignation;
+}
+
+export interface ImagedObjectTextFragmentMatchListDTO {
+    matches?: Array<ImagedObjectTextFragmentMatchDTO>;
+}
+
+export interface TextFragmentDataListDTO {
+    textFragments: Array<TextFragmentDataDTO>;
+}
+
+export interface ArtefactTextFragmentMatchListDTO {
+    textFragments: Array<ArtefactTextFragmentMatchDTO>;
+}
+
+export interface TextFragmentDTO {
+    textFragmentId: number;
+    textFragmentName: string;
+    editorId: number;
+    lines: Array<LineDTO>;
+}
+
+export interface LineDataDTO extends UpdateLineDTO {
+    lineId: number;
+    editorId: number;
+}
+
+export interface LineDataListDTO {
+    lines: Array<LineDataDTO>;
+}
+
+export interface LineDTO {
+    lineId: number;
+    lineName: string;
+    editorId: number;
+    signs: Array<SignDTO>;
+}
+
+export interface LineTextDTO extends LineDTO {
+    licence: string;
+    editors: { [key: string] : EditorDTO };
+}
+
+export interface UpdateTextFragmentDTO {
+    name?: string;
+    previousTextFragmentId?: number;
+    nextTextFragmentId?: number;
+}
+
+export interface CreateTextFragmentDTO extends UpdateTextFragmentDTO {
+    name: string;
+}
+
+export interface UpdateLineDTO {
+    lineName: string;
+}
+
+export interface CreateLineDTO extends UpdateLineDTO {
+    previousLineId?: number;
+    subsequentLineId?: number;
+}
+
+export interface RequestMaterializationDTO {
+    editionIds: Array<number>;
+}
+
+export interface PlacementDTO {
+    scale: number;
+    rotate: number;
+    zIndex: number;
+    translate?: TranslateDTO;
+    mirrored: boolean;
+}
+
+export interface TranslateDTO {
+    x: number;
+    y: number;
+}
+
 export interface LoginRequestDTO {
     email: string;
     password: string;
@@ -644,205 +874,9 @@ export interface UserDataStoreDTO {
     data: string;
 }
 
-export interface ImageStackDTO {
-    id?: number;
-    images: Array<ImageDTO>;
-    masterIndex?: number;
-}
-
-export interface ImagedObjectDTO {
-    id: string;
-    recto: ImageStackDTO;
-    verso: ImageStackDTO;
-    artefacts: Array<ArtefactDTO>;
-}
-
-export interface ImagedObjectListDTO {
-    imagedObjects: Array<ImagedObjectDTO>;
-}
-
-export interface WktPolygonDTO {
-    wktPolygon: string;
-}
-
-export interface DetailedSearchRequestDTO {
-    textDesignation?: string;
-    exactTextDesignation: boolean;
-    imageDesignation?: string;
-    exactImageDesignation: boolean;
-    textReference?: Array<string>;
-    exactTextReference: boolean;
-    artefactDesignation?: Array<string>;
-    exactArtefactDesignation: boolean;
-}
-
-export interface DetailedSearchResponseDTO {
-    editions?: FlatEditionListDTO;
-    textFragments?: TextFragmentSearchResponseListDTO;
-    artefacts?: ExtendedArtefactListDTO;
-    images?: ImageSearchResponseListDTO;
-}
-
-export interface TextFragmentSearchResponseListDTO {
-    textFragments?: Array<TextFragmentSearchResponseDTO>;
-}
-
-export interface TextFragmentSearchResponseDTO {
-    id: number;
-    editionId: number;
-    name?: string;
-    editionName?: string;
-    editionEditors?: Array<string>;
-}
-
-export interface ImageSearchResponseListDTO {
-    imagedObjects?: Array<ImageSearchResponseDTO>;
-}
-
-export interface ImageSearchResponseDTO {
-    id?: string;
-    rectoThumbnail?: string;
-    versoThumbnail?: string;
-    editionIds?: Array<number>;
-}
-
-export interface SetInterpretationRoiDTO {
-    artefactId: number;
-    signInterpretationId: number;
-    shape: string;
-    translate: TranslateDTO;
-    stanceRotation: number;
-    exceptional: boolean;
-    valuesSet: boolean;
-}
-
-export interface UpdateInterpretationRoiDTO extends SetInterpretationRoiDTO {
-    interpretationRoiId: number;
-}
-
-export interface InterpretationRoiDTO extends UpdateInterpretationRoiDTO {
-    creatorId: number;
-    editorId: number;
-}
-
-export interface UpdatedInterpretationRoiDTO extends InterpretationRoiDTO {
-    oldInterpretationRoiId: number;
-}
-
-export interface SetInterpretationRoiDTOList {
-    rois: Array<SetInterpretationRoiDTO>;
-}
-
-export interface InterpretationRoiDTOList {
-    rois: Array<InterpretationRoiDTO>;
-}
-
-export interface UpdateInterpretationRoiDTOList {
-    rois: Array<UpdateInterpretationRoiDTO>;
-}
-
-export interface UpdatedInterpretationRoiDTOList {
-    rois: Array<UpdatedInterpretationRoiDTO>;
-}
-
-export interface BatchEditRoiDTO {
-    createRois?: Array<SetInterpretationRoiDTO>;
-    updateRois?: Array<UpdateInterpretationRoiDTO>;
-    deleteRois?: Array<number>;
-}
-
-export interface BatchEditRoiResponseDTO {
-    createRois: Array<InterpretationRoiDTO>;
-    updateRois: Array<UpdatedInterpretationRoiDTO>;
-    deleteRois: Array<number>;
-}
-
-export interface QwbWordVariantListDTO {
-    variants?: Array<QwbWordVariantDTO>;
-}
-
-export interface QwbWordVariantDTO {
-    variantReading?: string;
-    bibliography?: Array<QwbBibliographyDTO>;
-}
-
-export interface QwbBibliographyDTO {
-    bibliographyId: number;
-    shortTitle?: string;
-    comment?: string;
-    pageReference?: string;
-}
-
-export interface QwbParallelWordDTO {
-    isVariant: boolean;
-    isReconstructed: boolean;
-    qwbWordId: number;
-    relatedQwbWordId: number;
-    word?: string;
-}
-
-export interface QwbParallelDTO {
-    qwbTextReference?: string;
-    parallelWords?: Array<QwbParallelWordDTO>;
-}
-
-export interface QwbParallelListDTO {
-    parallels?: Array<QwbParallelDTO>;
-}
-
-export interface QwbBibliographyEntryDTO {
-    entry?: string;
-}
-
-export interface CatalogueMatchInputDTO {
-    catalogSide?: SideDesignation;
-    imagedObjectId: string;
-    manuscriptId: number;
-    manuscriptName: string;
-    editionName: string;
-    editionVolume: string;
-    editionLocation1: string;
-    editionLocation2: string;
-    editionSide: SideDesignation;
-    comment?: string;
-    textFragmentId: number;
-    editionId: number;
-    confirmed?: boolean;
-}
-
-export interface CatalogueMatchDTO extends CatalogueMatchInputDTO {
-    imageCatalogId: number;
-    institution: string;
-    catalogueNumber1: string;
-    catalogueNumber2?: string;
-    proxy?: string;
-    url: string;
-    filename: string;
-    suffix: string;
-    thumbnail: string;
-    license: string;
-    iaaEditionCatalogueId: number;
-    name: string;
-    matchAuthor: string;
-    matchConfirmationAuthor?: string;
-    matchId: number;
-    dateOfMatch: string;
-    dateOfConfirmation?: string;
-}
-
-export interface CatalogueMatchListDTO {
-    matches: Array<CatalogueMatchDTO>;
-}
-
-export type Direction = 
-    'left' |
-    'right' |
-    'top'
-;
-
-export type Lighting = 
-    'direct' |
-    'raking'
+export type SideDesignation = 
+    'recto' |
+    'verso'
 ;
 
 export type EditionEntities = 
@@ -857,7 +891,13 @@ export type EditionEntities =
     'imagedObject'
 ;
 
-export type SideDesignation = 
-    'recto' |
-    'verso'
+export type Direction = 
+    'left' |
+    'right' |
+    'top'
+;
+
+export type Lighting = 
+    'direct' |
+    'raking'
 ;

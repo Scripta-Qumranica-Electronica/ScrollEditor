@@ -56,7 +56,7 @@
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
 
-                        <text-toolbar v-if="isTextMode"></text-toolbar>
+                        <text-toolbar v-if="isTextMode" @text-changed="onTextChanged($event)"></text-toolbar>
 
                         <manuscript-toolbar
                             v-if="!isTextMode"
@@ -114,6 +114,7 @@ import ScrollTopToolbar from './scroll-top-toolbar.vue';
 import ManuscriptToolbar from './manuscript-toolbar.vue';
 import TextToolbar from './text-toolbar.vue';
 import { ArtefactEditorOperation } from '../artefact-editor/operations';
+import { VirtualArtefactService } from '@/services/virtual-artefact';
 
 @Component({
     name: 'scroll-editor',
@@ -184,7 +185,6 @@ export default class ScrollEditor
         return this.scrollEditorState.mode === 'text';
     }
 
-   // TBD
     private get viewportSizeWidth() {
         return Math.round(
             this.scrollEditorState.viewport!.width / this.edition.ppm
@@ -208,7 +208,6 @@ export default class ScrollEditor
         return (this.params && this.params.zoom) || 1;
     }
 
-// TBD
     private get pointerPositionX() {
         return (
             this.scrollEditorState.pointerPosition.x /
@@ -223,7 +222,7 @@ export default class ScrollEditor
             this.edition.ppm
         ).toFixed(2);
     }
-//
+
     public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
         const allMovedArtefactIds = new Set<number>();
         const allEditedGroupIds = new Set<number>();
@@ -399,7 +398,7 @@ export default class ScrollEditor
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
         this.$state.operationsManager = this.operationsManager;
-        this.$state.textFragmentEditor.textEditingMode = 'scroll';
+        this.$state.textFragmentEditor.textEditingMode = 'manuscript';
     }
 
     private async beforeRouteUpdate(to: any, from: any, next: () => void) {
@@ -478,12 +477,6 @@ export default class ScrollEditor
         } as unknown) as EditorParamsChangedArgs; // TODO: Change this to the right type
         this.$emit('paramsChanged', args);
     }
-
-
-    // private onZoomChanged(val: number) {
-    //     this.params.zoom = val; //
-    //     this.calculateViewport();
-    // }
 
     private onZoomChangedGlobal(val: number) {
         this.params.zoom = val; //
@@ -611,7 +604,6 @@ export default class ScrollEditor
         div.scroll(left, top);
     }
 
-// TBD
     private resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
             ...this.edition.metrics,
@@ -764,7 +756,6 @@ export default class ScrollEditor
     }
 
 
-// TBD
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
@@ -807,8 +798,33 @@ export default class ScrollEditor
             this.deleteGroup(this.selectedGroup.groupId);
         }
     }
-    //
 
+    private async onTextChanged(newText: string) {
+        const editedArtefact = this.$state.textFragmentEditor.editedVirtualArtefact;
+
+        if (!editedArtefact) {
+            console.error("Can't save text changed, $state.textFragmentEditor.editedVirtualArtefact is not set");
+            return;
+        }
+
+        if (!editedArtefact?.isVirtual) {
+            console.error("Can't save text change of a non-virtual artefact");
+            return;
+        }
+
+        if (!editedArtefact.signInterpretations.length) {
+            console.error("Can't save text of a virtual artefact with no sign interpretations");
+        }
+        const line = editedArtefact.signInterpretations[0].sign.line;
+
+        console.debug('Reconstructed text changed to ', newText);
+
+        const service = new VirtualArtefactService();
+        await service.updateText(this.$state.editions.current!,
+                                 line.signs[0].signInterpretations[0],
+                                 line.signs[line.signs.length - 1].signInterpretations[0],
+                                 newText);
+    }
 }
 </script>
 

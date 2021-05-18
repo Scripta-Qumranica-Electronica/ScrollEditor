@@ -13,8 +13,9 @@
             v-if="withMenu && !readOnly"
             custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
-            triggers=""
+            triggers="click blur"
             @shown="focusPopover($event)"
+
         >
             <div
                 class="character-popover"
@@ -41,6 +42,9 @@
                             >{{ $t('misc.addToRight') }}</p
                         >
                     </li>
+                    <li v-if="editingMode==='manuscript' && virtualArtefact">
+                        <p @click="openEditVirtualArtefact()">Edit Reconstructed Text</p>
+                    </li>
                 </ul>
             </div>
         </b-popover>
@@ -48,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
 import EditSignModal from './edit-sign-modal.vue';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
@@ -56,6 +60,7 @@ import {
     ArtefactROIOperation,
     DeleteSignInterpretationOperation,
 } from '../../views/artefact-editor/operations';
+import { Artefact } from '@/models/artefact';
 
 @Component({
     name: 'text-sign',
@@ -98,6 +103,19 @@ export default class TextSign extends Vue {
                     .replace('_', '-')
             )
             .join(' ');
+    }
+
+    private get virtualArtefact(): Artefact | null {
+        if (this.si.rois.length !== 1) {
+            return null;
+        }
+
+        const artefact = this.$state.artefacts.find(this.si.rois[0].artefactId);
+        if (!artefact) {
+            return null;
+        }
+
+        return artefact.isVirtual ? artefact : null;
     }
 
     private deleteSignInterpretation(si: SignInterpretation) {
@@ -146,6 +164,26 @@ export default class TextSign extends Vue {
 
         this.$root.$emit('bv::show::popover', signMenuId);
         this.previousMenuId = signMenuId;
+    }
+
+    private openEditVirtualArtefact() {
+        if (!this.virtualArtefact) {
+            console.warn("Can't edit virtual artefact when no virtual artefact is set");
+            return;
+        }
+        this.$state.textFragmentEditor.editedVirtualArtefact = this.virtualArtefact;
+
+        this.$state.showEditReconTextBar = true;
+        // this.showReconTextEditor();
+        // this.$emit('showReconTextEditor');
+
+        // this.$root.$emit('bv::show::modal', 'editVirtualArtefactText');
+
+    }
+
+    @Emit()
+    private showReconTextEditor() {
+        return true;
     }
 
     private closeSignMenu() {

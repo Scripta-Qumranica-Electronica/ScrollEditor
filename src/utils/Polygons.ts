@@ -10,6 +10,7 @@ import { svgPolygonToWKT,
     clipperToSVGPolygon,
 } from './VectorFactory';
 import { BoundingBox } from './helpers';
+import { BCol } from 'bootstrap-vue';
 
 // A class representing a polygon. The internal representation is SVG.
 // We have methods that translate the polygon to other formats, and static factory methods that import
@@ -192,6 +193,13 @@ export class Polygon {
     }
 
     public static fromSvg(svg: any) {
+        return new Polygon(svg);
+    }
+
+    public static fromBox(box: BoundingBox) {
+        const [x1, x2, y1, y2] = [box.x, box.x + box.width, box.y, box.y + box.height];
+        const svg = `M${x1} ${y1}L${x2} ${y1} L${x2} ${y2} L${x1} ${y2} L${x1} ${y1}`;
+
         return new Polygon(svg);
     }
 
