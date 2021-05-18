@@ -18,7 +18,6 @@ export class TextFragmentState {
 
     // Editing the text of a virtual artefact
     public editedVirtualArtefact: Artefact | null = null;
-    public editedTextLine: Line | null = null;
 
     constructor() {
         this.selectedSignInterpretations = [];

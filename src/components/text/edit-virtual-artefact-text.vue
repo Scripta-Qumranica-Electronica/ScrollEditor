@@ -75,11 +75,12 @@ export default class EditVirtualArtefactTextPane extends Vue {
             return;
         }
 
-        this.editor.dispose();
-        this.editor = undefined;
+        this.editor.hide();
 
         this.originalArtefact!.isPlaced = true;
-        this.$emit('close', { text: this.text, originalText: this.originalText });
+        this.$emit('close', { text: this.text, originalText: this.originalText, editor: this.editor });
+
+        this.editor = undefined;
     }
 
     private destroyed() {

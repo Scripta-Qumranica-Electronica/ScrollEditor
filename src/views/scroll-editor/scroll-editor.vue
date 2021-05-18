@@ -114,7 +114,7 @@ import ScrollTopToolbar from './scroll-top-toolbar.vue';
 import ManuscriptToolbar from './manuscript-toolbar.vue';
 import TextToolbar from './text-toolbar.vue';
 import { ArtefactEditorOperation } from '../artefact-editor/operations';
-import { VirtualArtefactService } from '@/services/virtual-artefact';
+import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 
 @Component({
     name: 'scroll-editor',
@@ -799,7 +799,7 @@ export default class ScrollEditor
         }
     }
 
-    private async onTextChanged(newText: string) {
+    private async onTextChanged(params: { text: string, editor: VirtualArtefactEditor }) {
         const editedArtefact = this.$state.textFragmentEditor.editedVirtualArtefact;
 
         if (!editedArtefact) {
@@ -817,13 +817,9 @@ export default class ScrollEditor
         }
         const line = editedArtefact.signInterpretations[0].sign.line;
 
-        console.debug('Reconstructed text changed to ', newText);
+        console.debug('Reconstructed text changed to ', params.text);
 
-        const service = new VirtualArtefactService();
-        await service.updateText(this.$state.editions.current!,
-                                 line.signs[0].signInterpretations[0],
-                                 line.signs[line.signs.length - 1].signInterpretations[0],
-                                 newText);
+        params.editor.updateText();
     }
 }
 </script>

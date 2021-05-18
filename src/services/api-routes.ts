@@ -181,8 +181,8 @@ export namespace ApiRoutes {
         return url;
     }
 
-    export function diffReplaceTextUrl(editionId: number) {
-        const url = `v1/editions/${editionId}/diff-replace-text`;
+    export function diffReplaceTranscription(editionId: number, artefactId: number) {
+        const url = `v1/editions/${editionId}/artefacts/${artefactId}/diff-replace-transcription`;
 
         return url;
     }
