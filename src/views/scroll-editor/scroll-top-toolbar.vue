@@ -623,10 +623,10 @@ export default class ScrollTopToolbar extends Vue {
         this.scrollEditorState.mode = mode;
 
         const materialBtn =
-                document.querySelector('#material-mode-btn')!;
+                document.querySelector('#material-mode-btn')! as HTMLButtonElement;
 
         const textBtn =
-                document.querySelector('#text-mode-btn')!;
+                document.querySelector('#text-mode-btn')! as HTMLButtonElement;
 
         if ( 'material' === this.scrollEditorState.mode) {
             materialBtn.classList.add('btn-selected');
@@ -639,18 +639,6 @@ export default class ScrollTopToolbar extends Vue {
         } else if ( 'material' === this.scrollEditorState.mode) {
             textBtn.classList.remove('btn-selected');
         }
-
-        const materialBtn =
-                document.getElementById('material-mode-btn')!;
-        const textBtn =
-                document.getElementById('text-mode-btn')!;
-
-        if ( 'material' === this.scrollEditorState.mode) {
-            materialBtn.focus();
-        } else if ( 'text' === this.scrollEditorState.mode) {
-            textBtn.focus();
-        }
-
     }
 
 
