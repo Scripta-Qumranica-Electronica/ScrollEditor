@@ -70,6 +70,7 @@ import {
 	QwbParallelDTO,
 	QwbParallelListDTO,
 	QwbBibliographyEntryDTO,
+	SetReconstructedInterpretationRoiDTO,
 	SetInterpretationRoiDTO,
 	UpdateInterpretationRoiDTO,
 	InterpretationRoiDTO,
@@ -118,7 +119,10 @@ import {
 	AttributeDTO,
 	AttributeListDTO,
 	DiffReplaceRequestDTO,
+	DiffReplaceReconstructionRequestDTO,
+	IndexedReplacementTextRoi,
 	DiffReplaceResponseDTO,
+	DiffReconstructedResponseDTO,
 	EditionScriptCollectionDTO,
 	EditionScriptLinesDTO,
 	CharacterShapeDTO,
@@ -336,6 +340,22 @@ export class SignalRUtilities {
 	 */
     public async deleteV1EditionsEditionIdArtefactGroupsArtefactGroupId(editionId: number, artefactGroupId: number): Promise<DeleteIntIdDTO> {
         return await this._connection.invoke('DeleteV1EditionsEditionIdArtefactGroupsArtefactGroupId', editionId, artefactGroupId);
+    }
+
+    /**
+	 * Replace the current transcription in the virtual artefact with the submitted
+	 *		 transcription and the related ROIs. The dictionary in textRois should map the
+	 *		 index of each character in the new transcription string to its corresponding
+	 *		 ROI shape/positional data. Some characters, like a space, need not have a
+	 *		 corresponding ROI shape/position.
+	 *
+	 * @param editionId - Unique Id of the desired edition
+	 * @param artefactId - Unique Id of the desired artefact (must be a virtual artefact)
+	 * @param payload - Details of the replacement transcription
+	 * @returns - Details concerning all changed data in the edition
+	 */
+    public async putV1EditionsEditionIdArtefactsArtefactIdDiffReplaceTranscription(editionId: number, artefactId: number, payload: DiffReplaceReconstructionRequestDTO): Promise<DiffReconstructedResponseDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdArtefactsArtefactIdDiffReplaceTranscription', editionId, artefactId, payload);
     }
 
     /**
@@ -1236,14 +1256,14 @@ export class SignalRUtilities {
 	 *		 existing at that location in the edition.
 	 *
 	 * @param editionId - Id of the edition to be updated
-	 * @param replaceRequest - Details of the text replacement request
+	 * @param payload - Details of the text replacement request
 	 * @returns - 
 	 *		  Information about all sign interpretations that were
 	 *		  created, updated, and deleted as a result of the operation.
 	 *		 
 	 */
-    public async putV1EditionsEditionIdDiffReplaceText(editionId: number, replaceRequest: DiffReplaceRequestDTO): Promise<DiffReplaceResponseDTO> {
-        return await this._connection.invoke('PutV1EditionsEditionIdDiffReplaceText', editionId, replaceRequest);
+    public async putV1EditionsEditionIdDiffReplaceText(editionId: number, payload: DiffReplaceRequestDTO): Promise<DiffReplaceResponseDTO> {
+        return await this._connection.invoke('PutV1EditionsEditionIdDiffReplaceText', editionId, payload);
     }
 
     /**
