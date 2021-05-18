@@ -12,7 +12,7 @@
  * removed, and the original artefact and text fragment are updated by the server.
  */
 
-import { DiffReplaceRequestDTO, DiffReplaceResponseDTO, KernPairDTO } from '@/dtos/sqe-dtos';
+import { DiffReconstructedResponseDTO, DiffReplaceReconstructionRequestDTO, DiffReplaceRequestDTO, DiffReplaceResponseDTO, IndexedReplacementTextRoi, KernPairDTO, SetReconstructedInterpretationRoiDTO, TranslateDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { InterpretationRoi, Line, Sign, SignInterpretation, TextFragment } from '@/models/text';
@@ -33,7 +33,7 @@ export class VirtualArtefactEditor {
     private shadowSignROIs: SignROI[] = [];
     private breakAtEnd = false;  // When true, a BREAK sign needs to be added to the end
     private _text = '';
-    private disposed = false;
+    private hidden = false;
 
     // Measurements for building ROIs
     private anchor: Anchor;  // Anchor artefact text to Left, Right or Both
@@ -70,18 +70,18 @@ export class VirtualArtefactEditor {
         // this.reportROIs();
     }
 
-    public dispose() {
-        if (this.disposed) {
-            console.warn("Can't dispost a VirtualArtefactEditor twice");
+    public hide() {
+        if (this.hidden) {
+            console.warn("Can't hide a VirtualArtefactEditor twice");
             return;
         }
 
-        this.clearShadowModels();
+        this.clearShadowModels(true); // Keep the ROI arrays intact
 
         // Remove the shadow models
         this.$state.artefacts.remove(this.shadowArtefact.id);
         this.$state.textFragments.delete(this.shadowTextFragment.id);
-        this.disposed = true;
+        this.hidden = true;
     }
 
     public get text() {
@@ -292,15 +292,18 @@ export class VirtualArtefactEditor {
         this.placeShadowArtefact();
     }
 
-    private clearShadowModels() {
+    private clearShadowModels(unregisterOnly = false) {
         for (const sr of this.shadowSignROIs) {
             this.$state.signInterpretations.delete(sr[0].signInterpretations[0].id);
             if (sr[1]) {
                 this.$state.interpretationRois.delete(sr[1].id);
             }
         }
-        this.shadowSignROIs = [];
-        this.shadowTextFragment.lines[0].signs = [];
+
+        if (!unregisterOnly) {
+            this.shadowSignROIs = [];
+            this.shadowTextFragment.lines[0].signs = [];
+        }
     }
 
     private attachSign(prev: Sign | undefined, next: Sign) {
@@ -456,20 +459,38 @@ export class VirtualArtefactEditor {
         this.shadowArtefact.placement.translate = { x: left, y: top };
         this.shadowArtefact.mask = Polygon.fromBox( { x: 0, y: 0, width, height });
     }
-}
 
-export class VirtualArtefactService {
-    public async updateText(edition: EditionInfo, priorSI: SignInterpretation, followingSI: SignInterpretation, newText: string) {
-        const dto: DiffReplaceRequestDTO = {
-            priorSignInterpretationId: priorSI.id,
-            followingSignInterpretationId: followingSI.id,
-            newText
+    public async updateText() {
+        const url = ApiRoutes.diffReplaceTranscription(this.originalArtefact.editionId, this.originalArtefact.id);
+        const rois: IndexedReplacementTextRoi[] = [];
+
+        // Gather the ROIs of non-space characters
+        for (const [index, signRoi] of this.shadowSignROIs.entries()) {
+            const roi = signRoi[1];
+            if (!roi) {
+                continue;
+            }
+
+            const roiDTO: IndexedReplacementTextRoi = {
+                index,
+                roi: {
+                    shape: roi.shape.wkt,
+                    translate: roi.position,
+                } as SetReconstructedInterpretationRoiDTO,
+            };
+
+            rois.push(roiDTO);
+        }
+
+        const dto: DiffReplaceReconstructionRequestDTO = {
+            textRois: rois,
+            newText: this.text,
+            virtualArtefactShape: this.shadowArtefact.mask.wkt,
+            virtualArtefactPlacement: this.shadowArtefact.placement,
         };
 
-        const url = ApiRoutes.diffReplaceTextUrl(edition.id);
-        const response = CommHelper.put<DiffReplaceResponseDTO>(url, dto);
-
-        console.debug('Got response from diff-replace-text: ', response);
-        // The data should be updated via the SignalR notifications
+        const response = await CommHelper.put<DiffReconstructedResponseDTO>(url, dto);
+        console.debug('Text response: ', response);
+        // TODO: replicate the updates by signalR, as signalR updates are not going to be sent to the caller
     }
 }

@@ -27,6 +27,7 @@ import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
 import EditVirtualArtefactTextPane from '@/components/text/edit-virtual-artefact-text.vue';
+import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 
 @Component({
     name: 'text-toolbar',
@@ -49,11 +50,11 @@ export default class TextToolbar extends Vue {
         return this.$state.showEditReconTextBar;
     }
 
-    protected onVirtualTextClose(param: { text: string, originalText: string }) {
+    protected onVirtualTextClose(param: { text: string, originalText: string, editor: VirtualArtefactEditor }) {
         this.$state.showEditReconTextBar = false;
 
         if (param.text !== param.originalText) {
-            this.$emit('text-changed', param.text);
+            this.$emit('text-changed', { text: param.text, editor: param.editor });
         }
     }
 
