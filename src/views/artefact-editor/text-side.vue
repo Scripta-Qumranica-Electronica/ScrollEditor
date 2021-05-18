@@ -6,11 +6,14 @@
                 placeholder="Enter a name e.g, col.1"
                 list="my-list-id"
                 @input="loadFragment($event)"
+                type="text"
+                onfocus="this.value=''"
+                onchange="this.blur();"
             />
             <datalist id="my-list-id">
                 <option
-                    :key="tf.textFragmentId"
                     v-for="tf in dropdownTextFragmentsData"
+                    :key="tf.textFragmentId"
                 >
                     {{ tf.name }}
                 </option>
