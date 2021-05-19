@@ -363,10 +363,6 @@ export default class ScrollEditor
         }
 
         this.$state.operationsManager = null;
-
-        // this was moved here for text-toolbar and manuscript-toolbar
-        // and top-toolbar
-        this.$state.scrollEditor = new ScrollEditorState();
     }
 
     private async mounted() {
@@ -394,7 +390,7 @@ export default class ScrollEditor
             }
         });
 
-        // this.$state.scrollEditor = new ScrollEditorState();
+        this.$state.scrollEditor = new ScrollEditorState();
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
         this.$state.operationsManager = this.operationsManager;
@@ -493,7 +489,6 @@ export default class ScrollEditor
         );
 
         if (this.params.mode === 'manageGroup') {
-
             if (!this.selectedGroup) {
                 const newGroup = ArtefactGroup.generateGroup([
                     this.selectedArtefact!.id,
@@ -520,7 +515,6 @@ export default class ScrollEditor
                 this.scrollEditorState.selectArtefact(artefact!);
             }
         }
-
     }
 
 
@@ -707,16 +701,9 @@ export default class ScrollEditor
 
 
     private saveGroupArtefacts() {
-
-        if (this.selectedGroup === null) {
-            console.warn('Cannot save null group');
-            return;
-        }
-
         const group = this.edition.artefactGroups.find(
             (x) => x.groupId === this.selectedGroup!.groupId
         );
-
         this.operationsManager.addOperation(
             new EditGroupOperation(
                 this.selectedGroup!.groupId,
@@ -761,7 +748,6 @@ export default class ScrollEditor
     }
 
     private newOperation(operation: ScrollEditorOperation) {
-        console.log('scroll editor newOpertion ', operation);
         this.operationsManager.addOperation(operation);
     }
 
@@ -816,8 +802,6 @@ export default class ScrollEditor
             console.error("Can't save text of a virtual artefact with no sign interpretations");
         }
         const line = editedArtefact.signInterpretations[0].sign.line;
-
-        console.debug('Reconstructed text changed to ', params.text);
 
         params.editor.updateText();
     }

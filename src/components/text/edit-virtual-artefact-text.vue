@@ -22,7 +22,7 @@
                         type="text"
                         dir="rtl"
                         @input="onTextChanged"
-                        v-model.lazy="text"
+                        v-model="text"
                         class="w-input"
                         autofocus
                         rows="1"
@@ -95,20 +95,25 @@ export default class EditVirtualArtefactTextPane extends Vue {
         }
 
         const hebTextOnly = this.stripNonHebChars(this.text);
-        this.editor.text = hebTextOnly;
+        this.text = this.editor.text = hebTextOnly;
     }
 
     private stripNonHebChars(input: string): string {
-        const hebrewAlphabet = 'אבגדהוזחטיכךלמנסעפצקרשתםןףץ';
+        const hebrewAlphabet = 'אבגדהוזחטיכךלמנסעפצקרשתםןףץ ';
         let output = '';
 
         for ( const letter of input ) {
-            if ( hebrewAlphabet.indexOf( letter ) > 0
-                 || letter === ' ' ) {
+            if ( hebrewAlphabet.indexOf( letter ) !== -1) {
                 output += letter;
             }
         }
+
+        if (output !== input) {
+            console.debug('Sanitized text: ', input, ' --> ', output);
+        }
         return output;
+
+
     }
 }
 </script>

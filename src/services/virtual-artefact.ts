@@ -91,6 +91,7 @@ export class VirtualArtefactEditor {
     public set text(newText: string) {
         this._text = newText;
         this.populateShadows();
+        console.debug('virtual artefact editor text: ', newText);
     }
 
     private createShadowArtefact() {
@@ -261,8 +262,6 @@ export class VirtualArtefactEditor {
             return [rightAnchor ? 'right' : 'left', leftAnchor, rightAnchor];
         }
         const [anchor, leftAnchor, rightAnchor] = getAnchors();
-
-        console.debug(anchor, leftAnchor, rightAnchor);
 
         const maxWidth = rightAnchor && leftAnchor ? this.originalArtefact.boundingBox.width : undefined;
 
@@ -490,7 +489,7 @@ export class VirtualArtefactEditor {
         };
 
         const response = await CommHelper.put<DiffReconstructedResponseDTO>(url, dto);
-        console.debug('Text response: ', response);
+        console.debug('Text response: ', response.data);
         // TODO: replicate the updates by signalR, as signalR updates are not going to be sent to the caller
     }
 }

@@ -169,7 +169,6 @@ export default class TextSide extends Vue {
     }
 
     private async mounted() {
-        console.debug('text-side created in mode ', this.editorMode);
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
         if (this.textFragmentMode) {
             this.displayedTextFragments = [this.textFragment];

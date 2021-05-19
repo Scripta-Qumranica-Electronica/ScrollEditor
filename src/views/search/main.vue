@@ -38,7 +38,6 @@ export default class Search extends Vue {
         this.searchResults = null;
         try  {
             this.searchResults = await this.searchService.search(data);
-            console.debug(this.searchResults);
         } finally {
             this.searching = false;
         }
