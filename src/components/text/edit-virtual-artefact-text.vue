@@ -23,6 +23,7 @@
                         dir="rtl"
                         @input="onTextChanged"
                         @keydown="onKeydown($event)"
+                        @paste="onPaste($event)"
                         v-model="text"
                         class="w-input"
                         autofocus
@@ -121,6 +122,25 @@ export default class EditVirtualArtefactTextPane extends Vue {
         if ( ( hebrewAlphabet.indexOf( e.key) ) < 0 )  {
             e.preventDefault();
         }
+    }
+
+    private onPaste(e: ClipboardEvent) {
+        // Prevent the default pasting event and stop bubbling
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Get the clipboard data
+            const paste =  e.clipboardData!.getData('text/plain');
+
+            // Do something with paste like remove non-UTF-8 characters
+            // paste = paste.replace(/\x0D/gi, "\n")
+            const hebTextOnly = this.stripNonHebChars(paste);
+
+            (e.target as HTMLInputElement).textContent = hebTextOnly;
+            (e.target as HTMLInputElement).value = hebTextOnly;
+
+            this.text += hebTextOnly;
+            this.editor!.text += hebTextOnly;
     }
 
 }
