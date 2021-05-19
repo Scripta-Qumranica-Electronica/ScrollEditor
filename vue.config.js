@@ -1,6 +1,6 @@
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-    ? '/production/path'
+    ? '/Scrollery'
     : '/',
     configureWebpack: config => {
     if (process.env.NODE_ENV === 'development') {
@@ -10,7 +10,7 @@ module.exports = {
     devServer: {
       proxy: {
         '/v1': {
-          target: 'http://localhost:5000',
+          target: 'https://api.qumranica.org',
           ws: true,
           changeOrigin: true
         }

@@ -132,7 +132,8 @@ export default class TextSide extends Vue {
     }
 
     private get displayedTextFragmentsData() {
-        return this.allTextFragmentsData.filter((x) => x.certain);
+        const certain = this.allTextFragmentsData.filter((x) => x.certain);
+        return certain.length > 0 ? certain : this.allTextFragmentsData.filter((x) => x.suggested);
     }
 
     private get openedTextFragement() {
@@ -158,11 +159,14 @@ export default class TextSide extends Vue {
             this.$state.artefacts.current!.textFragments || [];
 
         textFragments.forEach((editionTf) => {
-            editionTf.certain =
-                textFragmentsArtefact.findIndex(
-                    (artefactTf) =>
-                        artefactTf.id === editionTf.id && artefactTf.certain
-                ) > -1;
+            textFragmentsArtefact.forEach((artefactTf) => {
+                if (artefactTf.id === editionTf.id) {
+                    if (artefactTf.certain)
+                        editionTf.certain = true;
+                    if (artefactTf.suggested)
+                        editionTf.suggested = true;
+                }
+            });
         });
 
         return textFragments;

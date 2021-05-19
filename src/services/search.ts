@@ -1,6 +1,5 @@
 import { DetailedSearchRequestDTO, DetailedSearchResponseDTO } from '@/dtos/sqe-dtos';
-import axios from 'axios';
-import { det } from 'mathjs';
+import { CommHelper } from './comm-helper';
 import { ApiRoutes } from './api-routes';
 
 export default class SearchService {
@@ -13,7 +12,7 @@ export default class SearchService {
             detailedSearchRequestDTO.textReference = [];
         }
 
-        const response = await axios.post<DetailedSearchResponseDTO>(ApiRoutes.searchUrl(), detailedSearchRequestDTO);
+        const response = await CommHelper.post<DetailedSearchResponseDTO>(ApiRoutes.searchUrl(), detailedSearchRequestDTO);
         return response.data;
     }
 }
