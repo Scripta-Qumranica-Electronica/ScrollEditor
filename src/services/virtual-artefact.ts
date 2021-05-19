@@ -91,6 +91,7 @@ export class VirtualArtefactEditor {
     public set text(newText: string) {
         this._text = newText;
         this.populateShadows();
+        console.debug('virtual artefact editor text: ', newText);
     }
 
     private createShadowArtefact() {
