@@ -22,6 +22,7 @@
                         type="text"
                         dir="rtl"
                         @input="onTextChanged"
+                        @keydown="onKeydown($event)"
                         v-model="text"
                         class="w-input"
                         autofocus
@@ -91,7 +92,7 @@ export default class EditVirtualArtefactTextPane extends Vue {
         // Tsvia: If the new text contains illegal characters (non Hebrew and not space), remove the illegal
         // characters
         if (!this.editor) {
-            throw new Error('Editor object disppeared');
+            throw new Error('Editor object disappeared');
         }
 
         const hebTextOnly = this.stripNonHebChars(this.text);
@@ -112,9 +113,16 @@ export default class EditVirtualArtefactTextPane extends Vue {
             console.debug('Sanitized text: ', input, ' --> ', output);
         }
         return output;
-
-
     }
+
+    private onKeydown(e: KeyboardEvent) {
+        const hebrewAlphabet = 'אבגדהוזחטיכךלמנסעפצקרשתםןףץ ';
+        //   if (/^\W$/.test(e.key)) {
+        if ( ( hebrewAlphabet.indexOf( e.key) ) < 0 )  {
+            e.preventDefault();
+        }
+    }
+
 }
 </script>
 
