@@ -25,7 +25,10 @@
                         @input="onTextChanged"
                         @keydown="onKeydown($event)"
                         @paste="onPaste($event)"
+<<<<<<< HEAD
                         @change="onTextChanged"
+=======
+>>>>>>> 57539db8d5129a609c7a89f4f5bbf3ab3e4e8061
                         v-model="text"
                         class="w-input"
                         autofocus
@@ -125,6 +128,7 @@ export default class EditVirtualArtefactTextPane extends Vue {
             e.preventDefault();
         }
     }
+
 
 
     private onPaste(e: ClipboardEvent): boolean {
