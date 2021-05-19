@@ -16,6 +16,7 @@
         </b-row>
         <b-row>
             <b-col>
+                 <!---->
                 <div class="bottom-scroll-bar m-2 ml-1 mr-1">
                     <b-input
                         id="w-text-input"
@@ -23,6 +24,8 @@
                         dir="rtl"
                         @input="onTextChanged"
                         @keydown="onKeydown($event)"
+                        @paste="onPaste($event)"
+                        @change="onTextChanged"
                         v-model="text"
                         class="w-input"
                         autofocus
@@ -121,6 +124,26 @@ export default class EditVirtualArtefactTextPane extends Vue {
         if ( ( hebrewAlphabet.indexOf( e.key) ) < 0 )  {
             e.preventDefault();
         }
+    }
+
+
+    private onPaste(e: ClipboardEvent): boolean {
+        // Prevent the default pasting event and stop bubbling
+            e.preventDefault();
+            // e.stopPropagation();
+
+            // Get the clipboard data
+            const paste =  e.clipboardData!.getData('text/plain');
+
+            // Do something with paste like remove non-UTF-8 characters
+            // paste = paste.replace(/\x0D/gi, "\n")
+            const hebTextOnly = this.stripNonHebChars(paste);
+
+            document.execCommand('insertText', false, hebTextOnly);
+
+
+            // onPaste method needs to return true for text to be actually pasted.
+            return true;
     }
 
 }
