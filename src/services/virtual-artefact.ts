@@ -262,8 +262,6 @@ export class VirtualArtefactEditor {
         }
         const [anchor, leftAnchor, rightAnchor] = getAnchors();
 
-        console.debug(anchor, leftAnchor, rightAnchor);
-
         const maxWidth = rightAnchor && leftAnchor ? this.originalArtefact.boundingBox.width : undefined;
 
         // We need the baseline of the artefact, which is the baseline of any of the existing signs on the
@@ -490,7 +488,7 @@ export class VirtualArtefactEditor {
         };
 
         const response = await CommHelper.put<DiffReconstructedResponseDTO>(url, dto);
-        console.debug('Text response: ', response);
+        console.debug('Text response: ', response.data);
         // TODO: replicate the updates by signalR, as signalR updates are not going to be sent to the caller
     }
 }

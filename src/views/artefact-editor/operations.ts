@@ -422,7 +422,6 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
             state().corrupted(`Can't locate sign interpretation ${addAfterSignInterpretationId}`);
         }
         const prevSign = prevSI!.sign;
-        console.debug(`previous sign interpretation ${prevSI!.id}, previous sign: ${prevSign}`);
 
         // First, create a sign with no interpretations
         this.sign = new Sign({ signInterpretations: [] }, prevSign.line, prevSign.indexInLine + 1);
@@ -443,7 +442,6 @@ export class CreateSignInterpretationOperation extends SignInterpretationEditOpe
 
         this.sign.signInterpretations.push(si);
         state().signInterpretations.put(si);
-        console.debug('Created new sign interpretation ', si);
     }
 
     public get signInterpretation() {

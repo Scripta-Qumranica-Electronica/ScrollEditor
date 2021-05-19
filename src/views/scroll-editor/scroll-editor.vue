@@ -808,8 +808,6 @@ export default class ScrollEditor
         }
         const line = editedArtefact.signInterpretations[0].sign.line;
 
-        console.debug('Reconstructed text changed to ', params.text);
-
         params.editor.updateText();
     }
 }

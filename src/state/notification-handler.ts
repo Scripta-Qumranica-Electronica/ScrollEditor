@@ -136,14 +136,12 @@ export class NotificationHandler {
     }
 
     public handleDeletedSignInterpretation(dto: DeleteIntIdDTO): void {
-        // console.debug('handleDeletedSignInterpretation called on ', dto.ids);
         if (dto.entity !== 'signInterpretation') {
             console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);
             return;
         }
 
         for (const id of dto.ids) {
-            // console.debug('Working on ', id);
             const si = state().signInterpretations.get(id);
             if (!si) {
                 // Sign Interpretation has already been deleted
@@ -159,14 +157,12 @@ export class NotificationHandler {
 
             const line = sign.line;
             if (line.signs[sign.indexInLine] === sign) {
-                // console.debug('Deleting sign from line');
                 line.removeSign(sign);
             } else {
                 // Do nothing, sign has already been deleted here
             }
 
-            /*console.debug("Removing sign interpretation from the map");
-            state().signInterpretations.delete(id); */
+            /*state().signInterpretations.delete(id); */
             // We do not remove the sign interpretation from the map, as we may need it for undoing (if this browser originated the call),
             // and it's not going to hurt since it will no longer be displayed anyway.
         }
@@ -174,10 +170,8 @@ export class NotificationHandler {
 
     public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
         for (const siDto of dto.signInterpretations || []) {
-            // console.debug('Handling create of sign Interpretation ', siDto.signInterpretationId);
             const existingSi = state().signInterpretations.get(siDto.signInterpretationId);
             if (existingSi) {
-                console.debug('SignInterpretation already exists here');
                 return;
             }
 

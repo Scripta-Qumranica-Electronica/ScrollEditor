@@ -95,7 +95,7 @@ export default class EditVirtualArtefactTextPane extends Vue {
         }
 
         const hebTextOnly = this.stripNonHebChars(this.text);
-        this.editor.text = hebTextOnly;
+        this.text = this.editor.text = hebTextOnly;
     }
 
     private stripNonHebChars(input: string): string {

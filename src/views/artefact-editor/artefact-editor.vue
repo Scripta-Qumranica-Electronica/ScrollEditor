@@ -529,7 +529,6 @@ export default class ArtefactEditor
             await this.selectArtefact(this.artefacts[0].id);
         }
 
-        console.debug('artefact editor mounted with mode ', this.editorMode);
         this.waiting = false;
         this.$state.operationsManager = this.operationsManager;
         this.$state.textFragmentEditor.textEditingMode = 'artefact';
