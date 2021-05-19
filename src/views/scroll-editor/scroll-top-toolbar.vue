@@ -555,7 +555,6 @@ export default class ScrollTopToolbar extends Vue {
             return;
         }
 
-        console.log(event);
         switch (event.code) {
             case 'KeyM':
                 this.setMode('move');
@@ -655,7 +654,6 @@ export default class ScrollTopToolbar extends Vue {
     }
 
     public get selectedGroup() {
-        console.log('selectedGroup ',  this.scrollEditorState.selectedGroup);
         return this.scrollEditorState.selectedGroup;
     }
 
@@ -675,9 +673,7 @@ export default class ScrollTopToolbar extends Vue {
         if (this.selectedArtefact) {
             const newPlacement = this.selectedArtefact.placement.clone();
 
-            console.log('before mirored' , newPlacement.mirrored);
             newPlacement.mirrored = !newPlacement.mirrored;
-            console.log('after mirrored', newPlacement.mirrored);
 
             operation = this.createOperation(
                 // 'mirror',
@@ -686,9 +682,6 @@ export default class ScrollTopToolbar extends Vue {
                 this.selectedArtefact
             );
             operation.needsSaving = true;
-
-            console.log('topbar createOperation operation', operation);
-            console.log('topbar createOperation operation.needsSaving', operation.needsSaving);
         }
 
         // needsSaving: false ?

@@ -759,7 +759,6 @@ export default class ArtefactToolbox extends Vue {
             return;
         }
 
-        console.log(event);
         switch (event.code) {
             case 'KeyM':
                 this.setMode('move');

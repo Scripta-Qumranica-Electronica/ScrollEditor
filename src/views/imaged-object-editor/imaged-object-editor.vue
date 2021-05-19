@@ -628,8 +628,6 @@ export default class ImagedObjectEditor
             return;
         }
 
-        // console.log(this.artefact!.mask.svg, newPolygon.svg, 'hasChanged');
-
         this.operationsManager.addOperation(
             new ImagedObjectEditorOperation(
                 this.artefact!.id,

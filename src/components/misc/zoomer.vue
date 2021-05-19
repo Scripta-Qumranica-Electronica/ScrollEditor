@@ -111,16 +111,6 @@ export default class Zoomer extends Vue {
         return this.$el.parentElement!;
     }
 
-    // private onRotateStart(event:any){
-    //     console.log('rotate start');
-    //     this.degel = true;
-    // }
-
-    // private onRotateEnd(event:any){
-    //     console.log('rotate end');
-    //     this.degel = false;
-    // }
-
     private onRotate(event: any) {
         const angleCalc = event.angle;
         this.newRotate(angleCalc);

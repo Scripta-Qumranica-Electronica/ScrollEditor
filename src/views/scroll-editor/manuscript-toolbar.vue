@@ -424,14 +424,11 @@ export default class ManuscriptToolbar extends Vue {
         return this.scrollEditorState.displayText;
     }
     private onDisplayText(value: boolean) {
-        console.log('onDisplayText ', this.scrollEditorState.displayText);
         this.scrollEditorState.displayText = value;
-        console.log('onDisplayText ', this.scrollEditorState.displayText);
     }
 
 
     public get selectedGroup() {
-        console.log('selectedGroup ',  this.scrollEditorState.selectedGroup);
         return this.scrollEditorState.selectedGroup;
     }
 

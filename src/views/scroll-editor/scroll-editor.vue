@@ -701,10 +701,6 @@ export default class ScrollEditor
 
 
     private saveGroupArtefacts() {
-        console.log('saveGroupArtefacts this.selectedGroup', this.selectedGroup);
-        console.log('saveGroupArtefacts groupId', this.selectedGroup!.groupId);
-        console.log('saveGroupArtefacts this.edition.artefactGroups', this.edition.artefactGroups);
-
         const group = this.edition.artefactGroups.find(
             (x) => x.groupId === this.selectedGroup!.groupId
         );
@@ -752,7 +748,6 @@ export default class ScrollEditor
     }
 
     private newOperation(operation: ScrollEditorOperation) {
-        console.log('scroll editor newOpertion ', operation);
         this.operationsManager.addOperation(operation);
     }
 
