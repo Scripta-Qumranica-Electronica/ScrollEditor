@@ -162,14 +162,20 @@ export class NotificationHandler {
                 // Do nothing, sign has already been deleted here
             }
 
-            /*state().signInterpretations.delete(id); */
+            state().signInterpretations.delete(id);
             // We do not remove the sign interpretation from the map, as we may need it for undoing (if this browser originated the call),
             // and it's not going to hurt since it will no longer be displayed anyway.
         }
     }
 
     public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
-        for (const siDto of dto.signInterpretations || []) {
+        if (!dto.signInterpretations) {
+            return;
+        }
+
+        for (const siDto of dto.signInterpretations?.reverse()) {
+            // Multiple added sign interpretations are specified from first to last, but we need to add them from last to first,
+            // since each sign points to the next one. If we add sign A before sign B, we can't connect A to B sign B does not exist yet.
             const existingSi = state().signInterpretations.get(siDto.signInterpretationId);
             if (existingSi) {
                 return;
@@ -251,10 +257,11 @@ function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
 }
 
 function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
+    debugger;
     const existingSI = state().signInterpretations.get(dto.signInterpretationId);
 
     if (!existingSI) {
-        console.warn('Receive an updated for a non-existant sign interpretation ', dto.signInterpretationId);
+        console.warn('Receive an updated for a non-existent sign interpretation ', dto.signInterpretationId);
         return;
     }
 
