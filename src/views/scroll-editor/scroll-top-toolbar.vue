@@ -462,12 +462,22 @@ export default class ScrollTopToolbar extends Vue {
     private get inTextMode(): boolean {
         return ('text' === this.scrollEditorState.mode);
     }
+
+    // Computed properties are by default getter-only,
+    // but we also provide a dummy setter to avoid this warning:
+    // Computed property "inTextMode" was assigned to but it has no setter
+
     private set inTextMode(val: boolean) {
         const param = 1;
     }
+
     private get inMaterialMode(): boolean {
         return  ( 'material' === this.scrollEditorState.mode);
     }
+
+    // Computed properties are by default getter-only,
+    // but we also provide a dummy setter to avoid this warning:
+    // Computed property "inTextMode" was assigned to but it has no setter
 
     private set inMaterialMode(val: boolean) {
          const param = 1;
