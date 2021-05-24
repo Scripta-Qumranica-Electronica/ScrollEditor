@@ -4,7 +4,8 @@
         <image :xlink:href="backgroundImageUrl"
                :transform="backgroundImageTransform"
                :opacity="opacity"/>
-        <image v-for="(tile, idx) in tiles.filter(x => x.loaded)" :key="idx"
+        <image v-for="(tile, idx) in tiles.filter(x => x.display
+    )" :key="idx"
                :xlink:href="tile.url"
                :opacity="opacity"
                :transform="tile.transform"
@@ -56,7 +57,7 @@ interface ManifestTileInfo {
 interface TileInfo {
     url: string;
     transform: string;
-    loaded: boolean;
+    display: boolean;
     retries: number;
 }
 
@@ -109,7 +110,8 @@ export default class IIIFImageComponent extends Vue {
                     transform: `translate(${xTranslate}, ${yTranslate})`,
                     width: currentTileWidth * this.optimizedImageScaleFactor,
                     height: currentTileHeight * this.optimizedImageScaleFactor,
-                    loaded: true,
+                    display
+            : true,
                     retries: 0
                 };
                 // console.debug(`tile (${x}, ${y}, ${currentTileWidth}, ${currentTileHeight})`);
@@ -256,20 +258,32 @@ export default class IIIFImageComponent extends Vue {
     }
 
     private retryOnError(url: string): void {
+        // Note: this is called when an images faills to load (maybe a 500 error)
+        // We want to try loading again, so we set the display value for the object
+        // to false and update by removing and readding it to this.tiles (perhaps it
+        // could be done with Vue.set).  Then we set a timer for it to turn display
+        // back to true (and we wait a little longer each iteration until success or 
+        // we hit the retry limit).
+        // Note that I tried earlier to just get the actual <image> DOM element
+        // and to reset the xlink:href attribute, but that didn't seem to trigger
+        // an attempt to reload the image.  Doing it the vue way seems to work fine.
         const failedTileIdx = this.tiles.findIndex(x => x.url === url);
         const failedTile = this.tiles[failedTileIdx];
         if (failedTile.retries < this.retryLimit) {
             this.tiles = this.tiles.splice(failedTileIdx, 1);
-            failedTile.loaded = false;
+            failedTile.display
+     = false;
             failedTile.retries += 1;
             this.tiles.push(failedTile);
 
             // Give the server a little breathing room to try again
+            // by backing off a little more on each retry of a single image.
             setTimeout(() => {
                 const failedTileIdx = this.tiles.findIndex(x => x.url === url);
                 const failedTile = this.tiles[failedTileIdx];
                 this.tiles = this.tiles.splice(failedTileIdx, 1);
-                failedTile.loaded = false;
+                failedTile.display
+         = false;
                 this.tiles.push(failedTile);
             }, 20 * failedTile.retries);
         }

@@ -132,6 +132,8 @@ export default class TextSide extends Vue {
     }
 
     private get displayedTextFragmentsData() {
+        // Try first to get 'certain' matches,
+        // if there are none, then fall back to 'suggested' (which might also be none)
         const certain = this.allTextFragmentsData.filter((x) => x.certain);
         return certain.length > 0 ? certain : this.allTextFragmentsData.filter((x) => x.suggested);
     }
@@ -160,6 +162,7 @@ export default class TextSide extends Vue {
         console.info(textFragmentsArtefact);
 
         textFragments.forEach((editionTf) => {
+            // Copy the suggested and certain attributes for TFs matching the artefactId
             textFragmentsArtefact.forEach((artefactTf) => {
                 editionTf.suggested = artefactTf.id === editionTf.id && artefactTf.suggested;
                 editionTf.certain = artefactTf.id === editionTf.id && artefactTf.certain;
