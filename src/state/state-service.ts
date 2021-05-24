@@ -339,7 +339,6 @@ export default class StateService {
 
         await Promise.all(promises); // Let both requests happen concurrently
         artefact.textFragments = await tfPromise;
-        console.info(artefact.textFragments);
 
         this._state.artefacts.current = artefact;
         this._state.imagedObjects.current = imagedObject; // will be undefined if the artefact is virtual
