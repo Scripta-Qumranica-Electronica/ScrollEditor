@@ -157,15 +157,12 @@ export default class TextSide extends Vue {
         );
         const textFragmentsArtefact =
             this.$state.artefacts.current!.textFragments || [];
+        console.info(textFragmentsArtefact);
 
         textFragments.forEach((editionTf) => {
             textFragmentsArtefact.forEach((artefactTf) => {
-                if (artefactTf.id === editionTf.id) {
-                    if (artefactTf.certain)
-                        editionTf.certain = true;
-                    if (artefactTf.suggested)
-                        editionTf.suggested = true;
-                }
+                editionTf.suggested = artefactTf.id === editionTf.id && artefactTf.suggested;
+                editionTf.certain = artefactTf.id === editionTf.id && artefactTf.certain;
             });
         });
 
