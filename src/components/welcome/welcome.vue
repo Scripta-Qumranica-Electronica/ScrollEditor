@@ -55,47 +55,58 @@
                         <div class="col-4 border-right font">
                             <b-link>Learn more About the project</b-link>
                         </div>
-                        <div class="col-4 border-right font">
-                            <b-link>Dead sea scrolls website</b-link>
+                        <div class="col-6 border-right font">
+                            <b-link href="https://www.deadseascrolls.org.il/home">
+                                The Leon Levy Dead Sea Scrolls Digital Library
+                            </b-link>
                         </div>
-                        <div class="col-4 border-right font">
-                            <b-link>Dead sea scrolls website</b-link>
-                        </div>
+
                     </div>
                 </div>
                 <div class="col-6 align-self-center">
                     <div class="container">
                         <div class="row logos">
                             <div class="col p-3">
-                                <img
-                                    src="@/assets/images/logo_antiquity.png"
-                                    alt="Israel Antiquities Authority logo"
-                                />
-                            </div>
+                                <b-link
+                                    href="http://www.antiquities.org.il/default_en.aspx" target="_blank">
+                                    <img
+                                        src="@/assets/images/logo_antiquity.png"
+                                        alt="Israel Antiquities Authority logo"
+                                    />
+                                </b-link>
+                           </div>
                             <div class="col p-3">
-                                <img
-                                    src="@/assets/images/logo_gottingen.png"
-                                    alt="University of Göttingen logo"
-                                />
+                                <b-link href="https://www.uni-goettingen.de/" target="_blank">
+                                    <img
+                                        src="@/assets/images/logo_gottingen.png"
+                                        alt="University of Göttingen logo"
+                                    />
+                                </b-link>
                             </div>
                             <div class="w-100"></div>
                             <div class="col p-3">
-                                <img
-                                    src="@/assets/images/logo_tlv.png"
-                                    alt="University of TLV logo"
-                                />
+                                <b-link href="https://english.tau.ac.il/" target="_blank">
+                                    <img
+                                        src="@/assets/images/logo_tlv.png"
+                                        alt="University of TLV logo"
+                                    />
+                                </b-link>
                             </div>
                             <div class="col p-3">
-                                <img
-                                    src="@/assets/images/logo_jlm.png"
-                                    alt="University of Jerusalem logo"
-                                />
+                                <b-link href="https://en.huji.ac.il/en" target="_blank">
+                                    <img
+                                        src="@/assets/images/logo_jlm.png"
+                                        alt="University of Jerusalem logo"
+                                    />
+                                </b-link>
                             </div>
                             <div class="col p-3">
-                                <img
-                                    src="@/assets/images/logo_haifa.png"
-                                    alt="University of Haifa logo"
-                                />
+                                <b-link href="https://www.haifa.ac.il/" target="_blank">
+                                    <img
+                                        src="@/assets/images/logo_haifa.png"
+                                        alt="University of Haifa logo"
+                                    />
+                                </b-link>
                             </div>
                         </div>
                     </div>
