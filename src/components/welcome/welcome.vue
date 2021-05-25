@@ -56,7 +56,7 @@
                             <b-link>Learn more About the project</b-link>
                         </div>
                         <div class="col-6 border-right font">
-                            <b-link href="https://www.deadseascrolls.org.il/home">
+                            <b-link href="https://www.deadseascrolls.org.il/home" target="_blank">
                                 The Leon Levy Dead Sea Scrolls Digital Library
                             </b-link>
                         </div>
