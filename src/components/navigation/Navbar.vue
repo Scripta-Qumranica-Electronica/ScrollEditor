@@ -40,7 +40,7 @@
                             <b-button :disabled="!operationsManager.canRedo" @click="onRedo()">Redo</b-button>
                         </b-btn-group>
                     </div>
-                    <b-nav-item to="/search" active>
+                    <b-nav-item v-if="isActive" to="/search" active>
                         <span>{{ $t('home.search') }}</span>
                     </b-nav-item>
                     <b-nav-item-dropdown
@@ -235,7 +235,9 @@ export default class Navbar extends Vue {
 .navbar-brand:hover {
     /* color: #ffffff; */
     /* color: #134ff5 !important; */
-    color: #8253f0 !important;
+    /* color: #8253f0 !important; */
+    /* BootstrapVue Primary color */
+    color: #0275d8 !important;
 }
 
 .navbar-brand {
