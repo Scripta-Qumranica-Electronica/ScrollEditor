@@ -1,67 +1,81 @@
 <template>
-    <router-link
-        class="card-decoration"
-        :to="{ path: `/editions/${edition.id}` }"
-    >
-        <b-row>
-            <b-col class="col-4">
-                <img
-                    class="card-img-top"
-                    v-if="thumbnailSource"
-                    v-lazy="thumbnailSource"
-                    :alt="edition.name"
-                />
-                <img
-                    class="card-img-top"
-                    v-else
-                    src="@/assets/images/if_scroll_1375614.svg"
-                    :alt="edition.name"
-                />
-            </b-col>
-            <b-col class="col-8">
-                <div>
-                    <p class="card-font card-title">
-                        {{ edition.name }}
-                        <edition-icons :edition="edition" />
-                    </p>
+    <div>
+        <router-link
+            class="card-decoration"
+            :to="{ path: `/editions/${edition.id}` }"
+        >
+            <b-row>
+                <b-col class="col-4">
+                    <img
+                        class="card-img-top"
+                        v-if="thumbnailSource"
+                        v-lazy="thumbnailSource"
+                        :alt="edition.name"
+                    />
+                    <img
+                        class="card-img-top"
+                        v-else
+                        src="@/assets/images/if_scroll_1375614.svg"
+                        :alt="edition.name"
+                    />
+                </b-col>
+                <b-col class="col-8">
                     <div>
-                        <p class="card-font card-label">
-                            Last edit:
-                            <span class="card-font card-date">{{
-                                edition.lastEdit
-                                    ? edition.lastEdit.toDateString()
-                                    : 'N/A'
-                            }}</span>
+                        <p class="card-font card-title">
+                            {{ edition.name }}
+                            <edition-icons :edition="edition" />
                         </p>
-                        <p class="card-font card-label">
-                            Status:
-                            <b-badge
-                                :class="edition.isPublic ?
-                                        [
-                                            'status-badge',
-                                            'status-badge-Published',
-                                        ]:
-                                        [
-                                            'status-badge',
-                                            'status-badge-draft'
-                                        ]"
-                                 >
-                                {{
-                                    edition.isPublic ? 'Published' : 'Draft'
-                                }}
-                                </b-badge>
-                        </p>
+                        <div>
+                            <p class="card-font card-label">
+                                Last edit:
+                                <span class="card-font card-date">{{
+                                    edition.lastEdit
+                                        ? edition.lastEdit.toDateString()
+                                        : 'N/A'
+                                }}</span>
+                            </p>
+                            <p class="card-font card-label">
+                                Status:
+                                <b-badge
+                                    :class="edition.isPublic ?
+                                            [
+                                                'status-badge',
+                                                'status-badge-Published',
+                                            ]:
+                                            [
+                                                'status-badge',
+                                                'status-badge-draft'
+                                            ]"
+                                    >
+                                    {{
+                                        edition.isPublic ? 'Published' : 'Draft'
+                                    }}
+                                    </b-badge>
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </b-col>
-        </b-row>
-    </router-link>
+                </b-col>
+            </b-row>
+        </router-link>
+
+        <div class="mt-2 ml-5 mr-0">
+            <b-button
+                v-if="user"
+                @click.once="editionCopyClick()"
+                variant="primary"
+                class="direction"
+                >{{ $t('misc.copy') }}</b-button
+            >
+        </div>
+
+    </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
+
 
 @Component({
     name: 'edition-card',
@@ -73,6 +87,15 @@ export default class EditionCard extends Vue {
     private get thumbnailSource(): string | undefined {
         return this.edition?.thumbnail?.thumbnailUrl;
 
+    }
+
+    private get user(): boolean {
+        return this.$state.session.user ? true : false;
+    }
+
+    @Emit()
+    private editionCopyClick() {
+    return true;
     }
 
 }

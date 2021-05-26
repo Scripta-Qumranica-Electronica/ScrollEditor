@@ -12,16 +12,15 @@
 
                <b-button-group>
 
-
                     <b-button
                         id="material-mode-btn"
                         class="btn-xs mode-btn ml-0 mr-1 mb-4 mt-2"
                         size="sm"
-                        autofocus
                         :variant="materialVariant"
                         :pressed.sync="inMaterialMode"
                         text-center
                         @click="onTextMode('material')"
+                        autofocus
                     >
                         Material Mode
                     </b-button>
@@ -410,6 +409,7 @@ import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types
 import { Placement } from '@/utils/Placement';
 import { Artefact } from '@/models/artefact';
 import { Point } from '../../utils/helpers';
+import { BoundingBox } from '@/utils/helpers';
 import { ScrollEditorMode } from '@/state/scroll-editor';
 import {
     ArtefactPlacementOperation,
@@ -417,6 +417,7 @@ import {
     GroupPlacementOperation,
     ScrollEditorOperation,
 } from './operations';
+import { setIntersect } from 'node_modules/@types/mathjs';
 
 @Component({
     name: 'scroll-top-toolbar',
@@ -465,10 +466,14 @@ export default class ScrollTopToolbar extends Vue {
     private set inTextMode(val: boolean) {
         const param = 1;
     }
+
     private get inMaterialMode(): boolean {
         return  ( 'material' === this.scrollEditorState.mode);
     }
 
+    // Computed properties are by default getter-only,
+    // but we also provide a dummy setter to avoid this warning:
+    // Computed property "inTextMode" was assigned to but it has no setter
     private set inMaterialMode(val: boolean) {
          const param = 1;
     }
@@ -490,17 +495,29 @@ export default class ScrollTopToolbar extends Vue {
 
         const materialBtn =
                 document.querySelector('#material-mode-btn')!;
+
         const textBtn =
                 document.querySelector('#text-mode-btn')!;
 
+        if ( 'material' === this.scrollEditorState.mode) {
+            materialBtn.classList.add('btn-selected');
+        } else if ( 'text' === this.scrollEditorState.mode) {
+            materialBtn.classList.remove('btn-selected');
+        }
+
+        if ( 'text' === this.scrollEditorState.mode) {
+            textBtn.classList.add('btn-selected');
+        } else if ( 'material' === this.scrollEditorState.mode) {
+            textBtn.classList.remove('btn-selected');
+        }
+
         materialBtn.addEventListener('focusout', (event) => {
-             if ( 'material' === this.scrollEditorState.mode) {
+            if ( 'material' === this.scrollEditorState.mode) {
                 materialBtn.classList.add('btn-selected');
             } else if ( 'text' === this.scrollEditorState.mode) {
                 materialBtn.classList.remove('btn-selected');
             }
         });
-
 
         textBtn.addEventListener('focusout', (event) => {
             if ( 'text' === this.scrollEditorState.mode) {
@@ -510,28 +527,6 @@ export default class ScrollTopToolbar extends Vue {
             }
 
         });
-
-
-    }
-
-    // router re enter page
-    public beforeEnter() {
-        const materialBtn =
-                document.getElementById('material-mode-btn')!;
-        const textBtn =
-                document.getElementById('text-mode-btn')!;
-
-        const curTopBar = document.getElementById('scroll-topbar')!;
-
-        curTopBar.addEventListener('focusout', (event) => {
-             if ( 'material' === this.scrollEditorState.mode) {
-                 materialBtn.focus();
-            } else if ( 'text' === this.scrollEditorState.mode) {
-                textBtn.focus();
-            }
-        });
-
-
     }
 
     public destroyed() {
@@ -617,8 +612,26 @@ export default class ScrollTopToolbar extends Vue {
     }
 
 
-    private onTextMode(value: ScrollEditorMode) {
-        this.scrollEditorState.mode = value;
+    private onTextMode(mode: ScrollEditorMode) {
+        this.scrollEditorState.mode = mode;
+
+        const materialBtn =
+                document.querySelector('#material-mode-btn')!;
+
+        const textBtn =
+                document.querySelector('#text-mode-btn')!;
+
+        if ( 'material' === this.scrollEditorState.mode) {
+            materialBtn.classList.add('btn-selected');
+        } else if ( 'text' === this.scrollEditorState.mode) {
+            materialBtn.classList.remove('btn-selected');
+        }
+
+        if ( 'text' === this.scrollEditorState.mode) {
+            textBtn.classList.add('btn-selected');
+        } else if ( 'material' === this.scrollEditorState.mode) {
+            textBtn.classList.remove('btn-selected');
+        }
 
         const materialBtn =
                 document.getElementById('material-mode-btn')!;
@@ -676,7 +689,6 @@ export default class ScrollTopToolbar extends Vue {
             newPlacement.mirrored = !newPlacement.mirrored;
 
             operation = this.createOperation(
-                // 'mirror',
                 'mirror',
                 newPlacement,
                 this.selectedArtefact
@@ -705,39 +717,6 @@ export default class ScrollTopToolbar extends Vue {
 
     }
 
-
-
-    public getGroupCenter(): Point {
-        const minX = Math.min(
-            ...this.selectedArtefacts.map((art) => art.placement.translate.x!)
-        );
-        const minY = Math.min(
-            ...this.selectedArtefacts.map((art) => art.placement.translate.y!)
-        );
-        const maxX = Math.max(
-            ...this.selectedArtefacts.map(
-                (art) => art.placement.translate.x! + art.boundingBox.width
-            )
-        );
-        const maxY = Math.max(
-            ...this.selectedArtefacts.map(
-                (art) => art.placement.translate.y! + art.boundingBox.height
-            )
-        );
-
-        const x = (maxX - minX) / 2 + minX;
-        const y = (maxY - minY) / 2 + minY;
-
-        return { x, y };
-    }
-
-    public getArtefactCenter(art: Artefact): Point {
-        // The artefact's center is the translate (x,y) + the bounding box's center
-        const x = art.placement.translate.x! + art.boundingBox.width / 2;
-        const y = art.placement.translate.y! + art.boundingBox.height / 2;
-
-        return { x, y };
-    }
 
     public dragArtefact(dirX: number, dirY: number) {
         const operations: ScrollEditorOperation[] = [];
@@ -771,31 +750,6 @@ export default class ScrollTopToolbar extends Vue {
             );
         }
         this.newOperation(operation);
-    }
-
-
-    public translateArtefactAfterGroupRotation(
-        art: Artefact,
-        groupCenterPoint: Point,
-        deltaAngleRadians: number
-    ): Point {
-        const sin = Math.sin(deltaAngleRadians);
-        const cos = Math.cos(deltaAngleRadians);
-        const artefactCenterPoint = this.getArtefactCenter(art);
-
-        const xFromOrigin = artefactCenterPoint.x - groupCenterPoint.x;
-        const yFromOrigin = artefactCenterPoint.y - groupCenterPoint.y;
-
-        const newMidXArt = cos * xFromOrigin - sin * yFromOrigin;
-        const newMidYArt = cos * yFromOrigin + sin * xFromOrigin;
-
-        const deltaX = newMidXArt - xFromOrigin;
-        const deltaY = newMidYArt - yFromOrigin;
-
-        return {
-            x: art.placement.translate.x! + deltaX,
-            y: art.placement.translate.y! + deltaY,
-        } as Point;
     }
 
     public zoomArtefact(direction: number) {
@@ -845,18 +799,23 @@ export default class ScrollTopToolbar extends Vue {
 
 
     public rotateGroupArtefact(direction: number) {
+
         const operations: ScrollEditorOperation[] = [];
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-        const groupCenterPoint = this.getGroupCenter();
 
         const deltaAngleDegrees = direction * this.params.rotate;
-        const deltaAngleRadians = deltaAngleDegrees * (Math.PI / 180);
+        const deltaAngleRadians = deltaAngleDegrees * ( Math.PI / 180 );
+
+        const groupCenterPoint = this.getGroupCenter(deltaAngleRadians);
+
         if (this.selectedArtefact) {
+
             const newRotate = this.rotateArtefact(
                 this.selectedArtefact,
                 deltaAngleDegrees
             );
             const newPlacement = this.selectedArtefact.placement.clone();
+
             newPlacement.rotate = newRotate;
             operation = this.createOperation(
                 'rotate',
@@ -865,9 +824,13 @@ export default class ScrollTopToolbar extends Vue {
             );
         }
         if (this.selectedGroup) {
+
             this.selectedArtefacts.forEach((art) => {
+
                 // Rotate each artefact by deltaAngleDegrees
-                const newRotate = this.rotateArtefact(art, deltaAngleDegrees);
+                const newRotate = this.rotateArtefact(art,
+                    deltaAngleDegrees
+                );
 
                 // Translate each artefact
                 const newTranslate = this.translateArtefactAfterGroupRotation(
@@ -894,13 +857,99 @@ export default class ScrollTopToolbar extends Vue {
 
     public rotateArtefact(
         artefact: Artefact,
-        deltaAngleDegrees: number
+        deltaAngleDegrees: number,
     ): number {
         const oldAngle = artefact.placement.rotate!;
 
         const newAngle = oldAngle + deltaAngleDegrees;
         const normalizedAngle = ((newAngle % 360) + 360) % 360;
+
         return normalizedAngle;
+    }
+
+
+    public translateArtefactAfterGroupRotation(
+        art: Artefact,
+        groupCenterPoint: Point,
+        deltaAngleRadians: number
+    ): Point {
+
+
+        const theta = art.placement.rotate * Math.PI / 180;
+
+        const sinA = Math.sin(theta);
+        const cosA = Math.cos(theta);
+
+        const sin = Math.sin(deltaAngleRadians);
+        const cos = Math.cos(deltaAngleRadians);
+
+        const artefactCenterPoint = this.getArtefactCenter(art);
+
+
+        // To rotate a single point by a given angle θ around the origin (0,0),
+        // x' = x cos(θ) - y sin(θ)
+        // y' = x sin(θ) + y cos(θ)
+
+        // To rotate the point X around a point B, do this:
+        // X' = B + M(θ) (X - B)
+
+        // To rotate the whole Body by θ about its center B,
+        // just rotate each shape's center by θ about B,
+        // and rotate each shape about its own center by θ
+        // (you can do those steps in any order).
+
+        // x2 = px + (x1-px) * cos(q) - (y1-py) * sin(q)
+        // y2 = py + (x1-px) * sin(q) + (y1-py) * cos(q)
+
+
+        const xFromOrigin = artefactCenterPoint.x - groupCenterPoint.x ;
+        const yFromOrigin = artefactCenterPoint.y - groupCenterPoint.y ;
+
+        const newMidXArt = cos * xFromOrigin - sin * yFromOrigin ;
+        const newMidYArt = sin * xFromOrigin + cos * yFromOrigin ;
+
+        const deltaX = (newMidXArt - xFromOrigin) ;
+        const deltaY = (newMidYArt - yFromOrigin) ;
+
+        return {
+            x: art.placement.translate.x! + deltaX  ,
+            y: art.placement.translate.y! + deltaY
+
+        } as Point;
+    }
+
+
+    public getGroupCenter( theta: number ): Point {
+
+        let counter = 0;
+        let cY = 0;
+        let cX = 0;
+        let artC;
+
+        for ( const art of this.selectedArtefacts) {
+              artC = this.getArtefactCenter(art);
+              cX += artC.x;
+              cY += artC.y;
+              counter++;
+        }
+
+        const x = cX / counter;
+        const y = cY / counter;
+
+        // const x = (maxX + minX) / 2 ;
+        // const y = (maxY + minY) / 2 ;
+        // const x = (maxX - minX) / 2 + minX;
+        // const y = (maxY - minY) / 2 + minY;
+
+        return { x, y };
+    }
+
+    public getArtefactCenter(art: Artefact): Point {
+        // The artefact's center is the translate (x,y) + the bounding box's center
+        const x = art.placement.translate.x! + art.boundingBox.width / 2;
+        const y = art.placement.translate.y! + art.boundingBox.height / 2;
+
+        return { x, y };
     }
 
 
@@ -1038,13 +1087,16 @@ export default class ScrollTopToolbar extends Vue {
   /* box-shadow: none; */
   border-width: 3px;
 }
+
 .mode-btn:focus-visible {
   outline: 3px solid rgb(113, 230, 210);
-  box-shadow: rgb(113, 230, 210);
+  box-shadow: rgb(155, 233, 220);
   border-width: 3px;
 }
 
 .btn-selected {
+    outline: 3px solid rgb(113, 230, 210);
+    box-shadow: rgb(155, 233, 220);
     border-width: 3px;
 }
 

@@ -10,12 +10,15 @@
                 v-for="edition in editions"
                 :key="edition.versionId"
             >
-                <edition-public-card @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"></edition-public-card>
+                <edition-public-card
+                    @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"
+                >
+                </edition-public-card>
             </b-card>
         </div>
         <copy-edition-modal />
     </div>
-</template>       
+</template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
@@ -36,9 +39,16 @@ import CopyEditionModal from './CopyEditionModal.vue';
 export default class EditionsPublicList extends Vue {
     @Prop( ) public editions!: EditionInfo[];
 
+
     private openCopyEditionModal(edition: EditionInfo) {
         this.$state.editions.current = edition;
-        this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+
+        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+
+        // BootstrapVue recomends to use this method:
+        // this.$bvModal.show('copy-edition-modal');
+        this.$root.$bvModal.show('copy-edition-modal');
+
     }
 }
 </script>
