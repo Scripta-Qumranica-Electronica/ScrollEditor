@@ -26,6 +26,7 @@
                 <b-form-input
                     v-model="searchData.imageDesignation"
                     placeholder="Enter Image object "
+                    v-b-tooltip.hover.topleft="'IAA-Plate(-Fragment).   e.g. IAA-1093-1'"
                 ></b-form-input>
             </b-col>
             <b-col class="col-1">

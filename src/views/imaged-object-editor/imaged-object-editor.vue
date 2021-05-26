@@ -496,7 +496,9 @@ export default class ImagedObjectEditor
             // The band is caused by the new width (old height) being smaller than the old width.
             // There actually two bands, one to the left and one to the right. The right one can't be seen.
             const bandWidth = (this.imageWidth - this.imageHeight) / 2;
-            translate = `translate(-${bandWidth}, ${bandWidth})`;
+            translate = `translate(${(-bandWidth)}, ${bandWidth})`;
+
+
         }
 
         const scale = `scale(${this.zoomLevel})`;

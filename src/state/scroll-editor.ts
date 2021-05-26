@@ -23,6 +23,8 @@ export class ScrollEditorState {
     public displayText: boolean;
     private _mode: ScrollEditorMode;
 
+    public showEditReconTextBar: boolean =  false;
+
     public constructor() {
         this.params = new ScrollEditorParams();
         this.pointerPosition = {x: 0, y: 0};
@@ -30,6 +32,8 @@ export class ScrollEditorState {
         this.displayReconstructedText = false;
         this.displayText = false;
         this._mode = 'material';
+
+        this.showEditReconTextBar = false;
     }
 
     public get selectedArtefacts(): Artefact[] {

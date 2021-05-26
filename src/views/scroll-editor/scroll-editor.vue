@@ -364,6 +364,10 @@ export default class ScrollEditor
         }
 
         this.$state.operationsManager = null;
+
+        // this was moved here for text-toolbar and manuscript-toolbar
+        // and top-toolbar
+        this.$state.scrollEditor = new ScrollEditorState();
     }
 
     private async mounted() {
@@ -391,7 +395,7 @@ export default class ScrollEditor
             }
         });
 
-        this.$state.scrollEditor = new ScrollEditorState();
+        // this.$state.scrollEditor = new ScrollEditorState();
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
         this.$state.operationsManager = this.operationsManager;
@@ -496,6 +500,7 @@ export default class ScrollEditor
         );
 
         if (this.params.mode === 'manageGroup') {
+
             if (!this.selectedGroup) {
                 const newGroup = ArtefactGroup.generateGroup([
                     this.selectedArtefact!.id,
@@ -522,6 +527,7 @@ export default class ScrollEditor
                 this.scrollEditorState.selectArtefact(artefact!);
             }
         }
+
     }
 
 
@@ -709,13 +715,16 @@ export default class ScrollEditor
 
 
     private saveGroupArtefacts() {
-        console.log('saveGroupArtefacts this.selectedGroup', this.selectedGroup);
-        console.log('saveGroupArtefacts groupId', this.selectedGroup!.groupId);
-        console.log('saveGroupArtefacts this.edition.artefactGroups', this.edition.artefactGroups);
+
+        if (this.selectedGroup === null) {
+            console.warn('Cannot save null group');
+            return;
+        }
 
         const group = this.edition.artefactGroups.find(
             (x) => x.groupId === this.selectedGroup!.groupId
         );
+
         this.operationsManager.addOperation(
             new EditGroupOperation(
                 this.selectedGroup!.groupId,

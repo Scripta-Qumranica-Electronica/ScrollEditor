@@ -10,7 +10,10 @@
                 v-for="edition in editions"
                 :key="edition.versionId"
             >
-                <edition-public-card @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"></edition-public-card>
+                <edition-public-card
+                    @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"
+                >
+                </edition-public-card>
             </b-card>
         </div>
         <copy-edition-modal />
@@ -44,13 +47,8 @@ export default class EditionsPublicList extends Vue {
         // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
 
         // BootstrapVue recomends to use this method:
-        this.$bvModal.show('copy-edition-modal');
-
-        // this.$nextTick(function() {
-        //     this.$state.editions.current = edition;
-        //     console.log('EditionsPublicList nextTick', edition);
-        //     this.$bvModal.show('copy-edition-modal');
-        // });
+        // this.$bvModal.show('copy-edition-modal');
+        this.$root.$bvModal.show('copy-edition-modal');
 
     }
 }
