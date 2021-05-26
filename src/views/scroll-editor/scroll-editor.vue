@@ -56,7 +56,7 @@
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
 
-                        <text-toolbar v-if="isTextMode"></text-toolbar>
+                        <text-toolbar v-if="isTextMode" @text-changed="onTextChanged($event)"></text-toolbar>
 
                         <manuscript-toolbar
                             v-if="!isTextMode"
@@ -114,6 +114,7 @@ import ScrollTopToolbar from './scroll-top-toolbar.vue';
 import ManuscriptToolbar from './manuscript-toolbar.vue';
 import TextToolbar from './text-toolbar.vue';
 import { ArtefactEditorOperation } from '../artefact-editor/operations';
+import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 
 @Component({
     name: 'scroll-editor',
@@ -184,7 +185,6 @@ export default class ScrollEditor
         return this.scrollEditorState.mode === 'text';
     }
 
-   // TBD
     private get viewportSizeWidth() {
         return Math.round(
             this.scrollEditorState.viewport!.width / this.edition.ppm
@@ -208,7 +208,6 @@ export default class ScrollEditor
         return (this.params && this.params.zoom) || 1;
     }
 
-// TBD
     private get pointerPositionX() {
         return (
             this.scrollEditorState.pointerPosition.x /
@@ -223,7 +222,7 @@ export default class ScrollEditor
             this.edition.ppm
         ).toFixed(2);
     }
-//
+
     public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
         const allMovedArtefactIds = new Set<number>();
         const allEditedGroupIds = new Set<number>();
@@ -364,10 +363,6 @@ export default class ScrollEditor
         }
 
         this.$state.operationsManager = null;
-
-        // this was moved here for text-toolbar and manuscript-toolbar
-        // and top-toolbar
-        this.$state.scrollEditor = new ScrollEditorState();
     }
 
     private async mounted() {
@@ -395,11 +390,11 @@ export default class ScrollEditor
             }
         });
 
-        // this.$state.scrollEditor = new ScrollEditorState();
+        this.$state.scrollEditor = new ScrollEditorState();
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
         this.$state.operationsManager = this.operationsManager;
-        this.$state.textFragmentEditor.textEditingMode = 'scroll';
+        this.$state.textFragmentEditor.textEditingMode = 'manuscript';
     }
 
     private async beforeRouteUpdate(to: any, from: any, next: () => void) {
@@ -479,12 +474,6 @@ export default class ScrollEditor
         this.$emit('paramsChanged', args);
     }
 
-
-    // private onZoomChanged(val: number) {
-    //     this.params.zoom = val; //
-    //     this.calculateViewport();
-    // }
-
     private onZoomChangedGlobal(val: number) {
         this.params.zoom = val; //
         this.calculateViewport();
@@ -500,7 +489,6 @@ export default class ScrollEditor
         );
 
         if (this.params.mode === 'manageGroup') {
-
             if (!this.selectedGroup) {
                 const newGroup = ArtefactGroup.generateGroup([
                     this.selectedArtefact!.id,
@@ -527,7 +515,6 @@ export default class ScrollEditor
                 this.scrollEditorState.selectArtefact(artefact!);
             }
         }
-
     }
 
 
@@ -611,7 +598,6 @@ export default class ScrollEditor
         div.scroll(left, top);
     }
 
-// TBD
     private resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
             ...this.edition.metrics,
@@ -715,16 +701,9 @@ export default class ScrollEditor
 
 
     private saveGroupArtefacts() {
-
-        if (this.selectedGroup === null) {
-            console.warn('Cannot save null group');
-            return;
-        }
-
         const group = this.edition.artefactGroups.find(
             (x) => x.groupId === this.selectedGroup!.groupId
         );
-
         this.operationsManager.addOperation(
             new EditGroupOperation(
                 this.selectedGroup!.groupId,
@@ -764,13 +743,11 @@ export default class ScrollEditor
     }
 
 
-// TBD
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
 
     private newOperation(operation: ScrollEditorOperation) {
-        console.log('scroll editor newOpertion ', operation);
         this.operationsManager.addOperation(operation);
     }
 
@@ -807,8 +784,27 @@ export default class ScrollEditor
             this.deleteGroup(this.selectedGroup.groupId);
         }
     }
-    //
 
+    private async onTextChanged(params: { text: string, editor: VirtualArtefactEditor }) {
+        const editedArtefact = this.$state.textFragmentEditor.editedVirtualArtefact;
+
+        if (!editedArtefact) {
+            console.error("Can't save text changed, $state.textFragmentEditor.editedVirtualArtefact is not set");
+            return;
+        }
+
+        if (!editedArtefact?.isVirtual) {
+            console.error("Can't save text change of a non-virtual artefact");
+            return;
+        }
+
+        if (!editedArtefact.signInterpretations.length) {
+            console.error("Can't save text of a virtual artefact with no sign interpretations");
+        }
+        const line = editedArtefact.signInterpretations[0].sign.line;
+
+        params.editor.updateText();
+    }
 }
 </script>
 

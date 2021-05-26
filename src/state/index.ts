@@ -36,6 +36,8 @@ export class StateManager {
 
     public prepare: StateService;
 
+     public showEditReconTextBar: boolean =  false;
+
     private constructor() {
         this.session = new SessionState();
         this.editions = new EditionCollection();
@@ -53,6 +55,7 @@ export class StateManager {
         this.eventBus = new EventBus();
         this.prepare = new StateService(this);
         this.operationsManager = null;
+        this.showEditReconTextBar = false;
     }
 
     public corrupted(msg: string): never {

@@ -1,16 +1,19 @@
 <template>
-    <div class="text-side-container">
+    <div class="text-side-container" >
         <div class="border-bottom load-fragment" v-if="artefactMode">
             <input
                 class="select-text"
                 placeholder="Enter a name e.g, col.1"
                 list="my-list-id"
                 @input="loadFragment($event)"
+                type="text"
+                onfocus="this.value=''"
+                onchange="this.blur();"
             />
             <datalist id="my-list-id">
                 <option
-                    :key="tf.textFragmentId"
                     v-for="tf in dropdownTextFragmentsData"
+                    :key="tf.textFragmentId"
                 >
                     {{ tf.name }}
                 </option>
@@ -23,6 +26,7 @@
                 :key="textFragment.id"
                 role="tablist"
                 class="text-side-border p-2"
+                direction="rtl"
             >
                 <b-card-header header-tag="header" class="p-0 mt-3">
                     <b-row no-gutters>
@@ -63,6 +67,7 @@
                     accordion="my-accordion"
                     role="tabpanel"
                     @show="emptySelectedState(textFragment.textFragmentId)"
+                    direction="rtl"
                 >
                     <text-fragment
                         :fragment="textFragment"
@@ -127,7 +132,10 @@ export default class TextSide extends Vue {
     }
 
     private get displayedTextFragmentsData() {
-        return this.allTextFragmentsData.filter((x) => x.certain);
+        // Try first to get 'certain' matches,
+        // if there are none, then fall back to 'suggested' (which might also be none)
+        const certain = this.allTextFragmentsData.filter((x) => x.certain);
+        return certain.length > 0 ? certain : this.allTextFragmentsData.filter((x) => x.suggested);
     }
 
     private get openedTextFragement() {
@@ -151,20 +159,20 @@ export default class TextSide extends Vue {
         );
         const textFragmentsArtefact =
             this.$state.artefacts.current!.textFragments || [];
+        console.info(textFragmentsArtefact);
 
         textFragments.forEach((editionTf) => {
-            editionTf.certain =
-                textFragmentsArtefact.findIndex(
-                    (artefactTf) =>
-                        artefactTf.id === editionTf.id && artefactTf.certain
-                ) > -1;
+            // Copy the suggested and certain attributes for TFs matching the artefactId
+            textFragmentsArtefact.forEach((artefactTf) => {
+                editionTf.suggested = artefactTf.id === editionTf.id && artefactTf.suggested;
+                editionTf.certain = artefactTf.id === editionTf.id && artefactTf.certain;
+            });
         });
 
         return textFragments;
     }
 
     private async mounted() {
-        console.debug('text-side created in mode ', this.editorMode);
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
         if (this.textFragmentMode) {
             this.displayedTextFragments = [this.textFragment];
@@ -264,7 +272,8 @@ export default class TextSide extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 .text-side-container {
-    height: calc(100vh - 285px);
+    height: calc(60vh - 2rem);
+    /* height: calc(100vh - 285px); */
 }
 .load-fragment {
     height: 71px;
@@ -274,11 +283,18 @@ export default class TextSide extends Vue {
 }
 #text-side {
     touch-action: pan-y;
-    height: 90%;
-    overflow-y: auto;
+    height: 98%;
+    /* overflow-y: auto; */
     overflow-x: hidden;
     margin-right: 15px;
-    height: calc(100% - 100px);
+
+}
+
+@media (max-width: 1100px) {
+   #text-side {
+        overflow-y: scroll;
+        /* height: calc(100% - 80px); */
+    }
 }
 
 button {
@@ -295,8 +311,19 @@ button {
     margin-top: 30px;
     overflow-x: overlay;
     padding-bottom: 16px;
-    display: grid;
+    padding-right: 0.1rem;
+    margin-right:0.1rem;
+    /* display: grid; */
+    display:flex;
+    justify-content: flex-start;
     direction: rtl;
+}
+
+@media (max-width: 1100px) {
+    #text-box {
+        margin-top: 10px;
+        overflow: auto;
+    }
 }
 
 .isa_error {
@@ -310,13 +337,7 @@ button {
     width: 100%;
     padding: 10px;
 }
-@media (max-width: 1100px) {
-    #text-box {
-        margin-top: 30px;
-        overflow: auto;
-        display: grid;
-    }
-}
+
 
 a.btn.btn-secondary {
     background-color: white;

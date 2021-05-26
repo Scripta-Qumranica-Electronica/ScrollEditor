@@ -1,6 +1,7 @@
 /* This file contains types describing the manuscript's script */
 
 import { GlyphDataDTO, KernPairDTO, ScriptDataDTO } from '@/dtos/sqe-dtos';
+import { BoundingBox } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 
 // Glyphs is a  dictionary for how to display a letter
@@ -9,17 +10,21 @@ export class GlyphData {
     public character: string;
     public yOffset: number;
     public shape: Polygon;
+    public boundingBox: BoundingBox;
 
     constructor(dto: GlyphDataDTO) {
         this.character = dto.character;
         this.yOffset = dto.yOffset;
         this.shape = Polygon.fromWkt(dto.shape);
+        this.boundingBox = this.shape.getBoundingBox();
     }
 }
 
 export class ScriptData {
     public glyphs: { [key: string]: GlyphData } = {};
     private kerning = new Map<string, KernPairDTO>();  // Key is encoded - char1-char2, as tuples can't serve as keys
+    public wordSpace: number;
+    public lineSpace: number;
 
     private getKey(char1: string, char2: string) {
         return `${char1}-${char2}`;
@@ -40,6 +45,9 @@ export class ScriptData {
                 this.kerning.set(key, pair);
             }
         }
+
+        this.lineSpace = dto.lineSpace;
+        this.wordSpace = dto.wordSpace;
     }
 
     public getKerning(char1: string, char2: string): KernPairDTO | undefined {

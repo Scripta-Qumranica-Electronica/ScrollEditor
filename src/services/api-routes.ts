@@ -99,8 +99,8 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}`;
     }
 
-    export function artefactTextFragmentsUrl(editionId: number, artefactId: number) {
-        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}/text-fragments`;
+    export function artefactTextFragmentsUrl(editionId: number, artefactId: number, suggested: boolean) {
+        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}/text-fragments${suggested ? '?optional=suggested' : ''}`;
     }
 
     export function editionTextFragmentUrl(editionId: number, textFragmentId: number) {
@@ -177,6 +177,12 @@ export namespace ApiRoutes {
 
     export function editionScirbalFontUrl(editionId: number) {
         const url = `v1/editions/${editionId}/scribalfonts`;
+
+        return url;
+    }
+
+    export function diffReplaceTranscription(editionId: number, artefactId: number) {
+        const url = `v1/editions/${editionId}/artefacts/${artefactId}/diff-replace-transcription`;
 
         return url;
     }

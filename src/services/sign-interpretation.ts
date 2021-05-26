@@ -67,7 +67,6 @@ export default class SignInterpretationService {
     }
 
     public async createSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
-        console.debug(`About to create sign interpretation in server, local id is ${signInterpretation.signInterpretationId}`);
         const url = ApiRoutes.signInterpretationUrl(edition.id);
 
         // Find the previous signInterpretationId
@@ -97,14 +96,11 @@ export default class SignInterpretationService {
         const response = await CommHelper.post<SignInterpretationCreatedDTO>(url, dto);
 
         if (response.data.created?.length !== 1) {
-            console.warn('Received a bad response from the server - expected exactly one sign to be created');
-            return;
-            // TODO: Raise the inconsistent event to reload the page
+            this.stateManager.corrupted('Received a bad response from the server - expected exactly one sign to be created');
         }
 
         const siDto = response.data.created![0];
         const newId = siDto.signInterpretationId;
-        console.debug(`New sign interpretation id is ${newId}`);
 
         const existingSi = this.stateManager.signInterpretations.get(newId);
         if (existingSi) {

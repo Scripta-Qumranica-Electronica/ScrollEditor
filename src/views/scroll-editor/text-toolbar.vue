@@ -7,8 +7,17 @@
             class="mb-3"
             direction="rtl"
         ></text-fragment>
-        <sign-attribute-pane/>
+
+        <sign-attribute-pane v-if="!showEditReconTextBar"/>
+
         <edit-sign-modal></edit-sign-modal>
+
+        <edit-virtual-artefact-text-pane
+            v-if="showEditReconTextBar"
+            @close="onVirtualTextClose($event)"
+        >
+        </edit-virtual-artefact-text-pane>
+
     </b-container>
 </template>
 
@@ -17,6 +26,8 @@ import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
+import EditVirtualArtefactTextPane from '@/components/text/edit-virtual-artefact-text.vue';
+import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 
 @Component({
     name: 'text-toolbar',
@@ -24,14 +35,29 @@ import EditSignModal from '@/components/text/edit-sign-modal.vue';
         'text-fragment': TextFragmentComponent,
         'sign-attribute-pane': SignAttributePane,
         'edit-sign-modal': EditSignModal,
-        // 'artefact-toolbox': ArtefactToolbox,
+        'edit-virtual-artefact-text-pane': EditVirtualArtefactTextPane,
+
     },
 })
 
 export default class TextToolbar extends Vue {
+
     public get textFragment() {
         return this.$state.textFragmentEditor.selectedTextFragment;
     }
+
+    private get showEditReconTextBar(): boolean {
+        return this.$state.showEditReconTextBar;
+    }
+
+    protected onVirtualTextClose(param: { text: string, originalText: string, editor: VirtualArtefactEditor }) {
+        this.$state.showEditReconTextBar = false;
+
+        if (param.text !== param.originalText) {
+            this.$emit('text-changed', { text: param.text, editor: param.editor });
+        }
+    }
+
 }
 </script>
 

@@ -27,9 +27,13 @@
         "bootstrap-vue": "^2.0.0-rc.11",
         "core-js": "^3.6.4",
         "element-ui": "^2.4.9",
+        "elliptic": "^6.5.4",
+        "hosted-git-info": "^2.8.9",
         "js-clipper": "^1.0.1",
         "jsts": "^2.1.0",
-        "mathjs": "^5.4.1",
+        "mathjs": "^7.5.1",
+        "ssri": "^6.0.2",
+        "url-parse": "^1.5.1",
         "vue": "^2.6.10",
         "vue-class-component": "^7.0.2",
         "vue-i18n": "^8.3.0",
@@ -38,7 +42,8 @@
         "vue-router": "^3.0.1",
         "vue-shortcuts": "^1.1.2",
         "vue-toasted": "^1.1.26",
-        "vue2-hammer": "^2.1.2"
+        "vue2-hammer": "^2.1.2",
+        "y18n": "^3.2.2"
     },
     "devDependencies": {
         "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
