@@ -164,13 +164,16 @@ export default class Registration extends Vue {
         this.waiting = true;
 
         try {
-            await this.sessionService.register(data);
+            const userInfo = await this.sessionService.register(data);
 
             // this causes
             // vue-router.esm.js?8c4f:2008 Uncaught (in promise)
             // NavigationDuplicated: Avoided redundant navigation to current
             // location: "/".
-            router.push('/');
+            // Also no need, since login will be done from adtivation page.
+
+            // router.push('/');
+            // this.$router.push('/');
 
             this.$toasted.show(this.$tc('toasts.activationLink'), {
                 type: 'info',
@@ -183,6 +186,10 @@ export default class Registration extends Vue {
             );
         } finally {
             this.waiting = false;
+
+            // Close modal window,
+            // But the login will be done from the activation page.
+            (this.$refs.registerModalRef as any).hide();
         }
     }
 

@@ -14,7 +14,7 @@
         <div class="scroll-bar" ref="container">
             <div
                 class="card"
-                v-for="artefact in filteredArtefacts"
+                v-for="artefact in sortedFragments"
                 :key="artefact.id"
             >
                 <artefact-card :artefact="artefact"></artefact-card>
@@ -48,6 +48,16 @@ export default class EditionArtefacts extends Vue {
         sort: false,
         view: true,
     };
+
+    private get sortedFragments(): Artefact[] {
+        return this.filteredArtefacts.sort( (a: Artefact, b: Artefact) => {
+                        return (a as any).name.localeCompare( (b as any).name,  undefined,
+                        {
+                            numeric: true,
+                            sensitivity: 'base'
+                        });
+                    });
+    }
 
     public getFilteredArtefacts(): Artefact[] {
         return this.$state.artefacts.items
