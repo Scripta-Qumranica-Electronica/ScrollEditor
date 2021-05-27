@@ -3,19 +3,28 @@
         <!-- variant is BG color, type is text color -->
 
         <b-navbar toggleable="md"
-            class="main-nav-bar d-flex flex-row justify-content-between align-items-center"
+            class="main-nav-bar d-flex flex-row justify-content-between align-items-center align-items-md-stretch"
             variant= "dark" type="light" active
         >
 
-            <b-navbar-brand to="/" align="left"
-                class="mt-mb-auto d-flex flex-row justify-content-between">
-                <span class="logo">S</span>
-                <span class="logo-text m-0 p-0">
+            <b-navbar-brand to="/" align="left" v-if="edition" id="brand-1"
+                class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
+                <span class="logo pb-1">S</span>
+                <span class="logo-text m-0 p-0 pb-1">
                     {{ $t('home.home') }}
                 </span>
             </b-navbar-brand >
 
-            <b-navbar-nav class="mt-mb-auto ml-5 d-flex" v-if="edition">
+            <b-navbar-brand to="/" align="left" v-if="!edition" id="brand-2"
+                class="brand-2 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
+                <span class="logo pb-1">S</span>
+                <span class="logo-text m-0 p-0 pb-1">
+                    {{ $t('home.home') }}
+                </span>
+            </b-navbar-brand >
+            <b-navbar-nav   v-if="edition"
+                            class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
+            >
                 <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
                     <span>
                         {{ edition.name }}
@@ -29,11 +38,12 @@
                 <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
             </b-navbar-nav>
 
-            <b-navbar-nav class="ml-auto mb-auto" align="right">
+            <b-navbar-nav class="space-nav ml-auto mb-auto" align="right">
             </b-navbar-nav>
 
-            <b-navbar-nav
-                class="ml-auto mt-mb-auto"
+
+            <b-navbar
+                class="search-user-nav ml-auto "
                 align="right">
 
                     <b-nav-item v-if="isActive" to="/search" active>
@@ -91,7 +101,7 @@
                             }}
                         </b-dropdown-item>
                     </b-nav-item-dropdown>
-            </b-navbar-nav>
+            </b-navbar>
 
 
             <b-navbar-nav toggleable>
@@ -153,6 +163,7 @@ import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
 import AboutModal from './About-modal.vue';
+// import ScreenSizeAlert from '../../views/home/components/ScreenSizeAlert.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
 import { BIcon, BIconSearch , BIconPersonFill, BIconList} from 'bootstrap-vue';
@@ -162,6 +173,7 @@ import { BIcon, BIconSearch , BIconPersonFill, BIconList} from 'bootstrap-vue';
     components: {
         login: Login,
         'about-modal': AboutModal,
+        // 'screen-size-alert': ScreenSizeAlert,
         BIcon,
         BIconSearch,
         BIconPersonFill,
@@ -268,6 +280,7 @@ export default class Navbar extends Vue {
         // Vue doesn't handle getter changes very well.
     }
 
+
     private mounted() {
         this.currentLanguage = this.$state.session.language;
     }
@@ -301,9 +314,15 @@ export default class Navbar extends Vue {
     text-decoration: none;
 }
 
+
+#screen-size-alert-modal {
+    display: none;
+}
+
 .main-nav-bar.navbar {
     background: #0a142e;
-    height: 50px;
+    /* height: 50px; */
+    height: 3.12rem;
 }
 
 
@@ -329,23 +348,70 @@ export default class Navbar extends Vue {
     font-size: 2.2rem;
 }
 
+
 /* .navbar-brand > span { */
 .navbar-brand > .logo {
-    margin-right: 10px;
-    margin-left: 24px;
-    width: 34px;
+    margin-right: 1.0rem;
+    margin-left: 2.4rem;
+    /* margin-right: 10px;
+    margin-left: 24px; */
+
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.3rem;
+
+    /* width: 34px;
     height: 34px;
+    border-radius: 5px; */
+
     background: #1e2641;
-    border-radius: 5px;
-    display: inline-block;
+
+    /* display: inline-block; */
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: flex-start;
+
     text-align: center;
 }
 
+/* @media (max-width: 1100px) { */
+@media (max-width: 1134px) {
 
-@media (max-width: 1100px) {
-    .navbar-brand > .logo-text {
+    .navbar-brand.brand-1> .logo-text ,
+    .main-nav-bar .space-nav {
        display: none;
     }
+
+    .main-nav-bar .navbar-brand a {
+        margin:0;
+        padding: 0;
+        padding-right: 1rem;
+        width: 4rem;
+        height: 2rem;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: flex-start;
+    }
+
+    .navbar-brand > .logo {
+        margin:0;
+        padding: 0;
+
+        /* margin-right: 10px;
+        margin-left: 24px; */
+        width: 2rem;
+        height: 2rem;
+        /* width: 34px;
+        height: 34px;
+        border-radius: 5px; */
+        background: #1e2641;
+        border-radius: 0.3rem;
+        display: flex;
+        text-align: center;
+    }
+
 }
 
 
@@ -387,9 +453,12 @@ export default class Navbar extends Vue {
     font-family: $font-family;
     text-align: center;
     font-size: $font-size-1;
-    width: 68px;
+    width: 6.8rem;
+    height: 2.958rem;
+    line-height: 2.0rem;
+    /* width: 68px;
     height: 29.58px;
-    line-height: 20px;
+    line-height: 20px; */
 }
 
 .status-badge-draft {
