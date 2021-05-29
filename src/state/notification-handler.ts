@@ -136,6 +136,7 @@ export class NotificationHandler {
     }
 
     public handleDeletedSignInterpretation(dto: DeleteIntIdDTO): void {
+        console.debug('handleDeletedSignInterpretation', dto);
         if (dto.entity !== 'signInterpretation') {
             console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);
             return;
@@ -169,6 +170,7 @@ export class NotificationHandler {
     }
 
     public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
+        console.debug('handleCreatedSignIntepretation', dto);
         if (!dto.signInterpretations) {
             return;
         }
@@ -222,6 +224,7 @@ export class NotificationHandler {
  */
 
 function handleCreatedRoi(dto: InterpretationRoiDTO) {
+    console.debug('handleCreatedRoi', dto);
     // Add roi to all the ROIs, as well as to the specific sign interpretation
     const roi = new InterpretationRoi(dto);
     state().interpretationRois.put(roi);
@@ -235,6 +238,7 @@ function handleCreatedRoi(dto: InterpretationRoiDTO) {
 }
 
 function handleDeletedRoi(roiId: number) {
+    console.debug('handleDeletedRoi', roiId);
     const roi = state().interpretationRois.get(roiId);
     if (!roi) {
         return;
@@ -250,6 +254,7 @@ function handleDeletedRoi(roiId: number) {
 }
 
 function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
+    console.debug('handleUpdatedRoi', dto);
     // Just delete the old one and add the new one. Order of ROIs inside
     // the lists is of no consqeuence.
     handleDeletedRoi(dto.oldInterpretationRoiId);
@@ -257,7 +262,7 @@ function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
 }
 
 function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
-    debugger;
+    console.debug('handleUpdatedSignInterpretaetion', dto);
     const existingSI = state().signInterpretations.get(dto.signInterpretationId);
 
     if (!existingSI) {
