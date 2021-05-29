@@ -71,16 +71,16 @@ export default class IIIFImageComponent extends Vue {
     @Prop() private maxWidth?: number;                   // In Screen Coordinates
     @Prop({ default: 1 }) private opacity!: number;
 
-    retryLimit = 10;
-    tiles: TileInfo[] = []
+    private retryLimit = 10;
+    private tiles: TileInfo[] = [];
 
-    mounted() {
-        this.loadTiles()
+    public mounted() {
+        this.loadTiles();
     }
 
     @Watch('scaleFactor')
-    onPropertyChanged(value: number, oldValue: number) {
-        this.loadTiles()
+    private onPropertyChanged(value: number, oldValue: number) {
+        this.loadTiles();
     }
 
     private loadTiles() {
@@ -106,7 +106,7 @@ export default class IIIFImageComponent extends Vue {
                 const url = this.image.getScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
                                                            x, y, currentTileWidth + 1, currentTileHeight + 1);
                 const tile = {
-                    url: url,
+                    url,
                     transform: `translate(${xTranslate}, ${yTranslate})`,
                     width: currentTileWidth * this.optimizedImageScaleFactor,
                     height: currentTileHeight * this.optimizedImageScaleFactor,
@@ -262,35 +262,42 @@ export default class IIIFImageComponent extends Vue {
         // We want to try loading again, so we set the display value for the object
         // to false and update by removing and readding it to this.tiles (perhaps it
         // could be done with Vue.set).  Then we set a timer for it to turn display
-        // back to true (and we wait a little longer each iteration until success or 
+        // back to true (and we wait a little longer each iteration until success or
         // we hit the retry limit).
         // Note that I tried earlier to just get the actual <image> DOM element
         // and to reset the xlink:href attribute, but that didn't seem to trigger
         // an attempt to reload the image.  Doing it the vue way seems to work fine.
         const failedTileIdx = this.tiles.findIndex(x => x.url === url);
+        if (failedTileIdx === -1) {
+            console.warn(`Can't locate tile for url ${url}, will not retry on error`);
+            return;
+        }
         const failedTile = this.tiles[failedTileIdx];
+
         if (failedTile.retries < this.retryLimit) {
             this.tiles = this.tiles.splice(failedTileIdx, 1);
-            failedTile.display
-     = false;
+            failedTile.display = false;
             failedTile.retries += 1;
             this.tiles.push(failedTile);
 
             // Give the server a little breathing room to try again
             // by backing off a little more on each retry of a single image.
             setTimeout(() => {
-                const failedTileIdx = this.tiles.findIndex(x => x.url === url);
-                const failedTile = this.tiles[failedTileIdx];
-                this.tiles = this.tiles.splice(failedTileIdx, 1);
-                failedTile.display
-         = false;
-                this.tiles.push(failedTile);
+                const innerFailedTileIdx = this.tiles.findIndex(x => x.url === url);
+                if (innerFailedTileIdx === -1) {
+                    console.warn(`Can't locate tile for url ${url}, will not retry on error`);
+                    return;
+                }
+                const innerFailedTile = this.tiles[innerFailedTileIdx];
+                this.tiles = this.tiles.splice(innerFailedTileIdx, 1);
+                innerFailedTile.display = true; // This will trigger a reload
+                this.tiles.push(innerFailedTile);
             }, 20 * failedTile.retries);
+        } else {
+            // This is apparently an error that cannot be recovered.
+            // How should it be handled? Maybe alert the user?
+            console.error(`Could not fetch image: ${failedTile.url}`);
         }
-        
-        // This is apparently an error that cannot be recovered.
-        // How should it be handled? Maybe alert the user?
-        console.error(`Could not fetch image: ${failedTile.url}`)
     }
 }
 </script>
