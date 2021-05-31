@@ -2,6 +2,11 @@
     <div>
         <div class="header">
             <b-row>
+                 <b-col class="col-4 mt-4 mb-5">
+                    <span class="text-edition text-color"
+                        >Editions published in the scrollery</span
+                    >
+                </b-col>
                 <b-col class="mt-4 mb-5">
                     <search-bar
                         class="direction"

@@ -4,7 +4,7 @@
             <b-row>
                 <b-col class="col-4 mt-4 mb-5">
                     <span class="text-edition text-color"
-                        >My editions are editions you are currently working on
+                        >Editions you are currently working on
                         or have previously published</span
                     >
                 </b-col>
