@@ -116,6 +116,7 @@ export class SignalRWrapper {
         this._connection = new HubConnectionBuilder()
             .withUrl(process.env.VUE_APP_SIGNALR_URL!, {
                 accessTokenFactory: () => StateManager.instance.session.token || '',
+                // transport: 4 // signalR.HttpTransportType.LongPolling,
             }).configureLogging(process.env.NODE_ENV === 'development' ? LogLevel.Trace : LogLevel.Error)
             .build();
         this._utils = new SignalRUtilities(this._connection);
