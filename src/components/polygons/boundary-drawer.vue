@@ -282,20 +282,25 @@ export default class BoundaryDrawer extends Vue {
 </script>
 
 <style lang="scss" scoped>
-$crosshair: url('/assets/cursors/crosshair.svg'), crosshair;
-$crosshair1: url('/assets/cursors/crosshair1.svg'), crosshair;
-$crosshair2: url('/assets/cursors/crosshair2.svg'), crosshair;
+// Use a relative path so Webpack can reference these properly
+$crosshair: url('../../assets/cursors/crosshair.svg'), crosshair;
+$crosshair1: url('../../assets/cursors/crosshair1.svg'), crosshair;
+$crosshair2: url('../../assets/cursors/crosshair2.svg'), crosshair;
 
+// Set the middle of these crosshairs to be the point of selection
 .draw-first-corner {
-    cursor: $crosshair1;
+    cursor: crosshair;
+    cursor: $crosshair1 17 17, crosshair;
 }
 
 .draw-second-corner {
-    cursor: $crosshair2;
+    cursor: crosshair;
+    cursor: $crosshair2 17 17, crosshair;
 }
 
 .draw-boundary {
-    cursor: $crosshair;
+    cursor: crosshair;
+    cursor: $crosshair 17 17, crosshair;
 
     &.disabled {
         cursor: wait;

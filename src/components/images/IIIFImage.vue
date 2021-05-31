@@ -269,7 +269,7 @@ export default class IIIFImageComponent extends Vue {
         // an attempt to reload the image.  Doing it the vue way seems to work fine.
         const failedTileIdx = this.tiles.findIndex(x => x.url === url);
         const failedTile = this.tiles[failedTileIdx];
-        if (failedTile.retries < this.retryLimit) {
+        if (failedTile && failedTile.retries < this.retryLimit) {
             this.tiles = this.tiles.splice(failedTileIdx, 1);
             failedTile.display
      = false;
@@ -290,7 +290,7 @@ export default class IIIFImageComponent extends Vue {
         
         // This is apparently an error that cannot be recovered.
         // How should it be handled? Maybe alert the user?
-        console.error(`Could not fetch image: ${failedTile.url}`)
+        console.error(`Could not fetch image: ${failedTile?.url}`)
     }
 }
 </script>

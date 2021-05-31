@@ -62,7 +62,7 @@ class TextService {
         // It also updates the state - deleted ROIs are removed, and the status of all other ROIs
         // is changed to 'original'
         const newROIs: InterpretationRoi[] = [];
-        const deletedROIs: InterpretationRoi[] = [];
+        const deletedROIs: InterpretationRoi[] = artefact.deleteRois;
 
         for (const roi of artefact.rois) {
             if (roi.status === 'new' && mode !== 'deleted') {
@@ -75,7 +75,8 @@ class TextService {
         const response = await this.updateServerROIs(artefact, newROIs, deletedROIs);
         this.updateStateCreatedROIs(artefact, newROIs, response.createRois);
         this.updateStateDeletedROIs(artefact, deletedROIs);
-
+        artefact.deleteRois = []
+        
         return deletedROIs.length + newROIs.length;
     }
 
