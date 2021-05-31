@@ -73,16 +73,20 @@ export class NotificationHandler {
     }
 
     public handleCreatedRoi(roi: InterpretationRoiDTO): void {
+        console.debug('handleCreatedRoi', roi);
         handleCreatedRoi(roi);
         notifyRoiChanged();
     }
 
     public handleCreatedRoisBatch(roiList: InterpretationRoiDTOList): void {
+        console.debug('handleCreatedRoisBatch', roiList);
         roiList.rois.map(roi => handleCreatedRoi(roi));
         notifyRoiChanged();
     }
 
     public handleEditedRoisBatch(rois: BatchEditRoiResponseDTO): void {
+        console.debug('handleEditedRoisBatch', rois);
+
         rois.createRois.map(roi => handleCreatedRoi(roi));
         rois.deleteRois.map(roiId => handleDeletedRoi(roiId));
         rois.updateRois.map(roi => handleUpdatedRoi(roi));
@@ -90,16 +94,22 @@ export class NotificationHandler {
     }
 
     public handleUpdatedRoi(roi: UpdatedInterpretationRoiDTO): void {
+        console.debug('handleUpdatedRoi', roi);
+
         handleUpdatedRoi(roi);
         notifyRoiChanged();
     }
 
     public handleUpdatedRoisBatch(roiList: UpdatedInterpretationRoiDTOList): void {
+        console.debug('handleUpdatedRoisBatch', roiList);
+
         roiList.rois.map(roi => handleUpdatedRoi(roi));
         notifyRoiChanged();
     }
 
     public handleDeletedRoi(dto: DeleteIntIdDTO): void {
+        console.debug('handleDeletedRoi', dto);
+
         for (const roiId of dto.ids) {
             handleDeletedRoi(roiId);
             notifyRoiChanged();
@@ -126,16 +136,20 @@ export class NotificationHandler {
     }
 
     public handleUpdatedSignInterpretations(dto: SignInterpretationListDTO): void {
+        console.debug('handleUpdatedSignInterpretations', dto);
         for (const siDto of dto.signInterpretations || []) {
             handleUpdatedSignInterpretation(siDto);
         }
     }
 
     public handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
+        console.debug('handleUpdatedSignInterpretation', dto);
         handleUpdatedSignInterpretation(dto);
     }
 
     public handleDeletedSignInterpretation(dto: DeleteIntIdDTO): void {
+        console.debug('handleDeletedSignInterpretation', dto);
+
         if (dto.entity !== 'signInterpretation') {
             console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);
             return;
@@ -169,6 +183,8 @@ export class NotificationHandler {
     }
 
     public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
+        console.debug('handleCreatedSignInterpretation', dto);
+
         if (!dto.signInterpretations) {
             return;
         }
@@ -257,7 +273,6 @@ function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
 }
 
 function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
-    debugger;
     const existingSI = state().signInterpretations.get(dto.signInterpretationId);
 
     if (!existingSI) {
