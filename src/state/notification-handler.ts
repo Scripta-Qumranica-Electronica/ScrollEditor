@@ -73,16 +73,20 @@ export class NotificationHandler {
     }
 
     public handleCreatedRoi(roi: InterpretationRoiDTO): void {
+        console.debug('handleCreatedRoi', roi);
         handleCreatedRoi(roi);
         notifyRoiChanged();
     }
 
     public handleCreatedRoisBatch(roiList: InterpretationRoiDTOList): void {
+        console.debug('handleCreatedRoisBatch', roiList);
         roiList.rois.map(roi => handleCreatedRoi(roi));
         notifyRoiChanged();
     }
 
     public handleEditedRoisBatch(rois: BatchEditRoiResponseDTO): void {
+        console.debug('handleEditedRoisBatch', rois);
+
         rois.createRois.map(roi => handleCreatedRoi(roi));
         rois.deleteRois.map(roiId => handleDeletedRoi(roiId));
         rois.updateRois.map(roi => handleUpdatedRoi(roi));
@@ -90,16 +94,20 @@ export class NotificationHandler {
     }
 
     public handleUpdatedRoi(roi: UpdatedInterpretationRoiDTO): void {
+        console.debug('handleUpdatedRoi', roi);
         handleUpdatedRoi(roi);
         notifyRoiChanged();
     }
 
     public handleUpdatedRoisBatch(roiList: UpdatedInterpretationRoiDTOList): void {
+        console.debug('handleUpdatedRoiBatch', roiList);
         roiList.rois.map(roi => handleUpdatedRoi(roi));
         notifyRoiChanged();
     }
 
     public handleDeletedRoi(dto: DeleteIntIdDTO): void {
+        console.debug('handleDeletedRoi', dto);
+
         for (const roiId of dto.ids) {
             handleDeletedRoi(roiId);
             notifyRoiChanged();
@@ -126,16 +134,22 @@ export class NotificationHandler {
     }
 
     public handleUpdatedSignInterpretations(dto: SignInterpretationListDTO): void {
+        console.debug('handleCreatedSignInterpretaions', dto);
+
         for (const siDto of dto.signInterpretations || []) {
             handleUpdatedSignInterpretation(siDto);
         }
     }
 
     public handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
+        console.debug('handleCreatedSignInterpretaion', dto);
+
         handleUpdatedSignInterpretation(dto);
     }
 
     public handleDeletedSignInterpretation(dto: DeleteIntIdDTO): void {
+        console.debug('handleDeletedSignInterpretaion', dto);
+
         if (dto.entity !== 'signInterpretation') {
             console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);
             return;
@@ -169,6 +183,8 @@ export class NotificationHandler {
     }
 
     public handleCreatedSignInterpretation(dto: SignInterpretationListDTO): void {
+        console.debug('handleCreatedSignInterpretaion', dto);
+
         if (!dto.signInterpretations) {
             return;
         }
@@ -222,6 +238,8 @@ export class NotificationHandler {
  */
 
 function handleCreatedRoi(dto: InterpretationRoiDTO) {
+    console.debug('handleCreatedRoi', dto);
+
     // Add roi to all the ROIs, as well as to the specific sign interpretation
     const roi = new InterpretationRoi(dto);
     state().interpretationRois.put(roi);
@@ -235,6 +253,8 @@ function handleCreatedRoi(dto: InterpretationRoiDTO) {
 }
 
 function handleDeletedRoi(roiId: number) {
+    console.debug('handleDeletedRoi', roiId);
+
     const roi = state().interpretationRois.get(roiId);
     if (!roi) {
         return;
@@ -250,6 +270,8 @@ function handleDeletedRoi(roiId: number) {
 }
 
 function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
+    console.debug('handleUpdatedRoi', dto);
+
     // Just delete the old one and add the new one. Order of ROIs inside
     // the lists is of no consqeuence.
     handleDeletedRoi(dto.oldInterpretationRoiId);
@@ -257,7 +279,7 @@ function handleUpdatedRoi(dto: UpdatedInterpretationRoiDTO) {
 }
 
 function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
-    debugger;
+    console.debug('handleUpdatedSignInterpretaion', dto);
     const existingSI = state().signInterpretations.get(dto.signInterpretationId);
 
     if (!existingSI) {
