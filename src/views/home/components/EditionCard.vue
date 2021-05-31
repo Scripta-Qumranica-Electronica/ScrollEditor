@@ -20,21 +20,30 @@
                     />
                 </b-col>
                 <b-col class="col-8">
-                    <div>
-                        <p class="card-font card-title">
-                            {{ edition.name }}
-                            <edition-icons :edition="edition" />
-                        </p>
-                        <div>
-                            <p class="card-font card-label">
-                                Last edit:
-                                <span class="card-font card-date">{{
-                                    edition.lastEdit
-                                        ? edition.lastEdit.toDateString()
-                                        : 'N/A'
-                                }}</span>
+                        <b-row>
+                            <p class="card-font card-title">
+                                {{ edition.name }}
+                                <edition-icons :edition="edition" />
                             </p>
-                            <p class="card-font card-label">
+                        </b-row>
+                        <b-row>
+                            <div>
+                               <span class="card-font card-label">
+                                Edited:
+                                </span>
+                            </div>
+                            <div>
+                                <span class="card-font card-label card-date mr-1">{{
+                                    edition.lastEdit
+                                        ? edition.lastEdit.toDateString().substr(4)
+                                        : ''
+                                }}
+                                </span>
+                            </div>
+                        </b-row>
+                        <b-row>
+
+                            <p class="card-font card-label ml-0 mr-9">
                                 Status:
                                 <b-badge
                                     :class="edition.isPublic ?
@@ -50,20 +59,21 @@
                                     {{
                                         edition.isPublic ? 'Published' : 'Draft'
                                     }}
-                                    </b-badge>
+                                   </b-badge>
                             </p>
-                        </div>
-                    </div>
+
+                        </b-row>
+
                 </b-col>
             </b-row>
         </router-link>
 
-        <div class="mt-2 ml-5 mr-0">
+        <div class="mt-2 mr-1 pr-0 pl-sm-0 pl-md-0 pl-xl-5 ml-xl-7 ml-lg-2 ml-md-3 ml-sm-2">
             <b-button
                 v-if="user"
                 @click.once="editionCopyClick()"
                 variant="primary"
-                class="direction"
+                class="direction mr-8 pr-8"
                 >{{ $t('misc.copy') }}</b-button
             >
         </div>
@@ -122,16 +132,27 @@ export default class EditionCard extends Vue {
 }
 .card-label {
     color: $grey;
-    margin-bottom: 1px;
+    margin-bottom: 0.1rem;
+    /* margin-bottom: 1px; */
 }
 .card-date {
     color: $black;
+    margin-left: 0.1rem;
+    margin-bottom: 0.1rem;
+
 }
+
+.card-img-top {
+    max-height: 2.6rem;
+    max-width: 5rem;
+}
+
 .status-badge {
     font-family: $font-family;
     text-align: center;
     font-size: $font-size-1;
-    width: 68px;
+    width: 3.5rem;
+    /* width: 68px; */
     height: 29.58px;
     line-height: 20px;
 }
