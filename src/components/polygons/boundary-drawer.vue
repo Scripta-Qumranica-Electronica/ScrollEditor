@@ -282,9 +282,9 @@ export default class BoundaryDrawer extends Vue {
 </script>
 
 <style lang="scss" scoped>
-$crosshair: url('/assets/cursors/crosshair.svg'), crosshair;
-$crosshair1: url('/assets/cursors/crosshair1.svg'), crosshair;
-$crosshair2: url('/assets/cursors/crosshair2.svg'), crosshair;
+$crosshair: url('../../assets/cursors/crosshair.svg'), crosshair;
+$crosshair1: url('../../assets/cursors/crosshair1.svg'), crosshair;
+$crosshair2: url('../../assets/cursors/crosshair2.svg'), crosshair;
 
 .draw-first-corner {
     cursor: $crosshair1;

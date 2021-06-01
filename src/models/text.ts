@@ -31,21 +31,24 @@ class TextFragmentData {
 }
 
 class ArtefactTextFragmentData extends TextFragmentData {
-    public static createFromEditionTextFragment(tf: TextFragmentData) {
-        return new ArtefactTextFragmentData({
-            id: tf.id,
-            name: tf.name,
-            editorId: tf.editorId,
-            suggested: true
-        });
-    }
     public suggested: boolean;
     public certain: boolean;
 
+    public static createFromEditionTextFragment(tf: TextFragmentData): ArtefactTextFragmentData {
+        const atf = new ArtefactTextFragmentData({
+            id: tf.id,
+            name: tf.name,
+            editorId: tf.editorId,
+            suggested: false
+        });
+        atf.certain = false;
+        return atf;
+    }
+
     constructor(obj: ArtefactTextFragmentMatchDTO) {
         super(obj);
-        this.suggested = obj.suggested;
         this.certain = !obj.suggested;
+        this.suggested = obj.suggested;
     }
 }
 

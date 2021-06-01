@@ -167,10 +167,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     })
     public reconstructedText!: boolean;
 
-    @Prop({
-        default: undefined,
-    })
-    public artefact!: Artefact;
+    // @Prop({
+    //     default: undefined,
+    // })
+    // public artefact!: Artefact;
 
     @Prop() public readonly transformRootId!: string;
 

@@ -237,7 +237,7 @@ export default class Navbar extends Vue {
 
     private get imagedObjectLink() {
         if (this.$state.imagedObjects.current) {
-            return `/editions/${this.edition!.id}/imaged-objects/${this.$state.imagedObjects.current.id}`;
+            return `/editions/${this.edition!.id}/imaged-objects/${encodeURIComponent(this.$state.imagedObjects.current.id)}`;
         }
         return `/editions/${this.edition!.id}/imaged-objects/`;
     }

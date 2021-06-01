@@ -118,6 +118,7 @@ export class SignalRWrapper {
                 accessTokenFactory: () => StateManager.instance.session.token || '',
                 // transport: 4 // signalR.HttpTransportType.LongPolling,
             }).configureLogging(process.env.NODE_ENV === 'development' ? LogLevel.Trace : LogLevel.Error)
+            .withAutomaticReconnect()
             .build();
         this._utils = new SignalRUtilities(this._connection);
 

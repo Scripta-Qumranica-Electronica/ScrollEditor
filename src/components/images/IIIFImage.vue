@@ -46,7 +46,6 @@
 import { Image } from '@/models/image';
 import { BoundingBox, BoundingBoxInterface } from '@/utils/helpers';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import axios from 'axios';
 
 interface ManifestTileInfo {
     width: number;
