@@ -92,10 +92,29 @@ export default class PersonalEditions extends Vue {
                 return filter;
             })
             .sort((a: EditionInfo, b: EditionInfo) => {
+
                 if (this.searchValue.sort) {
-                    return (a as any)[this.searchValue.sort] > (b as any)[this.searchValue.sort]
-                        ? 1
-                        : -1;
+                    if ( 'name' === this.searchValue.sort ) {
+                        return (a as any)[this.searchValue.sort].localeCompare(
+                            (b as any)[this.searchValue.sort] ,  undefined,
+                        {
+                            numeric: true,
+                            sensitivity: 'base'
+                        });
+
+                    } else if ( 'lastEdit' === this.searchValue.sort ) {
+                        return (a as any)[this.searchValue.sort] >
+                            (b as any)[this.searchValue.sort]
+                            ? -1
+                            :  1 ;
+
+                    } else {
+                        return (a as any)[this.searchValue.sort] >
+                            (b as any)[this.searchValue.sort]
+                            ? 1
+                            : -1 ;
+                    }
+
                 } else {
                     return 1;
                 }
