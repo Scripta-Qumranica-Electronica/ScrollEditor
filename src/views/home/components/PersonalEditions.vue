@@ -62,19 +62,23 @@ export default class PersonalEditions extends Vue {
         sort: true,
         view: false,
     };
+
     public onEditionsSearch(event: SearchBarValue) {
         this.searchValue = event;
         this.onPersonalEditionsLoad();
     }
+
     @Emit()
     public onPersonalEditionsLoad() {
         this.filteredEditions = this.getFilteredEditions();
         return this.filteredEditions.length;
     }
+
     protected async mounted() {
         await this.$state.prepare.allEditions();
         this.onPersonalEditionsLoad();
     }
+
     private getFilteredEditions(): EditionInfo[] {
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
@@ -94,25 +98,26 @@ export default class PersonalEditions extends Vue {
             .sort((a: EditionInfo, b: EditionInfo) => {
 
                 if (this.searchValue.sort) {
-                    if ( 'name' === this.searchValue.sort ) {
-                        return (a as any)[this.searchValue.sort].localeCompare(
-                            (b as any)[this.searchValue.sort] ,  undefined,
-                        {
-                            numeric: true,
-                            sensitivity: 'base'
-                        });
-
-                    } else if ( 'lastEdit' === this.searchValue.sort ) {
-                        return (a as any)[this.searchValue.sort] >
-                            (b as any)[this.searchValue.sort]
-                            ? -1
-                            :  1 ;
-
-                    } else {
-                        return (a as any)[this.searchValue.sort] >
-                            (b as any)[this.searchValue.sort]
-                            ? 1
-                            : -1 ;
+                    switch (this.searchValue.sort ) {
+                        case 'name': {
+                            return (a as any).name.localeCompare(
+                                (b as any).name ,  undefined,
+                            {
+                                numeric: true,
+                                sensitivity: 'base'
+                            });
+                        }
+                        case 'lastEdit': {
+                            return (a as any).lastEdit > (b as any).lastEdit
+                                ? -1
+                                :  1 ;
+                            }
+                        default: {
+                            return (a as any)[this.searchValue.sort] >
+                                (b as any)[this.searchValue.sort]
+                                ? 1
+                                : -1 ;
+                        }
                     }
 
                 } else {
