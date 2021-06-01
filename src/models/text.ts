@@ -298,7 +298,7 @@ class SignInterpretation {
     }
 }
 
-type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future
+export type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future
 
 class InterpretationRoi {
     public static new(
@@ -392,7 +392,7 @@ class InterpretationRoi {
         }
         if (newStatus === 'deleted') {
             // Remove the ROI from the artefact controlling it
-            StateManager.instance.interpretationRois.detachRoiFromArtefact(this);
+            StateManager.instance.interpretationRois.detachRoiFromArtefact(this, newStatus);
         } else if (this._status === 'deleted') {
             // Add the ROI to the artefact
             StateManager.instance.interpretationRois.attachRoiToArtefact(this);

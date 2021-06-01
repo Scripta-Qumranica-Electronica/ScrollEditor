@@ -272,8 +272,7 @@ export default class IIIFImageComponent extends Vue {
             return;
         }
         const failedTile = this.tiles[failedTileIdx];
-
-        if (failedTile.retries < this.retryLimit) {
+        if (failedTile && failedTile.retries < this.retryLimit) {
             this.tiles = this.tiles.splice(failedTileIdx, 1);
             failedTile.display = false;
             failedTile.retries += 1;
