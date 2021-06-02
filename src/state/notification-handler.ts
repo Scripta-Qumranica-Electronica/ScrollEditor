@@ -149,7 +149,6 @@ export class NotificationHandler {
 
     public handleDeletedSignInterpretation(dto: DeleteIntIdDTO): void {
         console.debug('handleDeletedSignInterpretation', dto);
-
         if (dto.entity !== 'signInterpretation') {
             console.warn('Deleted Sign Interpretation notifcation arrived with the entity ', dto.entity);
             return;
@@ -238,6 +237,7 @@ export class NotificationHandler {
  */
 
 function handleCreatedRoi(dto: InterpretationRoiDTO) {
+    console.debug('handleCreatedRoi', dto);
     // Add roi to all the ROIs, as well as to the specific sign interpretation
     const roi = new InterpretationRoi(dto);
     state().interpretationRois.put(roi);
@@ -251,6 +251,7 @@ function handleCreatedRoi(dto: InterpretationRoiDTO) {
 }
 
 function handleDeletedRoi(roiId: number) {
+    console.debug('handleDeletedRoi', roiId);
     const roi = state().interpretationRois.get(roiId);
     if (!roi) {
         return;
