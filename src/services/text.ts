@@ -75,8 +75,8 @@ class TextService {
         const response = await this.updateServerROIs(artefact, newROIs, deletedROIs);
         this.updateStateCreatedROIs(artefact, newROIs, response.createRois);
         this.updateStateDeletedROIs(artefact, deletedROIs);
-        artefact.deleteRois = []
-        
+        artefact.deleteRois = [];
+
         return deletedROIs.length + newROIs.length;
     }
 

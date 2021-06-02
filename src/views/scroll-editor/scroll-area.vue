@@ -37,7 +37,7 @@
                         @new-operation="onNewOperation($event)"
                         transformRootId="root"
                         v-for="artefact in placedArtefacts"
-                        :image_artefact="artefact"
+                        :imageartefact="artefact"
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
