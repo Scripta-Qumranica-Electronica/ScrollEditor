@@ -62,19 +62,23 @@ export default class PersonalEditions extends Vue {
         sort: true,
         view: false,
     };
+
     public onEditionsSearch(event: SearchBarValue) {
         this.searchValue = event;
         this.onPersonalEditionsLoad();
     }
+
     @Emit()
     public onPersonalEditionsLoad() {
         this.filteredEditions = this.getFilteredEditions();
         return this.filteredEditions.length;
     }
+
     protected async mounted() {
         await this.$state.prepare.allEditions();
         this.onPersonalEditionsLoad();
     }
+
     private getFilteredEditions(): EditionInfo[] {
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
@@ -94,25 +98,27 @@ export default class PersonalEditions extends Vue {
             .sort((a: EditionInfo, b: EditionInfo) => {
 
                 if (this.searchValue.sort) {
+                    let aVal = (a as any)[this.searchValue.sort];
+                    let bVal = (b as any)[this.searchValue.sort];
+
                     if ( 'name' === this.searchValue.sort ) {
-                        return (a as any)[this.searchValue.sort].localeCompare(
-                            (b as any)[this.searchValue.sort] ,  undefined,
-                        {
-                            numeric: true,
-                            sensitivity: 'base'
-                        });
+                        return aVal.localeCompare( bVal ,   undefined,
+                            { numeric: true, sensitivity: 'base' }
+                        );
 
                     } else if ( 'lastEdit' === this.searchValue.sort ) {
-                        return (a as any)[this.searchValue.sort] >
-                            (b as any)[this.searchValue.sort]
-                            ? -1
-                            :  1 ;
+
+                       // for undefined dates, take 01/01/1970 as default
+                        if ( undefined === aVal ) {
+                            aVal = new Date(1970, 1, 1, 1, 1, 1);
+                        }
+                        if ( undefined === bVal ) {
+                            bVal = new Date(1970, 1, 1, 1, 1, 1);
+                        }
+                        return ((aVal > bVal) ? -1 :  1 );
 
                     } else {
-                        return (a as any)[this.searchValue.sort] >
-                            (b as any)[this.searchValue.sort]
-                            ? 1
-                            : -1 ;
+                        return ((aVal > bVal) ? 1 : -1 );
                     }
 
                 } else {

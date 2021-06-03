@@ -61,7 +61,7 @@
         <div class="mt-2 mr-1 mr-xl-0 pr-0 pl-0 ml-xl-4 ml-lg-1 ml-md-1 ml-sm-0 ml-xs-0">
             <b-button
                 v-if="user"
-                @click.once="editionCopyClick()"
+                @click="editionCopyClick()"
                 variant="primary"
                 class="direction ml-xl-5 ml-lg-0 ml-md-1 ml-sm-0 ml-xs-0 mr-1 mr-lg-0 mr-md-1 mr-sm-0 mr-xs-0"
                 >{{ $t('misc.copy') }}
