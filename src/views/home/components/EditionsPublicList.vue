@@ -16,7 +16,7 @@
                 </edition-public-card>
             </b-card>
         </div>
-        <copy-edition-modal />
+        <copy-edition-modal :visible="true" />
     </div>
 </template>
 

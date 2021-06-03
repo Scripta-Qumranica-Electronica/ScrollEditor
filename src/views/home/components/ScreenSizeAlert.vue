@@ -54,7 +54,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({
-    name: 'AcreenAizeAlert',
+    name: 'ScreenSizeAlert',
     components: {
     }
 })
