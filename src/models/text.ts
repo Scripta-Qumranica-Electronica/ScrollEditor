@@ -200,6 +200,8 @@ class SignInterpretation {
     public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
     public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
     public commentary: string | null;
+    public signStreamSectionIds: number[];
+    public qwbWordIds: number[];
 
     public sign: Sign;
 
@@ -209,6 +211,8 @@ class SignInterpretation {
         this.attributes = obj.attributes;
         this.nextSignInterpretations = obj.nextSignInterpretations;
         this.commentary = obj.commentary?.commentary || null;
+        this.signStreamSectionIds = obj.signStreamSectionIds || [];
+        this.qwbWordIds = obj.qwbWordIds || [];
 
         if (obj.rois) {
             this.rois = obj.rois.map(roi => new InterpretationRoi(roi));

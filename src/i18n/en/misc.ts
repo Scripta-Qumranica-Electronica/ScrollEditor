@@ -30,6 +30,8 @@ export default {
     editSign: 'Edit sign',
     deleteSign: 'Delete sign',
     addToLeft: 'Add to left',
-    addToRight: 'Add to right'
+    addToRight: 'Add to right',
+    showQwbVariants: 'Show QWB Variants',
+    showQwbParallels: 'Show QWB Parallels'
 
 };

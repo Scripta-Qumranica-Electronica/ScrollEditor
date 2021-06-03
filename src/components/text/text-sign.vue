@@ -45,15 +45,37 @@
                     <li v-if="editingMode==='manuscript' && virtualArtefact">
                         <p @click="openEditVirtualArtefact()">Edit Reconstructed Text</p>
                     </li>
+                    <li v-if="qwbWordId !== undefined">
+                        <p @click="openQwbVariantsModal()"
+                        >{{ $t('misc.showQwbVariants') }}</p
+                        >
+                    </li>
                 </ul>
             </div>
         </b-popover>
+
+        <b-modal v-if="qwbWordId !== undefined" :id="`qwb-word-${si.signInterpretationId}`" hide-footer title="Variant Readings from QWB">
+          <div v-if="qwbVariants && qwbVariants.variants.length > 0">
+            <div v-for="variant in qwbVariants.variants">
+              <b>{{variant.variantReading}}</b>
+              <hr>
+              <div v-for="biblio in variant.bibliography">
+                <p>{{biblio.shortTitle}}, {{biblio.pageReference}}</p>
+                <p v-if="biblio.comment !== undefined">{{biblio.comment}}</p>
+              </div>
+            </div>
+          </div>
+          <div v-if="qwbVariants === null || qwbVariants.variants.length === 0">
+            <p>No variants found in the QWB database.</p>
+          </div>
+        </b-modal>
     </span>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 import { SignInterpretation, Sign } from '@/models/text';
+import QwbProxyService from '@/services/qwb-proxy';
 import EditSignModal from './edit-sign-modal.vue';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import {
@@ -61,6 +83,7 @@ import {
     DeleteSignInterpretationOperation,
 } from '../../views/artefact-editor/operations';
 import { Artefact } from '@/models/artefact';
+import { QwbWordVariantListDTO } from '@/dtos/sqe-dtos';
 
 @Component({
     name: 'text-sign',
@@ -69,6 +92,7 @@ export default class TextSign extends Vue {
     @Prop() public sign!: Sign;
     @Prop() public withMenu!: boolean;
     private previousMenuId: string = '';
+    private qwbVariants: QwbWordVariantListDTO | null = null;
 
     private get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
@@ -118,6 +142,11 @@ export default class TextSign extends Vue {
         return artefact.isVirtual ? artefact : null;
     }
 
+    private get qwbWordId(): number | undefined {
+      const allQwbWordIds = this.sign.signInterpretations.flatMap(x => x.qwbWordIds);
+      return allQwbWordIds.length > 0 ? allQwbWordIds[0] : undefined;
+    }
+
     private deleteSignInterpretation(si: SignInterpretation) {
         const delOps = this.si.rois.map(
             (roi) => new ArtefactROIOperation('erase', roi)
@@ -155,6 +184,14 @@ export default class TextSign extends Vue {
             .signInterpretations[0];
         this.$state.textFragmentEditor.selectSign(si);
         this.$root.$emit('bv::show::modal', 'editSignModal');
+    }
+
+    private async openQwbVariantsModal() {
+        this.$bvModal.show(`qwb-word-${this.si.signInterpretationId}`);
+        if (this.qwbVariants === null && this.qwbWordId !== undefined) {
+            const qps = new QwbProxyService();
+            this.qwbVariants = await qps.getQwbWordVariants(this.qwbWordId);
+        }
     }
 
     private openSignMenu(event: MouseEvent, signMenuId: string) {
