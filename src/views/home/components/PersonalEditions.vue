@@ -108,6 +108,7 @@ export default class PersonalEditions extends Vue {
 
                     } else if ( 'lastEdit' === this.searchValue.sort ) {
 
+                       // for undefined dates, take 01/01/1970 as default
                         if ( undefined === aVal ) {
                             aVal = new Date(1970, 1, 1, 1, 1, 1);
                         }
@@ -117,7 +118,7 @@ export default class PersonalEditions extends Vue {
                         return ((aVal > bVal) ? -1 :  1 );
 
                     } else {
-                        return ((aVal >bVal) ? 1 : -1 );
+                        return ((aVal > bVal) ? 1 : -1 );
                     }
 
                 } else {
