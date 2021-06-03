@@ -130,7 +130,7 @@ export default class TextLineComponent extends Vue {
                 editionId: variantEdition.id,
                 name: variantEdition.name,
                 licence: variantEdition.copyright,
-                editors: {} as { [key: string] : EditorDTO },
+                editors: {} as { [key: string]: EditorDTO },
                 lineId: this.line.lineId,
                 lineName: 'NA',
                 editorId: 0,

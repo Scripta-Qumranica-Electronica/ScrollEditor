@@ -54,8 +54,11 @@
             </div>
         </b-popover>
 
-        <b-modal v-if="qwbWordId !== undefined" :id="`qwb-word-${si.signInterpretationId}`" hide-footer title="Variant Readings from QWB">
-          <div v-if="qwbVariants && qwbVariants.variants.length > 0">
+        <b-modal :id="`qwb-word-${si.signInterpretationId}`" hide-footer title="Variant Readings from QWB">
+          <div v-if="qwbVariants === null || qwbVariants.variants.length === 0">
+            <p>No variants found in the QWB database.</p>
+          </div>
+          <div v-else>
             <div v-for="variant in qwbVariants.variants">
               <b>{{variant.variantReading}}</b>
               <hr>
@@ -65,9 +68,7 @@
               </div>
             </div>
           </div>
-          <div v-if="qwbVariants === null || qwbVariants.variants.length === 0">
-            <p>No variants found in the QWB database.</p>
-          </div>
+          <b-button block @click="$bvModal.hide(`qwb-word-${si.signInterpretationId}`)">Close</b-button>
         </b-modal>
     </span>
 </template>
@@ -187,10 +188,12 @@ export default class TextSign extends Vue {
     }
 
     private async openQwbVariantsModal() {
-        this.$bvModal.show(`qwb-word-${this.si.signInterpretationId}`);
-        if (this.qwbVariants === null && this.qwbWordId !== undefined) {
-            const qps = new QwbProxyService();
-            this.qwbVariants = await qps.getQwbWordVariants(this.qwbWordId);
+        if (this.qwbWordId !== undefined) {
+            if (this.qwbVariants === null && this.qwbWordId !== undefined) {
+                const qps = new QwbProxyService();
+                this.qwbVariants = await qps.getQwbWordVariants(this.qwbWordId);
+            }
+            this.$bvModal.show(`qwb-word-${this.si.signInterpretationId}`);
         }
     }
 
