@@ -98,26 +98,26 @@ export default class PersonalEditions extends Vue {
             .sort((a: EditionInfo, b: EditionInfo) => {
 
                 if (this.searchValue.sort) {
-                    switch (this.searchValue.sort ) {
-                        case 'name': {
-                            return (a as any).name.localeCompare(
-                                (b as any).name ,  undefined,
-                            {
-                                numeric: true,
-                                sensitivity: 'base'
-                            });
+                    let aVal = (a as any)[this.searchValue.sort];
+                    let bVal = (b as any)[this.searchValue.sort];
+
+                    if ( 'name' === this.searchValue.sort ) {
+                        return aVal.localeCompare( bVal ,   undefined,
+                            { numeric: true, sensitivity: 'base' }
+                        );
+
+                    } else if ( 'lastEdit' === this.searchValue.sort ) {
+
+                        if ( undefined === aVal ) {
+                            aVal = new Date(1970, 1, 1, 1, 1, 1);
                         }
-                        case 'lastEdit': {
-                            return (a as any).lastEdit > (b as any).lastEdit
-                                ? -1
-                                :  1 ;
-                            }
-                        default: {
-                            return (a as any)[this.searchValue.sort] >
-                                (b as any)[this.searchValue.sort]
-                                ? 1
-                                : -1 ;
+                        if ( undefined === bVal ) {
+                            bVal = new Date(1970, 1, 1, 1, 1, 1);
                         }
+                        return ((aVal > bVal) ? -1 :  1 );
+
+                    } else {
+                        return ((aVal >bVal) ? 1 : -1 );
                     }
 
                 } else {
