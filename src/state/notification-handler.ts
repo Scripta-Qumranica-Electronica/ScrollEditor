@@ -246,6 +246,7 @@ function handleCreatedRoi(dto: InterpretationRoiDTO) {
         const si = state().signInterpretations.get(roi.signInterpretationId);
         if (si) {
             addToArray(roi, si.rois);
+            state().signInterpretations.put(si);  // Make sure the sign interpretation is also attached to the artefact
         }
     }
 }
