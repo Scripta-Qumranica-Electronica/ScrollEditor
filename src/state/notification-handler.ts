@@ -283,7 +283,8 @@ function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
 
     // Update the sign interpretations map
     const newSI = new SignInterpretation(dto, existingSI.sign);
-    state().signInterpretations.put(newSI);
+    state().signInterpretations.put(newSI);  // Since the sign interpretation does not have ROIs, it is not attached to the artefact
+    state().signInterpretations.delete(existingSI.signInterpretationId);
 
     // Update the sign containing the sign interpretation
     const sign = newSI.sign;
