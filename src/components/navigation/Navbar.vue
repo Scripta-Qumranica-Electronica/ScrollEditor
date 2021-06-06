@@ -3,17 +3,28 @@
         <!-- variant is BG color, type is text color -->
 
         <b-navbar toggleable="md"
-            class="main-nav-bar d-flex flex-row justify-content-between align-items-center"
+            class="main-nav-bar d-flex flex-row justify-content-between align-items-center align-items-md-stretch"
             variant= "dark" type="light" active
         >
 
-            <b-navbar-brand to="/" align="left"
-                class="mt-mb-auto d-flex flex-row justify-content-between">
-                <span>S</span>
-                {{ $t('home.home') }}
+            <b-navbar-brand to="/" align="left" v-if="edition" id="brand-1"
+                class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
+                <span class="logo pb-1">S</span>
+                <span class="logo-text m-0 p-0 pb-1">
+                    {{ $t('home.home') }}
+                </span>
             </b-navbar-brand >
 
-            <b-navbar-nav class="mt-mb-auto ml-5 d-flex" v-if="edition">
+            <b-navbar-brand to="/" align="left" v-if="!edition" id="brand-2"
+                class="brand-2 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
+                <span class="logo pb-1">S</span>
+                <span class="logo-text m-0 p-0 pb-1">
+                    {{ $t('home.home') }}
+                </span>
+            </b-navbar-brand >
+            <b-navbar-nav   v-if="edition"
+                            class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
+            >
                 <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
                     <span>
                         {{ edition.name }}
@@ -27,56 +38,118 @@
                 <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
             </b-navbar-nav>
 
-            <b-navbar-nav class="ml-auto mb-auto" align="right">
+            <b-navbar-nav class="space-nav ml-auto mb-auto" align="right">
             </b-navbar-nav>
 
-            <b-navbar-nav
-                class="ml-auto mt-mb-auto"
+
+            <b-navbar
+                class="search-user-nav ml-auto "
                 align="right">
-                    <div v-if="showOperationsManager">
-                        <b-nav-text class="ml-1">{{ operationsManager.saveMessage }}</b-nav-text>
-                        <b-btn-group margin="ml-1 mr-1">
-                            <b-button :disabled="!operationsManager.canUndo" @click="onUndo()">Undo</b-button>
-                            <b-button :disabled="!operationsManager.canRedo" @click="onRedo()">Redo</b-button>
-                        </b-btn-group>
-                    </div>
-                    <b-nav-item to="/search" active>
-                        <span>{{ $t('home.search') }}</span>
+
+                    <b-nav-item v-if="isActive" to="/search" active>
+                            <b-icon
+                                icon="search"
+                                style="color: #f7f7f7; background-color: #f7f7f7"
+                                class="border rounded p-1"
+                                font-scale="1.6"
+                                v-b-tooltip.hover.bottomleft="$t('home.search')"
+                            ></b-icon>
                     </b-nav-item>
+
                     <b-nav-item-dropdown
-                        v-if="userNameExists"
-                        :text="userName"
                         id="register"
                         right
+                        v-b-tooltip.hover.bottomleft="'User Menu'"
                     >
+                        <template slot="button-content" size="xs">
+                            <b-icon icon="person-fill"
+                                style="color: #f7f7f7; background-color: #f7f7f7"
+                                class="border rounded"
+                                font-scale="1.5"
+                            ></b-icon>
+                         </template>
 
-                        <b-dropdown-item-button
+                        <b-dropdown-item
+                            v-if="userNameExists"
+                            class="logout"
+                        >
+                          <b> {{  $t(userName) }} </b>
+                        </b-dropdown-item>
+
+                        <b-dropdown-item
                             @click="logout()"
                             class="logout"
                         >
-                            {{
-                                $t('navbar.logout')
-                            }}
-                        </b-dropdown-item-button>
+                            {{ $t('navbar.logout') }}
+                        </b-dropdown-item>
 
-                        <b-dropdown-item-button
+                        <b-dropdown-item
                             v-if="isActive"
                             @click="changePassword()"
                         >
                             {{
                                 $t('navbar.changePassword')
                             }}
-                        </b-dropdown-item-button >
+                        </b-dropdown-item >
 
-                        <b-dropdown-item-button
+                        <b-dropdown-item
                             v-if="isActive"
                             @click="updateUserDetails()"
                         >
                             {{
                                 $t('navbar.updateUserDetails')
                             }}
-                        </b-dropdown-item-button>
+                        </b-dropdown-item>
                     </b-nav-item-dropdown>
+            </b-navbar>
+
+
+            <b-navbar-nav toggleable>
+
+                <b-nav-item-dropdown
+                    id="list-nav" right
+                    text-center
+                    v-b-tooltip.hover.bottomleft="$t('navbar.about')"
+                    class="bm-0 p-0 pl-1 pr-1"
+                    no-caret
+                >
+                    <template slot="button-content" size="xs">
+                        <b-icon icon="list"
+                            style="background-color: #f7f7f7"
+                            class="border rounded"
+                            font-scale="1.6"
+                        ></b-icon>
+                    </template>
+
+                    <b-dropdown-item
+                        id="popover-target-about"
+                        placement="left"
+                        @click="showAboutModal"
+                    >
+                        {{ $t('navbar.about') }}
+                    </b-dropdown-item>
+                    <about-modal></about-modal>
+
+                    <b-dropdown-divider></b-dropdown-divider>
+
+                    <b-dropdown-item
+                        v-if="showOperationsManager"
+                        :disabled="!operationsManager.canUndo" @click="onUndo()"
+                    >
+                        {{
+                            $t('home.undo')
+                        }}
+                    </b-dropdown-item >
+
+                    <b-dropdown-item
+                        v-if="showOperationsManager"
+                        :disabled="!operationsManager.canRedo" @click="onRedo()"
+                    >
+                        {{
+                            $t('home.redo')
+                        }}
+                    </b-dropdown-item>
+                 </b-nav-item-dropdown>
             </b-navbar-nav>
 
         </b-navbar>
@@ -89,13 +162,22 @@ import { Component, Vue } from 'vue-property-decorator';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
+import AboutModal from './About-modal.vue';
+// import ScreenSizeAlert from '../../views/home/components/ScreenSizeAlert.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
+import { BIcon, BIconSearch , BIconPersonFill, BIconList} from 'bootstrap-vue';
 
 @Component({
     name: 'navbar',
     components: {
         login: Login,
+        'about-modal': AboutModal,
+        // 'screen-size-alert': ScreenSizeAlert,
+        BIcon,
+        BIconSearch,
+        BIconPersonFill,
+        BIconList,
     },
 })
 export default class Navbar extends Vue {
@@ -121,6 +203,10 @@ export default class Navbar extends Vue {
 
     protected onRedo() {
         this.operationsManager!.redo();
+    }
+
+    private showAboutModal() {
+        this.$root.$emit('bv::show::modal', 'AboutModal');
     }
 
     protected get editionBadgeClass() {
@@ -194,6 +280,7 @@ export default class Navbar extends Vue {
         // Vue doesn't handle getter changes very well.
     }
 
+
     private mounted() {
         this.currentLanguage = this.$state.session.language;
     }
@@ -227,15 +314,25 @@ export default class Navbar extends Vue {
     text-decoration: none;
 }
 
+
+#screen-size-alert-modal {
+    display: none;
+}
+
 .main-nav-bar.navbar {
     background: #0a142e;
-    height: 50px;
+    /* height: 50px; */
+    height: 3.12rem;
 }
+
+
 .navbar-brand,
 .navbar-brand:hover {
     /* color: #ffffff; */
     /* color: #134ff5 !important; */
-    color: #8253f0 !important;
+    /* color: #8253f0 !important; */
+    /* BootstrapVue Primary color */
+    color: #0275d8 !important;
 }
 
 .navbar-brand {
@@ -251,16 +348,72 @@ export default class Navbar extends Vue {
     font-size: 2.2rem;
 }
 
-.navbar-brand > span {
-    margin-right: 10px;
-    margin-left: 24px;
-    width: 34px;
+
+/* .navbar-brand > span { */
+.navbar-brand > .logo {
+    margin-right: 1.0rem;
+    margin-left: 2.4rem;
+    /* margin-right: 10px;
+    margin-left: 24px; */
+
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.3rem;
+
+    /* width: 34px;
     height: 34px;
+    border-radius: 5px; */
+
     background: #1e2641;
-    border-radius: 5px;
-    display: inline-block;
+
+    /* display: inline-block; */
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: flex-start;
+
     text-align: center;
 }
+
+/* @media (max-width: 1100px) { */
+@media (max-width: 1134px) {
+
+    .navbar-brand.brand-1> .logo-text ,
+    .main-nav-bar .space-nav {
+       display: none;
+    }
+
+    .main-nav-bar .navbar-brand a {
+        margin:0;
+        padding: 0;
+        padding-right: 1rem;
+        width: 4rem;
+        height: 2rem;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: flex-start;
+    }
+
+    .navbar-brand > .logo {
+        margin:0;
+        padding: 0;
+
+        /* margin-right: 10px;
+        margin-left: 24px; */
+        width: 2rem;
+        height: 2rem;
+        /* width: 34px;
+        height: 34px;
+        border-radius: 5px; */
+        background: #1e2641;
+        border-radius: 0.3rem;
+        display: flex;
+        text-align: center;
+    }
+
+}
+
 
 .main-nav-bar.navbar .nav-item {
     display: flex;
@@ -286,13 +439,26 @@ export default class Navbar extends Vue {
     color: #f3f3f3;
 }
 
+#list-nav ul,
+#list-nav ul li ,
+#list-nav ul li .dropdown-item  {
+   min-width: 5rem;
+
+}
+
+
+
+
 .status-badge {
     font-family: $font-family;
     text-align: center;
     font-size: $font-size-1;
-    width: 68px;
+    width: 6.8rem;
+    height: 2.958rem;
+    line-height: 2.0rem;
+    /* width: 68px;
     height: 29.58px;
-    line-height: 20px;
+    line-height: 20px; */
 }
 
 .status-badge-draft {
@@ -307,5 +473,18 @@ export default class Navbar extends Vue {
 
 .router-link-active {
     color: #007bff;
+}
+
+#popover-target-about {
+white-space: nowrap;
+}
+
+.popover-body {
+    /* margin-right:   17rem; */
+    min-width: 5rem;
+    min-height: 5rem;
+
+    color: #007bff;
+    background-color: white;
 }
 </style>

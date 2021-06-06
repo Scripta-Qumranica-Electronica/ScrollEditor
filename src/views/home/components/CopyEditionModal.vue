@@ -1,13 +1,16 @@
 <template>
+        <!-- :visible="currentEdition !== null &&  visible === true" -->
     <b-modal
         v-if="currentEdition"
-        :visible="currentEdition !== null"
+        :visible="currentEdition !== null &&  visible === true"
+        :destroy-on-hide="true"
         id="copy-edition-modal"
         ref="copyModalRef"
         header-class="title-header"
         footer-class="title-footer"
         @shown="copyModalShown"
         @ok="copyEdition"
+        @hide="onHide"
         :ok-disabled="waiting || !canCopy"
         :cancel-disabled="waiting"
         :title-sr-only="true"
@@ -77,7 +80,7 @@
     </b-modal>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 // import EditionIcons from '@/components/cues/edition-icons.vue';
 import EditionService from '@/services/edition';
@@ -86,6 +89,8 @@ import EditionService from '@/services/edition';
     name: 'copy-edition-modal',
 })
 export default class CopyEditionModal extends Vue {
+    @Prop() private visible!: boolean ;
+
     private editionService: EditionService = new EditionService();
     private newCopyName: string = '';
     private errorMessage: string = '';
@@ -116,6 +121,18 @@ export default class CopyEditionModal extends Vue {
         bvModalevt.preventDefault();
     }
 
+    private onHide(evt: Event) {
+      if ( evt.type === 'backdrop') {
+        // evt.preventDefault();
+        this.handleBackdrop();
+        (this.$refs.newCopyNameRef as any).blur();
+        (this.$refs.newCopyNameRef as any).hide();
+      }
+    }
+
+    private handleBackdrop() {
+      console.log('Click backdrop');
+    }
 
     private async copyEdition(evt: Event) {
         evt.preventDefault();
