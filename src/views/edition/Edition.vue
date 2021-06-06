@@ -2,25 +2,40 @@
     <div class="container">
         <div class="mb-3 border-container">
             <b-row>
-                <b-col class="col-4 mt-4 mb-3">
+
+                <b-col class="col-5 mt-4 mb-3">
                      <router-link :to="{path:`/editions/${editionId}/artefacts`}">
                         <span class="name-edition" v-if="currentEdition">
                             {{  versionString(currentEdition)  }}
                         </span>
                     </router-link>
+                       <b-button
+                            class="ml-2"
+                            v-if="currentEdition && user"
+                            v-b-modal.copy-edition-modal
+                            :title="copyTooltip"
+                            variant="link"
+                        >
+
+                            <i v-if ="currentEdition.isPublic" class="fa fa-lock mr-1">
+                            </i>
+                            {{ $t('misc.copy') }}
+                        </b-button>
                 </b-col>
-                <b-col class="col-8 mt-4 mb-3">
+
+                <b-col class="col-7 mt-4 mb-3">
                     <div class="btns-permiss" v-if="currentEdition">
                         <b-button
                             class="mr-3"
                             v-if="isAdmin"
                             @click="openPermissionModal"
-                            ><i class="fa fa-lock mr-1"></i
-                            >Collaborators</b-button
                         >
-                        <b-button disabled
-                            ><i class="fa fa-lock mr-1"></i>Publish</b-button
-                        >
+                            <i class="fa fa-lock mr-1"></i>
+                            Collaborators
+                        </b-button>
+                        <b-button disabled>
+                            <i class="fa fa-lock mr-1"></i>Publish
+                        </b-button>
                     </div>
                 </b-col>
             </b-row>
@@ -61,6 +76,9 @@
 
         </div>
         <permission-modal v-if="currentEdition"></permission-modal>
+        <copy-edition-modal :visible="false" > </copy-edition-modal>
+        <!-- :visible="false" to prevent false display of the modal -->
+
     </div>
 </template>
 
@@ -75,6 +93,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 
 import PermissionModal from './components/permission-modal.vue';
+import CopyEditionModal from '../home/components/CopyEditionModal.vue';
 
 
 @Component({
@@ -83,6 +102,7 @@ import PermissionModal from './components/permission-modal.vue';
         EditionSidebar,
         Waiting,
         PermissionModal,
+        CopyEditionModal,
     }
 })
 
@@ -92,11 +112,16 @@ export default class Edition extends Vue {
     // =======================================================
 
     // protected waiting: boolean = true;
+
     protected editionId: number = 0;
     protected page: string = '';
 
     public get isWaiting(): boolean {
         return  !this.currentEdition;
+    }
+
+    private get user(): boolean {
+        return this.$state.session.user ? true : false;
     }
 
     public get currentEdition(): EditionInfo | null {
@@ -105,6 +130,15 @@ export default class Edition extends Vue {
 
     public get isAdmin(): boolean {
         return this.currentEdition!.permission.isAdmin;
+    }
+
+    private get copyTooltip(): string {
+        console.log(this.currentEdition!.isPublic);
+        const publicStr = this.currentEdition!.isPublic ? 'This is a public Edition. ' : '' ;
+
+        return (
+            ( this.currentEdition!.isPublic ?
+            'This is a public Edition. Create a copy in order to' : 'Create a copy and')  + ' Edit this Edition' );
     }
 
     protected get artefactsLength(): number {
@@ -122,6 +156,7 @@ export default class Edition extends Vue {
     protected get imagedObjectsLength(): number {
         return this.$state.imagedObjects.items.length;
     }
+
 
 
     // This code is not in the created method since it's asynchronous,

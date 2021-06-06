@@ -1,5 +1,5 @@
 <template>
-    <div id="app" :dir="$t('dir')">
+    <div id="app" :dir="$t('dir')" onResize="showScreenSizeAlert($event)">
         <navbar v-if="!waiting"></navbar>
         <div v-if="waiting">
             <Waiting></Waiting>
@@ -8,6 +8,7 @@
             <router-view></router-view>
         </div>
         <corrupted-state-dialog />
+        <screen-size-alert :visible="alertVisible" />
     </div>
 
     <!-- TODO: Add footer -->
@@ -23,20 +24,23 @@ import SessionService from '@/services/session';
 import { StateManager } from './state';
 import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog.vue';
 
+import ScreenSizeAlert from './views/home/components/ScreenSizeAlert.vue';
+
 
 @Component({
     name: 'app',
     components: {
         Navbar,
         Waiting,
-        CorruptedStateDialog
+        CorruptedStateDialog,
+        'screen-size-alert': ScreenSizeAlert,
     }
 })
 
 export default class App extends Vue {
 
     private waiting: boolean = true;
-
+    private alertVisible: boolean = false;
 
     private created() {
         // Set the language
@@ -47,6 +51,11 @@ export default class App extends Vue {
             'corrupted-state',
             this.openCorruptedStateDialog
         );
+
+
+        this.$nextTick( () =>
+            window.addEventListener('resize', this.showScreenSizeAlert)
+        );
     }
 
     private destroyed() {
@@ -54,8 +63,39 @@ export default class App extends Vue {
             'corrupted-state',
             this.openCorruptedStateDialog
         );
+
+        this.$nextTick( () =>
+            window.removeEventListener('resize', this.showScreenSizeAlert)
+        );
     }
 
+
+
+    private showScreenSizeAlert(e: Event ) {
+        e.preventDefault();
+
+        const curOW = window.outerWidth;
+
+        if ( curOW < 768 ) {
+            this.alertVisible = true;
+
+            this.$nextTick( () => {
+                this.alertVisible = true;
+                this.$root.$bvModal.show('screen-size-alert');
+
+            });
+
+        } else {
+            this.alertVisible = false;
+
+            this.$nextTick( () => {
+                this.alertVisible = false;
+                this.$root.$bvModal.hide('screen-size-alert');
+            });
+        }
+
+
+   }
     private async initializeApp() {
         const session = new SessionService();
         await session.isTokenValid();

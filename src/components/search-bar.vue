@@ -41,7 +41,7 @@
                     >Please select an option</b-form-select-option
                 > -->
                 <b-form-select-option value="lastEdit"
-                    >Last Edited</b-form-select-option
+                    >Date</b-form-select-option
                 >
                 <b-form-select-option value="name">Name</b-form-select-option>
             </b-form-select>

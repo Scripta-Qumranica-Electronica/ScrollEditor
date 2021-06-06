@@ -13,7 +13,7 @@
                 <edition-public-card @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"></edition-public-card>
             </b-card>
         </div>
-        <copy-edition-modal />
+        <copy-edition-modal :visible="true" />
     </div>
 </template>       
 

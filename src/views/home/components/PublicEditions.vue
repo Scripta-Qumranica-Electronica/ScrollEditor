@@ -2,6 +2,11 @@
     <div>
         <div class="header">
             <b-row>
+                 <b-col class="col-4 mt-4 mb-5">
+                    <span class="text-edition text-color"
+                        >Editions published in the scrollery</span
+                    >
+                </b-col>
                 <b-col class="mt-4 mb-5">
                     <search-bar
                         class="direction"
@@ -52,11 +57,13 @@ export default class PublicEditions extends Vue {
         this.searchValue = event;
         this.onPublicEditionsLoad();
     }
+
     @Emit()
     public onPublicEditionsLoad() {
         this.filteredEditions = this.getFilteredEditions();
         return this.filteredEditions.length;
     }
+
     protected async mounted() {
         await this.$state.prepare.allEditions();
         this.onPublicEditionsLoad();
@@ -79,11 +86,31 @@ export default class PublicEditions extends Vue {
                 return filter;
             })
             .sort((a: EditionInfo, b: EditionInfo) => {
+
                 if (this.searchValue.sort) {
-                    return (a as any)[this.searchValue.sort] >
-                        (b as any)[this.searchValue.sort]
-                        ? 1
-                        : -1;
+                    let aVal = (a as any)[this.searchValue.sort];
+                    let bVal = (b as any)[this.searchValue.sort];
+
+                    if ( 'name' === this.searchValue.sort ) {
+                        return aVal.localeCompare( bVal ,   undefined,
+                            { numeric: true, sensitivity: 'base' }
+                        );
+
+                    } else if ( 'lastEdit' === this.searchValue.sort ) {
+
+                       // for undefined dates, take 01/01/1970 as default
+                        if ( undefined === aVal ) {
+                            aVal = new Date(1970, 1, 1, 1, 1, 1);
+                        }
+                        if ( undefined === bVal ) {
+                            bVal = new Date(1970, 1, 1, 1, 1, 1);
+                        }
+                        return ((aVal > bVal) ? -1 :  1 );
+
+                    } else {
+                        return ((aVal > bVal) ? 1 : -1 );
+                    }
+
                 } else {
                     return 1;
                 }
