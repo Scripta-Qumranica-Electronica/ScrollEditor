@@ -26,10 +26,10 @@
                     >
                 </div>
             </b-row>
-            <b-row no-gutters>
+            <b-row no-gutters class="content-container">
                 <b-col cols="8">
                     <div class="image-obj-container-height">
-                        <div class="img-obj-container h-100" ref="infoBox">
+                        <div class="img-obj-container " ref="infoBox">
                             <div id="imaged-object-title" v-if="imagedObject">
                                 {{ imagedObject.id }}
                                 <edition-icons
@@ -38,6 +38,7 @@
                                 />
                             </div>
                             <zoomer
+                                class="img-obj-container "
                                 v-if="masterImage"
                                 :zoom="zoomLevel"
                                 @new-zoom="onNewZoom($event)"
@@ -94,7 +95,7 @@
                         </div>
                     </div>
                 </b-col>
-                <b-col class="pt-3 col-rename-art" cols="4" >
+                <b-col class="pt-3 pr-3 pr-md-1 mr-0 col-rename-art" cols="4" >
                     <div
                         v-for="art in visibleArtefacts"
                         :key="art.id"
@@ -103,7 +104,7 @@
                         }"
                     >
                         <b-row class="py-2">
-                            <b-col class="col-lg-3 col-xl-4 pl-4 pt-1">
+                            <b-col class="col-2 col-xl-3 col-lg-2 pl-4 pt-1">
                                 <span
                                     v-if="renameInputActive !== art"
                                     :class="{
@@ -119,7 +120,7 @@
                                     &nbsp;
                                 </span>
                             </b-col>
-                            <b-col class="col-lg-3 col-xl-3">
+                            <b-col class="col-5 col-xl-4 col-lg-4 col-md-6 ">
                                 <span
                                     v-if="renameInputActive !== art"
                                     :class="{
@@ -130,11 +131,11 @@
                                     >{{ art.name }}</span
                                 >
                             </b-col>
-                            <b-col class="col-lg-6 col-xl-5 px-0">
+                            <b-col class="col-4 col-xl-5 col-lg-5 col-md-4 mr-0 px-0">
                                 <div v-if="canEdit">
                                     <b-button
                                         v-if="renameInputActive !== art"
-                                        class="btn btn-sm"
+                                        class="btn btn-sm mb-1"
                                         id="rename"
                                         @click="inputRenameChanged(art)"
                                         >Rename</b-button
@@ -148,7 +149,7 @@
                                             !renaming &&
                                             renameInputActive === art
                                         "
-                                        class="btn btn-sm"
+                                        class="btn btn-sm "
                                         :disabled="!art.name"
                                         @click="onRename(art)"
                                         >Rename</b-button
@@ -169,7 +170,7 @@
                                         ></font-awesome-icon>
                                     </b-button>
                                     <b-button
-                                        class="btn btn-sm ml-2"
+                                        class="btn btn-sm ml-2 mb-1"
                                         @click="onDeleteArtefact(art)"
                                         >Delete</b-button
                                     >
@@ -735,26 +736,45 @@ export default class ImagedObjectEditor
 }
 .editor-container {
     background-color: $white;
-    margin-right: 5%;
-    margin-left: 5%;
-    height: calc(100vh - 180px);
+    margin-right: 0.0rem;
+    margin-left: 1.5rem;
+    /* margin-right: 5%;
+    margin-left: 5%; */
+    height: calc(100vh - 5.8rem);
+    /* height: calc(100vh - 95px); */
+    overflow: hidden;
+    overflow-y: auto;
+
 }
 .editor-actions {
     height: 70px;
 }
 
-.img-obj-container {
-    text-align: center;
+.content-container {
+    height: calc(100vh - 12rem);
+    width: 100%;
+    overflow: none;
 }
+
 .image-obj-container-height {
-    height: calc(100vh - 275px);
+    width: 99%;
+    margin-left: 0.1rem;
+    margin-bottom: 0.1rem;
 }
+
+.img-obj-container {
+    width: 99%;
+}
+
+
 span.selected {
     font-weight: bold;
 }
+
 .selectedRow {
     border: 2px solid #7884a1;
 }
+
 .rename-art {
     border: solid 3px;
     height: 16px;
@@ -763,11 +783,31 @@ span.selected {
     margin-right: 4px;
     cursor: pointer;
 }
+
 .col-rename-art {
-    height: calc(100vh - 315px);
-    overflow: auto;
+    margin-top: 0.5rem;
+
+    max-width: 305vw;
+    overflow: hidden;
 }
+
 .select-art-name {
     cursor: pointer;
 }
+
+
+@media (max-width: 1100px) {
+        .editor-container{
+        /* margin-top: 0.7rem;
+        margin-bottom: 0.7rem; */
+        /* padding-top: 3rem;
+        margin-right: 0.7rem;
+        padding-right: 0.3rem;
+        margin-left: 0.7rem;
+        padding-left: 2rem;*/
+        height: calc(100vh - 90px);
+        overflow: auto;
+    }
+}
+
 </style>
