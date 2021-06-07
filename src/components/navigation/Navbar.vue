@@ -1,10 +1,12 @@
 <template>
     <div>
-        <!-- variant is BG color, type is text color -->
+        <!-- variant is BG color, type is text color
+        variant= "dark" type="light" -->
 
         <b-navbar toggleable="md"
             class="main-nav-bar d-flex flex-row justify-content-between align-items-center align-items-md-stretch"
-            variant= "dark" type="light" active
+
+            active
         >
 
             <b-navbar-brand to="/" align="left" v-if="edition" id="brand-1"
@@ -46,14 +48,15 @@
                 class="search-user-nav ml-auto "
                 align="right">
 
+
                     <b-nav-item v-if="isActive" to="/search" active>
-                            <b-icon
-                                icon="search"
-                                style="color: #f7f7f7; background-color: #f7f7f7"
-                                class="border rounded p-1"
-                                font-scale="1.6"
-                                v-b-tooltip.hover.bottomleft="$t('home.search')"
-                            ></b-icon>
+                            <b-button variant="outline-primary" size="sm">
+                                <i class="fa fa-search fa-2x green-text"
+                                    aria-hidden="true"
+                                    style="font-size:1.3rem;"
+                                    v-b-tooltip.hover.bottomleft="$t('home.search')"
+                                ></i>
+                            </b-button>
                     </b-nav-item>
 
                     <b-nav-item-dropdown
@@ -62,11 +65,14 @@
                         v-b-tooltip.hover.bottomleft="'User Menu'"
                     >
                         <template slot="button-content" size="xs">
-                            <b-icon icon="person-fill"
-                                style="color: #f7f7f7; background-color: #f7f7f7"
-                                class="border rounded"
-                                font-scale="1.5"
-                            ></b-icon>
+
+                            <b-button variant="outline-primary" size="sm">
+                                <i class="fa fa-user fa-2x green-text"
+                                    aria-hidden="true"
+                                    style="font-size:1.3rem;"
+                                ></i>
+                            </b-button>
+
                          </template>
 
                         <b-dropdown-item
@@ -113,12 +119,14 @@
                     class="bm-0 p-0 pl-1 pr-1"
                     no-caret
                 >
+                <!-- style="background-color: #f7f7f7" -->
                     <template slot="button-content" size="xs">
-                        <b-icon icon="list"
-                            style="background-color: #f7f7f7"
-                            class="border rounded"
-                            font-scale="1.6"
-                        ></b-icon>
+                        <b-button variant="outline-primary" size="sm">
+                                <i class="fa fa-bars fa-2x green-text"
+                                    aria-hidden="true"
+                                    style="font-size:1.5rem; "
+                                ></i>
+                        </b-button>
                     </template>
 
                     <b-dropdown-item
@@ -320,7 +328,9 @@ export default class Navbar extends Vue {
 }
 
 .main-nav-bar.navbar {
-    background: #0a142e;
+    /* background: #041d5c !important; */
+    background: #0a142e !important;
+
     /* height: 50px; */
     height: 3.12rem;
 }
