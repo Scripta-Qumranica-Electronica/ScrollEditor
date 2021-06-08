@@ -167,13 +167,77 @@ export class VirtualArtefactEditor {
     }
 
     private extractOriginalText(): string {
+        // Extracting the text is done by traversing the sign graph - finding the first sign and following
+        // the edges until the last one.
+
+        // Get the map of signs
+        const siMap = new Map<number, SignInterpretation>();
+
+        for (const sr of this.originSignROIs) {
+            const sign = sr[0];
+            // Make sure this sign is appropraite for us - ignores the ones that are not approriate for us
+            if (sign.signInterpretations.length !== 1) {
+                console.warn('Only signs with one sign interpretation are supported');
+                continue;
+            }
+            const si = sign.signInterpretations[0];
+            if (si.nextSignInterpretations.length > 1) {
+                console.warn('Only signs with one next sign edge are supported - ignoring extra edge');
+            }
+            siMap.set(si.signInterpretationId, si);
+        }
+
+        // Find the sign with no incoming edges (there should be only one)
+        const incomingCount = new Map<number, number>();
+        for (const id of siMap.keys()) {
+            incomingCount.set(id, 0);
+        }
+        for (const si of siMap.values()) {
+            if (si.nextSignInterpretations.length === 0) {
+                continue; // Last sign
+            }
+            const nextId = si.nextSignInterpretations[0].nextSignInterpretationId;
+            if (incomingCount.has(nextId)) {
+                incomingCount.set(nextId, incomingCount.get(nextId)! + 1);
+            }
+        }
+        let zeroIncoming: number | undefined;
+        for (const [id, count] of incomingCount) {
+            if (count !== 0) {
+                continue;
+            }
+
+            if (zeroIncoming !== undefined) {
+                throw new Error('More than one sign with zero incoming edges');
+            }
+            zeroIncoming = id;
+        }
+
+        if (zeroIncoming === undefined) {
+            throw new Error('No first sign found!');
+        }
+
+        // Now we can collect the signs one by one
+        const ordered: SignInterpretation[] = [];
+        let cur = siMap.get(zeroIncoming);
+
+        while (cur) {
+            ordered.push(cur);
+            if (cur.nextSignInterpretations.length === 0) {
+                break;
+            }
+            cur = siMap.get(cur.nextSignInterpretations[0].nextSignInterpretationId);
+        }
+
         function signChar(si: SignInterpretation) {
             if (si.signType[1] === 'SPACE') {
                 return ' ';
             }
             return si.character || '';
         }
-        return this.originSignROIs.map(sr => signChar(sr[0].signInterpretations[0])).join('');
+
+        const str = ordered.map(signChar).join('').trim();
+        return str;
     }
 
     private ROItoSI(roi: InterpretationRoi) {
