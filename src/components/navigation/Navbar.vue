@@ -1,17 +1,20 @@
 <template>
     <div>
+
+
         <!-- variant is BG color, type is text color
-        variant= "dark" type="light" -->
+        variant= "dark" type="light"
+        variant="info" type="dark"    -->
 
         <b-navbar toggleable="md"
-            class="main-nav-bar d-flex flex-row justify-content-between align-items-center align-items-md-stretch"
-
+            class="main-nav-bar"
             active
+            type="dark" variant="light"
         >
 
             <b-navbar-brand to="/" align="left" v-if="edition" id="brand-1"
                 class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <span class="logo pb-1">S</span>
+                <span class="logo ml-0 pb-1">S</span>
                 <span class="logo-text m-0 p-0 pb-1">
                     {{ $t('home.home') }}
                 </span>
@@ -24,29 +27,40 @@
                     {{ $t('home.home') }}
                 </span>
             </b-navbar-brand >
-            <b-navbar-nav   v-if="edition"
-                            class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
-            >
-                <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
-                    <span>
-                        {{ edition.name }}
-                        <b-badge :class="editionBadgeClass"> {{ editionBadge }}</b-badge>
-                    </span>
-                </b-nav-item>
-                <b-nav-item :to="`/editions/${edition.id}/scroll-editor/`">
-                    Manuscript
-                </b-nav-item>
-                <b-nav-item :to="artefactLink">{{ artefactLabel }}</b-nav-item>
-                <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
-            </b-navbar-nav>
+
+
+            <b-navbar-toggle target="nav1-collapse"></b-navbar-toggle>
+
+            <b-collapse id="nav1-collapse" is-nav>
+
+                <b-navbar-nav   v-if="edition"
+                                class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
+                >
+                    <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
+                        <span>
+                            {{ edition.name }}
+                            <b-badge :class="editionBadgeClass"> {{ editionBadge }}</b-badge>
+                        </span>
+                    </b-nav-item>
+                    <b-nav-item :to="`/editions/${edition.id}/scroll-editor/`">
+                        Manuscript
+                    </b-nav-item>
+                    <b-nav-item :to="artefactLink">{{ artefactLabel }}</b-nav-item>
+                    <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
+                    <b-nav-item to="/" >Editions</b-nav-item>
+                </b-navbar-nav>
+
+
+
+
 
             <b-navbar-nav class="space-nav ml-auto mb-auto" align="right">
             </b-navbar-nav>
 
 
-            <b-navbar
-                class="search-user-nav ml-auto "
-                align="right">
+                 <b-navbar-nav toggleable
+                    class="search-user-nav ml-auto "
+                    align="right">
 
 
                     <b-nav-item v-if="isActive" to="/search" active>
@@ -73,13 +87,13 @@
                                 ></i>
                             </b-button>
 
-                         </template>
+                            </template>
 
                         <b-dropdown-item
                             v-if="userNameExists"
                             class="logout"
                         >
-                          <b> {{  $t(userName) }} </b>
+                            <b> {{  $t(userName) }} </b>
                         </b-dropdown-item>
 
                         <b-dropdown-item
@@ -107,60 +121,65 @@
                             }}
                         </b-dropdown-item>
                     </b-nav-item-dropdown>
-            </b-navbar>
+                 </b-navbar-nav>
 
 
-            <b-navbar-nav toggleable>
+                <b-navbar-nav toggleable ml-0>
 
-                <b-nav-item-dropdown
-                    id="list-nav" right
-                    text-center
-                    v-b-tooltip.hover.bottomleft="$t('navbar.about')"
-                    class="bm-0 p-0 pl-1 pr-1"
-                    no-caret
-                >
-                <!-- style="background-color: #f7f7f7" -->
-                    <template slot="button-content" size="xs">
-                        <b-button variant="outline-primary" size="sm">
-                                <i class="fa fa-bars fa-2x green-text"
-                                    aria-hidden="true"
-                                    style="font-size:1.5rem; "
-                                ></i>
-                        </b-button>
-                    </template>
-
-                    <b-dropdown-item
-                        id="popover-target-about"
-                        placement="left"
-                        @click="showAboutModal"
+                    <b-nav-item-dropdown
+                        id="list-nav" right
+                        text-center
+                        v-b-tooltip.hover.bottomleft="$t('navbar.about')"
+                        class="mb-0 ml-0 p-0 pl-xl-1 pl-lg-1 pl-md-0 pl-sm-0 pr-1"
+                        no-caret
                     >
-                        {{ $t('navbar.about') }}
-                    </b-dropdown-item>
-                    <about-modal></about-modal>
 
-                    <b-dropdown-divider></b-dropdown-divider>
+                        <template slot="button-content" size="xs">
+                            <b-button variant="outline-primary" size="sm">
+                                    <i class="fa fa-bars fa-2x green-text"
+                                        aria-hidden="true"
+                                        style="font-size:1.5rem; "
+                                    ></i>
+                            </b-button>
+                        </template>
 
-                    <b-dropdown-item
-                        v-if="showOperationsManager"
-                        :disabled="!operationsManager.canUndo" @click="onUndo()"
-                    >
-                        {{
-                            $t('home.undo')
-                        }}
-                    </b-dropdown-item >
+                        <b-dropdown-item
+                            id="popover-target-about"
+                            placement="left"
+                            @click="showAboutModal"
+                        >
+                            {{ $t('navbar.about') }}
+                        </b-dropdown-item>
+                        <about-modal></about-modal>
 
-                    <b-dropdown-item
-                        v-if="showOperationsManager"
-                        :disabled="!operationsManager.canRedo" @click="onRedo()"
-                    >
-                        {{
-                            $t('home.redo')
-                        }}
-                    </b-dropdown-item>
-                 </b-nav-item-dropdown>
-            </b-navbar-nav>
+                        <b-dropdown-divider></b-dropdown-divider>
 
-        </b-navbar>
+                        <b-dropdown-item
+                            v-if="showOperationsManager"
+                            :disabled="!operationsManager.canUndo" @click="onUndo()"
+                        >
+                            {{
+                                $t('home.undo')
+                            }}
+                        </b-dropdown-item >
+
+                        <b-dropdown-item
+                            v-if="showOperationsManager"
+                            :disabled="!operationsManager.canRedo" @click="onRedo()"
+                        >
+                            {{
+                                $t('home.redo')
+                            }}
+                        </b-dropdown-item>
+                    </b-nav-item-dropdown>
+                </b-navbar-nav>
+
+
+            </b-collapse>
+
+
+         </b-navbar>
+
 
     </div>
 </template>
@@ -332,7 +351,7 @@ export default class Navbar extends Vue {
     background: #0a142e !important;
 
     /* height: 50px; */
-    height: 3.12rem;
+    /* height: 3.12rem; */
 }
 
 
@@ -385,8 +404,8 @@ export default class Navbar extends Vue {
     text-align: center;
 }
 
-/* @media (max-width: 1100px) { */
 @media (max-width: 1134px) {
+/* @media (max-width: 1134px ) and (min-width: 768px ) { */
 
     .navbar-brand.brand-1> .logo-text ,
     .main-nav-bar .space-nav {
@@ -425,6 +444,7 @@ export default class Navbar extends Vue {
 }
 
 
+
 .main-nav-bar.navbar .nav-item {
     display: flex;
     align-items: center;
@@ -445,8 +465,8 @@ export default class Navbar extends Vue {
 }
 
 .main-nav-bar .nav-item:not(:last-child):after {
-    content: '|';
-    color: #f3f3f3;
+    /* content: '|';
+    color: #f3f3f3;*/
 }
 
 #list-nav ul,
@@ -455,8 +475,6 @@ export default class Navbar extends Vue {
    min-width: 5rem;
 
 }
-
-
 
 
 .status-badge {
