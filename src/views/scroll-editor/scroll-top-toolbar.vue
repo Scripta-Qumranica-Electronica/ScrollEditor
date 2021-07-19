@@ -553,6 +553,12 @@ export default class ScrollTopToolbar extends Vue {
         const materialBtn = document.querySelector('#material-mode-btn')!;
         const textBtn = document.querySelector('#text-mode-btn')!;
 
+        if ('material' === this.scrollEditorState.mode) {
+            materialBtn.classList.add('btn-selected');
+        } else if ('text' === this.scrollEditorState.mode) {
+            materialBtn.classList.remove('btn-selected');
+        }
+
         materialBtn.addEventListener('focusout', (event) => {
             if ('material' === this.scrollEditorState.mode) {
                 materialBtn.classList.add('btn-selected');
@@ -576,6 +582,12 @@ export default class ScrollTopToolbar extends Vue {
         const textBtn = document.getElementById('text-mode-btn')!;
 
         const curTopBar = document.getElementById('scroll-topbar')!;
+
+        if ('material' === this.scrollEditorState.mode) {
+            materialBtn.focus();
+        } else if ('text' === this.scrollEditorState.mode) {
+            textBtn.focus();
+        }
 
         curTopBar.addEventListener('focusout', (event) => {
             if ('material' === this.scrollEditorState.mode) {
@@ -1057,6 +1069,7 @@ export default class ScrollTopToolbar extends Vue {
 .mode-btn {
     /* color: #28a745  !important; */
     color: #8253f0 !important;
+
     /* border: 2px rgb(69, 4, 247) solid; */
     border-width: 1.2px;
     background-color: #fff !important;
@@ -1064,6 +1077,7 @@ export default class ScrollTopToolbar extends Vue {
 
 .mode-btn:focus {
     outline: 3px solid rgb(113, 230, 210);
+    box-shadow: rgb(113, 230, 210);
     /* box-shadow: none; */
     border-width: 3px;
 }
