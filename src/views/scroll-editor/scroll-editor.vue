@@ -709,6 +709,12 @@ export default class ScrollEditor
 
 
     private saveGroupArtefacts() {
+
+        if (this.selectedGroup === null) {
+            console.warn('Cannot save null group');
+            return;
+        }
+
         const group = this.edition.artefactGroups.find(
             (x) => x.groupId === this.selectedGroup!.groupId
         );

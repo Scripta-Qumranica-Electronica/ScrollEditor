@@ -19,6 +19,10 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}`;
     }
 
+    export function manuscriptEditions(manuscriptId: number) {
+        return `${baseUrl}/manuscripts/${manuscriptId}/${editions}`;
+    }
+
     export function editionUrl(editionId: number) {
         return `${baseUrl}/${editions}/${editionId}`;
     }
@@ -173,6 +177,30 @@ export namespace ApiRoutes {
 
     export function searchUrl() {
         return 'v1/search';
+    }
+
+    export function lineText(editionId: number, lineId: number) {
+        const url = `${baseUrl}/${editions}/${editionId}/lines/${lineId}`;
+
+        return url;
+    }
+
+    export function qwbWordVariantUrl(qwbWordId: number) {
+        const url = `${baseUrl}/qwb-proxy/words/${qwbWordId}/word-variants`;
+
+        return url;
+    }
+
+    export function qwbParallelTextUrl(qwbStartWordId: number, qwbEndWordId: number) {
+        const url = `${baseUrl}/qwb-proxy/parallels/start-word/${qwbStartWordId}/end-word/${qwbEndWordId}`;
+
+        return url;
+    }
+
+    export function qwbBibliographyUrl(qwbBibliographyId: number) {
+        const url = `${baseUrl}/qwb-proxy/bibliography/${qwbBibliographyId}`;
+
+        return url;
     }
 
     export function editionScirbalFontUrl(editionId: number) {

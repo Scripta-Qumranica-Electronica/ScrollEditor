@@ -4,7 +4,7 @@
         v-if="loaded"
         :key="artefact.id"
         :transform="groupTransform"
-        :data="artefact.zOrder"
+        :data="artefact.placement.zIndex"
         pointer-events="all"
         @pointerdown="onPointerDown($event)"
         @pointermove="onPointerMove($event)"
@@ -24,18 +24,22 @@
             </clipPath>
         </defs>
         <g @click="onSelect">
-            <g :clip-path="`url(#clip-path-${artefact.id})`"
-                v-if="!artefact.isVirtual">
+            <g
+                :clip-path="`url(#clip-path-${artefact.id})`"
+                v-if="!artefact.isVirtual"
+            >
                 <iiif-image
                     :image="masterImage"
                     :boundingBox="boundingBox"
                     :scaleFactor="scaleFactor"
                 />
             </g>
-            <path v-if="artefact.isVirtual"
+            <path
+                v-if="artefact.isVirtual"
                 class="virtual-artefact"
                 :d="artefact.mask.svg"
-                vector-effect="non-scaling-stroke"/>
+                vector-effect="non-scaling-stroke"
+            />
             <path
                 class="selected"
                 v-if="selected"
@@ -49,13 +53,15 @@
             :rois="visibleRois"
         ></roi-layer>
         <template v-if="displayText || reconstructedText">
-            <use v-for="d in displayedSigns"
-                 :data-sign-id="d.id"
-                 :key="d.id"
-                 :href="`#path-${d.character}`"
-                 class="sign"
-                 :class="{selected: d.id === selectedSignInterpretationId}"
-                 :transform="d.svgTransform" />
+            <use
+                v-for="d in displayedSigns"
+                :data-sign-id="d.id"
+                :key="d.id"
+                :href="`#path-${d.character}`"
+                class="sign"
+                :class="{ selected: d.id === selectedSignInterpretationId }"
+                :transform="d.svgTransform"
+            />
         </template>
     </g>
 </template>
@@ -96,9 +102,11 @@ class DisplayableSign {
     public boundingBox: BoundingBox;
     public yOffset: number = 0;
 
-    public constructor( si: SignInterpretation,
-                        rois: InterpretationRoi[],
-                        yOffset: number ) {
+    public constructor(
+        si: SignInterpretation,
+        rois: InterpretationRoi[],
+        yOffset: number
+    ) {
         if (!si.character) {
             throw new Error('DisplayedSign with no character');
         }
@@ -170,8 +178,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     @Prop({
         default: undefined,
     })
-
-    @Prop() public readonly transformRootId!: string;
+    public readonly transformRootId!: string;
 
     private mouseOrigin?: Point;
     private loaded = false;
@@ -179,7 +186,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     private element!: SVGGElement | null;
     private previousPlacement!: any[];
     @Prop({
-        default: 1,
+        default: 10,
     })
     private scaleFactor!: number;
 
@@ -231,11 +238,15 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     public get selectedSignInterpretationId() {
-        if (this.$state.textFragmentEditor.selectedSignInterpretations.length !== 1) {
+        if (
+            this.$state.textFragmentEditor.selectedSignInterpretations
+                .length !== 1
+        ) {
             return null;
         }
 
-        return this.$state.textFragmentEditor.selectedSignInterpretations[0].signInterpretationId;
+        return this.$state.textFragmentEditor.selectedSignInterpretations[0]
+            .signInterpretationId;
     }
 
     public get displayedSigns(): DisplayableSign[] {
@@ -243,8 +254,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const displayedSigns: DisplayableSign[] = [];
 
         for (const si of this.visibleSignInterpretations) {
-
-
             if (reconstructedOnly && !si.isReconstructed) {
                 continue;
             }
@@ -253,7 +262,9 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
                 continue;
             }
 
-            const yOffset = this.$state.editions.current?.script?.glyphs[si.character]?.yOffset || 0;
+            const yOffset =
+                this.$state.editions.current?.script?.glyphs[si.character]
+                    ?.yOffset || 0;
             const displayedSign = new DisplayableSign(si, si.rois, yOffset);
             displayedSigns.push(displayedSign);
         }
@@ -262,7 +273,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     protected async mounted() {
-
         // await this.mountedDone;
         this.loaded = true;
     }
@@ -426,7 +436,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.$state.scrollEditor.mode === 'material';
     }
 
-
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
@@ -486,5 +495,4 @@ path.selected {
     fill: red;
     stroke: red;
 }
-
 </style>

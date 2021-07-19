@@ -1150,6 +1150,10 @@ export default class ArtefactEditor
     height: 100%;
 }
 
+// .artefact-image-container{
+//     height: 60%;
+// }
+
 @media (max-width: 1100px) {
     .editor-actions {
         /* height: 70px; */

@@ -7,7 +7,7 @@
         />
         <image
             v-for="(tile, idx) in tiles.filter((x) => x.display)"
-            :key="idx"
+            :key="`iiif-image-${image.id}-tile-${idx}`"
             :xlink:href="tile.url"
             :opacity="opacity"
             :transform="tile.transform"
@@ -49,7 +49,6 @@
 import { Image } from '@/models/image';
 import { BoundingBox, BoundingBoxInterface } from '@/utils/helpers';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import axios from 'axios';
 
 interface ManifestTileInfo {
     width: number;
@@ -329,30 +328,33 @@ export default class IIIFImageComponent extends Vue {
         // Note that I tried earlier to just get the actual <image> DOM element
         // and to reset the xlink:href attribute, but that didn't seem to trigger
         // an attempt to reload the image.  Doing it the vue way seems to work fine.
-        const failedTileIdx = this.tiles.findIndex((x) => x.url === url);
-        const failedTile = this.tiles[failedTileIdx];
-        if (failedTile && failedTile.retries < this.retryLimit) {
-            this.tiles = this.tiles.splice(failedTileIdx, 1);
-            failedTile.display = false;
-            failedTile.retries += 1;
-            this.tiles.push(failedTile);
+        let retry = 1;
+        this.tiles = this.tiles.map((x) => {
+            if (x.url === url) {
+                x.display = false;
+                retry = x.retries;
+            }
+            return x;
+        });
 
+        if (retry < this.retryLimit) {
             // Give the server a little breathing room to try again
             // by backing off a little more on each retry of a single image.
             setTimeout(() => {
-                const currentFailedTileIdx = this.tiles.findIndex(
-                    (x) => x.url === url
-                );
-                const currentFailedTile = this.tiles[currentFailedTileIdx];
-                this.tiles = this.tiles.splice(currentFailedTileIdx, 1);
-                currentFailedTile.display = false;
-                this.tiles.push(failedTile);
-            }, 20 * failedTile.retries);
+                this.tiles = this.tiles.map((x) => {
+                    if (x.url === url) {
+                        x.display = true;
+                        x.retries += 1;
+                    }
+                    return x;
+                });
+            }, 20 * retry);
+            return;
         }
 
         // This is apparently an error that cannot be recovered.
         // How should it be handled? Maybe alert the user?
-        console.error(`Could not fetch image: ${failedTile?.url}`);
+        console.error(`After ${retry} attempts, could not fetch image: ${url}`);
     }
 }
 </script>
