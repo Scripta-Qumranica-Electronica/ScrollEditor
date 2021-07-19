@@ -6,7 +6,7 @@
         <div v-if="!waiting">
             <div class="mt-4 editor-container">
                 <b-row class="h-100">
-                    <b-col class="h-100 col-lg-9">
+                    <b-col class="d-flex flex-column h-100 col-lg-9">
                         <div class="editor-actions">
                             <b-row class="border-bottom">
                                 <b-col class="col-lg-6">
@@ -115,8 +115,8 @@
                                 </div>
                             </b-row>
                         </div>
-                        <div class="artefact-image-container">
-                            <div class="artefact-container" ref="infoBox">
+                        <div class="artefact-image-container" style="flex-grow: 1;" ref="infoBox">
+                            <div class="d-flex flex-column artefact-container">
                                 <div style="height: 60px">
                                     <span v-if="artefactMode">{{
                                         artefact.name
@@ -148,6 +148,7 @@
                                     <i class="fa fa-arrow-left"></i>
                                 </b-button> -->
                                 <zoomer
+                                    style="flex-grow: 1;height: 10px;"
                                     :zoom="zoomLevel"
                                     :angle="rotationAngle"
                                     @new-zoom="onNewZoom($event)"
@@ -530,6 +531,11 @@ export default class ArtefactEditor
         }
 
         this.waiting = false;
+        this.$nextTick(() => {
+            this.$nextTick(() => {
+                this.setFirstZoom();
+            });
+        });
         this.$state.operationsManager = this.operationsManager;
         this.$state.textFragmentEditor.textEditingMode = 'artefact';
     }
@@ -555,14 +561,14 @@ export default class ArtefactEditor
     // On tablet screen - Active means opened.
 
     private get imageWidth(): number {
-        if (this.artefact.isVirtual) {
+        if (this.artefact?.isVirtual) {
             return this.boundingBox.width * 1.5;
         }
         return this.masterImage.width;
     }
 
     private get imageHeight(): number {
-        if (this.artefact.isVirtual) {
+        if (this.artefact?.isVirtual) {
             return this.boundingBox.height * 1.5;
         }
         return this.masterImage.height;
@@ -606,7 +612,7 @@ export default class ArtefactEditor
     private async prepareArtefact(artefactId: number) {
         await this.$state.prepare.artefact(this.editionId, artefactId);
 
-        if (!this.artefact.isVirtual) {
+        if (!this.artefact?.isVirtual) {
             const imagedObject = this.$state.imagedObjects.find(
                 this.artefact.imagedObjectId
             );
@@ -636,8 +642,6 @@ export default class ArtefactEditor
         this.params.rotationAngle = this.artefact.placement.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
-
-        setTimeout(() => this.setFirstZoom(), 0);
     }
 
     private statusTextFragment(roi: InterpretationRoi) {
@@ -667,7 +671,7 @@ export default class ArtefactEditor
         }
     }
     private setFirstZoom() {
-        const infoBox = this.$refs.infoBox as Element;
+        const infoBox = this.$refs.infoBox as HTMLDivElement;
         const height = infoBox.clientHeight;
         const width = infoBox.clientWidth;
         this.params.zoom = Math.min(
@@ -790,7 +794,7 @@ export default class ArtefactEditor
 
     private fillImageSettings() {
         this.params.imageSettings = {};
-        if (this.artefact.isVirtual) {
+        if (this.artefact?.isVirtual) {
             return;
         }
 
@@ -1129,8 +1133,13 @@ export default class ArtefactEditor
 }
 
 .artefact-image-container {
+    margin-top: 0.1rem;
     height: calc(100vh - 310px);
 }
+
+// .artefact-image-container{
+//     height: 60%;
+// }
 
 @media (max-width: 1100px) {
         .editor-container{
@@ -1145,10 +1154,6 @@ export default class ArtefactEditor
         overflow: auto;
     }
 }
-    .artefact-image-container{
-        margin-top: 0.1rem;
-        height: 60%;
-    }
 
 }
 

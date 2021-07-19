@@ -13,33 +13,33 @@
         @click="onClick($event)"
     >
         <defs>
-            <path :id="`path-${image_artefact.id}`" :d="image_artefact.mask.svg" />
-            <clipPath :id="`clip-path-${image_artefact.id}`">
+            <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
+            <clipPath :id="`clip-path-${artefact.id}`">
                 <use
                     stroke="none"
                     fill="black"
                     fill-rule="evenodd"
-                    :href="`#path-${image_artefact.id}`"
+                    :href="`#path-${artefact.id}`"
                 />
             </clipPath>
         </defs>
         <g @click="onSelect">
-            <g :clip-path="`url(#clip-path-${image_artefact.id})`"
-                v-if="!image_artefact.isVirtual">
+            <g :clip-path="`url(#clip-path-${artefact.id})`"
+                v-if="!artefact.isVirtual">
                 <iiif-image
                     :image="masterImage"
                     :boundingBox="boundingBox"
                     :scaleFactor="scaleFactor"
                 />
             </g>
-            <path v-if="image_artefact.isVirtual"
+            <path v-if="artefact.isVirtual"
                 class="virtual-artefact"
-                :d="image_artefact.mask.svg"
+                :d="artefact.mask.svg"
                 vector-effect="non-scaling-stroke"/>
             <path
                 class="selected"
                 v-if="selected"
-                :d="image_artefact.mask.svg"
+                :d="artefact.mask.svg"
                 vector-effect="non-scaling-stroke"
             />
         </g>
@@ -170,7 +170,6 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     @Prop({
         default: undefined,
     })
-    public image_artefact!: Artefact;
 
     @Prop() public readonly transformRootId!: string;
 
@@ -189,7 +188,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     public get groupTransform(): string {
-        const placement = this.image_artefact.placement;
+        const placement = this.artefact.placement;
         if (!placement.scale) {
             return ''; // No transform at all, do nothing
         }
@@ -224,11 +223,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     private get visibleRois(): InterpretationRoi[] {
-        return this.image_artefact.rois;
+        return this.artefact.rois;
     }
 
     private get visibleSignInterpretations(): SignInterpretation[] {
-        return this.image_artefact.signInterpretations;
+        return this.artefact.signInterpretations;
     }
 
     public get selectedSignInterpretationId() {
@@ -271,7 +270,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     @Emit()
     private onSelect(event: MouseEvent): Artefact {
         event.stopPropagation();
-        return this.image_artefact;
+        return this.artefact;
     }
 
     private eventToPoint($event: PointerEvent): Point {
