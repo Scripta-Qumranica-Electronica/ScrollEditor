@@ -61,8 +61,14 @@ export default class ZoomToolbar extends Vue {
 
     @Prop({default: 0.05}) private delta!: number;
 
-    private localZoom: number = this.paramsZoom || 0.01;
+    private localZoom: number = this.paramsZoom || 0.1;
 
+    // TODO: delete this
+    public mounted() {
+        setTimeout(() => {  this.$emit('zoomChanged', 0.1); }, 100);
+        setTimeout(() => {  this.$emit('zoomChanged', 0.11); }, 150);
+        setTimeout(() => {  this.$emit('zoomChanged', 0.1); }, 200);
+    }
 
     private get zoom(): number {
       return Math.round(this.paramsZoom * 100);

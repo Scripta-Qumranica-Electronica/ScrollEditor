@@ -55,6 +55,8 @@ export class Artefact {
         if (!viewport) {
             return false;
         }
+        // TODO: delete this
+        return true;
 
         const actualPoints = this.calculateNewPoints();
 

@@ -9,7 +9,7 @@
 
             <b-navbar-brand to="/" align="left" v-if="edition" id="brand-1"
                 class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <span class="logo pb-1">S</span>
+                <img class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
                 <span class="logo-text m-0 p-0 pb-1">
                     {{ $t('home.home') }}
                 </span>
@@ -17,7 +17,7 @@
 
             <b-navbar-brand to="/" align="left" v-if="!edition" id="brand-2"
                 class="brand-2 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <span class="logo pb-1">S</span>
+                <img class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
                 <span class="logo-text m-0 p-0 pb-1">
                     {{ $t('home.home') }}
                 </span>
@@ -122,6 +122,16 @@
                     </template>
 
                     <b-dropdown-item
+                        id="popover-target-home"
+                        placement="left"
+                        @click="goHome"
+                    >
+                        {{ $t('navbar.home') }}
+                    </b-dropdown-item>
+
+                    <b-dropdown-divider></b-dropdown-divider>
+
+                    <b-dropdown-item
                         id="popover-target-about"
                         placement="left"
                         @click="showAboutModal"
@@ -130,7 +140,25 @@
                     </b-dropdown-item>
                     <about-modal></about-modal>
 
-                    <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item
+                        id="popover-target-faq"
+                        placement="left"
+                        @click="showFAQModal"
+                    >
+                        {{ $t('navbar.faq') }}
+                    </b-dropdown-item>
+                    <faq-modal/>
+
+                    <b-dropdown-item
+                        id="popover-target-eula"
+                        placement="left"
+                        @click="showEulaModal"
+                    >
+                        {{ $t('navbar.eula') }}
+                    </b-dropdown-item>
+                    <eula-modal/>
+
+                    <b-dropdown-divider v-if="showOperationsManager"></b-dropdown-divider>
 
                     <b-dropdown-item
                         v-if="showOperationsManager"
@@ -149,6 +177,24 @@
                             $t('home.redo')
                         }}
                     </b-dropdown-item>
+
+                    <b-dropdown-divider v-if="edition"></b-dropdown-divider>
+                    <b-dropdown-item
+                        v-if="edition"
+                        @click="showCitation">
+                        {{
+                            $t('navbar.cite')
+                        }}
+                    </b-dropdown-item>
+                    <citation-modal/>
+
+                    <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item
+                        @click="contactUs">
+                        {{
+                            $t('navbar.contactus')
+                        }}
+                    </b-dropdown-item>
                  </b-nav-item-dropdown>
             </b-navbar-nav>
 
@@ -163,6 +209,9 @@ import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
 import AboutModal from './About-modal.vue';
+import FaqModal from './Faq-modal.vue';
+import EulaModal from './Eula-modal.vue';
+import CitationModal from './CitationModal.vue';
 // import ScreenSizeAlert from '../../views/home/components/ScreenSizeAlert.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
@@ -173,6 +222,9 @@ import { BIcon, BIconSearch , BIconPersonFill, BIconList} from 'bootstrap-vue';
     components: {
         login: Login,
         'about-modal': AboutModal,
+        'faq-modal': FaqModal,
+        'eula-modal': EulaModal,
+        'citation-modal': CitationModal,
         // 'screen-size-alert': ScreenSizeAlert,
         BIcon,
         BIconSearch,
@@ -205,8 +257,32 @@ export default class Navbar extends Vue {
         this.operationsManager!.redo();
     }
 
+    private goHome() {
+        this.$router.push({ path: '/' });
+    }
+
     private showAboutModal() {
         this.$root.$emit('bv::show::modal', 'AboutModal');
+    }
+
+    private showFAQModal() {
+        console.info('Show FAQ');
+        this.$root.$emit('bv::show::modal', 'FaqModal');
+    }
+
+    private showEulaModal() {
+        console.info('Show EULA');
+        this.$root.$emit('bv::show::modal', 'EulaModal');
+    }
+
+    private showCitation() {
+        console.info('Show Citation');
+        this.$root.$emit('bv::show::modal', 'CitationModal');
+    }
+
+     private contactUs() {
+        console.info('Send email');
+        location.href = 'mailto:sqe@deadseascrolls.org.il';
     }
 
     protected get editionBadgeClass() {

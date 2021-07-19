@@ -1,6 +1,11 @@
 export default {
     home: 'Home',
     about: 'About',
+    faq: 'FAQ',
+    cite: 'Cite',
+    eula: 'EULA',
+    documentation: 'Documentation',
+    contactus: 'Contact Us',
     login: 'Log in',
     logout: 'Logout',
 

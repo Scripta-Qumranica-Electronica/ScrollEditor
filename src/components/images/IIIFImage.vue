@@ -4,7 +4,7 @@
         <image :xlink:href="backgroundImageUrl"
                :transform="backgroundImageTransform"
                :opacity="opacity"/>
-        <image v-for="(tile, idx) in tiles.filter(x => x.display)" :key="idx"
+        <image v-for="(tile, idx) in tiles.filter(x => x.display)" :key="`iiif-image-${image.id}-tile-${idx}`"
                :xlink:href="tile.url"
                :opacity="opacity"
                :transform="tile.transform"

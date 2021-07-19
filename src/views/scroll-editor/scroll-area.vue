@@ -37,7 +37,8 @@
                         @new-operation="onNewOperation($event)"
                         transformRootId="root"
                         v-for="artefact in placedArtefacts"
-                        :imageartefact="artefact"
+                        :artefact="artefact"
+                        :imagedObject="$state.imagedObjects.find(artefact.imagedObjectId)"
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
@@ -115,7 +116,6 @@ export default class ScrollArea extends Vue {
                 )
             );
         });
-
     }
 
     private get scrollEditorState(): ScrollEditorState {
@@ -233,9 +233,10 @@ export default class ScrollArea extends Vue {
     }
 
     private get placedArtefacts() {
-        return this.artefacts
+        const visibleArtefacts =  this.artefacts
             .filter((x) => x.isPlaced && x.inViewport)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
+        return visibleArtefacts;
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
