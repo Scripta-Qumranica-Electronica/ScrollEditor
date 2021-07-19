@@ -106,7 +106,7 @@ export default class IIIFImageComponent extends Vue {
                 const url = this.image.getScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
                                                            x, y, currentTileWidth + 1, currentTileHeight + 1);
                 const tile = {
-                    url: url,
+                    url,
                     transform: `translate(${xTranslate}, ${yTranslate})`,
                     width: currentTileWidth * this.optimizedImageScaleFactor,
                     height: currentTileHeight * this.optimizedImageScaleFactor,
