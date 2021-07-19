@@ -63,7 +63,7 @@
             </b-col>
         </b-row>
 
-        <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12">
+        <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12 ">
             <b-col class="col-12 ">
                 <b-form-checkbox
                     switch
@@ -78,7 +78,7 @@
         </b-row>
 
 
-         <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12">
+         <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12 ">
             <b-col class="col-12 ">
                 <b-form-checkbox
                     switch
@@ -92,7 +92,7 @@
 
         <hr class="solid">
 
-         <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12">
+         <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12 ">
 
                 <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2">
                     <b-button
@@ -116,10 +116,10 @@
 
         <hr class="solid">
 
-        <b-row no-gutters class="m-0 p-0 border-right add-cut-side">
+        <b-row no-gutters class="m-0 p-0 border-right add-cut-side ">
 
             <b-col no-gutters cols="12" md="auto" lg="auto"
-                   class="col-xl-8 col-lg-10 col-md-12 col-sm-12 m-0 mb-2">
+                   class="col-xl-8 col-lg-10 col-md-12 col-sm-12 m-0 mb-2 ">
 
                 <b-form-row align-v="end" align-h="center">
                     <b-col no-gutters cols="12" md="auto" lg="auto"
@@ -178,7 +178,7 @@
 
         <hr class="solid">
 
-        <b-row >
+        <b-row>
 
             <b-col class="col-12 ml-0">
 
@@ -255,7 +255,7 @@
             </b-col>
         </b-row>
 
-         <hr class="solid">
+         <hr class="solid" >
 
         <b-row>
 
@@ -675,10 +675,14 @@ hr.solid {
 }
 
 .scroll-bar {
-    position: relative;
+    /* position: relative; */
     padding: 0;
-    max-height: calc(50vh - 2rem);
+    /* height: calc(50vh - 60px); */
+    height: calc(50vh - 1rem);
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+
+
 </style>

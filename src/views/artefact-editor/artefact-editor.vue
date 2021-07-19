@@ -1090,10 +1090,6 @@ export default class ArtefactEditor
 .header-actions {
     background-color: $white;
 }
-.artefact-container {
-    text-align: center;
-    height: 100%;
-}
 
 .status-badge {
     font-family: $font-family;
@@ -1112,6 +1108,7 @@ export default class ArtefactEditor
     background-color: $light-greend;
     color: $green;
 }
+
 .editor-container {
     background-color: $white;
     margin-right: 1.5rem;
@@ -1120,8 +1117,17 @@ export default class ArtefactEditor
     /* height: calc(100vh - 2rem); */
 }
 
-@media (max-width: 1100px) {
+.editor-actions {
+    /* height: 70px; */
+    height: 10rem;
+}
 
+.artefact-container {
+    text-align: center;
+    height: 100%;
+}
+
+@media (max-width: 1100px) {
 
 .editor-actions {
     /* height: 70px; */
@@ -1145,10 +1151,11 @@ export default class ArtefactEditor
         overflow: auto;
     }
 }
-    .artefact-image-container{
-        margin-top: 0.1rem;
-        height: 60%;
-    }
+
+.artefact-image-container{
+    margin-top: 0.1rem;
+    height: 60%;
+}
 
 }
 

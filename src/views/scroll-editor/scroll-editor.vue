@@ -46,24 +46,28 @@
                         </div>
                     </b-col>
 
-
-
-
                     <b-col  class="col-3 border-right artefact-sidebar"
                         v-if="scrollEditorState.viewport"
                     >
-                        <div class="mb-3">
+                        <div class="mb-3 ">
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
+                        <div class="mb-3 ">
+                            <text-toolbar v-if="isTextMode"
+                                @text-changed="onTextChanged($event)"
+                                d-flex m-auto p-auto
+                                adjust-content-center align-items-center
+                            ></text-toolbar>
+                        </div>
 
-                        <text-toolbar v-if="isTextMode" @text-changed="onTextChanged($event)"></text-toolbar>
-
-                        <manuscript-toolbar
-                            v-if="!isTextMode"
-                            @new-operation="newOperation($event)"
-                            @save-group="saveGroupArtefacts()"
-                            @cancel-group="cancelGroup()"
-                        ></manuscript-toolbar>
+                        <div class="mb-3 ">
+                            <manuscript-toolbar
+                                v-if="!isTextMode"
+                                @new-operation="newOperation($event)"
+                                @save-group="saveGroupArtefacts()"
+                                @cancel-group="cancelGroup()"
+                            ></manuscript-toolbar>
+                         </div>
                     </b-col>
                 </b-row>
 
@@ -345,6 +349,9 @@ export default class ScrollEditor
             this.onNewBulkOperations
         );
         this.observer = new ResizeObserver((entries) => this.onResize(entries));
+
+        // Moved to created() to avoid unclear material or text mode
+        this.$state.scrollEditor = new ScrollEditorState();
     }
 
     protected destroyed() {
@@ -390,7 +397,8 @@ export default class ScrollEditor
             }
         });
 
-        this.$state.scrollEditor = new ScrollEditorState();
+        // Moved to created() to avoid unclear material or text mode
+        // this.$state.scrollEditor = new ScrollEditorState();
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.calculateViewport();
         this.$state.operationsManager = this.operationsManager;
@@ -837,6 +845,14 @@ export default class ScrollEditor
     position: relative;
     height: calc(100vh - 63px);
     width: calc(100vw - 290px);
+}
+
+.artefact-sidebar {
+    /* position: relative; */
+    overflow: auto;
+    padding: 0;
+    /* height: calc(100vh - 160px); */
+    height: calc(100vh - 10rem);
 }
 
 /* .input-lg {
