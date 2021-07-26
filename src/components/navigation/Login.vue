@@ -77,8 +77,7 @@ import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
-import { StateManager } from '@/state';
-import Registration from '@/views/user/Registration.vue';
+import router from '@/router';
 
 @Component({
     name: 'login',
@@ -112,7 +111,7 @@ export default class Login extends Vue {
             this.waiting = true;
             await this.sessionService.login(this.email, this.password);
             this.close();
-            location.reload();
+            router.push('/home');
         } catch (err) {
             this.errorMessage = this.errorService.getErrorMessage(
                 err.response.data
