@@ -14,6 +14,7 @@ export default {
 
     registration: 'Registration',
     register: 'Register',
+    start: 'Start Working',
 
     changePassword: 'Change Password',
     currentPassword: 'Current Password',

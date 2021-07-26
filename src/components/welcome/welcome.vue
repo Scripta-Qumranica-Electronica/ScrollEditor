@@ -24,9 +24,12 @@
                     </b-nav-item>
                 </b-nav>
                 <p class="link">
-                    <router-link :to="{ path: `/home` }"
-                        >Enter the scrollery as a guest</router-link
-                    >
+                    <router-link :to="{ path: `/home` }" v-if="!userName">
+                        Enter the scrollery as a guest
+                    </router-link>
+                    <router-link :to="{ path: `/home` }" v-if="userName">
+                        Start Working
+                    </router-link>
                 </p>
             </div>
 
@@ -144,11 +147,11 @@ export default class Welcome extends Vue {
         }
         return undefined;
     }
-    private mounted() {
-        if (this.userName) {
-            router.push('/home');
-        }
+
+    private startWorking() {
+        router.push('/home');
     }
+
     private logout() {
         this.sessionService.logout();
         router.push('/');
