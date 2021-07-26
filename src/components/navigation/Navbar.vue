@@ -12,22 +12,18 @@
             type="dark" variant="light"
         >
 
-            <b-navbar-brand to="/" align="left" v-if="edition" id="brand-1"
+            <b-navbar-brand align="left" id="brand-1"
                 class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <span class="logo ml-0 pb-1">S</span>
+                <span class="logo ml-0 pb-1"><router-link to="/">S</router-link></span>
                 <span class="logo-text m-0 p-0 pb-1">
-                    {{ $t('home.home') }}
+                    <router-link to="/home" v-if="isActive">
+                        {{ $t('home.home') }}
+                    </router-link>
+                    <router-link to="/" v-else>
+                        {{ $t('home.home') }}
+                    </router-link>
                 </span>
             </b-navbar-brand >
-
-            <b-navbar-brand to="/" align="left" v-if="!edition" id="brand-2"
-                class="brand-2 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <span class="logo pb-1">S</span>
-                <span class="logo-text m-0 p-0 pb-1">
-                    {{ $t('home.home') }}
-                </span>
-            </b-navbar-brand >
-
 
             <b-navbar-toggle target="nav1-collapse"></b-navbar-toggle>
 

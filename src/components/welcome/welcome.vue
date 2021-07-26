@@ -55,7 +55,7 @@
                     </p>
                     <div class="row">
                         <div class="col-4 border-right font">
-                            <b-link>Learn more About the project</b-link>
+                            <b-link href="https://qumranica.org" target="_blank">Learn more About the project</b-link>
                         </div>
                         <div class="col-6 border-right font">
                             <b-link href="https://www.deadseascrolls.org.il/home" target="_blank">
