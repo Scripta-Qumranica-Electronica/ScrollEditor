@@ -63,7 +63,7 @@
                     align="right">
 
 
-                    <b-nav-item v-if="isActive" to="/search" active>
+                    <b-nav-item to="/search" active>
                             <b-button variant="outline-primary" size="sm">
                                 <i class="fa fa-search fa-2x green-text"
                                     aria-hidden="true"
@@ -97,6 +97,15 @@
                         </b-dropdown-item>
 
                         <b-dropdown-item
+                            v-if="!isActive"
+                            @click="login()"
+                            class="logout"
+                        >
+                            {{ $t('navbar.login' )}}
+                        </b-dropdown-item>
+
+                        <b-dropdown-item
+                            v-if="isActive"
                             @click="logout()"
                             class="logout"
                         >
@@ -316,6 +325,10 @@ export default class Navbar extends Vue {
         this.sessionService.logout();
         router.push('/');
         location.reload();
+    }
+
+    private login() {
+        this.$root.$emit('bv::show::modal', 'loginModal');
     }
 
     private changePassword() {
