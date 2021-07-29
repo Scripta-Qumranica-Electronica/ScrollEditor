@@ -7,7 +7,8 @@
             id="AboutModal"
             aria-role="dialog"
             aria-label="About Modal"
-            :width="640" scroll="keep"
+            scroll="keep"
+            size="lg"
             ok-only
             trap-focus
             :destroy-on-hide="true"

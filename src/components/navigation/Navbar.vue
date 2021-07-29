@@ -144,6 +144,15 @@
                     <b-dropdown-divider></b-dropdown-divider>
 
                     <b-dropdown-item
+                        id="popover-target-about"
+                        placement="left"
+                        @click="showAboutModal"
+                    >
+                        {{ $t('navbar.about') }}
+                    </b-dropdown-item>
+                    <about-modal/>
+
+                    <b-dropdown-item
                         id="popover-target-faq"
                         placement="left"
                         @click="showFAQModal"
@@ -415,6 +424,10 @@ $foreground: #0275d8;
     #brand-text a {
         color: $foreground !important;
         text-decoration: none;
+    }
+
+    #brand-icon {
+        margin-top: 12px;
     }
 
     .navbar-brand {
