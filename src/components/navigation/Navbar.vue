@@ -587,4 +587,16 @@ button {
     margin-left: 5px;
 }
 
+.dropdown-menu {
+    background: $background !important;
+}
+
+.dropdown-item {
+    color: $foreground !important;
+}
+
+.dropdown-divider {
+    border-color: $foreground !important;
+}
+
 </style>
