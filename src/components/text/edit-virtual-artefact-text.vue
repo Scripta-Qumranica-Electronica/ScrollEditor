@@ -16,13 +16,13 @@
         </b-row>
         <b-row>
             <b-col>
+                 <!---->
                 <div class="bottom-scroll-bar m-2 ml-1 mr-1">
                     <b-input
                         id="w-text-input"
                         type="text"
                         dir="rtl"
                         @input="onTextChanged"
-                        @keydown="onKeydown($event)"
                         v-model="text"
                         class="w-input"
                         autofocus
@@ -96,7 +96,11 @@ export default class EditVirtualArtefactTextPane extends Vue {
         }
 
         const hebTextOnly = this.stripNonHebChars(this.text);
-        this.text = this.editor.text = hebTextOnly;
+        this.editor.text = hebTextOnly;
+
+        this.$nextTick(() => {
+            this.text = hebTextOnly;
+        });
     }
 
     private stripNonHebChars(input: string): string {
@@ -109,20 +113,8 @@ export default class EditVirtualArtefactTextPane extends Vue {
             }
         }
 
-        if (output !== input) {
-            console.debug('Sanitized text: ', input, ' --> ', output);
-        }
         return output;
     }
-
-    private onKeydown(e: KeyboardEvent) {
-        const hebrewAlphabet = 'אבגדהוזחטיכךלמנסעפצקרשתםןףץ ';
-        //   if (/^\W$/.test(e.key)) {
-        if ( ( hebrewAlphabet.indexOf( e.key) ) < 0 )  {
-            e.preventDefault();
-        }
-    }
-
 }
 </script>
 

@@ -17,6 +17,7 @@ import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { InterpretationRoi, Line, Sign, SignInterpretation, TextFragment } from '@/models/text';
 import { StateManager } from '@/state';
+import { NotificationHandler } from '@/state/notification-handler';
 import { BoundingBox, Point } from '@/utils/helpers';
 import { Placement } from '@/utils/Placement';
 import { Polygon } from '@/utils/Polygons';
@@ -490,6 +491,22 @@ export class VirtualArtefactEditor {
 
         const response = await CommHelper.put<DiffReconstructedResponseDTO>(url, dto);
         console.debug('Text response: ', response.data);
-        // TODO: replicate the updates by signalR, as signalR updates are not going to be sent to the caller
+
+        const handler = new NotificationHandler();  // This class is stateless, we can just use it.
+
+        // First, deletions
+/*        if (response.data.deleted) {
+            handler.handleDeletedSignInterpretation(response.data.deleted);
+        }
+
+        // Then creations
+        if (response.data.created && response.data.created.signInterpretations) {
+            handler.handleCreatedSignInterpretation(response.data.created);
+        }
+
+        // And finally, updates
+        if (response.data.updated && response.data.updated.signInterpretations) {
+            handler.handleUpdatedSignInterpretations(response.data.updated);
+        } */
     }
 }

@@ -12,9 +12,9 @@
             type="dark" variant="light"
         >
 
-            <b-navbar-brand align="left" id="brand-1"
+            <b-navbar-brand to="/" align="left" id="brand-1"
                 class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <span class="logo ml-0 pb-1"><router-link to="/">S</router-link></span>
+                <img class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
                 <span class="logo-text m-0 p-0 pb-1">
                     <router-link to="/home" v-if="isActive">
                         {{ $t('home.home') }}
@@ -131,59 +131,94 @@
 
                 <b-navbar-nav toggleable ml-0>
 
-                    <b-nav-item-dropdown
-                        id="list-nav" right
-                        text-center
-                        v-b-tooltip.hover.bottomleft="$t('navbar.about')"
-                        class="mb-0 ml-0 p-0 pl-xl-1 pl-lg-1 pl-md-0 pl-sm-0 pr-1"
-                        no-caret
+                <b-nav-item-dropdown
+                    id="list-nav" right
+                    text-center
+                    v-b-tooltip.hover.bottomleft="$t('navbar.about')"
+                    class="bm-0 p-0 pl-1 pr-1"
+                    no-caret
+                >
+                    <template slot="button-content" size="xs">
+                        <b-icon icon="list"
+                            style="background-color: #f7f7f7"
+                            class="border rounded"
+                            font-scale="1.6"
+                        ></b-icon>
+                    </template>
+
+                    <b-dropdown-item
+                        id="popover-target-home"
+                        placement="left"
+                        @click="goHome"
+                    >
+                        {{ $t('navbar.home') }}
+                    </b-dropdown-item>
+
+                    <b-dropdown-divider></b-dropdown-divider>
+
+                    <b-dropdown-item
+                        id="popover-target-about"
+                        placement="left"
+                        @click="showAboutModal"
                     >
 
-                        <template slot="button-content" size="xs">
-                            <b-button variant="outline-primary" size="sm">
-                                    <i class="fa fa-bars fa-2x green-text"
-                                        aria-hidden="true"
-                                        style="font-size:1.5rem; "
-                                    ></i>
-                            </b-button>
-                        </template>
+                    <b-dropdown-item
+                        id="popover-target-faq"
+                        placement="left"
+                        @click="showFAQModal"
+                    >
+                        {{ $t('navbar.faq') }}
+                    </b-dropdown-item>
+                    <faq-modal/>
 
-                        <b-dropdown-item
-                            id="popover-target-about"
-                            placement="left"
-                            @click="showAboutModal"
-                        >
-                            {{ $t('navbar.about') }}
-                        </b-dropdown-item>
-                        <about-modal></about-modal>
+                    <b-dropdown-item
+                        id="popover-target-eula"
+                        placement="left"
+                        @click="showEulaModal"
+                    >
+                        {{ $t('navbar.eula') }}
+                    </b-dropdown-item>
+                    <eula-modal/>
 
-                        <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-divider v-if="showOperationsManager"></b-dropdown-divider>
 
-                        <b-dropdown-item
-                            v-if="showOperationsManager"
-                            :disabled="!operationsManager.canUndo" @click="onUndo()"
-                        >
-                            {{
-                                $t('home.undo')
-                            }}
-                        </b-dropdown-item >
+                    <b-dropdown-item
+                        v-if="showOperationsManager"
+                        :disabled="!operationsManager.canUndo" @click="onUndo()"
+                    >
+                        {{
+                            $t('home.undo')
+                        }}
+                    </b-dropdown-item >
 
-                        <b-dropdown-item
-                            v-if="showOperationsManager"
-                            :disabled="!operationsManager.canRedo" @click="onRedo()"
-                        >
-                            {{
-                                $t('home.redo')
-                            }}
-                        </b-dropdown-item>
-                    </b-nav-item-dropdown>
-                </b-navbar-nav>
+                    <b-dropdown-item
+                        v-if="showOperationsManager"
+                        :disabled="!operationsManager.canRedo" @click="onRedo()"
+                    >
+                        {{
+                            $t('home.redo')
+                        }}
+                    </b-dropdown-item>
 
+                    <b-dropdown-divider v-if="edition"></b-dropdown-divider>
+                    <b-dropdown-item
+                        v-if="edition"
+                        @click="showCitation">
+                        {{
+                            $t('navbar.cite')
+                        }}
+                    </b-dropdown-item>
+                    <citation-modal/>
 
-            </b-collapse>
-
-
-         </b-navbar>
+                    <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item
+                        @click="contactUs">
+                        {{
+                            $t('navbar.contactus')
+                        }}
+                    </b-dropdown-item>
+                 </b-nav-item-dropdown>
+            </b-navbar-nav>
 
         <login></login>
     </div>
@@ -195,16 +230,22 @@ import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
 import AboutModal from './About-modal.vue';
+import FaqModal from './Faq-modal.vue';
+import EulaModal from './Eula-modal.vue';
+import CitationModal from './CitationModal.vue';
 // import ScreenSizeAlert from '../../views/home/components/ScreenSizeAlert.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
-import { BIcon, BIconSearch , BIconPersonFill, BIconList} from 'bootstrap-vue';
+import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
 
 @Component({
     name: 'navbar',
     components: {
         login: Login,
         'about-modal': AboutModal,
+        'faq-modal': FaqModal,
+        'eula-modal': EulaModal,
+        'citation-modal': CitationModal,
         // 'screen-size-alert': ScreenSizeAlert,
         BIcon,
         BIconSearch,
@@ -226,7 +267,11 @@ export default class Navbar extends Vue {
     }
 
     protected get showOperationsManager() {
-        return !!this.operationsManager && !!this.edition && !this.edition.permission.readOnly;
+        return (
+            !!this.operationsManager &&
+            !!this.edition &&
+            !this.edition.permission.readOnly
+        );
     }
 
     protected onUndo() {
@@ -237,15 +282,41 @@ export default class Navbar extends Vue {
         this.operationsManager!.redo();
     }
 
+    private goHome() {
+        this.$router.push({ path: '/' });
+    }
+
     private showAboutModal() {
         this.$root.$emit('bv::show::modal', 'AboutModal');
+    }
+
+    private showFAQModal() {
+        console.info('Show FAQ');
+        this.$root.$emit('bv::show::modal', 'FaqModal');
+    }
+
+    private showEulaModal() {
+        console.info('Show EULA');
+        this.$root.$emit('bv::show::modal', 'EulaModal');
+    }
+
+    private showCitation() {
+        console.info('Show Citation');
+        this.$root.$emit('bv::show::modal', 'CitationModal');
+    }
+
+    private contactUs() {
+        console.info('Send email');
+        location.href = 'mailto:sqe@deadseascrolls.org.il';
     }
 
     protected get editionBadgeClass() {
         if (!this.edition) {
             return '';
         }
-        return this.edition.isPublic ? 'status-badge-published' : 'status-badge-draft';
+        return this.edition.isPublic
+            ? 'status-badge-published'
+            : 'status-badge-draft';
     }
 
     protected get editionBadge() {
@@ -258,7 +329,9 @@ export default class Navbar extends Vue {
 
     private get artefactLink() {
         if (this.$state.artefacts.current) {
-            return `/editions/${this.edition!.id}/artefacts/${this.$state.artefacts.current.id}`;
+            return `/editions/${this.edition!.id}/artefacts/${
+                this.$state.artefacts.current.id
+            }`;
         }
         return `/editions/${this.edition!.id}/artefacts/`;
     }
@@ -269,17 +342,23 @@ export default class Navbar extends Vue {
 
     private get imagedObjectLink() {
         if (this.$state.imagedObjects.current) {
-            return `/editions/${this.edition!.id}/imaged-objects/${this.$state.imagedObjects.current.id}`;
+            return `/editions/${
+                this.edition!.id
+            }/imaged-objects/${encodeURIComponent(
+                this.$state.imagedObjects.current.id
+            )}`;
         }
         return `/editions/${this.edition!.id}/imaged-objects/`;
     }
 
     private get imagedObjectLabel() {
-        return this.$state.imagedObjects.current ? 'Imaged Object' : 'Imaged Objects';
+        return this.$state.imagedObjects.current
+            ? 'Imaged Object'
+            : 'Imaged Objects';
     }
 
     protected userNameExists(): boolean {
-        return ( undefined !== this.userName );
+        return undefined !== this.userName;
     }
 
     private get userName(): string | undefined {
@@ -311,7 +390,6 @@ export default class Navbar extends Vue {
         // We can't implement currentLanguage as a computed property, because $state.session.language is a getter, and
         // Vue doesn't handle getter changes very well.
     }
-
 
     private mounted() {
         this.currentLanguage = this.$state.session.language;
@@ -350,7 +428,6 @@ export default class Navbar extends Vue {
     text-decoration: none;
 }
 
-
 #screen-size-alert-modal {
     display: none;
 }
@@ -362,7 +439,6 @@ export default class Navbar extends Vue {
     /* height: 50px; */
     /* height: 3.12rem; */
 }
-
 
 .navbar-brand,
 .navbar-brand:hover {
@@ -386,10 +462,9 @@ export default class Navbar extends Vue {
     font-size: 2.2rem;
 }
 
-
 /* .navbar-brand > span { */
 .navbar-brand > .logo {
-    margin-right: 1.0rem;
+    margin-right: 1rem;
     margin-left: 2.4rem;
     /* margin-right: 10px;
     margin-left: 24px; */
@@ -414,15 +489,15 @@ export default class Navbar extends Vue {
 }
 
 @media (max-width: 1134px) {
-/* @media (max-width: 1134px ) and (min-width: 768px ) { */
+    /* @media (max-width: 1134px ) and (min-width: 768px ) { */
 
-    .navbar-brand.brand-1> .logo-text ,
+    .navbar-brand.brand-1 > .logo-text,
     .main-nav-bar .space-nav {
-       display: none;
+        display: none;
     }
 
     .main-nav-bar .navbar-brand a {
-        margin:0;
+        margin: 0;
         padding: 0;
         padding-right: 1rem;
         width: 4rem;
@@ -434,7 +509,7 @@ export default class Navbar extends Vue {
     }
 
     .navbar-brand > .logo {
-        margin:0;
+        margin: 0;
         padding: 0;
 
         /* margin-right: 10px;
@@ -449,10 +524,7 @@ export default class Navbar extends Vue {
         display: flex;
         text-align: center;
     }
-
 }
-
-
 
 .main-nav-bar.navbar .nav-item {
     display: flex;
@@ -466,7 +538,7 @@ export default class Navbar extends Vue {
 }
 
 /* .main-nav-bar .nav-item a.nav-link , */
-.main-nav-bar .nav-item  .nav-link,
+.main-nav-bar .nav-item .nav-link,
 .nav-item-white,
 .navbar-text
 {
@@ -474,12 +546,10 @@ export default class Navbar extends Vue {
 }
 
 #list-nav ul,
-#list-nav ul li ,
-#list-nav ul li .dropdown-item  {
-   min-width: 5rem;
-
+#list-nav ul li,
+#list-nav ul li .dropdown-item {
+    min-width: 5rem;
 }
-
 
 .status-badge {
     font-family: $font-family;
@@ -487,7 +557,7 @@ export default class Navbar extends Vue {
     font-size: $font-size-1;
     width: 6.8rem;
     height: 2.958rem;
-    line-height: 2.0rem;
+    line-height: 2rem;
     /* width: 68px;
     height: 29.58px;
     line-height: 20px; */
@@ -508,7 +578,7 @@ export default class Navbar extends Vue {
 }
 
 #popover-target-about {
-white-space: nowrap;
+    white-space: nowrap;
 }
 
 .popover-body {

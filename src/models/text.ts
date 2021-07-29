@@ -31,21 +31,24 @@ class TextFragmentData {
 }
 
 class ArtefactTextFragmentData extends TextFragmentData {
-    public static createFromEditionTextFragment(tf: TextFragmentData) {
-        return new ArtefactTextFragmentData({
-            id: tf.id,
-            name: tf.name,
-            editorId: tf.editorId,
-            suggested: true
-        });
-    }
     public suggested: boolean;
     public certain: boolean;
 
+    public static createFromEditionTextFragment(tf: TextFragmentData): ArtefactTextFragmentData {
+        const atf = new ArtefactTextFragmentData({
+            id: tf.id,
+            name: tf.name,
+            editorId: tf.editorId,
+            suggested: false
+        });
+        atf.certain = false;
+        return atf;
+    }
+
     constructor(obj: ArtefactTextFragmentMatchDTO) {
         super(obj);
-        this.suggested = obj.suggested;
         this.certain = !obj.suggested;
+        this.suggested = obj.suggested;
     }
 }
 
@@ -197,6 +200,8 @@ class SignInterpretation {
     public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
     public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
     public commentary: string | null;
+    public signStreamSectionIds: number[];
+    public qwbWordIds: number[];
 
     public sign: Sign;
 
@@ -206,6 +211,8 @@ class SignInterpretation {
         this.attributes = obj.attributes;
         this.nextSignInterpretations = obj.nextSignInterpretations;
         this.commentary = obj.commentary?.commentary || null;
+        this.signStreamSectionIds = obj.signStreamSectionIds || [];
+        this.qwbWordIds = obj.qwbWordIds || [];
 
         if (obj.rois) {
             this.rois = obj.rois.map(roi => new InterpretationRoi(roi));
@@ -295,7 +302,7 @@ class SignInterpretation {
     }
 }
 
-type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future
+export type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future
 
 class InterpretationRoi {
     public static new(
@@ -389,7 +396,7 @@ class InterpretationRoi {
         }
         if (newStatus === 'deleted') {
             // Remove the ROI from the artefact controlling it
-            StateManager.instance.interpretationRois.detachRoiFromArtefact(this);
+            StateManager.instance.interpretationRois.detachRoiFromArtefact(this, newStatus);
         } else if (this._status === 'deleted') {
             // Add the ROI to the artefact
             StateManager.instance.interpretationRois.attachRoiToArtefact(this);

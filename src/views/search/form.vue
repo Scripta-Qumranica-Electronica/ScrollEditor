@@ -2,12 +2,12 @@
     <div>
         <b-row class="mt-5" align-v="center">
             <b-col class="col-2">
-                <label>Text</label>
+                <label>Text Designation</label>
             </b-col>
             <b-col class="col-5">
                 <b-form-input
                     v-model="searchData.textDesignation"
-                    placeholder="Enter your text"
+                    placeholder="Enter your text designation"
                 ></b-form-input>
             </b-col>
             <b-col class="col-1">

@@ -1,18 +1,29 @@
 <template>
-
-    <b-container fluid no-gutters align-v="center" align-h="center"
-                 class="mt-1 mb-1 ml-1 p-0 pl-1 top-toolbar "
-                 id="scrollTopbar" >
-
-        <b-row align-v="center" no-gutters class="m-0 p-0 ml-0 mr-1 pr-2  topbar-row" >
-
-
-            <b-col no-gutters
-            class="mt-0 mb-2 mr-1 ml-0 pl-1 col-2 col-xl-1 col-lg-2 col-md-2 col-sm-2 col-xs-2">
-
-               <b-button-group>
-
-
+    <b-container
+        fluid
+        no-gutters
+        align-v="center"
+        align-h="center"
+        class="mt-1 mb-1 ml-1 p-0 pl-1 top-toolbar"
+        id="scrollTopbar"
+    >
+        <b-row
+            align-v="center"
+            no-gutters
+            class="m-0 p-0 ml-0 mr-1 pr-2 topbar-row"
+        >
+            <b-col
+                no-gutters
+                class="
+                    mt-0
+                    mb-2
+                    mr-1
+                    ml-0
+                    pl-1
+                    col-2 col-xl-1 col-lg-2 col-md-2 col-sm-2 col-xs-2
+                "
+            >
+                <b-button-group>
                     <b-button
                         id="material-mode-btn"
                         class="btn-xs mode-btn ml-0 mr-1 mb-4 mt-2"
@@ -28,7 +39,7 @@
 
                     <b-button
                         id="text-mode-btn"
-                        class="btn-xs mode-btn btn-sm-ex ml-1 mr-0 mb-4 mt-2 "
+                        class="btn-xs mode-btn btn-sm-ex ml-1 mr-0 mb-4 mt-2"
                         size="sm"
                         :variant="textVariant"
                         :pressed.sync="inTextMode"
@@ -37,30 +48,43 @@
                     >
                         Text Mode
                     </b-button>
-
                 </b-button-group>
             </b-col>
 
-
-            <b-col no-gutters align-h="center" class="col-2 col-xl-2 col-lg-2 col-md-2 col-sm-3 col-xs-3 mb-2 ml-0 mr-0 position-zoom col-zm-sm">
-
+            <b-col
+                no-gutters
+                align-h="center"
+                class="
+                    col-2 col-xl-2 col-lg-2 col-md-2 col-sm-3 col-xs-3
+                    mb-2
+                    ml-0
+                    mr-0
+                    position-zoom
+                    col-zm-sm
+                "
+            >
                 <zoom-toolbar
-                        class="mb-4 mt-2"
-                        v-model="localZoom"
-                        delta="0.05"
-                        @zoomChanged="onZoomChanged($event)"
+                    class="mb-4 mt-2"
+                    v-model="localZoom"
+                    delta="0.05"
+                    @zoomChanged="onZoomChanged($event)"
                 />
             </b-col>
 
-            <b-col no-gutters class="col-3 col-xl-3 col-lg-3 col-md-3 col-sm-4 col-xs-6 m-0 ml-0 mr-0 col-zm-sm">
-
+            <b-col
+                no-gutters
+                class="
+                    col-3 col-xl-3 col-lg-3 col-md-3 col-sm-4 col-xs-6
+                    m-0
+                    ml-0
+                    mr-0
+                    col-zm-sm
+                "
+            >
                 <b-card-body class="card-body-cancel m-0 mb-1 p-0">
-                    <section class="m-0 p-0" >
-
-                        <b-row no-gutters align-v="center" >
-
+                    <section class="m-0 p-0">
+                        <b-row no-gutters align-v="center">
                             <b-button-group>
-
                                 <b-button
                                     pill
                                     class="btn-sm btn-sm-ex ml-0 mb-4 mt-2"
@@ -68,10 +92,10 @@
                                     variant="dark"
                                     text-center
                                     :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                     @click="zoomArtefact(1)"
                                 >
@@ -85,10 +109,10 @@
                                     variant="dark"
                                     text-center
                                     :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                     @click="zoomArtefact(-1)"
                                 >
@@ -102,18 +126,29 @@
                                     variant="dark"
                                     text-center
                                     :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                     @click="resetZoom()"
                                     >reset
-                                </b-button
-                                >
+                                </b-button>
                             </b-button-group>
 
-                            <b-col class="m-1 mb-1 mt-0 col-5 col-xl-3 col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                            <b-col
+                                class="
+                                    m-1
+                                    mb-1
+                                    mt-0
+                                    col-5
+                                    col-xl-3
+                                    col-lg-4
+                                    col-md-4
+                                    col-sm-4
+                                    col-xs-4
+                                "
+                            >
                                 <b-form-input
                                     id="input-small"
                                     class="mb-4 mt-2"
@@ -121,46 +156,47 @@
                                     type="number"
                                     v-model="params.scale"
                                     :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                 >
                                 </b-form-input>
                             </b-col>
 
-                            <b-col no-gutters text-center
+                            <b-col
+                                no-gutters
+                                text-center
                                 :class="[
                                     !(
                                         selectedArtefacts &&
                                         selectedArtefacts.length
-                                    )? 'text-muted col-1 mt-2 mb-4 mr-0'
-                                    : 'col-1 mt-2 mb-4 mr-0'
-                                    ]"
-                            > %
-
+                                    )
+                                        ? 'text-muted col-1 mt-2 mb-4 mr-0'
+                                        : 'col-1 mt-2 mb-4 mr-0',
+                                ]"
+                            >
+                                %
                             </b-col>
-
                         </b-row>
-
-                    </section >
+                    </section>
                 </b-card-body>
-
             </b-col>
 
-
-
-            <b-col text-center no-gutters
-                    class="col-4 col-xl-4 col-lg-4 col-md-4 col-sm-3 col-xs-3 col-zm-md ml-0 mr-0">
-
+            <b-col
+                text-center
+                no-gutters
+                class="
+                    col-4 col-xl-4 col-lg-4 col-md-4 col-sm-3 col-xs-3 col-zm-md
+                    ml-0
+                    mr-0
+                "
+            >
                 <b-card-body text-center class="card-body-cancel m-0 mb-1 p-0">
-
                     <section class="m-0 p-0" no-gutters>
-
-                        <b-row no-gutters align-v="center" >
+                        <b-row no-gutters align-v="center">
                             <b-button-group>
-
                                 <b-button
                                     pill
                                     class="btn-sm btn-sm-ex ml-0 mb-4 mt-2"
@@ -168,10 +204,10 @@
                                     variant="dark"
                                     text-center
                                     :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                     @click="rotateGroupArtefact(-1)"
                                 >
@@ -186,86 +222,105 @@
                                     variant="dark"
                                     text-center
                                     :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                     @click="rotateGroupArtefact(1)"
                                 >
-                                    <font-awesome-icon icon="redo" >
+                                    <font-awesome-icon icon="redo">
                                     </font-awesome-icon>
                                 </b-button>
-
                             </b-button-group>
-                            <b-col class="m-1 mb-1 mt-0 col-5 col-xl-2 col-lg-3 col-md-3 col-sm-4 col-xs-4">
-
-
+                            <b-col
+                                class="
+                                    m-1
+                                    mb-1
+                                    mt-0
+                                    col-5
+                                    col-xl-2
+                                    col-lg-3
+                                    col-md-3
+                                    col-sm-4
+                                    col-xs-4
+                                "
+                            >
                                 <b-form-input
                                     id="input-small"
                                     class="mb-4 mt-2"
                                     size="sm"
                                     type="number"
                                     v-model="params.rotate"
-                                        :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                    :disabled="
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                 ></b-form-input>
                             </b-col>
 
-
-                           <b-col no-gutters text-center
+                            <b-col
+                                no-gutters
+                                text-center
                                 :class="[
                                     !(
                                         selectedArtefacts &&
                                         selectedArtefacts.length
-                                    )? 'text-muted col-1 mb-4 mt-2'
-                                    : 'col-1 mb-4 mt-2'
-                                    ]"
-
-                            > deg'
+                                    )
+                                        ? 'text-muted col-1 mb-4 mt-2'
+                                        : 'col-1 mb-4 mt-2',
+                                ]"
+                            >
+                                deg'
                             </b-col>
 
-                            <b-col no-gutters text-center class="col-2 ml-4 mt-2 mb-1">
+                            <b-col
+                                no-gutters
+                                text-center
+                                class="col-2 ml-4 mt-2 mb-1"
+                            >
                                 <b-button
-                                pill
-                                class="btn-sm btn-sm-ex ml-1 mb-4 mt-2"
-                                size="sm"
-                                variant="dark"
-                                @click="statusMirror()"
-
-                                :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                "
+                                    pill
+                                    class="btn-sm btn-sm-ex ml-1 mb-4 mt-2"
+                                    size="sm"
+                                    variant="dark"
+                                    @click="statusMirror()"
+                                    :disabled="
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
+                                    "
                                 >
-                            mirror
+                                    mirror
                                 </b-button>
                             </b-col>
                         </b-row>
-
-
-
                     </section>
                 </b-card-body>
-
             </b-col>
 
-
-
-            <b-col text-center align-v="center" no-gutters
-                    class="col-3 col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6 ml-0 mr-1 col-zm-sm">
-
+            <b-col
+                text-center
+                align-v="center"
+                no-gutters
+                class="
+                    col-3 col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6
+                    ml-0
+                    mr-1
+                    col-zm-sm
+                "
+            >
                 <b-card-body text-center class="card-body-cancel m-0 mb3 p-0">
-
-                     <section class="mb-3 mt-0 p-0" no-gutters align-v="center" text-center>
-
-                        <b-row no-gutters align-v="end" >
+                    <section
+                        class="mb-3 mt-0 p-0"
+                        no-gutters
+                        align-v="center"
+                        text-center
+                    >
+                        <b-row no-gutters align-v="end">
                             <div>
                                 <table>
                                     <tr>
@@ -281,13 +336,9 @@
                                                         selectedArtefacts.length
                                                     )
                                                 "
-                                                @click="
-                                                    dragArtefact(0, -1)
-                                                "
+                                                @click="dragArtefact(0, -1)"
                                             >
-                                                <i
-                                                    class="fa fa-arrow-up"
-                                                ></i>
+                                                <i class="fa fa-arrow-up"></i>
                                             </b-button>
                                         </td>
                                         <td></td>
@@ -304,13 +355,9 @@
                                                         selectedArtefacts.length
                                                     )
                                                 "
-                                                @click="
-                                                    dragArtefact(-1, 0)
-                                                "
+                                                @click="dragArtefact(-1, 0)"
                                             >
-                                                <i
-                                                    class="fa fa-arrow-left"
-                                                ></i>
+                                                <i class="fa fa-arrow-left"></i>
                                             </b-button>
                                         </td>
                                         <td>
@@ -324,13 +371,9 @@
                                                         selectedArtefacts.length
                                                     )
                                                 "
-                                                @click="
-                                                    dragArtefact(0, 1)
-                                                "
+                                                @click="dragArtefact(0, 1)"
                                             >
-                                                <i
-                                                    class="fa fa-arrow-down"
-                                                ></i>
+                                                <i class="fa fa-arrow-down"></i>
                                             </b-button>
                                         </td>
                                         <td>
@@ -344,9 +387,7 @@
                                                         selectedArtefacts.length
                                                     )
                                                 "
-                                                @click="
-                                                    dragArtefact(1, 0)
-                                                "
+                                                @click="dragArtefact(1, 0)"
                                             >
                                                 <i
                                                     class="fa fa-arrow-right"
@@ -357,8 +398,20 @@
                                 </table>
                             </div>
 
-
-                            <b-col class="m-1 mb-3 mt-0 ml-2 col-3 col-xl-3 col-lg-3 col-md-4 col-sm-4 col-xs-4">
+                            <b-col
+                                class="
+                                    m-1
+                                    mb-3
+                                    mt-0
+                                    ml-2
+                                    col-3
+                                    col-xl-3
+                                    col-lg-3
+                                    col-md-4
+                                    col-sm-4
+                                    col-xs-4
+                                "
+                            >
                                 <b-form-input
                                     id="input-small"
                                     size="sm"
@@ -366,36 +419,33 @@
                                     text-center
                                     v-model="params.move"
                                     :disabled="
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
+                                        !(
+                                            selectedArtefacts &&
+                                            selectedArtefacts.length
+                                        )
                                     "
                                 ></b-form-input>
                             </b-col>
 
-                            <b-col no-gutters text-center
+                            <b-col
+                                no-gutters
+                                text-center
                                 :class="[
                                     !(
                                         selectedArtefacts &&
                                         selectedArtefacts.length
-                                    )? 'text-muted col-1 mt-1 mb-3'
-                                    : 'col-1 mt-1 mb-3'
-                                    ]"
-                            > mm
+                                    )
+                                        ? 'text-muted col-1 mt-1 mb-3'
+                                        : 'col-1 mt-1 mb-3',
+                                ]"
+                            >
+                                mm
                             </b-col>
-
                         </b-row>
-
-
-                    </section >
+                    </section>
                 </b-card-body>
-
             </b-col>
-
-
         </b-row>
-
     </b-container>
 </template>
 
@@ -406,7 +456,10 @@ import { ScrollEditorState } from '@/state/scroll-editor';
 import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
 
 import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
-import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
+import {
+    ScrollEditorParams,
+    ScrollEditorOpMode,
+} from '../artefact-editor/types';
 import { Placement } from '@/utils/Placement';
 import { Artefact } from '@/models/artefact';
 import { Point } from '../../utils/helpers';
@@ -424,10 +477,8 @@ import {
         'zoom-toolbar': ZoomToolbar,
     },
 })
-
 export default class ScrollTopToolbar extends Vue {
-
-    @Model ('zoomChangedGlobal', {type: Number}) private paramsZoom!: number;
+    @Model('zoomChangedGlobal', { type: Number }) private paramsZoom!: number;
 
     @Prop({ default: -1 }) public artefactId!: number;
 
@@ -451,16 +502,15 @@ export default class ScrollTopToolbar extends Vue {
     private ver1: boolean = true;
     private zoomDelta!: number;
 
-    private localZoom: number = this.paramsZoom || 0.01;
+    private localZoom: number = this.paramsZoom || 0.1;
 
     private onZoomChanged(val: number) {
         this.localZoom = val;
         this.$emit('zoomChangedGlobal', val);
-
     }
 
     private get inTextMode(): boolean {
-        return ('text' === this.scrollEditorState.mode);
+        return 'text' === this.scrollEditorState.mode;
     }
 
     // Computed properties are by default getter-only,
@@ -472,99 +522,86 @@ export default class ScrollTopToolbar extends Vue {
     }
 
     private get inMaterialMode(): boolean {
-        return  ( 'material' === this.scrollEditorState.mode);
+        return 'material' === this.scrollEditorState.mode;
     }
 
     // Computed properties are by default getter-only,
     // but we also provide a dummy setter to avoid this warning:
     // Computed property "inTextMode" was assigned to but it has no setter
-
     private set inMaterialMode(val: boolean) {
-         const param = 1;
+        const param = 1;
     }
 
     private get textVariant(): string {
-       return ( ('text' === this.scrollEditorState.mode) ?
-                 'info' : 'outline-secondary' );
+        return 'text' === this.scrollEditorState.mode
+            ? 'info'
+            : 'outline-secondary';
     }
 
     private get materialVariant(): string {
-       return ( ('material' === this.scrollEditorState.mode) ?
-                'info' : 'outline-secondary' );
+        return 'material' === this.scrollEditorState.mode
+            ? 'info'
+            : 'outline-secondary';
     }
 
     protected mounted() {
-
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
         }
 
-        const materialBtn =
-                document.querySelector('#material-mode-btn')!;
-        const textBtn =
-                document.querySelector('#text-mode-btn')!;
+        const materialBtn = document.querySelector('#material-mode-btn')!;
+        const textBtn = document.querySelector('#text-mode-btn')!;
 
-        if ( 'material' === this.scrollEditorState.mode) {
+        if ('material' === this.scrollEditorState.mode) {
             materialBtn.classList.add('btn-selected');
-        } else if ( 'text' === this.scrollEditorState.mode) {
+        } else if ('text' === this.scrollEditorState.mode) {
             materialBtn.classList.remove('btn-selected');
         }
 
         materialBtn.addEventListener('focusout', (event) => {
-             if ( 'material' === this.scrollEditorState.mode) {
+            if ('material' === this.scrollEditorState.mode) {
                 materialBtn.classList.add('btn-selected');
-            } else if ( 'text' === this.scrollEditorState.mode) {
+            } else if ('text' === this.scrollEditorState.mode) {
                 materialBtn.classList.remove('btn-selected');
             }
         });
 
-
         textBtn.addEventListener('focusout', (event) => {
-            if ( 'text' === this.scrollEditorState.mode) {
+            if ('text' === this.scrollEditorState.mode) {
                 textBtn.classList.add('btn-selected');
-            } else if ( 'material' === this.scrollEditorState.mode) {
+            } else if ('material' === this.scrollEditorState.mode) {
                 textBtn.classList.remove('btn-selected');
             }
-
         });
-
-
     }
 
     // router re enter page
     public beforeEnter() {
-        const materialBtn =
-                document.getElementById('material-mode-btn')!;
-        const textBtn =
-                document.getElementById('text-mode-btn')!;
+        const materialBtn = document.getElementById('material-mode-btn')!;
+        const textBtn = document.getElementById('text-mode-btn')!;
 
         const curTopBar = document.getElementById('scroll-topbar')!;
 
-        if ( 'material' === this.scrollEditorState.mode) {
+        if ('material' === this.scrollEditorState.mode) {
             materialBtn.focus();
-        } else if ( 'text' === this.scrollEditorState.mode) {
+        } else if ('text' === this.scrollEditorState.mode) {
             textBtn.focus();
         }
 
         curTopBar.addEventListener('focusout', (event) => {
-             if ( 'material' === this.scrollEditorState.mode) {
-                 materialBtn.focus();
-            } else if ( 'text' === this.scrollEditorState.mode) {
+            if ('material' === this.scrollEditorState.mode) {
+                materialBtn.focus();
+            } else if ('text' === this.scrollEditorState.mode) {
                 textBtn.focus();
             }
         });
-
-
     }
 
     public destroyed() {
         if (this.keyboardInput) {
             window.removeEventListener('keydown', this.onKeyPress);
         }
-
     }
-
-
 
     private get mode(): ScrollEditorOpMode {
         return this.params!.mode;
@@ -640,23 +677,18 @@ export default class ScrollTopToolbar extends Vue {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
 
-
     private onTextMode(value: ScrollEditorMode) {
         this.scrollEditorState.mode = value;
 
-        const materialBtn =
-                document.getElementById('material-mode-btn')!;
-        const textBtn =
-                document.getElementById('text-mode-btn')!;
+        const materialBtn = document.getElementById('material-mode-btn')!;
+        const textBtn = document.getElementById('text-mode-btn')!;
 
-        if ( 'material' === this.scrollEditorState.mode) {
+        if ('material' === this.scrollEditorState.mode) {
             materialBtn.focus();
-        } else if ( 'text' === this.scrollEditorState.mode) {
+        } else if ('text' === this.scrollEditorState.mode) {
             textBtn.focus();
         }
-
     }
-
 
     private get artefacts() {
         return this.$state.artefacts.items || [];
@@ -681,14 +713,10 @@ export default class ScrollTopToolbar extends Vue {
         return this.scrollEditorState.selectedGroup;
     }
 
-
-
     public mirrorMode() {
         this.setMode('mirror');
         this.statusMirror();
-
     }
-
 
     public statusMirror() {
         const operations: ArtefactPlacementOperation[] = [];
@@ -726,10 +754,7 @@ export default class ScrollTopToolbar extends Vue {
         }
 
         this.newOperation(operation);
-
     }
-
-
 
     public getGroupCenter(): Point {
         const minX = Math.min(
@@ -796,7 +821,6 @@ export default class ScrollTopToolbar extends Vue {
         }
         this.newOperation(operation);
     }
-
 
     public translateArtefactAfterGroupRotation(
         art: Artefact,
@@ -867,7 +891,6 @@ export default class ScrollTopToolbar extends Vue {
         this.newOperation(operation);
     }
 
-
     public rotateGroupArtefact(direction: number) {
         const operations: ScrollEditorOperation[] = [];
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
@@ -927,7 +950,6 @@ export default class ScrollTopToolbar extends Vue {
         return normalizedAngle;
     }
 
-
     // private createOperation(
     //     opType: ArtefactPlacementOperationType,
     //     newPlacement: Placement,
@@ -948,14 +970,12 @@ export default class ScrollTopToolbar extends Vue {
     //     return op;
     // }
 
-
     private createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact,
         newIsPlaced: boolean = true
     ): ArtefactPlacementOperation {
-
         artefact.placement = newPlacement;
         const op = new ArtefactPlacementOperation(
             artefact.id,
@@ -966,11 +986,10 @@ export default class ScrollTopToolbar extends Vue {
             newIsPlaced
         );
 
-        if ( opType === 'mirror' ) {
+        if (opType === 'mirror') {
             op.next.mirrored = true;
             op.needsSaving = true;
         }
-
 
         return op;
     }
@@ -1000,7 +1019,6 @@ export default class ScrollTopToolbar extends Vue {
         }
         this.newOperation(operation);
     }
-
 }
 </script>
 
@@ -1031,7 +1049,6 @@ export default class ScrollTopToolbar extends Vue {
     min-width: 100%;
     width: 100%;
     max-width: 100vw;
-
 }
 
 .btn-xs {
@@ -1048,7 +1065,6 @@ export default class ScrollTopToolbar extends Vue {
     border-radius: 0.2rem;
 }
 
-
 .mode-btn {
     /* color: #28a745  !important; */
     color: #8253f0 !important;
@@ -1059,15 +1075,15 @@ export default class ScrollTopToolbar extends Vue {
 }
 
 .mode-btn:focus {
-  outline: 3px solid rgb(113, 230, 210);
-  box-shadow: rgb(113, 230, 210);
-  /* box-shadow: none; */
-  border-width: 3px;
+    outline: 3px solid rgb(113, 230, 210);
+    box-shadow: rgb(113, 230, 210);
+    /* box-shadow: none; */
+    border-width: 3px;
 }
 .mode-btn:focus-visible {
-  outline: 3px solid rgb(113, 230, 210);
-  box-shadow: rgb(113, 230, 210);
-  border-width: 3px;
+    outline: 3px solid rgb(113, 230, 210);
+    box-shadow: rgb(113, 230, 210);
+    border-width: 3px;
 }
 
 .btn-selected {
@@ -1082,5 +1098,4 @@ export default class ScrollTopToolbar extends Vue {
     /* max-width: 20vw; */
     max-width: 25%;
 }
-
 </style>

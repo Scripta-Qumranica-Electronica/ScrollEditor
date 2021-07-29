@@ -135,6 +135,7 @@ export default class TextSide extends Vue {
         // Try first to get 'certain' matches,
         // if there are none, then fall back to 'suggested' (which might also be none)
         const certain = this.allTextFragmentsData.filter((x) => x.certain);
+        console.info(this.allTextFragmentsData.filter((x) => x.suggested));
         return certain.length > 0 ? certain : this.allTextFragmentsData.filter((x) => x.suggested);
     }
 
@@ -154,20 +155,32 @@ export default class TextSide extends Vue {
     }
 
     private get allTextFragmentsData() {
-        const textFragments = this.$state.editions.current!.textFragments.map(
+        let textFragments = this.$state.editions.current!.textFragments.map(
             (tf) => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
         );
         const textFragmentsArtefact =
             this.$state.artefacts.current!.textFragments || [];
-        console.info(textFragmentsArtefact);
 
-        textFragments.forEach((editionTf) => {
-            // Copy the suggested and certain attributes for TFs matching the artefactId
-            textFragmentsArtefact.forEach((artefactTf) => {
-                editionTf.suggested = artefactTf.id === editionTf.id && artefactTf.suggested;
-                editionTf.certain = artefactTf.id === editionTf.id && artefactTf.certain;
-            });
+        textFragments = textFragments.map((editionTf) => {
+            for (const artefactTf of textFragmentsArtefact) {
+                if (artefactTf.id === editionTf.id) {
+                    editionTf.suggested = editionTf.suggested || artefactTf.suggested;
+                    editionTf.certain = editionTf.certain || artefactTf.certain;
+                }
+            }
+            return editionTf;
         });
+        // textFragments = textFragments.map((editionTf) => {
+        //     // Copy the suggested and certain attributes for TFs matching the artefactId
+        //     textFragmentsArtefact.forEach((artefactTf) => {
+        //         if (artefactTf.id === editionTf.id) {
+        //             editionTf.suggested = artefactTf.suggested;
+        //             editionTf.certain = artefactTf.certain;
+        //         }
+        //     });
+
+        //     return editionTf;
+        // });
 
         return textFragments;
     }

@@ -25,6 +25,7 @@ export class Artefact {
     public textFragments: ArtefactTextFragmentData[] = [];
 
     public rois: InterpretationRoi[] = []; // ROIs for this artefact
+    public deleteRois: InterpretationRoi[] = []; // Any ROIs that should be deleted from artefact
     public signInterpretations: SignInterpretation[] = []; // Sign Interpretations for this artefact
 
     constructor(obj: ArtefactDTO) {
@@ -54,6 +55,8 @@ export class Artefact {
         if (!viewport) {
             return false;
         }
+        // TODO: delete this
+        return true;
 
         const actualPoints = this.calculateNewPoints();
 
