@@ -9,8 +9,7 @@
         <b-navbar toggleable="md"
             class="main-nav-bar"
             active
-            type="dark" variant="light"
-        >
+            type="dark" variant="light">
 
             <b-navbar-brand to="/" align="left" id="brand-1"
                 class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
@@ -30,8 +29,7 @@
             <b-collapse id="nav1-collapse" is-nav>
 
                 <b-navbar-nav   v-if="edition"
-                                class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
-                >
+                                class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex">
                     <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
                         <span>
                             {{ edition.name }}
@@ -45,6 +43,7 @@
                     <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
                     <b-nav-item to="/" >Editions</b-nav-item>
                 </b-navbar-nav>
+            </b-collapse>
 
 
 
@@ -157,12 +156,6 @@
                     <b-dropdown-divider></b-dropdown-divider>
 
                     <b-dropdown-item
-                        id="popover-target-about"
-                        placement="left"
-                        @click="showAboutModal"
-                    >
-
-                    <b-dropdown-item
                         id="popover-target-faq"
                         placement="left"
                         @click="showFAQModal"
@@ -219,7 +212,7 @@
                     </b-dropdown-item>
                  </b-nav-item-dropdown>
             </b-navbar-nav>
-
+        </b-navbar>
         <login></login>
     </div>
 </template>
