@@ -414,15 +414,6 @@ $foreground: #0275d8;
     /* height: 3.12rem; */
 }
 
-.navbar-brand,
-.navbar-brand:hover {
-    /* color: #ffffff; */
-    /* color: #134ff5 !important; */
-    /* color: #8253f0 !important; */
-    /* BootstrapVue Primary color */
-    //color: #0275d8 !important;
-}
-
 #brand-text a {
     color: $foreground !important;
     text-decoration: none;
