@@ -68,7 +68,7 @@
                 <div class="col-6 align-self-center">
                     <div class="container">
                         <div class="row logos">
-                            <div class="col p-3">
+                            <div class="col p-3 right">
                                 <b-link
                                     href="http://www.antiquities.org.il/default_en.aspx" target="_blank">
                                     <img
@@ -93,8 +93,9 @@
                                     />
                                 </b-link>
                             </div>
-                            <div class="w-100"></div>
-                            <div class="col p-3">
+                        </div>
+                        <div class="row logos">
+                            <div class="col p-3 right">
                                 <b-link href="https://english.tau.ac.il/" target="_blank">
                                     <img
                                         src="@/assets/images/logo_tlv.png"
@@ -103,18 +104,18 @@
                                 </b-link>
                             </div>
                             <div class="col p-3">
-                                <b-link href="https://www.haifa.ac.il/" target="_blank">
-                                    <img
-                                        src="@/assets/images/logo_haifa.png"
-                                        alt="University of Haifa logo"
-                                    />
-                                </b-link>
-                            </div>
-                            <div class="col p-3">
                                 <b-link href="https://gepris.dfg.de/gepris/projekt/282601852?language=en" target="_blank">
                                     <img
                                         src="@/assets/images/logo_dfg.svg"
                                         alt="DFG Project Details"
+                                    />
+                                </b-link>
+                            </div>
+                            <div class="col p-3">
+                                <b-link href="https://www.haifa.ac.il/" target="_blank">
+                                    <img
+                                        src="@/assets/images/logo_haifa.png"
+                                        alt="University of Haifa logo"
                                     />
                                 </b-link>
                             </div>
@@ -241,11 +242,15 @@ export default class Welcome extends Vue {
 }
 .logos {
     .col {
-        text-align: center;
+        text-align: left;
+        &.right {
+            text-align: right;
+        }
     }
     img {
         max-height: 70px;
         padding: 10px;
+        filter: grayscale(100%);
     }
 }
 .font {

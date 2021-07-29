@@ -2,19 +2,17 @@
     <div>
 
 
-        <!-- variant is BG color, type is text color
-        variant= "dark" type="light"
-        variant="info" type="dark"    -->
 
         <b-navbar toggleable="md"
             class="main-nav-bar"
             active
             type="dark" variant="light">
 
+            <!-- Brand -->
             <b-navbar-brand to="/" align="left" id="brand-1"
                 class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
                 <img class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
-                <span class="logo-text m-0 p-0 pb-1">
+                <span class="logo-text m-0 p-0 pb-1 d-none d-xl-flex">
                     <router-link to="/home" v-if="isActive">
                         {{ $t('home.home') }}
                     </router-link>
@@ -24,116 +22,109 @@
                 </span>
             </b-navbar-brand >
 
-            <b-navbar-toggle target="nav1-collapse"></b-navbar-toggle>
-
-            <b-collapse id="nav1-collapse" is-nav>
-
-                <b-navbar-nav   v-if="edition"
-                                class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex">
-                    <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
-                        <span>
-                            {{ edition.name }}
-                            <b-badge :class="editionBadgeClass"> {{ editionBadge }}</b-badge>
-                        </span>
-                    </b-nav-item>
-                    <b-nav-item :to="`/editions/${edition.id}/scroll-editor/`">
-                        Manuscript
-                    </b-nav-item>
-                    <b-nav-item :to="artefactLink">{{ artefactLabel }}</b-nav-item>
-                    <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
-                    <b-nav-item to="/" >Editions</b-nav-item>
-                </b-navbar-nav>
-            </b-collapse>
-
-
-
-
-
-            <b-navbar-nav class="space-nav ml-auto mb-auto" align="right">
+            <!-- Edition navigation -->
+            <b-navbar-nav   v-if="edition"
+                            class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex">
+                <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
+                    <span>
+                        {{ edition.name }}
+                        <b-badge :class="editionBadgeClass"> {{ editionBadge }}</b-badge>
+                    </span>
+                </b-nav-item>
+                <b-nav-item :to="`/editions/${edition.id}/scroll-editor/`">
+                    Manuscript
+                </b-nav-item>
+                <b-nav-item :to="artefactLink">{{ artefactLabel }}</b-nav-item>
+                <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
+                <!-- <b-nav-item to="/" >Editions</b-nav-item> -->
             </b-navbar-nav>
 
+            <!-- empty navbar just to right-align the rest -->
+            <b-navbar-nav class="ml-auto"></b-navbar-nav>
 
-                 <b-navbar-nav toggleable
-                    class="search-user-nav ml-auto "
-                    align="right">
+            <b-navbar-nav v-if="showOperationsManager" align="right" class="d-none d-lg-flex">
+                <b-button :disabled="!operationsManager.canUndo" size="sm" @click="onUndo()">{{ $t('home.undo')}}</b-button>
+                <b-button :disabled="!operationsManager.canRedo" size="sm" @click="onRedo()">{{ $t('home.redo')}}</b-button>
+            </b-navbar-nav>
+
+            <b-navbar-nav toggleable
+                class="search-user-nav"
+                align="right">
 
 
-                    <b-nav-item to="/search" active>
-                            <b-button variant="outline-primary" size="sm">
-                                <i class="fa fa-search fa-2x green-text"
-                                    aria-hidden="true"
-                                    style="font-size:1.3rem;"
-                                    v-b-tooltip.hover.bottomleft="$t('home.search')"
-                                ></i>
-                            </b-button>
-                    </b-nav-item>
+                <b-nav-item to="/search" active>
+                        <b-button variant="outline-primary" size="sm">
+                            <i class="fa fa-search fa-2x green-text"
+                                aria-hidden="true"
+                                style="font-size:1.3rem;"
+                                v-b-tooltip.hover.bottomleft="$t('home.search')"
+                            ></i>
+                        </b-button>
+                </b-nav-item>
 
-                    <b-nav-item-dropdown
-                        id="register"
-                        right
-                        v-b-tooltip.hover.bottomleft="'User Menu'"
+                <!-- User menu -->
+                <b-nav-item-dropdown
+                    id="register"
+                    right
+                    v-b-tooltip.hover.bottomleft="'User Menu'"
+                >
+                    <template slot="button-content" size="xs">
+
+                        <b-button variant="outline-primary" size="sm">
+                            <i class="fa fa-user fa-2x green-text"
+                                aria-hidden="true"
+                                style="font-size:1.3rem;"
+                            ></i>
+                        </b-button>
+
+                        </template>
+
+                    <b-dropdown-item
+                        v-if="userNameExists"
+                        class="logout"
                     >
-                        <template slot="button-content" size="xs">
+                        <b> {{  $t(userName) }} </b>
+                    </b-dropdown-item>
 
-                            <b-button variant="outline-primary" size="sm">
-                                <i class="fa fa-user fa-2x green-text"
-                                    aria-hidden="true"
-                                    style="font-size:1.3rem;"
-                                ></i>
-                            </b-button>
+                    <b-dropdown-item
+                        v-if="!isActive"
+                        @click="login()"
+                        class="logout"
+                    >
+                        {{ $t('navbar.login' )}}
+                    </b-dropdown-item>
 
-                            </template>
+                    <b-dropdown-item
+                        v-if="isActive"
+                        @click="logout()"
+                        class="logout"
+                    >
+                        {{ $t('navbar.logout') }}
+                    </b-dropdown-item>
 
-                        <b-dropdown-item
-                            v-if="userNameExists"
-                            class="logout"
-                        >
-                            <b> {{  $t(userName) }} </b>
-                        </b-dropdown-item>
+                    <b-dropdown-item
+                        v-if="isActive"
+                        @click="changePassword()"
+                    >
+                        {{
+                            $t('navbar.changePassword')
+                        }}
+                    </b-dropdown-item >
 
-                        <b-dropdown-item
-                            v-if="!isActive"
-                            @click="login()"
-                            class="logout"
-                        >
-                            {{ $t('navbar.login' )}}
-                        </b-dropdown-item>
+                    <b-dropdown-item
+                        v-if="isActive"
+                        @click="updateUserDetails()"
+                    >
+                        {{
+                            $t('navbar.updateUserDetails')
+                        }}
+                    </b-dropdown-item>
+                </b-nav-item-dropdown>
 
-                        <b-dropdown-item
-                            v-if="isActive"
-                            @click="logout()"
-                            class="logout"
-                        >
-                            {{ $t('navbar.logout') }}
-                        </b-dropdown-item>
-
-                        <b-dropdown-item
-                            v-if="isActive"
-                            @click="changePassword()"
-                        >
-                            {{
-                                $t('navbar.changePassword')
-                            }}
-                        </b-dropdown-item >
-
-                        <b-dropdown-item
-                            v-if="isActive"
-                            @click="updateUserDetails()"
-                        >
-                            {{
-                                $t('navbar.updateUserDetails')
-                            }}
-                        </b-dropdown-item>
-                    </b-nav-item-dropdown>
-                 </b-navbar-nav>
-
-
-                <b-navbar-nav toggleable ml-0>
-
+            <!-- Hamburger Menu -->
                 <b-nav-item-dropdown
                     id="list-nav" right
                     text-center
-                    v-b-tooltip.hover.bottomleft="$t('navbar.about')"
                     class="bm-0 p-0 pl-1 pr-1"
                     no-caret
                 >
@@ -556,6 +547,10 @@ export default class Navbar extends Vue {
     line-height: 20px; */
 }
 
+b-navbar-item.disabled {
+    color: gray;
+}
+
 .status-badge-draft {
     background-color: $orange !important;
     color: $light-orange !important;
@@ -582,4 +577,9 @@ export default class Navbar extends Vue {
     color: #007bff;
     background-color: white;
 }
+
+.btn {
+    margin-left: 5px;
+}
+
 </style>
