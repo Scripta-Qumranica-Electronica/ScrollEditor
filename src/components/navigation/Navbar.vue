@@ -1,18 +1,16 @@
 <template>
     <div>
 
-
-
         <b-navbar toggleable="md"
-            class="main-nav-bar"
+            id="main-nav-bar"
             active
             type="dark" variant="light">
 
             <!-- Brand -->
             <b-navbar-brand to="/" align="left" id="brand-1"
                 class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <img class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
-                <span class="logo-text m-0 p-0 pb-1 d-none d-xl-flex">
+                <img id="brand-icon" class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
+                <span id="brand-text" class="m-0 p-0 pb-1 d-none d-xl-flex">
                     <router-link to="/home" v-if="isActive">
                         {{ $t('home.home') }}
                     </router-link>
@@ -43,8 +41,8 @@
             <b-navbar-nav class="ml-auto"></b-navbar-nav>
 
             <b-navbar-nav v-if="showOperationsManager" align="right" class="d-none d-lg-flex">
-                <b-button :disabled="!operationsManager.canUndo" size="sm" @click="onUndo()">{{ $t('home.undo')}}</b-button>
-                <b-button :disabled="!operationsManager.canRedo" size="sm" @click="onRedo()">{{ $t('home.redo')}}</b-button>
+                <b-button variant="outline" :disabled="!operationsManager.canUndo" size="sm" @click="onUndo()">{{ $t('home.undo')}}</b-button>
+                <b-button variant="outline" :disabled="!operationsManager.canRedo" size="sm" @click="onRedo()">{{ $t('home.redo')}}</b-button>
             </b-navbar-nav>
 
             <b-navbar-nav toggleable
@@ -53,7 +51,7 @@
 
 
                 <b-nav-item to="/search" active>
-                        <b-button variant="outline-primary" size="sm">
+                        <b-button size="sm" variant="outline" class="navbar-button">
                             <i class="fa fa-search fa-2x green-text"
                                 aria-hidden="true"
                                 style="font-size:1.3rem;"
@@ -70,7 +68,7 @@
                 >
                     <template slot="button-content" size="xs">
 
-                        <b-button variant="outline-primary" size="sm">
+                        <b-button variant="outline" size="sm">
                             <i class="fa fa-user fa-2x green-text"
                                 aria-hidden="true"
                                 style="font-size:1.3rem;"
@@ -123,14 +121,13 @@
 
             <!-- Hamburger Menu -->
                 <b-nav-item-dropdown
-                    id="list-nav" right
+                    id="hamburger" right
                     text-center
                     class="bm-0 p-0 pl-1 pr-1"
                     no-caret
                 >
                     <template slot="button-content" size="xs">
                         <b-icon icon="list"
-                            style="background-color: #f7f7f7"
                             class="border rounded"
                             font-scale="1.6"
                         ></b-icon>
@@ -404,21 +401,14 @@ export default class Navbar extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
+$background: #0a142e;
+$foreground: #0275d8;
+
 /* scoped has to be removed in order to set b-nav-dropdown color  */
 
-.white-link {
-    /* color: white; */
-    color: #f3f3f3 !important;
-    text-decoration: none;
-}
-
-#screen-size-alert-modal {
-    display: none;
-}
-
-.main-nav-bar.navbar {
+#main-nav-bar {
     /* background: #041d5c !important; */
-    background: #0a142e !important;
+    background: $background  !important;
 
     /* height: 50px; */
     /* height: 3.12rem; */
@@ -430,7 +420,12 @@ export default class Navbar extends Vue {
     /* color: #134ff5 !important; */
     /* color: #8253f0 !important; */
     /* BootstrapVue Primary color */
-    color: #0275d8 !important;
+    //color: #0275d8 !important;
+}
+
+#brand-text a {
+    color: $foreground !important;
+    text-decoration: none;
 }
 
 .navbar-brand {
@@ -461,7 +456,7 @@ export default class Navbar extends Vue {
     height: 34px;
     border-radius: 5px; */
 
-    background: #1e2641;
+    background:$background;
 
     /* display: inline-block; */
     display: flex;
@@ -503,14 +498,14 @@ export default class Navbar extends Vue {
         /* width: 34px;
         height: 34px;
         border-radius: 5px; */
-        background: #1e2641;
+        background: $background;
         border-radius: 0.3rem;
         display: flex;
         text-align: center;
     }
 }
 
-.main-nav-bar.navbar .nav-item {
+.nav-item {
     display: flex;
     align-items: center;
 
@@ -521,18 +516,32 @@ export default class Navbar extends Vue {
     font-size: 1.1rem;
 }
 
+button {
+    background: transparent;
+    color: $foreground !important;
+    border-color: $foreground !important;
+}
+
 /* .main-nav-bar .nav-item a.nav-link , */
-.main-nav-bar .nav-item .nav-link,
+.nav-item .nav-link,
 .nav-item-white,
 .navbar-text
 {
-     color: #f3f3f3  !important;
+     color: $foreground  !important;
 }
 
-#list-nav ul,
-#list-nav ul li,
-#list-nav ul li .dropdown-item {
-    min-width: 5rem;
+#hamburger {
+    li {
+        min-width: 5rem;
+    }
+
+    path {
+        stroke: $foreground;
+    }
+
+    .border {
+        border-color: $foreground !important;
+    }
 }
 
 .status-badge {
@@ -545,10 +554,6 @@ export default class Navbar extends Vue {
     /* width: 68px;
     height: 29.58px;
     line-height: 20px; */
-}
-
-b-navbar-item.disabled {
-    color: gray;
 }
 
 .status-badge-draft {
