@@ -309,8 +309,7 @@ import { TextFragmentState } from '@/state/text-fragment';
 })
 export default class ArtefactEditor
     extends Vue
-    implements SavingAgent<ArtefactEditorOperation>
-{
+    implements SavingAgent<ArtefactEditorOperation> {
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
     private actionMode: ActionMode = 'box';
 

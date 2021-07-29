@@ -535,11 +535,6 @@ export default class Navbar extends Vue {
     color: #f3f3f3 !important;
 }
 
-.main-nav-bar .nav-item:not(:last-child):after {
-    /* content: '|';
-    color: #f3f3f3;*/
-}
-
 #list-nav ul,
 #list-nav ul li,
 #list-nav ul li .dropdown-item {
