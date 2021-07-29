@@ -7,7 +7,7 @@
             id="CitationModal"
             aria-role="dialog"
             aria-label="Citation Modal"
-            :width="640" scroll="keep"
+            size="lg" scroll="keep"
             ok-only
             trap-focus
             :destroy-on-hide="true"

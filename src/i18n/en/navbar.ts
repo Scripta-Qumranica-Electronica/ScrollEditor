@@ -3,7 +3,7 @@ export default {
     about: 'About',
     faq: 'FAQ',
     cite: 'Cite',
-    eula: 'EULA',
+    eula: 'Terms of Use',
     documentation: 'Documentation',
     contactus: 'Contact Us',
     login: 'Log in',

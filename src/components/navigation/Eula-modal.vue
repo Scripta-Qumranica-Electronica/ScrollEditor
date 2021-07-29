@@ -7,7 +7,8 @@
             id="EulaModal"
             aria-role="dialog"
             aria-label="EULA Modal"
-            :width="640" scroll="keep"
+            scroll="keep"
+            size="lg"
             ok-only
             trap-focus
             :destroy-on-hide="true"
@@ -21,7 +22,6 @@
             </template>
 
             <b-container fluid>
-                <h1>Terms of Use</h1>
 <p>By accessing the Scripta Qumranica Electronica Platform, I hereby declare and agree to the following terms of use as agreed upon by the participating institutions (Göttingen Academy of Sciences and Humanities; Israel Antiquities Authority; Tel Aviv University; University of Göttingen):</p>
 <ol>
     <li>I understand that the following personal data will be collected by the API: name, email and organizational affiliation. This information will not be shared with other third parties.</li>

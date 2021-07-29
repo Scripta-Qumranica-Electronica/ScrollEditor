@@ -7,10 +7,11 @@
             id="FaqModal"
             aria-role="dialog"
             aria-label="FAQ Modal"
-            :width="640" scroll="keep"
+            scroll="keep"
             ok-only
             trap-focus
             :destroy-on-hide="true"
+            size="lg"
             @shown="shown"
         >
             <template v-slot:modal-header>
