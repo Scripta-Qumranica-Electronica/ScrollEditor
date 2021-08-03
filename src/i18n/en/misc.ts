@@ -22,6 +22,8 @@ export default {
     invite: 'Invite',
     auto: 'Auto',
     select: 'Select',
+    edit: 'Edit',
+    view: 'View',
     collapsedsidebar: 'Menu TextFragment',
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',
