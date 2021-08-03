@@ -27,7 +27,7 @@
             variant="outline-secondary"
             @click="onRotateClick(+delta)"
             v-b-tooltip.hover.bottom
-            :title="$t('misc.RightRotate')"
+            :title="$t('misc.rightRotate')"
         >
             <font-awesome-icon
                 icon="redo"

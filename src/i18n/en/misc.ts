@@ -26,12 +26,12 @@ export default {
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',
     leftRotate: 'Left Rotate',
-    RightRotate: 'Right Rotate',
+    rightRotate: 'Right Rotate',
     editSign: 'Edit sign',
     deleteSign: 'Delete sign',
     addToLeft: 'Add to left',
     addToRight: 'Add to right',
     showQwbVariants: 'Show QWB Variants',
-    showQwbParallels: 'Show QWB Parallels'
-
+    showQwbParallels: 'Show QWB Parallels',
+    noImages: 'No Images Available'
 };
