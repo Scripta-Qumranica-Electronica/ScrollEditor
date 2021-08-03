@@ -212,6 +212,7 @@
             </b-navbar-nav>
         </b-navbar>
         <login></login>
+        <register></register>
     </div>
 </template>
 
@@ -228,6 +229,7 @@ import CitationModal from './CitationModal.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
 import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
+import Registration from '@/views/user/Registration.vue';
 
 @Component({
     name: 'navbar',
@@ -237,6 +239,7 @@ import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
         'faq-modal': FaqModal,
         'eula-modal': EulaModal,
         'citation-modal': CitationModal,
+        register: Registration,
         // 'screen-size-alert': ScreenSizeAlert,
         BIcon,
         BIconSearch,

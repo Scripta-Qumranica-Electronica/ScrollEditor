@@ -26,13 +26,13 @@
                     {{
                         $t('home.copyTitle', {
                             name: currentEdition.name,
-                            owner: currentEdition.owner.forename,
+                            owner: currentEdition.owner.forename || 'N/A',
                         })
                     }}</b-col
                 >
             </b-row>
         </template>
-        <form @submit.stop.prevent="copyEdition">
+        <form @submit.stop.prevent="copyEdition" v-if="user">
             <b-form-input
                 ref="newCopyNameRef"
                 id="newCopyName"
@@ -58,24 +58,34 @@
                 <label>Collaborators {{edition.collaboators}}</label>
             </div>
         </form>
+        <div v-else>
+            You must be registered and logged in before you can create a copy of an edition.
+        </div>
         <template v-slot:modal-footer>
-            <div class="w-100">
-                <b-button
-                    @click.once="copyEdition"
-                    block
-                    variant="primary"
-                    class="btn-login-modal"
-                    :disabled="!newCopyName"
-                >
-                    {{ $t('misc.copy') }}
-                    <span v-if="waiting">
-                        <font-awesome-icon
-                            icon="spinner"
-                            spin
-                        ></font-awesome-icon>
-                    </span>
-                </b-button>
-            </div>
+            <b-row>
+                <b-col>
+                    <b-button
+                        @click.once="copyEdition"
+                        block
+                        :disabled="!newCopyName"
+                        v-if="user"
+                    >
+                        {{ $t('misc.copy') }}
+                        <span v-if="waiting">
+                            <font-awesome-icon
+                                icon="spinner"
+                                spin
+                            ></font-awesome-icon>
+                        </span>
+                    </b-button>
+                    <b-button @click="onLogin" class="mr-2" v-if="!user">
+                        {{ $t('navbar.login') }}
+                    </b-button>
+                    <b-button @click="onRegister" v-if="!user">
+                        {{ $t('navbar.register') }}
+                    </b-button>
+                </b-col>
+            </b-row>
         </template>
     </b-modal>
 </template>
@@ -114,7 +124,9 @@ export default class CopyEditionModal extends Vue {
 
     private copyModalShown() {
         this.newCopyName = this.currentEdition!.name;
-        (this.$refs.newCopyNameRef as any).focus();
+        if (this.user) {
+            (this.$refs.newCopyNameRef as any).focus();
+        }
     }
 
     private onShow( bvModalevt: Event ) {
@@ -174,6 +186,16 @@ export default class CopyEditionModal extends Vue {
         } finally {
             this.waiting = false;
         }
+    }
+
+    protected onLogin() {
+        this.$root.$emit('bv::show::modal', 'loginModal');
+        this.$bvModal.hide('copy-edition-modal');
+    }
+
+    protected onRegister() {
+        this.$root.$emit('bv::show::modal', 'registerModal');
+        this.$bvModal.hide('copy-edition-modal');
     }
 }
 </script>

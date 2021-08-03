@@ -133,10 +133,12 @@ export default class Login extends Vue {
 
     private forgotPassword() {
         this.$root.$emit('bv::show::modal', 'passwordModal');
+        this.$bvModal.hide('loginModal');
     }
 
     private register() {
         this.$root.$emit('bv::show::modal', 'registerModal');
+        this.$bvModal.hide('loginModal');
     }
 
 }

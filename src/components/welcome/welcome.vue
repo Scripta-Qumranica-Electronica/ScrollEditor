@@ -32,8 +32,6 @@
                     </router-link>
                 </p>
             </div>
-
-            <register></register>
         </div>
         <div class="intro">
             <section class="row">
@@ -135,7 +133,6 @@ import SessionService from '@/services/session';
 import router from '@/router';
 @Component({
     name: 'welcome',
-    components: { register: Registration },
 })
 export default class Welcome extends Vue {
     private sessionService = new SessionService();
