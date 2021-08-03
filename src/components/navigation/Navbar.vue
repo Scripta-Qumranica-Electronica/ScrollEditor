@@ -140,6 +140,8 @@
                     >
                         {{ $t('navbar.home') }}
                     </b-dropdown-item>
+                    <b-dropdown-item placement="left" @click="goPrivate" v-if="isActive">{{ $t('home.personalEditions')}}</b-dropdown-item>
+                    <b-dropdown-item placement="left" @click="goPublic">{{ $t('home.publicEditions') }}</b-dropdown-item>
 
                     <b-dropdown-divider></b-dropdown-divider>
 
@@ -273,6 +275,14 @@ export default class Navbar extends Vue {
 
     private goHome() {
         this.$router.push({ path: '/' });
+    }
+
+    private goPrivate() {
+        this.$router.push({ path: '/home/private' });
+    }
+
+    private goPublic() {
+        this.$router.push({ path: '/home/public' });
     }
 
     private showAboutModal() {
