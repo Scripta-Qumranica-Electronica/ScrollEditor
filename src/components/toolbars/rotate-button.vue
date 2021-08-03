@@ -24,7 +24,7 @@ export default class RepeatButton extends Vue {
     private pressed = false;
     private timer?: number;
 
-    mounted() {
+    protected mounted() {
         this.pressed = false;
         this.timer = undefined;
     }
@@ -45,9 +45,9 @@ export default class RepeatButton extends Vue {
         }
     }
 
-    onMouseDown() {
+    protected onMouseDown() {
         if (this.pressed) {
-            console.warn("Ignoring handle mouse-down while pressed!");
+            console.warn('Ignoring handle mouse-down while pressed');
             return;
         }
 
@@ -56,16 +56,16 @@ export default class RepeatButton extends Vue {
         this.emitClick();
     }
 
-    onMouseUp() {
+    protected onMouseUp() {
         this.stopRepeat();
     }
 
-    onMouseLeave() {
+    protected onMouseLeave() {
         this.stopRepeat();
     }
 
-    stopRepeat() {
-        if(!this.pressed) {
+    protected stopRepeat() {
+        if (!this.pressed) {
             console.warn("Can't stop repeating of not pressed");
         }
 
@@ -73,9 +73,9 @@ export default class RepeatButton extends Vue {
         window.clearInterval(this.timer);
         this.timer = undefined;
     }
-    
+
     @Emit('click')
-    emitClick() {
+    private emitClick() {
         // Emits the click event, with no arguments at all
     }
 
