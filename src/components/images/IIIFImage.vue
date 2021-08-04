@@ -77,7 +77,6 @@ export default class IIIFImageComponent extends Vue {
     private tiles: TileInfo[] = [];
 
     public mounted() {
-        console.info('Mounting single artefact');
         this.loadTiles();
         // this.scaleFactor = 0;
         // this.scaleFactor = this.scaleFactor;

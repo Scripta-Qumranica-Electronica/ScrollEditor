@@ -4,24 +4,19 @@
             <Waiting></Waiting>
         </div>
         <div v-if="!waiting">
-
             <div class="mt-4 editor-container">
-
-                <b-row no-gutters align-v="center"
-                         class="mb-1 border-bottom " >
-
-                    <b-col class="col-12 ">
+                <b-row no-gutters align-v="center" class="mb-1 border-bottom">
+                    <b-col class="col-12">
                         <scroll-top-toolbar
                             v-model="params.zoom"
-                             @new-operation="newOperation($event)"
+                            @new-operation="newOperation($event)"
                             @zoomChangedGlobal="onZoomChangedGlobal($event)"
                         />
                     </b-col>
                 </b-row>
 
-                <b-row no-gutters>
-
-                    <b-col class="col-9 artefact-container">
+                <b-row id="artefact-row" no-gutters>
+                    <b-col class="col-9 scroll-editor-col">
                         <div
                             id="artefact-container"
                             ref="artefactContainer"
@@ -37,7 +32,6 @@
                             ></scroll-ruler>
 
                             <scroll-area
-                                ref="scrollAreaRef"
                                 @onSelectArtefact="selectArtefact($event)"
                                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                                 @new-operation="newOperation($event)"
@@ -46,85 +40,80 @@
                         </div>
                     </b-col>
 
-                    <b-col  class="col-3 border-right artefact-sidebar"
-                        v-if="scrollEditorState.viewport"
+                    <b-col
+                        class="col-3 border-right scroll-editor-col"
+                        ref="artefactSidebar"
                     >
-                        <div class="mb-3 ">
+                        <div id="scroll-map" ref="scrollMap">
                             <scroll-map @navigate-to-point="navigateToPoint" />
                         </div>
-                        <div class="mb-3 ">
-                            <text-toolbar v-if="isTextMode"
+                        <div class="pt-3" id="secondary-toolbar" :style="{height: secondaryToolbarHeight + 'px'}">
+                            <text-toolbar
+                                v-if="isTextMode"
                                 @text-changed="onTextChanged($event)"
-                                d-flex m-auto p-auto
-                                adjust-content-center align-items-center
+                                d-flex
+                                m-auto
+                                p-auto
+                                adjust-content-center
+                                align-items-center
                             ></text-toolbar>
-                        </div>
 
-                        <div class="mb-3 ">
                             <manuscript-toolbar
-                                v-if="!isTextMode"
+                                v-else
                                 @new-operation="newOperation($event)"
                                 @save-group="saveGroupArtefacts()"
                                 @cancel-group="cancelGroup()"
                             ></manuscript-toolbar>
-                         </div>
+                        </div>
                     </b-col>
                 </b-row>
 
                 <add-artefact-modal></add-artefact-modal>
-
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Emit, Vue } from 'vue-property-decorator';
-import Waiting from '@/components/misc/Waiting.vue';
-import { IIIFImage, ImageStack } from '@/models/image';
-import { Polygon } from '@/utils/Polygons';
-import { BoundingBox, Point } from '@/utils/helpers';
-import Zoomer, {
-    ZoomEventArgs,
-    RotateEventArgs,
-} from '@/components/misc/zoomer.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
-import { ArtefactGroup, EditionInfo } from '../../models/edition';
+import Waiting from '@/components/misc/Waiting.vue';
+import Zoomer from '@/components/misc/zoomer.vue';
+import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
+import { Artefact } from '@/models/artefact';
+import ArtefactService from '@/services/artefact';
+import EditionService from '@/services/edition';
+import { VirtualArtefactEditor } from '@/services/virtual-artefact';
+import { ScrollEditorState } from '@/state/scroll-editor';
+import { BoundingBox, Point } from '@/utils/helpers';
+import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
+import { Placement } from '@/utils/Placement';
+import { Component, Vue } from 'vue-property-decorator';
+import { ArtefactGroup } from '../../models/edition';
+import { ArtefactEditorOperation } from '../artefact-editor/operations';
+import { ScrollEditorParams } from '../artefact-editor/types';
+import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
 import AddArtefactModal from './add-artefact-modal.vue';
 import ArtefactToolbox from './artefact-toolbox.vue'; // TBD
-import ScrollArea from './scroll-area.vue';
-import ScrollRuler from './scroll-ruler.vue';
-import {
-    ArtefactPlacementOperation,
-    ArtefactPlacementOperationType,
-    EditGroupOperation,
-    EditionMetricOperation,
-    GroupPlacementOperation,
-    ScrollEditorOperation,
-} from './operations';
-import { ScrollEditorState } from '@/state/scroll-editor';
-import { Placement } from '@/utils/Placement';
-import { Artefact } from '@/models/artefact';
-import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
-import { ScrollEditorParams } from '../artefact-editor/types';
-import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
-import EditionService from '@/services/edition';
-import ArtefactService from '@/services/artefact';
-import ScrollMap from './scroll-map.vue';
-import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
-import { ArtefactTextFragmentData } from '@/models/text';
-import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
-import ScrollTopToolbar from './scroll-top-toolbar.vue';
 import ManuscriptToolbar from './manuscript-toolbar.vue';
+import {
+  ArtefactPlacementOperation,
+  ArtefactPlacementOperationType,
+  EditGroupOperation,
+  EditionMetricOperation,
+  GroupPlacementOperation,
+  ScrollEditorOperation
+} from './operations';
+import ScrollArea from './scroll-area.vue';
+import ScrollMap from './scroll-map.vue';
+import ScrollRuler from './scroll-ruler.vue';
+import ScrollTopToolbar from './scroll-top-toolbar.vue';
 import TextToolbar from './text-toolbar.vue';
-import { ArtefactEditorOperation } from '../artefact-editor/operations';
-import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 
 @Component({
     name: 'scroll-editor',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
         'artefact-toolbox': ArtefactToolbox, // TBD
@@ -134,22 +123,22 @@ import { VirtualArtefactEditor } from '@/services/virtual-artefact';
         // 'zoom-toolbar': ZoomToolbar,
         'scroll-top-toolbar': ScrollTopToolbar,
         'manuscript-toolbar': ManuscriptToolbar,
-        'text-toolbar': TextToolbar
+        'text-toolbar': TextToolbar,
     },
 })
 export default class ScrollEditor
     extends Vue
     implements SavingAgent<ScrollEditorOperation> {
-    private operationsManager = new OperationsManager<ScrollEditorOperation | ArtefactEditorOperation>(
-        this
-    );
+    private operationsManager = new OperationsManager<
+        ScrollEditorOperation | ArtefactEditorOperation
+    >(this);
     private waiting: boolean = true;
     private editionId: number = 0;
     private observer?: ResizeObserver;
     private editionService = new EditionService();
     private artefactService = new ArtefactService();
 
-// TBD
+    // TBD
     private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
         { text: 'Right', value: 'right' },
@@ -158,7 +147,8 @@ export default class ScrollEditor
     ];
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
-//
+    private secondaryToolbarHeight: number = 100;
+    //
 
     private get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
@@ -173,7 +163,7 @@ export default class ScrollEditor
         return this.scrollEditorState.selectedGroup;
     }
     private get params(): ScrollEditorParams {
-         return this.scrollEditorState.params || new ScrollEditorParams();
+        return this.scrollEditorState.params || new ScrollEditorParams();
     }
     private get edition() {
         return this.$state.editions.current! || {};
@@ -199,7 +189,7 @@ export default class ScrollEditor
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
     }
-//
+    //
 
     private get actualWidth(): number {
         return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
@@ -281,10 +271,11 @@ export default class ScrollEditor
                     // Save new group with id < 0
                     if (group.id < 0) {
                         if (group.artefactIds.length >= 2) {
-                            const savedGroup = await this.editionService.newArtefactGroup(
-                                this.editionId,
-                                group
-                            );
+                            const savedGroup =
+                                await this.editionService.newArtefactGroup(
+                                    this.editionId,
+                                    group
+                                );
                             group.groupId = savedGroup.id;
                             this.updateOperationId(groupId, savedGroup.id);
                             this.selectGroup(group);
@@ -292,10 +283,11 @@ export default class ScrollEditor
                         // Save edited group with length > 1
                     } else if (group.id > 0) {
                         if (group.artefactIds.length >= 2) {
-                            const savedGroup = await this.editionService.updateArtefactGroup(
-                                this.editionId,
-                                group
-                            );
+                            const savedGroup =
+                                await this.editionService.updateArtefactGroup(
+                                    this.editionId,
+                                    group
+                                );
                         } else {
                             await this.editionService.deleteArtefactGroup(
                                 this.editionId,
@@ -336,7 +328,6 @@ export default class ScrollEditor
     private get placedArtefacts() {
         return this.artefacts.filter((x) => x.isPlaced);
     }
-
 
     protected created() {
         this.$state.eventBus.on('select-group', this.selectGroup);
@@ -397,10 +388,9 @@ export default class ScrollEditor
             }
         });
 
-        // Moved to created() to avoid unclear material or text mode
-        // this.$state.scrollEditor = new ScrollEditorState();
         this.observer!.observe(this.$refs.artefactContainer as Element);
-        this.calculateViewport();
+        this.observer!.observe(this.$refs.artefactSidebar as Element);
+        this.onResize([]);
         this.$state.operationsManager = this.operationsManager;
         this.$state.textFragmentEditor.textEditingMode = 'manuscript';
     }
@@ -411,7 +401,6 @@ export default class ScrollEditor
         await this.$state.prepare.editionFullText(this.editionId);
         next();
     }
-
 
     private onMetricsChange() {
         this.calculateViewport();
@@ -428,8 +417,9 @@ export default class ScrollEditor
     private async onAddArtefactModalClose(artId: number) {
         const artefact = this.$state.artefacts.find(artId);
         if (artefact) {
-            const numberOfPlaced = this.artefacts.filter((x) => x.isPlaced)
-                .length;
+            const numberOfPlaced = this.artefacts.filter(
+                (x) => x.isPlaced
+            ).length;
 
             const orderedArtefacts = this.artefacts
                 .filter((x) => x.isPlaced)
@@ -474,11 +464,11 @@ export default class ScrollEditor
     }
 
     private notifyChange(paramName: string, paramValue: any) {
-        const args = ({
+        const args = {
             property: paramName,
             value: paramValue,
             params: this.params,
-        } as unknown) as EditorParamsChangedArgs; // TODO: Change this to the right type
+        } as unknown as EditorParamsChangedArgs; // TODO: Change this to the right type
         this.$emit('paramsChanged', args);
     }
 
@@ -525,9 +515,9 @@ export default class ScrollEditor
         }
     }
 
-
     private onResize(entries: ResizeObserverEntry[]) {
         this.calculateViewport();
+        this.calculateSecondaryToolbarHeight();
     }
 
     private onScroll() {
@@ -554,6 +544,20 @@ export default class ScrollEditor
         const viewport = new BoundingBox(left, top, width, height);
         // Vue.set(this.$state.scrollEditor, 'viewport', viewport);
         this.$state.scrollEditor.viewport = viewport;
+    }
+
+    private calculateSecondaryToolbarHeight() {
+        // Set the height of the secondary toolbar to the artefactSidebar height, minus the scrollmap's height.
+        // We must set the height explicitly, otherwise the vertical scrollbar on the secondary toolbar misbehaves
+        const sidebar = this.$refs.artefactSidebar as Element;
+        const sidebarHeight = sidebar.getBoundingClientRect().height;
+        const scrollmap = this.$refs.scrollMap as Element;
+        const scrollmapHeight = scrollmap.getBoundingClientRect().height;
+
+        const height = sidebarHeight - scrollmapHeight;
+
+        console.debug(`Setting secondary toolbar height to ${sidebarHeight} - ${scrollmapHeight} --> ${height}`);
+        this.secondaryToolbarHeight = height;
     }
 
     private updateOperationId(oldId: number, newId: number) {
@@ -700,16 +704,13 @@ export default class ScrollEditor
         return true;
     }
 
-//
-
+    //
 
     private selectGroup(group: ArtefactGroup | undefined) {
         this.scrollEditorState.selectGroup(group);
     }
 
-
     private saveGroupArtefacts() {
-
         if (this.selectedGroup === null) {
             console.warn('Cannot save null group');
             return;
@@ -756,7 +757,6 @@ export default class ScrollEditor
         this.params.mode = '';
     }
 
-
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
@@ -799,11 +799,17 @@ export default class ScrollEditor
         }
     }
 
-    private async onTextChanged(params: { text: string, editor: VirtualArtefactEditor }) {
-        const editedArtefact = this.$state.textFragmentEditor.editedVirtualArtefact;
+    private async onTextChanged(params: {
+        text: string;
+        editor: VirtualArtefactEditor;
+    }) {
+        const editedArtefact =
+            this.$state.textFragmentEditor.editedVirtualArtefact;
 
         if (!editedArtefact) {
-            console.error("Can't save text changed, $state.textFragmentEditor.editedVirtualArtefact is not set");
+            console.error(
+                "Can't save text changed, $state.textFragmentEditor.editedVirtualArtefact is not set"
+            );
             return;
         }
 
@@ -813,7 +819,9 @@ export default class ScrollEditor
         }
 
         if (!editedArtefact.signInterpretations.length) {
-            console.error("Can't save text of a virtual artefact with no sign interpretations");
+            console.error(
+                "Can't save text of a virtual artefact with no sign interpretations"
+            );
         }
         const line = editedArtefact.signInterpretations[0].sign.line;
 
@@ -836,6 +844,7 @@ export default class ScrollEditor
     height: calc(100vh - 100px);
     /* height: calc(100vh - 180px); */
 }
+
 #artefact-container {
     position: relative;
     overflow: auto;
@@ -847,23 +856,15 @@ export default class ScrollEditor
 #artefact-container.active {
     width: calc(100vw - 42px);
 }
-.artefact-container {
+
+.scroll-editor-col {
     position: relative;
-    height: calc(100vh - 63px);
-    width: calc(100vw - 290px);
+    height: calc(100vh - 169px);
 }
 
-.artefact-sidebar {
-    /* position: relative; */
-    overflow: auto;
-    padding: 0;
-    /* height: calc(100vh - 160px); */
-    height: calc(100vh - 10rem);
+#secondary-toolbar {
+    height: 500px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
-
-/* .input-lg {
-    width: 50% !important;
-    max-width: 75px;
-} */
-
 </style>
