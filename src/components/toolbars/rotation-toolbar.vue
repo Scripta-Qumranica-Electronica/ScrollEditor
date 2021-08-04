@@ -6,33 +6,12 @@
                 @click="onRotateClick(-delta)"
                 class="mr-0"
             />
-            <!--        <b-button
-            variant="outline-secondary"
-            @click="onRotateClick(-delta)"
-            v-b-tooltip.hover.bottom
-            :title="$t('misc.leftRotate')"
-            class="mr-0"
-        >
-            <font-awesome-icon
-                icon="undo"
-            ></font-awesome-icon>
-        </b-button> -->
             <b-form-input
                 :disabled="!enableText"
                 type="number"
                 v-model="rotationAngle"
                 class="input-lg"
             />
-            <!--<b-button
-            variant="outline-secondary"
-            @click="onRotateClick(+delta)"
-            v-b-tooltip.hover.bottom
-            :title="$t('misc.rightRotate')"
-        >
-            <font-awesome-icon
-                icon="redo"
-            ></font-awesome-icon>
-        </b-button> -->
             <rotate-button direction="right" @click="onRotateClick(+delta)" />
         </b-button-group>
         <!-- <span v-if="!enableText" class="rotation"> {{ paramsRotationAngle }} ° </span> -->

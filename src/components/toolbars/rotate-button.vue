@@ -1,22 +1,22 @@
 <template>
-    <b-button
-        variant="outline-secondary"
+    <toolbar-icon-button
         @mousedown="onMouseDown"
         @mouseup="onMouseUp"
         @mouseleave="onMouseLeave"
-        v-b-tooltip.hover.bottom
-        :title="title">
-        <font-awesome-icon :icon="icon"></font-awesome-icon>
-    </b-button>
+        :title="title"
+        :icon="icon">
+    </toolbar-icon-button>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Model, Vue, Emit } from 'vue-property-decorator';
+import ToolbarIconButton from './toolbar-icon-button.vue';
 
 export type Direction = 'left' | 'right';
 
 @Component({
     name: 'repeat-button',
+    components: { 'toolbar-icon-button': ToolbarIconButton }
 })
 export default class RepeatButton extends Vue {
     @Prop() private direction!: Direction;
