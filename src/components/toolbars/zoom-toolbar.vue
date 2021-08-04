@@ -7,7 +7,7 @@
                     title="Zoom Out"
                     icon="minus"
                     @click="zoomClick(-delta)"
-                    :disabled="!canZoomOut"
+                    :disabled="!canZoomOut || disabled"
                 />
 
                 <b-input
@@ -15,11 +15,14 @@
                     type="number"
                     min="1"
                     max="100"
+                    :disabled="disabled"
                 ></b-input>
 
                 <toolbar-icon-button title="Zoom In" icon="plus"
-                    :disabled="!canZoomIn" @click="zoomClick(+delta)"/>
-            </b-button-group>
+                    :disabled="!canZoomIn || disabled"
+                    @click="zoomClick(+delta)"/>
+                <b-button v-if="reset" variant="outline-secondary" @click="onReset" :disabled="disabled">Reset</b-button>
+           </b-button-group>
         </section>
     </b-container>
 </template>
@@ -35,22 +38,24 @@ import ToolbarIconButton from './toolbar-icon-button.vue';
 export default class ZoomToolbar extends Vue {
     @Model('zoomChanged', { type: Number }) private paramsZoom!: number;
 
-    @Prop({ default: 0.05 }) private delta!: number;
+    @Prop({ default: 0.05 }) public delta!: number;
+    @Prop({ default: false }) public reset!: boolean;
+    @Prop({ default: false}) public disabled!: boolean;
 
     private localZoom: number = this.paramsZoom || 0.1;
 
     // TODO: delete this
-    public mounted() {
-        setTimeout(() => {
-            this.$emit('zoomChanged', 0.1);
-        }, 100);
-        setTimeout(() => {
-            this.$emit('zoomChanged', 0.11);
-        }, 150);
-        setTimeout(() => {
-            this.$emit('zoomChanged', 0.1);
-        }, 200);
-    }
+    // public mounted() {
+    //     setTimeout(() => {
+    //         this.$emit('zoomChanged', 0.1);
+    //     }, 100);
+    //     setTimeout(() => {
+    //         this.$emit('zoomChanged', 0.11);
+    //     }, 150);
+    //     setTimeout(() => {
+    //         this.$emit('zoomChanged', 0.1);
+    //     }, 200);
+    // }
 
     private get zoom(): number {
         return Math.round(this.paramsZoom * 100);
@@ -86,6 +91,10 @@ export default class ZoomToolbar extends Vue {
     private get canZoomOut(): boolean {
         return this.paramsZoom > 0 && this.paramsZoom - +this.delta > 0;
         // return this.paramsZoom > 0 && Math.round(this.paramsZoom * 100) - this.delta > 0;
+    }
+
+    protected onReset() {
+      this.zoom = 100;
     }
 }
 </script>
