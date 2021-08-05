@@ -40,7 +40,7 @@ export default class ImageSettings extends Vue {
   // methods
     public onSingleImageSettingChanged($event: SingleImageSetting) {
       normalizeOpacity(this.params!.imageSettings!);
-      this.$emit('imageSettingChanged', this.params.imageSettings);
+      this.$emit('image-setting-changed', this.params.imageSettings);
     }
 
 }

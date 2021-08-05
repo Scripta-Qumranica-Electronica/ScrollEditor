@@ -38,7 +38,7 @@
                                     "
                                     id="popover-input-1"
                                     :params="params"
-                                    @imageSettingChanged="
+                                    @image-setting-changed="
                                         onImageSettingChanged($event)
                                     "
                                 />

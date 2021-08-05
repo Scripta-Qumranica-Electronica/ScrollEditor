@@ -17,11 +17,11 @@
             />
         </b-col>
         <b-col>
-            <toolbox subject="">
+            <adjust-image-toolbox :imageStack="imageStack" :params="params" @image-setting-changed="onImageSettingChanged"/>
+            <!--<toolbox subject="" v-if="!this.artefact.virtual">
                 <b-button
                     id="popover-adjust"
                     variant="outline-secondary"
-                    :disabled="this.artefact.isVirtual"
                     ><img
                         class="mr-1"
                         src="@/assets/images/adjust.svg"
@@ -41,13 +41,13 @@
                             :imageStack="imageStack"
                             id="popover-input-1"
                             :params="params"
-                            @imageSettingChanged="
+                            @image-setting-changed="
                                 onImageSettingChanged($event)
                             "
                         />
                     </div>
                 </b-popover>
-            </toolbox>
+            </toolbox> -->
         </b-col>
         <!-- <b-col class="col-5 col-md-6 col-sm-5 col-xs-5 position-rotate"> -->
         <b-col class="col position-rotate">
@@ -79,6 +79,7 @@ import { ArtefactEditorState } from '@/state/artefact-editor';
 import ZoomToolbox from '@/components/toolbars/zoom-toolbox.vue';
 import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
+import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -86,7 +87,8 @@ import Toolbox from '@/components/toolbars/toolbox.vue';
         'image-settings': ImageSettingsComponent,
          'zoom-toolbox': ZoomToolbox,
          'rotation-toolbox': RotationToolbox,
-         toolbox: Toolbox,
+         'adjust-image-toolbox': AdjustImageToolbox,
+         // toolbox: Toolbox,
     },
 })
 
