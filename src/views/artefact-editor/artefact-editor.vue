@@ -7,7 +7,7 @@
             <div class="mt-4 editor-container">
                 <b-row class="h-100">
                     <b-col class="d-flex flex-column h-100 col-lg-9">
-                        <b-row class="border-bottom">
+                        <toolbar>
                             <b-col class="col-lg-6">
                                 <artefact-editor-toolbar
                                     :artefact="artefact"
@@ -117,7 +117,7 @@
                                     >
                                 </div>
                             </div>
-                        </b-row>
+                        </toolbar>
                         <div
                             class="artefact-image-container"
                             style="flex-grow: 1"
@@ -289,6 +289,8 @@ import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
 import { ArtefactEditorState } from '@/state/artefact-editor';
 import { Artefact } from '@/models/artefact';
 import { TextFragmentState } from '@/state/text-fragment';
+import Toolbar from '@/components/toolbars/toolbar.vue';
+import Toolbox from '@/components/toolbars/toolbox.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -300,6 +302,8 @@ import { TextFragmentState } from '@/state/text-fragment';
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
         zoomer: Zoomer,
+        toolbar: Toolbar,
+        toolbox: Toolbox,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,

@@ -63,11 +63,12 @@
                     col-zm-sm
                 "
             >
-                <zoom-toolbar
+                <zoom-toolbox
                     class="mb-4 mt-2"
                     v-model="localZoom"
                     delta="0.05"
                     @zoomChanged="onZoomChanged($event)"
+                    subject="Zoom Manuscript"
                 />
             </b-col>
 
@@ -453,7 +454,7 @@
 import { Component, Emit, Model, Prop, Vue } from 'vue-property-decorator';
 
 import { ScrollEditorState } from '@/state/scroll-editor';
-import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
+import ZoomToolbox from '@/components/toolbars/zoom-toolbox.vue';
 
 import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 import {
@@ -474,7 +475,7 @@ import {
 @Component({
     name: 'scroll-top-toolbar',
     components: {
-        'zoom-toolbar': ZoomToolbar,
+        'zoom-toolbox': ZoomToolbox,
     },
 })
 export default class ScrollTopToolbar extends Vue {

@@ -5,7 +5,7 @@
                 <b-row align-v="center">
                     <!-- <b-col class="col-3 col-md-4 col-sm-5 col-xs-5 position-zoom"> -->
                     <b-col class="col-lg-3 col-xl-2 position-zoom">
-                        <zoom-toolbar
+                        <zoom-toolbox
                             v-model="params.zoom"
                             delta="0.05"
                             @zoomChanged="onZoomChanged($event)"
@@ -47,7 +47,7 @@
                     </b-col>
                     <!-- <b-col class="p-0 col-3 col-md-4 col-sm-5 col-xs-5 position-rotate"> -->
                     <b-col class="p-0 col-lg-2 position-rotate">
-                        <rotation-toolbar
+                        <rotation-toolbox
                                 v-model="params.rotationAngle"
                                 delta="90"
                                 :enable-text="false"
@@ -132,15 +132,15 @@ import { DrawingMode, EditorParamsChangedArgs, ModeButtonInfo } from './types';
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
 import { PropOptions } from 'vue';
 import { ImagedObjectState } from '../../state/imaged-object';
-import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
-import RotationToolbar from '@/components/toolbars/rotation-toolbar.vue';
+import ZoomToolbox from '@/components/toolbars/zoom-toolbox.vue';
+import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
-        'zoom-toolbar': ZoomToolbar,
-        'rotation-toolbar': RotationToolbar,
+        'zoom-toolbox': ZoomToolbox,
+        'rotation-toolbox': RotationToolbox,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {

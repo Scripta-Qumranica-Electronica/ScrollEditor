@@ -1,5 +1,5 @@
 <template>
-    <b-container id="rotation-gadget">
+    <toolbox :subject="subject">
         <b-button-group>
             <rotate-button
                 direction="left"
@@ -15,23 +15,25 @@
             <rotate-button direction="right" @click="onRotateClick(+delta)" />
         </b-button-group>
         <!-- <span v-if="!enableText" class="rotation"> {{ paramsRotationAngle }} ° </span> -->
-    </b-container>
+    </toolbox>
 </template>
 
 
 <script lang="ts">
 import { Component, Prop, Model, Vue } from 'vue-property-decorator';
 import RotateButton from './rotate-button.vue';
+import Toolbox from './toolbox.vue';
 
 @Component({
-    name: 'rotation-toolbar',
-    components: {'rotate-button': RotateButton},
+    name: 'rotation-toolbox',
+    components: {'rotate-button': RotateButton, toolbox: Toolbox},
 })
-export default class RotationToolbar extends Vue {
+export default class RotationToolbox extends Vue {
     @Model('rotationAngleChanged', { type: Number })
     private paramsRotationAngle!: number;
     @Prop({ default: 1 }) private delta!: number;
     @Prop() private enableText!: number;
+    @Prop({ default: 'Rotate Artefact'}) public subject!: string;
 
     private localRotateAngle: number = this.paramsRotationAngle || 0;
 

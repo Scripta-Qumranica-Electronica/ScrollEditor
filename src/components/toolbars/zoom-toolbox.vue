@@ -1,46 +1,50 @@
 
 <template>
-    <b-container no-gutters id="zoom-gadget">
-        <section class="m-0 p-0">
-            <b-button-group>
-                <toolbar-icon-button
-                    title="Zoom Out"
-                    icon="minus"
-                    @click="zoomClick(-delta)"
-                    :disabled="!canZoomOut || disabled"
-                />
+    <toolbox :subject="subject">
+        <b-button-group>
+            <toolbar-icon-button
+                title="Zoom Out"
+                icon="minus"
+                @click="zoomClick(-delta)"
+                :disabled="!canZoomOut || disabled"
+            />
 
-                <b-input
-                    v-model="zoom"
-                    type="number"
-                    min="1"
-                    max="100"
-                    :disabled="disabled"
-                ></b-input>
+            <b-input
+                v-model="zoom"
+                type="number"
+                min="1"
+                max="100"
+                :disabled="disabled"
+            ></b-input>
 
-                <toolbar-icon-button title="Zoom In" icon="plus"
-                    :disabled="!canZoomIn || disabled"
-                    @click="zoomClick(+delta)"/>
-                <b-button v-if="reset" variant="outline-secondary" @click="onReset" :disabled="disabled">Reset</b-button>
-           </b-button-group>
-        </section>
-    </b-container>
+            <toolbar-icon-button title="Zoom In" icon="plus"
+                :disabled="!canZoomIn || disabled"
+                @click="zoomClick(+delta)"/>
+            <b-button v-if="reset" variant="outline-secondary" @click="onReset" :disabled="disabled">Reset</b-button>
+        </b-button-group>
+    </toolbox>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Model, Vue } from 'vue-property-decorator';
 import ToolbarIconButton from './toolbar-icon-button.vue';
+import Toolbox from './toolbox.vue';
 
 @Component({
-    name: 'zoom-toolbar',
-    components: {'toolbar-icon-button': ToolbarIconButton}
+    name: 'zoom-toolbox',
+    components: {
+        'toolbar-icon-button': ToolbarIconButton,
+        'toolbox': Toolbox,
+    }
 })
-export default class ZoomToolbar extends Vue {
+export default class ZoomToolbox extends Vue {
     @Model('zoomChanged', { type: Number }) private paramsZoom!: number;
 
     @Prop({ default: 0.05 }) public delta!: number;
     @Prop({ default: false }) public reset!: boolean;
     @Prop({ default: false}) public disabled!: boolean;
+
+    @Prop({ default: 'Zoom'}) public subject!: string;
 
     private localZoom: number = this.paramsZoom || 0.1;
 

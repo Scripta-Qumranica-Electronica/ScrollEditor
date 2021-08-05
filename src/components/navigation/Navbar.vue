@@ -423,7 +423,7 @@ export default class Navbar extends Vue {
 @import '@/assets/styles/_fonts.scss';
 
 $background: #0a142e;
-$foreground: #fef4ee;
+$foreground: $qumran-white;
 
 /* scoped has to be removed in order to set b-nav-dropdown color  */
 

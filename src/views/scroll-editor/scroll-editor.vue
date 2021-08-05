@@ -120,7 +120,6 @@ import TextToolbar from './text-toolbar.vue';
         'scroll-area': ScrollArea,
         'scroll-ruler': ScrollRuler,
         'scroll-map': ScrollMap,
-        // 'zoom-toolbar': ZoomToolbar,
         'scroll-top-toolbar': ScrollTopToolbar,
         'manuscript-toolbar': ManuscriptToolbar,
         'text-toolbar': TextToolbar,

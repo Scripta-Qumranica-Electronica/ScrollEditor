@@ -1,61 +1,59 @@
 <template>
-    <div id="artefact-toolbar">
-        <b-col class="p-3">
-            <div>
-                <b-row align-v="center">
-                    <!-- <b-col class="col-6 col-md-7 col-sm-6 col-xs-6 position-zoom"> -->
-                   <b-col class="col position-zoom">
-                        <zoom-toolbar
-                                v-model="params.zoom"
-                                delta="0.05"
-                                @zoomChanged="onZoomChanged($event)"
-                        />
-                    </b-col>
-                    <b-col class="p-0 col">
-                        <b-button
-                            id="popover-adjust"
-                            variant="outline-secondary"
-                            :disabled="this.artefact.isVirtual"
-                            ><img
-                                class="mr-1"
-                                src="@/assets/images/adjust.svg"
-                            />
-                            <span>Adjust image</span>
-                        </b-button>
-                        <b-popover
-                            class="popover-body"
-                            target="popover-adjust"
-                            triggers="focus"
-                            placement="bottom"
-                            container="my-container"
-                            ref="popover"
-                        >
-                            <div>
-                                <image-settings
-                                    :imageStack="imageStack"
-                                    id="popover-input-1"
-                                    :params="params"
-                                    @imageSettingChanged="
-                                        onImageSettingChanged($event)
-                                    "
-                                />
-                            </div>
-                        </b-popover>
-                    </b-col>
-                    <!-- <b-col class="col-5 col-md-6 col-sm-5 col-xs-5 position-rotate"> -->
-                    <b-col class="col position-rotate">
-                        <rotation-toolbar
-                                v-model="params.rotationAngle"
-                                delta="1"
-                                :enable-text="true"
-                                @rotationAngleChanged="onRotationAngleChanged($event)"
-                        />
-
-                    </b-col>
-                </b-row>
-            </div>
+    <b-row align-v="center" id="artefact-toolbar">
+        <!-- <b-col class="col-6 col-md-7 col-sm-6 col-xs-6 position-zoom"> -->
+        <b-col>
+            <zoom-toolbox
+                    v-model="params.zoom"
+                    delta="0.05"
+                    @zoomChanged="onZoomChanged($event)"
+            />
         </b-col>
-    </div>
+        <b-col>
+            <rotation-toolbox
+                    v-model="params.rotationAngle"
+                    delta="1"
+                    :enable-text="true"
+                    @rotationAngleChanged="onRotationAngleChanged($event)"
+            />
+        </b-col>
+        <b-col>
+            <toolbox subject="">
+                <b-button
+                    id="popover-adjust"
+                    variant="outline-secondary"
+                    :disabled="this.artefact.isVirtual"
+                    ><img
+                        class="mr-1"
+                        src="@/assets/images/adjust.svg"
+                    />
+                    <span>Adjust image</span>
+                </b-button>
+                <b-popover
+                    class="popover-body"
+                    target="popover-adjust"
+                    triggers="focus"
+                    placement="bottom"
+                    container="my-container"
+                    ref="popover"
+                >
+                    <div>
+                        <image-settings
+                            :imageStack="imageStack"
+                            id="popover-input-1"
+                            :params="params"
+                            @imageSettingChanged="
+                                onImageSettingChanged($event)
+                            "
+                        />
+                    </div>
+                </b-popover>
+            </toolbox>
+        </b-col>
+        <!-- <b-col class="col-5 col-md-6 col-sm-5 col-xs-5 position-rotate"> -->
+        <b-col class="col position-rotate">
+
+        </b-col>
+    </b-row>
 </template>
 
 <script lang="ts">
@@ -78,15 +76,17 @@ import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vu
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { ArtefactEditorState } from '@/state/artefact-editor';
-import ZoomToolbar from '@/components/toolbars/zoom-toolbar.vue';
-import RotationToolbar from '@/components/toolbars/rotation-toolbar.vue';
+import ZoomToolbox from '@/components/toolbars/zoom-toolbox.vue';
+import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
+import Toolbox from '@/components/toolbars/toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
-         'zoom-toolbar': ZoomToolbar,
-         'rotation-toolbar': RotationToolbar,
+         'zoom-toolbox': ZoomToolbox,
+         'rotation-toolbox': RotationToolbox,
+         toolbox: Toolbox,
     },
 })
 
