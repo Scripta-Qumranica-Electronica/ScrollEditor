@@ -1059,10 +1059,6 @@ export default class ArtefactEditor
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-#other-toolboxes {
-    // margin-top: -6px;
-}
-
 .header-actions {
     background-color: $white;
 }

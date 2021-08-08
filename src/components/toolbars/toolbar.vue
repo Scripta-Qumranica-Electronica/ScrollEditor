@@ -10,7 +10,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
     name: 'toolbar',
 })
 export default class Toolbar extends Vue {
-    @Prop({default: false}) noGutters!: boolean;
+    @Prop({default: false}) public noGutters!: boolean;
 
 }
 </script>
