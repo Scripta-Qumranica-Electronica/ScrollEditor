@@ -1,104 +1,55 @@
 <template>
     <div id="artefact-toolbar">
-        <b-col class="p-3">
-            <div>
-                <b-row align-v="center">
-                    <!-- <b-col class="col-3 col-md-4 col-sm-5 col-xs-5 position-zoom"> -->
-                    <b-col class="col-lg-3 col-xl-2 position-zoom">
-                        <zoom-toolbox
-                            v-model="params.zoom"
-                            delta="0.05"
-                            @zoomChanged="onZoomChanged($event)"
-                        />
-                    </b-col>
-                    <b-col class="p-0 col-lg-3 col-xl-2">
-                        <b-button
-                            id="popover-adjust"
-                            variant="outline-secondary"
-                            ><img
-                                class="mr-1"
-                                src="@/assets/images/adjust.svg"
-                            />
-                            <span>Adjust image</span>
-                        </b-button>
-                        <b-popover
-                            class="popover-body"
-                            target="popover-adjust"
-                            triggers="click"
-                            placement="bottom"
-                            container="my-container"
-                            ref="popover"
-                        >
-                            <div>
-                                <image-settings
-                                    :imageStack="
-                                        imagedObject.getImageStack(
-                                            artefact.side
-                                        )
-                                    "
-                                    id="popover-input-1"
-                                    :params="params"
-                                    @image-setting-changed="
-                                        onImageSettingChanged($event)
-                                    "
-                                />
-                            </div>
-                        </b-popover>
-                    </b-col>
-                    <!-- <b-col class="p-0 col-3 col-md-4 col-sm-5 col-xs-5 position-rotate"> -->
-                    <b-col class="p-0 col-lg-2 position-rotate">
-                        <rotation-toolbox
-                                v-model="params.rotationAngle"
-                                delta="90"
-                                :enable-text="false"
-                                @rotationAngleChanged="onRotationAngleChanged($event)"
-                        />
-                    </b-col>
-                    <b-col class="col-lg-4 col-xl-5">
-                        <b-row align-v="center">
-                            <div class="mr-3" v-if="artefact && artefact.mask">
-                                <b-form-checkbox v-model="background"
-                                    >Background</b-form-checkbox
-                                >
-                            </div>
-                            <div class="mr-3">
-                                <b-form-checkbox v-model="highLight"
-                                    >HighLight</b-form-checkbox
-                                >
-                            </div>
-                            <div>
-                                <b-dropdown
-                                    :text="sideFilter.displayName"
-                                    class="btn-sm"
-                                >
-                                    <b-dropdown-item
-                                        v-for="filter in sideOptions"
-                                        :key="filter.displayName"
-                                        @click="sideFilterChanged(filter)"
-                                        >{{
-                                            filter.displayName
-                                        }}</b-dropdown-item
-                                    >
-                                </b-dropdown>
-                            </div>
-                            <div class="btn-tf">
-                                <b-button
-                                    v-for="mode in modes"
-                                    :key="mode.val"
-                                    @click="editingModeChanged(mode.val)"
-                                    :pressed="modeChosen(mode.val)"
-                                    class="sidebarCollapse mr-4 pMt-2"
-                                    v-b-tooltip.hover.bottom
-                                    :title="mode.title"
-                                >
-                                    <i :class="mode.icon"></i>
-                                </b-button>
-                            </div>
-                        </b-row>
-                    </b-col>
-                </b-row>
-            </div>
-        </b-col>
+        <toolbar no-gutters>
+            <zoom-toolbox
+                v-model="params.zoom"
+                delta="0.05"
+                @zoomChanged="onZoomChanged($event)"
+            />
+            <adjust-image-toolbox :imageStack="imageStack" 
+                                   :params="params"
+                                   @image-setting-changed="onImageSettingChanged($event)"
+            />
+            <rotation-toolbox
+                    v-model="params.rotationAngle"
+                    delta="90"
+                    :enable-text="false"
+                    @rotationAngleChanged="onRotationAngleChanged($event)"
+            />
+            <toolbox>
+                <b-form-checkbox v-model="background"
+                    >Background</b-form-checkbox
+                >
+                <b-form-checkbox v-model="highLight"
+                    >HighLight</b-form-checkbox
+                >
+            </toolbox>
+            <toolbox subject="Side">
+                <b-dropdown
+                    :text="sideFilter.displayName"
+                    variant="outline-secondary"
+                >
+                    <b-dropdown-item
+                        v-for="filter in sideOptions"
+                        :key="filter.displayName"
+                        @click="sideFilterChanged(filter)"
+                        >{{
+                            filter.displayName
+                        }}</b-dropdown-item
+                    >
+                </b-dropdown>
+            </toolbox>
+            <toolbox subject="Mode">
+                <toolbar-icon-button
+                    v-for="mode in modes"
+                    :key="mode.val"
+                    @click="editingModeChanged(mode.val)"
+                    :pressed="modeChosen(mode.val)"
+                    :title="mode.title"
+                    :show-text="true"
+                    :icon="mode.icon" />
+            </toolbox>
+        </toolbar>
     </div>
 </template>
 
@@ -134,6 +85,9 @@ import { PropOptions } from 'vue';
 import { ImagedObjectState } from '../../state/imaged-object';
 import ZoomToolbox from '@/components/toolbars/zoom-toolbox.vue';
 import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
+import Toolbar from '@/components/toolbars/toolbar.vue';
+import Toolbox from '@/components/toolbars/toolbox.vue';
+import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -141,6 +95,9 @@ import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
         'image-settings': ImageSettingsComponent,
         'zoom-toolbox': ZoomToolbox,
         'rotation-toolbox': RotationToolbox,
+        'toolbar': Toolbar,
+        'toolbox': Toolbox,
+        'toolbar-icon-button': ToolbarIconButton,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
@@ -149,7 +106,6 @@ export default class ImagedObjectEditorToolbar extends Vue {
     private errorMessage: string = '';
     private imagedObjectService: ImagedObjectService = new ImagedObjectService();
     private artefactService: ArtefactService = new ArtefactService();
-    private imageStack: ImageStack = {} as ImageStack;
     private newArtefactName: string = '';
     private waiting: boolean = false;
 
@@ -165,6 +121,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
     })
     private side!: Side;
 
+    private get imageStack() {
+        return this.imagedObject.getImageStack(this.artefact.side);
+    }
     private get params(): ImagedObjectEditorParams {
         return this.imagedObjectState.params!;
     }

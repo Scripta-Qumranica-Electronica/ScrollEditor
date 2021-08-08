@@ -5,7 +5,7 @@
         </div>
         <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
             <b-row align-v="center" class="border-bottom no-gutters">
-                <b-col class="col-lg-9 col-xl-9">
+                <b-col class="col-8">
                     <imaged-object-editor-toolbar
                         :imagedObject="imagedObject"
                         :artefacts="visibleArtefacts"
@@ -17,11 +17,12 @@
                         @onSideArtefactChanged="sideArtefactChanged($event)"
                     ></imaged-object-editor-toolbar>
                 </b-col>
-                <div class="col-lg-3 col-xl-3">
+                <div class="col-4">
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
-                        class="btn btn-sm ml-2 btn-outline"
+                        variant="outline-secondary"
+                        class="btn"
                         >{{ $t('misc.new') }}</b-btn
                     >
                 </div>
@@ -511,12 +512,12 @@ export default class ImagedObjectEditor
         if (this.canEdit) {
             return [
                 {
-                    icon: 'fa fa-pencil',
+                    icon: 'pen',
                     val: 'DRAW',
                     title: this.$t('misc.draw'),
                 },
                 {
-                    icon: 'fa fa-eraser',
+                    icon: 'eraser',
                     val: 'ERASE',
                     title: this.$t('misc.erase'),
                 },
