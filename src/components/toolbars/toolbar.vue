@@ -1,15 +1,16 @@
 <template>
-    <b-row class="toolbar border-bottom">
+    <b-row class="toolbar border-bottom" :no-gutters="noGutters">
         <slot />
     </b-row>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({
     name: 'toolbar',
 })
 export default class Toolbar extends Vue {
+    @Prop({default: false}) noGutters!: boolean;
 
 }
 </script>

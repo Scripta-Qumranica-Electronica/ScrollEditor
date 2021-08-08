@@ -2,6 +2,7 @@
     <b-button variant="outline-secondary"
             :title="title"
             :disabled="disabled"
+            :pressed="pressed"
             v-on="$listeners">
         <font-awesome-icon :icon="icon" />
         <span v-if="showText" class="button-text">{{ title }}</span>
@@ -19,6 +20,7 @@ export default class ToolbarIconButton extends Vue {
     @Prop() public icon!: string;
     @Prop( { default: false }) public disabled!: boolean;
     @Prop( { default: false} ) public showText!: boolean;
+    @Prop( { default: undefined} ) public pressed?: boolean;
 
     protected get button() {
         return this.$refs.button;

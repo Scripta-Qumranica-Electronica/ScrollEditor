@@ -1,5 +1,5 @@
 <template>
-    <div align-v="center" id="artefact-toolbar">
+    <div id="artefact-toolbar">
         <!-- <b-col class="col-6 col-md-7 col-sm-6 col-xs-6 position-zoom"> -->
         <zoom-toolbox
                 v-model="params.zoom"
