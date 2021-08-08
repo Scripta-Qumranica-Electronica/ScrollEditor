@@ -49,6 +49,7 @@
                     :show-text="true"
                     :icon="mode.icon" />
             </toolbox>
+            <undo-redo-toolbox />
         </toolbar>
     </div>
 </template>
@@ -88,6 +89,7 @@ import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
 import Toolbar from '@/components/toolbars/toolbar.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
+import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -98,6 +100,7 @@ import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
         'toolbar': Toolbar,
         'toolbox': Toolbox,
         'toolbar-icon-button': ToolbarIconButton,
+        'undo-redo-toolbox': UndoRedoToolbox,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
