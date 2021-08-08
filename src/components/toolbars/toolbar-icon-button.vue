@@ -1,11 +1,10 @@
 <template>
     <b-button variant="outline-secondary"
-              v-b-tooltip.hover.bottom
-              :title="title"
-              :disabled="disabled"
-              v-on="$listeners">
+            :title="title"
+            :disabled="disabled"
+            v-on="$listeners">
         <font-awesome-icon :icon="icon" />
-        <span v-if="showText" class="text d-none d-md-inline">{{ title }}</span>
+        <span v-if="showText" class="button-text">{{ title }}</span>
     </b-button>
 </template>
 
@@ -20,10 +19,15 @@ export default class ToolbarIconButton extends Vue {
     @Prop() public icon!: string;
     @Prop( { default: false }) public disabled!: boolean;
     @Prop( { default: false} ) public showText!: boolean;
+
+    protected get button() {
+        return this.$refs.button;
+    }
 }
 </script>
+
 <style lang="scss" scoped>
-.text {
-    margin: 5px;
+.button-text {
+    margin-left: 6px;
 }
 </style>
