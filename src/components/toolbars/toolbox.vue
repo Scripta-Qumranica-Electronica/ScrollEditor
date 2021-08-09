@@ -20,6 +20,7 @@ export default class Toolbox extends Vue {
     @Prop({ default: 'xs' }) public hideBelow!: string;
     @Prop({ default: '' }) public subject!: string;
     @Prop({ default: false }) public noMargins!: boolean;
+    @Prop({ default: false}) public disabled!: boolean;
 
     public get classes() {
         let classes: string[] = [];
@@ -43,6 +44,10 @@ export default class Toolbox extends Vue {
 
 .toolbox {
     margin-right: 15px;
+
+    main-content {
+        display: inline-block;
+    }
 
     &.no-margins {
         margin-right: 0px;

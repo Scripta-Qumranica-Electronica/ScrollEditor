@@ -1,453 +1,64 @@
 <template>
-    <b-container
-        fluid
-        no-gutters
-        align-v="center"
-        align-h="center"
-        class="mt-1 mb-1 ml-1 p-0 pl-1 top-toolbar"
-        id="scrollTopbar"
-    >
-        <b-row
-            align-v="center"
-            no-gutters
-            class="m-0 p-0 ml-0 mr-1 pr-2 topbar-row"
-        >
-            <b-col
-                no-gutters
-                class="
-                    mt-0
-                    mb-2
-                    mr-1
-                    ml-0
-                    pl-1
-                    col-2 col-xl-1 col-lg-2 col-md-2 col-sm-2 col-xs-2
-                "
-            >
-                <b-button-group>
-                    <b-button
-                        id="material-mode-btn"
-                        class="btn-xs mode-btn ml-0 mr-1 mb-4 mt-2"
-                        size="sm"
-                        autofocus
-                        :variant="materialVariant"
-                        :pressed.sync="inMaterialMode"
-                        text-center
-                        @click="onTextMode('material')"
-                    >
-                        Material Mode
-                    </b-button>
-
-                    <b-button
-                        id="text-mode-btn"
-                        class="btn-xs mode-btn btn-sm-ex ml-1 mr-0 mb-4 mt-2"
-                        size="sm"
-                        :variant="textVariant"
-                        :pressed.sync="inTextMode"
-                        text-center
-                        @click="onTextMode('text')"
-                    >
-                        Text Mode
-                    </b-button>
-                </b-button-group>
-            </b-col>
-
-            <b-col
-                no-gutters
-                align-h="center"
-                class="
-                    col-2 col-xl-2 col-lg-2 col-md-2 col-sm-3 col-xs-3
-                    mb-2
-                    ml-0
-                    mr-0
-                    position-zoom
-                    col-zm-sm
-                "
-            >
-                <zoom-toolbox
-                    class="mb-4 mt-2"
-                    v-model="localZoom"
-                    delta="0.05"
-                    @zoomChanged="onZoomChanged($event)"
-                    subject="Zoom Manuscript"
+    <toolbar no-gutters id="scroll-top-toolbar">
+        <toolbox subject="Mode">
+            <b-button-group>
+                <toolbar-icon-button
+                    :pressed.sync="inMaterialMode"
+                    text-center
+                    @click="onTextMode('material')"
+                    title="Material"
+                    :show-text="true"
                 />
-            </b-col>
+                <toolbar-icon-button
+                    :pressed.sync="inTextMode"
+                    @click="onTextMode('text')"
+                    title="Text"
+                    :show-text="true" />
+            </b-button-group>
+        </toolbox>
+        <zoom-toolbox
+            v-model="localZoom"
+            delta="0.05"
+            @zoomChanged="onZoomChanged($event)"
+            subject="Zoom Manuscript"
+        />
+        <toolbox subject="Zoom Artefact">
+            <b-button-group>
+                <toolbar-icon-button title="Zoom Out" icon="minus" @click="zoomArtefact(-1)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Zoom In" icon="plus" @click="zoomArtefact(1)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Reset" :show-text="true" @click="resetZoom" :disabled="isToolbarDisabled"/>
+                <b-input-group prepend="By" append="%">
+                    <b-form-input  type="number" class="by-input"
+                        v-model="params.scale" :disabled="isToolbarDisabled"
+                    />
+                </b-input-group>
+            </b-button-group>
+        </toolbox>
 
-            <b-col
-                no-gutters
-                class="
-                    col-3 col-xl-3 col-lg-3 col-md-3 col-sm-4 col-xs-6
-                    m-0
-                    ml-0
-                    mr-0
-                    col-zm-sm
-                "
-            >
-                <b-card-body class="card-body-cancel m-0 mb-1 p-0">
-                    <section class="m-0 p-0">
-                        <b-row no-gutters align-v="center">
-                            <b-button-group>
-                                <b-button
-                                    pill
-                                    class="btn-sm btn-sm-ex ml-0 mb-4 mt-2"
-                                    size="sm"
-                                    variant="dark"
-                                    text-center
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                    @click="zoomArtefact(1)"
-                                >
-                                    <i class="fa fa-plus"></i>
-                                </b-button>
+        <toolbox subject="Rotate Artefact">
+            <b-button-group>
+                <toolbar-icon-button title="Rotate Left" icon="undo" @click="rotateGroupArtefact(-1)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Rotate Right" icon="redo" @click="rotateGroupArtefact   (+1)" :disabled="isToolbarDisabled"/>
+                <b-input-group prepend="By" append="degrees">
+                    <b-form-input type="number" class="by-input" v-model="params.rotate" :disabled="isToolbarDisabled"/>
+                </b-input-group>
+                <toolbar-icon-button title="Mirror" :show-text="true" :pressed="isMirroredPressed" @click="statusMirror" :disabled="isToolbarDisabled"/>
+            </b-button-group>
+        </toolbox>
 
-                                <b-button
-                                    pill
-                                    class="btn-sm btn-sm-ex ml-1 mb-4 mt-2"
-                                    size="sm"
-                                    variant="dark"
-                                    text-center
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                    @click="zoomArtefact(-1)"
-                                >
-                                    <i class="fa fa-minus"></i>
-                                </b-button>
 
-                                <b-button
-                                    pill
-                                    class="btn-sm btn-sm-ex ml-1 mb-4 mt-2"
-                                    size="sm"
-                                    variant="dark"
-                                    text-center
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                    @click="resetZoom()"
-                                    >reset
-                                </b-button>
-                            </b-button-group>
-
-                            <b-col
-                                class="
-                                    m-1
-                                    mb-1
-                                    mt-0
-                                    col-5
-                                    col-xl-3
-                                    col-lg-4
-                                    col-md-4
-                                    col-sm-4
-                                    col-xs-4
-                                "
-                            >
-                                <b-form-input
-                                    id="input-small"
-                                    class="mb-4 mt-2"
-                                    size="sm"
-                                    type="number"
-                                    v-model="params.scale"
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                >
-                                </b-form-input>
-                            </b-col>
-
-                            <b-col
-                                no-gutters
-                                text-center
-                                :class="[
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                        ? 'text-muted col-1 mt-2 mb-4 mr-0'
-                                        : 'col-1 mt-2 mb-4 mr-0',
-                                ]"
-                            >
-                                %
-                            </b-col>
-                        </b-row>
-                    </section>
-                </b-card-body>
-            </b-col>
-
-            <b-col
-                text-center
-                no-gutters
-                class="
-                    col-4 col-xl-4 col-lg-4 col-md-4 col-sm-3 col-xs-3 col-zm-md
-                    ml-0
-                    mr-0
-                "
-            >
-                <b-card-body text-center class="card-body-cancel m-0 mb-1 p-0">
-                    <section class="m-0 p-0" no-gutters>
-                        <b-row no-gutters align-v="center">
-                            <b-button-group>
-                                <b-button
-                                    pill
-                                    class="btn-sm btn-sm-ex ml-0 mb-4 mt-2"
-                                    size="sm"
-                                    variant="dark"
-                                    text-center
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                    @click="rotateGroupArtefact(-1)"
-                                >
-                                    <font-awesome-icon icon="undo">
-                                    </font-awesome-icon>
-                                </b-button>
-
-                                <b-button
-                                    pill
-                                    class="btn-sm btn-sm-ex ml-1 mb-4 mt-2"
-                                    size="sm"
-                                    variant="dark"
-                                    text-center
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                    @click="rotateGroupArtefact(1)"
-                                >
-                                    <font-awesome-icon icon="redo">
-                                    </font-awesome-icon>
-                                </b-button>
-                            </b-button-group>
-                            <b-col
-                                class="
-                                    m-1
-                                    mb-1
-                                    mt-0
-                                    col-5
-                                    col-xl-2
-                                    col-lg-3
-                                    col-md-3
-                                    col-sm-4
-                                    col-xs-4
-                                "
-                            >
-                                <b-form-input
-                                    id="input-small"
-                                    class="mb-4 mt-2"
-                                    size="sm"
-                                    type="number"
-                                    v-model="params.rotate"
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                ></b-form-input>
-                            </b-col>
-
-                            <b-col
-                                no-gutters
-                                text-center
-                                :class="[
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                        ? 'text-muted col-1 mb-4 mt-2'
-                                        : 'col-1 mb-4 mt-2',
-                                ]"
-                            >
-                                deg'
-                            </b-col>
-
-                            <b-col
-                                no-gutters
-                                text-center
-                                class="col-2 ml-4 mt-2 mb-1"
-                            >
-                                <b-button
-                                    pill
-                                    class="btn-sm btn-sm-ex ml-1 mb-4 mt-2"
-                                    size="sm"
-                                    variant="dark"
-                                    @click="statusMirror()"
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                >
-                                    mirror
-                                </b-button>
-                            </b-col>
-                        </b-row>
-                    </section>
-                </b-card-body>
-            </b-col>
-
-            <b-col
-                text-center
-                align-v="center"
-                no-gutters
-                class="
-                    col-3 col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6
-                    ml-0
-                    mr-1
-                    col-zm-sm
-                "
-            >
-                <b-card-body text-center class="card-body-cancel m-0 mb3 p-0">
-                    <section
-                        class="mb-3 mt-0 p-0"
-                        no-gutters
-                        align-v="center"
-                        text-center
-                    >
-                        <b-row no-gutters align-v="end">
-                            <div>
-                                <table>
-                                    <tr>
-                                        <td></td>
-                                        <td>
-                                            <b-button
-                                                class="btn-xs mt-1"
-                                                size="sm"
-                                                variant="dark"
-                                                :disabled="
-                                                    !(
-                                                        selectedArtefacts &&
-                                                        selectedArtefacts.length
-                                                    )
-                                                "
-                                                @click="dragArtefact(0, -1)"
-                                            >
-                                                <i class="fa fa-arrow-up"></i>
-                                            </b-button>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <b-button
-                                                class="btn-xs ml-2 mb-3"
-                                                size="sm"
-                                                variant="dark"
-                                                :disabled="
-                                                    !(
-                                                        selectedArtefacts &&
-                                                        selectedArtefacts.length
-                                                    )
-                                                "
-                                                @click="dragArtefact(-1, 0)"
-                                            >
-                                                <i class="fa fa-arrow-left"></i>
-                                            </b-button>
-                                        </td>
-                                        <td>
-                                            <b-button
-                                                class="btn-xs mb-3"
-                                                size="md"
-                                                variant="dark"
-                                                :disabled="
-                                                    !(
-                                                        selectedArtefacts &&
-                                                        selectedArtefacts.length
-                                                    )
-                                                "
-                                                @click="dragArtefact(0, 1)"
-                                            >
-                                                <i class="fa fa-arrow-down"></i>
-                                            </b-button>
-                                        </td>
-                                        <td>
-                                            <b-button
-                                                class="btn-xs mb-3"
-                                                size="sm"
-                                                variant="dark"
-                                                :disabled="
-                                                    !(
-                                                        selectedArtefacts &&
-                                                        selectedArtefacts.length
-                                                    )
-                                                "
-                                                @click="dragArtefact(1, 0)"
-                                            >
-                                                <i
-                                                    class="fa fa-arrow-right"
-                                                ></i>
-                                            </b-button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <b-col
-                                class="
-                                    m-1
-                                    mb-3
-                                    mt-0
-                                    ml-2
-                                    col-3
-                                    col-xl-3
-                                    col-lg-3
-                                    col-md-4
-                                    col-sm-4
-                                    col-xs-4
-                                "
-                            >
-                                <b-form-input
-                                    id="input-small"
-                                    size="sm"
-                                    type="number"
-                                    text-center
-                                    v-model="params.move"
-                                    :disabled="
-                                        !(
-                                            selectedArtefacts &&
-                                            selectedArtefacts.length
-                                        )
-                                    "
-                                ></b-form-input>
-                            </b-col>
-
-                            <b-col
-                                no-gutters
-                                text-center
-                                :class="[
-                                    !(
-                                        selectedArtefacts &&
-                                        selectedArtefacts.length
-                                    )
-                                        ? 'text-muted col-1 mt-1 mb-3'
-                                        : 'col-1 mt-1 mb-3',
-                                ]"
-                            >
-                                mm
-                            </b-col>
-                        </b-row>
-                    </section>
-                </b-card-body>
-            </b-col>
-        </b-row>
-    </b-container>
+        <toolbox subject="Move Artefact">
+            <b-button-group>
+                <toolbar-icon-button title="Up" icon="arrow-up" @click="dragArtefact(0, -1)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Down" icon="arrow-down" @click="dragArtefact(0, 1)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Left" icon="arrow-left" @click="dragArtefact(-1, 0)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Right" icon="arrow-right" @click="dragArtefact(-1, 0)" :disabled="isToolbarDisabled"/>
+                <b-input-group prepend="By" append="mm">
+                    <b-form-input type="number" class="by-input" v-model="params.move" :disabled="isToolbarDisabled"/>
+                </b-input-group>
+            </b-button-group>
+        </toolbox>
+    </toolbar>
 </template>
 
 <script lang="ts">
@@ -471,11 +82,19 @@ import {
     GroupPlacementOperation,
     ScrollEditorOperation,
 } from './operations';
+import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
+import Toolbox from '@/components/toolbars/toolbox.vue';
+import Toolbar from '@/components/toolbars/toolbar.vue';
+import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 
 @Component({
     name: 'scroll-top-toolbar',
     components: {
         'zoom-toolbox': ZoomToolbox,
+        'rotation-toolbox': RotationToolbox,
+        toolbox: Toolbox,
+        toolbar: Toolbar,
+        'toolbar-icon-button': ToolbarIconButton,
     },
 })
 export default class ScrollTopToolbar extends Vue {
@@ -698,8 +317,17 @@ export default class ScrollTopToolbar extends Vue {
     private get selectedArtefacts() {
         return this.scrollEditorState.selectedArtefacts;
     }
+
+    private get isMirroredPressed() {
+        return this.selectedArtefact?.placement.mirrored || false;
+    }
+
     private get placedArtefacts() {
         return this.artefacts.filter((x) => x.isPlaced);
+    }
+
+    private get isToolbarDisabled() {
+        return !this.selectedArtefacts || !this.selectedArtefacts.length;
     }
 
     private get artefact() {
@@ -1044,6 +672,14 @@ export default class ScrollTopToolbar extends Vue {
         min-width: 90vw;
         max-width: 90vw;
     }
+}
+
+#scroll-top-toolbar {
+    display: flex;
+}
+
+input.by-input {
+    width: 4rem;
 }
 
 .topbar-row {
