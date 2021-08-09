@@ -1,5 +1,5 @@
 export default {
-    home: 'Scripta Qumranica Electronica',
+    brand: 'Scripta Qumranica Electronica',
     filter: 'Filter by',
     show: 'Show',
     search: 'Search',

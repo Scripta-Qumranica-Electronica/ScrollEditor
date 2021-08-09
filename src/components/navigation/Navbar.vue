@@ -12,10 +12,10 @@
                 <img id="brand-icon" class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
                 <span id="brand-text" class="m-0 p-0 pb-1 d-none d-xl-flex">
                     <router-link to="/home" v-if="isActive">
-                        {{ $t('home.home') }}
+                        {{ $t('home.brand') }}
                     </router-link>
                     <router-link to="/" v-else>
-                        {{ $t('home.home') }}
+                        {{ $t('home.brand') }}
                     </router-link>
                 </span>
             </b-navbar-brand >
@@ -432,29 +432,21 @@ $foreground: $qumran-white;
     #brand-text a {
         color: $foreground !important;
         text-decoration: none;
-    }
-
-    #brand-icon {
-        margin-top: 12px;
-    }
-
-    .navbar-brand {
-        /* font-family: Helvetica Neue W01 95 Black; */
         font-family: $font-family;
         /* color: #ffffff; */
         /* color: #f3f3f3; */
         letter-spacing: 0em;
         text-align: left;
+        vertical-align: center;
         font-weight: 900;
         font-style: italic;
         /* font-size: 20px; */
-        font-size: 2.2rem;
+        font-size: 1.8rem;
     }
 
-    /* .navbar-brand > span { */
-    .navbar-brand > .logo {
+    #brand-icon {
+        margin-top: 6px;
         margin-right: 1rem;
-        margin-left: 2.4rem;
         /* margin-right: 10px;
         margin-left: 24px; */
 
@@ -462,19 +454,7 @@ $foreground: $qumran-white;
         height: 2.1rem;
         border-radius: 0.3rem;
 
-        /* width: 34px;
-        height: 34px;
-        border-radius: 5px; */
-
         background:$background;
-
-        /* display: inline-block; */
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        align-items: flex-start;
-
-        text-align: center;
     }
 
     @media (max-width: 1134px) {
