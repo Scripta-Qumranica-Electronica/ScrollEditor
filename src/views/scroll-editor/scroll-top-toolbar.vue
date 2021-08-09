@@ -58,6 +58,8 @@
                 </b-input-group>
             </b-button-group>
         </toolbox>
+
+        <undo-redo-toolbox />
     </toolbar>
 </template>
 
@@ -86,6 +88,7 @@ import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import Toolbar from '@/components/toolbars/toolbar.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
+import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 
 @Component({
     name: 'scroll-top-toolbar',
@@ -95,6 +98,7 @@ import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
         toolbox: Toolbox,
         toolbar: Toolbar,
         'toolbar-icon-button': ToolbarIconButton,
+        'undo-redo-toolbox': UndoRedoToolbox,
     },
 })
 export default class ScrollTopToolbar extends Vue {
