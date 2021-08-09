@@ -4,7 +4,7 @@
             :disabled="disabled"
             :pressed="pressed"
             v-on="$listeners">
-        <font-awesome-icon :icon="icon" />
+        <font-awesome-icon v-if="icon" :icon="icon" />
         <span v-if="showText" class="button-text">{{ title }}</span>
     </b-button>
 </template>
