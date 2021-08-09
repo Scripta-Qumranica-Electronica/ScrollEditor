@@ -40,11 +40,6 @@
             <!-- empty navbar just to right-align the rest -->
             <b-navbar-nav class="ml-auto"></b-navbar-nav>
 
-            <b-navbar-nav v-if="showOperationsManager" align="right" class="d-none d-lg-flex">
-                <b-button variant="outline" :disabled="!operationsManager.canUndo" size="sm" @click="onUndo()">{{ $t('home.undo')}}</b-button>
-                <b-button variant="outline" :disabled="!operationsManager.canRedo" size="sm" @click="onRedo()">{{ $t('home.redo')}}</b-button>
-            </b-navbar-nav>
-
             <b-navbar-nav toggleable
                 class="search-user-nav"
                 align="right">
