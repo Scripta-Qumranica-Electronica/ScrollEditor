@@ -16,7 +16,7 @@
         >
             <template v-slot:modal-header>
                 <b-row>
-                    <b-col cols="12"> <b>{{ `${$t('home.home')} - ${$t('navbar.faq')}` }} </b> </b-col>
+                    <b-col cols="12"> <b>{{ `${$t('home.brand')} - ${$t('navbar.faq')}` }} </b> </b-col>
                 </b-row>
 
             </template>

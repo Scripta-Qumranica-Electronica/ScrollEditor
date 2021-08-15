@@ -114,14 +114,6 @@ export default class ScrollTopToolbar extends Vue {
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
 
-    private sidesOptions: Array<{ text: string; value: string }> = [
-        { text: 'Left', value: 'left' },
-        { text: 'Right', value: 'right' },
-        { text: 'Top', value: 'top' },
-        { text: 'Down', value: 'down' },
-    ];
-
-    private keyboardInput: boolean = true;
     // private float: boolean = true;
     private ver1: boolean = true;
     private zoomDelta!: number;
@@ -168,65 +160,6 @@ export default class ScrollTopToolbar extends Vue {
             : 'outline-secondary';
     }
 
-    protected mounted() {
-        if (this.keyboardInput) {
-            window.addEventListener('keydown', this.onKeyPress);
-        }
-
-        const materialBtn = document.querySelector('#material-mode-btn')!;
-        const textBtn = document.querySelector('#text-mode-btn')!;
-
-        if ('material' === this.scrollEditorState.mode) {
-            materialBtn.classList.add('btn-selected');
-        } else if ('text' === this.scrollEditorState.mode) {
-            materialBtn.classList.remove('btn-selected');
-        }
-
-        materialBtn.addEventListener('focusout', (event) => {
-            if ('material' === this.scrollEditorState.mode) {
-                materialBtn.classList.add('btn-selected');
-            } else if ('text' === this.scrollEditorState.mode) {
-                materialBtn.classList.remove('btn-selected');
-            }
-        });
-
-        textBtn.addEventListener('focusout', (event) => {
-            if ('text' === this.scrollEditorState.mode) {
-                textBtn.classList.add('btn-selected');
-            } else if ('material' === this.scrollEditorState.mode) {
-                textBtn.classList.remove('btn-selected');
-            }
-        });
-    }
-
-    // router re enter page
-    public beforeEnter() {
-        const materialBtn = document.getElementById('material-mode-btn')!;
-        const textBtn = document.getElementById('text-mode-btn')!;
-
-        const curTopBar = document.getElementById('scroll-topbar')!;
-
-        if ('material' === this.scrollEditorState.mode) {
-            materialBtn.focus();
-        } else if ('text' === this.scrollEditorState.mode) {
-            textBtn.focus();
-        }
-
-        curTopBar.addEventListener('focusout', (event) => {
-            if ('material' === this.scrollEditorState.mode) {
-                materialBtn.focus();
-            } else if ('text' === this.scrollEditorState.mode) {
-                textBtn.focus();
-            }
-        });
-    }
-
-    public destroyed() {
-        if (this.keyboardInput) {
-            window.removeEventListener('keydown', this.onKeyPress);
-        }
-    }
-
     private get mode(): ScrollEditorOpMode {
         return this.params!.mode;
     }
@@ -235,7 +168,7 @@ export default class ScrollTopToolbar extends Vue {
         this.params.mode = mode;
     }
 
-    private onKeyPress(event: KeyboardEvent) {
+/*    private onKeyPress(event: KeyboardEvent) {
         if (this.artefact) {
             return;
         }
@@ -287,7 +220,7 @@ export default class ScrollTopToolbar extends Vue {
                 }
                 break;
         }
-    }
+    } */
 
     private get edition() {
         return this.$state.editions.current! || {};
@@ -303,15 +236,6 @@ export default class ScrollTopToolbar extends Vue {
 
     private onTextMode(value: ScrollEditorMode) {
         this.scrollEditorState.mode = value;
-
-        const materialBtn = document.getElementById('material-mode-btn')!;
-        const textBtn = document.getElementById('text-mode-btn')!;
-
-        if ('material' === this.scrollEditorState.mode) {
-            materialBtn.focus();
-        } else if ('text' === this.scrollEditorState.mode) {
-            textBtn.focus();
-        }
     }
 
     private get artefacts() {

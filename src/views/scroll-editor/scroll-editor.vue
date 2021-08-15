@@ -761,41 +761,8 @@ export default class ScrollEditor
     }
 
     private newOperation(operation: ScrollEditorOperation) {
+        console.debug('scroll-editor newOperation ', operation);
         this.operationsManager.addOperation(operation);
-    }
-
-    private removeArtefactOrGroup() {
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-
-        if (this.selectedArtefact) {
-            operation = this.createOperation(
-                'delete',
-                Placement.empty,
-                this.selectedArtefact,
-                false
-            );
-        }
-        if (this.selectedGroup) {
-            const operations: ScrollEditorOperation[] = [];
-
-            this.selectedArtefacts.forEach((art: Artefact) => {
-                operations.push(
-                    this.createOperation('delete', Placement.empty, art, false)
-                );
-            });
-
-            operation = new GroupPlacementOperation(
-                this.selectedGroup.groupId,
-                operations,
-                'delete'
-            );
-        }
-
-        this.newOperation(operation);
-
-        if (this.selectedGroup) {
-            this.deleteGroup(this.selectedGroup.groupId);
-        }
     }
 
     private async onTextChanged(params: {

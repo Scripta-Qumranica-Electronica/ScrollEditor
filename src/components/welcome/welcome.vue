@@ -2,7 +2,7 @@
     <div class="overflow-auto welcome-container">
         <div class="welcome">
             <div class="welcome-wrapper">
-                <p class="title">{{ $t('home.home') }}</p>
+                <p class="title">{{ $t('home.brand') }}</p>
                 <p class="sub-title">
                     The next generation of Dead Sea Scrolls research
                 </p>

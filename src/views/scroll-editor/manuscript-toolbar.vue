@@ -438,16 +438,18 @@ export default class ManuscriptToolbar extends Vue {
 
 
     private removeArtefactOrGroup() {
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-
         if (this.selectedArtefact) {
-            operation = this.createOperation(
+            const operation = this.createOperation(
                 'delete',
                 Placement.empty,
                 this.selectedArtefact,
                 false
             );
+
+            console.debug('removeArtefactOrGroup creating new operation ', operation);
+            this.newOperation(operation);
         }
+
         if (this.selectedGroup) {
             const operations: ScrollEditorOperation[] = [];
 
@@ -457,16 +459,13 @@ export default class ManuscriptToolbar extends Vue {
                 );
             });
 
-            operation = new GroupPlacementOperation(
+            const operation = new GroupPlacementOperation(
                 this.selectedGroup.groupId,
                 operations,
                 'delete'
             );
-        }
 
-        this.newOperation(operation);
-
-        if (this.selectedGroup) {
+            this.newOperation(operation);
             this.deleteGroup(this.selectedGroup.groupId);
         }
     }
