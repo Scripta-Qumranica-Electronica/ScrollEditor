@@ -72,6 +72,12 @@
                         ></b-form-input>
                     </b-col>
                 </b-row>
+
+                <b-row class="mb-3">
+                    <b-col>
+                        <b-checkbox v-model="termsOfUse">I have read and accept the <b-link href="#"  @click="showTermsOfUse">Terms of Use</b-link>.</b-checkbox>
+                    </b-col>
+                </b-row>
             </b-container>
 
             <template v-slot:modal-footer>
@@ -125,6 +131,7 @@ export default class Registration extends Vue {
     protected sessionService: SessionService = new SessionService();
     protected errorService: ErrorService = new ErrorService(this);
     protected waiting: boolean = false;
+    protected termsOfUse: boolean = false;
 
 
     // computed
@@ -137,6 +144,7 @@ export default class Registration extends Vue {
             !this.email ||
             !this.password ||
             !this.repassword ||
+            !this.termsOfUse ||
             this.waiting
         );
     }
@@ -150,6 +158,10 @@ export default class Registration extends Vue {
             return 'Passwords must be identical';
         }
         return '';
+    }
+
+    protected showTermsOfUse() {
+        this.$root.$emit('bv::show::modal', 'EulaModal');
     }
 
     // methods
