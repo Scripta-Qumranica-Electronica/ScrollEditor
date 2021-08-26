@@ -19,7 +19,6 @@
                                         :pressed="actionMode === 'polygon'"
                                         :disabled="!isDrawingEnabled"
                                         :title="$t('misc.draw')"
-                                        :show-text="true"
                                         icon="pen" />
                                     <toolbar-icon-button
                                         v-show="!readOnly"
@@ -27,13 +26,11 @@
                                         :pressed="actionMode === 'box'"
                                         :disabled="!isDrawingEnabled"
                                         :title="$t('misc.box')"
-                                        :show-text="true"
                                         icon="square" />
                                     <toolbar-icon-button
                                         :title="$t('misc.select')"
                                         @click="onModeClick('select')"
                                         :pressed="actionMode === 'select'"
-                                        :show-text="true"
                                         icon="mouse-pointer" />
                                 </toolbox>
                                 <toolbox subject="">
@@ -43,7 +40,7 @@
                                         @click="onDeleteRoi"
                                         :disabled="!isDeleteEnabled"
                                         icon="trash"
-                                        :show-text="true" />
+                                        :show-text="true"/>
                                 </toolbox>
                                 <toolbox subject="">
                                     <b-form-checkbox

@@ -144,4 +144,15 @@ body {
     padding: 0px;
     background-color: #e5e5e5;
 }
+
+input.no-arrows::-webkit-outer-spin-button,
+input.no-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input.no-arrows[type=number] {
+  -moz-appearance: textfield;
+}
 </style>
