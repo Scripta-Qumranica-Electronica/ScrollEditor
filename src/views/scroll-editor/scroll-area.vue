@@ -1,15 +1,5 @@
 <template>
     <div ref="scrollArea" id="outer">
-        <div
-            v-draggable="draggableOptions"
-            v-show="selectedArtefact || selectedGroup"
-            style="position: fixed"
-        >
-            <div ref="handleTools" class="handle-tools">
-                <i class="fa fa-ellipsis-v"></i>
-            </div>
-
-        </div>
         <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
             <svg
                 id="the-scroll"
@@ -38,6 +28,7 @@
                         transformRootId="root"
                         v-for="artefact in placedArtefacts"
                         :artefact="artefact"
+                        :imagedObject="$state.imagedObjects.find(artefact.imagedObjectId)"
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
@@ -63,7 +54,6 @@ import { ImageSetting } from '@/components/image-settings/types';
 import { Artefact } from '@/models/artefact';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolbox from './artefact-toolbox.vue';
-import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactTextFragmentData } from '@/models/text';
@@ -78,14 +68,10 @@ import { ScriptData, GlyphData } from '@/models/script';
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox,
     },
-    directives: {
-        Draggable,
-    },
 })
 export default class ScrollArea extends Vue {
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
-    private draggableOptions: DraggableValue = {};
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.$emit('onSelectArtefact', artefact);
@@ -103,9 +89,6 @@ export default class ScrollArea extends Vue {
     }
 
     private async mounted() {
-        this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
-        this.draggableOptions.boundingElement = this.$refs
-            .scrollArea as HTMLElement;
         // Prepare ROIs of placed artefacts
         await this.placedArtefacts.forEach(async (artefact: Artefact) => {
             await this.$state.prepare.artefact(artefact.editionId, artefact.id);
@@ -115,7 +98,6 @@ export default class ScrollArea extends Vue {
                 )
             );
         });
-
     }
 
     private get scrollEditorState(): ScrollEditorState {
@@ -233,9 +215,10 @@ export default class ScrollArea extends Vue {
     }
 
     private get placedArtefacts() {
-        return this.artefacts
+        const visibleArtefacts =  this.artefacts
             .filter((x) => x.isPlaced && x.inViewport)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
+        return visibleArtefacts;
     }
 
     private onNewOperation(op: ScrollEditorOperation) {

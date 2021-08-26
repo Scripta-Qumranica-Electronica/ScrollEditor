@@ -1,8 +1,8 @@
 <template>
     <div>
-        <b-tabs nav-wrapper-class="tabs">
+        <b-tabs nav-wrapper-class="tabs" v-model="activeTab" @activate-tab="onActivateTab">
             <b-tab
-                v-if="user"
+                :disabled="!user"
                 :title-item-class="'tab-title-class'"
                 :title="
                     $tc('home.personalEditionGroupCount', personalEditionsCount)
@@ -23,14 +23,6 @@
                     @on-public-editions-load="onPublicEditionsLoad($event)"
                 ></public-editions>
             </b-tab>
-            <!-- <b-tab
-                :title="
-                    $tc('home.search')
-                "
-                :title-item-class="'tab-title-class'"
-            >
-                <search></search>
-            </b-tab> -->
         </b-tabs>
     </div>
 
@@ -43,6 +35,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/PersonalEditions.vue';
 import PublicEditions from './components/PublicEditions.vue';
+import { Route } from 'vue-router';
 // import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */
 
@@ -65,6 +58,7 @@ export default class Home extends Vue {
     private filter: string = '';
     private personalEditionsCount: number = 0 ;
     private publicEditionsCount: number = 0 ;
+    private activeTab: number = 0;
 
     // hooks as constructor
     // ========================
@@ -74,12 +68,15 @@ export default class Home extends Vue {
         this.$state.editions.current = null;
     }
 
-    // computed properties geters setters
-    // ====================================
+    protected mounted() {
+        if (this.$route.params.editionType === 'public') {
+            this.$nextTick(() => { this.activeTab = 1; });
+        }
 
-    // This will direct user to personal and public tabs view
-    // Without it, only public tabs view will be displayed,
-    // and without editing options (such as copy)
+        if (this.$route.params.editionType === 'private' && !this.user) {
+            this.$router.replace('/home/public');
+        }
+    }
 
     public get user(): boolean {
         return this.$state.session.user ? true : false;
@@ -103,6 +100,29 @@ export default class Home extends Vue {
         this.publicEditionsCount = count;
     }
 
+    protected onActivateTab(newTab: number, prevTab: number) {
+        if (prevTab === -1) {
+            return;
+        }
+        if (newTab === 0 && this.$route.params.editionType !== 'private') {
+            this.$router.push('/home/private');
+        } else if (newTab === 1 && this.$route.params.editionType !== 'public') {
+            this.$router.push('/home/public');
+        }
+    }
+
+    @Watch('$route')
+    protected onRouteChanged(to: Route, from: Route) {
+        if (to.name !== 'home') {
+            return; // Changed to some other page, ignore it.
+        }
+
+        if (to.params.editionType === 'public') {
+            this.activeTab = 1;
+        } else {
+            this.activeTab = 0;
+        }
+    }
 
 }
 

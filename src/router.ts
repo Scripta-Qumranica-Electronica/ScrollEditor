@@ -29,9 +29,13 @@ export default new Router({
             component: Welcome
         },
         {
-            path: '/home',
+            path: '/home/:editionType',
             name: 'home',
             component: Home
+        },
+        {
+            path: '/home',
+            redirect: '/home/private',
         },
         {
             path: '/search',

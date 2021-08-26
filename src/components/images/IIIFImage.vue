@@ -1,15 +1,18 @@
 <template>
-    <g v-if="image"
-       :transform="groupTransform">
-        <image :xlink:href="backgroundImageUrl"
-               :transform="backgroundImageTransform"
-               :opacity="opacity"/>
-        <image v-for="(tile, idx) in tiles.filter(x => x.display
-    )" :key="idx"
-               :xlink:href="tile.url"
-               :opacity="opacity"
-               :transform="tile.transform"
-               @error="retryOnError(tile.url)"/>
+    <g v-if="image" :transform="groupTransform">
+        <image
+            :xlink:href="backgroundImageUrl"
+            :transform="backgroundImageTransform"
+            :opacity="opacity"
+        />
+        <image
+            v-for="(tile, idx) in tiles.filter((x) => x.display)"
+            :key="`iiif-image-${image.id}-tile-${idx}`"
+            :xlink:href="tile.url"
+            :opacity="opacity"
+            :transform="tile.transform"
+            @error="retryOnError(tile.url)"
+        />
     </g>
 </template>
 
@@ -46,7 +49,6 @@
 import { Image } from '@/models/image';
 import { BoundingBox, BoundingBoxInterface } from '@/utils/helpers';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import axios from 'axios';
 
 interface ManifestTileInfo {
     width: number;
@@ -66,35 +68,59 @@ interface TileInfo {
 })
 export default class IIIFImageComponent extends Vue {
     @Prop() private image!: Image;
-    @Prop() private boundingBox?: BoundingBoxInterface;  // In SQE coordinates
+    @Prop() private boundingBox?: BoundingBoxInterface; // In SQE coordinates
     @Prop({ default: 0.5 }) private scaleFactor!: number;
-    @Prop() private maxWidth?: number;                   // In Screen Coordinates
+    @Prop() private maxWidth?: number; // In Screen Coordinates
     @Prop({ default: 1 }) private opacity!: number;
 
-    private retryLimit: number = 10;
+    private retryLimit = 10;
     private tiles: TileInfo[] = [];
 
-    private mounted() {
+    public mounted() {
         this.loadTiles();
+        // this.scaleFactor = 0;
+        // this.scaleFactor = this.scaleFactor;
     }
 
     @Watch('scaleFactor')
-    private onPropertyChanged(value: number, oldValue: number) {
+    private onScalePropertyChanged(value: number, oldValue: number) {
+        this.loadTiles();
+    }
+
+    @Watch('boundingBox')
+    private onBoundingBoxPropertyChanged(value: number, oldValue: number) {
+        // Sometimes loading of the bounding box lags behind reception of
+        // other values, make sure to trigger a tile load when a new bounding
+        // box appears.
         this.loadTiles();
     }
 
     private loadTiles() {
+        // If the bounding box has no width or height, don't go any further; nothing to display
+        if (
+            [
+                this.imageBoundingBox.width,
+                this.imageBoundingBox.height,
+            ].includes(0)
+        ) {
+            return;
+        }
+
         // Get the tile size we can actually use (this is based on the optimizedImageScaleFactor)
-        const tileWidth = Math.floor(this.manifestTileInfo.width / this.optimizedImageScaleFactor);
-        const tileHeight = Math.floor(this.manifestTileInfo.height / this.optimizedImageScaleFactor);
+        const tileWidth = Math.floor(
+            this.manifestTileInfo.width / this.optimizedImageScaleFactor
+        );
+        const tileHeight = Math.floor(
+            this.manifestTileInfo.height / this.optimizedImageScaleFactor
+        );
         // console.debug(`tile size ${tileWidth}, ${tileHeight}`);
 
         this.tiles = [];
-        const endX = this.imageBoundingBox.x + this.imageBoundingBox.width;   // Bottom right corner of the bounding box
+        const endX = this.imageBoundingBox.x + this.imageBoundingBox.width; // Bottom right corner of the bounding box
         const endY = this.imageBoundingBox.y + this.imageBoundingBox.height;
         // console.debug('imageBoundingBox: ', this.imageBoundingBox);
 
-        let xTranslate = 0;  // How much to translate the tile
+        let xTranslate = 0; // How much to translate the tile
         for (let x = this.imageBoundingBox.x; x < endX; x += tileWidth) {
             const currentTileWidth = Math.min(tileWidth, endX - x);
 
@@ -103,20 +129,25 @@ export default class IIIFImageComponent extends Vue {
                 const currentTileHeight = Math.min(tileHeight, endY - y);
 
                 // Now we have a tile we can create
-                const url = this.image.getScaledAndCroppedUrl(this.optimizedImageScaleFactor * 100,
-                                                           x, y, currentTileWidth + 1, currentTileHeight + 1);
+                const url = this.image.getScaledAndCroppedUrl(
+                    this.optimizedImageScaleFactor * 100,
+                    x,
+                    y,
+                    currentTileWidth + 1,
+                    currentTileHeight + 1
+                );
                 const tile = {
                     url,
                     transform: `translate(${xTranslate}, ${yTranslate})`,
                     width: currentTileWidth * this.optimizedImageScaleFactor,
                     height: currentTileHeight * this.optimizedImageScaleFactor,
-                    display
-            : true,
-                    retries: 0
+                    display: true,
+                    retries: 0,
                 };
                 // console.debug(`tile (${x}, ${y}, ${currentTileWidth}, ${currentTileHeight})`);
                 this.tiles.push(tile);
-                yTranslate += currentTileHeight * this.optimizedImageScaleFactor; // For some reason without the -1 we see thin lines between tiles
+                yTranslate +=
+                    currentTileHeight * this.optimizedImageScaleFactor; // For some reason without the -1 we see thin lines between tiles
             }
             xTranslate += currentTileWidth * this.optimizedImageScaleFactor;
         }
@@ -129,7 +160,12 @@ export default class IIIFImageComponent extends Vue {
             return this.boundingBox;
         }
 
-        const sqeBB = new BoundingBox(0, 0, this.image.width, this.image.height);
+        const sqeBB = new BoundingBox(
+            0,
+            0,
+            this.image.width,
+            this.image.height
+        );
         return sqeBB;
     }
 
@@ -138,7 +174,12 @@ export default class IIIFImageComponent extends Vue {
         const sqeBB = this.sqeBoundingBox;
         const f = this.image.ppiAdjustmentFactor;
 
-        const imageBB = new BoundingBox(sqeBB.x / f, sqeBB.y / f, sqeBB.width / f, sqeBB.height / f);
+        const imageBB = new BoundingBox(
+            sqeBB.x / f,
+            sqeBB.y / f,
+            sqeBB.width / f,
+            sqeBB.height / f
+        );
         return imageBB;
     }
 
@@ -153,7 +194,12 @@ export default class IIIFImageComponent extends Vue {
             f = 1 / this.scaleFactor;
         }
 
-        const screenBB = new BoundingBox(sqeBB.x / f, sqeBB.y / f, sqeBB.width / f, sqeBB.height / f);
+        const screenBB = new BoundingBox(
+            sqeBB.x / f,
+            sqeBB.y / f,
+            sqeBB.width / f,
+            sqeBB.height / f
+        );
         return screenBB;
     }
 
@@ -163,7 +209,6 @@ export default class IIIFImageComponent extends Vue {
             // Use the first tile - we haven't seen an example with more than one tile entry
             return this.image.manifest.tiles[0] as ManifestTileInfo;
         }
-
 
         // Default tile information
         return {
@@ -178,21 +223,29 @@ export default class IIIFImageComponent extends Vue {
     //
     // This scale factor is the basis of what is sent to the server
     private get imageScaleFactor(): number {
-        const imageScaleFactor = Math.min(this.screenBoundingBox.width / this.imageBoundingBox.width, 1);
+        const imageScaleFactor = Math.min(
+            this.screenBoundingBox.width / this.imageBoundingBox.width,
+            1
+        );
         return imageScaleFactor;
     }
 
     // The imageScaleFactor rounded up to the nearest scale optimized in the server
     // (based on the tile info)
     private get optimizedImageScaleFactor() {
-        for (let i = this.manifestTileInfo.scaleFactors.length - 1; i >= 0; i--) {
-            const manifestScaleFactor = 1 / this.manifestTileInfo.scaleFactors[i];
+        for (
+            let i = this.manifestTileInfo.scaleFactors.length - 1;
+            i >= 0;
+            i--
+        ) {
+            const manifestScaleFactor =
+                1 / this.manifestTileInfo.scaleFactors[i];
             if (manifestScaleFactor > this.imageScaleFactor) {
                 return manifestScaleFactor;
             }
         }
 
-        return 1;  // If all fails, return 1
+        return 1; // If all fails, return 1
     }
 
     // // Returns the tiles necessary for the laying out the original image.
@@ -238,7 +291,13 @@ export default class IIIFImageComponent extends Vue {
 
     // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles
     private get backgroundImageUrl(): string {
-        return this.image.getScaledAndCroppedUrl(5, this.imageBoundingBox.x, this.imageBoundingBox.y, this.imageBoundingBox.width, this.imageBoundingBox.height);
+        return this.image.getScaledAndCroppedUrl(
+            5,
+            this.imageBoundingBox.x,
+            this.imageBoundingBox.y,
+            this.imageBoundingBox.width,
+            this.imageBoundingBox.height
+        );
     }
 
     private get backgroundImageTransform(): string {
@@ -248,7 +307,8 @@ export default class IIIFImageComponent extends Vue {
     private get groupTransform(): string {
         // Scale the images back to sqe coordinates.
         // The images are in imageCoordinates * optimizedImageScaleFactor,
-        const optimizedImageToSqe = this.image.ppiAdjustmentFactor / this.optimizedImageScaleFactor;
+        const optimizedImageToSqe =
+            this.image.ppiAdjustmentFactor / this.optimizedImageScaleFactor;
         const scaleTransform = `scale(${optimizedImageToSqe})`;
 
         // The image is now in sqe coordinates, but at (0, 0) and not the bounding box. We need to move it.
@@ -267,29 +327,33 @@ export default class IIIFImageComponent extends Vue {
         // Note that I tried earlier to just get the actual <image> DOM element
         // and to reset the xlink:href attribute, but that didn't seem to trigger
         // an attempt to reload the image.  Doing it the vue way seems to work fine.
-        let failedTileIdx = this.tiles.findIndex(x => x.url === url);
-        let failedTile = this.tiles[failedTileIdx];
-        if (failedTile.retries < this.retryLimit) {
-            this.tiles = this.tiles.splice(failedTileIdx, 1);
-            failedTile.display
-     = false;
-            failedTile.retries += 1;
-            this.tiles.push(failedTile);
+        let retry = 1;
+        this.tiles = this.tiles.map((x) => {
+            if (x.url === url) {
+                x.display = false;
+                retry = x.retries;
+            }
+            return x;
+        });
 
+        if (retry < this.retryLimit) {
             // Give the server a little breathing room to try again
             // by backing off a little more on each retry of a single image.
             setTimeout(() => {
-                failedTileIdx = this.tiles.findIndex(x => x.url === url);
-                failedTile = this.tiles[failedTileIdx];
-                this.tiles = this.tiles.splice(failedTileIdx, 1);
-                failedTile.display = false;
-                this.tiles.push(failedTile);
-            }, 20 * failedTile.retries);
+                this.tiles = this.tiles.map((x) => {
+                    if (x.url === url) {
+                        x.display = true;
+                        x.retries += 1;
+                    }
+                    return x;
+                });
+            }, 20 * retry);
+            return;
         }
 
         // This is apparently an error that cannot be recovered.
         // How should it be handled? Maybe alert the user?
-        console.error(`Could not fetch image: ${failedTile.url}`);
+        console.error(`After ${retry} attempts, could not fetch image: ${url}`);
     }
 }
 </script>

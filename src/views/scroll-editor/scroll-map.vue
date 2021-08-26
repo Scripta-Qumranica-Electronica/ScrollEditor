@@ -77,7 +77,6 @@ export default class ScrollMap extends Vue {
     }
 
     private onResize() {
-        // Move this to a function called setScaleFactor and call it from onResize
         this.setScaleFactor();
     }
 

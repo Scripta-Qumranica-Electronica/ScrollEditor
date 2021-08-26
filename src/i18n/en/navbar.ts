@@ -1,6 +1,11 @@
 export default {
     home: 'Home',
     about: 'About',
+    faq: 'FAQ',
+    cite: 'Cite',
+    eula: 'Terms of Use',
+    documentation: 'Documentation',
+    contactus: 'Contact Us',
     login: 'Log in',
     logout: 'Logout',
 
@@ -14,6 +19,7 @@ export default {
 
     registration: 'Registration',
     register: 'Register',
+    start: 'Start Working',
 
     changePassword: 'Change Password',
     currentPassword: 'Current Password',

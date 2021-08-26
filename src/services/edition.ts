@@ -2,6 +2,7 @@ import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, ArtefactGrou
 import { CommHelper } from './comm-helper';
 import {
     EditionListDTO,
+    EditionGroupDTO,
     EditionUpdateRequestDTO,
     EditionDTO,
     InviteEditorDTO,
@@ -55,6 +56,22 @@ class EditionService {
         });
 
         return editionList;
+    }
+
+    public async getSingleEditions(editionId: number): Promise<EditionGroupDTO> {
+        const response = await CommHelper.get<EditionGroupDTO>(
+            ApiRoutes.editionUrl(editionId)
+        );
+
+        return response.data;
+    }
+
+    public async getManuscriptEditions(manuscriptId: number): Promise<EditionListDTO> {
+        const response = await CommHelper.get<EditionListDTO>(
+            ApiRoutes.manuscriptEditions(manuscriptId)
+        );
+
+        return response.data;
     }
 
     public async copyEdition(

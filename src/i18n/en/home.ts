@@ -1,5 +1,5 @@
 export default {
-    home: 'Scripta Qumranica Electronica',
+    brand: 'Scripta Qumranica Electronica',
     filter: 'Filter by',
     show: 'Show',
     search: 'Search',
@@ -9,6 +9,8 @@ export default {
     personalEditionGroupCount: 'No personal editions | One personal edition |  personal editions ({count})',
     publicEditionCount: ' | public edition | public editions',
     personalVersionCount: ' | personal edition | personal editions',
+    personalEditions: 'Personal Editions',
+    publicEditions: 'Public Editions',
     shares: ' | share | shares',
     artefacts: 'Artefacts',
     scroll: 'Scroll',

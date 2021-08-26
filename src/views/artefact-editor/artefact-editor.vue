@@ -5,118 +5,71 @@
         </div>
         <div v-if="!waiting">
             <div class="mt-4 editor-container">
-                <b-row class="h-100">
-                    <b-col class="h-100 col-lg-9">
-                        <div class="editor-actions">
-                            <b-row class="border-bottom">
-                                <b-col class="col-lg-6">
-                                    <artefact-editor-toolbar
-                                        :artefact="artefact"
-                                        @paramsChanged="onParamsChanged($event)"
-                                    ></artefact-editor-toolbar>
-                                </b-col>
-                                <div class="col-lg-6 row no-gutters">
-                                    <div class="col-6 pt-2">
-                                        <span
-                                            tabindex="0"
-                                            class="d-inline-block"
-                                            :style="{
-                                                pointerEvents: isDrawingEnabled
-                                                    ? 'all'
-                                                    : 'none',
-                                            }"
-                                            v-for="mode in [
-                                                {
-                                                    icon: 'fa fa-pencil-square-o',
-                                                    val: 'polygon',
-                                                    title: this.$t('misc.draw'),
-                                                },
-                                                {
-                                                    icon: 'fa fa-square-o',
-                                                    val: 'box',
-                                                    title: this.$t('misc.box'),
-                                                },
-                                            ]"
-                                            :key="mode.val"
-                                            v-b-tooltip.hover.bottom
-                                            :title="mode.title"
-                                        >
-                                            <b-button
-                                                v-show="!readOnly"
-                                                @click="onModeClick(mode.val)"
-                                                :pressed="mode === mode.val"
-                                                :disabled="!isDrawingEnabled"
-                                                class="m-2"
-                                            >
-                                                <i :class="mode.icon"></i>
-                                            </b-button>
-                                        </span>
-                                        <span
-                                            tabindex="0"
-                                            class="d-inline-block"
-                                            v-b-tooltip.hover.bottom
-                                            :style="{
-                                                pointerEvents: isDrawingEnabled
-                                                    ? 'all'
-                                                    : 'none',
-                                            }"
-                                            :title="$t('misc.cancel')"
-                                        >
-                                            <b-button
-                                                v-if="!readOnly"
-                                                type="button"
-                                                class="m-2"
-                                                @click="onDeleteRoi()"
-                                                :disabled="!isDeleteEnabled"
-                                            >
-                                                <i class="fa fa-trash"></i> </b-button
-                                        ></span>
-                                        <span
-                                            tabindex="0"
-                                            class="d-inline-block"
-                                            v-b-tooltip.hover.bottom
-                                            :style="{
-                                                pointerEvents: isDrawingEnabled
-                                                    ? 'all'
-                                                    : 'none',
-                                            }"
-                                            :title="$t('misc.select')"
-                                        >
-                                            <b-button
-                                                v-if="!readOnly"
-                                                type="button"
-                                                @click="onModeClick('select')"
-                                                :pressed="actionMode === 'select'"
-                                                class="m-2"
-                                            >
-                                                <i
-                                                    class="fa fa-mouse-pointer"
-                                                ></i> </b-button
-                                        ></span>
-                                    </div>
-                                    <div class="col pt-4">
-                                        <b-form-checkbox
-                                            @input="onHighlightComment($event)"
-                                            switch
-                                            size="sm"
-                                            >Comments</b-form-checkbox>
-                                    </div>
-                                    <div class="col pt-4">
-                                        <b-form-checkbox
-                                            switch
-                                            size="sm"
-                                            v-if="!readOnly"
-                                            @input="onAuto()"
-                                            id="auto-character"
-                                            >Auto character
-                                            select</b-form-checkbox
-                                        >
-                                    </div>
-                                </div>
-                            </b-row>
-                        </div>
-                        <div class="artefact-image-container">
-                            <div class="artefact-container" ref="infoBox">
+                <b-row>
+                    <b-col class="d-flex flex-column col-lg-9">
+                        <toolbar no-gutters>
+                            <artefact-editor-toolbar
+                                :artefact="artefact"
+                                @paramsChanged="onParamsChanged($event)"/>
+                            <div id="other-toolboxes" class="d-flex">
+                                <toolbox subject="Edit Modes">
+                                    <toolbar-icon-button
+                                        v-show="!readOnly"
+                                        @click="onModeClick('polygon')"
+                                        :pressed="actionMode === 'polygon'"
+                                        :disabled="!isDrawingEnabled"
+                                        :title="$t('misc.draw')"
+                                        :show-text="true"
+                                        icon="pen" />
+                                    <toolbar-icon-button
+                                        v-show="!readOnly"
+                                        @click="onModeClick('box')"
+                                        :pressed="actionMode === 'box'"
+                                        :disabled="!isDrawingEnabled"
+                                        :title="$t('misc.box')"
+                                        :show-text="true"
+                                        icon="square" />
+                                    <toolbar-icon-button
+                                        :title="$t('misc.select')"
+                                        @click="onModeClick('select')"
+                                        :pressed="actionMode === 'select'"
+                                        :show-text="true"
+                                        icon="mouse-pointer" />
+                                </toolbox>
+                                <toolbox subject="">
+                                    <toolbar-icon-button
+                                        :title="$t('misc.cancel')"
+                                        v-if="!readOnly"
+                                        @click="onDeleteRoi"
+                                        :disabled="!isDeleteEnabled"
+                                        icon="trash"
+                                        :show-text="true" />
+                                </toolbox>
+                                <toolbox subject="">
+                                    <b-form-checkbox
+                                        @input="onHighlightComment($event)"
+                                        switch
+                                        size="sm"
+                                        >Comments</b-form-checkbox
+                                    >
+                                    <b-form-checkbox
+                                        switch
+                                        size="sm"
+                                        v-if="!readOnly"
+                                        @input="onAuto()"
+                                        id="auto-character"
+                                        >Auto character
+                                        select</b-form-checkbox
+                                    >
+                                </toolbox>
+                            </div>
+                        </toolbar>
+                        <div
+                            class="artefact-image-container"
+                            style="flex-grow: 1"
+                            ref="infoBox"
+                        >
+                            <div class="d-flex flex-column artefact-container">
                                 <div style="height: 60px">
                                     <span v-if="artefactMode">{{
                                         artefact.name
@@ -129,14 +82,16 @@
                                         text-field="name"
                                         size="sm"
                                         class="mt-4 col-3"
-
                                     ></b-form-select>
                                     <edition-icons
                                         :edition="edition"
                                         :show-text="true"
                                     />
                                     <sign-wheel
-                                        v-if="selectedSignInterpretations.length === 1"
+                                        v-if="
+                                            selectedSignInterpretations.length ===
+                                            1
+                                        "
                                         :line="selectedLine"
                                     />
                                 </div>
@@ -148,6 +103,7 @@
                                     <i class="fa fa-arrow-left"></i>
                                 </b-button> -->
                                 <zoomer
+                                    style="flex-grow: 1; height: 10px"
                                     :zoom="zoomLevel"
                                     :angle="rotationAngle"
                                     @new-zoom="onNewZoom($event)"
@@ -204,16 +160,18 @@
                         <div
                             v-if="!waiting && artefact"
                             :class="{
-                                'sidebar': isActiveSidebar,
-                                'text': isActiveText,
-                                'h-100 w-100': true
+                                sidebar: isActiveSidebar,
+                                text: isActiveText,
+                                'h-100 w-100': true,
                             }"
                         >
                             <text-side
                                 :editor-mode="editorMode"
                                 :artefact="artefact"
                                 :text-fragment="textFragment"
-                                @sign-interpretation-clicked="onSignInterpretationClicked($event)"
+                                @sign-interpretation-clicked="
+                                    onSignInterpretationClicked($event)
+                                "
                                 @text-fragment-selected="initVisibleRois()"
                                 @text-fragments-loaded="initVisibleRois()"
                             ></text-side>
@@ -234,7 +192,7 @@ import SignInterpretationService from '@/services/sign-interpretation';
 import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import {
-  ArtefactEditorMode,
+    ArtefactEditorMode,
     ArtefactEditorParams,
     ArtefactEditorParamsChangedArgs,
 } from '@/views/artefact-editor/types';
@@ -271,29 +229,32 @@ import {
     DeleteSignInterpretationOperation,
     UpdateSignInterperationOperation,
 } from './operations';
-import {
-    SavingAgent,
-    OperationsManager,
-} from '@/utils/operations-manager';
+import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import ArtefactEditorToolbar from './artefact-editor-toolbar.vue';
 import { ArtefactEditorState } from '@/state/artefact-editor';
 import { Artefact } from '@/models/artefact';
 import { TextFragmentState } from '@/state/text-fragment';
+import Toolbar from '@/components/toolbars/toolbar.vue';
+import Toolbox from '@/components/toolbars/toolbox.vue';
+import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 
 @Component({
     name: 'artefact-editor',
     components: {
-        'waiting': Waiting,
+        waiting: Waiting,
         'artefact-editor-toolbar': ArtefactEditorToolbar,
         'text-side': TextSide,
         'image-layer': ImageLayer,
         'roi-layer': RoiLayer,
         'boundary-drawer': BoundaryDrawer,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
+        toolbar: Toolbar,
+        toolbox: Toolbox,
         'sign-wheel': SignWheel,
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
+        'toolbar-icon-button': ToolbarIconButton,
     },
 })
 export default class ArtefactEditor
@@ -332,7 +293,7 @@ export default class ArtefactEditor
 
     // Arguments retrieved from the URL
     private editionId: number = 0;
-    private artefactId: number = 0;  // Only relevent in artefact mode
+    private artefactId: number = 0; // Only relevent in artefact mode
     private textFragmentId: number = 0; // Only relevent in text-fragment mode
     private textFragment: TextFragment | null = null; // The single Text Fragment in text-fragment mode
 
@@ -523,13 +484,22 @@ export default class ArtefactEditor
                 )
             );
         } else if (this.textFragmentMode) {
-            await this.$state.prepare.textFragment(this.editionId, this.textFragmentId);
-            this.textFragment = this.$state.textFragments.get(this.textFragmentId) || null;
+            await this.$state.prepare.textFragment(
+                this.editionId,
+                this.textFragmentId
+            );
+            this.textFragment =
+                this.$state.textFragments.get(this.textFragmentId) || null;
 
             await this.selectArtefact(this.artefacts[0].id);
         }
 
         this.waiting = false;
+        this.$nextTick(() => {
+            this.$nextTick(() => {
+                this.setFirstZoom();
+            });
+        });
         this.$state.operationsManager = this.operationsManager;
         this.$state.textFragmentEditor.textEditingMode = 'artefact';
     }
@@ -555,14 +525,14 @@ export default class ArtefactEditor
     // On tablet screen - Active means opened.
 
     private get imageWidth(): number {
-        if (this.artefact.isVirtual) {
+        if (this.artefact?.isVirtual) {
             return this.boundingBox.width * 1.5;
         }
         return this.masterImage.width;
     }
 
     private get imageHeight(): number {
-        if (this.artefact.isVirtual) {
+        if (this.artefact?.isVirtual) {
             return this.boundingBox.height * 1.5;
         }
         return this.masterImage.height;
@@ -606,7 +576,7 @@ export default class ArtefactEditor
     private async prepareArtefact(artefactId: number) {
         await this.$state.prepare.artefact(this.editionId, artefactId);
 
-        if (!this.artefact.isVirtual) {
+        if (!this.artefact?.isVirtual) {
             const imagedObject = this.$state.imagedObjects.find(
                 this.artefact.imagedObjectId
             );
@@ -636,8 +606,6 @@ export default class ArtefactEditor
         this.params.rotationAngle = this.artefact.placement.rotate || 0;
         this.fillImageSettings();
         this.calculateBoundingBox();
-
-        setTimeout(() => this.setFirstZoom(), 0);
     }
 
     private statusTextFragment(roi: InterpretationRoi) {
@@ -659,7 +627,9 @@ export default class ArtefactEditor
             );
             // if any ROI found in current text fragment, put tf.certain = false
             if (!anyRoiOfSelectedTf && tfToMove) {
-                this.textFragmentEditorState.removeTextFragementFromArtefact(si);
+                this.textFragmentEditorState.removeTextFragementFromArtefact(
+                    si
+                );
                 // if new ROI and new text fragment, add text fragment to artefact
             } else if (!tfToMove && anyRoiOfSelectedTf) {
                 this.textFragmentEditorState.addTextFragementToArtefact(si);
@@ -667,7 +637,7 @@ export default class ArtefactEditor
         }
     }
     private setFirstZoom() {
-        const infoBox = this.$refs.infoBox as Element;
+        const infoBox = this.$refs.infoBox as HTMLDivElement;
         const height = infoBox.clientHeight;
         const width = infoBox.clientWidth;
         this.params.zoom = Math.min(
@@ -716,10 +686,11 @@ export default class ArtefactEditor
     private nextSign() {
         if (this.textFragmentEditorState.singleSelectedSi) {
             let newIndex =
-                this.textFragmentEditorState.singleSelectedSi!.sign.indexInLine + 1;
+                this.textFragmentEditorState.singleSelectedSi!.sign
+                    .indexInLine + 1;
             while (newIndex < this.selectedLine!.signs.length) {
-                const newSI = this.selectedLine!.signs[newIndex]
-                    .signInterpretations[0];
+                const newSI =
+                    this.selectedLine!.signs[newIndex].signInterpretations[0];
                 if (newSI.character && !newSI.isReconstructed) {
                     this.textFragmentEditorState.selectSign(newSI);
                     break;
@@ -770,7 +741,8 @@ export default class ArtefactEditor
 
     private onAuto() {
         if (
-            this.textFragmentEditorState.selectedSignInterpretations.length > 1 &&
+            this.textFragmentEditorState.selectedSignInterpretations.length >
+                1 &&
             this.autoMode
         ) {
             this.$toasted.show(this.$tc('toasts.artefactsAutoModeError'), {
@@ -790,7 +762,7 @@ export default class ArtefactEditor
 
     private fillImageSettings() {
         this.params.imageSettings = {};
-        if (this.artefact.isVirtual) {
+        if (this.artefact?.isVirtual) {
             return;
         }
 
@@ -848,9 +820,9 @@ export default class ArtefactEditor
         if (!roi.signInterpretationId) {
             this.textFragmentEditorState.selectedSignInterpretations = [];
         } else {
-            const si = this.$state.signInterpretations.get(
-                roi.signInterpretationId
-            ) || null;
+            const si =
+                this.$state.signInterpretations.get(roi.signInterpretationId) ||
+                null;
             this.textFragmentEditorState.selectSign(si);
         }
     }
@@ -1127,36 +1099,42 @@ export default class ArtefactEditor
     height: 100%;
 }
 
-@media (max-width: 1100px) {
-
-.editor-actions {
-    /* height: 70px; */
-    height: 10rem;
-}
-
-.artefact-image-container {
-    height: calc(100vh - 310px);
-}
+// .artefact-image-container{
+//     height: 60%;
+// }
 
 @media (max-width: 1100px) {
-        .editor-container{
-        /* margin-top: 0.7rem;
+    .editor-actions {
+        /* height: 70px; */
+        height: 10rem;
+    }
+
+    .artefact-image-container {
+        margin-top: 0.1rem;
+        height: calc(100vh - 310px);
+    }
+
+    // .artefact-image-container{
+    //     height: 60%;
+    // }
+
+    @media (max-width: 1100px) {
+        .editor-container {
+            /* margin-top: 0.7rem;
         margin-bottom: 0.7rem; */
-        padding-top: 3rem;
-        margin-right: 0.7rem;
-        padding-right: 0.3rem;
-        margin-left: 0.7rem;
-        padding-left: 2rem;
-        height: calc(100vh - 90px);
-        overflow: auto;
+            padding-top: 3rem;
+            margin-right: 0.7rem;
+            padding-right: 0.3rem;
+            margin-left: 0.7rem;
+            padding-left: 2rem;
+            height: calc(100vh - 90px);
+            overflow: auto;
+        }
+    }
+
+    .artefact-image-container {
+        margin-top: 0.1rem;
+        height: 60%;
     }
 }
-
-.artefact-image-container{
-    margin-top: 0.1rem;
-    height: 60%;
-}
-
-}
-
 </style>

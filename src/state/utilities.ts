@@ -2,7 +2,7 @@ import { EditionInfo, ArtefactGroup } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
-import { TextFragment, InterpretationRoi, SignInterpretation } from '@/models/text';
+import { TextFragment, InterpretationRoi, SignInterpretation, RoiStatus } from '@/models/text';
 import { StateManager } from '.';
 
 export interface ItemWithId<U> {
@@ -249,7 +249,7 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
             console.warn(`Can't remove ROI ${id} - it is not in the ROI state map`);
             return;
         }
-        this.detachRoiFromArtefact(entry);
+        this.detachRoiFromArtefact(entry, entry.status);
         return super.delete(id);
     }
 
@@ -274,7 +274,7 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
         }
     }
 
-    public detachRoiFromArtefact(entry: InterpretationRoi) {
+    public detachRoiFromArtefact(entry: InterpretationRoi, status: RoiStatus) {
         const artefact = state().artefacts.find(entry.artefactId);
         if (!artefact) {
             console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
@@ -283,6 +283,10 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
             if (roiIndex === -1) {
                 console.warn(`Can't removing ROI ${entry.id} from artefact ${entry.artefactId}, it is not in its ROI list`);
             } else {
+                const roi = artefact.rois[roiIndex];
+                if (roi.status === 'deleted') {
+                    artefact.deleteRois.push(roi);
+                }
                 artefact.rois.splice(roiIndex, 1);
             }
         }

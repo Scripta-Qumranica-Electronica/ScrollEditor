@@ -2,7 +2,7 @@
     <div class="overflow-auto welcome-container">
         <div class="welcome">
             <div class="welcome-wrapper">
-                <p class="title">{{ $t('home.home') }}</p>
+                <p class="title">{{ $t('home.brand') }}</p>
                 <p class="sub-title">
                     The next generation of Dead Sea Scrolls research
                 </p>
@@ -24,14 +24,14 @@
                     </b-nav-item>
                 </b-nav>
                 <p class="link">
-                    <router-link :to="{ path: `/home` }"
-                        >Enter the scrollery as a guest</router-link
-                    >
+                    <router-link :to="{ path: `/home` }" v-if="!userName">
+                        Enter the scrollery as a guest
+                    </router-link>
+                    <router-link :to="{ path: `/home` }" v-if="userName">
+                        Start Working
+                    </router-link>
                 </p>
             </div>
-
-            <login></login>
-            <register></register>
         </div>
         <div class="intro">
             <section class="row">
@@ -53,7 +53,7 @@
                     </p>
                     <div class="row">
                         <div class="col-4 border-right font">
-                            <b-link>Learn more About the project</b-link>
+                            <b-link href="https://qumranica.org" target="_blank">Learn more About the project</b-link>
                         </div>
                         <div class="col-6 border-right font">
                             <b-link href="https://www.deadseascrolls.org.il/home" target="_blank">
@@ -66,7 +66,7 @@
                 <div class="col-6 align-self-center">
                     <div class="container">
                         <div class="row logos">
-                            <div class="col p-3">
+                            <div class="col p-3 right">
                                 <b-link
                                     href="http://www.antiquities.org.il/default_en.aspx" target="_blank">
                                     <img
@@ -83,8 +83,17 @@
                                     />
                                 </b-link>
                             </div>
-                            <div class="w-100"></div>
                             <div class="col p-3">
+                                <b-link href="https://adw-goe.de/startseite/" target="_blank">
+                                    <img
+                                        src="@/assets/images/logo_adwg.svg"
+                                        alt="Akademie der Wissenschaften zu Göttingen"
+                                    />
+                                </b-link>
+                            </div>
+                        </div>
+                        <div class="row logos">
+                            <div class="col p-3 right">
                                 <b-link href="https://english.tau.ac.il/" target="_blank">
                                     <img
                                         src="@/assets/images/logo_tlv.png"
@@ -93,10 +102,10 @@
                                 </b-link>
                             </div>
                             <div class="col p-3">
-                                <b-link href="https://en.huji.ac.il/en" target="_blank">
+                                <b-link href="https://gepris.dfg.de/gepris/projekt/282601852?language=en" target="_blank">
                                     <img
-                                        src="@/assets/images/logo_jlm.png"
-                                        alt="University of Jerusalem logo"
+                                        src="@/assets/images/logo_dfg.svg"
+                                        alt="DFG Project Details"
                                     />
                                 </b-link>
                             </div>
@@ -124,7 +133,6 @@ import SessionService from '@/services/session';
 import router from '@/router';
 @Component({
     name: 'welcome',
-    components: { Login, register: Registration },
 })
 export default class Welcome extends Vue {
     private sessionService = new SessionService();
@@ -144,11 +152,11 @@ export default class Welcome extends Vue {
         }
         return undefined;
     }
-    private mounted() {
-        if (this.userName) {
-            router.push('/home');
-        }
+
+    private startWorking() {
+        router.push('/home');
     }
+
     private logout() {
         this.sessionService.logout();
         router.push('/');
@@ -231,10 +239,15 @@ export default class Welcome extends Vue {
 }
 .logos {
     .col {
-        text-align: center;
+        text-align: left;
+        &.right {
+            text-align: right;
+        }
     }
     img {
-        max-width: 200px;
+        max-height: 70px;
+        padding: 10px;
+        filter: grayscale(100%);
     }
 }
 .font {

@@ -1,9 +1,9 @@
 <template>
 
-     <b-container no-gutters class="side-toolbar ml-0 mr-0 pl-0 pr-0">
+     <b-container no-gutters class="ml-0 mr-0 pl-0 pr-0">
         <!-- <b-row class="ml-3 mb-3"> -->
 
-        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0">
+        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0" v-if="edition.metrics">
             <b-col cols="12" md="auto"  class="col-lg-6  no-gutters">
                 <span
                     ><b>{{ $t('home.editionSize') }}:</b></span
@@ -15,7 +15,7 @@
             </b-col>
         </b-row>
 
-        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0">
+        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0" v-if="scrollEditorState.viewport">
              <b-col cols="12" md="auto"  class="col-xl-6 col-lg-7 no-gutters">
                 <span
                     ><b>{{ $t('home.viewPortSize') }}:</b></span
@@ -38,7 +38,7 @@
         </b-row>
 
 
-    <b-container fluid class="operations-bar scroll-bar mt-3 mb-3 pb-2">
+    <b-container fluid class="operations-bar mt-3 mb-3 pb-2">
 <!--
         <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12">
 
@@ -438,16 +438,18 @@ export default class ManuscriptToolbar extends Vue {
 
 
     private removeArtefactOrGroup() {
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
-
         if (this.selectedArtefact) {
-            operation = this.createOperation(
+            const operation = this.createOperation(
                 'delete',
                 Placement.empty,
                 this.selectedArtefact,
                 false
             );
+
+            console.debug('removeArtefactOrGroup creating new operation ', operation);
+            this.newOperation(operation);
         }
+
         if (this.selectedGroup) {
             const operations: ScrollEditorOperation[] = [];
 
@@ -457,16 +459,13 @@ export default class ManuscriptToolbar extends Vue {
                 );
             });
 
-            operation = new GroupPlacementOperation(
+            const operation = new GroupPlacementOperation(
                 this.selectedGroup.groupId,
                 operations,
                 'delete'
             );
-        }
 
-        this.newOperation(operation);
-
-        if (this.selectedGroup) {
+            this.newOperation(operation);
             this.deleteGroup(this.selectedGroup.groupId);
         }
     }
@@ -673,16 +672,6 @@ hr.solid {
 .card-body-cancel {
     padding: 0rem !important;
 }
-
-.scroll-bar {
-    /* position: relative; */
-    padding: 0;
-    /* height: calc(50vh - 60px); */
-    height: calc(50vh - 1rem);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
 
 
 </style>
