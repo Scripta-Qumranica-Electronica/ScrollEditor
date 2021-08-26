@@ -110,4 +110,19 @@ export default class EditionCard extends Vue {
     background-color: $light-greend;
     color: $green;
 }
+.card-title {
+    height: 50px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    @supports (-webkit-line-clamp: 2) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: initial;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+}
 </style>
