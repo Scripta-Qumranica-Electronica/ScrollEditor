@@ -132,7 +132,7 @@ export default class ArtefactEditorToolbar extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #artefact-toolbar {
     display: flex;
 }
