@@ -8,7 +8,7 @@
                 class="p-3"
                  no-body
                 v-for="edition in editions"
-                :key="edition.versionId"
+                :key="edition.id"
             >
                 <edition-public-card @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"></edition-public-card>
             </b-card>

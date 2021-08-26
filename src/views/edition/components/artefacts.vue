@@ -6,7 +6,7 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        @on-search="onArtefactsSearch($event)"
+                        @search="onArtefactsSearch($event)"
                     ></search-bar>
                 </b-col>
             </b-row>

@@ -102,7 +102,7 @@ export default class SearchBar extends Vue {
         this.onSearch();
     }
 
-    @Emit()
+    @Emit('search')
     private onSearch() {
         return this.searchValue;
     }

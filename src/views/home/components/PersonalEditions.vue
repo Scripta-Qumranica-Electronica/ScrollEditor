@@ -13,7 +13,7 @@
                         class="direction"
                         :params="searchBarParams"
                         :defaultValue="defaultSearchValue"
-                        @on-search="onEditionsSearch($event)"
+                        @search="onEditionsSearch($event)"
                     ></search-bar>
                 </b-col>
             </b-row>

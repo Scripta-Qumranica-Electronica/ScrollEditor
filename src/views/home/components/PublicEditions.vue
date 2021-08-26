@@ -12,7 +12,7 @@
                         class="direction"
                         :params="searchBarParams"
                         :defaultValue="defaultSearchValue"
-                        @on-search="onEditionsSearch($event)"
+                        @search="onEditionsSearch($event)"
                     ></search-bar>
                 </b-col>
             </b-row>
@@ -70,6 +70,8 @@ export default class PublicEditions extends Vue {
     }
 
     private getFilteredEditions(): EditionInfo[] {
+        // This function is not really efficient, but it does work quickly enough for the editions we have.
+        // No need in optimizing it.
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
                 let filter: boolean = ed.isPublic === true;
