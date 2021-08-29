@@ -9,13 +9,14 @@
                  no-body
                 v-for="edition in editions"
                 :key="edition.id"
+                v-show="!edition.filtered"                
             >
                 <edition-public-card @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"></edition-public-card>
             </b-card>
         </div>
         <copy-edition-modal :visible="true" />
     </div>
-</template>       
+</template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';

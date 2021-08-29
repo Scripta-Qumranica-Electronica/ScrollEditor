@@ -20,7 +20,7 @@
         <div class="scroll-bar">
             <editions-public-list
                 class="text-edition"
-                :editions="filteredEditions"
+                :editions="publicEditions"
             ></editions-public-list>
         </div>
     </div>
@@ -45,7 +45,7 @@ import EditionsPublicList from './EditionsPublicList.vue';
     },
 })
 export default class PublicEditions extends Vue {
-    private filteredEditions: EditionInfo[] = [];
+    private publicEditions: EditionInfo[] = [];
     private defaultSearchValue: SearchBarValue = { sort: 'lastEdit' };
     private searchValue: SearchBarValue = {};
     private searchBarParams: SearchBarParams = {
@@ -55,40 +55,27 @@ export default class PublicEditions extends Vue {
 
     public onEditionsSearch(event: SearchBarValue) {
         this.searchValue = event;
-        this.onPublicEditionsLoad();
+        this.filterEditions();
     }
 
     @Emit()
     public onPublicEditionsLoad() {
-        this.filteredEditions = this.getFilteredEditions();
-        return this.filteredEditions.length;
+        this.publicEditions = this.getPublicEditions();
+        return this.publicEditions.length;
     }
 
     protected async mounted() {
         await this.$state.prepare.allEditions();
         this.onPublicEditionsLoad();
+        for (const edition of this.publicEditions) {
+            edition.filtered = false;
+        }
     }
 
-    private getFilteredEditions(): EditionInfo[] {
-        // This function is not really efficient, but it does work quickly enough for the editions we have.
-        // No need in optimizing it.
+    private getPublicEditions() {
         return this.$state.editions.items
-            .filter((ed: EditionInfo) => {
-                let filter: boolean = ed.isPublic === true;
-                // if (this.searchValue.view) {
-                //     filter = filter && art.side === this.searchValue.view
-                // }
-                if (this.searchValue.filter) {
-                    filter =
-                        filter &&
-                        ed.name
-                            .toLowerCase()
-                            .includes(this.searchValue.filter.toLowerCase());
-                }
-                return filter;
-            })
+            .filter(ed => ed.isPublic)
             .sort((a: EditionInfo, b: EditionInfo) => {
-
                 if (this.searchValue.sort) {
                     let aVal = (a as any)[this.searchValue.sort];
                     let bVal = (b as any)[this.searchValue.sort];
@@ -118,6 +105,32 @@ export default class PublicEditions extends Vue {
                 }
             });
     }
+
+    private filterEditions() {
+        for (const edition of this.publicEditions) {
+            edition.filtered = !!this.searchValue.filter && !edition.name.toLowerCase().includes(this.searchValue.filter.toLowerCase());
+        }
+    }
+    /*private getFilteredEditions(): EditionInfo[] {
+        // This function is not really efficient, but it does work quickly enough for the editions we have.
+        // No need in optimizing it.
+        return this.$state.editions.items
+            .filter((ed: EditionInfo) => {
+                let filter: boolean = ed.isPublic === true;
+                // if (this.searchValue.view) {
+                //     filter = filter && art.side === this.searchValue.view
+                // }
+                if (this.searchValue.filter) {
+                    filter =
+                        filter &&
+                        ed.name
+                            .toLowerCase()
+                            .includes(this.searchValue.filter.toLowerCase());
+                }
+                return filter;
+            })
+            });
+    } */
 }
 </script>
 

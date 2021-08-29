@@ -142,6 +142,9 @@ class EditionInfo {
     public artefactGroups: ArtefactGroup[];
     public script?: ScriptData;
 
+    // Helper property for speedier filtering of the public edition list
+    public filtered = false;
+
     public get ppm(): number {  // Pixels per milimeter
         return this.metrics.ppi / 25.4;
     }

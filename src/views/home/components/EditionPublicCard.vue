@@ -16,7 +16,8 @@
                 <b-row>
                     <p class="card-title">
                         {{ edition.name }}
-                        <edition-icons :edition="edition" />
+                        <!-- public editions are all readonly and shared with everyone -->
+                        <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock ml-2"></i>
                     </p>
                 </b-row>
                 <b-row>
@@ -55,17 +56,13 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
-import EditionIcons from '@/components/cues/edition-icons.vue';
 import EditionService from '@/services/edition';
 
 @Component({
     name: 'edition-public-card',
-    components: { EditionIcons },
 })
 export default class EditionPublicCard extends Vue {
     @Prop() public edition!: EditionInfo;
-
-    private editionService: EditionService = new EditionService();
 
     private get thumbnailSource(): string | undefined {
         return this.edition?.thumbnail?.thumbnailUrl;
