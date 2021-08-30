@@ -31,6 +31,8 @@ import { StateManager } from './state';
 
 // vue2-hammer
 import { VueHammer } from 'vue2-hammer';
+import VueVirtualScroller from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 // tslint:disable-next-line
 const CKEditor = require('@ckeditor/ckeditor5-vue');
@@ -76,6 +78,8 @@ Vue.use(RenderingOptimizationPlugin);
 
 Vue.use(VueHammer);
 Vue.use(CKEditor);
+
+Vue.use(VueVirtualScroller);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {

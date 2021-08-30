@@ -1,40 +1,27 @@
 <template>
-    <div>
-        <div
-            v-if="editions.length"
-            :class="{afterlogin: this.editions.length > 0 }"
-            >
-            <edition-public-row
-                @edition-copy-click="openCopyEditionModal(edition)"
-                :editions="editions" 
-                v-for="index in indices"
-                :key="index"
-                :index="index" />
-
-<!--            <b-card
-                class="p-3"
-                no-body
-                v-for="edition in editions"
-                :key="edition.id"
-            >
-                <edition-public-card @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"></edition-public-card>
-            </b-card> -->
-        </div>
-        <copy-edition-modal :visible="true" />
-    </div>
+    <RecycleScroller
+        id="public-list"
+        :items="indices"
+        :item-size="153"
+        v-slot="{ item }">
+        
+        <edition-public-row
+            @edition-copy-click="openCopyEditionModal(edition)"
+            :editions="editions" 
+            :key="item"
+            :index="item" />
+    </RecycleScroller>
 </template>       
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
-import CopyEditionModal from './copy-edition-modal.vue';
 import EditionPublicRow from './edition-public-row.vue';
 
 @Component({
     name: 'editions-public-list',
     components: {
         EditionPublicRow,
-        CopyEditionModal,
      },
 })
 export default class EditionsPublicList extends Vue {
@@ -60,10 +47,9 @@ export default class EditionsPublicList extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.text-edition .card {
-    display: inline-block;
-    width: calc(25% - 20px);
-    margin: 10px;
+#public-list {
+    overflow-y: auto;
+    max-height: calc(100vh - 240px);
 }
 
 </style>

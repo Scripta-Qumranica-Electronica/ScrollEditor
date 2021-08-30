@@ -17,12 +17,8 @@
                 </b-col>
             </b-row>
         </div>
-        <div class="scroll-bar">
-            <editions-public-list
-                class="text-edition"
-                :editions="filteredEditions"
-            ></editions-public-list>
-        </div>
+        <editions-public-list :editions="filteredEditions"></editions-public-list>
+        <copy-edition-modal :visible="true" />
     </div>
 </template>
 
@@ -31,7 +27,7 @@
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
-
+import CopyEditionModal from './copy-edition-modal.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchBar from '@/components/search-bar.vue';
 import EditionsPublicList from './edition-public-list.vue';
@@ -42,6 +38,7 @@ import EditionsPublicList from './edition-public-list.vue';
         Waiting,
         SearchBar,
         EditionsPublicList,
+        CopyEditionModal,
     },
 })
 export default class PublicEditions extends Vue {
