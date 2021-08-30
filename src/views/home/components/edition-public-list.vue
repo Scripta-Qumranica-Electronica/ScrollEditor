@@ -6,7 +6,7 @@
             >
             <b-card
                 class="p-3"
-                 no-body
+                no-body
                 v-for="edition in editions"
                 :key="edition.id"
             >
@@ -22,8 +22,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionPublicCard from './EditionPublicCard.vue';
-import CopyEditionModal from './CopyEditionModal.vue';
+import EditionPublicCard from './edition-public-card.vue';
+import CopyEditionModal from './copy-edition-modal.vue';
 
 @Component({
     name: 'editions-public-list',

@@ -24,7 +24,7 @@ import SessionService from '@/services/session';
 import { StateManager } from './state';
 import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog.vue';
 
-import ScreenSizeAlert from './views/home/components/ScreenSizeAlert.vue';
+import ScreenSizeAlert from './views/home/components/screen-size-alert.vue';
 
 
 @Component({

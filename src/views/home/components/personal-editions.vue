@@ -43,7 +43,7 @@ import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchBar from '@/components/search-bar.vue';
-import EditionList from './EditionList.vue';
+import EditionList from './edition-list.vue';
 
 @Component({
     name: 'personal-editions',

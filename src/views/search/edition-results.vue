@@ -22,8 +22,8 @@ import { DetailedSearchRequestDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { EditionInfo } from '@/models/edition';
 import SearchService from '@/services/search';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
-import EditionCard from '../home/components/EditionCard.vue';
-import EditionList from '../home/components/EditionList.vue';
+import EditionCard from '../home/components/edition-card.vue';
+import EditionList from '../home/components/edition-list.vue';
 import { SearchFormData, SearchResults } from './types';
 
 @Component({

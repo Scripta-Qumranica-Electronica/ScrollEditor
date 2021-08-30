@@ -34,7 +34,7 @@ import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchBar from '@/components/search-bar.vue';
-import EditionsPublicList from './EditionsPublicList.vue';
+import EditionsPublicList from './edition-public-list.vue';
 
 @Component({
     name: 'public-editions',

@@ -25,13 +25,9 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
-import CopyEditionModal from '../../views/home/components/CopyEditionModal.vue';
 
 @Component({
     name: 'edition-icons',
-    components: {
-        CopyEditionModal,
-    }
 })
 export default class EditionIcons extends Vue {
     @Prop() private edition!: EditionInfo;

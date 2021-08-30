@@ -36,7 +36,7 @@ import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import SearchService from '@/services/search';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
-import EditionList from '../home/components/EditionList.vue';
+import EditionList from '../home/components/edition-list.vue';
 import { SearchFormData, SearchResults } from './types';
 
 interface ArtefactWithEdition {

@@ -33,8 +33,8 @@
 import { Component, Prop, Emit, Vue, Watch } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
-import PersonalEditions from './components/PersonalEditions.vue';
-import PublicEditions from './components/PublicEditions.vue';
+import PersonalEditions from './components/personal-editions.vue';
+import PublicEditions from './components/public-editions.vue';
 import { Route } from 'vue-router';
 // import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */

@@ -33,8 +33,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import Waiting from '@/components/misc/Waiting.vue';
-import EditionCard from './EditionCard.vue';
-import CopyEditionModal from './CopyEditionModal.vue';
+import EditionCard from './edition-card.vue';
+import CopyEditionModal from './copy-edition-modal.vue';
 
 @Component({
     name: 'editions-list',

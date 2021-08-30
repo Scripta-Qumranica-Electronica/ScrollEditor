@@ -93,7 +93,7 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 
 import PermissionModal from './components/permission-modal.vue';
-import CopyEditionModal from '../home/components/CopyEditionModal.vue';
+import CopyEditionModal from '../home/components/copy-edition-modal.vue';
 
 
 @Component({
