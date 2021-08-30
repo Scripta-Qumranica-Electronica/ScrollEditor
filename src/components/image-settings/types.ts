@@ -14,10 +14,16 @@ export interface ImageSetting {
 }
 
 export function normalizeOpacity(settings: ImageSetting) {
-    const filteredImageList = Object.values(settings).filter(x => x.visible);
-    const firstOpacity = filteredImageList[0].opacity;
+    let filteredImageList = Object.values(settings).filter(x => x.visible);
 
+    if (filteredImageList.length === 0) {
+        // No visible images, make the first one visiblesTf
+        Object.values(settings)[0].visible = true;
+        filteredImageList = Object.values(settings).filter(x => x.visible);
+    }
+    const firstOpacity = filteredImageList[0].opacity;
     const numVisible = filteredImageList.length;
+
     let fullOpacity = numVisible;
     for (const [i, val] of filteredImageList.entries()) {
         if (i === 0) {
