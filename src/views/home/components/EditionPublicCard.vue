@@ -56,7 +56,6 @@
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
-import EditionService from '@/services/edition';
 
 @Component({
     name: 'edition-public-card',
@@ -64,8 +63,6 @@ import EditionService from '@/services/edition';
 })
 export default class EditionPublicCard extends Vue {
     @Prop() public edition!: EditionInfo;
-
-    private editionService: EditionService = new EditionService();
 
     private get thumbnailSource(): string | undefined {
         return this.edition?.thumbnail?.thumbnailUrl;
