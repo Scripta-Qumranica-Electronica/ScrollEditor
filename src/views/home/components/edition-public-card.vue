@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-row class="link-row" @click="editionViewClick()">
+        <b-row class="link-row" @click="editionViewClick()" no-gutters>
             <b-col class="col-4">
                 <img
                     class="card-img-top"
@@ -84,9 +84,6 @@ export default class EditionPublicCard extends Vue {
 @import '@/assets/styles/_fonts.scss';
 @import './card.scss';
 
-.direction {
-    margin-left: 90px;
-}
 .custom-p-left {
     padding-left: 1rem;
     @media (max-width: 1100px) {

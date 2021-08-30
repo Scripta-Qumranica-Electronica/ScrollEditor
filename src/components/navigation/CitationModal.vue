@@ -11,7 +11,6 @@
             ok-only
             trap-focus
             :destroy-on-hide="true"
-            @shown="shown"
         >
             <template v-slot:modal-header>
                 <b-row>
@@ -52,11 +51,6 @@ import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 })
 
 export default class CitationModal extends Vue {
-    private shown(): void {
-        console.log('Citation Modal');
-
-    }
-
 }
 
 </script>

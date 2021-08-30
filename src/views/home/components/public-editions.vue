@@ -135,6 +135,7 @@ export default class PublicEditions extends Vue {
     font-weight: $font-weight-1;
     font-size: $font-size-3;
     font-family: $font-family;
+    overflow-x: hidden;
 }
 .scroll-bar {
     overflow-y: auto;

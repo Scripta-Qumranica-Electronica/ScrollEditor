@@ -136,14 +136,9 @@ export default class CopyEditionModal extends Vue {
     private onHide(evt: Event) {
       if ( evt.type === 'backdrop') {
         // evt.preventDefault();
-        this.handleBackdrop();
         (this.$refs.newCopyNameRef as any).blur();
         (this.$refs.newCopyNameRef as any).hide();
       }
-    }
-
-    private handleBackdrop() {
-      console.log('Click backdrop');
     }
 
     private async copyEdition(evt: Event) {
@@ -182,7 +177,7 @@ export default class CopyEditionModal extends Vue {
 
         } catch (err) {
             this.errorMessage = err;
-            console.log('error!', err);
+            console.error('Error copying an edition!', err);
         } finally {
             this.waiting = false;
         }

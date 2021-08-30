@@ -92,7 +92,6 @@ export class VirtualArtefactEditor {
     public set text(newText: string) {
         this._text = newText;
         this.populateShadows();
-        console.debug('virtual artefact editor text: ', newText);
     }
 
     private createShadowArtefact() {
@@ -490,7 +489,6 @@ export class VirtualArtefactEditor {
         };
 
         const response = await CommHelper.put<DiffReconstructedResponseDTO>(url, dto);
-        console.debug('Text response: ', response.data);
 
         const handler = new NotificationHandler();  // This class is stateless, we can just use it.
 

@@ -555,7 +555,6 @@ export default class ScrollEditor
 
         const height = sidebarHeight - scrollmapHeight;
 
-        console.debug(`Setting secondary toolbar height to ${sidebarHeight} - ${scrollmapHeight} --> ${height}`);
         this.secondaryToolbarHeight = height;
     }
 
@@ -761,7 +760,6 @@ export default class ScrollEditor
     }
 
     private newOperation(operation: ScrollEditorOperation) {
-        console.debug('scroll-editor newOperation ', operation);
         this.operationsManager.addOperation(operation);
     }
 

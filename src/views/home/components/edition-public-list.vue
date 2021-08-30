@@ -4,14 +4,21 @@
             v-if="editions.length"
             :class="{afterlogin: this.editions.length > 0 }"
             >
-            <b-card
+            <edition-public-row
+                @edition-copy-click="openCopyEditionModal(edition)"
+                :editions="editions" 
+                v-for="index in indices"
+                :key="index"
+                :index="index" />
+
+<!--            <b-card
                 class="p-3"
                 no-body
                 v-for="edition in editions"
                 :key="edition.id"
             >
                 <edition-public-card @edition-copy-click="openCopyEditionModal(edition)" :edition="edition"></edition-public-card>
-            </b-card>
+            </b-card> -->
         </div>
         <copy-edition-modal :visible="true" />
     </div>
@@ -20,23 +27,29 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
-import EditionIcons from '@/components/cues/edition-icons.vue';
-import Waiting from '@/components/misc/Waiting.vue';
-import EditionPublicCard from './edition-public-card.vue';
 import CopyEditionModal from './copy-edition-modal.vue';
+import EditionPublicRow from './edition-public-row.vue';
 
 @Component({
     name: 'editions-public-list',
     components: {
-        Waiting,
-        EditionPublicCard,
-        CopyEditionModal
+        EditionPublicRow,
+        CopyEditionModal,
      },
 })
 export default class EditionsPublicList extends Vue {
     @Prop( ) public editions!: EditionInfo[];
 
-    private openCopyEditionModal(edition: EditionInfo) {
+    protected get indices() {
+        const indices: number[] = [];
+        for (let idx = 0; idx < this.editions.length; idx += 4) {
+            indices.push(idx);
+        }
+
+        return indices;
+    }
+
+    protected openCopyEditionModal(edition: EditionInfo) {
         this.$state.editions.current = edition;
         this.$root.$emit('bv::show::modal', 'copy-edition-modal');
     }

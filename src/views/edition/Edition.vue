@@ -133,7 +133,6 @@ export default class Edition extends Vue {
     }
 
     private get copyTooltip(): string {
-        console.log(this.currentEdition!.isPublic);
         const publicStr = this.currentEdition!.isPublic ? 'This is a public Edition. ' : '' ;
 
         return (

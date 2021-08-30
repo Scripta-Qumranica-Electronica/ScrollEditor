@@ -62,7 +62,6 @@ Vue.use(MediaBreakPointsPlugin, {
 
 library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus,
             faSquare, faPen, faMousePointer, faEraser, faTrash, faArrowUp, faArrowDown, faArrowLeft, faArrowRight );
-console.debug(faSquare, faPen);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);
