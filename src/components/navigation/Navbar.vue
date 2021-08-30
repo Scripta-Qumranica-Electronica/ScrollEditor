@@ -76,7 +76,7 @@
                         v-if="userNameExists"
                         class="logout"
                     >
-                        <b> {{  userName }} </b>
+                        <b> {{  $t(userName) }} </b>
                     </b-dropdown-item>
 
                     <b-dropdown-item
