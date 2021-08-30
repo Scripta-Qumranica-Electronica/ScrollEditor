@@ -12,7 +12,7 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        :defaultValue="defaultSearchValue"
+                        :value="searchValue"
                         @search="onEditionsSearch($event)"
                     ></search-bar>
                 </b-col>
@@ -55,8 +55,7 @@ import EditionList from './edition-list.vue';
 })
 export default class PersonalEditions extends Vue {
     private filteredEditions: EditionInfo[] = [];
-    private defaultSearchValue: SearchBarValue = {sort: 'lastEdit'};
-    private searchValue: SearchBarValue = {};
+    @Prop() private searchValue!: SearchBarValue;
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
@@ -64,7 +63,6 @@ export default class PersonalEditions extends Vue {
     };
 
     public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = event;
         this.onPersonalEditionsLoad();
     }
 
@@ -75,6 +73,7 @@ export default class PersonalEditions extends Vue {
     }
 
     protected async mounted() {
+        console.debug('personal-editions mounted');
         await this.$state.prepare.allEditions();
         this.onPersonalEditionsLoad();
     }

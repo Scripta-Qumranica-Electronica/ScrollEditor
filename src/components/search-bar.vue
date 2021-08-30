@@ -6,7 +6,7 @@
             }}</label>
             <b-form-input
                 id="filter"
-                v-model="searchValue.filter"
+                v-model="value.filter"
                 @input="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
@@ -17,7 +17,7 @@
             <b-form-select
                 name="view"
                 class="ml-2 size"
-                v-model="searchValue.view"
+                v-model="value.view"
                 @change="onViewChange($event)"
             >
                 <b-form-select-option value="recto and verso"
@@ -34,7 +34,7 @@
             <b-form-select
                 name="sort"
                 class="ml-2"
-                v-model="searchValue.sort"
+                v-model="value.sort"
                 @change="onSortChange($event)"
             >
                 <!-- <b-form-select-option :value="null"
@@ -52,6 +52,7 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 
+// At some point we need to make those a little nicer
 export interface SearchBarParams {
     filter?: boolean;
     view?: boolean;
@@ -78,15 +79,10 @@ export default class SearchBar extends Vue {
     })
     public params!: SearchBarParams;
 
-    @Prop({
-        default: () => ({}),
-    })
-    private defaultValue!: SearchBarValue;
-
-    private searchValue: SearchBarValue = {};
+    @Prop()
+    private value!: SearchBarValue;
 
     public mounted() {
-        this.searchValue = {...this.defaultValue};
         this.onSearch();
     }
 
@@ -104,7 +100,7 @@ export default class SearchBar extends Vue {
 
     @Emit('search')
     private onSearch() {
-        return this.searchValue;
+        return this.value;
     }
 }
 </script>

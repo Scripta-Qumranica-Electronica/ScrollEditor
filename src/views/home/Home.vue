@@ -11,6 +11,7 @@
             >
                 <personal-editions
                     @on-personal-editions-load="onPersonalEditionsLoad($event)"
+                    :search-value="searchValue"
                 ></personal-editions>
             </b-tab>
             <b-tab
@@ -21,6 +22,7 @@
             >
                 <public-editions
                     @on-public-editions-load="onPublicEditionsLoad($event)"
+                    :search-value="searchValue"
                 ></public-editions>
             </b-tab>
         </b-tabs>
@@ -36,6 +38,7 @@ import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/personal-editions.vue';
 import PublicEditions from './components/public-editions.vue';
 import { Route } from 'vue-router';
+import { SearchBarValue } from '@/components/search-bar.vue';
 // import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */
 
@@ -59,6 +62,9 @@ export default class Home extends Vue {
     private personalEditionsCount: number = 0 ;
     private publicEditionsCount: number = 0 ;
     private activeTab: number = 0;
+    private searchValue: SearchBarValue = {
+        sort: 'lastEdit',
+    };
 
     // hooks as constructor
     // ========================
