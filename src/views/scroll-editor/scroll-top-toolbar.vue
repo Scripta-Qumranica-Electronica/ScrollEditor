@@ -38,11 +38,11 @@
         <toolbox subject="Rotate Artefact">
             <b-button-group>
                 <toolbar-icon-button title="Rotate Left" icon="undo" @click="rotateGroupArtefact(-1)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Rotate Right" icon="redo" @click="rotateGroupArtefact   (+1)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Rotate Right" icon="redo" @click="rotateGroupArtefact(+1)" :disabled="isToolbarDisabled"/>
                 <b-input-group prepend="By" append="degrees">
                     <b-form-input type="number" class="by-input" v-model="params.rotate" :disabled="isToolbarDisabled"/>
                 </b-input-group>
-                <toolbar-icon-button title="Mirror" :show-text="true" :pressed="isMirroredPressed" @click="statusMirror" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Mirror" :show-text="true" :pressed="isMirroredPressed" @click="mirrorArtefact" :disabled="isToolbarDisabled"/>
             </b-button-group>
         </toolbox>
 
@@ -52,7 +52,7 @@
                 <toolbar-icon-button title="Up" icon="arrow-up" @click="dragArtefact(0, -1)" :disabled="isToolbarDisabled"/>
                 <toolbar-icon-button title="Down" icon="arrow-down" @click="dragArtefact(0, 1)" :disabled="isToolbarDisabled"/>
                 <toolbar-icon-button title="Left" icon="arrow-left" @click="dragArtefact(-1, 0)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Right" icon="arrow-right" @click="dragArtefact(-1, 0)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button title="Right" icon="arrow-right" @click="dragArtefact(1, 0)" :disabled="isToolbarDisabled"/>
                 <b-input-group prepend="By" append="mm">
                     <b-form-input type="number" class="by-input" v-model="params.move" :disabled="isToolbarDisabled"/>
                 </b-input-group>
@@ -270,20 +270,14 @@ export default class ScrollTopToolbar extends Vue {
         return this.scrollEditorState.selectedGroup;
     }
 
-    public mirrorMode() {
-        this.setMode('mirror');
-        this.statusMirror();
-    }
-
-    public statusMirror() {
+    public mirrorArtefact() {
         const operations: ArtefactPlacementOperation[] = [];
-        let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
+        let operation: ScrollEditorOperation;
 
         if (this.selectedArtefact) {
             const newPlacement = this.selectedArtefact.placement.clone();
 
             newPlacement.mirrored = !newPlacement.mirrored;
-
             operation = this.createOperation(
                 // 'mirror',
                 'mirror',
@@ -292,8 +286,6 @@ export default class ScrollTopToolbar extends Vue {
             );
             operation.needsSaving = true;
         }
-
-        // needsSaving: false ?
 
         if (this.selectedGroup) {
             this.selectedArtefacts.forEach((art) => {
@@ -310,7 +302,7 @@ export default class ScrollTopToolbar extends Vue {
             );
         }
 
-        this.newOperation(operation);
+        this.newOperation(operation!);  // We know that there is a selection - otherwise the handler is not called
     }
 
     public getGroupCenter(): Point {
@@ -339,8 +331,8 @@ export default class ScrollTopToolbar extends Vue {
 
     public getArtefactCenter(art: Artefact): Point {
         // The artefact's center is the translate (x,y) + the bounding box's center
-        const x = art.placement.translate.x! + art.boundingBox.width / 2;
-        const y = art.placement.translate.y! + art.boundingBox.height / 2;
+        const x = art.placement.translate.x + art.boundingBox.width / 2;
+        const y = art.placement.translate.y + art.boundingBox.height / 2;
 
         return { x, y };
     }
@@ -352,8 +344,8 @@ export default class ScrollTopToolbar extends Vue {
             const placement = this.selectedArtefact.placement.clone();
             const jump =
                 parseInt(this.params.move.toString()) * this.edition.ppm;
-            placement!.translate.x! += jump * dirX;
-            placement!.translate.y! += jump * dirY;
+            placement.translate.x += jump * dirX;
+            placement.translate.y += jump * dirY;
             operation = this.createOperation(
                 'translate',
                 placement,
@@ -365,8 +357,8 @@ export default class ScrollTopToolbar extends Vue {
                 const placement = art.placement.clone();
                 const jump =
                     parseInt(this.params.move.toString()) * this.edition.ppm;
-                placement!.translate.x! += jump * dirX;
-                placement!.translate.y! += jump * dirY;
+                placement.translate.x += jump * dirX;
+                placement.translate.y += jump * dirY;
                 operations.push(
                     this.createOperation('translate', placement, art)
                 );
@@ -533,7 +525,6 @@ export default class ScrollTopToolbar extends Vue {
         artefact: Artefact,
         newIsPlaced: boolean = true
     ): ArtefactPlacementOperation {
-        artefact.placement = newPlacement;
         const op = new ArtefactPlacementOperation(
             artefact.id,
             opType,
@@ -542,11 +533,7 @@ export default class ScrollTopToolbar extends Vue {
             artefact.isPlaced,
             newIsPlaced
         );
-
-        if (opType === 'mirror') {
-            op.next.mirrored = true;
-            op.needsSaving = true;
-        }
+        artefact.placement = newPlacement;
 
         return op;
     }

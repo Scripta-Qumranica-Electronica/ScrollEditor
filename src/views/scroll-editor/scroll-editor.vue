@@ -247,6 +247,7 @@ export default class ScrollEditor
                 (artId) => this.$state.artefacts.find(artId)!
             );
             allMovedArtefacts.forEach((art) => art.prepareForBackend());
+//            console.debug('Artefacts after preparing for backend ', allMovedArtefacts.map(art => JSON.stringify(art.placement)));
 
             if (allMovedArtefacts) {
                 await this.editionService.updateArtefactDTOs(

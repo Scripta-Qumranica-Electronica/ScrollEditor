@@ -30,7 +30,7 @@ export class Placement implements PlacementDTO {
         this.rotate = dto.rotate;
         this.translate = dto.translate || { x: 0, y: 0 };
         this.zIndex = dto.zIndex;
-        this.mirrored = false;
+        this.mirrored = dto.mirrored;
     }
 
     public clone(): Placement {
