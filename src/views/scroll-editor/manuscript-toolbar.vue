@@ -637,6 +637,7 @@ export default class ManuscriptToolbar extends Vue {
             newIsPlaced
         );
         artefact.placement = newPlacement;
+        artefact.isPlaced = newIsPlaced;
         return op;
     }
 
