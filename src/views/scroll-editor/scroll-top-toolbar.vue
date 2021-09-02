@@ -1,5 +1,5 @@
 <template>
-    <toolbar no-gutters id="scroll-top-toolbar">
+    <toolbar no-gutters id="scroll-top-toolbar" tabindex="0">
         <toolbox subject="Mode">
             <b-button-group>
                 <toolbar-icon-button
@@ -154,62 +154,37 @@ export default class ScrollTopToolbar extends Vue {
         return this.params!.mode;
     }
 
-    protected onKeyDown(key: KeyboardEvent) {
-        console.debug('scroll-top-toolbar keydown ', key.key);
-    }
-/*    private onKeyPress(event: KeyboardEvent) {
-        if (this.artefact) {
-            return;
-        }
-
-        switch (event.code) {
-            case 'KeyM':
-                this.setMode('move');
-                break;
-            case 'KeyR':
-                this.setMode('rotate');
-                break;
-            case 'KeyS':
-                this.setMode('scale');
-                break;
+    public onKeyDown(event: KeyboardEvent) {
+        switch (event.key) {
             case 'ArrowLeft':
-                if (this.mode === 'move') {
-                    this.dragArtefact(-1, 0);
-                    event.preventDefault();
-                } else if (this.mode === 'rotate') {
-                    this.rotateGroupArtefact(-1);
-                    event.preventDefault();
-                }
+                this.dragArtefact(-1, 0);
                 break;
             case 'ArrowRight':
-                if (this.mode === 'move') {
-                    this.dragArtefact(1, 0);
-                    event.preventDefault();
-                } else if (this.mode === 'rotate') {
-                    this.rotateGroupArtefact(1);
-                    event.preventDefault();
-                }
+                this.dragArtefact(1, 0);
                 break;
             case 'ArrowUp':
-                if (this.mode === 'move') {
-                    this.dragArtefact(0, -1);
-                    event.preventDefault();
-                } else if (this.mode === 'scale') {
-                    this.zoomArtefact(1);
-                    event.preventDefault();
-                }
+                this.dragArtefact(0, -1);
                 break;
             case 'ArrowDown':
-                if (this.mode === 'move') {
-                    this.dragArtefact(0, 1);
-                    event.preventDefault();
-                } else if (this.mode === 'scale') {
-                    this.zoomArtefact(-1);
-                    event.preventDefault();
-                }
+                this.dragArtefact(0, 1);
+                break;
+            case '<':
+            case ',':
+                this.rotateGroupArtefact(-1);
+                break;
+            case '>':
+            case '.':
+                this.rotateGroupArtefact(1);
+                break;
+            case '+':
+            case '=':
+                this.zoomArtefact(1);
+                break;
+            case '-':
+                this.zoomArtefact(-1);
                 break;
         }
-    } */
+    }
 
     private get edition() {
         return this.$state.editions.current! || {};

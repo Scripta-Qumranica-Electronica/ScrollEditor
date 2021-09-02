@@ -3,11 +3,12 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div v-if="!waiting">
+        <div v-if="!waiting" tabindex="0" @keydown="onKeyDown">
             <div class="mt-4 editor-container">
                 <b-row no-gutters align-v="center" class="mb-1 border-bottom">
                     <b-col class="col-12">
                         <scroll-top-toolbar
+                            ref="topToolbar"
                             v-model="params.zoom"
                             @new-operation="newOperation($event)"
                             @zoomChangedGlobal="onZoomChangedGlobal($event)"
@@ -32,6 +33,7 @@
                             ></scroll-ruler>
 
                             <scroll-area
+                                ref="scrollArea"
                                 @onSelectArtefact="selectArtefact($event)"
                                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                                 @new-operation="newOperation($event)"
@@ -188,7 +190,12 @@ export default class ScrollEditor
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
     }
-    //
+    private get topToolbar(): ScrollTopToolbar {
+        return this.$refs.topToolbar as ScrollTopToolbar;
+    }
+    private get scrollArea(): ScrollArea {
+        return this.$refs.scrollArea as ScrollArea;
+    }
 
     private get actualWidth(): number {
         return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
@@ -791,6 +798,38 @@ export default class ScrollEditor
         const line = editedArtefact.signInterpretations[0].sign.line;
 
         params.editor.updateText();
+    }
+
+    protected onKeyDown(event: KeyboardEvent) {
+        if (this.scrollEditorState.selectedArtefacts.length) {
+            this.topToolbar.onKeyDown(event);
+        } else {
+            // TODO: This does not work, as this.scrollArea.$el is *not* the element that needs to be scrolled.
+            // We should probably defer this to scrollArea, and have it scroll.
+            const el = this.scrollArea.$el;
+            switch (event.key) {
+                case 'ArrowDown':
+                    el.scrollTop += 20;
+                    break;
+                case 'ArrowUp':
+                    el.scrollTop -= 20;
+                    break;
+                case 'ArrowLeft':
+                    el.scrollLeft -= 20;
+                    break;
+                case 'ArrowRight':
+                    el.scrollLeft += 20;
+                    break;
+                case 'Home':
+                    el.scrollTo(0, 0);
+                    break;
+                case 'End':
+                    el.scrollTo(el.scrollWidth, el.scrollHeight);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
 </script>
