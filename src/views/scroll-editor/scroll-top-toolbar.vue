@@ -22,7 +22,7 @@
             @zoomChanged="onZoomChanged($event)"
             subject="Zoom Manuscript"
         />
-        <toolbox subject="Zoom Artefact">
+        <toolbox subject="Resize Artefact">
             <b-button-group>
                 <toolbar-icon-button title="Zoom Out" icon="minus" @click="zoomArtefact(-1)" :disabled="isToolbarDisabled"/>
                 <toolbar-icon-button title="Zoom In" icon="plus" @click="zoomArtefact(1)" :disabled="isToolbarDisabled"/>
@@ -104,70 +104,59 @@ import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 export default class ScrollTopToolbar extends Vue {
     @Model('zoomChangedGlobal', { type: Number }) private paramsZoom!: number;
 
-    @Prop({ default: -1 }) public artefactId!: number;
-
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
     }
 
-    private selectedSide: string = 'left';
-    private metricsInput: number = 1;
+    protected localZoom: number = this.paramsZoom || 0.1;
 
-    // private float: boolean = true;
-    private ver1: boolean = true;
-    private zoomDelta!: number;
-
-    private localZoom: number = this.paramsZoom || 0.1;
-
-    private onZoomChanged(val: number) {
+    protected onZoomChanged(val: number) {
         this.localZoom = val;
         this.$emit('zoomChangedGlobal', val);
     }
 
-    private get inTextMode(): boolean {
+    protected get inTextMode(): boolean {
         return 'text' === this.scrollEditorState.mode;
     }
 
     // Computed properties are by default getter-only,
     // but we also provide a dummy setter to avoid this warning:
     // Computed property "inTextMode" was assigned to but it has no setter
-
-    private set inTextMode(val: boolean) {
+    protected set inTextMode(val: boolean) {
         const param = 1;
     }
 
-    private get inMaterialMode(): boolean {
+    protected get inMaterialMode(): boolean {
         return 'material' === this.scrollEditorState.mode;
     }
 
     // Computed properties are by default getter-only,
     // but we also provide a dummy setter to avoid this warning:
-    // Computed property "inTextMode" was assigned to but it has no setter
-    private set inMaterialMode(val: boolean) {
+    // Computed property "inMaterialMode" was assigned to but it has no setter
+    protected set inMaterialMode(val: boolean) {
         const param = 1;
     }
 
-    private get textVariant(): string {
+    protected get textVariant(): string {
         return 'text' === this.scrollEditorState.mode
             ? 'info'
             : 'outline-secondary';
     }
 
-    private get materialVariant(): string {
+    protected get materialVariant(): string {
         return 'material' === this.scrollEditorState.mode
             ? 'info'
             : 'outline-secondary';
     }
 
-    private get mode(): ScrollEditorOpMode {
+    protected get mode(): ScrollEditorOpMode {
         return this.params!.mode;
     }
 
-    private setMode(mode: ScrollEditorOpMode) {
-        this.params.mode = mode;
+    protected onKeyDown(key: KeyboardEvent) {
+        console.debug('scroll-top-toolbar keydown ', key.key);
     }
-
 /*    private onKeyPress(event: KeyboardEvent) {
         if (this.artefact) {
             return;
@@ -234,7 +223,7 @@ export default class ScrollTopToolbar extends Vue {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
 
-    private onTextMode(value: ScrollEditorMode) {
+    protected onTextMode(value: ScrollEditorMode) {
         this.scrollEditorState.mode = value;
     }
 
@@ -246,27 +235,19 @@ export default class ScrollTopToolbar extends Vue {
         return this.scrollEditorState.selectedArtefacts;
     }
 
-    private get isMirroredPressed() {
-        return this.selectedArtefact?.placement.mirrored || false;
+    protected get isMirroredPressed() {
+        return this.selectedArtefacts.every(a => a.placement.mirrored);
     }
 
-    private get placedArtefacts() {
-        return this.artefacts.filter((x) => x.isPlaced);
-    }
-
-    private get isToolbarDisabled() {
+    protected get isToolbarDisabled() {
         return !this.selectedArtefacts || !this.selectedArtefacts.length;
     }
 
-    private get artefact() {
-        return this.$state.artefacts.find(this.artefactId);
-    }
-
-    public get selectedArtefact() {
+    protected get selectedArtefact() {
         return this.scrollEditorState.selectedArtefact;
     }
 
-    public get selectedGroup() {
+    protected get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
 
@@ -396,19 +377,20 @@ export default class ScrollTopToolbar extends Vue {
     }
 
     public zoomArtefact(direction: number) {
+        let newScale: number;
         const operations: ScrollEditorOperation[] = [];
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
         if (this.selectedArtefact) {
             const trans = this.selectedArtefact.placement.clone();
             if (direction === 1) {
-                this.zoomDelta = trans.scale + this.params.scale / 100;
+                newScale = trans.scale + this.params.scale / 100;
             } else {
-                this.zoomDelta = trans.scale - this.params.scale / 100;
+                newScale = trans.scale - this.params.scale / 100;
             }
             if (!trans.scale) {
                 trans.scale = 1;
             }
-            trans.scale = this.zoomDelta;
+            trans.scale = newScale;
             trans.scale = +trans.scale.toFixed(4);
             operation = this.createOperation(
                 'scale',
@@ -420,14 +402,14 @@ export default class ScrollTopToolbar extends Vue {
             this.selectedArtefacts.forEach((art) => {
                 const trans = art.placement.clone();
                 if (direction === 1) {
-                    this.zoomDelta = trans.scale + this.params.scale / 100;
+                    newScale = trans.scale + this.params.scale / 100;
                 } else {
-                    this.zoomDelta = trans.scale - this.params.scale / 100;
+                    newScale = trans.scale - this.params.scale / 100;
                 }
                 if (!trans.scale) {
                     trans.scale = 1;
                 }
-                trans.scale = this.zoomDelta;
+                trans.scale = newScale;
                 trans.scale = +trans.scale.toFixed(4);
                 operations.push(this.createOperation('scale', trans, art));
             });
@@ -498,26 +480,6 @@ export default class ScrollTopToolbar extends Vue {
         const normalizedAngle = ((newAngle % 360) + 360) % 360;
         return normalizedAngle;
     }
-
-    // private createOperation(
-    //     opType: ArtefactPlacementOperationType,
-    //     newPlacement: Placement,
-    //     artefact: Artefact | undefined,
-    //     newIsPlaced: boolean
-    // ): ArtefactPlacementOperation {
-    //     const op = new ArtefactPlacementOperation(
-    //         artefact!.id,
-    //         opType,
-    //         artefact!.placement,
-    //         newPlacement,
-    //         artefact!.isPlaced,
-    //         newIsPlaced
-    //     );
-    //     artefact!.placement = newPlacement;
-    //     artefact!.isPlaced = newIsPlaced;
-
-    //     return op;
-    // }
 
     private createOperation(
         opType: ArtefactPlacementOperationType,
