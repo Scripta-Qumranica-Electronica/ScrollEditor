@@ -127,28 +127,16 @@ import TextToolbar from './text-toolbar.vue';
         'text-toolbar': TextToolbar,
     },
 })
-export default class ScrollEditor
-    extends Vue
-    implements SavingAgent<ScrollEditorOperation> {
-    private operationsManager = new OperationsManager<
-        ScrollEditorOperation | ArtefactEditorOperation
-    >(this);
-    private waiting: boolean = true;
+export default class ScrollEditor extends Vue implements SavingAgent<ScrollEditorOperation> {
+    private operationsManager = new OperationsManager<ScrollEditorOperation | ArtefactEditorOperation>(this);
+    protected waiting: boolean = true;
     private editionId: number = 0;
     private observer?: ResizeObserver;
     private editionService = new EditionService();
-    private artefactService = new ArtefactService();
 
-    // TBD
-    private sidesOptions: Array<{ text: string; value: string }> = [
-        { text: 'Left', value: 'left' },
-        { text: 'Right', value: 'right' },
-        { text: 'Top', value: 'top' },
-        { text: 'Down', value: 'down' },
-    ];
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
-    private secondaryToolbarHeight: number = 100;
+    protected secondaryToolbarHeight: number = 100;
     //
 
     private get scrollEditorState(): ScrollEditorState {
@@ -190,13 +178,6 @@ export default class ScrollEditor
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
     }
-    private get topToolbar(): ScrollTopToolbar {
-        return this.$refs.topToolbar as ScrollTopToolbar;
-    }
-    private get scrollArea(): ScrollArea {
-        return this.$refs.scrollArea as ScrollArea;
-    }
-
     private get actualWidth(): number {
         return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
     }
@@ -802,23 +783,28 @@ export default class ScrollEditor
 
     protected onKeyDown(event: KeyboardEvent) {
         if (this.scrollEditorState.selectedArtefacts.length) {
-            this.topToolbar.onKeyDown(event);
+            (this.$refs.topToolbar as ScrollTopToolbar).onKeyDown(event);
         } else {
-            // TODO: This does not work, as this.scrollArea.$el is *not* the element that needs to be scrolled.
-            // We should probably defer this to scrollArea, and have it scroll.
-            const el = this.scrollArea.$el;
+            const el = this.$refs.artefactContainer as Element;
+            const amount = 30;
             switch (event.key) {
                 case 'ArrowDown':
-                    el.scrollTop += 20;
+                    el.scrollTop += amount;
+                    break;
+                case 'PageDown':
+                    el.scrollTop += amount * 3;
                     break;
                 case 'ArrowUp':
-                    el.scrollTop -= 20;
+                    el.scrollTop -= amount;
+                    break;
+                case 'PageUp':
+                    el.scrollTop -= amount * 3;
                     break;
                 case 'ArrowLeft':
-                    el.scrollLeft -= 20;
+                    el.scrollLeft -= amount;
                     break;
                 case 'ArrowRight':
-                    el.scrollLeft += 20;
+                    el.scrollLeft += amount;
                     break;
                 case 'Home':
                     el.scrollTo(0, 0);
