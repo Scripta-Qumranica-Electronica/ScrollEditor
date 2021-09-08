@@ -6,7 +6,8 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        @on-search="onArtefactsSearch($event)"
+                        :value="searchValue"
+                        @search="onArtefactsSearch($event)"
                     ></search-bar>
                 </b-col>
             </b-row>
@@ -120,6 +121,7 @@ export default class EditionArtefacts extends Vue {
 .scroll-bar {
     max-height: calc(100vh - 80px);
     overflow-y: auto;
+    overflow-x: hidden;
     height: 60vh;
 }
 .card {

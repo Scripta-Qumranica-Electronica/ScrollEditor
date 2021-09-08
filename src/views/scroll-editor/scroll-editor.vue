@@ -3,11 +3,12 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div v-if="!waiting">
+        <div v-if="!waiting" tabindex="0" @keydown="onKeyDown">
             <div class="mt-4 editor-container">
                 <b-row no-gutters align-v="center" class="mb-1 border-bottom">
                     <b-col class="col-12">
                         <scroll-top-toolbar
+                            ref="topToolbar"
                             v-model="params.zoom"
                             @new-operation="newOperation($event)"
                             @zoomChangedGlobal="onZoomChangedGlobal($event)"
@@ -32,6 +33,7 @@
                             ></scroll-ruler>
 
                             <scroll-area
+                                ref="scrollArea"
                                 @onSelectArtefact="selectArtefact($event)"
                                 @onSaveGroupArtefacts="saveGroupArtefacts()"
                                 @new-operation="newOperation($event)"
@@ -125,28 +127,16 @@ import TextToolbar from './text-toolbar.vue';
         'text-toolbar': TextToolbar,
     },
 })
-export default class ScrollEditor
-    extends Vue
-    implements SavingAgent<ScrollEditorOperation> {
-    private operationsManager = new OperationsManager<
-        ScrollEditorOperation | ArtefactEditorOperation
-    >(this);
-    private waiting: boolean = true;
+export default class ScrollEditor extends Vue implements SavingAgent<ScrollEditorOperation> {
+    private operationsManager = new OperationsManager<ScrollEditorOperation | ArtefactEditorOperation>(this);
+    protected waiting: boolean = true;
     private editionId: number = 0;
     private observer?: ResizeObserver;
     private editionService = new EditionService();
-    private artefactService = new ArtefactService();
 
-    // TBD
-    private sidesOptions: Array<{ text: string; value: string }> = [
-        { text: 'Left', value: 'left' },
-        { text: 'Right', value: 'right' },
-        { text: 'Top', value: 'top' },
-        { text: 'Down', value: 'down' },
-    ];
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
-    private secondaryToolbarHeight: number = 100;
+    protected secondaryToolbarHeight: number = 100;
     //
 
     private get scrollEditorState(): ScrollEditorState {
@@ -188,8 +178,6 @@ export default class ScrollEditor
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
     }
-    //
-
     private get actualWidth(): number {
         return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
     }
@@ -247,6 +235,7 @@ export default class ScrollEditor
                 (artId) => this.$state.artefacts.find(artId)!
             );
             allMovedArtefacts.forEach((art) => art.prepareForBackend());
+//            console.debug('Artefacts after preparing for backend ', allMovedArtefacts.map(art => JSON.stringify(art.placement)));
 
             if (allMovedArtefacts) {
                 await this.editionService.updateArtefactDTOs(
@@ -555,7 +544,6 @@ export default class ScrollEditor
 
         const height = sidebarHeight - scrollmapHeight;
 
-        console.debug(`Setting secondary toolbar height to ${sidebarHeight} - ${scrollmapHeight} --> ${height}`);
         this.secondaryToolbarHeight = height;
     }
 
@@ -761,7 +749,6 @@ export default class ScrollEditor
     }
 
     private newOperation(operation: ScrollEditorOperation) {
-        console.debug('scroll-editor newOperation ', operation);
         this.operationsManager.addOperation(operation);
     }
 
@@ -792,6 +779,43 @@ export default class ScrollEditor
         const line = editedArtefact.signInterpretations[0].sign.line;
 
         params.editor.updateText();
+    }
+
+    protected onKeyDown(event: KeyboardEvent) {
+        if (this.scrollEditorState.selectedArtefacts.length) {
+            (this.$refs.topToolbar as ScrollTopToolbar).onKeyDown(event);
+        } else {
+            const el = this.$refs.artefactContainer as Element;
+            const amount = 30;
+            switch (event.key) {
+                case 'ArrowDown':
+                    el.scrollTop += amount;
+                    break;
+                case 'PageDown':
+                    el.scrollTop += amount * 3;
+                    break;
+                case 'ArrowUp':
+                    el.scrollTop -= amount;
+                    break;
+                case 'PageUp':
+                    el.scrollTop -= amount * 3;
+                    break;
+                case 'ArrowLeft':
+                    el.scrollLeft -= amount;
+                    break;
+                case 'ArrowRight':
+                    el.scrollLeft += amount;
+                    break;
+                case 'Home':
+                    el.scrollTo(0, 0);
+                    break;
+                case 'End':
+                    el.scrollTo(el.scrollWidth, el.scrollHeight);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
 </script>

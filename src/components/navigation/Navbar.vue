@@ -76,7 +76,7 @@
                         v-if="userNameExists"
                         class="logout"
                     >
-                        <b> {{  $t(userName) }} </b>
+                        <b> {{ userName }} </b>
                     </b-dropdown-item>
 
                     <b-dropdown-item
@@ -288,22 +288,18 @@ export default class Navbar extends Vue {
     }
 
     private showFAQModal() {
-        console.info('Show FAQ');
         this.$root.$emit('bv::show::modal', 'FaqModal');
     }
 
     private showEulaModal() {
-        console.info('Show EULA');
         this.$root.$emit('bv::show::modal', 'EulaModal');
     }
 
     private showCitation() {
-        console.info('Show Citation');
         this.$root.$emit('bv::show::modal', 'CitationModal');
     }
 
     private contactUs() {
-        console.info('Send email');
         location.href = 'mailto:sqe@deadseascrolls.org.il';
     }
 

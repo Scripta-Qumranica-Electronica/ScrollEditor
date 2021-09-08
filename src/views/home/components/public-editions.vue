@@ -2,36 +2,23 @@
     <div>
         <div class="header">
             <b-row>
-                <b-col class="col-4 mt-4 mb-5">
+                 <b-col class="col-4 mt-4 mb-5">
                     <span class="text-edition text-color"
-                        >Editions you are currently working on
-                        or have previously published</span
+                        >Editions published in the scrollery</span
                     >
                 </b-col>
                 <b-col class="mt-4 mb-5">
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        :defaultValue="defaultSearchValue"
-                        @on-search="onEditionsSearch($event)"
+                        :value="searchValue"
+                        @search="onEditionsSearch($event)"
                     ></search-bar>
                 </b-col>
             </b-row>
         </div>
-        <div class="scroll-bar">
-            <edition-list
-                title="Draft"
-                class="text-edition"
-                :editions="draftEditions"
-            ></edition-list>
-        </div>
-        <div class="edition-list">
-            <edition-list
-                title="Published"
-                class="text-edition"
-                :editions="publishedEditions"
-            ></edition-list>
-        </div>
+        <editions-public-list :editions="filteredEditions"></editions-public-list>
+        <copy-edition-modal :visible="true" />
     </div>
 </template>
 
@@ -40,49 +27,51 @@
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
-
+import CopyEditionModal from './copy-edition-modal.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchBar from '@/components/search-bar.vue';
-import EditionList from './EditionList.vue';
+import EditionsPublicList from './edition-public-list.vue';
 
 @Component({
-    name: 'personal-editions',
+    name: 'public-editions',
     components: {
         Waiting,
         SearchBar,
-        EditionList,
+        EditionsPublicList,
+        CopyEditionModal,
     },
 })
-export default class PersonalEditions extends Vue {
+export default class PublicEditions extends Vue {
     private filteredEditions: EditionInfo[] = [];
-    private defaultSearchValue: SearchBarValue = {sort: 'lastEdit'};
-    private searchValue: SearchBarValue = {};
+    private defaultSearchValue: SearchBarValue = { sort: 'lastEdit' };
+    @Prop() private searchValue!: SearchBarValue;
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
-        view: false,
     };
 
     public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = event;
-        this.onPersonalEditionsLoad();
+        // this.searchValue = event;
+        this.onPublicEditionsLoad();
     }
 
     @Emit()
-    public onPersonalEditionsLoad() {
+    public onPublicEditionsLoad() {
         this.filteredEditions = this.getFilteredEditions();
         return this.filteredEditions.length;
     }
 
     protected async mounted() {
         await this.$state.prepare.allEditions();
-        this.onPersonalEditionsLoad();
+        this.onPublicEditionsLoad();
     }
 
     private getFilteredEditions(): EditionInfo[] {
+        // This function is not really efficient, but it does work quickly enough for the editions we have.
+        // No need in optimizing it.
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
-                let filter: boolean = ed.mine === true;
+                let filter: boolean = ed.isPublic === true;
                 // if (this.searchValue.view) {
                 //     filter = filter && art.side === this.searchValue.view
                 // }
@@ -126,14 +115,6 @@ export default class PersonalEditions extends Vue {
                 }
             });
     }
-
-    private get draftEditions(): EditionInfo[] {
-        return this.filteredEditions.filter((ed) => !ed.isPublic);
-    }
-
-    private get publishedEditions(): EditionInfo[] {
-        return this.filteredEditions.filter((ed) => ed.isPublic);
-    }
 }
 </script>
 
@@ -145,17 +126,13 @@ export default class PersonalEditions extends Vue {
 .direction {
     float: right;
 }
-.text-color {
-    color: $black;
-}
+
 .text-edition {
     font-style: $font-style;
     font-weight: $font-weight-1;
     font-size: $font-size-3;
     font-family: $font-family;
-}
-.edition-list {
-    padding-top: 70px;
+    overflow-x: hidden;
 }
 .scroll-bar {
     overflow-y: auto;

@@ -13,8 +13,8 @@ function state() {
 
 export type ScrollEditorMode = 'text' | 'material';
 export class ScrollEditorState {
-    public selectedArtefact: Artefact | null = null;
-    public selectedGroup: ArtefactGroup | null = null;
+    private _selectedArtefact: Artefact | null = null;
+    private _selectedGroup: ArtefactGroup | null = null;
     public viewport: BoundingBox | null = null;  // The viewport in edition coordinates
     public params: ScrollEditorParams| null = null;
     public pointerPosition: Point;
@@ -36,6 +36,15 @@ export class ScrollEditorState {
         this.showEditReconTextBar = false;
     }
 
+    public get selectedArtefact() {
+        return this._selectedArtefact;
+    }
+
+    public get selectedGroup() {
+        return this._selectedGroup;
+    }
+
+    // Returns all selected artefacts - either as part of a group or not
     public get selectedArtefacts(): Artefact[] {
         let artefactIds: number[] = [];
         if (this.selectedGroup) {
@@ -55,17 +64,17 @@ export class ScrollEditorState {
     }
 
     public selectArtefact(artefact: Artefact) {
-        this.selectedArtefact = artefact;
-        this.selectedGroup = null;
+        this._selectedArtefact = artefact;
+        this._selectedGroup = null;
     }
 
     public selectGroup(artefactGroup: ArtefactGroup | undefined) {
         if (artefactGroup) {
-            this.selectedGroup = artefactGroup.clone();
+            this._selectedGroup = artefactGroup.clone();
         } else {
-            this.selectedGroup = null;
+            this._selectedGroup = null;
         }
-        this.selectedArtefact = null;
+        this._selectedArtefact = null;
     }
 
     public get mode() {
@@ -78,7 +87,8 @@ export class ScrollEditorState {
         }
 
         // Undo all selections when switching modes
-        this.selectedArtefact = null;
+        this._selectedArtefact = null;
+        this._selectedGroup = null;
         state().textFragmentEditor.selectedSignInterpretations = [];
 
         if (val === 'text') {

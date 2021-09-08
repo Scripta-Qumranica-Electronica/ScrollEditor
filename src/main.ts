@@ -31,6 +31,8 @@ import { StateManager } from './state';
 
 // vue2-hammer
 import { VueHammer } from 'vue2-hammer';
+import VueVirtualScroller from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 // tslint:disable-next-line
 const CKEditor = require('@ckeditor/ckeditor5-vue');
@@ -62,7 +64,6 @@ Vue.use(MediaBreakPointsPlugin, {
 
 library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus,
             faSquare, faPen, faMousePointer, faEraser, faTrash, faArrowUp, faArrowDown, faArrowLeft, faArrowRight );
-console.debug(faSquare, faPen);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);
@@ -77,6 +78,8 @@ Vue.use(RenderingOptimizationPlugin);
 
 Vue.use(VueHammer);
 Vue.use(CKEditor);
+
+Vue.use(VueVirtualScroller);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {

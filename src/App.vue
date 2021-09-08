@@ -24,7 +24,7 @@ import SessionService from '@/services/session';
 import { StateManager } from './state';
 import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog.vue';
 
-import ScreenSizeAlert from './views/home/components/ScreenSizeAlert.vue';
+import ScreenSizeAlert from './views/home/components/screen-size-alert.vue';
 
 
 @Component({
@@ -143,5 +143,16 @@ body {
     max-height: calc(100vh - 56px); /* Navbar is 56 pixels high */
     padding: 0px;
     background-color: #e5e5e5;
+}
+
+input.no-arrows::-webkit-outer-spin-button,
+input.no-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input.no-arrows[type=number] {
+  -moz-appearance: textfield;
 }
 </style>

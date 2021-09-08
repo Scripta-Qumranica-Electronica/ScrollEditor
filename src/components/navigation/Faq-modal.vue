@@ -12,7 +12,6 @@
             trap-focus
             :destroy-on-hide="true"
             size="lg"
-            @shown="shown"
         >
             <template v-slot:modal-header>
                 <b-row>
@@ -61,11 +60,6 @@ import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 })
 
 export default class FaqModal extends Vue {
-    private shown(): void {
-        console.log('Faq Modal');
-
-    }
-
 }
 
 </script>

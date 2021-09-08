@@ -5,7 +5,7 @@
             :pressed="pressed"
             v-on="$listeners">
         <font-awesome-icon v-if="icon" :icon="icon" />
-        <span v-if="showText" class="button-text">{{ title }}</span>
+        <span :class="classes">{{ title }}</span>
     </b-button>
 </template>
 
@@ -21,9 +21,24 @@ export default class ToolbarIconButton extends Vue {
     @Prop( { default: false }) public disabled!: boolean;
     @Prop( { default: false} ) public showText!: boolean;
     @Prop( { default: undefined} ) public pressed?: boolean;
+    @Prop( { default: 'xl' }) public textBreakPoint!: string;
 
     protected get button() {
         return this.$refs.button;
+    }
+
+    protected get classes() {
+        const classes = ['button-text'];
+        if (!this.showText) {
+            classes.push('d-none');
+        } else {
+            if (this.textBreakPoint !== 'xs') {
+                classes.push('d-none');
+                classes.push(`d-${this.textBreakPoint}-inline`);
+            }
+        }
+
+        return classes;
     }
 }
 </script>

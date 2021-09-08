@@ -12,7 +12,6 @@
             ok-only
             trap-focus
             :destroy-on-hide="true"
-            @shown="shown"
         >
             <template v-slot:modal-header>
                 <b-row>
@@ -204,11 +203,6 @@ import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 })
 
 export default class AboutModal extends Vue {
-    private shown(): void {
-        console.log('About Modal');
-
-    }
-
 }
 
 </script>

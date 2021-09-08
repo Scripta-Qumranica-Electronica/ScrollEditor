@@ -90,6 +90,7 @@ import Toolbar from '@/components/toolbars/toolbar.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
+import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -101,6 +102,7 @@ import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
         'toolbox': Toolbox,
         'toolbar-icon-button': ToolbarIconButton,
         'undo-redo-toolbox': UndoRedoToolbox,
+        'adjust-image-toolbox': AdjustImageToolbox,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {

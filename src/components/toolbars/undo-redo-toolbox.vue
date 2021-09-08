@@ -1,7 +1,7 @@
 <template>
     <toolbox :subject="subject">
-        <toolbar-icon-button :title="$t('home.undo')" icon="undo" :disabled="!canUndo" @click="onUndo" :show-text="true"/>
-        <toolbar-icon-button :title="$t('home.redo')" icon="redo" :disabled="!canRedo" @click="onRedo" :show-text="true"/>
+        <toolbar-icon-button :title="$t('home.undo')" icon="undo" :disabled="!canUndo" @click="onUndo"/>
+        <toolbar-icon-button :title="$t('home.redo')" icon="redo" :disabled="!canRedo" @click="onRedo"/>
     </toolbox>
 </template>
 <script lang="ts">

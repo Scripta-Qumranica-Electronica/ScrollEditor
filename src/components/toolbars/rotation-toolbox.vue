@@ -10,7 +10,7 @@
                 :disabled="!enableText"
                 type="number"
                 v-model="rotationAngle"
-                class="input-lg"
+                class="input-lg no-arrows"
             />
             <rotate-button direction="right" @click="onRotateClick(+delta)" />
         </b-button-group>
@@ -67,8 +67,10 @@ export default class RotationToolbox extends Vue {
 
 <style lang="scss">
 .input-lg {
-    width: 50% !important;
-    max-width: 75px;
+    max-width: 3.5rem;
+    padding-left: 4px;
+    padding-right: 4px;
+    text-align: center;
 }
 
 .rotation {

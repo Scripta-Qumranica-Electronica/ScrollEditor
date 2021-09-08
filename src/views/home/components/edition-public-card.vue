@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-row class="link-row" @click="editionViewClick()">
+        <b-row class="link-row" @click="editionViewClick()" no-gutters>
             <b-col class="col-4">
                 <img
                     class="card-img-top"
@@ -56,7 +56,6 @@
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
-import EditionService from '@/services/edition';
 
 @Component({
     name: 'edition-public-card',
@@ -64,8 +63,6 @@ import EditionService from '@/services/edition';
 })
 export default class EditionPublicCard extends Vue {
     @Prop() public edition!: EditionInfo;
-
-    private editionService: EditionService = new EditionService();
 
     private get thumbnailSource(): string | undefined {
         return this.edition?.thumbnail?.thumbnailUrl;
@@ -87,9 +84,6 @@ export default class EditionPublicCard extends Vue {
 @import '@/assets/styles/_fonts.scss';
 @import './card.scss';
 
-.direction {
-    margin-left: 90px;
-}
 .custom-p-left {
     padding-left: 1rem;
     @media (max-width: 1100px) {

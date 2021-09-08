@@ -57,7 +57,6 @@ import ArtefactToolbox from './artefact-toolbox.vue';
 import { ScrollEditorOperation } from './operations';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactTextFragmentData } from '@/models/text';
-
 import { ScriptData, GlyphData } from '@/models/script';
 
 @Component({

@@ -15,7 +15,7 @@ import {
     CreateArtefactGroupDTO,
     ArtefactGroupDTO,
     ArtefactGroupListDTO,
-    UpdateEditionManuscriptMetricsDTO, AttributeListDTO, ScriptDataDTO, ScriptDataListDTO
+    UpdateEditionManuscriptMetricsDTO, AttributeListDTO, ScriptDataDTO, ScriptDataListDTO, PlacementDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -220,8 +220,8 @@ class EditionService {
         const artefactPlacements: UpdateArtefactPlacementDTO[] = updateArtefacts.map(
             (x: Artefact) => ({
                 artefactId: x.id,
-                placement: x.placement,
-                isPlaced: x.isPlaced
+                placement: x.placement as PlacementDTO,
+                isPlaced: x.isPlaced,
             })
         );
 

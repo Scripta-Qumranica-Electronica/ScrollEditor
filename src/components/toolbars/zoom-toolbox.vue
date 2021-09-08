@@ -10,7 +10,7 @@
             />
 
             <b-input
-                class="zoom-input"
+                class="zoom-input no-arrows"
                 v-model="zoom"
                 type="number"
                 min="1"
@@ -107,6 +107,9 @@ export default class ZoomToolbox extends Vue {
 
 <style lang="scss" scoped>
 .zoom-input {
-    max-width: 4rem;
+    max-width: 2.5rem;
+    padding-left: 4px;
+    padding-right: 4px;
+    text-align: center;
 }
 </style>

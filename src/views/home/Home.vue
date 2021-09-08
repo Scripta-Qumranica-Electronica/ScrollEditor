@@ -4,24 +4,22 @@
             <b-tab
                 :disabled="!user"
                 :title-item-class="'tab-title-class'"
-                :title="
-                    $tc('home.personalEditionGroupCount', personalEditionsCount)
-                "
                 active
             >
-                <personal-editions
-                    @on-personal-editions-load="onPersonalEditionsLoad($event)"
-                ></personal-editions>
+                <template #title>
+                    <span v-if="!editionsLoaded">{{ $t('home.personalEditions')}} <b-spinner type="border" small/></span>
+                    <span v-else>{{ $tc('home.personalEditionGroupCount', personalEditionsCount ) }}</span>
+                </template>
+                <personal-editions :search-value="searchValue"></personal-editions>
             </b-tab>
             <b-tab
-                :title="
-                    $tc('home.publicEditionGroupCount', publicEditionsCount)
-                "
                 :title-item-class="'tab-title-class'"
             >
-                <public-editions
-                    @on-public-editions-load="onPublicEditionsLoad($event)"
-                ></public-editions>
+                <template #title>
+                    <span v-if="!editionsLoaded">{{ $t('home.publicEditions')}} <b-spinner type="border" small/></span>
+                    <span v-else>{{ $tc('home.publicEditionGroupCount', publicEditionsCount) }}</span>
+                </template>
+                <public-editions :search-value="searchValue"></public-editions>
             </b-tab>
         </b-tabs>
     </div>
@@ -33,9 +31,10 @@
 import { Component, Prop, Emit, Vue, Watch } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
-import PersonalEditions from './components/PersonalEditions.vue';
-import PublicEditions from './components/PublicEditions.vue';
+import PersonalEditions from './components/personal-editions.vue';
+import PublicEditions from './components/public-editions.vue';
 import { Route } from 'vue-router';
+import { SearchBarValue } from '@/components/search-bar.vue';
 // import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */
 
@@ -56,19 +55,20 @@ export default class Home extends Vue {
     // =====================
 
     private filter: string = '';
-    private personalEditionsCount: number = 0 ;
-    private publicEditionsCount: number = 0 ;
+    private editionsLoaded = false;
     private activeTab: number = 0;
+    private searchValue: SearchBarValue = {
+        sort: 'lastEdit',
+    };
 
     // hooks as constructor
     // ========================
     protected created() {
         this.$state.prepare.allEditions();
-
         this.$state.editions.current = null;
     }
 
-    protected mounted() {
+    protected async mounted() {
         if (this.$route.params.editionType === 'public') {
             this.$nextTick(() => { this.activeTab = 1; });
         }
@@ -76,6 +76,9 @@ export default class Home extends Vue {
         if (this.$route.params.editionType === 'private' && !this.user) {
             this.$router.replace('/home/public');
         }
+
+        await this.$state.prepare.allEditions(); // Already called in create, here we just wait for it to finish
+        this.editionsLoaded = true;
     }
 
     public get user(): boolean {
@@ -89,15 +92,12 @@ export default class Home extends Vue {
         return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
     }
 
-    // on-personal-editions-load emitted event handler
-    public  onPersonalEditionsLoad(count: number) {
-        this.personalEditionsCount = count;
+    protected get personalEditionsCount() {
+        return this.$state.editions.items.filter(ed => !ed.isPublic).length;
     }
 
-
-    // on-public-editions-load emitted event handler
-    public  onPublicEditionsLoad(count: number) {
-        this.publicEditionsCount = count;
+    protected get publicEditionsCount() {
+        return this.$state.editions.items.filter(ed => ed.isPublic).length;
     }
 
     protected onActivateTab(newTab: number, prevTab: number) {
