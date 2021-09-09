@@ -259,10 +259,11 @@ export default class StateService {
         const svc = new EditionService();
         const dto = await svc.getScribalFont(editionId);
         if (!dto.scripts || !dto.scripts.length) {
+            // This should be fixed in the backend at some point.
             console.warn(`Edition ${editionId} has no script data`);
-            return;
+        } else {
+            this._state.editions.current!.script = new ScriptData(dto.scripts[0]);
         }
-        this._state.editions.current!.script = new ScriptData(dto.scripts[0]);
     }
 
     private async textFragmentsInternal(editionId: number) {
