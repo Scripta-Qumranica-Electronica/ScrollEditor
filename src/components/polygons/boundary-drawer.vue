@@ -244,6 +244,10 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private async checkPolygon() {
+        if (this.polygonPoints.length < 3) {
+            // This is not really a polygon
+            return;
+        }
         // Turn the polygon into an svg string, due it bit by bit
         const partials = [
             `M${this.polygonPoints[0].x} ${this.polygonPoints[0].y}`

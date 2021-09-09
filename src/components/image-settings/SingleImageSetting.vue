@@ -1,6 +1,8 @@
 <template>
     <div class="row">
-        <b-form-checkbox v-model="settings.visible" @change="onVisibleChange">{{ type }}</b-form-checkbox>
+        <div class="col-5">
+            <b-form-checkbox v-model="settings.visible" @change="onVisibleChange">{{ type }}</b-form-checkbox>
+        </div>
         <div class="col">
             <b-form-input
                 v-model="opacity"

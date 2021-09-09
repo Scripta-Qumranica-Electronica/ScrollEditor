@@ -30,6 +30,7 @@ class ProcessTracking {
     public startTime: number;
     public endTime: number | undefined;
     public failed: boolean;
+    public done: boolean;
 
     public constructor(promise: Promise<void>, id: number) {
         this.promise = promise;
@@ -37,10 +38,12 @@ class ProcessTracking {
         this.endTime = undefined;
         this.id = id;
         this.failed = false;
+        this.done = false;
 
         promise.then(() => {
             this.endTime = Date.now();
             this.failed = false;
+            this.done = true;
         }).catch((err) => {
             console.error('ProcessTracking encountered an error ', err);
             this.failed = true;
@@ -93,7 +96,7 @@ export default class StateService {
     }
 
     public async edition(editionId: number): Promise<void> {
-        return this.wrapInternal('editionProcess', editionId, (id: number) => this.editionInternal(id));
+        return this.wrapInternal('editionProcess', editionId, (id: number) => this.editionInternal(id), (id: number) => this.postEditionInternal(id));
     }
 
     public async editionScript(editionId: number): Promise<void> {
@@ -121,7 +124,7 @@ export default class StateService {
     }
 
     public artefact(editionId: number, artefactId: number): Promise<void> {
-        return this.wrapInternal('artefactProcess', artefactId, (id) => this.artefactInternal(editionId, id));
+        return this.wrapInternal('artefactProcess', artefactId, (id) => this.artefactInternal(editionId, id), (id) => this.postArtefactInternal(id));
     }
 
     public textFragment(editionId: number, textFragmentId: number): Promise<void> {
@@ -173,15 +176,22 @@ export default class StateService {
         self[processName] = processTracking;
     }
 
-    private wrapInternal(processName: ProcessProperties, id: number, internal: (id: number) => Promise<void>) {
-        // Waiting for a better solution:
-        // https://stackoverflow.com/questions/58209234/typescript-pass-property-by-name
+    private async wrapInternal(processName: ProcessProperties, id: number, internal: (id: number) => Promise<void>, postInternal?: (id: number) => void) {
+        // wrapInternal calls `internal` if it hasn't been run yet. It calls `postInternal` anyway. Use `postInternal` to set current
+        // entities in the state.
         let pt = this.getProcess(processName);
         if (pt && pt.id === id && !pt.needsRefresh()) {
+            if (pt.done && postInternal) {
+                postInternal(id);
+            }
             return pt.promise;
         }
 
         const promise = internal(id);
+        if (postInternal) {
+            promise.then(() => { postInternal(id); });
+        }
+
         pt = new ProcessTracking(promise, id);
         this.setProcess(processName, pt);
 
@@ -229,6 +239,15 @@ export default class StateService {
             this.editionScriptProcess!.promise,
         ]);
         SignalRWrapper.instance.subscribeEdition(editionId);
+    }
+
+    private postEditionInternal(editionId: number) {
+        const edition = this._state.editions.find(editionId);
+        if (!edition) {
+            console.error(`Can't find edition ${editionId} in postEditionInternal`);
+            return;
+        }
+        this._state.editions.current = edition;
     }
 
     private async editionScriptInternal(editionId: number) {
@@ -342,6 +361,26 @@ export default class StateService {
 
         this._state.artefacts.current = artefact;
         this._state.imagedObjects.current = imagedObject; // will be undefined if the artefact is virtual
+    }
+
+    private postArtefactInternal(id: number) {
+        const artefact = this._state.artefacts.find(id);
+        if (!artefact) {
+            console.error(`Can't locate artefact ${id} in postArtefactInternal`);
+            return;
+        }
+        this._state.artefacts.current = artefact;
+
+        if (!artefact.isVirtual) {
+            const imagedObject = this._state.imagedObjects.find(artefact.imagedObjectId);
+            if (!imagedObject) {
+                console.warn(`Can't located imaged object ${artefact.imagedObjectId} for artefact ${id} in postAretfactInternal`);
+            } else {
+                this._state.imagedObjects.current = imagedObject;
+            }
+        } else {
+            this._state.imagedObjects.current = null;
+        }
     }
 
     private async textFragmentInternal(editionId: number, textFragmentId: number) {
