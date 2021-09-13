@@ -23,7 +23,6 @@
         "@types/jsts": "^0.17.2",
         "@types/mathjs": "^4.4.5",
         "@types/vue2-hammer": "2.1.2",
-        "@yutahaga/vue-media-breakpoints": "^0.6.1",
         "axios": "^0.21.1",
         "babel-loader": "^8.2.2",
         "bootstrap-vue": "^2.0.0-rc.11",

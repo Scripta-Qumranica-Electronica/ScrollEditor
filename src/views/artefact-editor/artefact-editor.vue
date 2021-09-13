@@ -92,13 +92,6 @@
                                         :line="selectedLine"
                                     />
                                 </div>
-                                <!-- <b-button
-                                    type="button"
-                                    v-show="$bp.between('sm', 'lg')"
-                                    @click="nextLine()"
-                                >
-                                    <i class="fa fa-arrow-left"></i>
-                                </b-button> -->
                                 <zoomer
                                     style="flex-grow: 1; height: 10px"
                                     :zoom="zoomLevel"
@@ -156,11 +149,7 @@
                     <b-col class="border-left px-0 h-100 col-lg-3">
                         <div
                             v-if="!waiting && artefact"
-                            :class="{
-                                sidebar: isActiveSidebar,
-                                text: isActiveText,
-                                'h-100 w-100': true,
-                            }"
+                            class="h-100 w-100"
                         >
                             <text-side
                                 :editor-mode="editorMode"
@@ -275,8 +264,6 @@ export default class ArtefactEditor
     private errorMessage = '';
     private waiting = true;
     private saving = false;
-    private isActiveSidebar = false;
-    private isActiveText = false;
     private imageStack: ImageStack | undefined = undefined;
     private boundingBox = new BoundingBox();
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
@@ -451,10 +438,6 @@ export default class ArtefactEditor
 
     protected async mounted() {
         this.waiting = true;
-        if (this.$bp.between('sm', 'lg')) {
-            this.isActiveSidebar = true;
-        }
-
         //  verifier url
         this.editionId = parseInt(this.$route.params.editionId);
         if (this.$route.params.artefactId) {
@@ -703,28 +686,6 @@ export default class ArtefactEditor
             audio.play();
         }
     }
-
-    private sidebarClicked() {
-        this.isActiveSidebar = !this.isActiveSidebar;
-    }
-
-    private textClicked() {
-        this.isActiveText = !this.isActiveText;
-    }
-
-    // private nextLine() {
-    //     if (this.selectedLine) {
-    //         const linesArray = this.selectedLine.textFragment.lines;
-    //         const index = linesArray.findIndex(
-    //             (k) => k.lineId === this.selectedLine!.lineId
-    //         );
-    //         if (index !== -1) {
-    //             const nextLine = linesArray[index + 1];
-    //             const newSI = nextLine.signs[1].signInterpretations[0];
-    //             this.artefactEditorState.selectSign(newSI);
-    //         }
-    //     }
-    // }
 
     private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         if (evt.property === 'rotationAngle') {
