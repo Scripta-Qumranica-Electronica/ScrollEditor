@@ -3,7 +3,7 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div v-if="!waiting && imagedObject" class="mt-4 editor-container">
+        <div v-if="!waiting && imagedObject" id="imaged-object-grid">
             <b-row align-v="center" class="border-bottom no-gutters">
                 <b-col class="col-8">
                     <imaged-object-editor-toolbar
@@ -731,22 +731,21 @@ export default class ImagedObjectEditor
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
+@import '@/assets/styles/_classes.scss';
 
 .header-actions {
     background-color: $white;
 }
-.editor-container {
-    background-color: $white;
-    margin-right: 0.0rem;
-    margin-left: 1.5rem;
+
+#imaged-object-grid {
+    @extend .editor;
     /* margin-right: 5%;
     margin-left: 5%; */
-    height: calc(100vh - 5.8rem);
     /* height: calc(100vh - 95px); */
     overflow: hidden;
     overflow-y: auto;
-
 }
+
 .editor-actions {
     height: 70px;
 }

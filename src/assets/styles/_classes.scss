@@ -1,0 +1,10 @@
+@import "./variables.scss";
+
+.editor {
+    background-color: $white;
+    margin-right: 1.5rem;
+    margin-left: 1.5rem;
+    margin-top: 24px;
+
+    height: calc(100vh - 95px);
+}

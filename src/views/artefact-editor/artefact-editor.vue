@@ -4,7 +4,7 @@
             <waiting></waiting>
         </div>
         <div v-if="!waiting">
-            <div class="mt-4 editor-container">
+            <div id="artefact-grid">
                 <b-row>
                     <b-col class="d-flex flex-column col-lg-9">
                         <toolbar no-gutters>
@@ -1055,6 +1055,7 @@ export default class ArtefactEditor
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
+@import '@/assets/styles/_classes.scss';
 
 .header-actions {
     background-color: $white;
@@ -1078,12 +1079,9 @@ export default class ArtefactEditor
     color: $green;
 }
 
-.editor-container {
-    background-color: $white;
-    margin-right: 1.5rem;
-    margin-left: 1.5rem;
-    height: calc(100vh - 95px);
-    /* height: calc(100vh - 2rem); */
+#artefact-grid {
+    @extend .editor;
+    display: grid;
 }
 
 .editor-actions {
