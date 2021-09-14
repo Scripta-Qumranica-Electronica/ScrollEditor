@@ -143,25 +143,18 @@
                         </svg>
                     </zoomer>
                 </div>
-                <div id="right-column" class="border-left">
-                    <!-- Right column -->
-                    <div
-                        v-if="!waiting && artefact"
-                        class="h-100 w-100"
-                    >
-                        <text-side
-                            :editor-mode="editorMode"
-                            :artefact="artefact"
-                            :text-fragment="textFragment"
-                            @sign-interpretation-clicked="
-                                onSignInterpretationClicked($event)
-                            "
-                            @text-fragment-selected="initVisibleRois()"
-                            @text-fragments-loaded="initVisibleRois()"
-                        ></text-side>
-                        <sign-attribute-pane class="" />
-                    </div>
-                </div>
+                <text-side
+                    id="text-side"
+                    :editor-mode="editorMode"
+                    :artefact="artefact"
+                    :text-fragment="textFragment"
+                    @sign-interpretation-clicked="
+                        onSignInterpretationClicked($event)
+                    "
+                    @text-fragment-selected="initVisibleRois()"
+                    @text-fragments-loaded="initVisibleRois()"
+                ></text-side>
+                <sign-attribute-pane id="attribute-pane" />
             </div>
         </div>
     </div>
@@ -1042,7 +1035,7 @@ export default class ArtefactEditor
     display: grid;
 
     grid-template-columns: 70% 30%;
-    grid-template-rows: $toolbar-height 50px 1fr;
+    grid-template-rows: $toolbar-height 50px 1fr auto;
 
     /* .hidden-sidebar {
         grid-template-columns: 1fr 0px 50px;
@@ -1062,18 +1055,21 @@ export default class ArtefactEditor
 
 #artefact-image {
     grid-column: 1 / 2;
-    grid-row: 3 / 4;
+    grid-row: 3 / 5;
     height: 100%;
     width: 100%;
     overflow: auto;
     text-align: center;
 }
 
-#right-column {
+#text-side {
     grid-column: 2 / 3;
     grid-row: 2 / 4;
-    border-left: 1px;
-    border-left-color: gray;
+}
+
+#attribute-pane {
+    grid-column: 2 / 3;
+    grid-row: 4 / 5;
 }
 
 .editor-actions {

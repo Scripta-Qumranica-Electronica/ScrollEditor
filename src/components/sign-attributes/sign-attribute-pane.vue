@@ -1,5 +1,5 @@
 <template>
-    <div class="attributes ">
+    <div class="attributes border-top">
         <ul class="row m-0 mt-1 p-0 ">
             <li class="m-0 p-0 pr-1" v-if="!readOnly">
                 <b-dropdown
@@ -264,9 +264,6 @@ export default class SignAttributePane extends Vue {
 
 <style lang="scss" scoped>
 .attributes {
-    /* height: calc(36vh - 2rem); */
-    height: calc(30vh - 2rem);
-    border-top: 3px solid #6c757d;
     padding: 10px;
     margin-top: 3.5rem;
     margin-right: 13px;
