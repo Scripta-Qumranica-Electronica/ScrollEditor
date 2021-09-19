@@ -25,7 +25,7 @@
                 v-for="(textFragment, index) in displayedTextFragments"
                 :key="textFragment.id"
                 role="tablist"
-                class="text-side-border p-2"
+                class="text-side-border"
                 direction="rtl"
             >
                 <b-card-header header-tag="header" class="card-header">

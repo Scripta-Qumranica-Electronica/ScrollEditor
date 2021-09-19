@@ -164,8 +164,10 @@ interface DetailedLineTextDTO extends LineTextDTO {
 
 div.text-line {
   display: table;
-    text-align: right;
-    white-space: nowrap;
+  text-align: right;
+  white-space: nowrap;
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
 span.line-name {
