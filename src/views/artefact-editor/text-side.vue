@@ -1,6 +1,6 @@
 <template>
     <div class="text-side-container" >
-        <div class="border-bottom load-fragment" v-if="artefactMode">
+        <div class="border-bottom" id="load-fragment" v-if="artefactMode">
             <input
                 class="select-text"
                 placeholder="Enter a name e.g, col.1"
@@ -20,7 +20,7 @@
             </datalist>
             <span class="isa_error">{{ errorMessage }}</span>
         </div>
-        <div id="text-side" class="fixed-header">
+        <div id="text-fragments">
             <div
                 v-for="(textFragment, index) in displayedTextFragments"
                 :key="textFragment.id"
@@ -28,7 +28,7 @@
                 class="text-side-border p-2"
                 direction="rtl"
             >
-                <b-card-header header-tag="header" class="p-0 mt-3">
+                <b-card-header header-tag="header" class="card-header">
                     <b-row no-gutters>
                         <div style="width:80px;"  v-if="artefactMode">
                             <b-button-group block>
@@ -284,52 +284,33 @@ export default class TextSide extends Vue {
 
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
-.text-side-container {
-    height: calc(60vh - 2rem);
-    /* height: calc(100vh - 285px); */
-}
-.load-fragment {
+@import '@/assets/styles/_fonts.scss';
+
+#load-fragment {
     height: 71px;
     padding: 15px;
     text-align: right;
-    padding-right: 31px;
 }
-#text-side {
+
+#text-fragments {
     touch-action: pan-y;
-    height: 98%;
+    height: 100%;
     /* overflow-y: auto; */
     overflow-x: hidden;
-    margin-right: 15px;
-
 }
 
-@media (max-width: 1100px) {
-   #text-side {
-        overflow-y: scroll;
-        /* height: calc(100% - 80px); */
-    }
-}
-
-button {
-    margin-right: 10px;
-}
-.btn-info {
-    background-color: #6c757d;
-    border-color: #6c757d;
+.card-header {
+    background: $white;
+    padding: 8px;
 }
 
 #text-box {
-    font-family: 'SBL Hebrew';
-    font-size: 18px;
-    margin-top: 30px;
-    overflow-x: overlay;
-    padding-bottom: 16px;
-    padding-right: 0.1rem;
-    margin-right:0.1rem;
-    /* display: grid; */
+    font-family: $font-family;
+    font-size: $font-size-3;
     display:flex;
     justify-content: flex-start;
     direction: rtl;
+    overflow-y: hidden;
 }
 
 @media (max-width: 1100px) {
