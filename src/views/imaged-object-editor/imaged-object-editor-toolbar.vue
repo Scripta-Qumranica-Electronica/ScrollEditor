@@ -50,6 +50,7 @@
                     :icon="mode.icon" />
             </toolbox>
             <undo-redo-toolbox />
+            <slot />
         </toolbar>
     </div>
 </template>

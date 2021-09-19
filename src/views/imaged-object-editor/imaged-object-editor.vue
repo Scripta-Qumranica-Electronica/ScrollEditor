@@ -4,20 +4,17 @@
             <Waiting></Waiting>
         </div>
         <div v-if="!waiting && imagedObject" id="imaged-object-grid">
-            <b-row align-v="center" class="border-bottom no-gutters">
-                <b-col class="col-8">
-                    <imaged-object-editor-toolbar
-                        :imagedObject="imagedObject"
-                        :artefacts="visibleArtefacts"
-                        :artefact="artefact"
-                        :artefactId="artefactId"
-                        :side="side"
-                        :status-indicator="operationsManager"
-                        :modes="editList"
-                        @onSideArtefactChanged="sideArtefactChanged($event)"
-                    ></imaged-object-editor-toolbar>
-                </b-col>
-                <div class="col-4">
+            <imaged-object-editor-toolbar id="imaged-object-toolbar"
+                :imagedObject="imagedObject"
+                :artefacts="visibleArtefacts"
+                :artefact="artefact"
+                :artefactId="artefactId"
+                :side="side"
+                :status-indicator="operationsManager"
+                :modes="editList"
+                @onSideArtefactChanged="sideArtefactChanged($event)"
+            >
+                <toolbox>
                     <b-btn
                         v-if="canEdit"
                         v-b-modal.modal="'newModal'"
@@ -25,162 +22,156 @@
                         class="btn"
                         >{{ $t('misc.new') }}</b-btn
                     >
-                </div>
-            </b-row>
-            <b-row no-gutters class="content-container">
-                <b-col cols="8">
-                    <div class="image-obj-container-height">
-                        <div class="img-obj-container " ref="infoBox">
-                            <div id="imaged-object-title" v-if="imagedObject">
-                                {{ imagedObject.id }}
-                                <edition-icons
-                                    :edition="edition"
-                                    :show-text="true"
-                                />
-                            </div>
-                            <zoomer
-                                class="img-obj-container "
-                                v-if="masterImage"
-                                :zoom="zoomLevel"
-                                @new-zoom="onNewZoom($event)"
-                            >
-                                <svg
-                                    class="overlay"
-                                    :height="actualHeight"
-                                    :width="actualWidth"
+                </toolbox>
+            </imaged-object-editor-toolbar>
+            <div id="imaged-object-title" v-if="imagedObject">
+                {{ imagedObject.id }}
+                <edition-icons
+                    :edition="edition"
+                    :show-text="true"
+                />
+            </div>
+            <div id="imaged-object-container">
+                <zoomer
+                    class="img-obj-container "
+                    v-if="masterImage"
+                    :zoom="zoomLevel"
+                    @new-zoom="onNewZoom($event)"
+                >
+                    <svg
+                        class="overlay"
+                        :height="actualHeight"
+                        :width="actualWidth"
 
-                                    :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
-                                >
-
-                                    <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
-
-                                    <g
-                                        v-if="artefact"
-                                        :transform="transform"
-                                        id="transform-root"
-                                    >
-                                        <!-- Coordinate system is in master image coordinates -->
-
-
-                                        <image-layer
-                                            :width="imageWidth"
-                                            :height="imageHeight"
-                                            :params="params"
-                                            :editable="canEdit"
-                                            :clipping-mask="artefact.mask"
-                                        />
-                                        <artefact-layer
-                                            :selected="art.id === artefact.id"
-                                            v-for="art in visibleArtefacts"
-                                            :artefact="art"
-                                            :key="art.id"
-                                            :color=
-                                                "removeColor ?
-                                                'none' :   getArtefactColor(art)
-                                                "
-                                        />
-                                        <boundary-drawer
-                                            v-if="canEdit && artefact"
-                                            :color=
-                                            " isErasing ?
-                                             'black'
-                                             :
-                                             getArtefactColor(artefact)
-                                            "
-                                            transform-root-id="transform-root"
-                                            @new-polygon="onNewPolygon($event)"
-                                        />
-                                    </g>
-                                </svg>
-                            </zoomer>
-                        </div>
-                    </div>
-                </b-col>
-                <b-col class="pt-3 pr-3 pr-md-1 mr-0 col-rename-art" cols="4" >
-                    <div
-                        v-for="art in visibleArtefacts"
-                        :key="art.id"
-                        :class="{
-                            selectedRow: art.id === artefact.id,
-                        }"
+                        :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
                     >
-                        <b-row class="py-2">
-                            <b-col class="col-2 col-xl-3 col-lg-2 pl-4 pt-1">
-                                <span
+
+                        <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
+
+                        <g
+                            v-if="artefact"
+                            :transform="transform"
+                            id="transform-root"
+                        >
+                            <!-- Coordinate system is in master image coordinates -->
+
+
+                            <image-layer
+                                :width="imageWidth"
+                                :height="imageHeight"
+                                :params="params"
+                                :editable="canEdit"
+                                :clipping-mask="artefact.mask"
+                            />
+                            <artefact-layer
+                                :selected="art.id === artefact.id"
+                                v-for="art in visibleArtefacts"
+                                :artefact="art"
+                                :key="art.id"
+                                :color=
+                                    "removeColor ?
+                                    'none' :   getArtefactColor(art)
+                                    "
+                            />
+                            <boundary-drawer
+                                v-if="canEdit && artefact"
+                                :color=
+                                " isErasing ?
+                                    'black'
+                                    :
+                                    getArtefactColor(artefact)
+                                "
+                                transform-root-id="transform-root"
+                                @new-polygon="onNewPolygon($event)"
+                            />
+                        </g>
+                    </svg>
+                </zoomer>
+            </div>
+            <div id="imaged-object-artefacts">
+                <div
+                    v-for="art in visibleArtefacts"
+                    :key="art.id"
+                    :class="{
+                        selectedRow: art.id === artefact.id,
+                    }"
+                >
+                    <b-row class="py-2">
+                        <b-col class="col-2 col-xl-3 col-lg-2 pl-4 pt-1">
+                            <span
+                                v-if="renameInputActive !== art"
+                                :class="{
+                                    selected: art.id === artefact.id,
+                                }"
+                                @click="onArtefactChanged(art)"
+                                class="rename-art"
+                                :style="{
+                                    color: getArtefactColor(art),
+                                    backgroundColor: getArtefactColor(art),
+                                }"
+                            >
+                                &nbsp;
+                            </span>
+                        </b-col>
+                        <b-col class="col-5 col-xl-4 col-lg-4 col-md-6 ">
+                            <span
+                                v-if="renameInputActive !== art"
+                                :class="{
+                                    selected: art.id === artefact.id,
+                                }"
+                                class="select-art-name"
+                                @click="onArtefactChanged(art)"
+                                >{{ art.name }}</span
+                            >
+                        </b-col>
+                        <b-col class="col-4 col-xl-5 col-lg-5 col-md-4 mr-0 px-0">
+                            <div v-if="canEdit">
+                                <b-button
                                     v-if="renameInputActive !== art"
-                                    :class="{
-                                        selected: art.id === artefact.id,
-                                    }"
-                                    @click="onArtefactChanged(art)"
-                                    class="rename-art"
-                                    :style="{
-                                        color: getArtefactColor(art),
-                                        backgroundColor: getArtefactColor(art),
-                                    }"
+                                    class="btn btn-sm mb-1"
+                                    id="rename"
+                                    @click="inputRenameChanged(art)"
+                                    >Rename</b-button
                                 >
-                                    &nbsp;
-                                </span>
-                            </b-col>
-                            <b-col class="col-5 col-xl-4 col-lg-4 col-md-6 ">
-                                <span
-                                    v-if="renameInputActive !== art"
-                                    :class="{
-                                        selected: art.id === artefact.id,
-                                    }"
-                                    class="select-art-name"
-                                    @click="onArtefactChanged(art)"
-                                    >{{ art.name }}</span
+                                <input
+                                    v-if="renameInputActive === art"
+                                    v-model="art.name"
+                                />
+                                <b-button
+                                    v-if="
+                                        !renaming &&
+                                        renameInputActive === art
+                                    "
+                                    class="btn btn-sm "
+                                    :disabled="!art.name"
+                                    @click="onRename(art)"
+                                    >Rename</b-button
                                 >
-                            </b-col>
-                            <b-col class="col-4 col-xl-5 col-lg-5 col-md-4 mr-0 px-0">
-                                <div v-if="canEdit">
-                                    <b-button
-                                        v-if="renameInputActive !== art"
-                                        class="btn btn-sm mb-1"
-                                        id="rename"
-                                        @click="inputRenameChanged(art)"
-                                        >Rename</b-button
-                                    >
-                                    <input
-                                        v-if="renameInputActive === art"
-                                        v-model="art.name"
-                                    />
-                                    <b-button
-                                        v-if="
-                                            !renaming &&
-                                            renameInputActive === art
-                                        "
-                                        class="btn btn-sm "
-                                        :disabled="!art.name"
-                                        @click="onRename(art)"
-                                        >Rename</b-button
-                                    >
-                                    <b-button
-                                        v-if=
-                                        "
-                                          renameInputActive === art
-                                           && renaming
-                                        "
-                                        disabled
-                                        class="disable btn btn-sm"
-                                    >
-                                        Renaming...
-                                        <font-awesome-icon
-                                            icon="spinner"
-                                            spin
-                                        ></font-awesome-icon>
-                                    </b-button>
-                                    <b-button
-                                        class="btn btn-sm ml-2 mb-1"
-                                        @click="onDeleteArtefact(art)"
-                                        >Delete</b-button
-                                    >
-                                </div>
-                            </b-col>
-                        </b-row>
-                    </div>
-                </b-col>
-            </b-row>
+                                <b-button
+                                    v-if=
+                                    "
+                                        renameInputActive === art
+                                        && renaming
+                                    "
+                                    disabled
+                                    class="disable btn btn-sm"
+                                >
+                                    Renaming...
+                                    <font-awesome-icon
+                                        icon="spinner"
+                                        spin
+                                    ></font-awesome-icon>
+                                </b-button>
+                                <b-button
+                                    class="btn btn-sm ml-2 mb-1"
+                                    @click="onDeleteArtefact(art)"
+                                    >Delete</b-button
+                                >
+                            </div>
+                        </b-col>
+                    </b-row>
+                </div>
+            </div>
         </div>
         <b-modal
             id="newModal"
@@ -248,6 +239,7 @@ import ImagedObjectEditorToolbar from './imaged-object-editor-toolbar.vue';
 import { DropdownOption } from '@/utils/helpers';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { ImagedObjectState } from '../../state/imaged-object';
+import Toolbox from '@/components/toolbars/toolbox.vue';
 
 @Component({
     name: 'imaged-object-editor',
@@ -259,6 +251,7 @@ import { ImagedObjectState } from '../../state/imaged-object';
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
         'zoomer': Zoomer,
         'edition-icons': EditionIcons,
+        'toolbox': Toolbox,
     },
 })
 export default class ImagedObjectEditor
@@ -742,30 +735,34 @@ export default class ImagedObjectEditor
     /* margin-right: 5%;
     margin-left: 5%; */
     /* height: calc(100vh - 95px); */
-    overflow: hidden;
-    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 67% 33%;
+    grid-template-rows: $toolbar-height 50px 1fr;
 }
 
-.editor-actions {
-    height: 70px;
+#imaged-object-toolbar {
+    grid-column: 1/3;
+    grid-row: 1/2;
 }
 
-.content-container {
-    height: calc(100vh - 12rem);
+#imaged-object-title {
+    grid-column: 1/2;
+    grid-row: 2/3;
+    text-align: center;
+}
+
+#imaged-object-container {
+    grid-column: 1/2;
+    grid-row: 3/4;
+    height: 100%;
     width: 100%;
-    overflow: none;
+    overflow: auto;
 }
 
-.image-obj-container-height {
-    width: 99%;
-    margin-left: 0.1rem;
-    margin-bottom: 0.1rem;
+#imaged-object-artefacts {
+    grid-column: 2/3;
+    grid-row: 2/4;
 }
-
-.img-obj-container {
-    width: 99%;
-}
-
 
 span.selected {
     font-weight: bold;
