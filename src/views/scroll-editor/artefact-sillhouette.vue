@@ -64,7 +64,7 @@ export default class ArtefactSillouhette extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 path {
     stroke: black;
     stroke-width: 1px;

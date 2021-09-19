@@ -54,7 +54,7 @@ export default class CitationModal extends Vue {
 }
 
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 .title-header {

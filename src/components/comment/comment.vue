@@ -97,7 +97,7 @@ export default class CommentComponent extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #comment-area {
     margin: 8px;
     display: flex;

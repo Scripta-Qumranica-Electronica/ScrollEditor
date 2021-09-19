@@ -241,7 +241,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .popover-body {
     margin-left: 10px;
 }

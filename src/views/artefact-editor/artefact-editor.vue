@@ -89,7 +89,7 @@
                 </div>
                 <div
                     id="artefact-image"
-                    class="artefact-image-container"
+                    class="border-right"
                     ref="infoBox"
                 >
                     <zoomer
