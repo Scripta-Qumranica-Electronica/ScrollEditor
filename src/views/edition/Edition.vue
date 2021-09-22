@@ -9,24 +9,23 @@
                             {{  versionString(currentEdition)  }}
                         </span>
                     </router-link>
+                </b-col>
+
+                <b-col class="col-7 mt-4 mb-3">
+                    <div class="btns-permiss" v-if="currentEdition">
                        <b-button
-                            class="ml-2"
+                            class="mr-2"
                             v-if="currentEdition && user"
                             v-b-modal.copy-edition-modal
                             :title="copyTooltip"
-                            variant="link"
                         >
 
                             <i v-if ="currentEdition.isPublic" class="fa fa-lock mr-1">
                             </i>
                             {{ $t('misc.copy') }}
                         </b-button>
-                </b-col>
-
-                <b-col class="col-7 mt-4 mb-3">
-                    <div class="btns-permiss" v-if="currentEdition">
                         <b-button
-                            class="mr-3"
+                            class="mr-2"
                             v-if="isAdmin"
                             @click="openPermissionModal"
                         >
@@ -60,6 +59,10 @@
                         :to="`/editions/${editionId}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
+                    <b-button
+                        variant="outline-primary"
+                        :to="`/editions/${editionId}/metadata`"
+                        >More Info</b-button>
                 </b-button-group>
             </div>
         </div>

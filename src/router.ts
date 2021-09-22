@@ -15,7 +15,7 @@ import Activation from './views/user/Activation.vue';
 import ConfirmInvitation from './views/edition/components/confirm-invitation.vue';
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
-
+import EditionMetadata from './views/edition/components/metadata.vue';
 
 Vue.use(Router);
 
@@ -54,7 +54,10 @@ export default new Router({
                     path: 'imaged-objects',
                     component: EditionImagedObjects
                 },
-
+                {
+                    path: 'metadata',
+                    component: EditionMetadata,
+                },
                 {
                     path: '',
                     redirect: '/editions/:editionId/artefacts'
