@@ -30,8 +30,11 @@ You are permitted to use images for non-commercial uses such as lectures, public
 For more information on licensing please contact us at contact@deadseascrolls.org.il</p>
                 <p>
                     Text © Reinhard G. Kratz
-                    <br>
-                    Provided by Reinhard G. Kratz, Ingo Kottsieper, and Annette Steudel on the basis of a text provided by the Qumran-Wörterbuch of the Göttingen Academy of Sciences, \nwhich is based upon a preliminary text provided by Martin Abegg.\n\nThis work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. \nTo view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0/legalcode \nor send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+                </p>
+                <p>
+                    Provided by Reinhard G. Kratz, Ingo Kottsieper, and Annette Steudel on the basis of a text provided by the Qumran-Wörterbuch of the Göttingen Academy of Sciences, which is based upon a preliminary text provided by Martin Abegg.
+                </p>
+                <p>This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit <a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode">https://creativecommons.org/licenses/by-sa/4.0/legalcode</a> or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
                 </p>
             </b-container>
 
