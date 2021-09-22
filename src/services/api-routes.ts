@@ -31,6 +31,10 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}`;
     }
 
+    export function editionMetadataUrl(editionId: number) {
+        return `${baseUrl}/${editions}/${editionId}/metadata`;
+    }
+
     export function editionFullTextUrl(editionId: number) {
         return `${baseUrl}/${editions}/${editionId}/full-text`;
     }

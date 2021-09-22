@@ -205,7 +205,7 @@ export default class ScrollArea extends Vue {
         return zoom;
     }
 
-    private get currentScript(): ScriptData | undefined {
+    private get currentScript(): ScriptData | null {
         return this.$state.editions.current!.script;
     }
 

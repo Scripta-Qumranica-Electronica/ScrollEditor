@@ -7,7 +7,7 @@
             <b-col class="col-5">
                 <b-form-input
                     v-model="searchData.textDesignation"
-                    placeholder="Enter your text designation"
+                    placeholder="Manuscript/text number, e.g., 3Q4"
                 ></b-form-input>
             </b-col>
             <b-col class="col-1">
@@ -25,8 +25,7 @@
             <b-col class="col-5">
                 <b-form-input
                     v-model="searchData.imageDesignation"
-                    placeholder="Enter Image object "
-                    v-b-tooltip.hover.topleft="'IAA-Plate(-Fragment).   e.g. IAA-1093-1'"
+                    placeholder="IAA-Plate(-Fragment).   e.g. IAA-1093-1"
                 ></b-form-input>
             </b-col>
             <b-col class="col-1">
@@ -45,7 +44,7 @@
                 <b-form-textarea
                     id="textarea"
                     @input="textToArray($event, 'textReference')"
-                    placeholder="Enter Text Reference"
+                    placeholder="Designation for a portion of text, e.g., Frg. 134"
                     rows="3"
                     max-rows="6"
                 ></b-form-textarea>
@@ -66,7 +65,7 @@
                 <b-form-textarea
                     id="textarea"
                     @input="textToArray($event, 'artefactDesignation')"
-                    placeholder="Enter artefact"
+                    placeholder="Designation for a manuscript fragment, e.g., Frg. 134"
                     rows="3"
                     max-rows="6"
                 ></b-form-textarea>
