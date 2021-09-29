@@ -57,7 +57,7 @@ class ProcessTracking {
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
     'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess' | 'attributeMetadataProcess' | 'editionScriptProcess' |
-    'editionFullTextProcess' | 'editionMetadata';
+    'editionFullTextProcess' | 'editionMetadataProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -105,7 +105,7 @@ export default class StateService {
     }
 
     public async editionMetadata(editionId: number): Promise<void> {
-        return this.wrapInternal('editionMetadata', editionId, (id: number) => this.editionMetadataInternal(id));
+        return this.wrapInternal('editionMetadataProcess', editionId, (id: number) => this.editionMetadataInternal(id));
     }
 
     public async invitations(editionId: number): Promise<void> {
