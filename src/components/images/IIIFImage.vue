@@ -4,6 +4,7 @@
             :xlink:href="backgroundImageUrl"
             :transform="backgroundImageTransform"
             :opacity="opacity"
+            @error="onBackgroundLoadError()"
         />
         <image
             v-for="(tile, idx) in tiles"
@@ -123,6 +124,7 @@ export default class IIIFImageComponent extends Vue {
     private tiles: TileInfo[] = [];
     private observer?: ResizeObserver;
     private refreshTimeoutId: number | null = null;
+    private backgroundLoadError = false;
 
     private static CHECK_IN_VIEW_TIMEOUT = 50; // Update tiles in view 50ms after scroll or resize
 
@@ -415,7 +417,10 @@ export default class IIIFImageComponent extends Vue {
         return scale;
     }
 
-    protected get backgroundImageUrl(): string {
+    protected get backgroundImageUrl(): string | null {
+        if (this.backgroundLoadError) {
+            return null;
+        }
         return this.image.getScaledAndCroppedUrl(
             this.backgroundImageScale,
             this.imageBoundingBox.x,
@@ -427,6 +432,13 @@ export default class IIIFImageComponent extends Vue {
 
     protected get backgroundImageTransform(): string {
         return `scale(${100 / this.backgroundImageScale })`; // Scale the image back to 100%
+    }
+
+    protected onBackgroundLoadError() {
+        this.backgroundLoadError = true;
+        setTimeout(() => {
+            this.backgroundLoadError = false;
+        }, 100); // Try again in 100ms. Never stop trying.
     }
 
     private get groupTransform(): string {
