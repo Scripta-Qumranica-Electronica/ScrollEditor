@@ -401,10 +401,23 @@ export default class IIIFImageComponent extends Vue {
     //     return tiles;
     // }
 
-    // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles
-    private get backgroundImageUrl(): string {
+    // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles.
+    // The IIA IIIF server has a hard limit of 1000x1000 tiles. We want the scaled down image to fit in just one
+    // tile - it is enough for removing the rounding artefacts.
+    private get backgroundImageScale(): number {
+        // Return the scale in percentages
+        const max = Math.max(this.imageBoundingBox.width, this.imageBoundingBox.height); // Max dimension of image
+        let scale = 1000 / max * 100;  // Scale down (in percents) of max dimension down to 1000
+        scale = Math.floor(scale);
+        scale = Math.min(5, scale);  // No more than 5% of the original image - anyway
+
+        console.debug('Low res scale of ', scale);
+        return scale;
+    }
+
+    protected get backgroundImageUrl(): string {
         return this.image.getScaledAndCroppedUrl(
-            5,
+            this.backgroundImageScale,
             this.imageBoundingBox.x,
             this.imageBoundingBox.y,
             this.imageBoundingBox.width,
@@ -412,8 +425,8 @@ export default class IIIFImageComponent extends Vue {
         );
     }
 
-    private get backgroundImageTransform(): string {
-        return 'scale(20)';
+    protected get backgroundImageTransform(): string {
+        return `scale(${100 / this.backgroundImageScale })`; // Scale the image back to 100%
     }
 
     private get groupTransform(): string {
