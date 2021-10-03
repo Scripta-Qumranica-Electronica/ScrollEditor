@@ -15,7 +15,7 @@ import {
     CreateArtefactGroupDTO,
     ArtefactGroupDTO,
     ArtefactGroupListDTO,
-    UpdateEditionManuscriptMetricsDTO, AttributeListDTO, ScriptDataDTO, ScriptDataListDTO, PlacementDTO
+    UpdateEditionManuscriptMetricsDTO, AttributeListDTO, ScriptDataDTO, ScriptDataListDTO, PlacementDTO, EditionManuscriptMetadataDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -70,6 +70,12 @@ class EditionService {
         const response = await CommHelper.get<EditionListDTO>(
             ApiRoutes.manuscriptEditions(manuscriptId)
         );
+
+        return response.data;
+    }
+
+    public async getEditionMetadata(editionId: number): Promise<EditionManuscriptMetadataDTO> {
+        const response = await CommHelper.get<EditionManuscriptMetadataDTO>(ApiRoutes.editionMetadataUrl(editionId));
 
         return response.data;
     }

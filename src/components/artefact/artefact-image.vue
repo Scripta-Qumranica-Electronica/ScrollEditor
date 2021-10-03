@@ -10,7 +10,8 @@
                 :image="imageSetting.image"
                 :opacity="imageSetting.normalizedOpacity"
                 :boundingBox="boundingBox"
-                :maxWidth="maxWidth"/>
+                :maxWidth="maxWidth"
+                :dynamic="false"/>
         </g>
         <path v-if="artefact.isVirtual"
                 class="virtual-path"

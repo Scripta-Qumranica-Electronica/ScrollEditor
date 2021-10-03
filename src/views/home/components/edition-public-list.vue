@@ -6,7 +6,7 @@
         v-slot="{ item }">
         
         <edition-public-row
-            @edition-copy-click="openCopyEditionModal(edition)"
+            @edition-copy-click="openCopyEditionModal"
             :editions="editions" 
             :key="item"
             :index="item" />

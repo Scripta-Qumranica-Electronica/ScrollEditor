@@ -57,7 +57,7 @@ class ProcessTracking {
 
 type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
     'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess' | 'attributeMetadataProcess' | 'editionScriptProcess' |
-    'editionFullTextProcess';
+    'editionFullTextProcess' | 'editionMetadataProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -77,6 +77,7 @@ export default class StateService {
     private attributeMetadataProcess: ProcessTracking | undefined;
     private editionScriptProcess: ProcessTracking | undefined;
     private editionFullTextProcess: ProcessTracking | undefined;
+    private editionMetadataProcess: ProcessTracking | undefined;
     // TODO: Add process for artefactGroups
 
     public constructor(state: StateManager) {
@@ -101,6 +102,10 @@ export default class StateService {
 
     public async editionScript(editionId: number): Promise<void> {
         return this.wrapInternal('editionScriptProcess', editionId, (id: number) => this.editionScriptInternal(id));
+    }
+
+    public async editionMetadata(editionId: number): Promise<void> {
+        return this.wrapInternal('editionMetadataProcess', editionId, (id: number) => this.editionMetadataInternal(id));
     }
 
     public async invitations(editionId: number): Promise<void> {
@@ -230,6 +235,7 @@ export default class StateService {
         this.artefactGroups(editionId);
         this.attributeMetadata(editionId);
         this.editionScript(editionId);
+        this.editionMetadata(editionId);
         await Promise.all([
             this.imagedObjectsProcess!.promise,
             this.artefactsProcess!.promise,
@@ -254,15 +260,27 @@ export default class StateService {
         if (this._state.editions.current?.id !== editionId) {
             throw new Error(`Can't fetch script for non-current edition ${editionId}`);
         }
-        this._state.editions.current!.script = undefined;
+        this._state.editions.current!.script = null;
 
         const svc = new EditionService();
         const dto = await svc.getScribalFont(editionId);
         if (!dto.scripts || !dto.scripts.length) {
+            // This should be fixed in the backend at some point.
             console.warn(`Edition ${editionId} has no script data`);
-            return;
+        } else {
+            this._state.editions.current!.script = new ScriptData(dto.scripts[0]);
         }
-        this._state.editions.current!.script = new ScriptData(dto.scripts[0]);
+    }
+
+    private async editionMetadataInternal(editionId: number) {
+        if (this._state.editions.current?.id !== editionId) {
+            throw new Error(`Can't fetch metadata for non-current edition ${editionId}`);
+        }
+
+        this._state.editions.current!.metadata = null;
+        const svc = new EditionService();
+        const dto = await svc.getEditionMetadata(editionId);
+        this._state.editions.current!.metadata = dto;
     }
 
     private async textFragmentsInternal(editionId: number) {

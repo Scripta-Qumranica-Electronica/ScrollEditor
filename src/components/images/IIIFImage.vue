@@ -1,17 +1,21 @@
 <template>
-    <g v-if="image" :transform="groupTransform">
+    <g v-if="image" :transform="groupTransform" ref="imageGroup">
         <image
             :xlink:href="backgroundImageUrl"
             :transform="backgroundImageTransform"
             :opacity="opacity"
+            @error="onBackgroundLoadError()"
         />
         <image
-            v-for="(tile, idx) in tiles.filter((x) => x.display)"
+            v-for="(tile, idx) in tiles"
             :key="`iiif-image-${image.id}-tile-${idx}`"
+            :id="`iiif-image-${image.id}-tile-${idx}`"
+            :width="tile.width"
+            :height="tile.height"
             :xlink:href="tile.url"
             :opacity="opacity"
             :transform="tile.transform"
-            @error="retryOnError(tile.url)"
+            @error="tile.onLoadError()"
         />
     </g>
 </template>
@@ -56,11 +60,54 @@ interface ManifestTileInfo {
     scaleFactors: number[];
 }
 
-interface TileInfo {
-    url: string;
-    transform: string;
-    display: boolean;
-    retries: number;
+class TileInfo {
+    private static RETRY_LIMIT = 10;
+
+    public transform: string;
+    public loadError: boolean;
+    private _inView: boolean;
+    public retries: number;
+    public width: number;
+    public height: number;
+    private _url: string;
+    public get url() {
+        return this.inView && !this.loadError ? this._url : null;
+    }
+
+    public get inView() {
+        return this._inView;
+    }
+
+    public set inView(val: boolean) {
+        // When an item has been in view, keep it displayed, so it will not need to be refreshed
+        this._inView ||= val;
+    }
+
+    public constructor(
+        url: string,
+        transform: string,
+        width: number,
+        height: number
+    ) {
+        this.transform = transform;
+        this._url = url;
+        this.width = width;
+        this.height = height;
+        this.loadError = false;
+        this.retries = 0;
+        this._inView = false;
+    }
+
+    protected onLoadError() {
+        this.loadError = true;
+        this.retries += 1;
+        if (this.retries >= TileInfo.RETRY_LIMIT) {
+            console.error(`Giving up loading ${this._url} after ${this.retries}`);
+        }
+        setTimeout(() => {
+            this.loadError = false;
+        }, 50 * this.retries); // Try again after a little while (wait longer after more retries)
+    }
 }
 
 @Component({
@@ -72,14 +119,54 @@ export default class IIIFImageComponent extends Vue {
     @Prop({ default: 0.5 }) private scaleFactor!: number;
     @Prop() private maxWidth?: number; // In Screen Coordinates
     @Prop({ default: 1 }) private opacity!: number;
+    @Prop({ default: true}) private dynamic!: boolean;
 
-    private retryLimit = 10;
     private tiles: TileInfo[] = [];
+    private observer?: ResizeObserver;
+    private refreshTimeoutId: number | null = null;
+    private backgroundLoadError = false;
+
+    private static CHECK_IN_VIEW_TIMEOUT = 50; // Update tiles in view 50ms after scroll or resize
+
+    protected get surroundingDiv() {
+        const imageGroup = this.$refs.imageGroup as SVGGElement;
+        const svg = imageGroup.ownerSVGElement!;
+        const div = svg.closest('div')!;
+
+        return div;
+    }
 
     public mounted() {
+        const div = this.surroundingDiv;
+        div.addEventListener('scroll', () => {
+            this.onSurroundingChanged();
+        });
+        this.observer = new ResizeObserver(() => this.onSurroundingChanged());
+        this.observer!.observe(div);
+
         this.loadTiles();
         // this.scaleFactor = 0;
         // this.scaleFactor = this.scaleFactor;
+    }
+
+    public destroyed() {
+        const div = this.surroundingDiv;
+        div.removeEventListener('scroll', () => {
+            this.onSurroundingChanged();
+        });
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    }
+
+    private onSurroundingChanged() {
+        if (this.refreshTimeoutId) {
+            window.clearTimeout(this.refreshTimeoutId);
+        }
+        this.refreshTimeoutId = window.setTimeout(() => {
+            this.checkTilesInView();
+            this.refreshTimeoutId = null;
+        }, IIIFImageComponent.CHECK_IN_VIEW_TIMEOUT);
     }
 
     @Watch('scaleFactor')
@@ -98,10 +185,9 @@ export default class IIIFImageComponent extends Vue {
     private loadTiles() {
         // If the bounding box has no width or height, don't go any further; nothing to display
         if (
-            [
-                this.imageBoundingBox.width,
-                this.imageBoundingBox.height,
-            ].includes(0)
+            !this.imageBoundingBox.width ||
+            !this.imageBoundingBox.height ||
+            !this.image
         ) {
             return;
         }
@@ -136,20 +222,48 @@ export default class IIIFImageComponent extends Vue {
                     currentTileWidth + 1,
                     currentTileHeight + 1
                 );
-                const tile = {
+                const tile = new TileInfo(
                     url,
-                    transform: `translate(${xTranslate}, ${yTranslate})`,
-                    width: currentTileWidth * this.optimizedImageScaleFactor,
-                    height: currentTileHeight * this.optimizedImageScaleFactor,
-                    display: true,
-                    retries: 0,
-                };
-                // console.debug(`tile (${x}, ${y}, ${currentTileWidth}, ${currentTileHeight})`);
+                    `translate(${xTranslate}, ${yTranslate})`,
+                    currentTileWidth * this.optimizedImageScaleFactor,
+                    currentTileHeight * this.optimizedImageScaleFactor
+                );
+                if (!this.dynamic) {
+                    tile.inView = true;
+                }
+
                 this.tiles.push(tile);
                 yTranslate +=
                     currentTileHeight * this.optimizedImageScaleFactor; // For some reason without the -1 we see thin lines between tiles
             }
             xTranslate += currentTileWidth * this.optimizedImageScaleFactor;
+        }
+
+        this.$nextTick(() => {
+            this.checkTilesInView();
+        });
+    }
+
+    private checkTilesInView() {
+        if (!this.dynamic) {
+            return;
+        }
+        const div = this.surroundingDiv;
+        const bboxDiv = { left: div.offsetLeft, top: div.offsetTop, right: div.offsetLeft + div.clientWidth, bottom: div.offsetTop + div.clientHeight };
+        // console.debug('Div scrolled-area ', div, ' bounding box ', bboxDiv);
+
+        for (const [idx, tile] of this.tiles.entries()) {
+            const tileId = `iiif-image-${this.image.id}-tile-${idx}`;
+            const tileElement = document.getElementById(tileId) as SVGImageElement | null;
+            if (!tileElement) {
+                // console.debug(`Can't locate element for tile ${tileId}`);
+                continue;
+            }
+            const bbox = tileElement.getBoundingClientRect();
+
+            const inView = bbox.left <= bboxDiv.right && bboxDiv.left <= bbox.right && bbox.top <= bboxDiv.bottom && bboxDiv.top <= bbox.bottom;
+            tile.inView = inView;
+            // console.debug(`Tile ${idx} bounding box:`, tileElement.getBoundingClientRect(), 'inView: ', inView);
         }
     }
 
@@ -289,10 +403,26 @@ export default class IIIFImageComponent extends Vue {
     //     return tiles;
     // }
 
-    // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles
-    private get backgroundImageUrl(): string {
+    // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles.
+    // The IIA IIIF server has a hard limit of 1000x1000 tiles. We want the scaled down image to fit in just one
+    // tile - it is enough for removing the rounding artefacts.
+    private get backgroundImageScale(): number {
+        // Return the scale in percentages
+        const max = Math.max(this.imageBoundingBox.width, this.imageBoundingBox.height); // Max dimension of image
+        let scale = 1000 / max * 100;  // Scale down (in percents) of max dimension down to 1000
+        scale = Math.floor(scale);
+        scale = Math.min(5, scale);  // No more than 5% of the original image - anyway
+
+        console.debug('Low res scale of ', scale);
+        return scale;
+    }
+
+    protected get backgroundImageUrl(): string | null {
+        if (this.backgroundLoadError) {
+            return null;
+        }
         return this.image.getScaledAndCroppedUrl(
-            5,
+            this.backgroundImageScale,
             this.imageBoundingBox.x,
             this.imageBoundingBox.y,
             this.imageBoundingBox.width,
@@ -300,8 +430,15 @@ export default class IIIFImageComponent extends Vue {
         );
     }
 
-    private get backgroundImageTransform(): string {
-        return 'scale(20)';
+    protected get backgroundImageTransform(): string {
+        return `scale(${100 / this.backgroundImageScale })`; // Scale the image back to 100%
+    }
+
+    protected onBackgroundLoadError() {
+        this.backgroundLoadError = true;
+        setTimeout(() => {
+            this.backgroundLoadError = false;
+        }, 100); // Try again in 100ms. Never stop trying.
     }
 
     private get groupTransform(): string {
@@ -315,45 +452,6 @@ export default class IIIFImageComponent extends Vue {
         const translateTransform = `translate(${this.sqeBoundingBox.x}, ${this.sqeBoundingBox.y})`;
 
         return translateTransform + ' ' + scaleTransform;
-    }
-
-    private retryOnError(url: string): void {
-        // Note: this is called when an images faills to load (maybe a 500 error)
-        // We want to try loading again, so we set the display value for the object
-        // to false and update by removing and readding it to this.tiles (perhaps it
-        // could be done with Vue.set).  Then we set a timer for it to turn display
-        // back to true (and we wait a little longer each iteration until success or
-        // we hit the retry limit).
-        // Note that I tried earlier to just get the actual <image> DOM element
-        // and to reset the xlink:href attribute, but that didn't seem to trigger
-        // an attempt to reload the image.  Doing it the vue way seems to work fine.
-        let retry = 1;
-        this.tiles = this.tiles.map((x) => {
-            if (x.url === url) {
-                x.display = false;
-                retry = x.retries;
-            }
-            return x;
-        });
-
-        if (retry < this.retryLimit) {
-            // Give the server a little breathing room to try again
-            // by backing off a little more on each retry of a single image.
-            setTimeout(() => {
-                this.tiles = this.tiles.map((x) => {
-                    if (x.url === url) {
-                        x.display = true;
-                        x.retries += 1;
-                    }
-                    return x;
-                });
-            }, 20 * retry);
-            return;
-        }
-
-        // This is apparently an error that cannot be recovered.
-        // How should it be handled? Maybe alert the user?
-        console.error(`After ${retry} attempts, could not fetch image: ${url}`);
     }
 }
 </script>

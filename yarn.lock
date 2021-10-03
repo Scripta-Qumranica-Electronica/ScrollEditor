@@ -2106,13 +2106,6 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@yutahaga/vue-media-breakpoints@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@yutahaga/vue-media-breakpoints/-/vue-media-breakpoints-0.6.1.tgz#90498a961ec7db88783b66fc3409bd73623f8d4b"
-  integrity sha512-YQCHygih3nLVVJChTjumTdjDIPT3yEsxt7BB9lN+31pXi1BvYiLcadXz2IHV2Qb8+EAGiaRGpeTl/lnZRO2Nfw==
-  dependencies:
-    tslib "^1.9.3"
-
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"

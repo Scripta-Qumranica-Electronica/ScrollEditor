@@ -319,7 +319,7 @@ span.highlighted {
 
 
 </style>
-<style lang="scss">
+<style lang="scss" scoped>
 .popover-sign-body .popover-body {
     margin: 0;
 }

@@ -19,7 +19,7 @@ export default class Toolbar extends Vue {
 @import '@/assets/styles/_variables.scss';
 
 .toolbar {
-    height: 70px;
+    height: $toolbar-height;
     padding: 10px;
     // background: $white;
 }

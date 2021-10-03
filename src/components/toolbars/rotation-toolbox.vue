@@ -65,7 +65,7 @@ export default class RotationToolbox extends Vue {
 
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 .input-lg {
     max-width: 3.5rem;
     padding-left: 4px;

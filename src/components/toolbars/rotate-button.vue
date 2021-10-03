@@ -66,7 +66,9 @@ export default class RepeatButton extends Vue {
 
     protected stopRepeat() {
         if (!this.pressed) {
-            console.warn("Can't stop repeating of not pressed");
+            // This sometimes happens when the browser window is brought to focus - the mouse up event is fired
+            // without a mouse down. No need to do anything here.
+            return;
         }
 
         this.pressed = false;

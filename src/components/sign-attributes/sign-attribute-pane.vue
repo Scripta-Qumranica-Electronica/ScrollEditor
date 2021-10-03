@@ -1,7 +1,7 @@
 <template>
-    <div class="attributes ">
-        <ul class="row m-0 mt-1 p-0 ">
-            <li class="m-0 p-0 pr-1" v-if="!readOnly">
+    <div class="attributes border-top">
+        <ul class="attribute-list">
+            <li v-if="!readOnly" class="attribute-pane-add-attribute">
                 <b-dropdown
                     ref="attributesMenu"
                     :disabled="!selectedSignInterpretations.length"
@@ -20,7 +20,7 @@
                         v-for="attr in attributesMenu"
                         :key="attr.attributeId"
                         variant="link"
-                        class="dropdown-attr"
+                        class="attribute-pane-dropdown-attr"
                         dropright
                         @show="onValuesMenuShow()"
                         @hide="onValuesMenuHide()"
@@ -40,11 +40,11 @@
                 </b-dropdown>
             </li>
             <li
-                class="pr-2"
                 v-for="attribute in attributes"
                 :key="attribute.interpretationAttributeId"
             >
                 <sign-attribute
+                    class="attribute-pane-sign-pill"
                     :attribute="attribute"
                     @attribute-click="onAttributeClick(attribute)"
                 />
@@ -264,17 +264,14 @@ export default class SignAttributePane extends Vue {
 
 <style lang="scss" scoped>
 .attributes {
-    /* height: calc(36vh - 2rem); */
-    height: calc(30vh - 2rem);
-    border-top: 3px solid #6c757d;
     padding: 10px;
-    margin-top: 3.5rem;
-    margin-right: 13px;
     overflow-y: auto;
+}
 
-    ul {
-        list-style: none;
-    }
+.attribute-list {
+    display: flex;
+    list-style: none;
+    padding-left: 0px;
 }
 
 .btn-group > .btn,
@@ -288,7 +285,7 @@ export default class SignAttributePane extends Vue {
     border: 0px;
 }
 
-.dropdown-attr {
+.attribute-pane-dropdown-attr {
     width: 100%;
     height: 100%;
     .attr-name {
@@ -299,17 +296,6 @@ export default class SignAttributePane extends Vue {
 
 
     }
-    .btn-link {
-        font-weight: 400;
-        text-decoration: none;
-        width: 100%;
-        text-align: left;
-        padding-top: 0;
-        padding-bottom: 0;
-        color: inherit;
-
-
-    }
     ul {
         font-size: 12px;
     }
@@ -317,17 +303,19 @@ export default class SignAttributePane extends Vue {
 </style>
 
 <style lang="scss">
-.dropdown-attr {
-    width: 100%;
+// Styling inner elements of a dropdown doesn't work with scoping. We use really elaborate class names instead, to avoid conflicts.
 
-    .attr-name {
-        width: 100%;
-        display: inline-block;
-        font-size: 14px;
-        color: black;
-
-
+.attribute-pane-add-attribute {
+    .btn {
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        height: 22px;
     }
+}
+
+.attribute-pane-dropdown-attr {
     .btn-link {
         font-weight: 400;
         // color: #007bff;
@@ -338,12 +326,16 @@ export default class SignAttributePane extends Vue {
         padding-bottom: 0;
         color: inherit;
 
-        &::after{
-            color:black;
-        }
     }
     ul {
         font-size: 12px;
+    }
+}
+
+.attribute-pane-sign-pill {
+    margin-left: 4px;
+    .badge {
+        height: 20px;
     }
 }
 

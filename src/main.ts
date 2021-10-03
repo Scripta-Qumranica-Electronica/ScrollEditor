@@ -9,9 +9,6 @@ import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
-// vue media
-import { install as MediaBreakPointsPlugin } from '@yutahaga/vue-media-breakpoints';
-
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faLanguage, faSpinner, faSearch, faRedo, faUndo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus, faSquare, faPen,
@@ -22,7 +19,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Toasted from 'vue-toasted';
 import VueShortcuts from 'vue-shortcuts';
 import RenderingOptimizationPlugin from './plugins/rendering-optimization';
-import { GRID_BREAKPOINTS } from './plugins/media-breakpoints';
 
 // i18n
 import VueI18n from 'vue-i18n';
@@ -56,11 +52,6 @@ Vue.use(VueLazyload, {
 
 Vue.prototype.$state = StateManager.instance;
 Vue.use(BootstrapVue);
-
-Vue.use(MediaBreakPointsPlugin, {
-  breakPoints: GRID_BREAKPOINTS
-});
-
 
 library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus,
             faSquare, faPen, faMousePointer, faEraser, faTrash, faArrowUp, faArrowDown, faArrowLeft, faArrowRight );

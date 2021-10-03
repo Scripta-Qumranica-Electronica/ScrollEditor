@@ -50,6 +50,7 @@
                     :icon="mode.icon" />
             </toolbox>
             <undo-redo-toolbox />
+            <slot />
         </toolbar>
     </div>
 </template>
@@ -241,7 +242,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .popover-body {
     margin-left: 10px;
 }

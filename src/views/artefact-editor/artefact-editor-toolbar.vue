@@ -14,6 +14,7 @@
         />
         <adjust-image-toolbox :imageStack="imageStack" :params="params" @image-setting-changed="onImageSettingChanged"/>
         <undo-redo-toolbox />
+        <slot />
         <!-- <b-col>
         </b-col> -->
         <!-- <b-col class="col-5 col-md-6 col-sm-5 col-xs-5 position-rotate"> -->

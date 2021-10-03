@@ -1,6 +1,6 @@
 import { IIIFImage } from './image';
 import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO,
-    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO, AttributeValueDTO } from '@/dtos/sqe-dtos';
+    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO, AttributeValueDTO, EditionManuscriptMetadataDTO } from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 import { ScriptData } from './script';
@@ -140,7 +140,8 @@ class EditionInfo {
     // The following are loaded when necessary
     public textFragments: TextFragmentData[] = [];
     public artefactGroups: ArtefactGroup[];
-    public script?: ScriptData;
+    public script: ScriptData | null = null;
+    public metadata: EditionManuscriptMetadataDTO | null = null;
 
     public get ppm(): number {  // Pixels per milimeter
         return this.metrics.ppi / 25.4;

@@ -4,7 +4,7 @@
             <Waiting></Waiting>
         </div>
         <div v-if="!waiting" tabindex="0" @keydown="onKeyDown">
-            <div class="mt-4 editor-container">
+            <div id="editor-grid">
                 <b-row no-gutters align-v="center" class="mb-1 border-bottom">
                     <b-col class="col-12">
                         <scroll-top-toolbar
@@ -823,16 +823,14 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
+@import '@/assets/styles/_classes.scss';
 
 .header-actions {
     background-color: $white;
 }
-.editor-container {
-    background-color: $white;
-    margin-right: 1%;
-    margin-left: 1%;
-    height: calc(100vh - 100px);
-    /* height: calc(100vh - 180px); */
+
+#editor-grid {
+    @extend .editor;
 }
 
 #artefact-container {
