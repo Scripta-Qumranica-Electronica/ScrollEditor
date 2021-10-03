@@ -1,12 +1,12 @@
 <template>
-    <g v-if="image" :transform="groupTransform">
+    <g v-if="image" :transform="groupTransform" ref="imageGroup">
         <image
             :xlink:href="backgroundImageUrl"
             :transform="backgroundImageTransform"
             :opacity="opacity"
         />
         <image
-            v-for="(tile, idx) in tiles.filter((x) => x.display)"
+            v-for="(tile, idx) in tiles.filter((t) => t.display && t.inView)"
             :key="`iiif-image-${image.id}-tile-${idx}`"
             :xlink:href="tile.url"
             :opacity="opacity"
@@ -60,6 +60,7 @@ interface TileInfo {
     url: string;
     transform: string;
     display: boolean;
+    inView: boolean;
     retries: number;
 }
 
@@ -75,11 +76,41 @@ export default class IIIFImageComponent extends Vue {
 
     private retryLimit = 10;
     private tiles: TileInfo[] = [];
+    private observer?: ResizeObserver;
+
+    protected get surroundingDiv() {
+        const imageGroup = this.$refs.imageGroup as SVGGElement;
+        const svg = imageGroup.ownerSVGElement!;
+        const div = svg.closest('div')!;
+
+        return div;
+    }
 
     public mounted() {
+        const div = this.surroundingDiv;
+        div.addEventListener('scroll', () => { this.onSurroundingScroll(); });
+        this.observer = new ResizeObserver(() => this.onSurroundingResize());
+        this.observer!.observe(div);
+
         this.loadTiles();
         // this.scaleFactor = 0;
         // this.scaleFactor = this.scaleFactor;
+    }
+
+    public destroyed() {
+        const div = this.surroundingDiv;
+        div.removeEventListener('scroll', () => { this.onSurroundingScroll(); });
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    }
+
+    private onSurroundingScroll() {
+        console.debug('Surrounding scrolled');
+    }
+
+    private onSurroundingResize() {
+        console.debug('Surrounding resize');
     }
 
     @Watch('scaleFactor')
@@ -97,12 +128,7 @@ export default class IIIFImageComponent extends Vue {
 
     private loadTiles() {
         // If the bounding box has no width or height, don't go any further; nothing to display
-        if (
-            [
-                this.imageBoundingBox.width,
-                this.imageBoundingBox.height,
-            ].includes(0)
-        ) {
+        if (!this.imageBoundingBox.width || !this.imageBoundingBox.height || !this.image) {
             return;
         }
 
@@ -142,6 +168,7 @@ export default class IIIFImageComponent extends Vue {
                     width: currentTileWidth * this.optimizedImageScaleFactor,
                     height: currentTileHeight * this.optimizedImageScaleFactor,
                     display: true,
+                    inView: true,
                     retries: 0,
                 };
                 // console.debug(`tile (${x}, ${y}, ${currentTileWidth}, ${currentTileHeight})`);
