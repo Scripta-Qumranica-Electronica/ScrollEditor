@@ -11,6 +11,7 @@ export default {
     personalVersionCount: ' | personal edition | personal editions',
     personalEditions: 'Personal Editions',
     publicEditions: 'Public Editions',
+    userGuide: 'User Guide',
     shares: ' | share | shares',
     artefacts: 'Artefacts',
     scroll: 'Scroll',

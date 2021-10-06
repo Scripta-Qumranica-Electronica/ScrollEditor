@@ -69,38 +69,5 @@ export default class AboutModal extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
-.title-header {
-    font-family: $font-family;
-    font-style: $font-style;
-    font-weight: $font-weight-4;
-    font-size: $font-size-4;
-    line-height: 38px;
-    letter-spacing: 0.28px;
-    justify-content: center !important;
-    border: unset !important;
-}
-.title-footer{
-    border: unset !important;
-    }
-button.btn.btn-login-modal.btn-primary.btn-block {
-    padding: 14px;
-    background: $blue;
-    border-radius: 3px;
-    font-weight:$font-weight-2;
-    font-style: $font-style;
-    font-size: $font-size-1;
-}
-::placeholder {
-    color: $dark-grey!important;
-    font-size: $font-size-1;
-}
-.modal-content{
-    border-radius:0px!important;
-}
-.sign-link{
-    font-size: $font-size-1;
-    font-weight:$font-weight-1;
-    padding-top: 5px;
-
-}
+@import '@/assets/styles/_modals.scss';
 </style>
