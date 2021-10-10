@@ -1,7 +1,7 @@
 <template>
     <div>
-        <b-row class="link-row" @click="editionViewClick()" no-gutters>
-            <b-col class="col-4">
+        <b-row class="link-row" @click="editionViewClick()">
+            <b-col class="col col-4 col-lg-5 col-md-5 col-xs-6">
                 <img
                     class="card-img-top"
                     v-if="thumbnailSource"
@@ -12,7 +12,7 @@
                     $t('misc.noImages')
                 }}</p>
             </b-col>
-            <b-col class="col-8">
+            <b-col class="col col-8 col-lg-7 col-md-6 col-xs-6">
                 <b-row>
                     <p class="card-title">
                         {{ edition.name }}
@@ -39,15 +39,17 @@
                 </b-row>
             </b-col>
         </b-row>
-        <b-row class="mt-2">
-            <b-col>
-                <b-button size="sm" @click="editionViewClick">{{
+        <b-row class="mt-2 no-gutters row">
+            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mr-2">
+                <b-button size="sm" class="btn btn-secondary btn-sm w-100" @click="editionViewClick">{{
                     $t('misc.view')
                 }}</b-button>
-                <b-button class="ml-2" size="sm" @click="editionCopyClick()">{{
+                </b-col>
+                 <b-col class="col col-xl-7 col-lg-12">
+                <b-button class="btn btn-secondary btn-sm w-100" size="sm" @click="editionCopyClick()">{{
                     $t('misc.copy')
                 }}</b-button>
-            </b-col>
+              </b-col>
         </b-row>
     </div>
 </template>
@@ -83,6 +85,10 @@ export default class EditionPublicCard extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 @import './card.scss';
+
+.link-row{
+        min-height: 80px;
+}
 
 .custom-p-left {
     padding-left: 1rem;

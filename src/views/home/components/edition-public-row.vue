@@ -1,5 +1,5 @@
 <template>
-    <b-row>
+    <b-row class="mb-4">
         <b-col class="col-3" v-for="edition in rowEditions" :key="edition.id">
             <b-card
                 class="p-3"

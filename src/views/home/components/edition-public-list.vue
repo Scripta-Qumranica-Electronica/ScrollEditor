@@ -1,16 +1,24 @@
 <template>
-    <RecycleScroller
+    <DynamicScroller
         id="public-list"
         :items="indices"
-        :item-size="153"
-        v-slot="{ item }">
-        
-        <edition-public-row
-            @edition-copy-click="openCopyEditionModal"
-            :editions="editions" 
-            :key="item"
-            :index="item" />
-    </RecycleScroller>
+        :min-item-size="153"
+        v-slot="{ item, index, active }"
+    >
+        <DynamicScrollerItem
+            :item="item"
+            :active="active"
+            :size-dependencies="[getWindowWidth()]"
+            :index="index"
+        >
+            <edition-public-row
+                @edition-copy-click="openCopyEditionModal"
+                :editions="editions"
+                :key="item"
+                :index="item"
+            />
+        </DynamicScrollerItem>
+    </DynamicScroller>
 </template>       
 
 <script lang="ts">
@@ -22,10 +30,10 @@ import EditionPublicRow from './edition-public-row.vue';
     name: 'editions-public-list',
     components: {
         EditionPublicRow,
-     },
+    },
 })
 export default class EditionsPublicList extends Vue {
-    @Prop( ) public editions!: EditionInfo[];
+    @Prop() public editions!: EditionInfo[];
 
     protected get indices() {
         const indices: number[] = [];
@@ -40,6 +48,10 @@ export default class EditionsPublicList extends Vue {
         this.$state.editions.current = edition;
         this.$root.$emit('bv::show::modal', 'copy-edition-modal');
     }
+
+    protected getWindowWidth() {
+        return window.outerWidth;
+    }
 }
 </script>
 
@@ -51,5 +63,4 @@ export default class EditionsPublicList extends Vue {
     overflow-y: auto;
     max-height: calc(100vh - 240px);
 }
-
 </style>

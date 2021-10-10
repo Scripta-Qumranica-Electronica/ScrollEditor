@@ -9,19 +9,22 @@
 .no-images {
     @extend .card-title;
     font-size: $font-size-1 !important;
+    word-break: normal;
+    word-wrap: normal;
 }
 
-.card-decoration:hover { // *
+.card-decoration:hover {
+    // *
     text-decoration: none;
 }
 
-.card-font { 
+.card-font {
     font-style: $font-style;
     font-weight: $font-weight-1;
     font-size: $font-size-2;
     font-family: $font-family;
-
 }
+
 .card-label {
     @extend .card-font;
     color: $grey;
@@ -30,12 +33,14 @@
     margin-left: 0.1rem;
 }
 
-.card-img-top { // *
+.card-img-top {
+    // *
     max-height: 2.6rem;
     max-width: 5rem;
 }
 
-.card-date { // *
+.card-date {
+    // *
     color: $black;
     margin-left: 0.1rem;
     margin-bottom: 0.1rem;
@@ -47,4 +52,3 @@
         cursor: default;
     }
 }
-

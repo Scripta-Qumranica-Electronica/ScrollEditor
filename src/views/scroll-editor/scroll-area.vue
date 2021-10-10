@@ -252,7 +252,7 @@ export default class ScrollArea extends Vue {
 
 <style lang="scss">
 #the-scroll {
-    background: #7bb6e0;
+    background: #d8e3eb;
 }
 
 #outer {
