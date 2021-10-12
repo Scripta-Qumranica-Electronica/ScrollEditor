@@ -187,6 +187,11 @@
                     </b-dropdown-item>
                     <eula-modal />
 
+                    <b-dropdown-item @click="showCitation">
+                        {{ $t('navbar.cite') }}
+                    </b-dropdown-item>
+                    <citation-modal />
+
                     <b-dropdown-divider
                         v-if="showOperationsManager"
                     ></b-dropdown-divider>
@@ -206,12 +211,6 @@
                     >
                         {{ $t('home.redo') }}
                     </b-dropdown-item>
-
-                    <b-dropdown-divider v-if="edition"></b-dropdown-divider>
-                    <b-dropdown-item @click="showCitation">
-                        {{ $t('navbar.cite') }}
-                    </b-dropdown-item>
-                    <citation-modal />
 
                     <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-item placement="left" @click="goGuide">{{
