@@ -1,15 +1,34 @@
 <template>
     <div>
-
-        <b-navbar toggleable="md"
+        <b-navbar
+            toggleable="md"
             id="main-nav-bar"
             active
-            type="dark" variant="light">
-
+            type="dark"
+            variant="light"
+        >
             <!-- Brand -->
-            <b-navbar-brand to="/" align="left" id="brand-1"
-                class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter">
-                <img id="brand-icon" class="logo pb-1" src="../../assets/images/favicon-32x32.png"/>
+            <b-navbar-brand
+                to="/"
+                align="left"
+                id="brand-1"
+                class="
+                    brand-1
+                    m-0
+                    mt-mb-auto
+                    pt-0
+                    pb-0
+                    d-flex
+                    flex-row
+                    justify-content-between
+                    align-items-ceter
+                "
+            >
+                <img
+                    id="brand-icon"
+                    class="logo pb-1"
+                    src="../../assets/images/favicon-32x32.png"
+                />
                 <span id="brand-text" class="m-0 p-0 pb-1 d-none d-xl-flex">
                     <router-link to="/home" v-if="isActive">
                         {{ $t('home.brand') }}
@@ -18,41 +37,44 @@
                         {{ $t('home.brand') }}
                     </router-link>
                 </span>
-            </b-navbar-brand >
+            </b-navbar-brand>
 
             <!-- Edition navigation -->
-            <b-navbar-nav   v-if="edition"
-                            class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex">
+            <b-navbar-nav
+                v-if="edition"
+                class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
+            >
                 <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
                     <span>
                         {{ edition.name }}
-                        <b-badge :class="editionBadgeClass"> {{ editionBadge }}</b-badge>
+                        <b-badge :class="editionBadgeClass">
+                            {{ editionBadge }}</b-badge
+                        >
                     </span>
                 </b-nav-item>
                 <b-nav-item :to="`/editions/${edition.id}/scroll-editor/`">
                     Manuscript
                 </b-nav-item>
                 <b-nav-item :to="artefactLink">{{ artefactLabel }}</b-nav-item>
-                <b-nav-item :to="imagedObjectLink">{{ imagedObjectLabel }}</b-nav-item>
+                <b-nav-item :to="imagedObjectLink">{{
+                    imagedObjectLabel
+                }}</b-nav-item>
                 <!-- <b-nav-item to="/" >Editions</b-nav-item> -->
             </b-navbar-nav>
 
             <!-- empty navbar just to right-align the rest -->
             <b-navbar-nav class="ml-auto"></b-navbar-nav>
 
-            <b-navbar-nav toggleable
-                class="search-user-nav"
-                align="right">
-
-
+            <b-navbar-nav toggleable class="search-user-nav" align="right">
                 <b-nav-item to="/search" active>
-                        <b-button size="sm" variant="outline" class="navbar-button">
-                            <i class="fa fa-search fa-2x green-text"
-                                aria-hidden="true"
-                                style="font-size:1.3rem;"
-                                v-b-tooltip.hover.bottomleft="$t('home.search')"
-                            ></i>
-                        </b-button>
+                    <b-button size="sm" variant="outline" class="navbar-button">
+                        <i
+                            class="fa fa-search fa-2x green-text"
+                            aria-hidden="true"
+                            style="font-size: 1.3rem"
+                            v-b-tooltip.hover.bottomleft="$t('home.search')"
+                        ></i>
+                    </b-button>
                 </b-nav-item>
 
                 <!-- User menu -->
@@ -62,20 +84,16 @@
                     v-b-tooltip.hover.bottomleft="'User Menu'"
                 >
                     <template slot="button-content" size="xs">
-
                         <b-button variant="outline" size="sm">
-                            <i class="fa fa-user fa-2x green-text"
+                            <i
+                                class="fa fa-user fa-2x green-text"
                                 aria-hidden="true"
-                                style="font-size:1.3rem;"
+                                style="font-size: 1.3rem"
                             ></i>
                         </b-button>
+                    </template>
 
-                        </template>
-
-                    <b-dropdown-item
-                        v-if="userNameExists"
-                        class="logout"
-                    >
+                    <b-dropdown-item v-if="userNameExists" class="logout">
                         <b> {{ userName }} </b>
                     </b-dropdown-item>
 
@@ -84,7 +102,7 @@
                         @click="login()"
                         class="logout"
                     >
-                        {{ $t('navbar.login' )}}
+                        {{ $t('navbar.login') }}
                     </b-dropdown-item>
 
                     <b-dropdown-item
@@ -95,34 +113,29 @@
                         {{ $t('navbar.logout') }}
                     </b-dropdown-item>
 
-                    <b-dropdown-item
-                        v-if="isActive"
-                        @click="changePassword()"
-                    >
-                        {{
-                            $t('navbar.changePassword')
-                        }}
-                    </b-dropdown-item >
+                    <b-dropdown-item v-if="isActive" @click="changePassword()">
+                        {{ $t('navbar.changePassword') }}
+                    </b-dropdown-item>
 
                     <b-dropdown-item
                         v-if="isActive"
                         @click="updateUserDetails()"
                     >
-                        {{
-                            $t('navbar.updateUserDetails')
-                        }}
+                        {{ $t('navbar.updateUserDetails') }}
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
 
-            <!-- Hamburger Menu -->
+                <!-- Hamburger Menu -->
                 <b-nav-item-dropdown
-                    id="hamburger" right
+                    id="hamburger"
+                    right
                     text-center
                     class="bm-0 p-0 pl-1 pr-1"
                     no-caret
                 >
                     <template slot="button-content" size="xs">
-                        <b-icon icon="list"
+                        <b-icon
+                            icon="list"
                             class="border rounded"
                             font-scale="1.6"
                         ></b-icon>
@@ -135,19 +148,26 @@
                     >
                         {{ $t('navbar.home') }}
                     </b-dropdown-item>
-                    <b-dropdown-item placement="left" @click="goPrivate" v-if="isActive">{{ $t('home.personalEditions')}}</b-dropdown-item>
-                    <b-dropdown-item placement="left" @click="goPublic">{{ $t('home.publicEditions') }}</b-dropdown-item>
+                    <b-dropdown-item
+                        placement="left"
+                        @click="goPrivate"
+                        v-if="isActive"
+                        >{{ $t('home.personalEditions') }}</b-dropdown-item
+                    >
+                    <b-dropdown-item placement="left" @click="goPublic">{{
+                        $t('home.publicEditions')
+                    }}</b-dropdown-item>
 
                     <b-dropdown-divider></b-dropdown-divider>
 
                     <b-dropdown-item
                         id="popover-target-about"
                         placement="left"
-                        @click="showAboutModal"
+                        @click="goAbout"
                     >
                         {{ $t('navbar.about') }}
                     </b-dropdown-item>
-                    <about-modal/>
+                    <about-modal />
 
                     <b-dropdown-item
                         id="popover-target-faq"
@@ -156,7 +176,7 @@
                     >
                         {{ $t('navbar.faq') }}
                     </b-dropdown-item>
-                    <faq-modal/>
+                    <faq-modal />
 
                     <b-dropdown-item
                         id="popover-target-eula"
@@ -165,45 +185,43 @@
                     >
                         {{ $t('navbar.eula') }}
                     </b-dropdown-item>
-                    <eula-modal/>
+                    <eula-modal />
 
-                    <b-dropdown-divider v-if="showOperationsManager"></b-dropdown-divider>
+                    <b-dropdown-item @click="showCitation">
+                        {{ $t('navbar.cite') }}
+                    </b-dropdown-item>
+                    <citation-modal />
+
+                    <b-dropdown-divider
+                        v-if="showOperationsManager"
+                    ></b-dropdown-divider>
 
                     <b-dropdown-item
                         v-if="showOperationsManager"
-                        :disabled="!operationsManager.canUndo" @click="onUndo()"
+                        :disabled="!operationsManager.canUndo"
+                        @click="onUndo()"
                     >
-                        {{
-                            $t('home.undo')
-                        }}
-                    </b-dropdown-item >
+                        {{ $t('home.undo') }}
+                    </b-dropdown-item>
 
                     <b-dropdown-item
                         v-if="showOperationsManager"
-                        :disabled="!operationsManager.canRedo" @click="onRedo()"
+                        :disabled="!operationsManager.canRedo"
+                        @click="onRedo()"
                     >
-                        {{
-                            $t('home.redo')
-                        }}
+                        {{ $t('home.redo') }}
                     </b-dropdown-item>
-
-                    <b-dropdown-divider v-if="edition"></b-dropdown-divider>
-                    <b-dropdown-item
-                        @click="showCitation">
-                        {{
-                            $t('navbar.cite')
-                        }}
-                    </b-dropdown-item>
-                    <citation-modal/>
 
                     <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-item
-                        @click="contactUs">
-                        {{
-                            $t('navbar.contactus')
-                        }}
+                    <b-dropdown-item placement="left" @click="goGuide">{{
+                        $t('home.userGuide')
+                    }}</b-dropdown-item>
+
+                    <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item @click="contactUs">
+                        {{ $t('navbar.contactus') }}
                     </b-dropdown-item>
-                 </b-nav-item-dropdown>
+                </b-nav-item-dropdown>
             </b-navbar-nav>
         </b-navbar>
         <login></login>
@@ -216,7 +234,6 @@ import { Component, Vue } from 'vue-property-decorator';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
-import AboutModal from './About-modal.vue';
 import FaqModal from './Faq-modal.vue';
 import EulaModal from './Eula-modal.vue';
 import CitationModal from './CitationModal.vue';
@@ -230,7 +247,6 @@ import Registration from '@/views/user/Registration.vue';
     name: 'navbar',
     components: {
         login: Login,
-        'about-modal': AboutModal,
         'faq-modal': FaqModal,
         'eula-modal': EulaModal,
         'citation-modal': CitationModal,
@@ -275,16 +291,25 @@ export default class Navbar extends Vue {
         this.$router.push({ path: '/' });
     }
 
+    private goGuide() {
+        window.open(
+            'https://sway.office.com/oiGhObqnG1IODSgZ?ref=Link',
+            '_blank'
+        );
+    }
+
     private goPrivate() {
         this.$router.push({ path: '/home/private' });
     }
-
     private goPublic() {
         this.$router.push({ path: '/home/public' });
     }
 
-    private showAboutModal() {
-        this.$root.$emit('bv::show::modal', 'AboutModal');
+    private goAbout() {
+         window.open(
+            ' https://www.qumranica.org/',
+            '_blank'
+        );
     }
 
     private showFAQModal() {
@@ -420,7 +445,7 @@ $foreground: $qumran-white;
 
 #main-nav-bar {
     /* background: #041d5c !important; */
-    background: $background  !important;
+    background: $background !important;
 
     /* height: 50px; */
     /* height: 3.12rem; */
@@ -450,7 +475,7 @@ $foreground: $qumran-white;
         height: 2.1rem;
         border-radius: 0.3rem;
 
-        background:$background;
+        background: $background;
     }
 
     @media (max-width: 1134px) {
@@ -511,9 +536,8 @@ $foreground: $qumran-white;
     /* .main-nav-bar .nav-item a.nav-link , */
     .nav-item .nav-link,
     .nav-item-white,
-    .navbar-text
-    {
-        color: $foreground  !important;
+    .navbar-text {
+        color: $foreground !important;
     }
 
     #hamburger {
@@ -590,5 +614,4 @@ $foreground: $qumran-white;
         border-color: $foreground !important;
     }
 }
-
 </style>

@@ -76,7 +76,7 @@ export default class App extends Vue {
 
         const curOW = window.outerWidth;
 
-        if ( curOW < 785 ) {
+        if ( curOW < 1000 ) {
             this.alertVisible = true;
 
             this.$nextTick( () => {

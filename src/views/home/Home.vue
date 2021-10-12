@@ -1,29 +1,45 @@
 <template>
     <div>
-        <b-tabs nav-wrapper-class="tabs" v-model="activeTab" @activate-tab="onActivateTab">
+        <b-tabs
+            nav-wrapper-class="tabs-wrapper"
+            v-model="activeTab"
+            @activate-tab="onActivateTab"
+        >
             <b-tab
                 :disabled="!user"
                 :title-item-class="'tab-title-class'"
                 active
             >
                 <template #title>
-                    <span v-if="!editionsLoaded">{{ $t('home.personalEditions')}} <b-spinner type="border" small/></span>
-                    <span v-else>{{ $tc('home.personalEditionGroupCount', personalEditionsCount ) }}</span>
+                    <span v-if="!editionsLoaded"
+                        >{{ $t('home.personalEditions') }}
+                        <b-spinner type="border" small
+                    /></span>
+                    <span v-else>{{
+                        $tc(
+                            'home.personalEditionGroupCount',
+                            personalEditionsCount
+                        )
+                    }}</span>
                 </template>
-                <personal-editions :search-value="searchValue"></personal-editions>
+                <personal-editions
+                    :search-value="searchValue"
+                ></personal-editions>
             </b-tab>
-            <b-tab
-                :title-item-class="'tab-title-class'"
-            >
+            <b-tab :title-item-class="'tab-title-class'">
                 <template #title>
-                    <span v-if="!editionsLoaded">{{ $t('home.publicEditions')}} <b-spinner type="border" small/></span>
-                    <span v-else>{{ $tc('home.publicEditionGroupCount', publicEditionsCount) }}</span>
+                    <span v-if="!editionsLoaded"
+                        >{{ $t('home.publicEditions') }}
+                        <b-spinner type="border" small
+                    /></span>
+                    <span v-else>{{
+                        $tc('home.publicEditionGroupCount', publicEditionsCount)
+                    }}</span>
                 </template>
                 <public-editions :search-value="searchValue"></public-editions>
             </b-tab>
         </b-tabs>
     </div>
-
 </template>
 
 <script lang="ts">
@@ -38,19 +54,16 @@ import { SearchBarValue } from '@/components/search-bar.vue';
 // import Search from '@/views/search/main.vue';
 /* Shaindel: Add a Search tab, and a Search.vue component */
 
-
 @Component({
-  name: 'home',
-  components: {
+    name: 'home',
+    components: {
         Waiting,
         PersonalEditions,
-        PublicEditions // ,
+        PublicEditions, // ,
         // Search
-  }
+    },
 })
-
 export default class Home extends Vue {
-
     // component data
     // =====================
 
@@ -70,7 +83,9 @@ export default class Home extends Vue {
 
     protected async mounted() {
         if (this.$route.params.editionType === 'public') {
-            this.$nextTick(() => { this.activeTab = 1; });
+            this.$nextTick(() => {
+                this.activeTab = 1;
+            });
         }
 
         if (this.$route.params.editionType === 'private' && !this.user) {
@@ -93,11 +108,11 @@ export default class Home extends Vue {
     }
 
     protected get personalEditionsCount() {
-        return this.$state.editions.items.filter(ed => !ed.isPublic).length;
+        return this.$state.editions.items.filter((ed) => !ed.isPublic).length;
     }
 
     protected get publicEditionsCount() {
-        return this.$state.editions.items.filter(ed => ed.isPublic).length;
+        return this.$state.editions.items.filter((ed) => ed.isPublic).length;
     }
 
     protected onActivateTab(newTab: number, prevTab: number) {
@@ -106,7 +121,10 @@ export default class Home extends Vue {
         }
         if (newTab === 0 && this.$route.params.editionType !== 'private') {
             this.$router.push('/home/private');
-        } else if (newTab === 1 && this.$route.params.editionType !== 'public') {
+        } else if (
+            newTab === 1 &&
+            this.$route.params.editionType !== 'public'
+        ) {
             this.$router.push('/home/public');
         }
     }
@@ -123,24 +141,31 @@ export default class Home extends Vue {
             this.activeTab = 0;
         }
     }
-
 }
-
-
-
-
 </script>
 
+<style lang="scss">
+.tabs-wrapper {
+    background: white;
+    padding-top: 4px;
 
+    .nav-tabs .nav-link.active,
+    .nav-tabs .nav-item.show .nav-link {
+        background-color: #e5e5e5;
+        border-color: transparent;
+    }
+}
+</style>
 
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-.tab-pane {
+.tabs {
     background: $backround-grey;
     padding: 0 15%;
 }
+
 .tab-title-class > a.nav-link {
     font-family: $font-family;
     font-size: $font-size-2;

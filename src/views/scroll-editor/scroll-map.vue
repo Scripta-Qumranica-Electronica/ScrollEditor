@@ -149,7 +149,7 @@ export default class ScrollMap extends Vue {
 
 <style lang="scss" scoped>
 #scroll-map {
-    background: #7bb6e0;
+     background: #d8e3eb;
 }
 
 rect {

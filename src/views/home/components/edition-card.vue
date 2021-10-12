@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row class="link-row" @click="editionEditClick()">
-            <b-col class="col-4">
+            <b-col class="col col-4 col-lg-5 col-md-5 col-xs-6">
                 <img
                     class="card-img-top"
                     v-if="thumbnailSource"
@@ -10,7 +10,7 @@
                 />
                 <span v-else class="no-images">{{ $t('misc.noImages') }}</span>
             </b-col>
-            <b-col class="col-8">
+            <b-col class="col col-8 col-lg-7 col-md-6 col-xs-6">
                 <b-row>
                     <p class="card-title">
                         {{ edition.name }}
@@ -48,12 +48,14 @@
             </b-col>
         </b-row>
 
-        <b-row class="mt-2">
-            <b-col>
-                <b-button size="sm" @click="editionEditClick">{{
+        <b-row class="mt-2 no-gutters row">
+            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mr-2">
+                <b-button   class="btn btn-secondary btn-sm w-100" size="sm" @click="editionEditClick">{{
                     $t('misc.edit')
                 }}</b-button>
-                <b-button class="ml-2" size="sm" @click="editionCopyClick()">{{
+            </b-col>
+            <b-col class="col col-xl-7 col-lg-12">
+                <b-button class="btn btn-secondary btn-sm w-100" size="sm" @click="editionCopyClick()">{{
                     $t('misc.copy')
                 }}</b-button>
             </b-col>
@@ -92,7 +94,6 @@ export default class EditionCard extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 @import './card.scss';
-
 .status-badge {
     font-family: $font-family;
     text-align: center;
@@ -117,12 +118,12 @@ export default class EditionCard extends Vue {
     overflow: hidden;
 
     @supports (-webkit-line-clamp: 2) {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: initial;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: initial;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 }
 </style>
