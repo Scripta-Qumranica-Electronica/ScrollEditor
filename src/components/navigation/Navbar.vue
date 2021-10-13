@@ -167,7 +167,6 @@
                     >
                         {{ $t('navbar.about') }}
                     </b-dropdown-item>
-                    <about-modal />
 
                     <b-dropdown-item
                         id="popover-target-faq"

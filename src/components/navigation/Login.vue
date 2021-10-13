@@ -112,6 +112,8 @@ export default class Login extends Vue {
             await this.sessionService.login(this.email, this.password);
             this.close();
             router.push('/home');
+            // Reload the personal editions
+            location.reload(); 
         } catch (err) {
             this.errorMessage = this.errorService.getErrorMessage(
                 err.response.data
