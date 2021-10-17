@@ -113,8 +113,8 @@ export default class Login extends Vue {
             this.close();
             router.push('/home');
             // Reload the personal editions
-            location.reload(); 
-        } catch (err) {
+            location.reload();
+        } catch (err: any) {
             this.errorMessage = this.errorService.getErrorMessage(
                 err.response.data
             );

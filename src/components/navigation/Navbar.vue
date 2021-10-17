@@ -186,26 +186,6 @@
                     </b-dropdown-item>
                     <eula-modal />
 
-                    <b-dropdown-divider
-                        v-if="showOperationsManager"
-                    ></b-dropdown-divider>
-
-                    <b-dropdown-item
-                        v-if="showOperationsManager"
-                        :disabled="!operationsManager.canUndo"
-                        @click="onUndo()"
-                    >
-                        {{ $t('home.undo') }}
-                    </b-dropdown-item>
-
-                    <b-dropdown-item
-                        v-if="showOperationsManager"
-                        :disabled="!operationsManager.canRedo"
-                        @click="onRedo()"
-                    >
-                        {{ $t('home.redo') }}
-                    </b-dropdown-item>
-
                     <b-dropdown-divider v-if="edition"></b-dropdown-divider>
                     <b-dropdown-item @click="showCitation">
                         {{ $t('navbar.cite') }}
