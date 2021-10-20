@@ -9,8 +9,8 @@
                 <toolbar id="toolbar" no-gutters>
                     <artefact-editor-toolbar
                         :artefact="artefact"
-                        @paramsChanged="onParamsChanged($event)">
-
+                        @paramsChanged="onParamsChanged($event)"
+                    >
                         <!-- TODO: Add these toolboxes into the artefact-editor-toolbar component.
                              In the past there were two different toolbars. They weren't united yet -->
                         <toolbox subject="Edit Modes">
@@ -20,19 +20,22 @@
                                 :pressed="actionMode === 'polygon'"
                                 :disabled="!isDrawingEnabled"
                                 :title="$t('misc.draw')"
-                                icon="pen" />
+                                icon="pen"
+                            />
                             <toolbar-icon-button
                                 v-show="!readOnly"
                                 @click="onModeClick('box')"
                                 :pressed="actionMode === 'box'"
                                 :disabled="!isDrawingEnabled"
                                 :title="$t('misc.box')"
-                                icon="square" />
+                                icon="square"
+                            />
                             <toolbar-icon-button
                                 :title="$t('misc.select')"
                                 @click="onModeClick('select')"
                                 :pressed="actionMode === 'select'"
-                                icon="mouse-pointer" />
+                                icon="mouse-pointer"
+                            />
                         </toolbox>
                         <toolbox subject="">
                             <toolbar-icon-button
@@ -41,7 +44,8 @@
                                 @click="onDeleteRoi"
                                 :disabled="!isDeleteEnabled"
                                 icon="trash"
-                                :show-text="true"/>
+                                :show-text="true"
+                            />
                         </toolbox>
                         <toolbox subject="">
                             <b-form-checkbox
@@ -56,16 +60,13 @@
                                 v-if="!readOnly"
                                 @input="onAuto()"
                                 id="auto-character"
-                                >Auto character
-                                select</b-form-checkbox
+                                >Auto character select</b-form-checkbox
                             >
                         </toolbox>
                     </artefact-editor-toolbar>
                 </toolbar>
                 <div id="artefact-info">
-                    <span v-if="artefactMode">{{
-                        artefact.name
-                    }}</span>
+                    <span v-if="artefactMode">{{ artefact.name }}</span>
                     <b-form-select
                         v-if="textFragmentMode"
                         @input="selectArtefact($event)"
@@ -75,23 +76,13 @@
                         size="sm"
                         class="mt-4 col-3"
                     ></b-form-select>
-                    <edition-icons
-                        :edition="edition"
-                        :show-text="true"
-                    />
+                    <edition-icons :edition="edition" :show-text="true" />
                     <sign-wheel
-                        v-if="
-                            selectedSignInterpretations.length ===
-                            1
-                        "
+                        v-if="selectedSignInterpretations.length === 1"
                         :line="selectedLine"
                     />
                 </div>
-                <div
-                    id="artefact-image"
-                    class="border-right"
-                    ref="infoBox"
-                >
+                <div id="artefact-image" class="border-right" ref="infoBox">
                     <zoomer
                         :zoom="zoomLevel"
                         :angle="rotationAngle"
@@ -106,10 +97,7 @@
                         >
                             <!-- The SVG is in the coordinates of the master image, scaled down by the zoom factor. We only show
                 the bounding box of the artefact and not all of the surroundings, hence the viewBox attribute-->
-                            <g
-                                :transform="transform"
-                                id="transform-root"
-                            >
+                            <g :transform="transform" id="transform-root">
                                 <!-- Rotate and scale the content -->
                                 <!-- This group's coordinate system is the master image's -->
                                 <image-layer
@@ -124,9 +112,7 @@
                                 />
                                 <roi-layer
                                     :rois="visibleRois"
-                                    @roi-clicked="
-                                        onRoiClicked($event)
-                                    "
+                                    @roi-clicked="onRoiClicked($event)"
                                 />
                                 <boundary-drawer
                                     v-show="
@@ -135,9 +121,7 @@
                                     "
                                     :mode="actionMode"
                                     transformRootId="transform-root"
-                                    @new-polygon="
-                                        onNewPolygon($event)
-                                    "
+                                    @new-polygon="onNewPolygon($event)"
                                 />
                             </g>
                         </svg>
@@ -1060,6 +1044,12 @@ export default class ArtefactEditor
     width: 100%;
     overflow: auto;
     text-align: center;
+
+    & > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 #text-side {
@@ -1076,5 +1066,4 @@ export default class ArtefactEditor
     /* height: 70px; */
     height: 10rem;
 }
-
 </style>

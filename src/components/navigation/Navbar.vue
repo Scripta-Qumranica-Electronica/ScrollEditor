@@ -167,7 +167,6 @@
                     >
                         {{ $t('navbar.about') }}
                     </b-dropdown-item>
-                    <about-modal />
 
                     <b-dropdown-item
                         id="popover-target-faq"
@@ -191,26 +190,6 @@
                         {{ $t('navbar.cite') }}
                     </b-dropdown-item>
                     <citation-modal />
-
-                    <b-dropdown-divider
-                        v-if="showOperationsManager"
-                    ></b-dropdown-divider>
-
-                    <b-dropdown-item
-                        v-if="showOperationsManager"
-                        :disabled="!operationsManager.canUndo"
-                        @click="onUndo()"
-                    >
-                        {{ $t('home.undo') }}
-                    </b-dropdown-item>
-
-                    <b-dropdown-item
-                        v-if="showOperationsManager"
-                        :disabled="!operationsManager.canRedo"
-                        @click="onRedo()"
-                    >
-                        {{ $t('home.redo') }}
-                    </b-dropdown-item>
 
                     <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-item placement="left" @click="goGuide">{{
