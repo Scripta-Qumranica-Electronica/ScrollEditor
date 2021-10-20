@@ -67,6 +67,7 @@ export default class ImagedObjects extends Vue {
 .scroll-bar {
     max-height: calc(100vh - 80px);
     overflow-y: auto;
+    overflow-x: hidden;
     height: 60vh;
 }
 </style>
