@@ -219,8 +219,7 @@ import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 })
 export default class ArtefactEditor
     extends Vue
-    implements SavingAgent<ArtefactEditorOperation>
-{
+    implements SavingAgent<ArtefactEditorOperation> {
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
     private actionMode: ActionMode = 'box';
 
