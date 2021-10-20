@@ -59,7 +59,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
     }
 })
 
-export default class AboutModal extends Vue {
+export default class ScreenSizeAlert extends Vue {
 
      @Prop({default: false}) private visible!: boolean ;
 
