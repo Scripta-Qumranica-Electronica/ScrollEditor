@@ -1,6 +1,13 @@
 <template>
     <div>
-        Metadata
+        <div class="header">Additional Information for Edition {{ edition.name }}</div>
+        <span class="no-metadata" v-if="!metadata">No Additional Information</span>
+        <ul v-if="metadata" class="metadata">
+            <li v-for="key in keys" :key="key">
+                <span class="key">{{ headers[key] }}:</span>
+                <span class="value">{{ metadata[key] || 'N/A' }}</span>
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -16,6 +23,34 @@ import Waiting from '@/components/misc/Waiting.vue';
 })
 export default class EditionMetadata extends Vue {
     public editionId: number = 0;
+
+    protected get edition() {
+        return this.$state.editions.current!;
+    }
+
+    protected get metadata() {
+        return this.edition.metadata;
+    }
+
+    protected keys = ['material', 'publicationNumber', 'publication', 'plate', 'frag', 'site', 'period', 'composition', 'copy', 'manuscript', 'otherIdentifications', 'abbreviation', 'manuscriptType', 'compositionType', 'language', 'script'];
+    protected headers = {
+        'material': 'Material',
+        'publicationNumber': 'Publication Number',
+        'publication': 'Publication',
+        'plate': 'Plate',
+        'frag': 'Fragment',
+        'site': 'Site',
+        'period': 'Period',
+        'composition': 'Composition',
+        'copy': 'Copy',
+        'manuscript': 'Manuscript',
+        'otherIdentifications': 'Other Identifications',
+        'abbreviation': 'Abbreviation',
+        'manuscriptType': 'Manuscript Type',
+        'compositionType': 'Composition Type',
+        'language': 'Language',
+        'script': 'Script',
+    };
 
     protected async mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
