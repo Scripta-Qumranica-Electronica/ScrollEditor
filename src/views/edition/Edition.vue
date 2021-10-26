@@ -59,10 +59,10 @@
                         :to="`/editions/${editionId}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
-                    <!-- <b-button
+                    <b-button
                         variant="outline-primary"
                         :to="`/editions/${editionId}/metadata`"
-                        >More Info</b-button> -->
+                        >Edition Information</b-button>
                 </b-button-group>
             </div>
         </div>
