@@ -1,15 +1,25 @@
 <template>
-    <div class="background">
+    <div class="background" style="min-height: calc(100vh - 56px)">
         <div class="header">
             Additional Information for Edition {{ edition.name }}
         </div>
         <span class="no-metadata" v-if="!metadata"
             >No Additional Information</span
         >
-        <ul v-if="metadata" class="metadata">
+        <ul
+            v-if="metadata"
+            class="metadata"
+            style="
+                min-height: calc(100vh - 140px);
+                overflow-y: auto;
+                overflow-x: hidden;
+            "
+        >
             <li class="row m-2" v-for="key in keys" :key="key">
                 <span class="key col-2">{{ headers[key] }}:</span>
-                <span class="value col">{{ metadata[key] || 'N/A' }}</span>
+                <span class="value col">{{
+                    (metadata[key] || '-') | cleanString
+                }}</span>
             </li>
         </ul>
     </div>
@@ -18,11 +28,15 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-
 @Component({
     name: 'edition-artefacts',
     components: {
         Waiting,
+    },
+    filters: {
+        cleanString(value: string) {
+            return value.replace(/\$/g, '');
+        },
     },
 })
 export default class EditionMetadata extends Vue {
@@ -37,40 +51,34 @@ export default class EditionMetadata extends Vue {
     }
 
     protected keys = [
-        'material',
-        'publicationNumber',
-        'publication',
-        'plate',
-        'frag',
-        'site',
-        'period',
+        'manuscript',
         'composition',
         'copy',
-        'manuscript',
-        'otherIdentifications',
         'abbreviation',
+        'site',
         'manuscriptType',
         'compositionType',
+        'period',
         'language',
         'script',
+        'material',
+        'otherIdentifications',
+        'publication',
     ];
     protected headers = {
-        material: 'Material',
-        publicationNumber: 'Publication Number',
-        publication: 'Publication',
-        plate: 'Plate',
-        frag: 'Fragment',
-        site: 'Site',
-        period: 'Period',
+        manuscript: 'Manuscript',
         composition: 'Composition',
         copy: 'Copy',
-        manuscript: 'Manuscript',
-        otherIdentifications: 'Other Identifications',
         abbreviation: 'Abbreviation',
+        site: 'Site',
         manuscriptType: 'Manuscript Type',
         compositionType: 'Composition Type',
+        period: 'Period',
         language: 'Language',
         script: 'Script',
+        material: 'Material',
+        otherIdentifications: 'Other Identifications',
+        publication: 'Publication',
     };
 
     protected async mounted() {

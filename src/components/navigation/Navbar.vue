@@ -81,7 +81,7 @@
                 <b-nav-item-dropdown
                     id="register"
                     right
-                    v-b-tooltip.hover.bottomleft="'User Menu'"
+                    v-b-tooltip.hover.bottomleft="'User Account'"
                 >
                     <template slot="button-content" size="xs">
                         <b-button variant="outline" size="sm">

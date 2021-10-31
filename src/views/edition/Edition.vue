@@ -2,25 +2,28 @@
     <div class="container">
         <div class="mb-3 border-container">
             <b-row>
-
                 <b-col class="col-5 mt-4 mb-3">
-                     <router-link :to="{path:`/editions/${editionId}/artefacts`}">
+                    <router-link
+                        :to="{ path: `/editions/${editionId}/artefacts` }"
+                    >
                         <span class="name-edition" v-if="currentEdition">
-                            {{  versionString(currentEdition)  }}
+                            {{ versionString(currentEdition) }}
                         </span>
                     </router-link>
                 </b-col>
 
                 <b-col class="col-7 mt-4 mb-3">
                     <div class="btns-permiss" v-if="currentEdition">
-                       <b-button
+                        <b-button
                             class="mr-2"
                             v-if="currentEdition && user"
                             v-b-modal.copy-edition-modal
                             :title="copyTooltip"
                         >
-
-                            <i v-if ="currentEdition.isPublic" class="fa fa-lock mr-1">
+                            <i
+                                v-if="currentEdition.isPublic"
+                                class="fa fa-lock mr-1"
+                            >
                             </i>
                             {{ $t('misc.copy') }}
                         </b-button>
@@ -38,6 +41,9 @@
                     </div>
                 </b-col>
             </b-row>
+        </div>
+        <div v-if="isWaiting">
+            <Waiting></Waiting>
         </div>
         <div v-if="!isWaiting">
             <b-row>
@@ -62,26 +68,19 @@
                     <b-button
                         variant="outline-primary"
                         :to="`/editions/${editionId}/metadata`"
-                        >Edition Information</b-button>
+                        >Manuscript Information</b-button
+                    >
                 </b-button-group>
             </div>
         </div>
-        <div>
-            <div v-if="!isWaiting" class="row">
-                <div class="col" v-if="isWaiting">
-                    <Waiting></Waiting>
-                </div>
-                <div class="col" v-if="!isWaiting">
-                    <router-view></router-view>
-                </div>
+        <div class="row" v-if="!isWaiting">
+            <div class="col">
+                <router-view></router-view>
             </div>
-
-
         </div>
         <permission-modal v-if="currentEdition"></permission-modal>
-        <copy-edition-modal :visible="false" > </copy-edition-modal>
+        <copy-edition-modal :visible="false"> </copy-edition-modal>
         <!-- :visible="false" to prevent false display of the modal -->
-
     </div>
 </template>
 
@@ -98,7 +97,6 @@ import { Artefact } from '@/models/artefact';
 import PermissionModal from './components/permission-modal.vue';
 import CopyEditionModal from '../home/components/copy-edition-modal.vue';
 
-
 @Component({
     name: 'edition',
     components: {
@@ -106,11 +104,9 @@ import CopyEditionModal from '../home/components/copy-edition-modal.vue';
         Waiting,
         PermissionModal,
         CopyEditionModal,
-    }
+    },
 })
-
 export default class Edition extends Vue {
-
     // protected (not private) to allow future inheritance
     // =======================================================
 
@@ -118,9 +114,10 @@ export default class Edition extends Vue {
 
     protected editionId: number = 0;
     protected page: string = '';
+    protected isLoading: boolean = false;
 
     public get isWaiting(): boolean {
-        return  !this.currentEdition;
+        return this.isLoading;
     }
 
     private get user(): boolean {
@@ -136,30 +133,34 @@ export default class Edition extends Vue {
     }
 
     private get copyTooltip(): string {
-        const publicStr = this.currentEdition!.isPublic ? 'This is a public Edition. ' : '' ;
+        const publicStr = this.currentEdition!.isPublic
+            ? 'This is a public Edition. '
+            : '';
 
         return (
-            ( this.currentEdition!.isPublic ?
-            'This is a public Edition. Create a copy in order to' : 'Create a copy and')  + ' Edit this Edition' );
+            (this.currentEdition!.isPublic
+                ? 'This is a public Edition. Create a copy in order to'
+                : 'Create a copy and') + ' Edit this Edition'
+        );
     }
 
     protected get artefactsLength(): number {
         const virtualCount = this.$state.artefacts.items.reduce(
-                    ( count, art: Artefact) => {
-                        if (art.isVirtual ) {
-                           count++;
-                        }
-                        return count;
-                    }, 0);
+            (count, art: Artefact) => {
+                if (art.isVirtual) {
+                    count++;
+                }
+                return count;
+            },
+            0
+        );
 
-        return this.$state.artefacts.items.length - virtualCount ;
+        return this.$state.artefacts.items.length - virtualCount;
     }
 
     protected get imagedObjectsLength(): number {
         return this.$state.imagedObjects.items.length;
     }
-
-
 
     // This code is not in the created method since it's asynchronous,
     // and Vue doesn't wait for an asynchornous created to finish
@@ -168,9 +169,8 @@ export default class Edition extends Vue {
     //  we just moved it to mounted.
     // ( same mechanism as in scroll-editor.vue )
 
-
     protected async mounted() {
-
+        this.isLoading = true;
         this.editionId = parseInt(this.$route.params.editionId, 10);
 
         // Wait for editionInfo object to be valid
@@ -180,32 +180,31 @@ export default class Edition extends Vue {
 
         await this.$state.prepare.edition(this.editionId);
 
-       // Added as in scroll-editor.vue
+        // Added as in scroll-editor.vue
         const currentEdition = this.$state.editions.find(this.editionId);
 
-         // This is done also in scroll-editor
+        // This is done also in scroll-editor
         if (currentEdition) {
-          this.$state.editions.current = currentEdition;
-          this.$state.artefacts.current = null;
-          this.$state.imagedObjects.current = null;
-         }
+            this.$state.editions.current = currentEdition;
+            this.$state.artefacts.current = null;
+            this.$state.imagedObjects.current = null;
+        }
 
-      //  this.waiting = false;
+        this.isLoading = false;
         this.getPage(window.location.href);
     }
 
-     // Navigation Guards:
-     // Fetching data Before Navigation to new route,
-     // when route changes and this component is already rendered.
-     // We're still in prev view
-     // while resource is being fetched for the incoming view
-     // ==========================================================
-
+    // Navigation Guards:
+    // Fetching data Before Navigation to new route,
+    // when route changes and this component is already rendered.
+    // We're still in prev view
+    // while resource is being fetched for the incoming view
+    // ==========================================================
 
     protected async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
 
-         // Wait for editionInfo object to be valid
+        // Wait for editionInfo object to be valid
         await this.$state.prepare.edition(this.editionId);
 
         this.getPage(to.path);
@@ -214,12 +213,11 @@ export default class Edition extends Vue {
         next();
     }
 
-
     // methods => member functions of the class
     // ============================================================
 
     protected openPermissionModal() {
-        this.$root.$emit( 'bv::show::modal', 'permissionModal');
+        this.$root.$emit('bv::show::modal', 'permissionModal');
         // event, new_value
     }
 
@@ -234,9 +232,7 @@ export default class Edition extends Vue {
             this.page = 'imaged-objects';
         }
     }
-
 }
-
 </script>
 
 <style lang="scss" scoped>

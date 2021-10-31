@@ -91,7 +91,7 @@ export default class ImagedObjectResultComponent extends Vue {
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 
-span p {
+p {
     font-style: $font-style;
     font-weight: $font-weight-1;
     font-size: $font-size-3;

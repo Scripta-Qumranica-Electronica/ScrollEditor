@@ -1,12 +1,20 @@
 <template>
     <div class="scroll-bar main-div">
         <search-form @search="onSearch($event)" :disabled="searching" />
-        <waiting v-if="searching" />
+        <b-row>
+            <b-col cols="9">
+                <waiting style="height: 100px" v-if="searching" />
+            </b-col>
+        </b-row>
+
         <search-results :results="searchResults" />
     </div>
 </template>
 <script lang="ts">
-import { DetailedSearchRequestDTO, DetailedSearchResponseDTO } from '@/dtos/sqe-dtos';
+import {
+    DetailedSearchRequestDTO,
+    DetailedSearchResponseDTO,
+} from '@/dtos/sqe-dtos';
 import SearchService from '@/services/search';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import SearchForm from './form.vue';
@@ -18,9 +26,9 @@ import SearchResultComponent from './results.vue';
     name: 'search',
     components: {
         'search-form': SearchForm,
-        'waiting': Waiting,
+        waiting: Waiting,
         'search-results': SearchResultComponent,
-    }
+    },
 })
 export default class Search extends Vue {
     public searchService: SearchService = new SearchService();
@@ -36,7 +44,7 @@ export default class Search extends Vue {
         this.searching = true;
         this.searchData = data;
         this.searchResults = null;
-        try  {
+        try {
             this.searchResults = await this.searchService.search(data);
         } finally {
             this.searching = false;
@@ -47,7 +55,6 @@ export default class Search extends Vue {
 
 
 <style lang="scss" scoped>
-
 .scroll-bar {
     max-height: calc(100vh - 140px);
     overflow-y: auto;
@@ -58,5 +65,4 @@ export default class Search extends Vue {
     padding: 0 15%;
     border-bottom: none !important;
 }
-
 </style>

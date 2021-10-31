@@ -13,7 +13,7 @@
             v-if="withMenu && !readOnly"
             custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
-            triggers="click blur"
+            triggers="blur"
             @shown="focusPopover($event)"
 
         >
