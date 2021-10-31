@@ -405,10 +405,6 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
     private async onAddArtefactModalClose(artId: number) {
         const artefact = this.$state.artefacts.find(artId);
         if (artefact) {
-            const numberOfPlaced = this.artefacts.filter(
-                (x) => x.isPlaced
-            ).length;
-
             const orderedArtefacts = this.artefacts
                 .filter((x) => x.isPlaced)
                 .map((x) => x.placement.zIndex);
@@ -416,10 +412,11 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
                 ? Math.max(...orderedArtefacts)
                 : 0;
 
+            // Place close to topleft corner of viewport
             const placement = new Placement({
                 translate: {
-                    x: 800 * numberOfPlaced,
-                    y: 400,
+                    x: (this.$state.scrollEditor.viewport?.x || 0) + 50,
+                    y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
                 },
                 scale: 1,
                 rotate: 0,
