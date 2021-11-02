@@ -4,7 +4,10 @@
             <waiting></waiting>
         </div>
         <div v-if="!waiting">
-            <div id="artefact-grid">
+            <div
+                id="artefact-grid"
+                ref="artefactGrid"
+            >
                 <!-- Left column -->
                 <toolbar id="toolbar" no-gutters>
                     <artefact-editor-toolbar
@@ -127,6 +130,7 @@
                         </svg>
                     </zoomer>
                 </div>
+                <resize-bar v-if="$refs.artefactGrid" :gridElement="$refs.artefactGrid"></resize-bar>
                 <text-side
                     id="text-side"
                     :editor-mode="editorMode"
@@ -198,6 +202,7 @@ import { TextFragmentState } from '@/state/text-fragment';
 import Toolbar from '@/components/toolbars/toolbar.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
+import ResizeBar from '@/components/misc/resizeBar.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -215,11 +220,13 @@ import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
         'toolbar-icon-button': ToolbarIconButton,
+        'resize-bar': ResizeBar
     },
 })
 export default class ArtefactEditor
     extends Vue
-    implements SavingAgent<ArtefactEditorOperation> {
+    implements SavingAgent<ArtefactEditorOperation>
+{
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
     private actionMode: ActionMode = 'box';
 
@@ -232,6 +239,8 @@ export default class ArtefactEditor
     private get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
+
+ 
 
     private autoMode = false;
 
@@ -1018,8 +1027,8 @@ export default class ArtefactEditor
     @extend .editor;
     display: grid;
 
-    grid-template-columns: 70% 30%;
-    grid-template-rows: $toolbar-height 50px 1fr auto;
+    grid-template-columns: 70% 1fr 30%;
+    grid-template-rows: $toolbar-height 70px 1fr auto;
 
     /* .hidden-sidebar {
         grid-template-columns: 1fr 0px 50px;
@@ -1027,18 +1036,19 @@ export default class ArtefactEditor
 }
 
 #toolbar {
-    grid-column: 1 / 3;
-    grid-row: 1 / 2;
+    grid-column: 1 / span 3;
+    grid-row: 1 / 3;
 }
 
 #artefact-info {
-    grid-column: 1 / 2;
+    grid-column: 1 / 3;
     grid-row: 2 / 3;
     text-align: center;
 }
 
+
 #artefact-image {
-    grid-column: 1 / 2;
+    grid-column: 1 / 3;
     grid-row: 3 / 5;
     height: 100%;
     width: 100%;
@@ -1053,13 +1063,13 @@ export default class ArtefactEditor
 }
 
 #text-side {
-    grid-column: 2 / 3;
+    grid-column: 3 / 3;
     grid-row: 2 / 4;
 }
 
 #attribute-pane {
-    grid-column: 2 / 3;
-    grid-row: 4 / 5;
+    grid-column: 3 / 3;
+    grid-row: 4 / 4;
 }
 
 .editor-actions {

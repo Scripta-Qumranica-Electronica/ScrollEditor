@@ -128,7 +128,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
     private side!: Side;
 
     private get imageStack() {
-        return this.imagedObject.getImageStack(this.artefact.side);
+        return this.imagedObject.getImageStack(this.artefact && this.artefact.side || this.side);
     }
     private get params(): ImagedObjectEditorParams {
         return this.imagedObjectState.params!;
