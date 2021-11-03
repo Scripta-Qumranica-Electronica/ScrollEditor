@@ -4,10 +4,7 @@
             <waiting></waiting>
         </div>
         <div v-if="!waiting">
-            <div
-                id="artefact-grid"
-                ref="artefactGrid"
-            >
+            <div id="artefact-grid" ref="artefactGrid">
                 <!-- Left column -->
                 <toolbar id="toolbar" no-gutters>
                     <artefact-editor-toolbar
@@ -66,6 +63,7 @@
                                 >Auto character select</b-form-checkbox
                             >
                         </toolbox>
+                        <edition-toolbox />
                     </artefact-editor-toolbar>
                 </toolbar>
                 <div id="artefact-info">
@@ -130,7 +128,10 @@
                         </svg>
                     </zoomer>
                 </div>
-                <resize-bar v-if="$refs.artefactGrid" :gridElement="$refs.artefactGrid"></resize-bar>
+                <resize-bar
+                    v-if="$refs.artefactGrid"
+                    :gridElement="$refs.artefactGrid"
+                ></resize-bar>
                 <text-side
                     id="text-side"
                     :editor-mode="editorMode"
@@ -203,6 +204,7 @@ import Toolbar from '@/components/toolbars/toolbar.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import ResizeBar from '@/components/misc/resizeBar.vue';
+import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -220,7 +222,8 @@ import ResizeBar from '@/components/misc/resizeBar.vue';
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
         'toolbar-icon-button': ToolbarIconButton,
-        'resize-bar': ResizeBar
+        'resize-bar': ResizeBar,
+        'edition-toolbox': EditionToolbox,
     },
 })
 export default class ArtefactEditor
@@ -239,8 +242,6 @@ export default class ArtefactEditor
     private get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
-
- 
 
     private autoMode = false;
 
@@ -1045,7 +1046,6 @@ export default class ArtefactEditor
     grid-row: 2 / 3;
     text-align: center;
 }
-
 
 #artefact-image {
     grid-column: 1 / 3;

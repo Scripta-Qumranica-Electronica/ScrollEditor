@@ -1,35 +1,45 @@
 <template>
-    <div class="background" style="min-height: calc(100vh - 56px)">
-        <div class="header">
-            Additional Information for Edition {{ edition.name }}
+    <b-modal v-if="edition"
+        id="editionMetadataModal"
+        ref="editionMetadataModalRef"
+        header-class="header"
+        hide-footer
+        :title="'Additional Information for Edition ' + edition.name"
+        size="lg"
+    >
+        <div
+            
+            class="background"
+            style="min-height: calc(100vh - 56px)"
+        >
+            <span class="no-metadata" v-if="!metadata"
+                >No Additional Information</span
+            >
+            <ul
+                v-if="metadata"
+                class="metadata"
+                style="
+                    min-height: calc(100vh - 140px);
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                "
+            >
+                <li class="row m-2" v-for="key in keys" :key="key">
+                    <span class="key col-2">{{ headers[key] }}:</span>
+                    <span class="value col">{{
+                        (metadata[key] || '-') | cleanString
+                    }}</span>
+                </li>
+            </ul>
         </div>
-        <span class="no-metadata" v-if="!metadata"
-            >No Additional Information</span
-        >
-        <ul
-            v-if="metadata"
-            class="metadata"
-            style="
-                min-height: calc(100vh - 140px);
-                overflow-y: auto;
-                overflow-x: hidden;
-            "
-        >
-            <li class="row m-2" v-for="key in keys" :key="key">
-                <span class="key col-2">{{ headers[key] }}:</span>
-                <span class="value col">{{
-                    (metadata[key] || '-') | cleanString
-                }}</span>
-            </li>
-        </ul>
-    </div>
+    </b-modal>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 @Component({
-    name: 'edition-artefacts',
+    name: 'edition-metadata-modal',
     components: {
         Waiting,
     },
@@ -39,7 +49,7 @@ import Waiting from '@/components/misc/Waiting.vue';
         },
     },
 })
-export default class EditionMetadata extends Vue {
+export default class EditionMetadataModal extends Vue {
     public editionId: number = 0;
 
     protected get edition() {

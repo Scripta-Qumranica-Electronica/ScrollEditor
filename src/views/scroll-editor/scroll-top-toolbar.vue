@@ -13,8 +13,9 @@
                     :pressed.sync="inTextMode"
                     @click="onTextMode('text')"
                     title="Text"
-                disabled="disabled"
-                    :show-text="true" />
+                    disabled="disabled"
+                    :show-text="true"
+                />
             </b-button-group>
         </toolbox>
         <zoom-toolbox
@@ -25,12 +26,30 @@
         />
         <toolbox subject="Resize Artefact">
             <b-button-group>
-                <toolbar-icon-button title="Zoom Out" icon="minus" @click="zoomArtefact(-1)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Zoom In" icon="plus" @click="zoomArtefact(1)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Reset" :show-text="true" @click="resetZoom" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button
+                    title="Zoom Out"
+                    icon="minus"
+                    @click="zoomArtefact(-1)"
+                    :disabled="isToolbarDisabled"
+                />
+                <toolbar-icon-button
+                    title="Zoom In"
+                    icon="plus"
+                    @click="zoomArtefact(1)"
+                    :disabled="isToolbarDisabled"
+                />
+                <toolbar-icon-button
+                    title="Reset"
+                    :show-text="true"
+                    @click="resetZoom"
+                    :disabled="isToolbarDisabled"
+                />
                 <b-input-group prepend="By" append="%">
-                    <b-form-input  type="number" class="by-input"
-                        v-model="params.scale" :disabled="isToolbarDisabled"
+                    <b-form-input
+                        type="number"
+                        class="by-input"
+                        v-model="params.scale"
+                        :disabled="isToolbarDisabled"
                     />
                 </b-input-group>
             </b-button-group>
@@ -38,29 +57,75 @@
 
         <toolbox subject="Rotate Artefact">
             <b-button-group>
-                <toolbar-icon-button title="Rotate Left" icon="undo" @click="rotateGroupArtefact(-1)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Rotate Right" icon="redo" @click="rotateGroupArtefact(+1)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button
+                    title="Rotate Left"
+                    icon="undo"
+                    @click="rotateGroupArtefact(-1)"
+                    :disabled="isToolbarDisabled"
+                />
+                <toolbar-icon-button
+                    title="Rotate Right"
+                    icon="redo"
+                    @click="rotateGroupArtefact(+1)"
+                    :disabled="isToolbarDisabled"
+                />
                 <b-input-group prepend="By" append="degrees">
-                    <b-form-input type="number" class="by-input" v-model="params.rotate" :disabled="isToolbarDisabled"/>
+                    <b-form-input
+                        type="number"
+                        class="by-input"
+                        v-model="params.rotate"
+                        :disabled="isToolbarDisabled"
+                    />
                 </b-input-group>
-                <toolbar-icon-button title="Mirror" :show-text="true" :pressed="isMirroredPressed" @click="mirrorArtefact" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button
+                    title="Mirror"
+                    :show-text="true"
+                    :pressed="isMirroredPressed"
+                    @click="mirrorArtefact"
+                    :disabled="isToolbarDisabled"
+                />
             </b-button-group>
         </toolbox>
 
-
         <toolbox subject="Move Artefact">
             <b-button-group>
-                <toolbar-icon-button title="Up" icon="arrow-up" @click="dragArtefact(0, -1)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Down" icon="arrow-down" @click="dragArtefact(0, 1)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Left" icon="arrow-left" @click="dragArtefact(-1, 0)" :disabled="isToolbarDisabled"/>
-                <toolbar-icon-button title="Right" icon="arrow-right" @click="dragArtefact(1, 0)" :disabled="isToolbarDisabled"/>
+                <toolbar-icon-button
+                    title="Up"
+                    icon="arrow-up"
+                    @click="dragArtefact(0, -1)"
+                    :disabled="isToolbarDisabled"
+                />
+                <toolbar-icon-button
+                    title="Down"
+                    icon="arrow-down"
+                    @click="dragArtefact(0, 1)"
+                    :disabled="isToolbarDisabled"
+                />
+                <toolbar-icon-button
+                    title="Left"
+                    icon="arrow-left"
+                    @click="dragArtefact(-1, 0)"
+                    :disabled="isToolbarDisabled"
+                />
+                <toolbar-icon-button
+                    title="Right"
+                    icon="arrow-right"
+                    @click="dragArtefact(1, 0)"
+                    :disabled="isToolbarDisabled"
+                />
                 <b-input-group prepend="By" append="mm">
-                    <b-form-input type="number" class="by-input" v-model="params.move" :disabled="isToolbarDisabled"/>
+                    <b-form-input
+                        type="number"
+                        class="by-input"
+                        v-model="params.move"
+                        :disabled="isToolbarDisabled"
+                    />
                 </b-input-group>
             </b-button-group>
         </toolbox>
 
         <undo-redo-toolbox />
+        <edition-toolbox />
     </toolbar>
 </template>
 
@@ -90,6 +155,7 @@ import Toolbox from '@/components/toolbars/toolbox.vue';
 import Toolbar from '@/components/toolbars/toolbar.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
+import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
 
 @Component({
     name: 'scroll-top-toolbar',
@@ -100,6 +166,7 @@ import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
         toolbar: Toolbar,
         'toolbar-icon-button': ToolbarIconButton,
         'undo-redo-toolbox': UndoRedoToolbox,
+        'edition-toolbox': EditionToolbox,
     },
 })
 export default class ScrollTopToolbar extends Vue {
@@ -212,7 +279,7 @@ export default class ScrollTopToolbar extends Vue {
     }
 
     protected get isMirroredPressed() {
-        return this.selectedArtefacts.every(a => a.placement.mirrored);
+        return this.selectedArtefacts.every((a) => a.placement.mirrored);
     }
 
     protected get isToolbarDisabled() {
@@ -259,7 +326,7 @@ export default class ScrollTopToolbar extends Vue {
             );
         }
 
-        this.newOperation(operation!);  // We know that there is a selection - otherwise the handler is not called
+        this.newOperation(operation!); // We know that there is a selection - otherwise the handler is not called
     }
 
     public getGroupCenter(): Point {

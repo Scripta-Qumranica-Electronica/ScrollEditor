@@ -285,7 +285,10 @@ export default class Navbar extends Vue {
     }
 
     private goAbout() {
-        window.open(' https://www.qumranica.org/', '_blank');
+         window.open(
+            ' https://www.qumranica.org/',
+            '_blank'
+        );
     }
 
     private showFAQModal() {
@@ -419,40 +422,44 @@ $foreground: $qumran-white;
 
 /* scoped has to be removed in order to set b-nav-dropdown color  */
 
-.navbar-dark .navbar-nav .nav-link:focus {
-    color: #145af3 !important;
-}
-.main-nav-bar .nav-item a.nav-link,
-.nav-item .nav-link,
-.nav-item-white,
-.navbar-text {
-    color: $foreground !important;
-}
 #main-nav-bar {
+    /* background: #041d5c !important; */
     background: $background !important;
 
+    /* height: 50px; */
+    /* height: 3.12rem; */
+
     #brand-text a {
-        color: $foreground;
+        color: $foreground !important;
         text-decoration: none;
         font-family: $font-family;
+        /* color: #ffffff; */
+        /* color: #f3f3f3; */
         letter-spacing: 0em;
         text-align: left;
         vertical-align: center;
         font-weight: 900;
         font-style: italic;
+        /* font-size: 20px; */
         font-size: 1.8rem;
     }
 
     #brand-icon {
         margin-top: 6px;
         margin-right: 1rem;
+        /* margin-right: 10px;
+        margin-left: 24px; */
+
         width: 2.1rem;
         height: 2.1rem;
         border-radius: 0.3rem;
+
         background: $background;
     }
 
     @media (max-width: 1134px) {
+        /* @media (max-width: 1134px ) and (min-width: 768px ) { */
+
         .navbar-brand.brand-1 > .logo-text,
         .main-nav-bar .space-nav {
             display: none;
@@ -473,8 +480,14 @@ $foreground: $qumran-white;
         .navbar-brand > .logo {
             margin: 0;
             padding: 0;
+
+            /* margin-right: 10px;
+            margin-left: 24px; */
             width: 2rem;
             height: 2rem;
+            /* width: 34px;
+            height: 34px;
+            border-radius: 5px; */
             background: $background;
             border-radius: 0.3rem;
             display: flex;
@@ -499,6 +512,17 @@ $foreground: $qumran-white;
         border-color: $foreground !important;
     }
 
+    /* .main-nav-bar .nav-item a.nav-link , */
+    .nav-item .nav-link,
+    .nav-item-white,
+    .navbar-text {
+        color: $foreground !important;
+
+        &.router-link-active {
+            color: #007bff !important;
+        }
+    }
+
     #hamburger {
         li {
             min-width: 5rem;
@@ -520,6 +544,9 @@ $foreground: $qumran-white;
         width: 6.8rem;
         height: 2.958rem;
         line-height: 2rem;
+        /* width: 68px;
+        height: 29.58px;
+        line-height: 20px; */
     }
 
     .status-badge-draft {
@@ -532,13 +559,19 @@ $foreground: $qumran-white;
         color: $light-greend !important;
     }
 
+    .router-link-active {
+        color: #007bff;
+    }
+
     #popover-target-about {
         white-space: nowrap;
     }
 
     .popover-body {
+        /* margin-right:   17rem; */
         min-width: 5rem;
         min-height: 5rem;
+
         color: #007bff;
         background-color: white;
     }

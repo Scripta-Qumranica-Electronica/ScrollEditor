@@ -65,9 +65,7 @@
                         :to="`/editions/${editionId}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
                     >
-                    <b-button
-                        variant="outline-primary"
-                        :to="`/editions/${editionId}/metadata`"
+                    <b-button variant="outline-primary" @click="openMetadata()"
                         >Manuscript Information</b-button
                     >
                 </b-button-group>
@@ -80,6 +78,7 @@
         </div>
         <permission-modal v-if="currentEdition"></permission-modal>
         <copy-edition-modal :visible="false"> </copy-edition-modal>
+        <edition-metadata-modal></edition-metadata-modal>
         <!-- :visible="false" to prevent false display of the modal -->
     </div>
 </template>
@@ -96,6 +95,7 @@ import { Artefact } from '@/models/artefact';
 
 import PermissionModal from './components/permission-modal.vue';
 import CopyEditionModal from '../home/components/copy-edition-modal.vue';
+import EditionMetadataModal from './components/metadata.vue';
 
 @Component({
     name: 'edition',
@@ -104,6 +104,7 @@ import CopyEditionModal from '../home/components/copy-edition-modal.vue';
         Waiting,
         PermissionModal,
         CopyEditionModal,
+        'edition-metadata-modal': EditionMetadataModal,
     },
 })
 export default class Edition extends Vue {
@@ -142,6 +143,10 @@ export default class Edition extends Vue {
                 ? 'This is a public Edition. Create a copy in order to'
                 : 'Create a copy and') + ' Edit this Edition'
         );
+    }
+
+    private openMetadata() {
+        this.$root.$emit('bv::show::modal', 'editionMetadataModal');
     }
 
     protected get artefactsLength(): number {
