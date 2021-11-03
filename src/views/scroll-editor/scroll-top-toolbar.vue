@@ -13,6 +13,7 @@
                     :pressed.sync="inTextMode"
                     @click="onTextMode('text')"
                     title="Text"
+                disabled="disabled"
                     :show-text="true" />
             </b-button-group>
         </toolbox>
