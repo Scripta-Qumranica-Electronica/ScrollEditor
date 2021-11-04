@@ -1,6 +1,6 @@
 <template>
 <toolbox>
-      <b-button variant="outline-secondary" @click="openMetadata()">Edition Information</b-button>
+      <b-button variant="outline-secondary" @click="openMetadata()">Manuscript Information</b-button>
       <edition-metadata-modal></edition-metadata-modal>
 </toolbox>
 
