@@ -257,8 +257,7 @@ import ResizeBar from '@/components/misc/resizeBar.vue';
 })
 export default class ImagedObjectEditor
     extends Vue
-    implements SavingAgent<ImagedObjectEditorOperation>
-{
+    implements SavingAgent<ImagedObjectEditorOperation> {
     private static colors = [
         'purple',
         'blue',
@@ -534,7 +533,7 @@ export default class ImagedObjectEditor
 
             this.editingModeChanged('DRAW');
             this.$emit('create', newArtefact);
-        } catch (err) {
+        } catch (err: any) {
             this.errorMessage = err;
         } finally {
             this.newArtefactName = '';

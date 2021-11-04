@@ -131,8 +131,7 @@ import TextToolbar from './text-toolbar.vue';
 })
 export default class ScrollEditor
     extends Vue
-    implements SavingAgent<ScrollEditorOperation>
-{
+    implements SavingAgent<ScrollEditorOperation> {
     private operationsManager = new OperationsManager<
         ScrollEditorOperation | ArtefactEditorOperation
     >(this);
