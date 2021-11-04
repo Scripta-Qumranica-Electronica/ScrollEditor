@@ -4,71 +4,71 @@
             <Waiting></Waiting>
         </div>
         <div v-if="!waiting" tabindex="0" @keydown="onKeyDown">
-            <div id="editor-grid">
-                <b-row no-gutters align-v="center" class="mb-1 border-bottom">
-                    <b-col class="col-12">
-                        <scroll-top-toolbar
-                            ref="topToolbar"
-                            v-model="params.zoom"
-                            @new-operation="newOperation($event)"
-                            @zoomChangedGlobal="onZoomChangedGlobal($event)"
-                        />
-                    </b-col>
-                </b-row>
+            <div id="editor-grid" ref="editorGrid" class="mb-1 border-bottom">
+                <scroll-top-toolbar
+                    ref="topToolbar"
+                    id="toolbar"
+                    v-model="params.zoom"
+                    @new-operation="newOperation($event)"
+                    @zoomChangedGlobal="onZoomChangedGlobal($event)"
+                />
 
-                <b-row id="artefact-row" no-gutters>
-                    <b-col class="col-9 scroll-editor-col">
-                        <div
-                            id="artefact-container"
-                            ref="artefactContainer"
-                            @scroll="onScroll"
-                        >
-                            <scroll-ruler
-                                :height="actualHeight"
-                                :width="actualWidth"
-                                :horizontalTicks="editionWidth"
-                                :verticalTicks="editionHeight"
-                                :zoom="params.zoom"
-                                :ppm="edition.ppm"
-                            ></scroll-ruler>
-
-                            <scroll-area
-                                ref="scrollArea"
-                                @onSelectArtefact="selectArtefact($event)"
-                                @onSaveGroupArtefacts="saveGroupArtefacts()"
-                                @new-operation="newOperation($event)"
-                                @onCancelGroup="cancelGroup()"
-                            ></scroll-area>
-                        </div>
-                    </b-col>
-
-                    <b-col
-                        class="col-3 border-right scroll-editor-col"
-                        ref="artefactSidebar"
+                <div id="artefact-row" no-gutters>
+                    <div
+                        id="artefact-container"
+                        ref="artefactContainer"
+                        @scroll="onScroll"
                     >
-                        <div id="scroll-map" ref="scrollMap">
-                            <scroll-map @navigate-to-point="navigateToPoint" />
-                        </div>
-                        <div class="pt-3" id="secondary-toolbar" :style="{height: secondaryToolbarHeight + 'px'}">
-                            <text-toolbar
-                                v-if="isTextMode"
-                                @text-changed="onTextChanged($event)"
-                                d-flex
-                                m-auto
-                                p-auto
-                                adjust-content-center
-                                align-items-center
-                            ></text-toolbar>
+                        <scroll-ruler
+                            :height="actualHeight"
+                            :width="actualWidth"
+                            :horizontalTicks="editionWidth"
+                            :verticalTicks="editionHeight"
+                            :zoom="params.zoom"
+                            :ppm="edition.ppm"
+                        ></scroll-ruler>
 
-                            <manuscript-toolbar
-                                v-else
-                                @new-operation="newOperation($event)"
-                                @save-group="saveGroupArtefacts()"
-                                @cancel-group="cancelGroup()"
-                            ></manuscript-toolbar>
-                        </div>
-                    </b-col>
-                </b-row>
+                        <scroll-area
+                            ref="scrollArea"
+                            @onSelectArtefact="selectArtefact($event)"
+                            @onSaveGroupArtefacts="saveGroupArtefacts()"
+                            @new-operation="newOperation($event)"
+                            @onCancelGroup="cancelGroup()"
+                        ></scroll-area>
+                    </div>
+                </div>
+                 
+                <resize-bar
+                     v-if="$refs.editorGrid"
+                    :gridElement="$refs.editorGrid"
+                ></resize-bar>
+                <div class="border-right" ref="artefactSidebar" id="scroll-map-container">
+                    <div ref="scrollMap">
+                        <scroll-map @navigate-to-point="navigateToPoint" />
+                    </div>
+                    <div
+                        class="pt-3"
+                        id="secondary-toolbar"
+                      :style="{height: secondaryToolbarHeight + 'px'}"
+                    >
+                        <text-toolbar
+                            v-if="isTextMode"
+                            @text-changed="onTextChanged($event)"
+                            d-flex
+                            m-auto
+                            p-auto
+                            adjust-content-center
+                            align-items-center
+                        ></text-toolbar>
+
+                        <manuscript-toolbar
+                            v-else
+                            @new-operation="newOperation($event)"
+                            @save-group="saveGroupArtefacts()"
+                            @cancel-group="cancelGroup()"
+                        ></manuscript-toolbar>
+                    </div>
+                </div>
 
                 <add-artefact-modal></add-artefact-modal>
             </div>
@@ -78,6 +78,7 @@
 
 <script lang="ts">
 import EditionIcons from '@/components/cues/edition-icons.vue';
+import ResizeBar from '@/components/misc/resizeBar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import Zoomer from '@/components/misc/zoomer.vue';
 import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
@@ -98,12 +99,12 @@ import AddArtefactModal from './add-artefact-modal.vue';
 import ArtefactToolbox from './artefact-toolbox.vue'; // TBD
 import ManuscriptToolbar from './manuscript-toolbar.vue';
 import {
-  ArtefactPlacementOperation,
-  ArtefactPlacementOperationType,
-  EditGroupOperation,
-  EditionMetricOperation,
-  GroupPlacementOperation,
-  ScrollEditorOperation
+    ArtefactPlacementOperation,
+    ArtefactPlacementOperationType,
+    EditGroupOperation,
+    EditionMetricOperation,
+    GroupPlacementOperation,
+    ScrollEditorOperation,
 } from './operations';
 import ScrollArea from './scroll-area.vue';
 import ScrollMap from './scroll-map.vue';
@@ -125,10 +126,16 @@ import TextToolbar from './text-toolbar.vue';
         'scroll-top-toolbar': ScrollTopToolbar,
         'manuscript-toolbar': ManuscriptToolbar,
         'text-toolbar': TextToolbar,
+        'resize-bar': ResizeBar
     },
 })
-export default class ScrollEditor extends Vue implements SavingAgent<ScrollEditorOperation> {
-    private operationsManager = new OperationsManager<ScrollEditorOperation | ArtefactEditorOperation>(this);
+export default class ScrollEditor
+    extends Vue
+    implements SavingAgent<ScrollEditorOperation>
+{
+    private operationsManager = new OperationsManager<
+        ScrollEditorOperation | ArtefactEditorOperation
+    >(this);
     protected waiting: boolean = true;
     private editionId: number = 0;
     private observer?: ResizeObserver;
@@ -235,7 +242,7 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
                 (artId) => this.$state.artefacts.find(artId)!
             );
             allMovedArtefacts.forEach((art) => art.prepareForBackend());
-//            console.debug('Artefacts after preparing for backend ', allMovedArtefacts.map(art => JSON.stringify(art.placement)));
+            //            console.debug('Artefacts after preparing for backend ', allMovedArtefacts.map(art => JSON.stringify(art.placement)));
 
             if (allMovedArtefacts) {
                 await this.editionService.updateArtefactDTOs(
@@ -405,10 +412,6 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
     private async onAddArtefactModalClose(artId: number) {
         const artefact = this.$state.artefacts.find(artId);
         if (artefact) {
-            const numberOfPlaced = this.artefacts.filter(
-                (x) => x.isPlaced
-            ).length;
-
             const orderedArtefacts = this.artefacts
                 .filter((x) => x.isPlaced)
                 .map((x) => x.placement.zIndex);
@@ -416,10 +419,11 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
                 ? Math.max(...orderedArtefacts)
                 : 0;
 
+            // Place close to topleft corner of viewport
             const placement = new Placement({
                 translate: {
-                    x: 800 * numberOfPlaced,
-                    y: 400,
+                    x: (this.$state.scrollEditor.viewport?.x || 0) + 50,
+                    y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
                 },
                 scale: 1,
                 rotate: 0,
@@ -537,12 +541,12 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
     private calculateSecondaryToolbarHeight() {
         // Set the height of the secondary toolbar to the artefactSidebar height, minus the scrollmap's height.
         // We must set the height explicitly, otherwise the vertical scrollbar on the secondary toolbar misbehaves
-        const sidebar = this.$refs.artefactSidebar as Element;
-        const sidebarHeight = sidebar.getBoundingClientRect().height;
+        const artefactsContainer = this.$refs.artefactContainer as Element;
+        const artefactsContainerHeight = artefactsContainer.getBoundingClientRect().height;
         const scrollmap = this.$refs.scrollMap as Element;
         const scrollmapHeight = scrollmap.getBoundingClientRect().height;
 
-        const height = sidebarHeight - scrollmapHeight;
+        const height = artefactsContainerHeight - scrollmapHeight;
 
         this.secondaryToolbarHeight = height;
     }
@@ -831,6 +835,18 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
 
 #editor-grid {
     @extend .editor;
+    display: grid;
+
+    grid-template-columns: 70% 1fr 30%;
+    grid-template-rows: $toolbar-height 1fr;
+}
+#toolbar {
+    grid-column: 1 / span 3;
+    grid-row: 1 / 2;
+}
+#artefact-row{
+      grid-column: 1 / 3;
+    grid-row: 2 / 2;
 }
 
 #artefact-container {
@@ -840,6 +856,10 @@ export default class ScrollEditor extends Vue implements SavingAgent<ScrollEdito
     height: calc(100vh - 169px);
     /* height: calc(100vh - 249px); */
     touch-action: none;
+}
+#scroll-map-container{
+    grid-column: 3 / 3;
+    grid-row: 2 / 2;
 }
 #artefact-container.active {
     width: calc(100vw - 42px);

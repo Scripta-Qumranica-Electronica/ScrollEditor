@@ -82,4 +82,7 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
 </script>
 
 <style lang="scss" scoped>
+svg{
+    padding: 20px;
+}
 </style>

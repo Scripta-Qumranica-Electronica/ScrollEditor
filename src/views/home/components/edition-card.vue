@@ -98,7 +98,7 @@ export default class EditionCard extends Vue {
     font-family: $font-family;
     text-align: center;
     font-size: $font-size-1;
-    width: 3.5rem;
+    width: 4.5rem;
     /* width: 68px; */
     height: 29.58px;
     line-height: 20px;

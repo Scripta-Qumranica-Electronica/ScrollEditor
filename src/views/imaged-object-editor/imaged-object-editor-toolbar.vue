@@ -6,23 +6,22 @@
                 delta="0.05"
                 @zoomChanged="onZoomChanged($event)"
             />
-            <adjust-image-toolbox :imageStack="imageStack" 
-                                   :params="params"
-                                   @image-setting-changed="onImageSettingChanged($event)"
+            <adjust-image-toolbox
+                :imageStack="imageStack"
+                :params="params"
+                @image-setting-changed="onImageSettingChanged($event)"
             />
             <rotation-toolbox
-                    v-model="params.rotationAngle"
-                    delta="90"
-                    :enable-text="false"
-                    @rotationAngleChanged="onRotationAngleChanged($event)"
+                v-model="params.rotationAngle"
+                delta="90"
+                :enable-text="false"
+                @rotationAngleChanged="onRotationAngleChanged($event)"
             />
             <toolbox>
                 <b-form-checkbox v-model="background"
                     >Background</b-form-checkbox
                 >
-                <b-form-checkbox v-model="highLight"
-                    >HighLight</b-form-checkbox
-                >
+                <b-form-checkbox v-model="highLight">HighLight</b-form-checkbox>
             </toolbox>
             <toolbox subject="Side">
                 <b-dropdown
@@ -33,9 +32,7 @@
                         v-for="filter in sideOptions"
                         :key="filter.displayName"
                         @click="sideFilterChanged(filter)"
-                        >{{
-                            filter.displayName
-                        }}</b-dropdown-item
+                        >{{ filter.displayName }}</b-dropdown-item
                     >
                 </b-dropdown>
             </toolbox>
@@ -47,10 +44,13 @@
                     :pressed="modeChosen(mode.val)"
                     :title="mode.title"
                     :show-text="true"
-                    :icon="mode.icon" />
+                    :icon="mode.icon"
+                />
             </toolbox>
+
             <undo-redo-toolbox />
             <slot />
+            <edition-toolbox />
         </toolbar>
     </div>
 </template>
@@ -92,6 +92,7 @@ import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
+import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -99,18 +100,20 @@ import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
         'image-settings': ImageSettingsComponent,
         'zoom-toolbox': ZoomToolbox,
         'rotation-toolbox': RotationToolbox,
-        'toolbar': Toolbar,
-        'toolbox': Toolbox,
+        toolbar: Toolbar,
+        toolbox: Toolbox,
         'toolbar-icon-button': ToolbarIconButton,
         'undo-redo-toolbox': UndoRedoToolbox,
         'adjust-image-toolbox': AdjustImageToolbox,
+        'edition-toolbox': EditionToolbox,
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
     private sideFilter: DropdownOption = {} as DropdownOption;
 
     private errorMessage: string = '';
-    private imagedObjectService: ImagedObjectService = new ImagedObjectService();
+    private imagedObjectService: ImagedObjectService =
+        new ImagedObjectService();
     private artefactService: ArtefactService = new ArtefactService();
     private newArtefactName: string = '';
     private waiting: boolean = false;
@@ -128,7 +131,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
     private side!: Side;
 
     private get imageStack() {
-        return this.imagedObject.getImageStack(this.artefact.side);
+        return this.imagedObject.getImageStack(
+            (this.artefact && this.artefact.side) || this.side
+        );
     }
     private get params(): ImagedObjectEditorParams {
         return this.imagedObjectState.params!;
@@ -222,12 +227,9 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.$emit('paramsChanged', args);
     }
 
-
-
     public onImageSettingChanged(settings: ImageSetting) {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
-
 
     private editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
@@ -238,7 +240,6 @@ export default class ImagedObjectEditorToolbar extends Vue {
             DrawingMode[val].toString() === this.params.drawingMode.toString()
         );
     }
-
 }
 </script>
 

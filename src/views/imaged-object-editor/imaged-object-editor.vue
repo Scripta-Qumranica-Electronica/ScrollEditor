@@ -3,8 +3,14 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div v-if="!waiting && imagedObject" id="imaged-object-grid">
-            <imaged-object-editor-toolbar id="imaged-object-toolbar"
+        
+        <div
+            v-if="!waiting && imagedObject"
+            id="imaged-object-grid"
+            ref="imagedObjectGrid"
+        >
+            <imaged-object-editor-toolbar
+                id="imaged-object-toolbar"
                 :imagedObject="imagedObject"
                 :artefacts="visibleArtefacts"
                 :artefact="artefact"
@@ -26,14 +32,11 @@
             </imaged-object-editor-toolbar>
             <div id="imaged-object-title" v-if="imagedObject">
                 {{ imagedObject.id }}
-                <edition-icons
-                    :edition="edition"
-                    :show-text="true"
-                />
+                <edition-icons :edition="edition" :show-text="true" />
             </div>
             <div id="imaged-object-container">
                 <zoomer
-                    class="img-obj-container "
+                    class="img-obj-container"
                     v-if="masterImage"
                     :zoom="zoomLevel"
                     @new-zoom="onNewZoom($event)"
@@ -42,10 +45,8 @@
                         class="overlay"
                         :height="actualHeight"
                         :width="actualWidth"
-
                         :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
                     >
-
                         <!-- Coordinate system is in the displayed image size (0,0) - (actualWidth,actualHeight) with rotation -->
 
                         <g
@@ -54,7 +55,6 @@
                             id="transform-root"
                         >
                             <!-- Coordinate system is in master image coordinates -->
-
 
                             <image-layer
                                 :width="imageWidth"
@@ -68,18 +68,16 @@
                                 v-for="art in visibleArtefacts"
                                 :artefact="art"
                                 :key="art.id"
-                                :color=
-                                    "removeColor ?
-                                    'none' :   getArtefactColor(art)
-                                    "
+                                :color="
+                                    removeColor ? 'none' : getArtefactColor(art)
+                                "
                             />
                             <boundary-drawer
                                 v-if="canEdit && artefact"
-                                :color=
-                                " isErasing ?
-                                    'black'
-                                    :
-                                    getArtefactColor(artefact)
+                                :color="
+                                    isErasing
+                                        ? 'black'
+                                        : getArtefactColor(artefact)
                                 "
                                 transform-root-id="transform-root"
                                 @new-polygon="onNewPolygon($event)"
@@ -88,6 +86,10 @@
                     </svg>
                 </zoomer>
             </div>
+            <resize-bar
+                v-if="displayResizeBar"
+                :gridElement="$refs.imagedObjectGrid"
+            ></resize-bar>
             <div id="imaged-object-artefacts">
                 <div
                     v-for="art in visibleArtefacts"
@@ -113,7 +115,7 @@
                                 &nbsp;
                             </span>
                         </b-col>
-                        <b-col class="col-5 col-xl-4 col-lg-4 col-md-6 ">
+                        <b-col class="col-5 col-xl-4 col-lg-4 col-md-6">
                             <span
                                 v-if="renameInputActive !== art"
                                 :class="{
@@ -124,7 +126,9 @@
                                 >{{ art.name }}</span
                             >
                         </b-col>
-                        <b-col class="col-4 col-xl-5 col-lg-5 col-md-4 mr-0 px-0">
+                        <b-col
+                            class="col-4 col-xl-5 col-lg-5 col-md-4 mr-0 px-0"
+                        >
                             <div v-if="canEdit">
                                 <b-button
                                     v-if="renameInputActive !== art"
@@ -139,20 +143,15 @@
                                 />
                                 <b-button
                                     v-if="
-                                        !renaming &&
-                                        renameInputActive === art
+                                        !renaming && renameInputActive === art
                                     "
-                                    class="btn btn-sm "
+                                    class="btn btn-sm"
                                     :disabled="!art.name"
                                     @click="onRename(art)"
                                     >Rename</b-button
                                 >
                                 <b-button
-                                    v-if=
-                                    "
-                                        renameInputActive === art
-                                        && renaming
-                                    "
+                                    v-if="renameInputActive === art && renaming"
                                     disabled
                                     class="disable btn btn-sm"
                                 >
@@ -240,6 +239,7 @@ import { DropdownOption } from '@/utils/helpers';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import { ImagedObjectState } from '../../state/imaged-object';
 import Toolbox from '@/components/toolbars/toolbox.vue';
+import ResizeBar from '@/components/misc/resizeBar.vue';
 
 @Component({
     name: 'imaged-object-editor',
@@ -249,14 +249,16 @@ import Toolbox from '@/components/toolbars/toolbox.vue';
         'artefact-layer': ArtefactLayer,
         'boundary-drawer': BoundaryDrawer,
         'imaged-object-editor-toolbar': ImagedObjectEditorToolbar,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'edition-icons': EditionIcons,
-        'toolbox': Toolbox,
+        toolbox: Toolbox,
+        'resize-bar': ResizeBar,
     },
 })
 export default class ImagedObjectEditor
     extends Vue
-    implements SavingAgent<ImagedObjectEditorOperation> {
+    implements SavingAgent<ImagedObjectEditorOperation>
+{
     private static colors = [
         'purple',
         'blue',
@@ -276,12 +278,12 @@ export default class ImagedObjectEditor
     // private params = new ImagedObjectEditorParams();
     private artefactId: number = -1;
     private renaming = false;
-    private operationsManager = new OperationsManager<ImagedObjectEditorOperation>(
-        this
-    );
+    private operationsManager =
+        new OperationsManager<ImagedObjectEditorOperation>(this);
     private side: Side = 'recto';
     private renameInputActive: Artefact | null = null;
     private waiting: boolean = true;
+    private displayResizeBar: boolean = false;
     private masterImage?: IIIFImage | null = null;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
@@ -289,9 +291,7 @@ export default class ImagedObjectEditor
     public async saveEntities(
         ops: ImagedObjectEditorOperation[]
     ): Promise<boolean> {
-
         for (const op of ops) {
-
             const id = op.getId();
             const artefact = this.artefacts.find((x) => x.id === id);
             if (!artefact) {
@@ -305,13 +305,10 @@ export default class ImagedObjectEditor
                 );
 
                 this.showMessage('toasts.imagedObjectSaved', 'success');
-
             } catch (error) {
-
                 console.error("Can't save arterfact to server", error);
                 this.showMessage('toasts.imagedObjectFailed', 'error');
                 continue;
-
             }
         }
 
@@ -331,17 +328,15 @@ export default class ImagedObjectEditor
         (this.$refs.newArtefactName as any).focus();
     }
 
+    // moved code to created() from mounted() {
+    // in order to have the masterImage and other items
+    // (i.e this.artefactId ) ready before mounted
+    // for the <zoomed...><svg> ... part
+    // and prevent errors of undefined parts
+    // occuring during render befor mounted,
+    // e.g. selectedRow: art.id === artefact.id returns undefined
 
-   // moved code to created() from mounted() {
-   // in order to have the masterImage and other items
-   // (i.e this.artefactId ) ready before mounted
-   // for the <zoomed...><svg> ... part
-   // and prevent errors of undefined parts
-   // occuring during render befor mounted,
-   // e.g. selectedRow: art.id === artefact.id returns undefined
-
-   private async created() {
-
+    private async created() {
         try {
             this.waiting = true;
 
@@ -399,6 +394,9 @@ export default class ImagedObjectEditor
             }
         } finally {
             this.waiting = false;
+            this.$nextTick(() => {
+                this.displayResizeBar = true;
+            });
         }
 
         this.fillImageSettings();
@@ -450,7 +448,7 @@ export default class ImagedObjectEditor
     }
 
     private get imageHeight(): number {
-          return this.masterImage!.height;
+        return this.masterImage!.height;
     }
 
     private get actualWidth(): number {
@@ -491,9 +489,7 @@ export default class ImagedObjectEditor
             // The band is caused by the new width (old height) being smaller than the old width.
             // There actually two bands, one to the left and one to the right. The right one can't be seen.
             const bandWidth = (this.imageWidth - this.imageHeight) / 2;
-            translate = `translate(${(-bandWidth)}, ${bandWidth})`;
-
-
+            translate = `translate(${-bandWidth}, ${bandWidth})`;
         }
 
         const scale = `scale(${this.zoomLevel})`;
@@ -571,7 +567,6 @@ export default class ImagedObjectEditor
         this.nonSelectedMask = new Polygon();
         for (const artefact of this.visibleArtefacts) {
             if (artefact.id !== art.id) {
-
                 this.nonSelectedMask = Polygon.add(
                     this.nonSelectedMask,
                     artefact.mask
@@ -701,7 +696,6 @@ export default class ImagedObjectEditor
     }
 
     private async onDeleteArtefact(art: Artefact) {
-
         try {
             await this.artefactService.deleteArtefact(art);
             this.showMessage('toasts.artefactDeleted', 'success');
@@ -736,17 +730,17 @@ export default class ImagedObjectEditor
     margin-left: 5%; */
     /* height: calc(100vh - 95px); */
     display: grid;
-    grid-template-columns: 67% 33%;
-    grid-template-rows: $toolbar-height 50px 1fr;
+    grid-template-columns: 70% 1fr 30%;
+    grid-template-rows: $toolbar-height 70px 1fr;
 }
 
 #imaged-object-toolbar {
-    grid-column: 1/3;
-    grid-row: 1/2;
+    grid-column: 1 / span 3;
+    grid-row: 1 / 3;
 }
 
 #imaged-object-title {
-    grid-column: 1/2;
+    grid-column: 1 / span 2;
     grid-row: 2/3;
     text-align: center;
 }
@@ -760,8 +754,8 @@ export default class ImagedObjectEditor
 }
 
 #imaged-object-artefacts {
-    grid-column: 2/3;
-    grid-row: 2/4;
+    grid-column: 3/3;
+    grid-row: 3/3;
 }
 
 span.selected {
@@ -792,9 +786,8 @@ span.selected {
     cursor: pointer;
 }
 
-
 @media (max-width: 1100px) {
-        .editor-container{
+    .editor-container {
         /* margin-top: 0.7rem;
         margin-bottom: 0.7rem; */
         /* padding-top: 3rem;
@@ -806,5 +799,4 @@ span.selected {
         overflow: auto;
     }
 }
-
 </style>

@@ -68,7 +68,7 @@
                 <b-form-checkbox
                     switch
                     size="sm"
-
+                    disabled="disabled"
                     @input="
                         onDisplayReconstructedText($event)
                     "
@@ -83,6 +83,7 @@
                 <b-form-checkbox
                     switch
                     size="sm"
+                     disabled="disabled"
                     v-model ="isDisplayText"
                     @input="onDisplayText($event)"
                     >Display Text
