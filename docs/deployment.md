@@ -1,30 +1,19 @@
-### Production Deployment Notes
+# SQE Frontend Deployment
 
-Depending on the version of vue-cli you must add the proper static url to the `module.exports` of vue.config.js before building with `yarn build`:
+The SQE Frontend is stored in a Google Cloud Platform bucket called sqe-website.
 
-vue cli < 3.3
-```Javascript
-baseUrl: '/Scrollery/v0.3.0/',
-```
+The bucket was created as explained in this tutorial: Hosting a static website  |  Cloud Storage  |  Google Cloud
 
-vue cli >= 3.3
-```Javascript
-publicPath: process.env.NODE_ENV === 'production'
-        ? '/Scrollery/v0.3.0/'
-        : '/',
-```
+GCP Configuration
+The data is stored on a GCP bucket called sqe-website, with public read permissions.
+Uploading a new version
 
-Since we use the vue router in history mode, the webserver requires a rewrite rule.  This can be done with Apache using a .htaccess file in the deployment folder:
+To upload a new version of the frontend to the bucket, pull the ScrollEditor version you want, and run:
 
-```xml
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /Scrollery/v0.3.0/index.html [L]
-</IfModule>
-```
+    yarn install
+    yarn build
 
-**Note:** you should replace the `v0.3.0` part of both files with your current version tag.
+    gsutil rsync -R dist gs://sqe-website (use gsutil -m to do it faster)
+    gcloud compute url-maps invalidate-cdn-cache sqe-website-lb --path "/*" (invalidate the cache so people get the update in their browser)
+
+Once you’re done, the new compiled frontend should be available.
