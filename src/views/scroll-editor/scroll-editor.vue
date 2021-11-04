@@ -309,7 +309,7 @@ export default class ScrollEditor
             }
 
             return true;
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             this.$toasted.error(error, { duration: 3000 });
             return false;
