@@ -1,5 +1,6 @@
 <template>
-    <b-modal v-if="edition"
+    <b-modal
+        v-if="edition"
         id="editionMetadataModal"
         ref="editionMetadataModalRef"
         header-class="header"
@@ -7,23 +8,11 @@
         :title="'Additional Information for Edition ' + edition.name"
         size="lg"
     >
-        <div
-            
-            class="background"
-            style="min-height: calc(100vh - 56px)"
-        >
+        <div class="background">
             <span class="no-metadata" v-if="!metadata"
                 >No Additional Information</span
             >
-            <ul
-                v-if="metadata"
-                class="metadata"
-                style="
-                    min-height: calc(100vh - 140px);
-                    overflow-y: auto;
-                    overflow-x: hidden;
-                "
-            >
+            <ul v-if="metadata" class="metadata">
                 <li class="row m-2" v-for="key in keys" :key="key">
                     <span class="key col-2">{{ headers[key] }}:</span>
                     <span class="value col">{{
