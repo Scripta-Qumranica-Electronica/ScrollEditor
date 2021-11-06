@@ -14,6 +14,7 @@
 
                 <b-col class="col-7 mt-4 mb-3">
                     <div class="btns-permiss" v-if="currentEdition">
+                        <b-button class="mr-2" @click="openMetadata()">Manuscript Information</b-button>
                         <b-button
                             class="mr-2"
                             v-if="currentEdition && user"
@@ -64,9 +65,6 @@
                         variant="outline-primary"
                         :to="`/editions/${editionId}/imaged-objects`"
                         >Imaged Objects {{ imagedObjectsLength }}</b-button
-                    >
-                    <b-button variant="outline-primary" @click="openMetadata()"
-                        >Manuscript Information</b-button
                     >
                 </b-button-group>
             </div>
