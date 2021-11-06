@@ -1,30 +1,29 @@
 <template>
-
     <div>
         <p v-b-toggle="title">
-
-             <i class="toggle-icon fa fa-angle-down"/>{{ title }}</p>
-         <b-collapse visible :id="title" class="mt-2">
-        <div
-            v-if="editions.length"
-            :class="{afterlogin: this.editions.length > 0 }"
+            <i class="toggle-icon fa fa-angle-down" />{{ title }}
+        </p>
+        <b-collapse visible :id="title" class="mt-2">
+            <div
+                v-if="editions.length"
+                :class="{ 'after-login': this.editions.length > 0 }"
             >
-            <b-card
-                class="p-3"
-                no-body
-                v-for="edition in editions"
-                :key="edition.id"
-             >
-             <!-- :key="edition.versionId"  does not exist-->
+                <b-card
+                    class="p-3"
+                    no-body
+                    v-for="edition in editions"
+                    :key="edition.id"
+                >
+                    <!-- :key="edition.versionId"  does not exist-->
 
-                <edition-card
-                    @edition-copy-click=
-                       "openCopyEditionModal(edition)"
-                    :edition="edition">
-                </edition-card>
-            </b-card>
-        </div>
-          </b-collapse>
+                    <edition-card
+                        @edition-copy-click="openCopyEditionModal(edition)"
+                        :edition="edition"
+                    >
+                    </edition-card>
+                </b-card>
+            </div>
+        </b-collapse>
     </div>
 </template>
 
@@ -42,15 +41,14 @@ import CopyEditionModal from './copy-edition-modal.vue';
         Waiting,
         EditionCard,
         // CopyPersonalEditionModal
-        CopyEditionModal
-     },
+        CopyEditionModal,
+    },
 })
 export default class EditionsList extends Vue {
     @Prop() public title!: string;
     @Prop() public editions!: EditionInfo[];
 
     private openCopyEditionModal(edition: EditionInfo) {
-
         this.$state.editions.current = edition;
 
         // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
@@ -58,9 +56,7 @@ export default class EditionsList extends Vue {
         // BootstrapVue recomends to use this method:
         // this.$bvModal.show('copy-edition-modal');
         this.$root.$bvModal.show('copy-edition-modal');
-
-      }
-
+    }
 }
 </script>
 
@@ -81,10 +77,9 @@ p:focus {
     outline: 0;
 }
 
-.text-edition .card {
-    display: inline-block;
-    width: calc(25% - 20px);
-    margin: 10px;
+.after-login {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(4, 0.25fr);
 }
-
 </style>

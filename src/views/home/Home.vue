@@ -145,6 +145,8 @@ export default class Home extends Vue {
 </script>
 
 <style lang="scss">
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 .tabs-wrapper {
     background: white;
     padding-top: 4px;
@@ -184,5 +186,10 @@ export default class Home extends Vue {
     color: $blue;
     border-bottom: 2px solid $blue;
     border-color: transparent transparent $blue;
+}
+@media (max-width: 1360px) {
+    .tabs {
+        padding: 0 10%;
+    }
 }
 </style>
