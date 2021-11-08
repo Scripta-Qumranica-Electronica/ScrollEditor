@@ -12,13 +12,19 @@ export default class ResizeBar extends Vue {
     @Prop({
         default: null,
     })
-    protected gridElement!: HTMLElement;
-    private isDragging = false;
+    protected gridElement!: HTMLDivElement;
 
+    @Prop() private storageKey!: string;
+    private isDragging = false;
+    private leftPaneWidth!: number;
     public mounted() {
         if (this.gridElement) {
-            this.gridElement.onmouseup = () => this.endDrag();
+            const storedLeftPaneWidth = parseFloat(
+                localStorage.getItem(this.storageKey) || '70'
+            );
+            this.setPanelWidths(this.gridElement, storedLeftPaneWidth);
             this.gridElement.onmousemove = (event) => this.onDrag(event);
+            this.gridElement.onmouseup = () => this.endDrag();
         }
     }
 
@@ -28,6 +34,12 @@ export default class ResizeBar extends Vue {
 
     public endDrag() {
         this.isDragging = false;
+        if (this.storageKey) {
+            localStorage.setItem(
+                this.storageKey,
+                this.leftPaneWidth.toString()
+            );
+        }
     }
 
     public onDrag(event: MouseEvent) {
@@ -35,13 +47,17 @@ export default class ResizeBar extends Vue {
             return;
         }
         const grid = this.gridElement as HTMLDivElement;
-        const leftPaneWidth = (event.clientX / grid.clientWidth) * 100;
-        const rightPaneWidth = 100 - leftPaneWidth;
+        this.leftPaneWidth = (event.clientX / grid.clientWidth) * 100;
 
+        this.setPanelWidths(grid, this.leftPaneWidth);
+    }
+
+    public setPanelWidths(grid: HTMLDivElement, leftPanelWidth: number) {
+        const rightPaneWidth = 100 - leftPanelWidth;
         if (grid) {
             grid.style.setProperty(
                 'grid-template-columns',
-                `minmax(200px, ${leftPaneWidth}%) 5px minmax(200px, ${rightPaneWidth}%)`
+                `minmax(200px, ${leftPanelWidth}%) 5px minmax(200px, ${rightPaneWidth}%)`
             );
         }
     }
