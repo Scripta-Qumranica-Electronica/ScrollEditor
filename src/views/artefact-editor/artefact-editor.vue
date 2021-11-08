@@ -137,6 +137,7 @@
                     :editor-mode="editorMode"
                     :artefact="artefact"
                     :text-fragment="textFragment"
+                    :font-size="params.fontSize"
                     @sign-interpretation-clicked="
                         onSignInterpretationClicked($event)
                     "

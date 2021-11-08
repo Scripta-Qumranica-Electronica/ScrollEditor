@@ -71,6 +71,7 @@
                 >
                     <text-fragment
                         :fragment="textFragment"
+                         :font-size="fontSize"
                         id="text-box"
                     ></text-fragment>
                 </b-collapse>
@@ -100,6 +101,7 @@ export default class TextSide extends Vue {
     @Prop({ default: 'artefact'})
     public editorMode!: ArtefactEditorMode;
     @Prop() public textFragment!: TextFragment;
+    @Prop() public fontSize!: number;
 
     private get artefactMode() {
         return this.editorMode === 'artefact';

@@ -219,7 +219,7 @@ import CitationModal from './CitationModal.vue';
 // import ScreenSizeAlert from '../../views/home/components/ScreenSizeAlert.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
-import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
+import { BIcon, BIconSearch, BIconPersonFill, BIconList} from 'bootstrap-vue';
 import Registration from '@/views/user/Registration.vue';
 
 @Component({
@@ -234,7 +234,7 @@ import Registration from '@/views/user/Registration.vue';
         BIcon,
         BIconSearch,
         BIconPersonFill,
-        BIconList,
+        BIconList
     },
 })
 export default class Navbar extends Vue {
