@@ -89,6 +89,7 @@
             <resize-bar
                 v-if="displayResizeBar"
                 :gridElement="$refs.imagedObjectGrid"
+                 storageKey="image-object-left-pane-width"
             ></resize-bar>
             <div id="imaged-object-artefacts">
                 <div
