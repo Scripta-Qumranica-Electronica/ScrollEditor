@@ -265,7 +265,7 @@ export default class SignAttributePane extends Vue {
 <style lang="scss" scoped>
 .attributes {
     padding: 10px;
-    overflow-y: auto;
+    // overflow-y: auto;
 }
 
 .attribute-list {
