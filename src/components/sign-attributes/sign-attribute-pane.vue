@@ -6,6 +6,7 @@
                     ref="attributesMenu"
                     :disabled="!selectedSignInterpretations.length"
                     size="sm"
+                    boundary="window"
                     no-caret
                     @hide="onAttributesMenuHide($event)"
                 >
@@ -20,6 +21,7 @@
                         v-for="attr in attributesMenu"
                         :key="attr.attributeId"
                         variant="link"
+                        boundary="viewport" 
                         class="attribute-pane-dropdown-attr"
                         dropright
                         @show="onValuesMenuShow()"
@@ -265,7 +267,7 @@ export default class SignAttributePane extends Vue {
 <style lang="scss" scoped>
 .attributes {
     padding: 10px;
-    // overflow-y: auto;
+     overflow-y: auto;
 }
 
 .attribute-list {
