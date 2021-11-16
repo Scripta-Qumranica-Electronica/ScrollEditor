@@ -4,8 +4,10 @@
             <li v-if="!readOnly" class="attribute-pane-add-attribute">
                 <b-dropdown
                     ref="attributesMenu"
+                    menu-class="attribute-pane-dropdown"
                     :disabled="!selectedSignInterpretations.length"
                     size="sm"
+                    boundary="viewport"
                     no-caret
                     @hide="onAttributesMenuHide($event)"
                 >
@@ -20,6 +22,7 @@
                         v-for="attr in attributesMenu"
                         :key="attr.attributeId"
                         variant="link"
+                        boundary="viewport" 
                         class="attribute-pane-dropdown-attr"
                         dropright
                         @show="onValuesMenuShow()"
@@ -265,7 +268,7 @@ export default class SignAttributePane extends Vue {
 <style lang="scss" scoped>
 .attributes {
     padding: 10px;
-    overflow-y: auto;
+     overflow-y: auto;
 }
 
 .attribute-list {
@@ -284,6 +287,8 @@ export default class SignAttributePane extends Vue {
     color: black;
     border: 0px;
 }
+
+
 
 .attribute-pane-dropdown-attr {
     width: 100%;
@@ -304,6 +309,9 @@ export default class SignAttributePane extends Vue {
 
 <style lang="scss">
 // Styling inner elements of a dropdown doesn't work with scoping. We use really elaborate class names instead, to avoid conflicts.
+.attribute-pane-dropdown {
+    max-width: 200px;
+}
 
 .attribute-pane-add-attribute {
     .btn {
