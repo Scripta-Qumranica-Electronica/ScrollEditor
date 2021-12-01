@@ -1,4 +1,8 @@
-# Deploying to the GCP environments
+# SQE Frontend Deployment
+
+The SQE Frontend is stored in a Google Cloud Platform bucket called sqe-website.
+
+The bucket was created as explained in this tutorial: Hosting a static website  |  Cloud Storage  |  Google Cloud
 
 ## Deploying to staging
 Staging is stored in an S3 bucket owned by The Research Software Company. It is accessible from https://sqe.researchsoftwarehosting.org .

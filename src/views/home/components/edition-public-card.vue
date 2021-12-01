@@ -1,55 +1,48 @@
 <template>
-    <div>
-        <b-row class="link-row" @click="editionViewClick()">
-            <b-col class="col col-4 col-lg-5 col-md-5 col-xs-6">
-                <img
-                    class="card-img-top"
-                    v-if="thumbnailSource"
-                    v-lazy="thumbnailSource"
-                    :alt="edition.name"
-                />
-                <p class="no-images" v-else>{{
-                    $t('misc.noImages')
-                }}</p>
+    <div class="edition-public-grid" @click="editionViewClick()">
+        <div class="details-edition-public-grid">
+            <img
+                class="card-img-top"
+                v-if="thumbnailSource"
+                v-lazy="thumbnailSource"
+                :alt="edition.name"
+            />
+            <p class="no-images" v-else>{{ $t('misc.noImages') }}</p>
+
+            <p class="card-title">
+                {{ edition.name }}
+                <edition-icons :edition="edition" />
+            </p>
+
+            <div class="status-edition-public-grid">
+                <span class="card-label"> Published: </span>
+
+                <span class="card-label card-date mr-1"
+                    >{{
+                        edition.lastEdit
+                            ? edition.lastEdit.toDateString().substr(4)
+                            : ''
+                    }}
+                </span>
+            </div>
+        </div>
+        <b-row no-gutters style="align-items: end">
+            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mb-lg-1 mb-xl-0 mb-sm-1 mr-2">
+                <b-button
+                    size="sm"
+                    class="btn btn-secondary btn-sm w-100"
+                    @click="editionViewClick"
+                    >{{ $t('misc.view') }}</b-button
+                >
             </b-col>
-            <b-col class="col col-8 col-lg-7 col-md-6 col-xs-6">
-                <b-row>
-                    <p class="card-title">
-                        {{ edition.name }}
-                        <edition-icons :edition="edition" />
-                    </p>
-                </b-row>
-                <b-row>
-                    <div>
-                        <span class="card-label">
-                            Published:
-                        </span>
-                    </div>
-                    <div>
-                        <span class="card-label card-date mr-1"
-                            >{{
-                                edition.lastEdit
-                                    ? edition.lastEdit
-                                            .toDateString()
-                                            .substr(4)
-                                    : ''
-                            }}
-                        </span>
-                    </div>
-                </b-row>
+            <b-col class="col-xl-7 col-lg-12">
+                <b-button
+                    class="btn btn-secondary btn-sm w-100"
+                    size="sm"
+                    @click="editionCopyClick()"
+                    >{{ $t('misc.copy') }}</b-button
+                >
             </b-col>
-        </b-row>
-        <b-row class="mt-2 no-gutters row">
-            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mr-2">
-                <b-button size="sm" class="btn btn-secondary btn-sm w-100" @click="editionViewClick">{{
-                    $t('misc.view')
-                }}</b-button>
-                </b-col>
-                 <b-col class="col col-xl-7 col-lg-12">
-                <b-button class="btn btn-secondary btn-sm w-100" size="sm" @click="editionCopyClick()">{{
-                    $t('misc.copy')
-                }}</b-button>
-              </b-col>
         </b-row>
     </div>
 </template>
@@ -86,8 +79,19 @@ export default class EditionPublicCard extends Vue {
 @import '@/assets/styles/_fonts.scss';
 @import './card.scss';
 
-.link-row{
-        min-height: 80px;
+.edition-public-grid {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-rows: 1fr 0.5fr;
+}
+.details-edition-public-grid {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: 0.7fr 1fr;
+}
+.status-edition-public-grid {
+    grid-column: 2 / 2;
+    grid-row: 2 / 2;
 }
 
 .custom-p-left {

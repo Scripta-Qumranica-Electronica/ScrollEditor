@@ -129,14 +129,16 @@
                     </zoomer>
                 </div>
                 <resize-bar
-                    v-if="$refs.artefactGrid"
+                    v-if="!!$refs.artefactGrid"
                     :gridElement="$refs.artefactGrid"
+                    storageKey="artefact-left-pane-width"
                 ></resize-bar>
                 <text-side
                     id="text-side"
                     :editor-mode="editorMode"
                     :artefact="artefact"
                     :text-fragment="textFragment"
+                    :font-size="params.fontSize"
                     @sign-interpretation-clicked="
                         onSignInterpretationClicked($event)
                     "
@@ -228,10 +230,10 @@ import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
 })
 export default class ArtefactEditor
     extends Vue
-    implements SavingAgent<ArtefactEditorOperation> {
+    implements SavingAgent<ArtefactEditorOperation>
+{
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
     private actionMode: ActionMode = 'box';
-
     // Two modes of operation. In artefact mode, the artefact is  chosen, and text fragments can be added to it.
     // In text-fragment mode, the text fragment is constant, and artefacts can be changed.
     private editorMode: ArtefactEditorMode = 'artefact';
@@ -241,7 +243,7 @@ export default class ArtefactEditor
     private get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
-
+    
     private autoMode = false;
 
     private errorMessage = '';
@@ -993,6 +995,7 @@ export default class ArtefactEditor
     private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
         this.operationsManager.addBulkOperations(ops);
     }
+   
 }
 </script>
 

@@ -41,6 +41,7 @@
                 <resize-bar
                      v-if="$refs.editorGrid"
                     :gridElement="$refs.editorGrid"
+                     storageKey="scroll-editor-left-pane-width"
                 ></resize-bar>
                 <div class="border-right" ref="artefactSidebar" id="scroll-map-container">
                     <div ref="scrollMap">

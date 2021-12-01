@@ -8,6 +8,7 @@
                 :line="line"
                 direction="rtl"
                 class="d-flex w-100"
+                :style="{fontSize: fontSize + 'px'}"
             ></text-line>
         </div>
     </div>
@@ -26,7 +27,9 @@ import TextLine from '@/components/text/text-line.vue';
 })
 export default class TextFragmentComponent extends Vue {
     @Prop() public fragment!: TextFragment;
+     @Prop() public fontSize!: number;
 }
+
 </script>
 
 <style lang="scss" scoped>

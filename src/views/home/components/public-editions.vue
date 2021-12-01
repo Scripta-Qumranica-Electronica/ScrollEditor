@@ -17,7 +17,7 @@
                 </b-col>
             </b-row>
         </div>
-        <editions-public-list :editions="filteredEditions"></editions-public-list>
+        <editions-public-list class="p-1" :editions="filteredEditions"></editions-public-list>
         <copy-edition-modal :visible="true" />
     </div>
 </template>

@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <b-row class="link-row" @click="editionEditClick()">
+    <div class="edition-card-grid h-100" @click="editionEditClick()">
+        <b-row>
             <b-col class="col col-4 col-lg-5 col-md-5 col-xs-6">
                 <img
                     class="card-img-top"
@@ -11,53 +11,55 @@
                 <span v-else class="no-images">{{ $t('misc.noImages') }}</span>
             </b-col>
             <b-col class="col col-8 col-lg-7 col-md-6 col-xs-6">
-                <b-row>
-                    <p class="card-title">
-                        {{ edition.name }}
-                        <edition-icons :edition="edition" />
-                    </p>
-                </b-row>
-                <b-row>
-                    <div>
-                        <span class="card-label"> Edited: </span>
-                    </div>
-                    <div>
-                        <span class="card-label card-date mr-1"
-                            >{{
-                                edition.lastEdit
-                                    ? edition.lastEdit.toDateString().substr(4)
-                                    : ''
-                            }}
-                        </span>
-                    </div>
-                </b-row>
-                <b-row>
-                    <p class="card-label ml-0 mr-9">
-                        Status:
-                        <b-badge
-                            :class="
-                                edition.isPublic
-                                    ? ['status-badge', 'status-badge-Published']
-                                    : ['status-badge', 'status-badge-draft']
-                            "
-                        >
-                            {{ edition.isPublic ? 'Published' : 'Draft' }}
-                        </b-badge>
-                    </p>
-                </b-row>
+                <p class="card-title">
+                    {{ edition.name }}
+                    <edition-icons :edition="edition" />
+                </p>
             </b-col>
         </b-row>
+        <div class="details-edition-personal-grid">
+            <div class="status-edition-public-grid">
+                <span class="card-label"> Edited: </span>
+                <span
+                    class="card-label card-date mr-1"
+                    style="white-space: nowrap"
+                    >{{
+                        edition.lastEdit
+                            ? edition.lastEdit.toDateString().substr(4)
+                            : ''
+                    }}
+                </span>
+                <p class="card-label ml-0 mr-9">
+                    Status:
+                    <b-badge
+                        :class="
+                            edition.isPublic
+                                ? ['status-badge', 'status-badge-Published']
+                                : ['status-badge', 'status-badge-draft']
+                        "
+                    >
+                        {{ edition.isPublic ? 'Published' : 'Draft' }}
+                    </b-badge>
+                </p>
+            </div>
+        </div>
 
-        <b-row class="mt-2 no-gutters row">
-            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mr-2">
-                <b-button   class="btn btn-secondary btn-sm w-100" size="sm" @click="editionEditClick">{{
-                    $t('misc.edit')
-                }}</b-button>
+        <b-row no-gutters style="align-items: end">
+            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mb-lg-1 mb-xl-0 mb-sm-1 mr-2">
+                <b-button
+                    class="btn btn-secondary btn-sm w-100"
+                    size="sm"
+                    @click="editionEditClick"
+                    >{{ $t('misc.edit') }}</b-button
+                >
             </b-col>
-            <b-col class="col col-xl-7 col-lg-12">
-                <b-button class="btn btn-secondary btn-sm w-100" size="sm" @click="editionCopyClick()">{{
-                    $t('misc.copy')
-                }}</b-button>
+            <b-col class="col-xl-7 col-lg-12">
+                <b-button
+                    class="btn btn-secondary btn-sm w-100"
+                    size="sm"
+                    @click="editionCopyClick()"
+                    >{{ $t('misc.copy') }}</b-button
+                >
             </b-col>
         </b-row>
     </div>
@@ -125,5 +127,19 @@ export default class EditionCard extends Vue {
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
     }
+}
+.edition-card-grid {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-rows: 0.5fr 1fr max-content;
+}
+
+.details-edition-personal-grid {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 0.6fr 1fr;
+}
+.status-edition-public-grid {
+    grid-column: 2 / 2;
 }
 </style>
