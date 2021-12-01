@@ -17,19 +17,6 @@
                         <b-button class="mr-2" @click="openMetadata()">Manuscript Information</b-button>
                         <b-button
                             class="mr-2"
-                            v-if="currentEdition && user"
-                            v-b-modal.copy-edition-modal
-                            :title="copyTooltip"
-                        >
-                            <i
-                                v-if="currentEdition.isPublic"
-                                class="fa fa-lock mr-1"
-                            >
-                            </i>
-                            {{ $t('misc.copy') }}
-                        </b-button>
-                        <b-button
-                            class="mr-2"
                             v-if="isAdmin"
                             @click="openPermissionModal"
                         >
@@ -75,7 +62,6 @@
             </div>
         </div>
         <permission-modal v-if="currentEdition"></permission-modal>
-        <copy-edition-modal :visible="false"> </copy-edition-modal>
         <edition-metadata-modal></edition-metadata-modal>
         <!-- :visible="false" to prevent false display of the modal -->
     </div>
@@ -92,7 +78,6 @@ import Waiting from '@/components/misc/Waiting.vue';
 import { Artefact } from '@/models/artefact';
 
 import PermissionModal from './components/permission-modal.vue';
-import CopyEditionModal from '../home/components/copy-edition-modal.vue';
 import EditionMetadataModal from './components/metadata.vue';
 
 @Component({
@@ -101,7 +86,6 @@ import EditionMetadataModal from './components/metadata.vue';
         EditionSidebar,
         Waiting,
         PermissionModal,
-        CopyEditionModal,
         'edition-metadata-modal': EditionMetadataModal,
     },
 })

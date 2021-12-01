@@ -71,7 +71,7 @@ export default class ResizeBar extends Vue {
     grid-row: 2 / span 3;
     height: 100%;
     cursor: col-resize;
-    z-index: 1000;
+    z-index: 500;
     background: lightgray;
 }
 </style>

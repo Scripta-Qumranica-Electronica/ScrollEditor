@@ -51,6 +51,7 @@
             <undo-redo-toolbox />
             <slot />
             <edition-toolbox />
+            <copy-edition-toolbox />
         </toolbar>
     </div>
 </template>
@@ -93,6 +94,7 @@ import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
 import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
+import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -106,6 +108,7 @@ import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
         'undo-redo-toolbox': UndoRedoToolbox,
         'adjust-image-toolbox': AdjustImageToolbox,
         'edition-toolbox': EditionToolbox,
+        'copy-edition-toolbox' : CopyEditionToolbox
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
