@@ -2,19 +2,24 @@
     <div id="artefact-toolbar">
         <!-- <b-col class="col-6 col-md-7 col-sm-6 col-xs-6 position-zoom"> -->
         <zoom-toolbox
-                v-model="params.zoom"
-                delta="0.05"
-                @zoomChanged="onZoomChanged($event)"
+            v-model="params.zoom"
+            delta="0.05"
+            @zoomChanged="onZoomChanged($event)"
         />
         <rotation-toolbox
-                v-model="params.rotationAngle"
-                delta="1"
-                :enable-text="true"
-                @rotationAngleChanged="onRotationAngleChanged($event)"
+            v-model="params.rotationAngle"
+            delta="1"
+            :enable-text="true"
+            @rotationAngleChanged="onRotationAngleChanged($event)"
         />
-        <adjust-image-toolbox :imageStack="imageStack" :params="params" @image-setting-changed="onImageSettingChanged"/>
+        <adjust-image-toolbox
+            :imageStack="imageStack"
+            :params="params"
+            @image-setting-changed="onImageSettingChanged"
+        />
         <undo-redo-toolbox />
         <slot />
+        <copy-edition-toolbox />
         <!-- <b-col>
         </b-col> -->
         <!-- <b-col class="col-5 col-md-6 col-sm-5 col-xs-5 position-rotate"> -->
@@ -34,9 +39,7 @@ import {
 } from '@/views/artefact-editor/types';
 import { IIIFImage, ImageStack } from '@/models/image';
 
-import {
-    ImageSetting,
-} from '@/components/image-settings/types';
+import { ImageSetting } from '@/components/image-settings/types';
 import ImageSettingsComponent from '@/components/image-settings/ImageSettings.vue';
 import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
@@ -45,21 +48,23 @@ import ZoomToolbox from '@/components/toolbars/zoom-toolbox.vue';
 import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
 import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
+import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
     components: {
         'image-settings': ImageSettingsComponent,
-         'zoom-toolbox': ZoomToolbox,
-         'rotation-toolbox': RotationToolbox,
-         'adjust-image-toolbox': AdjustImageToolbox,
-         'undo-redo-toolbox': UndoRedoToolbox,
+        'zoom-toolbox': ZoomToolbox,
+        'rotation-toolbox': RotationToolbox,
+        'adjust-image-toolbox': AdjustImageToolbox,
+        'undo-redo-toolbox': UndoRedoToolbox,
+        'copy-edition-toolbox' : CopyEditionToolbox
     },
 })
-
 export default class ArtefactEditorToolbar extends Vue {
     private errorMessage: string = '';
-    private imagedObjectService: ImagedObjectService = new ImagedObjectService();
+    private imagedObjectService: ImagedObjectService =
+        new ImagedObjectService();
     private imageStack: ImageStack = {} as ImageStack;
 
     @Prop() private artefact!: Artefact;
@@ -107,7 +112,6 @@ export default class ArtefactEditorToolbar extends Vue {
         }
     }
 
-
     public notifyChange(paramName: string, paramValue: any) {
         const args = {
             property: paramName,
@@ -129,7 +133,6 @@ export default class ArtefactEditorToolbar extends Vue {
         this.params.zoom = val; //
         this.notifyChange('zoomArtefact', this.params.zoom);
     }
-
 }
 </script>
 

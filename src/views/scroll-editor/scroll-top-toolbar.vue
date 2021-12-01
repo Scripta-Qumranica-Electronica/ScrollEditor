@@ -126,6 +126,7 @@
 
         <undo-redo-toolbox />
         <edition-toolbox />
+        <copy-edition-toolbox />
     </toolbar>
 </template>
 
@@ -156,6 +157,7 @@ import Toolbar from '@/components/toolbars/toolbar.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
+import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
 
 @Component({
     name: 'scroll-top-toolbar',
@@ -167,6 +169,7 @@ import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
         'toolbar-icon-button': ToolbarIconButton,
         'undo-redo-toolbox': UndoRedoToolbox,
         'edition-toolbox': EditionToolbox,
+        'copy-edition-toolbox' : CopyEditionToolbox
     },
 })
 export default class ScrollTopToolbar extends Vue {
