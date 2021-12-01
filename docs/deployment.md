@@ -4,21 +4,25 @@ The SQE Frontend is stored in a Google Cloud Platform bucket called sqe-website.
 
 The bucket was created as explained in this tutorial: Hosting a static website  |  Cloud Storage  |  Google Cloud
 
-## Production
-The data is stored on a GCP bucket called sqe-website, with public read permissions.
-Uploading a new version
+## Deploying to staging
+Staging is stored in an S3 bucket owned by The Research Software Company. It is accessible from https://sqe.researchsoftwarehosting.org .
 
-To upload a new version of the frontend to the bucket, pull the ScrollEditor version you want, and run:
+To deploy to staging you need to have the AWS CLI installed, and the proper Research Software Company WebDeployer IAM user credentials set up. Then run
 
-    yarn install
-    yarn build
+```bash
+yarn build
+cd dist
+aws s3 sync . s3://sqe-staging
+```
 
-    gsutil -m rsync -R dist gs://sqe-website
-    gcloud compute url-maps invalidate-cdn-cache sqe-website-lb --path "/*" (invalidate the cache so people get the update in their browser)
+## Deploying to production
+Production is served from the GCP bucket `sqe-website`, owned by the SQE project. You need to have the GCloud SDK installed, and configured with a Google account that has access to the GCP SQE Project. Once you have this, open the GCloud SDK shell, and"
 
-Once you’re done, the new compiled frontend should be available.
+```bash
+yarn build
+cd dist
+gsutil -m rsync -r . gs://sqe-website
+gcloud compute url-maps invalidate-cdn-cache sqe-website-lb --path "/*"
+```
 
-## Staging
-Data is stored in an S3 bucket called `sqe-staging`. Upload it from the AWS CLI, configured with the Research Software Company `webdeployer` user credentials:
-
-    aws s3 sync . s3://sqe-staging
+This last command invalidates the CDN cache, so users see the new version. It takes several minutes to complete.
