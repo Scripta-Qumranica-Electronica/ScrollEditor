@@ -50,6 +50,7 @@ import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
 import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 import FontSizeButtonToolbox from '@/components/toolbars/font-size-button-toolbox.vue';
+import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -59,7 +60,8 @@ import FontSizeButtonToolbox from '@/components/toolbars/font-size-button-toolbo
         'rotation-toolbox': RotationToolbox,
         'adjust-image-toolbox': AdjustImageToolbox,
         'undo-redo-toolbox': UndoRedoToolbox,
-        'font-size-button-toolbox': FontSizeButtonToolbox
+        'font-size-button-toolbox': FontSizeButtonToolbox,
+        'copy-edition-toolbox' : CopyEditionToolbox
     },
 })
 export default class ArtefactEditorToolbar extends Vue {

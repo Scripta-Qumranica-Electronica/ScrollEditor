@@ -3,6 +3,7 @@ export default {
     new: 'Nouveau Artefact',
     current: 'Actuel',
     copy: 'Cree une copie',
+    anotherCopy: 'Cree une autre copie',
     permission: 'Autorisation',
     draw: 'Dessiner',
     box: 'Box',

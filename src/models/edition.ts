@@ -1,6 +1,15 @@
 import { IIIFImage } from './image';
-import { UserDTO, UpdateEditorRightsDTO, DetailedEditorRightsDTO,
-    ArtefactGroupDTO, EditionManuscriptMetricsDTO, AttributeDTO, AttributeListDTO, AttributeValueDTO, EditionManuscriptMetadataDTO } from '@/dtos/sqe-dtos';
+import {
+    UserDTO,
+    UpdateEditorRightsDTO,
+    DetailedEditorRightsDTO,
+    ArtefactGroupDTO,
+    EditionManuscriptMetricsDTO,
+    AttributeDTO,
+    AttributeListDTO,
+    AttributeValueDTO,
+    EditionManuscriptMetadataDTO
+} from '@/dtos/sqe-dtos';
 import { PermissionDTO, EditionDTO } from '@/dtos/sqe-dtos';
 import { TextFragmentData } from './text';
 import { ScriptData } from './script';
@@ -12,7 +21,6 @@ class UserInfo {
     public userId: number;
     public forename: string;
 
-
     constructor(dto: UserDTO) {
         this.email = dto.email;
         this.userId = dto.userId;
@@ -21,7 +29,9 @@ class UserInfo {
 }
 
 class Permissions {
-    public static extractPermission(simplified: SimplifiedPermission): UpdateEditorRightsDTO {
+    public static extractPermission(
+        simplified: SimplifiedPermission
+    ): UpdateEditorRightsDTO {
         const rights: UpdateEditorRightsDTO = {
             mayRead: false,
             mayWrite: false,
@@ -67,7 +77,6 @@ class Permissions {
         }
         return 'none';
     }
-
 }
 
 class ShareInfo {
@@ -77,7 +86,6 @@ class ShareInfo {
 
     public email: string;
     public permissions: Permissions;
-
 
     public constructor(email: string, permissions: Permissions) {
         this.email = email;
@@ -105,7 +113,9 @@ class AttributeMetadata {
     }
 
     public getAttribute(id: number) {
-        return this.attributes.find((attr: AttributeDTO) => attr.attributeId === id);
+        return this.attributes.find(
+            (attr: AttributeDTO) => attr.attributeId === id
+        );
     }
 
     public getAttributeValue(attributeId: number, valueId: number) {
@@ -113,7 +123,9 @@ class AttributeMetadata {
         if (!attr) {
             return undefined;
         }
-        const value = attr.values.find((val: AttributeValueDTO) => val.id === valueId);
+        const value = attr.values.find(
+            (val: AttributeValueDTO) => val.id === valueId
+        );
         return value;
     }
 }
@@ -131,6 +143,7 @@ class EditionInfo {
     public lastEdit?: Date;
     public metrics: EditionManuscriptMetricsDTO;
     public attributeMetadata?: AttributeMetadata;
+    public manuscriptId: number;
 
     // The following properties are updated by the EditionService upon creation
     public publicCopies: number = 1;
@@ -143,7 +156,8 @@ class EditionInfo {
     public script: ScriptData | null = null;
     public metadata: EditionManuscriptMetadataDTO | null = null;
 
-    public get ppm(): number {  // Pixels per milimeter
+    public get ppm(): number {
+        // Pixels per milimeter
         return this.metrics.ppi / 25.4;
     }
 
@@ -153,10 +167,11 @@ class EditionInfo {
         this.permission = new Permissions(dto.permission); // isAdmin, mayWrite
         this.owner = new UserInfo(dto.owner);
         this.metrics = dto.metrics;
+        this.manuscriptId = dto.manuscriptId;
 
         // Update metrics so we have no zero-sized scrolls
         if (!this.metrics.width) {
-            this.metrics.width = 1000;  // One meter wide
+            this.metrics.width = 1000; // One meter wide
         }
         if (!this.metrics.height) {
             this.metrics.height = 500; // 50 centimiters high
@@ -165,7 +180,9 @@ class EditionInfo {
         if (dto.thumbnailUrl) {
             this.thumbnail = new IIIFImage(dto.thumbnailUrl);
         }
-        this.shares = dto.shares ? dto.shares.map((s) => ShareInfo.fromDTO(s)) : [];
+        this.shares = dto.shares
+            ? dto.shares.map(s => ShareInfo.fromDTO(s))
+            : [];
         this.invitations = []; // dto.invitations ? dto.shares.map((s) => new ShareInfo(s))
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
@@ -191,7 +208,6 @@ class EditionInfo {
 class ArtefactGroup {
     public static nextGroupId: number = -1;
     public static generateGroup(artefactsIds: number[]): ArtefactGroup {
-
         const dto: ArtefactGroupDTO = {
             id: ArtefactGroup.nextGroupId--,
             artefacts: [...artefactsIds],
@@ -223,7 +239,14 @@ class ArtefactGroup {
         };
         return new ArtefactGroup(dto);
     }
-
 }
 
-export { Permissions, SimplifiedPermission, UserInfo, EditionInfo, ShareInfo, ArtefactGroup, AttributeMetadata };
+export {
+    Permissions,
+    SimplifiedPermission,
+    UserInfo,
+    EditionInfo,
+    ShareInfo,
+    ArtefactGroup,
+    AttributeMetadata
+};
