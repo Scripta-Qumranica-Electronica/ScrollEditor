@@ -1,5 +1,5 @@
 <template>
-    <b-row class="mb-4">
+    <b-row >
         <b-col class="col-3" v-for="edition in rowEditions" :key="edition.id">
             <b-card
                 class="p-3"
@@ -35,3 +35,9 @@ export default class EditionPublicRow extends Vue {
     }
 }
 </script>
+
+<style lang="scss">
+.stylebottom {
+   margin-bottom: 50px!important;
+}
+</style>

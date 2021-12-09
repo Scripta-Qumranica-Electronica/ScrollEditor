@@ -2,16 +2,16 @@
     <DynamicScroller
         id="public-list"
         :items="indices"
-        :min-item-size="153"
+        :min-item-size="173"
         v-slot="{ item, index, active }"
     >
         <DynamicScrollerItem
             :item="item"
             :active="active"
-            :size-dependencies="[getWindowWidth()]"
+            :size-dependencies="[getWindowWidth(), item]"
             :index="index"
         >
-            <edition-public-row
+            <edition-public-row style="min-height: 173px"
                 @edition-copy-click="openCopyEditionModal"
                 :editions="editions"
                 :key="item"
