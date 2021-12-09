@@ -1,5 +1,5 @@
 <template>
-    <toolbox :subject="subject">
+    <toolbox :subject="subject" :class="'align-' + align">
         <toolbar-icon-button
             icon="sort-alpha-up"
             @click="fontSizeChanged(+delta)"
@@ -29,6 +29,7 @@ export default class FontSizeButtonToolbox extends Vue {
     @Prop({ default: '' }) public subject!: string;
     @Model('fontSizeChanged', { type: Number }) private fontSize!: number;
     @Prop({ default: 2 }) public delta!: number;
+    @Prop({ default: 'left' }) public align!: 'left' | 'right';
 
     private fontSizeLimits: { min: number; max: number } = { min: 10, max: 40 };
 

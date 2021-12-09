@@ -58,5 +58,9 @@ export default class Toolbox extends Vue {
         font-family: $font-family;
         font-size:  $font-size-0;
     }
+
+    &.align-right {
+        margin-left: auto;
+    }
 }
 </style>

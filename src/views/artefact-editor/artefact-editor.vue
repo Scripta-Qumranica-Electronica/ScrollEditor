@@ -37,10 +37,9 @@
                                 icon="mouse-pointer"
                             />
                         </toolbox>
-                        <toolbox subject="">
+                        <toolbox subject="" v-if="!readOnly">
                             <toolbar-icon-button
                                 :title="$t('misc.cancel')"
-                                v-if="!readOnly"
                                 @click="onDeleteRoi"
                                 :disabled="!isDeleteEnabled"
                                 icon="trash"
