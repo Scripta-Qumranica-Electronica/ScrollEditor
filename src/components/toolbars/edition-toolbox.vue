@@ -1,6 +1,6 @@
 <template>
 <toolbox>
-      <b-button variant="outline-secondary" @click="openMetadata()">Manuscript Information</b-button>
+      <b-button variant="outline-secondary" @click="openMetadata()" class="style-button"><i class="fa fa-info"></i></b-button>
       <edition-metadata-modal></edition-metadata-modal>
 </toolbox>
 
@@ -25,4 +25,7 @@ export default class EditionToolbox extends Vue {
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
+.style-button{
+    border-radius: 12px;
+}
 </style>

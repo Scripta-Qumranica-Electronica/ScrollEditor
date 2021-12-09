@@ -4,7 +4,7 @@
             <slot />
         </div>
         <div class="description">
-            {{ subject || '&nbsp;' }}
+            {{ subject || '' }}
         </div>
     </div>
 </template>

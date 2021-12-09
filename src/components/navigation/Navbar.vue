@@ -44,7 +44,8 @@
                 v-if="edition"
                 class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
             >
-                <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }">
+                <edition-toolbox />
+                <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }" active-class="">
                     <span>
                         {{ edition.name }}
                         <b-badge :class="editionBadgeClass">
@@ -219,8 +220,10 @@ import CitationModal from './CitationModal.vue';
 // import ScreenSizeAlert from '../../views/home/components/ScreenSizeAlert.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
-import { BIcon, BIconSearch, BIconPersonFill, BIconList} from 'bootstrap-vue';
+import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
 import Registration from '@/views/user/Registration.vue';
+import ToolbarIconButton from '../toolbars/toolbar-icon-button.vue';
+import EditionToolbox from '../toolbars/edition-toolbox.vue';
 
 @Component({
     name: 'navbar',
@@ -229,12 +232,13 @@ import Registration from '@/views/user/Registration.vue';
         'faq-modal': FaqModal,
         'eula-modal': EulaModal,
         'citation-modal': CitationModal,
+        'edition-toolbox': EditionToolbox,
         register: Registration,
         // 'screen-size-alert': ScreenSizeAlert,
         BIcon,
         BIconSearch,
         BIconPersonFill,
-        BIconList
+        BIconList,
     },
 })
 export default class Navbar extends Vue {
@@ -285,10 +289,7 @@ export default class Navbar extends Vue {
     }
 
     private goAbout() {
-         window.open(
-            ' https://www.qumranica.org/',
-            '_blank'
-        );
+        window.open(' https://www.qumranica.org/', '_blank');
     }
 
     private showFAQModal() {

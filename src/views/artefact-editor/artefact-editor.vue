@@ -63,7 +63,6 @@
                                 >Auto character select</b-form-checkbox
                             >
                         </toolbox>
-                        <edition-toolbox />
                     </artefact-editor-toolbar>
                 </toolbar>
                 <div id="artefact-info">
@@ -206,7 +205,6 @@ import Toolbar from '@/components/toolbars/toolbar.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import ResizeBar from '@/components/misc/resizeBar.vue';
-import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -224,8 +222,7 @@ import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
         'toolbar-icon-button': ToolbarIconButton,
-        'resize-bar': ResizeBar,
-        'edition-toolbox': EditionToolbox,
+        'resize-bar': ResizeBar
     },
 })
 export default class ArtefactEditor
