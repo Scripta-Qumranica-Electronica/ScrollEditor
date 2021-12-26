@@ -50,6 +50,9 @@
                     class="btn btn-secondary btn-sm w-100"
                     size="sm"
                     @click="editionEditClick"
+                    @contextmenu="editionEditRightClick"
+                    v-b-tooltip.hover
+                    title="Right-click to open in new tab"
                     >{{ $t('misc.edit') }}</b-button
                 >
             </b-col>
@@ -83,6 +86,11 @@ export default class EditionCard extends Vue {
 
     private editionEditClick() {
         this.$router.push({ path: `/editions/${this.edition.id}` });
+    }
+
+    private editionEditRightClick() {
+        const editionLink = this.$router.resolve({ path: `/editions/${this.edition.id}` });
+        window.open(editionLink.href);
     }
 
     @Emit()
