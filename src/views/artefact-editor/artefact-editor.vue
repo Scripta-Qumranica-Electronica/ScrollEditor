@@ -1055,8 +1055,14 @@ export default class ArtefactEditor
 
     & > div {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: stretch;
+
+        & > svg {
+            flex-shrink: 0;
+            flex-grow: 1;
+        }
     }
 }
 
