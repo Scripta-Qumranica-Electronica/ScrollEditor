@@ -253,7 +253,7 @@ span.selected {
     font-weight: bold;
     text-shadow: 0 0 2px $black;
     transition: 0.6s;
-    font-size: 17px;
+    // font-size: 17px;
     margin: 1px;
 }
 
