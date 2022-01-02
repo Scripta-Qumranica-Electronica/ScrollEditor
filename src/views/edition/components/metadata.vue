@@ -82,6 +82,7 @@ export default class EditionMetadataModal extends Vue {
 
     protected async mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
+        if(isNaN(this.editionId)) return;
         await this.$state.prepare.edition(this.editionId);
     }
 }

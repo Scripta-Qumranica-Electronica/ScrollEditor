@@ -12,7 +12,6 @@
             :index="index"
         >
             <edition-public-row style="min-height: 173px"
-                @edition-copy-click="openCopyEditionModal"
                 :editions="editions"
                 :key="item"
                 :index="item"
@@ -42,11 +41,6 @@ export default class EditionsPublicList extends Vue {
         }
 
         return indices;
-    }
-
-    protected openCopyEditionModal(edition: EditionInfo) {
-        this.$state.editions.current = edition;
-        this.$root.$emit('bv::show::modal', 'copy-edition-modal');
     }
 
     protected getWindowWidth() {

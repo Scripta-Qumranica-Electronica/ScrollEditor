@@ -52,7 +52,8 @@ export default class CopyEditionToolbox extends Vue {
     }
 
     private openCopyEdtion() {
-        this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+        this.$root.$bvModal.show('copy-edition-modal');
     }
 
     private async mounted() {

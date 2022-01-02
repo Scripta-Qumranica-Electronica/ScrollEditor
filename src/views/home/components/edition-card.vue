@@ -49,7 +49,7 @@
                 <b-button
                     class="btn btn-secondary btn-sm w-100"
                     size="sm"
-                    @click="editionEditClick"
+                    @click="editionEditClick(); $event.stopPropagation();"
                     @contextmenu="editionEditRightClick"
                     v-b-tooltip.hover
                     title="Right-click to open in new tab"
@@ -60,7 +60,7 @@
                 <b-button
                     class="btn btn-secondary btn-sm w-100"
                     size="sm"
-                    @click="editionCopyClick()"
+                    @click="editionCopyClick(); $event.stopPropagation();"
                     >{{ $t('misc.copy') }}</b-button
                 >
             </b-col>
