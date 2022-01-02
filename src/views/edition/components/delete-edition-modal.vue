@@ -95,10 +95,8 @@ export default class DeleteEditionModal extends Vue {
             (x) => x.email !== this.currentUser.email && x.permissions.mayWrite
         );
 
-        //1
         if (!isAdmin) {
             this.delete();
-            //2
         } else if (isAdmin && hasEditors) {
             const confirm = window.confirm(
                 'Are you sure you wish to delete the edition for all users ?'
