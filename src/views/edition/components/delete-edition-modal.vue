@@ -74,7 +74,7 @@ export default class DeleteEditionModal extends Vue {
                 this.currentEdition!.id,
                 adminDelete
             );
-            window.location.reload();
+            this.$state.editions.remove(this.currentEdition!.id);
             this.$router.push('/home');
             this.showMessage('toasts.editionDeleteSuccess', 'success');
         } catch (err) {
@@ -91,27 +91,34 @@ export default class DeleteEditionModal extends Vue {
         }
         const isAdmin = this.currentEdition.permission.isAdmin;
 
-        const hasEditors = this.currentEdition.shares.some(
+        const editors = this.currentEdition.shares.filter(
             (x) => x.email !== this.currentUser.email && x.permissions.mayWrite
         );
 
         if (!isAdmin) {
             this.delete();
-        } else if (isAdmin && hasEditors) {
+        } else if (isAdmin && editors.length) {
             const confirm = window.confirm(
                 'Are you sure you wish to delete the edition for all users ?'
             );
             if (confirm) {
                 this.delete(true);
             } else {
-                this.editionService.updateSharePermissions(
+                // give first editor admin right ?
+                await this.editionService.updateSharePermissions(
+                    this.currentEdition!.id,
+                    editors[0].email,
+                    'admin'
+                );
+                // remove himself from admin
+                await this.editionService.updateSharePermissions(
                     this.currentEdition!.id,
                     this.currentUser.email,
                     'write'
                 );
                 this.delete();
             }
-        } else if (isAdmin && !hasEditors) {
+        } else if (isAdmin && !editors.length) {
             this.delete(true);
         }
     }
