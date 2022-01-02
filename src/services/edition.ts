@@ -1,4 +1,10 @@
-import { EditionInfo, SimplifiedPermission, Permissions, ShareInfo, ArtefactGroup } from '@/models/edition';
+import {
+    EditionInfo,
+    SimplifiedPermission,
+    Permissions,
+    ShareInfo,
+    ArtefactGroup
+} from '@/models/edition';
 import { CommHelper } from './comm-helper';
 import {
     EditionListDTO,
@@ -15,7 +21,12 @@ import {
     CreateArtefactGroupDTO,
     ArtefactGroupDTO,
     ArtefactGroupListDTO,
-    UpdateEditionManuscriptMetricsDTO, AttributeListDTO, ScriptDataDTO, ScriptDataListDTO, PlacementDTO, EditionManuscriptMetadataDTO
+    UpdateEditionManuscriptMetricsDTO,
+    AttributeListDTO,
+    ScriptDataDTO,
+    ScriptDataListDTO,
+    PlacementDTO,
+    EditionManuscriptMetadataDTO
 } from '@/dtos/sqe-dtos';
 import { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
@@ -58,7 +69,9 @@ class EditionService {
         return editionList;
     }
 
-    public async getSingleEditions(editionId: number): Promise<EditionGroupDTO> {
+    public async getSingleEditions(
+        editionId: number
+    ): Promise<EditionGroupDTO> {
         const response = await CommHelper.get<EditionGroupDTO>(
             ApiRoutes.editionUrl(editionId)
         );
@@ -66,7 +79,9 @@ class EditionService {
         return response.data;
     }
 
-    public async getManuscriptEditions(manuscriptId: number): Promise<EditionListDTO> {
+    public async getManuscriptEditions(
+        manuscriptId: number
+    ): Promise<EditionListDTO> {
         const response = await CommHelper.get<EditionListDTO>(
             ApiRoutes.manuscriptEditions(manuscriptId)
         );
@@ -74,8 +89,12 @@ class EditionService {
         return response.data;
     }
 
-    public async getEditionMetadata(editionId: number): Promise<EditionManuscriptMetadataDTO> {
-        const response = await CommHelper.get<EditionManuscriptMetadataDTO>(ApiRoutes.editionMetadataUrl(editionId));
+    public async getEditionMetadata(
+        editionId: number
+    ): Promise<EditionManuscriptMetadataDTO> {
+        const response = await CommHelper.get<EditionManuscriptMetadataDTO>(
+            ApiRoutes.editionMetadataUrl(editionId)
+        );
 
         return response.data;
     }
@@ -91,10 +110,9 @@ class EditionService {
         }
 
         const dto = {
-            name,
+            name
             // collaborators: '',
             // copyrightHolder: this.stateManager.session.user!.forename + ' ' + this.stateManager.session.user!.surname
-
         } as EditionUpdateRequestDTO;
         const response = await CommHelper.post<EditionDTO>(
             ApiRoutes.editionUrl(editionId),
@@ -142,7 +160,31 @@ class EditionService {
         return edition;
     }
 
-    public async inviteEditor(editionId: number, email: string, permission: SimplifiedPermission) {
+    public async deleteEdition(
+        editionId: number,
+        isAdmin?: boolean
+    ): Promise<string | undefined> {
+        // If you are not an admin for the edition, DELETE /v1/editions/xxxx
+        if (!isAdmin) {
+            return (await CommHelper.delete(ApiRoutes.editionUrl(editionId)))
+                .data;
+        } else {
+            const token = (
+                await CommHelper.delete(ApiRoutes.editionUrl(editionId, true))
+            ).data.token;
+            return (
+                await CommHelper.delete(
+                    ApiRoutes.editionUrl(editionId, true, token)
+                )
+            ).data;
+        }
+    }
+
+    public async inviteEditor(
+        editionId: number,
+        email: string,
+        permission: SimplifiedPermission
+    ) {
         const edition = this.stateManager.editions.find(editionId);
         if (!edition) {
             throw new Error(`Can't find non-existing edition ${editionId}`);
@@ -156,67 +198,92 @@ class EditionService {
             ...rights
         } as InviteEditorDTO;
 
-        await CommHelper.post<EditionDTO>(
-            url,
-            dto
-        );
+        await CommHelper.post<EditionDTO>(url, dto);
 
-        const invitationIdx = edition.invitations.findIndex(i => i.email === email);
+        const invitationIdx = edition.invitations.findIndex(
+            i => i.email === email
+        );
         const permissionsDTO = new Permissions({
             mayWrite: rights.mayWrite,
             isAdmin: rights.isAdmin,
             mayRead: rights.mayRead
         } as PermissionDTO);
         if (invitationIdx > -1) {
-            edition.invitations[invitationIdx].permissions = new Permissions(permissionsDTO);
+            edition.invitations[invitationIdx].permissions = new Permissions(
+                permissionsDTO
+            );
 
             // If update to none (revoke) => remove from rows
             if (permission === 'none') {
-                edition.invitations =
-                    [...edition.invitations.slice(0, invitationIdx), ...edition.invitations.slice(invitationIdx + 1)];
+                edition.invitations = [
+                    ...edition.invitations.slice(0, invitationIdx),
+                    ...edition.invitations.slice(invitationIdx + 1)
+                ];
             }
         } else {
-            const newInvitation = new ShareInfo(email, new Permissions(permissionsDTO));
+            const newInvitation = new ShareInfo(
+                email,
+                new Permissions(permissionsDTO)
+            );
             edition.invitations = [...edition.invitations, newInvitation];
         }
-
     }
 
-    public async updateInvitation(editionId: number, email: string, permission: SimplifiedPermission) {
+    public async updateInvitation(
+        editionId: number,
+        email: string,
+        permission: SimplifiedPermission
+    ) {
         await this.inviteEditor(editionId, email, permission);
     }
 
     public async confirmAddEditionEditor(token: string) {
-        await CommHelper.post<any>(ApiRoutes.confirmAddEditionEditorUrl(token), null);
+        await CommHelper.post<any>(
+            ApiRoutes.confirmAddEditionEditorUrl(token),
+            null
+        );
     }
 
-    public async updateSharePermissions(editionId: number, email: string, permission: SimplifiedPermission) {
+    public async updateSharePermissions(
+        editionId: number,
+        email: string,
+        permission: SimplifiedPermission
+    ) {
         const edition = this.stateManager.editions.find(editionId);
         if (!edition) {
             throw new Error(`Can't find non-existing edition ${editionId}`);
         }
         const share = edition.shares.find(sh => sh.email === email);
         if (!share) {
-            throw new Error(`Can't find share for user ${email} in edition ${editionId}`);
+            throw new Error(
+                `Can't find share for user ${email} in edition ${editionId}`
+            );
         }
 
         const url = ApiRoutes.editionUpdateEditor(editionId, email);
 
         const dto = Permissions.extractPermission(permission);
 
-        const response = await CommHelper.put<DetailedEditorRightsDTO>(url, dto);
+        const response = await CommHelper.put<DetailedEditorRightsDTO>(
+            url,
+            dto
+        );
 
         share.permissions = new Permissions(response.data);
         edition.shares = [...edition.shares];
     }
 
     public async getAllInvitations(): Promise<AdminEditorRequestListDTO> {
-        const response = await CommHelper.get<AdminEditorRequestListDTO>(ApiRoutes.listInvitationEditionUrl());
+        const response = await CommHelper.get<AdminEditorRequestListDTO>(
+            ApiRoutes.listInvitationEditionUrl()
+        );
         return response.data;
     }
 
-    public async updateArtefactDTOs(editionId: number, updateArtefacts: Artefact[])
-        : Promise<BatchUpdateArtefactPlacementDTO> {
+    public async updateArtefactDTOs(
+        editionId: number,
+        updateArtefacts: Artefact[]
+    ): Promise<BatchUpdateArtefactPlacementDTO> {
         // TODO: Fill BatchUpdateArtefactTransformDTO and access server
         const edition = this.stateManager.editions.find(editionId);
         if (!edition) {
@@ -227,7 +294,7 @@ class EditionService {
             (x: Artefact) => ({
                 artefactId: x.id,
                 placement: x.placement as PlacementDTO,
-                isPlaced: x.isPlaced,
+                isPlaced: x.isPlaced
             })
         );
 
@@ -244,21 +311,27 @@ class EditionService {
         return response.data;
     }
 
-    public async newArtefactGroup(editionId: number, artefactsGroup: ArtefactGroup) {
-
-
+    public async newArtefactGroup(
+        editionId: number,
+        artefactsGroup: ArtefactGroup
+    ) {
         const dto: CreateArtefactGroupDTO = {
-            name: artefactsGroup.groupId.toString(), /*check ?*/
+            name: artefactsGroup.groupId.toString() /*check ?*/,
             artefacts: artefactsGroup.artefactIds
         };
 
-        const response = await CommHelper.post<ArtefactGroupDTO>(ApiRoutes.artefactGroupUrl(editionId), dto);
+        const response = await CommHelper.post<ArtefactGroupDTO>(
+            ApiRoutes.artefactGroupUrl(editionId),
+            dto
+        );
 
         return response.data;
     }
 
-    public async updateArtefactGroup(editionId: number, artefactsGroup: ArtefactGroup) {
-
+    public async updateArtefactGroup(
+        editionId: number,
+        artefactsGroup: ArtefactGroup
+    ) {
         const dto: UpdateArtefactGroupDTO = {
             name: artefactsGroup.groupId.toString(),
             artefacts: artefactsGroup.artefactIds
@@ -276,17 +349,22 @@ class EditionService {
         await CommHelper.delete(ApiRoutes.artefactGroupUrl(editionId, groupId));
     }
 
-    public async getArtefactGroups(editionId: number): Promise<ArtefactGroup[]> {
+    public async getArtefactGroups(
+        editionId: number
+    ): Promise<ArtefactGroup[]> {
         const response = await CommHelper.get<ArtefactGroupListDTO>(
             ApiRoutes.artefactGroupUrl(editionId)
         );
 
         return response.data.artefactGroups.map(
-            artGroupDto => new ArtefactGroup(artGroupDto));
+            artGroupDto => new ArtefactGroup(artGroupDto)
+        );
     }
 
-    public async updateMetrics(editionId: number, metrics: UpdateEditionManuscriptMetricsDTO) {
-
+    public async updateMetrics(
+        editionId: number,
+        metrics: UpdateEditionManuscriptMetricsDTO
+    ) {
         const edition = this.stateManager.editions.find(editionId);
         if (!edition) {
             throw new Error(`Can't find non-existing edition ${editionId}`);
@@ -305,7 +383,9 @@ class EditionService {
         return edition;
     }
 
-    public async getAllAttributeMetadata(editionId: number): Promise<AttributeListDTO> {
+    public async getAllAttributeMetadata(
+        editionId: number
+    ): Promise<AttributeListDTO> {
         const response = await CommHelper.get<AttributeListDTO>(
             ApiRoutes.editionAttributeMetadataUrl(editionId)
         );

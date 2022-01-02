@@ -23,8 +23,16 @@ export namespace ApiRoutes {
         return `${baseUrl}/manuscripts/${manuscriptId}/${editions}`;
     }
 
-    export function editionUrl(editionId: number) {
-        return `${baseUrl}/${editions}/${editionId}`;
+    export function editionUrl(editionId: number, archiveForAllEditors?: boolean, token?: string) {
+        const params: string[] = [];
+        const withParams = archiveForAllEditors || token;
+        if (archiveForAllEditors){
+            params.push('optional=archiveForAllEditors');
+        }
+        if (token) {
+            params.push('token=' + token);
+        }
+        return `${baseUrl}/${editions}/${editionId}${withParams ? '?' + params.join('&') : ''}`;
     }
 
     export function editionArtefactUrl(editionId: number, artefactId: number) {
