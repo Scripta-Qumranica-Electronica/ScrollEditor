@@ -126,7 +126,7 @@ export default class AddArtefactModal extends Vue {
     private checkedAllSide(side: Side) {
 
         this.chekedArtefacts = this.nonPlacedArtefacts
-            .filter((x) => x.side === side)
+            .filter((x: Artefact) => x.name.toLowerCase().includes(this.searchValue.toLowerCase()) && x.side === side)
             .map((x) => x.id);
     }
 
@@ -139,6 +139,7 @@ export default class AddArtefactModal extends Vue {
     }
 
     public get filteredArtefacts() {
+        this.chekedArtefacts = [];
         return this.nonPlacedArtefacts.filter((x: Artefact) => x.name.toLowerCase().includes(this.searchValue.toLowerCase()) && x.side === x.side);
     }
 
