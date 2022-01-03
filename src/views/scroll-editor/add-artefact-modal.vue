@@ -11,8 +11,8 @@
         >
             <div class="row modal-body">
                 <div class="col-6">
-                    <div >
-                        <b-form-group >
+                    <div>
+                        <b-form-group>
                             <b-form-input
                                 id="searchValue"
                                 size="sm"
@@ -124,9 +124,14 @@ export default class AddArtefactModal extends Vue {
     }
 
     private checkedAllSide(side: Side) {
-
         this.chekedArtefacts = this.nonPlacedArtefacts
-            .filter((x: Artefact) => x.name.toLowerCase().includes(this.searchValue.toLowerCase()) && x.side === side)
+            .filter(
+                (x: Artefact) =>
+                    x.name
+                        .toLowerCase()
+                        .includes(this.searchValue.toLowerCase()) &&
+                    x.side === side
+            )
             .map((x) => x.id);
     }
 
@@ -140,7 +145,11 @@ export default class AddArtefactModal extends Vue {
 
     public get filteredArtefacts() {
         this.chekedArtefacts = [];
-        return this.nonPlacedArtefacts.filter((x: Artefact) => x.name.toLowerCase().includes(this.searchValue.toLowerCase()) && x.side === x.side);
+        return this.nonPlacedArtefacts.filter(
+            (x: Artefact) =>
+                x.name.toLowerCase().includes(this.searchValue.toLowerCase()) &&
+                x.side === x.side
+        );
     }
 
     public isSelectedArtefact(artId: number): boolean {
@@ -158,9 +167,11 @@ export default class AddArtefactModal extends Vue {
 
     private closeModal() {
         (this.$refs.addArtefactModalRef as any).hide(this.chekedArtefacts);
+        this.uncheckAll();
     }
 
     private uncheckAll() {
+        this.searchValue = '';
         this.chekedArtefacts = [];
     }
 }
