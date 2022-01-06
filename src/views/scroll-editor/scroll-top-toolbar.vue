@@ -125,7 +125,6 @@
         </toolbox>
 
         <undo-redo-toolbox />
-        <edition-toolbox />
         <copy-edition-toolbox />
     </toolbar>
 </template>
@@ -156,7 +155,6 @@ import Toolbox from '@/components/toolbars/toolbox.vue';
 import Toolbar from '@/components/toolbars/toolbar.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
-import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
 import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
 
 @Component({
@@ -168,7 +166,6 @@ import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
         toolbar: Toolbar,
         'toolbar-icon-button': ToolbarIconButton,
         'undo-redo-toolbox': UndoRedoToolbox,
-        'edition-toolbox': EditionToolbox,
         'copy-edition-toolbox' : CopyEditionToolbox
     },
 })

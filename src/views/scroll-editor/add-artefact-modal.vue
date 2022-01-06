@@ -1,44 +1,49 @@
 <template>
     <div>
         <b-modal
+            scrollable
             ref="addArtefactModalRef"
             id="addArtefactModal"
-            hide-footer
+            footer-class="footer"
+            header-class="header"
+            :title="'Choose Artefacts'"
             @shown="scrollModalShown"
         >
-            <div class="row">
+            <div class="row modal-body">
                 <div class="col-6">
-                    <b-form-checkbox-group
-                        id="cheked-artefact"
-                        v-model="chekedArtefacts"
-                        name="cheked-artefacts"
-                    >
-                        <div
-                            v-for="art in nonPlacedArtefacts"
-                            @click="selectArtefact(art.id)"
-                            v-bind:key="art.id"
-                            :class="{ selected: isSelectedArtefact(art.id) }"
+                    <div>
+                        <b-form-group>
+                            <b-form-input
+                                id="searchValue"
+                                size="sm"
+                                placeholder="Search..."
+                                v-model="searchValue"
+                            ></b-form-input>
+                        </b-form-group>
+                    </div>
+                    <div>
+                        <b-form-checkbox-group
+                            id="cheked-artefact"
+                            v-model="chekedArtefacts"
+                            name="cheked-artefacts"
                         >
-                            <b-form-checkbox type="checkbox" :value="art.id">
-                                <span>{{ art.name }} - {{ art.side }}</span>
-                            </b-form-checkbox>
-                        </div>
-                    </b-form-checkbox-group>
-
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        @click="checkedAllSide('recto')"
-                    >
-                        Recto
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        @click="checkedAllSide('verso')"
-                    >
-                        Verso
-                    </button>
+                            <div
+                                v-for="art in filteredArtefacts"
+                                @click="selectArtefact(art.id)"
+                                v-bind:key="art.id"
+                                :class="{
+                                    selected: isSelectedArtefact(art.id),
+                                }"
+                            >
+                                <b-form-checkbox
+                                    type="checkbox"
+                                    :value="art.id"
+                                >
+                                    <span>{{ art.name }} - {{ art.side }}</span>
+                                </b-form-checkbox>
+                            </div>
+                        </b-form-checkbox-group>
+                    </div>
                 </div>
                 <div class="col-6">
                     <div v-if="isLoaded">
@@ -46,15 +51,51 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    @click="closeModal()"
-                >
-                    Add
-                </button>
-            </div>
+            <template #modal-footer>
+                <div class="w-100">
+                    <div
+                        style="
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: space-between;
+                        "
+                    >
+                        <div>
+                            <b-button
+                                size="sm"
+                                class="btn btn-primary mr-2"
+                                @click="checkedAllSide('recto')"
+                            >
+                                Recto
+                            </b-button>
+                            <b-button
+                                size="sm"
+                                class="btn btn-primary"
+                                @click="checkedAllSide('verso')"
+                            >
+                                Verso
+                            </b-button>
+                        </div>
+                        <div>
+                            <b-button
+                                size="sm"
+                                class="btn btn-primary mr-2"
+                                @click="closeModal()"
+                                :disabled="!chekedArtefacts.length"
+                            >
+                                Add
+                            </b-button>
+                            <b-button
+                                size="sm"
+                                class="btn btn-primary"
+                                @click="uncheckAll()"
+                            >
+                                Clear
+                            </b-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </b-modal>
     </div>
 </template>
@@ -73,7 +114,8 @@ import { Side } from '@/models/misc';
 })
 export default class AddArtefactModal extends Vue {
     private artefact: Artefact | undefined = {} as Artefact;
-public chekedArtefacts: number[] = [];
+    public chekedArtefacts: number[] = [];
+    public searchValue: string = '';
     private isLoaded = false;
 
     private async scrollModalShown() {
@@ -82,8 +124,14 @@ public chekedArtefacts: number[] = [];
     }
 
     private checkedAllSide(side: Side) {
-        this.chekedArtefacts = this.artefacts
-            .filter((x) => x.side === side)
+        this.chekedArtefacts = this.nonPlacedArtefacts
+            .filter(
+                (x: Artefact) =>
+                    x.name
+                        .toLowerCase()
+                        .includes(this.searchValue.toLowerCase()) &&
+                    x.side === side
+            )
             .map((x) => x.id);
     }
 
@@ -95,6 +143,15 @@ public chekedArtefacts: number[] = [];
         return this.artefacts.filter((x) => !x.isPlaced);
     }
 
+    public get filteredArtefacts() {
+        this.chekedArtefacts = [];
+        return this.nonPlacedArtefacts.filter(
+            (x: Artefact) =>
+                x.name.toLowerCase().includes(this.searchValue.toLowerCase()) &&
+                x.side === x.side
+        );
+    }
+
     public isSelectedArtefact(artId: number): boolean {
         return this.artefact!.id === artId;
     }
@@ -103,13 +160,19 @@ public chekedArtefacts: number[] = [];
         this.isLoaded = false;
 
         setTimeout(() => {
-            this.artefact = this.artefacts.find(a => a.id === id);
+            this.artefact = this.artefacts.find((a) => a.id === id);
             this.isLoaded = true;
         }, 0);
     }
 
     private closeModal() {
         (this.$refs.addArtefactModalRef as any).hide(this.chekedArtefacts);
+        this.uncheckAll();
+    }
+
+    private uncheckAll() {
+        this.searchValue = '';
+        this.chekedArtefacts = [];
     }
 }
 </script>
@@ -118,5 +181,9 @@ public chekedArtefacts: number[] = [];
 <style lang="scss" scoped>
 .selected {
     border: solid 2px blue;
+}
+.modal-body {
+    height: 30vh;
+    overflow-y: auto;
 }
 </style>

@@ -3,7 +3,7 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        
+
         <div
             v-if="!waiting && imagedObject"
             id="imaged-object-grid"
@@ -89,7 +89,7 @@
             <resize-bar
                 v-if="displayResizeBar"
                 :gridElement="$refs.imagedObjectGrid"
-                 storageKey="image-object-left-pane-width"
+                storageKey="image-object-left-pane-width"
             ></resize-bar>
             <div id="imaged-object-artefacts">
                 <div
@@ -258,7 +258,8 @@ import ResizeBar from '@/components/misc/resizeBar.vue';
 })
 export default class ImagedObjectEditor
     extends Vue
-    implements SavingAgent<ImagedObjectEditorOperation> {
+    implements SavingAgent<ImagedObjectEditorOperation>
+{
     private static colors = [
         'purple',
         'blue',
@@ -751,6 +752,18 @@ export default class ImagedObjectEditor
     height: 100%;
     width: 100%;
     overflow: auto;
+
+    .img-obj-container {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: stretch;
+
+        & > svg {
+            flex-shrink: 0;
+            flex-grow: 1;
+        }
+    }
 }
 
 #imaged-object-artefacts {

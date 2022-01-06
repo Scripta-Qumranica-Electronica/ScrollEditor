@@ -2,17 +2,16 @@
     <DynamicScroller
         id="public-list"
         :items="indices"
-        :min-item-size="153"
+        :min-item-size="173"
         v-slot="{ item, index, active }"
     >
         <DynamicScrollerItem
             :item="item"
             :active="active"
-            :size-dependencies="[getWindowWidth()]"
+            :size-dependencies="[getWindowWidth(), item]"
             :index="index"
         >
-            <edition-public-row
-                @edition-copy-click="openCopyEditionModal"
+            <edition-public-row style="min-height: 173px"
                 :editions="editions"
                 :key="item"
                 :index="item"
@@ -42,11 +41,6 @@ export default class EditionsPublicList extends Vue {
         }
 
         return indices;
-    }
-
-    protected openCopyEditionModal(edition: EditionInfo) {
-        this.$state.editions.current = edition;
-        this.$root.$emit('bv::show::modal', 'copy-edition-modal');
     }
 
     protected getWindowWidth() {

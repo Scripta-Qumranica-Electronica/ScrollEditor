@@ -296,7 +296,7 @@ export default class TextSide extends Vue {
 
 #text-fragments {
     touch-action: pan-y;
-    height: 100%;
+    height: 90%;
     /* overflow-y: auto; */
     overflow-x: hidden;
 }

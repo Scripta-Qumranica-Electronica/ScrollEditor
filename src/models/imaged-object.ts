@@ -34,4 +34,10 @@ export class ImagedObject {
         }
         return this.verso;
     }
+
+    public get name(): string {
+        const names = this.artefacts.map((a) => a.name);
+        const unique = [...new Set(names)];
+        return unique.join(', ');
+    }
 }

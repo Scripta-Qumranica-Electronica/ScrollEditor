@@ -20,6 +20,7 @@
         <undo-redo-toolbox />
         <slot />
         <font-size-button-toolbox
+            align="right"
             subject="Font size"
             v-model="params.fontSize"
             @fontSizeChanged="onFontSizeChanged($event)"
@@ -146,6 +147,8 @@ export default class ArtefactEditorToolbar extends Vue {
 <style lang="scss" scoped>
 #artefact-toolbar {
     display: flex;
+    flex-direction: row;
+    width: 100%;
 }
 #artefact-side-menu {
     touch-action: pan-y;

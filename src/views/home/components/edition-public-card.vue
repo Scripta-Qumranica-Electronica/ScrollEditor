@@ -31,7 +31,7 @@
                 <b-button
                     size="sm"
                     class="btn btn-secondary btn-sm w-100"
-                    @click="editionViewClick"
+                    @click="editionViewClick(); $event.stopPropagation()"
                     >{{ $t('misc.view') }}</b-button
                 >
             </b-col>
@@ -39,7 +39,7 @@
                 <b-button
                     class="btn btn-secondary btn-sm w-100"
                     size="sm"
-                    @click="editionCopyClick()"
+                    @click="editionCopyClick(); $event.stopPropagation()"
                     >{{ $t('misc.copy') }}</b-button
                 >
             </b-col>

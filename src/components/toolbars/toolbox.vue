@@ -4,7 +4,7 @@
             <slot />
         </div>
         <div class="description">
-            {{ subject || '&nbsp;' }}
+            {{ subject || '' }}
         </div>
     </div>
 </template>
@@ -57,6 +57,10 @@ export default class Toolbox extends Vue {
         margin-top: 5px;
         font-family: $font-family;
         font-size:  $font-size-0;
+    }
+
+    &.align-right {
+        margin-left: auto;
     }
 }
 </style>

@@ -1,11 +1,11 @@
 <template>
-    <b-row class="mb-4">
+    <b-row>
         <b-col class="col-3" v-for="edition in rowEditions" :key="edition.id">
-            <b-card
-                class="p-3"
-                no-body
-            >
-                <edition-public-card @edition-copy-click="editionCopyClick(edition)" :edition="edition"></edition-public-card>
+            <b-card class="p-3" no-body>
+                <edition-public-card
+                    @edition-copy-click="editionCopyClick(edition)"
+                    :edition="edition"
+                ></edition-public-card>
             </b-card>
         </b-col>
     </b-row>
@@ -18,7 +18,7 @@ import EditionPublicCard from './edition-public-card.vue';
 @Component({
     name: 'edition-public-row',
     components: {
-        EditionPublicCard
+        EditionPublicCard,
     },
 })
 export default class EditionPublicRow extends Vue {
@@ -29,9 +29,16 @@ export default class EditionPublicRow extends Vue {
         return this.editions.slice(this.index, this.index + 4);
     }
 
-    @Emit()
     protected editionCopyClick(edition: EditionInfo) {
-        return edition;
+        this.$state.editions.current = edition;
+        this.$root.$bvModal.show('copy-edition-modal');
+        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
     }
 }
 </script>
+
+<style lang="scss">
+.stylebottom {
+    margin-bottom: 50px !important;
+}
+</style>

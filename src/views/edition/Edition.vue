@@ -14,7 +14,7 @@
 
                 <b-col class="col-7 mt-4 mb-3">
                     <div class="btns-permiss" v-if="currentEdition">
-                        <b-button class="mr-2" @click="openMetadata()">Manuscript Information</b-button>
+                        <b-button class="mr-2" @click="openMetadata">Manuscript Information</b-button>
                         <b-button
                             class="mr-2"
                             v-if="isAdmin"
@@ -26,6 +26,7 @@
                         <b-button disabled>
                             <i class="fa fa-lock mr-1"></i>Publish
                         </b-button>
+                        <b-button class="ml-2" @click="deleteEdition">Delete Edition</b-button>
                     </div>
                 </b-col>
             </b-row>
@@ -63,6 +64,7 @@
         </div>
         <permission-modal v-if="currentEdition"></permission-modal>
         <edition-metadata-modal></edition-metadata-modal>
+         <delete-edition-modal></delete-edition-modal>
         <!-- :visible="false" to prevent false display of the modal -->
     </div>
 </template>
@@ -79,6 +81,7 @@ import { Artefact } from '@/models/artefact';
 
 import PermissionModal from './components/permission-modal.vue';
 import EditionMetadataModal from './components/metadata.vue';
+import DeleteEditionModal from './components/delete-edition-modal.vue';
 
 @Component({
     name: 'edition',
@@ -86,6 +89,7 @@ import EditionMetadataModal from './components/metadata.vue';
         EditionSidebar,
         Waiting,
         PermissionModal,
+        'delete-edition-modal': DeleteEditionModal,
         'edition-metadata-modal': EditionMetadataModal,
     },
 })
@@ -130,7 +134,9 @@ export default class Edition extends Vue {
     private openMetadata() {
         this.$root.$emit('bv::show::modal', 'editionMetadataModal');
     }
-
+    private deleteEdition() {
+       this.$root.$emit('bv::show::modal', 'deleteEditionModal');
+  }
     protected get artefactsLength(): number {
         const virtualCount = this.$state.artefacts.items.reduce(
             (count, art: Artefact) => {
@@ -202,7 +208,7 @@ export default class Edition extends Vue {
 
     // methods => member functions of the class
     // ============================================================
-
+ 
     protected openPermissionModal() {
         this.$root.$emit('bv::show::modal', 'permissionModal');
         // event, new_value

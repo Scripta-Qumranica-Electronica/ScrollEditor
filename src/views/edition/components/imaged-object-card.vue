@@ -3,7 +3,7 @@
         <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imageObjectId}` }">
             <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
         </router-link>
-        <label>{{artefactsNames}}</label>
+        <label>{{imagedObject.name}}</label>
     </div>
 </template>
 
@@ -33,13 +33,6 @@ export default class ImagedObjectCard extends Vue {
 
     private get editionId(): number | undefined {
         return this.$state?.editions?.current?.id;
-    }
-
-    private get artefactsNames(): string {
-        const names = this.imagedObject.artefacts.map((a) => a.name);
-         // Taken from here: https://stackoverflow.com/a/42123984/871910
-        const unique = [...new Set(names)];
-        return unique.join(', ');
     }
 
 }

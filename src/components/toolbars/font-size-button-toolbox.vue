@@ -1,12 +1,12 @@
 <template>
-    <toolbox :subject="subject">
+    <toolbox :subject="subject" :class="'align-' + align">
         <toolbar-icon-button
-            icon="sort-alpha-up"
+            class="fa fa-font"
             @click="fontSizeChanged(+delta)"
             :disabled="!canFontSizePlus"
         />
         <toolbar-icon-button
-            icon="sort-alpha-down"
+            class="fa fa-font minus"
             :disabled="!canFontSizeMinus"
             @click="fontSizeChanged(-delta)"
         />
@@ -29,6 +29,7 @@ export default class FontSizeButtonToolbox extends Vue {
     @Prop({ default: '' }) public subject!: string;
     @Model('fontSizeChanged', { type: Number }) private fontSize!: number;
     @Prop({ default: 2 }) public delta!: number;
+    @Prop({ default: 'left' }) public align!: 'left' | 'right';
 
     private fontSizeLimits: { min: number; max: number } = { min: 10, max: 40 };
 
@@ -57,4 +58,12 @@ export default class FontSizeButtonToolbox extends Vue {
         this.$emit('fontSizeChanged', val);
     }
 }
+
+
 </script>
+<style lang="scss" scoped>
+.minus::before {
+    font-size: 10px;
+    font-weight: 600;
+}
+</style>

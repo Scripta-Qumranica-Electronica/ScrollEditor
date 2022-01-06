@@ -234,9 +234,9 @@ export default class IIIFImageComponent extends Vue {
 
                 this.tiles.push(tile);
                 yTranslate +=
-                    currentTileHeight * this.optimizedImageScaleFactor; // For some reason without the -1 we see thin lines between tiles
+                    currentTileHeight * this.optimizedImageScaleFactor - 1; // For some reason without the -1 we see thin lines between tiles
             }
-            xTranslate += currentTileWidth * this.optimizedImageScaleFactor;
+            xTranslate += currentTileWidth * this.optimizedImageScaleFactor - 1;
         }
 
         this.$nextTick(() => {

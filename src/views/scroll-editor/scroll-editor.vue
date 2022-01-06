@@ -37,20 +37,24 @@
                         ></scroll-area>
                     </div>
                 </div>
-                 
+
                 <resize-bar
-                     v-if="$refs.editorGrid"
+                    v-if="$refs.editorGrid"
                     :gridElement="$refs.editorGrid"
-                     storageKey="scroll-editor-left-pane-width"
+                    storageKey="scroll-editor-left-pane-width"
                 ></resize-bar>
-                <div class="border-right" ref="artefactSidebar" id="scroll-map-container">
+                <div
+                    class="border-right"
+                    ref="artefactSidebar"
+                    id="scroll-map-container"
+                >
                     <div ref="scrollMap">
                         <scroll-map @navigate-to-point="navigateToPoint" />
                     </div>
                     <div
                         class="pt-3"
                         id="secondary-toolbar"
-                      :style="{height: secondaryToolbarHeight + 'px'}"
+                        :style="{ height: secondaryToolbarHeight + 'px' }"
                     >
                         <text-toolbar
                             v-if="isTextMode"
@@ -127,12 +131,13 @@ import TextToolbar from './text-toolbar.vue';
         'scroll-top-toolbar': ScrollTopToolbar,
         'manuscript-toolbar': ManuscriptToolbar,
         'text-toolbar': TextToolbar,
-        'resize-bar': ResizeBar
+        'resize-bar': ResizeBar,
     },
 })
 export default class ScrollEditor
     extends Vue
-    implements SavingAgent<ScrollEditorOperation> {
+    implements SavingAgent<ScrollEditorOperation>
+{
     private operationsManager = new OperationsManager<
         ScrollEditorOperation | ArtefactEditorOperation
     >(this);
@@ -378,8 +383,8 @@ export default class ScrollEditor
         await this.$nextTick();
         this.$root.$on('bv::modal::hide', (bvEvent: any, modalId: any) => {
             if (modalId === 'addArtefactModal') {
-                const artefactId = bvEvent.trigger;
-                this.onAddArtefactModalClose(artefactId);
+                const artefactIds = bvEvent.trigger;
+                this.onAddArtefactModalClose(artefactIds);
             }
         });
 
@@ -409,9 +414,11 @@ export default class ScrollEditor
         this.operationsManager.addBulkOperations(ops);
     }
 
-    private async onAddArtefactModalClose(artId: number) {
-        const artefact = this.$state.artefacts.find(artId);
-        if (artefact) {
+    private async onAddArtefactModalClose(artIds: number[]) {
+        const artefacts = this.$state.artefacts.items.filter((art: Artefact) =>
+            artIds.includes(art.id)
+        );
+        if (artefacts) {
             const orderedArtefacts = this.artefacts
                 .filter((x) => x.isPlaced)
                 .map((x) => x.placement.zIndex);
@@ -420,29 +427,41 @@ export default class ScrollEditor
                 : 0;
 
             // Place close to topleft corner of viewport
-            const placement = new Placement({
-                translate: {
-                    x: (this.$state.scrollEditor.viewport?.x || 0) + 50,
-                    y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
-                },
-                scale: 1,
-                rotate: 0,
-                zIndex: maxZindex + 1,
-                mirrored: false,
-            });
+            // const placement = new Placement({
+            //     translate: {
+            //         x: (this.$state.scrollEditor.viewport?.x || 0) + 50,
+            //         y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
+            //     },
+            //     scale: 1,
+            //     rotate: 0,
+            //     zIndex: maxZindex + 1,
+            //     mirrored: false,
+            // });
 
-            const operation = new ArtefactPlacementOperation(
-                artefact.id,
-                'add',
-                Placement.empty,
-                placement,
-                artefact.isPlaced,
-                true
-            );
-            artefact.placeOnScroll(placement);
+            artefacts.forEach((art: Artefact, index: number) => {
+                const placement = new Placement({
+                    translate: {
+                        x: (this.$state.scrollEditor.viewport?.x || 0) + 50 + index * 500,
+                        y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
+                    },
+                    scale: 1,
+                    rotate: 0,
+                    zIndex: maxZindex + 1 + index,
+                    mirrored: false,
+                });
 
-            // load artefact Rois
-            /*
+                const operation = new ArtefactPlacementOperation(
+                    art.id,
+                    'add',
+                    Placement.empty,
+                    placement,
+                    art.isPlaced,
+                    true
+                );
+                art.placeOnScroll(placement);
+
+                // load artefact Rois
+                /*
             No need, ROIs were already loaded
             await Promise.all(
                 artefact.textFragments.map((tf: ArtefactTextFragmentData) => {
@@ -450,8 +469,10 @@ export default class ScrollEditor
                 })
             ); */
 
-            this.newOperation(operation);
-            this.selectArtefact(artefact);
+                this.newOperation(operation);
+            });
+
+            this.selectArtefact(artefacts[0]);
         }
     }
 
@@ -542,7 +563,8 @@ export default class ScrollEditor
         // Set the height of the secondary toolbar to the artefactSidebar height, minus the scrollmap's height.
         // We must set the height explicitly, otherwise the vertical scrollbar on the secondary toolbar misbehaves
         const artefactsContainer = this.$refs.artefactContainer as Element;
-        const artefactsContainerHeight = artefactsContainer.getBoundingClientRect().height;
+        const artefactsContainerHeight =
+            artefactsContainer.getBoundingClientRect().height;
         const scrollmap = this.$refs.scrollMap as Element;
         const scrollmapHeight = scrollmap.getBoundingClientRect().height;
 
@@ -844,8 +866,8 @@ export default class ScrollEditor
     grid-column: 1 / span 3;
     grid-row: 1 / 2;
 }
-#artefact-row{
-      grid-column: 1 / 3;
+#artefact-row {
+    grid-column: 1 / 3;
     grid-row: 2 / 2;
 }
 
@@ -857,7 +879,7 @@ export default class ScrollEditor
     /* height: calc(100vh - 249px); */
     touch-action: none;
 }
-#scroll-map-container{
+#scroll-map-container {
     grid-column: 3 / 3;
     grid-row: 2 / 2;
 }

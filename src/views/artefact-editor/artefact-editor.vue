@@ -37,10 +37,9 @@
                                 icon="mouse-pointer"
                             />
                         </toolbox>
-                        <toolbox subject="">
+                        <toolbox subject="" v-if="!readOnly">
                             <toolbar-icon-button
                                 :title="$t('misc.cancel')"
-                                v-if="!readOnly"
                                 @click="onDeleteRoi"
                                 :disabled="!isDeleteEnabled"
                                 icon="trash"
@@ -63,7 +62,6 @@
                                 >Auto character select</b-form-checkbox
                             >
                         </toolbox>
-                        <edition-toolbox />
                     </artefact-editor-toolbar>
                 </toolbar>
                 <div id="artefact-info">
@@ -206,7 +204,6 @@ import Toolbar from '@/components/toolbars/toolbar.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import ResizeBar from '@/components/misc/resizeBar.vue';
-import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -224,8 +221,7 @@ import EditionToolbox from '@/components/toolbars/edition-toolbox.vue';
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
         'toolbar-icon-button': ToolbarIconButton,
-        'resize-bar': ResizeBar,
-        'edition-toolbox': EditionToolbox,
+        'resize-bar': ResizeBar
     },
 })
 export default class ArtefactEditor
@@ -1059,8 +1055,14 @@ export default class ArtefactEditor
 
     & > div {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: stretch;
+
+        & > svg {
+            flex-shrink: 0;
+            flex-grow: 1;
+        }
     }
 }
 
