@@ -48,7 +48,7 @@
         "@vue/cli-plugin-typescript": "~4.2.2",
         "@vue/cli-service": "~4.2.2",
         "cypress": "^3.7.0",
-        "node-sass": "^4.13.0",
+        "node-sass": "^7.0.0",
         "sass-builder": "^1.0.0",
         "sass-loader": "^8.0.0",
         "typescript": "~3.7.5",
