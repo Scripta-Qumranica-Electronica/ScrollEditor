@@ -1,5 +1,5 @@
 <template>
-    <div class="text-side-container" >
+    <div class="text-side-container">
         <div class="border-bottom" id="load-fragment" v-if="artefactMode">
             <input
                 class="select-text"
@@ -12,7 +12,7 @@
             />
             <datalist id="my-list-id">
                 <option
-                    v-for="tf in dropdownTextFragmentsData"
+                    v-for="tf of dropdownTextFragmentsData"
                     :key="tf.textFragmentId"
                 >
                     {{ tf.name }}
@@ -22,7 +22,7 @@
         </div>
         <div id="text-fragments">
             <div
-                v-for="(textFragment, index) in displayedTextFragments"
+                v-for="(textFragment, index) of displayedTextFragments"
                 :key="textFragment.id"
                 role="tablist"
                 class="text-side-border"
@@ -30,7 +30,7 @@
             >
                 <b-card-header header-tag="header" class="card-header">
                     <b-row no-gutters>
-                        <div style="width:80px;"  v-if="artefactMode">
+                        <div style="width: 80px" v-if="artefactMode">
                             <b-button-group block>
                                 <b-button
                                     href="#"
@@ -71,7 +71,7 @@
                 >
                     <text-fragment
                         :fragment="textFragment"
-                         :font-size="fontSize"
+                        :font-size="fontSize"
                         id="text-box"
                     ></text-fragment>
                 </b-collapse>
@@ -220,10 +220,9 @@ export default class TextSide extends Vue {
             const tfIdsToDelete = this.allTextFragmentsData
                 .filter((tfData) => !tfData.certain)
                 .map((t) => t.id);
-            this.displayedTextFragments.forEach((x, index) => {
-                if (tfIdsToDelete.includes(x.id)) {
-                    this.displayedTextFragments.splice(index, 1);
-                }
+
+            this.displayedTextFragments = this.displayedTextFragments.filter((x, index) => {
+                return !tfIdsToDelete.includes(x.id);
             });
 
             await this.getFragmentText(textFragmentData.id);
@@ -309,7 +308,7 @@ export default class TextSide extends Vue {
 #text-box {
     font-family: $font-family;
     font-size: $font-size-3;
-    display:flex;
+    display: flex;
     justify-content: flex-start;
     direction: rtl;
     overflow-y: hidden;
@@ -333,7 +332,6 @@ export default class TextSide extends Vue {
     width: 100%;
     padding: 10px;
 }
-
 
 a.btn.btn-secondary {
     background-color: white;

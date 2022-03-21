@@ -85,7 +85,7 @@ export class TextFragmentState {
                 id: siTextFragment.textFragmentId,
                 name: siTextFragment.textFragmentName,
                 editorId: siTextFragment.editorId,
-                suggested: true,
+                suggested: false,
             }));
         } else {
             tf.certain = true;
