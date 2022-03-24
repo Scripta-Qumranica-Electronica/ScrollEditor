@@ -33,12 +33,14 @@ export default class ResizeBar extends Vue {
     }
 
     public endDrag() {
-        this.isDragging = false;
-        if (this.storageKey) {
-            localStorage.setItem(
-                this.storageKey,
-                this.leftPaneWidth.toString()
-            );
+        if (this.isDragging) {
+            this.isDragging = false;
+            if (this.storageKey) {
+                localStorage.setItem(
+                    this.storageKey,
+                    this.leftPaneWidth.toString()
+                );
+            }
         }
     }
 
