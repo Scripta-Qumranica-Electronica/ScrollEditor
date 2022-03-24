@@ -23,10 +23,10 @@
                             <i class="fa fa-lock mr-1"></i>
                             Collaborators
                         </b-button>
-                        <b-button disabled>
+                        <b-button disabled v-if="!currentEdition.isPublic">
                             <i class="fa fa-lock mr-1"></i>Publish
                         </b-button>
-                        <b-button class="ml-2" @click="deleteEdition">Delete Edition</b-button>
+                        <b-button class="ml-2" @click="deleteEdition" v-if="!currentEdition.isPublic">Delete Edition</b-button>
                     </div>
                 </b-col>
             </b-row>

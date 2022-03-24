@@ -11,6 +11,7 @@
         @pointerup="onPointerUp($event)"
         @pointercancel="onPointerCancel($event)"
         @click="onClick($event)"
+        @contextmenu.prevent="onContextMenu($event)"
     >
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
@@ -461,6 +462,12 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const id = parseInt(sid);
         const si = this.$state.signInterpretations.get(id, true) || null;
         this.$state.textFragmentEditor.selectSign(si);
+    }
+
+    @Emit()
+    private onContextMenu(event: MouseEvent): Artefact {
+        event.stopPropagation();
+        return this.artefact;
     }
 }
 </script>

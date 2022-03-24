@@ -3,7 +3,7 @@
         <div v-if="waiting" class="col">
             <Waiting></Waiting>
         </div>
-        <div v-if="!waiting" tabindex="0" @keydown="onKeyDown">
+        <div v-if="!waiting" tabindex="0" @keydown="onKeyDown" @keyup="onKeyUp" v-on:keypress="onKeyPress">
             <div id="editor-grid" ref="editorGrid" class="mb-1 border-bottom">
                 <scroll-top-toolbar
                     ref="topToolbar"
@@ -17,6 +17,7 @@
                     <div
                         id="artefact-container"
                         ref="artefactContainer"
+                        @keyup="checkCtrlRelease($event)"
                         @scroll="onScroll"
                     >
                         <scroll-ruler
@@ -441,7 +442,10 @@ export default class ScrollEditor
             artefacts.forEach((art: Artefact, index: number) => {
                 const placement = new Placement({
                     translate: {
-                        x: (this.$state.scrollEditor.viewport?.x || 0) + 50 + index * 500,
+                        x:
+                            (this.$state.scrollEditor.viewport?.x || 0) +
+                            50 +
+                            index * 500,
                         y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
                     },
                     scale: 1,
@@ -499,11 +503,12 @@ export default class ScrollEditor
             (x) => artefact && x.artefactIds.includes(artefact.id)
         );
 
-        if (this.params.mode === 'manageGroup') {
+        if (this.params.mode === 'manageGroup' || this.params.mode === 'multipleSelect') {
             if (!this.selectedGroup) {
-                const newGroup = ArtefactGroup.generateGroup([
-                    this.selectedArtefact!.id,
-                ]);
+                const newGroup = ArtefactGroup.generateGroup(
+                    this.selectedArtefact ? [this.selectedArtefact!.id] : [],
+                    this.params.mode === 'multipleSelect' ? true : false
+                );
                 this.scrollEditorState.selectGroup(newGroup);
             }
 
@@ -750,7 +755,7 @@ export default class ScrollEditor
                 group.artefactIds = [...this.selectedGroup!.artefactIds];
                 this.params.mode = '';
             }
-        } else {
+        } else if (!this.selectedGroup.notSave) {
             this.edition!.artefactGroups.push(this.selectedGroup!.clone());
             this.params.mode = '';
         }
@@ -808,6 +813,7 @@ export default class ScrollEditor
     }
 
     protected onKeyDown(event: KeyboardEvent) {
+       
         if (this.scrollEditorState.selectedArtefacts.length) {
             (this.$refs.topToolbar as ScrollTopToolbar).onKeyDown(event);
         } else {
@@ -841,6 +847,21 @@ export default class ScrollEditor
                 default:
                     break;
             }
+        }
+        if (event.key === 'Delete') {
+            this.$root.$emit('delete-key-pressed');
+        }
+    }
+
+    public onKeyPress(event: KeyboardEvent) {
+         if (event.key === 'g') {
+            console.log('ctrl');
+            this.params.mode = 'multipleSelect';
+        }
+    }
+    public onKeyUp(event: KeyboardEvent) {
+        if (event.key === 'g') {
+            this.params.mode = '';
         }
     }
 }

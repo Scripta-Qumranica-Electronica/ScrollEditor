@@ -207,28 +207,30 @@ class EditionInfo {
 }
 class ArtefactGroup {
     public static nextGroupId: number = -1;
-    public static generateGroup(artefactsIds: number[]): ArtefactGroup {
+    public static generateGroup(artefactsIds: number[], notSave?: boolean): ArtefactGroup {
         const dto: ArtefactGroupDTO = {
             id: ArtefactGroup.nextGroupId--,
             artefacts: [...artefactsIds],
             name: ''
         };
-        return new ArtefactGroup(dto);
+        return new ArtefactGroup(dto, notSave);
     }
 
     public groupId: number = 0;
     public name: string = '';
     public artefactIds: number[] = [];
+    public notSave?: boolean = false;
 
     public get id() {
         // State collections require an id field (look for ItemWithId)
         return this.groupId;
     }
 
-    constructor(dto: ArtefactGroupDTO) {
+    constructor(dto: ArtefactGroupDTO, notSave?: boolean) {
         this.groupId = dto.id;
         this.name = dto.name;
         this.artefactIds = [...dto.artefacts];
+        this.notSave = notSave;
     }
 
     public clone() {

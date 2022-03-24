@@ -77,7 +77,11 @@ export default class ZoomToolbox extends Vue {
     }
 
     private zoomClick(percent: number) {
-        if (this.paramsZoom + percent < 1 && this.paramsZoom + percent > 0) {
+        if (this.paramsZoom + percent > 1) {
+            this.localZoom = 1;
+        } else if (this.paramsZoom + percent < 0) {
+            this.localZoom = 0.01;
+        } else {
             this.localZoom = this.paramsZoom + percent;
         }
 
@@ -89,12 +93,12 @@ export default class ZoomToolbox extends Vue {
     }
 
     private get canZoomIn(): boolean {
-        return this.paramsZoom < 1 && this.paramsZoom + +this.delta < 1;
+        return this.paramsZoom < 1;
         //  return this.paramsZoom < 1 && Math.round(this.paramsZoom * 100) + this.delta <= 100;
     }
 
     private get canZoomOut(): boolean {
-        return this.paramsZoom > 0 && this.paramsZoom - +this.delta > 0;
+        return this.paramsZoom > 0;
         // return this.paramsZoom > 0 && Math.round(this.paramsZoom * 100) - this.delta > 0;
     }
 

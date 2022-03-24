@@ -234,10 +234,7 @@ export default class SignAttributePane extends Vue {
             ) {
                 for (const attributeValue of attributeMeta.values) {
                     if (attributesValuesSet.has(attributeValue.id)) {
-                        const idx = attributeCopy.values.findIndex(
-                            (value) => value.id === attributeValue.id
-                        );
-                        attributeCopy.values.splice(idx, 1);
+                        attributeCopy.values = attributeCopy.values.filter(x => x.id !== attributeValue.id);
                     }
                 }
             }

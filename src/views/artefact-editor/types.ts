@@ -8,7 +8,8 @@ export type ScrollEditorOpMode =
     | 'move'
     | 'scale'
     | 'rotate'
-    | 'manageGroup';
+    | 'manageGroup'
+    | 'multipleSelect';
 export type ArtefactEditorMode = 'artefact' | 'text-fragment';
 export class ArtefactEditorParams implements BaseEditorParams {
     public imageSettings = {} as ImageSetting;
