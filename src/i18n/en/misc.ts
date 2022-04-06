@@ -3,6 +3,7 @@ export default {
     new: 'New Artefact',
     current: 'Current',
     copy: 'Copy Edition',
+    copyToEdition: 'Copy To Edition',
     anotherCopy: 'Create another copy',
     permission: 'Permission',
     draw: 'Draw',

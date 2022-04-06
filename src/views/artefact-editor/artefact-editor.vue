@@ -239,7 +239,7 @@ export default class ArtefactEditor
     private get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
-    
+
     private autoMode = false;
 
     private errorMessage = '';
@@ -678,6 +678,7 @@ export default class ArtefactEditor
         }
     }
 
+
     private onAuto() {
         if (
             this.textFragmentEditorState.selectedSignInterpretations.length >
@@ -991,7 +992,6 @@ export default class ArtefactEditor
     private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
         this.operationsManager.addBulkOperations(ops);
     }
-   
 }
 </script>
 

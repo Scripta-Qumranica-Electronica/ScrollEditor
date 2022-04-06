@@ -51,6 +51,14 @@
             <undo-redo-toolbox />
             <slot />
             <copy-edition-toolbox />
+            <toolbox subject="">
+                <toolbar-icon-button
+                    :title="$t('misc.copyToEdition')"
+                    @click="openCopyToEdtion()"
+                    :show-text="true"
+                />
+                <copy-to-edition-modal></copy-to-edition-modal>
+            </toolbox>
         </toolbar>
     </div>
 </template>
@@ -93,6 +101,8 @@ import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import UndoRedoToolbox from '@/components/toolbars/undo-redo-toolbox.vue';
 import AdjustImageToolbox from '@/components/toolbars/adjust-image-toolbox.vue';
 import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
+import CopyToEditionModal from '../home/components/copy-to-edition-modal.vue';
+
 
 @Component({
     name: 'artefcat-editor-toolbar',
@@ -105,7 +115,8 @@ import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
         'toolbar-icon-button': ToolbarIconButton,
         'undo-redo-toolbox': UndoRedoToolbox,
         'adjust-image-toolbox': AdjustImageToolbox,
-        'copy-edition-toolbox' : CopyEditionToolbox
+        'copy-edition-toolbox': CopyEditionToolbox,
+        'copy-to-edition-modal': CopyToEditionModal
     },
 })
 export default class ImagedObjectEditorToolbar extends Vue {
@@ -239,6 +250,10 @@ export default class ImagedObjectEditorToolbar extends Vue {
         return (
             DrawingMode[val].toString() === this.params.drawingMode.toString()
         );
+    }
+    
+    private openCopyToEdtion() {
+        this.$root.$bvModal.show('copy-to-edition-modal');
     }
 }
 </script>

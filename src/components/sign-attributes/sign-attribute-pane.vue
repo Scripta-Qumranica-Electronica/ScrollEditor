@@ -1,5 +1,17 @@
 <template>
     <div class="attributes border-top">
+        <div>
+            <b-form-checkbox
+                name="allSiAreReconstructed-checkbox"
+                :checked="allSiAreReconstructed"
+                @change="onReconstructedCheckBoxChanged"
+            >
+                {{
+                    (allSiAreReconstructed ? 'Remove' : 'Set') +
+                    ' Reconstructed'
+                }}
+            </b-form-checkbox>
+        </div>
         <ul class="attribute-list">
             <li v-if="!readOnly" class="attribute-pane-add-attribute">
                 <b-dropdown
@@ -22,7 +34,7 @@
                         v-for="attr in attributesMenu"
                         :key="attr.attributeId"
                         variant="link"
-                        boundary="viewport" 
+                        boundary="viewport"
                         class="attribute-pane-dropdown-attr"
                         dropright
                         @show="onValuesMenuShow()"
@@ -68,7 +80,10 @@ import {
 } from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
-import { SignInterpretationCommentOperation, TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
+import {
+    SignInterpretationCommentOperation,
+    TextFragmentAttributeOperation,
+} from '@/views/artefact-editor/operations';
 import { BDropdown, BvEvent } from 'bootstrap-vue';
 import CommentComponent from '../comment/comment.vue';
 
@@ -77,10 +92,11 @@ import CommentComponent from '../comment/comment.vue';
     components: {
         'sign-attribute-modal': SignAttributeModal,
         'sign-attribute': SignAttribute,
-        'comment': CommentComponent,
+        comment: CommentComponent,
     },
 })
 export default class SignAttributePane extends Vue {
+    private status: boolean = false;
     private keepOpen = false;
     private attributesMenu: AttributeDTO[] = [];
 
@@ -88,13 +104,25 @@ export default class SignAttributePane extends Vue {
         return this.$state.editions.current!.permission.readOnly;
     }
 
-
     public get editorState() {
         return this.$state.textFragmentEditor;
     }
 
     public get selectedSignInterpretations(): SignInterpretation[] {
         return this.editorState.selectedSignInterpretations;
+    }
+
+    public get allSiAreReconstructed(): boolean {
+        if ((this.editorState.selectedSignInterpretations.length === 0)) {
+            return false;
+        }
+        return this.selectedSignInterpretations.every((si) =>
+            si.attributes.some(
+                (attr) =>
+                    attr.attributeString === 'is_reconstructed' &&
+                    attr.attributeValueString === 'TRUE'
+            )
+        );
     }
 
     // The comment in the state.
@@ -108,11 +136,16 @@ export default class SignAttributePane extends Vue {
 
     private set comment(val: string) {
         if (this.selectedSignInterpretations.length !== 1) {
-            console.warn("Can't change ta comment without one selected sign interperation");
+            console.warn(
+                "Can't change ta comment without one selected sign interperation"
+            );
             return;
         }
 
-        const op = new SignInterpretationCommentOperation(this.selectedSignInterpretations[0].id, val);
+        const op = new SignInterpretationCommentOperation(
+            this.selectedSignInterpretations[0].id,
+            val
+        );
         op.redo(true);
         this.$state.eventBus.emit('new-operation', op);
     }
@@ -147,15 +180,17 @@ export default class SignAttributePane extends Vue {
         }
 
         // selectedSignInterpretations has at least one element
-        const attributes = this.selectedSignInterpretations[0].attributes.filter(
-            (attr) => attributeValues.includes(attr.attributeValueId)
-        );
+        const attributes =
+            this.selectedSignInterpretations[0].attributes.filter((attr) =>
+                attributeValues.includes(attr.attributeValueId)
+            );
         return attributes;
     }
 
     private get isMultiSelect() {
         return (
-            this.$state.textFragmentEditor.selectedSignInterpretations.length !== 1
+            this.$state.textFragmentEditor.selectedSignInterpretations
+                .length !== 1
         );
     }
 
@@ -166,7 +201,8 @@ export default class SignAttributePane extends Vue {
 
     private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
-        for (const si of this.$state.textFragmentEditor.selectedSignInterpretations) {
+        for (const si of this.$state.textFragmentEditor
+            .selectedSignInterpretations) {
             const op = new TextFragmentAttributeOperation(si.id, attrVal.id, {
                 attributeId: attr.attributeId,
                 attributeString: attr.attributeName,
@@ -179,6 +215,45 @@ export default class SignAttributePane extends Vue {
         this.$state.eventBus.emit('new-bulk-operations', ops);
         this.keepOpen = false;
         (this.$refs.attributesMenu as BDropdown).hide();
+    }
+
+    private onDeleteAttribute(attrVal: AttributeValueDTO) {
+        const ops: TextFragmentAttributeOperation[] = [];
+        for (const si of this.$state.textFragmentEditor
+            .selectedSignInterpretations) {
+            const op = new TextFragmentAttributeOperation(
+                si.id,
+                attrVal.id,
+                undefined
+            );
+            op.redo(true);
+            ops.push(op);
+        }
+        this.$state.eventBus.emit('new-bulk-operations', ops);
+    }
+
+    private onReconstructedCheckBoxChanged(event: boolean) {
+        let reconstructedAttrDTO: AttributeDTO;
+        let reconstructedAttrValueDTO: AttributeValueDTO;
+        const reconstructedAttrMeta = this.attributesMetadata.find(
+            (a) => a.attributeName === 'is_reconstructed'
+        );
+        if (reconstructedAttrMeta) {
+            reconstructedAttrDTO = { ...reconstructedAttrMeta };
+            const reconstructedAttrValueMeta =
+                reconstructedAttrDTO?.values.find((a) => a.value === 'TRUE');
+            if (reconstructedAttrValueMeta) {
+                reconstructedAttrValueDTO = { ...reconstructedAttrValueMeta };
+            }
+            if (event) {
+                this.onAddAttribute(
+                    reconstructedAttrDTO!,
+                    reconstructedAttrValueDTO!
+                );
+            } else {
+                this.onDeleteAttribute(reconstructedAttrValueDTO!);
+            }
+        }
     }
 
     private onAddAttributesMenuOpen() {
@@ -200,7 +275,7 @@ export default class SignAttributePane extends Vue {
                 attributesValuesSet.add(attribute.attributeValueId);
             }
         }
-
+        console.log(this.attributesMetadata);
         for (const attributeMeta of this.attributesMetadata) {
             const attributeCopy = { ...attributeMeta };
             // check repeatable
@@ -234,7 +309,9 @@ export default class SignAttributePane extends Vue {
             ) {
                 for (const attributeValue of attributeMeta.values) {
                     if (attributesValuesSet.has(attributeValue.id)) {
-                        attributeCopy.values = attributeCopy.values.filter(x => x.id !== attributeValue.id);
+                        attributeCopy.values = attributeCopy.values.filter(
+                            (x) => x.id !== attributeValue.id
+                        );
                     }
                 }
             }
@@ -285,8 +362,6 @@ export default class SignAttributePane extends Vue {
     border: 0px;
 }
 
-
-
 .attribute-pane-dropdown-attr {
     width: 100%;
     height: 100%;
@@ -295,8 +370,6 @@ export default class SignAttributePane extends Vue {
         display: inline-block;
         font-size: 14px;
         color: black;
-
-
     }
     ul {
         font-size: 12px;
@@ -330,7 +403,6 @@ export default class SignAttributePane extends Vue {
         padding-top: 0;
         padding-bottom: 0;
         color: inherit;
-
     }
     ul {
         font-size: 12px;
@@ -343,7 +415,4 @@ export default class SignAttributePane extends Vue {
         height: 20px;
     }
 }
-
-
-
 </style>
