@@ -1,4 +1,5 @@
 <template>
+
     <div class="sign-wheel" :dir="direction">
         <text-sign
             v-for="signInfo in signs"

@@ -5,12 +5,7 @@
                 name="allSiAreReconstructed-checkbox"
                 :checked="allSiAreReconstructed"
                 @change="onReconstructedCheckBoxChanged"
-            >
-                {{
-                    (allSiAreReconstructed ? 'Remove' : 'Set') +
-                    ' Reconstructed'
-                }}
-            </b-form-checkbox>
+            >Reconstructed</b-form-checkbox>
         </div>
         <ul class="attribute-list">
             <li v-if="!readOnly" class="attribute-pane-add-attribute">
