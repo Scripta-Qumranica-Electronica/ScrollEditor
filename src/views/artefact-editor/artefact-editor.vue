@@ -62,6 +62,15 @@
                                 >Auto character select</b-form-checkbox
                             >
                         </toolbox>
+                        <toolbox subject="">
+                            <toolbar-icon-button
+                                :title="$t('misc.copyToEdition')"
+                                @click="openCopyToEdtion()"
+                                :show-text="true"
+                            />
+                            <copy-to-edition-modal></copy-to-edition-modal>
+                        </toolbox>
+                        <copy-edition-toolbox />
                     </artefact-editor-toolbar>
                 </toolbar>
                 <div id="artefact-info">
@@ -204,6 +213,8 @@ import Toolbar from '@/components/toolbars/toolbar.vue';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ToolbarIconButton from '@/components/toolbars/toolbar-icon-button.vue';
 import ResizeBar from '@/components/misc/resizeBar.vue';
+import CopyToEditionModal from '../home/components/copy-to-edition-modal.vue';
+import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
 
 @Component({
     name: 'artefact-editor',
@@ -221,7 +232,9 @@ import ResizeBar from '@/components/misc/resizeBar.vue';
         'edition-icons': EditionIcons,
         'sign-attribute-pane': SignAttributePane,
         'toolbar-icon-button': ToolbarIconButton,
-        'resize-bar': ResizeBar
+        'resize-bar': ResizeBar,
+        'copy-to-edition-modal': CopyToEditionModal,
+        'copy-edition-toolbox': CopyEditionToolbox
     },
 })
 export default class ArtefactEditor
@@ -321,6 +334,9 @@ export default class ArtefactEditor
         this.saving = false;
 
         return true;
+    }
+    private openCopyToEdtion() {
+        this.$root.$bvModal.show('copy-to-edition-modal');
     }
 
     public onNewPolygon(poly: Polygon) {
@@ -677,7 +693,6 @@ export default class ArtefactEditor
             this.onNewOperation(op);
         }
     }
-
 
     private onAuto() {
         if (
