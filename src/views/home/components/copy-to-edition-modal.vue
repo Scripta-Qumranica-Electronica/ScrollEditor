@@ -67,8 +67,8 @@ export default class CopyToEditionModal extends Vue {
             );
     }
 
-    private get currentArtefact(): Artefact | null {
-        return this.$state.artefacts.current;
+    private get currentArtefact(): Artefact {
+        return this.$state.artefacts.current!;
     }
 
     private get imagedObject(): ImagedObject | null {
@@ -80,17 +80,10 @@ export default class CopyToEditionModal extends Vue {
         this.errorMessage = '';
 
         try {
-            // editionId: number, imagedObject: ImagedObject, artefactName: string, side: Side
-            const artefactCopy = await this.artefactService.createArtefact(
+            const artefactCopy = await this.artefactService.copyArtefact(
                 this.editionTargetId,
-                this.imagedObject!,
-                this.currentArtefact?.name!,
-                this.currentArtefact?.side!
+                this.currentArtefact
                 );
-
-            // this.$state.artefacts.current = artefactCopy;
-
-            // this.$state.misc.newEditionId = newEdition.id;
 
             (this.$refs.copyToEditionModalRef as any).hide();
 
@@ -98,7 +91,7 @@ export default class CopyToEditionModal extends Vue {
                 path: `/editions/${this.editionTargetId}/artefacts/${artefactCopy.id}`,
             });
 
-            // this.$router.go(0);
+            this.$router.go(0);
         } catch (err: any) {
             this.errorMessage = err.toString();
             console.error('Error copying artefact', err);
@@ -107,7 +100,7 @@ export default class CopyToEditionModal extends Vue {
         }
     }
     private onHide(evt: Event) {
-        (this.$refs.copyToEditionModalRef as any).blur();
+        // (this.$refs.copyToEditionModalRef as any).blur();
         (this.$refs.copyToEditionModalRef as any).hide();
     }
 }
