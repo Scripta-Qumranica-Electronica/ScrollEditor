@@ -1,7 +1,6 @@
 <template>
     <span contenteditable="false">
-        <span 
-
+        <span
             class="text-sign"
             :class="[
                 { selected: isSelected, highlighted: isHighlighted },
@@ -13,7 +12,7 @@
             "
             v-html="si.htmlCharacter"
         />
-        <b-popover
+        <!-- <b-popover
             v-if="withMenu && !readOnly"
             custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
@@ -38,7 +37,7 @@
                         </p>
                     </li>
                     <li>
-                        <p @click="editLine()">{{ $t('misc.editLine') }}</p>
+                        <p @click="openEditLineModal()">{{ $t('misc.editLine') }}</p>
                     </li>
                     <li v-if="editingMode === 'artefact'">
                         <p @click="openAddLeftSignModal()">
@@ -62,7 +61,7 @@
                     </li>
                 </ul>
             </div>
-        </b-popover>
+        </b-popover> -->
 
         <b-modal
             :id="`qwb-word-${si.signInterpretationId}`"
@@ -199,10 +198,13 @@ export default class TextSign extends Vue {
         }
     }
 
-    @Emit()
-    private editLine() {
-        return true;
-    }
+    // @Emit()
+    // private editLine() {
+    //     return true;
+    // }
+    // private openEditLineModal() {
+    //     this.$root.$emit('bv::show::modal', 'editLineModal');
+    // }
 
     private openEditSignModal() {
         this.$state.textFragmentEditor.modeSignModal = 'edit';

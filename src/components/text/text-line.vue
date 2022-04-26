@@ -8,8 +8,7 @@
         >
         <div
             :contenteditable="isEditMode"
-            @blur="onEditFinished($event)"
-            :ref="'line-' + line.lineId"
+            class="line-container"
             @keydown.enter="checkEnter($event)"
             @paste="onPaste($event)"
             tabindex="-1"
@@ -19,7 +18,6 @@
                     :tabindex="
                         +sign.signInterpretations[0].signInterpretationId
                     "
-                    @edit-line="onEditLine()"
                     :withMenu="true"
                     :id="
                         'popover-si-' +
@@ -45,15 +43,20 @@
             custom-class="popover-sign-body"
             :target="'popover-line-' + line.lineId"
             triggers=""
-            @shown="focusPopover($event)"
+            @shown="focusPopover()"
         >
             <div
                 class="character-popover"
                 tabindex="-1"
                 ref="lineMenu"
-                @blur="closeLineMenu($event)"
+                @blur="closeLineMenu()"
             >
                 <ul>
+                    <li>
+                        <p @click="openEditLineModal()">
+                            {{ $t('misc.editLine') }}
+                        </p>
+                    </li>
                     <li>
                         <p @click="showVariants()">Show Variant Editions</p>
                     </li>
@@ -163,7 +166,7 @@ import TextService from '@/services/text';
     },
 })
 export default class TextLineComponent extends Vue {
-    private isEditMode: boolean = false;
+    @Prop() public isEditMode!: boolean;
     @Prop() public line!: Line;
     @Prop({
         default: 'rtl',
@@ -199,34 +202,13 @@ export default class TextLineComponent extends Vue {
             }
         }
     }
-    private onEditLine() {
-        this.isEditMode = true;
-        this.$nextTick(() => {
-            const line = this.$refs['line-' + this.line.lineId] as HTMLElement;
 
-            // set initial cursor position on first letter of line
-            const range = document.createRange();
-            const sel = document.getSelection();
-            range.setStart(line.childNodes[1], 0);
-            range.collapse(true);
-
-            sel?.removeAllRanges();
-            sel?.addRange(range);
-            line.focus();
-        });
-    }
     private checkEnter(event: any) {
         event.preventDefault();
         event.currentTarget.blur();
     }
-
-    private onEditFinished(event: any) {
-        // Call API request
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-            if (this.isEditMode) {
-                this.isEditMode = false;
-            }
-        }
+    private openEditLineModal() {
+        this.$root.$emit('bv::show::modal', 'editLineModal');
     }
 
     private onPaste(event: any) {
@@ -285,6 +267,9 @@ export default class TextLineComponent extends Vue {
         }
     }
     private openLineMenu(event: MouseEvent, lineMenuId: string) {
+        if (this.isEditMode) {
+            return;
+        }
         // prevent usual menu to display
         event.preventDefault();
         this.$root.$emit('bv::show::popover', lineMenuId);
