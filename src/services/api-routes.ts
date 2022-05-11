@@ -226,4 +226,10 @@ export namespace ApiRoutes {
 
         return url;
     }
+
+    export function diffReplaceText(editionId: number) {
+        const url = `v1/editions/${editionId}/diff-replace-text`;
+
+        return url;
+    }
 }
