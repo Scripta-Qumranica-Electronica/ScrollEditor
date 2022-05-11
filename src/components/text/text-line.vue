@@ -9,6 +9,7 @@
         <div
             :contenteditable="isEditMode"
             class="line-container"
+            @input="lineChange($event)"
             @keydown.enter="checkEnter($event)"
             @paste="onPaste($event)"
             tabindex="-1"
@@ -145,7 +146,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import { Line, TextDirection } from '@/models/text';
 import TextSign from '@/components/text/text-sign.vue';
 import {
@@ -201,6 +202,11 @@ export default class TextLineComponent extends Vue {
                 }
             }
         }
+    }
+
+    @Emit()
+    private lineChange(event: any) {
+        return event.target.textContent;
     }
 
     private checkEnter(event: any) {
