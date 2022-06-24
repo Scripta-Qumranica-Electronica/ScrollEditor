@@ -1,7 +1,7 @@
 <template>
 <toolbox>
       <b-button variant="outline-secondary" @click="openMetadata()" class="style-button"><i class="fa fa-info"></i></b-button>
-      <edition-metadata-modal></edition-metadata-modal>
+      <!-- <edition-metadata-modal></edition-metadata-modal> -->
 </toolbox>
 
 </template>

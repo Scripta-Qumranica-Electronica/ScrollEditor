@@ -38,5 +38,6 @@ export default {
     addToRight: 'Add to right',
     showQwbVariants: 'Show QWB Variants',
     showQwbParallels: 'Show QWB Parallels',
-    noImages: 'No Images Available'
+    noImages: 'No Images Available',
+    report: 'Report'
 };

@@ -12,17 +12,7 @@
                 to="/"
                 align="left"
                 id="brand-1"
-                class="
-                    brand-1
-                    m-0
-                    mt-mb-auto
-                    pt-0
-                    pb-0
-                    d-flex
-                    flex-row
-                    justify-content-between
-                    align-items-ceter
-                "
+                class="brand-1 m-0 mt-mb-auto pt-0 pb-0 d-flex flex-row justify-content-between align-items-ceter"
             >
                 <img
                     id="brand-icon"
@@ -45,7 +35,10 @@
                 class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
             >
                 <edition-toolbox />
-                <b-nav-item :to="{ path: `/editions/${edition.id}/artefacts` }" active-class="">
+                <b-nav-item
+                    :to="{ path: `/editions/${edition.id}/artefacts` }"
+                    active-class=""
+                >
                     <span>
                         {{ edition.name }}
                         <b-badge :class="editionBadgeClass">
@@ -198,6 +191,12 @@
                     }}</b-dropdown-item>
 
                     <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item
+                        placement="left"
+                        @click="reportProblemModal"
+                        >{{ $t('home.reportProblem') }}</b-dropdown-item
+                    >
+                    <report-problem-modal />
                     <b-dropdown-item @click="contactUs">
                         {{ $t('navbar.contactus') }}
                     </b-dropdown-item>
@@ -224,6 +223,7 @@ import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
 import Registration from '@/views/user/Registration.vue';
 import ToolbarIconButton from '../toolbars/toolbar-icon-button.vue';
 import EditionToolbox from '../toolbars/edition-toolbox.vue';
+import ReportProblemModal from './ReportProblemModal.vue';
 
 @Component({
     name: 'navbar',
@@ -233,6 +233,7 @@ import EditionToolbox from '../toolbars/edition-toolbox.vue';
         'eula-modal': EulaModal,
         'citation-modal': CitationModal,
         'edition-toolbox': EditionToolbox,
+        'report-problem-modal': ReportProblemModal,
         register: Registration,
         // 'screen-size-alert': ScreenSizeAlert,
         BIcon,
@@ -294,6 +295,10 @@ export default class Navbar extends Vue {
 
     private showFAQModal() {
         this.$root.$emit('bv::show::modal', 'FaqModal');
+    }
+
+    private reportProblemModal() {
+        this.$root.$emit('bv::show::modal', 'ReportProblemModal');
     }
 
     private showEulaModal() {
@@ -413,8 +418,7 @@ export default class Navbar extends Vue {
 }
 </script>
 
-
-<style lang="scss" >
+<style lang="scss">
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
 

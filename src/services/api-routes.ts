@@ -14,6 +14,7 @@ export namespace ApiRoutes {
     const optionalArtefact = 'optional=artefacts&optional=masks';
     const confirmAddEditionEditor = 'confirm-editorship';
     const listInvitationEdition = 'admin-share-requests';
+    const reportProblem = 'report-problem';
 
     export function allEditionsUrl() {
         return `${baseUrl}/${editions}`;
@@ -23,16 +24,22 @@ export namespace ApiRoutes {
         return `${baseUrl}/manuscripts/${manuscriptId}/${editions}`;
     }
 
-    export function editionUrl(editionId: number, archiveForAllEditors?: boolean, token?: string) {
+    export function editionUrl(
+        editionId: number,
+        archiveForAllEditors?: boolean,
+        token?: string
+    ) {
         const params: string[] = [];
         const withParams = archiveForAllEditors || token;
-        if (archiveForAllEditors){
+        if (archiveForAllEditors) {
             params.push('optional=archiveForAllEditors');
         }
         if (token) {
             params.push('token=' + token);
         }
-        return `${baseUrl}/${editions}/${editionId}${withParams ? '?' + params.join('&') : ''}`;
+        return `${baseUrl}/${editions}/${editionId}${
+            withParams ? '?' + params.join('&') : ''
+        }`;
     }
 
     export function editionArtefactUrl(editionId: number, artefactId: number) {
@@ -63,7 +70,10 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${listInvitationEdition}`;
     }
 
-    export function allEditionArtefactsUrl(editionId: number, option: boolean = false) {
+    export function allEditionArtefactsUrl(
+        editionId: number,
+        option: boolean = false
+    ) {
         if (option) {
             return `/${baseUrl}/${editions}/${editionId}/${artefacts}?${optionalArtefact}`;
         }
@@ -73,14 +83,18 @@ export namespace ApiRoutes {
     export function editionImagedObjectUrl(
         editionId: number,
         imagedObjectId: string,
-        includeArtefacts: boolean = false) {
+        includeArtefacts: boolean = false
+    ) {
         if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}?${optionalArtefact}`;
         }
         return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}`;
     }
 
-    export function allEditionImagedObjectsUrl(editionId: number, includeArtefacts: boolean = false) {
+    export function allEditionImagedObjectsUrl(
+        editionId: number,
+        includeArtefacts: boolean = false
+    ) {
         if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}?${optionalArtefact}`;
         }
@@ -115,11 +129,20 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}`;
     }
 
-    export function artefactTextFragmentsUrl(editionId: number, artefactId: number, suggested: boolean) {
-        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}/text-fragments${suggested ? '?optional=suggested' : ''}`;
+    export function artefactTextFragmentsUrl(
+        editionId: number,
+        artefactId: number,
+        suggested: boolean
+    ) {
+        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}/text-fragments${
+            suggested ? '?optional=suggested' : ''
+        }`;
     }
 
-    export function editionTextFragmentUrl(editionId: number, textFragmentId: number) {
+    export function editionTextFragmentUrl(
+        editionId: number,
+        textFragmentId: number
+    ) {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}/${textFragmentId}`;
     }
 
@@ -156,7 +179,11 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes`;
     }
 
-    export function attributeUrl(editionId: number, signInterpretationId: number, attributeValueId?: number) {
+    export function attributeUrl(
+        editionId: number,
+        signInterpretationId: number,
+        attributeValueId?: number
+    ) {
         let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretations/${signInterpretationId}/attributes`;
 
         if (attributeValueId) {
@@ -166,13 +193,19 @@ export namespace ApiRoutes {
         return url;
     }
 
-    export function signInterpretationCommentaryUrl(editionId: number, signInterpretationId: number) {
+    export function signInterpretationCommentaryUrl(
+        editionId: number,
+        signInterpretationId: number
+    ) {
         const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}/commentary`;
 
         return url;
     }
 
-    export function signInterpretationUrl(editionId: number, signInterpretationId?: number) {
+    export function signInterpretationUrl(
+        editionId: number,
+        signInterpretationId?: number
+    ) {
         let url = `v1/editions/${editionId}/sign-interpretations`;
         if (signInterpretationId) {
             url += `/${signInterpretationId}`;
@@ -181,7 +214,10 @@ export namespace ApiRoutes {
         return url;
     }
 
-    export function signInterpretationCharacterUrl(editionId: number, signInterpretationId: number) {
+    export function signInterpretationCharacterUrl(
+        editionId: number,
+        signInterpretationId: number
+    ) {
         const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}`;
 
         return url;
@@ -203,7 +239,10 @@ export namespace ApiRoutes {
         return url;
     }
 
-    export function qwbParallelTextUrl(qwbStartWordId: number, qwbEndWordId: number) {
+    export function qwbParallelTextUrl(
+        qwbStartWordId: number,
+        qwbEndWordId: number
+    ) {
         const url = `${baseUrl}/qwb-proxy/parallels/start-word/${qwbStartWordId}/end-word/${qwbEndWordId}`;
 
         return url;
@@ -221,7 +260,10 @@ export namespace ApiRoutes {
         return url;
     }
 
-    export function diffReplaceTranscription(editionId: number, artefactId: number) {
+    export function diffReplaceTranscription(
+        editionId: number,
+        artefactId: number
+    ) {
         const url = `v1/editions/${editionId}/artefacts/${artefactId}/diff-replace-transcription`;
 
         return url;
@@ -231,5 +273,9 @@ export namespace ApiRoutes {
         const url = `v1/editions/${editionId}/diff-replace-text`;
 
         return url;
+    }
+
+    export function reportProblemUrl(): string {
+        return `/${baseUrl}/${reportProblem}`;
     }
 }

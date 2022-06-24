@@ -38,4 +38,5 @@ export default {
     shared: 'Shared',
     admin: 'Your Admin rights have been revoked',
     editorParameters: 'Editor Parameters',
+    reportProblem: 'Report Problem'
 };
