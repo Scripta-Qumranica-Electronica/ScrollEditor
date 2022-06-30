@@ -54,7 +54,7 @@
             >
                 <ul>
                     <li>
-                        <p @click="openEditLineModal()">
+                        <p @click="openEditLineModal(line)">
                             {{ $t('misc.editLine') }}
                         </p>
                     </li>
@@ -213,7 +213,8 @@ export default class TextLineComponent extends Vue {
         event.preventDefault();
         event.currentTarget.blur();
     }
-    private openEditLineModal() {
+    private openEditLineModal(line: Line) {
+        this.$state.textFragmentEditor.selectSign(line.signs[0].signInterpretations[0]);
         this.$root.$emit('bv::show::modal', 'editLineModal');
     }
 
