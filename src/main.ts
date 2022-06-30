@@ -87,6 +87,12 @@ router.beforeEach((to, from, next) => {
   }
 });
 
+import VueGtag from 'vue-gtag';
+/*add the ID*/
+Vue.use(VueGtag, {
+  config: { id: "UA-1234567-1" }
+});
+
 new Vue({
   router,
   i18n,
