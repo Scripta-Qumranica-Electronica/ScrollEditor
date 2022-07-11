@@ -219,7 +219,7 @@ export default class TextLineComponent extends Vue {
     }
 
     private onPaste(event: any) {
-        const paste = (event.clipboardData || window.ClipboardItem).getData(
+        const paste = (event.clipboardData || (window as any).ClipboardItem).getData(
             'text'
         );
         const selection = window.getSelection();
