@@ -5,7 +5,7 @@ import { LoginRequestDTO, DetailedUserDTO, UserDTO, ResetLoggedInUserPasswordReq
     AccountActivationRequestDTO,
     UserUpdateRequestDTO,
     DetailedUserTokenDTO,
-    ReportProblemDTO} from '@/dtos/sqe-dtos';
+    GithubIssueReportDTO} from '@/dtos/sqe-dtos';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
@@ -97,8 +97,8 @@ class SessionService {
         return  response.data;
     }
 
-    public async reportProblem(data: ReportProblemDTO): Promise<boolean> {
-        const response = await CommHelper.put<any>(ApiRoutes.reportProblemUrl(), data);
+    public async reportProblem(data: GithubIssueReportDTO): Promise<boolean> {
+        const response = await CommHelper.post<any>(ApiRoutes.reportProblemUrl(), data);
         return  response.data;
     }
 }

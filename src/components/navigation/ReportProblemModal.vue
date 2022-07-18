@@ -11,12 +11,21 @@
             <form>
                 <b-row>
                     <b-col cols="12">
-                        <b-row class="mb-2" v-if="!userNameExists">
+                        <b-row class="mb-2" v-if="!loggedIn">
                             <b-col
                                 ><b-form-input
                                     type="text"
                                     v-model="username"
                                     placeholder="User Name"
+                                ></b-form-input
+                            ></b-col>
+                        </b-row>
+                        <b-row class="mb-2">
+                            <b-col
+                                ><b-form-input
+                                    type="text"
+                                    v-model="title"
+                                    placeholder="Title"
                                 ></b-form-input
                             ></b-col>
                         </b-row>
@@ -35,11 +44,19 @@
                 </b-row>
             </form>
             <template v-slot:modal-footer>
-                <b-row>
+                <b-row v-if="!reported">
                     <b-col>
-                        <b-button @click="reportProblem">
+                        <b-button @click="reportProblem" :disabled="!readyToReport">
                             {{ $t('misc.report') }}
                         </b-button>
+                    </b-col>
+                </b-row>
+                <b-row v-if="reported">
+                    <b-col cols="9">
+                        Issue Reported
+                    </b-col>
+                    <b-col>
+                        <b-button @click="close">Close</b-button>
                     </b-col>
                 </b-row>
             </template>
@@ -58,28 +75,38 @@ import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
 export default class ReportProblemModal extends Vue {
     public username: string = '';
     public description: string = '';
+    public title = '';
+    public reported = false;
     protected sessionService: SessionService = new SessionService();
-    protected get userNameExists(): boolean {
-        return undefined !== this.userName;
+
+    public get readyToReport() {
+        return (this.loggedIn || this.username.trim() !== '') && this.title.trim() !== '' && this.description.trim() !== '';
     }
 
-    private get userName(): string | undefined {
-        if (this.$state.session.user) {
-            return (
-                this.$state.session.user.forename +
-                ' ' +
-                this.$state.session.user.surname
-            );
-        }
-        return undefined;
+    public get loggedIn() {
+        return !!this.$state.session.user;
     }
 
     public async reportProblem() {
+        let actualUsername = this.username;
+        if (this.loggedIn) {
+            actualUsername = this.$state.session.user?.email || '';
+        }
+        if (!actualUsername) {
+            actualUsername = 'Not Specified';
+        }
+
         await this.sessionService.reportProblem({
-            username: this.username,
-            description: this.description,
+            username: actualUsername,
+            title: this.title,
+            comment: this.description,
             url: window.location.toString(),
         });
+        this.reported = true;
+    }
+
+    public close() {
+        (this.$refs.ReportProblemModalRef as any).hide();
     }
 }
 </script>

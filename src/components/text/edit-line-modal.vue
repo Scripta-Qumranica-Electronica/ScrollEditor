@@ -50,7 +50,6 @@ export default class EditLineModal extends Vue {
     }
 
     public get line(): Line {
-     
         return (
             this.selectedSignInterpretation &&
             this.selectedSignInterpretation.sign.line

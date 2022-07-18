@@ -88,20 +88,20 @@ import router from '@/router';
 
 export default class Login extends Vue {
 
-    private email: string = '';
+    public email: string = '';
     // email: this.$state.session ? this.$state.session.user!.email : '',
-    private password: string = '';
-    private errorMessage: string = '';
+    public password: string = '';
+    public errorMessage: string = '';
     private sessionService: SessionService = new SessionService();
     private errorService: ErrorService = new ErrorService(this);
-    private waiting: boolean = false;
+    public waiting: boolean = false;
 
 
-    private get disabledLogin(): boolean {
+    public get disabledLogin(): boolean {
         return !this.email || !this.password || this.waiting;
     }
 
-    private async login() {
+    public async login() {
         if (this.disabledLogin) {
             // Can be called due to ENTER key
             return;
@@ -127,18 +127,18 @@ export default class Login extends Vue {
         (this.$refs.loginModalRef as any).hide();
     }
 
-    private shown(): void {
+    public shown(): void {
         this.errorMessage = '';
         this.waiting = false;
         (this.$refs.email! as any).focus();
     }
 
-    private forgotPassword() {
+    public forgotPassword() {
         this.$root.$emit('bv::show::modal', 'passwordModal');
         this.$bvModal.hide('loginModal');
     }
 
-    private register() {
+    public register() {
         this.$root.$emit('bv::show::modal', 'registerModal');
         this.$bvModal.hide('loginModal');
     }

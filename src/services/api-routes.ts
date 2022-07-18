@@ -14,7 +14,7 @@ export namespace ApiRoutes {
     const optionalArtefact = 'optional=artefacts&optional=masks';
     const confirmAddEditionEditor = 'confirm-editorship';
     const listInvitationEdition = 'admin-share-requests';
-    const reportProblem = 'report-problem';
+    const reportProblem = 'report-github-issue';
 
     export function allEditionsUrl() {
         return `${baseUrl}/${editions}`;
@@ -276,6 +276,6 @@ export namespace ApiRoutes {
     }
 
     export function reportProblemUrl(): string {
-        return `/${baseUrl}/${reportProblem}`;
+        return `/${baseUrl}/${utils}/${reportProblem}`;
     }
 }
