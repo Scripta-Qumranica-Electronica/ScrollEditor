@@ -9,10 +9,8 @@
                 @click="onScrollClick"
                 @mousemove="onMouseMove"
             >
-
-
                 <g id="root" :transform="transform">
-                    <defs id="before-root" v-if= "currentScript" >
+                    <defs id="before-root" v-if="currentScript">
                         <path
                             v-for="g of Object.values(scriptGlyphs)"
                             :key="g.character"
@@ -28,7 +26,9 @@
                         transformRootId="root"
                         v-for="artefact in placedArtefacts"
                         :artefact="artefact"
-                        :imagedObject="$state.imagedObjects.find(artefact.imagedObjectId)"
+                        :imagedObject="
+                            $state.imagedObjects.find(artefact.imagedObjectId)
+                        "
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
@@ -63,7 +63,7 @@ import { ScriptData, GlyphData } from '@/models/script';
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
         'artefact-toolbox': ArtefactToolbox,
     },
@@ -81,7 +81,6 @@ export default class ScrollArea extends Vue {
             this.selectArtefact(art)
         );
     }
-
 
     private destroyed() {
         this.$state.eventBus.off('select-artefact');
@@ -209,12 +208,12 @@ export default class ScrollArea extends Vue {
         return this.$state.editions.current!.script;
     }
 
-    private get scriptGlyphs(): { [key: string]: GlyphData } | null  {
-          return this.$state.editions.current!.script?.glyphs || null;
+    private get scriptGlyphs(): { [key: string]: GlyphData } | null {
+        return this.$state.editions.current!.script?.glyphs || null;
     }
 
     private get placedArtefacts() {
-        const visibleArtefacts =  this.artefacts
+        const visibleArtefacts = this.artefacts
             .filter((x) => x.isPlaced && x.inViewport)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
         return visibleArtefacts;
@@ -268,7 +267,6 @@ export default class ScrollArea extends Vue {
     cursor: move;
 }
 
-
 .sign {
     fill: inherit;
     stroke: inherit;
@@ -276,8 +274,8 @@ export default class ScrollArea extends Vue {
 
 .display-letters {
     font-family: 'scroll_hebrew';
-     stroke-width: 1px;
-     stroke: white;
+    stroke-width: 1px;
+    stroke: white;
     fill: black;
     font-size: 2px;
     font-weight: 800;

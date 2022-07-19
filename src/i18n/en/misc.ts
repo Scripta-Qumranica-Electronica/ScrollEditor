@@ -3,6 +3,7 @@ export default {
     new: 'New Artefact',
     current: 'Current',
     copy: 'Copy Edition',
+    copyToEdition: 'Copy To Edition',
     anotherCopy: 'Create another copy',
     permission: 'Permission',
     draw: 'Draw',
@@ -32,9 +33,11 @@ export default {
     rightRotate: 'Right Rotate',
     editSign: 'Edit sign',
     deleteSign: 'Delete sign',
+    editLine: ' Edit line',
     addToLeft: 'Add to left',
     addToRight: 'Add to right',
     showQwbVariants: 'Show QWB Variants',
     showQwbParallels: 'Show QWB Parallels',
-    noImages: 'No Images Available'
+    noImages: 'No Images Available',
+    report: 'Report'
 };

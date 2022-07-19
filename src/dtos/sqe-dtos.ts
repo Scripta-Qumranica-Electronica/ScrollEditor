@@ -321,6 +321,25 @@ export interface ImagedObjectListDTO {
     imagedObjects: Array<ImagedObjectDTO>;
 }
 
+export interface EditionManuscriptMetadataDTO {
+    material: string;
+    publicationNumber: string;
+    plate?: string;
+    frag: string;
+    site: string;
+    period: string;
+    composition: string;
+    copy: string;
+    manuscript: string;
+    otherIdentifications: string;
+    abbreviation: string;
+    manuscriptType: string;
+    compositionType: string;
+    language: string;
+    script: string;
+    publication: string;
+}
+
 export interface WktPolygonDTO {
     wktPolygon: string;
 }
@@ -884,23 +903,11 @@ export interface APIVersionDTO extends DatabaseVersionDTO {
     
 }
 
-export interface EditionManuscriptMetadataDTO {
-    material: string;
-    publicationNumber: string;
-    plate?: string;
-    frag: string;
-    site: string;
-    period: string;
-    composition: string;
-    copy: string;
-    manuscript: string;
-    otherIdentifications: string;
-    abbreviation: string;
-    manuscriptType: string;
-    compositionType: string;
-    language: string;
-    script: string;
-    publication: string;
+export interface GithubIssueReportDTO {
+    title: string;
+    comment: string;
+    url: string;
+    username?: string;
 }
 
 export type SideDesignation = 

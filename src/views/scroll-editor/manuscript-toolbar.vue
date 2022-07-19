@@ -1,6 +1,6 @@
 <template>
 
-     <b-container no-gutters class="ml-0 mr-0 pl-0 pr-0">
+     <b-container no-gutters class="ml-0 mr-0 pl-0 pr-0" @keypress="shortcut($event)">
         <!-- <b-row class="ml-3 mb-3"> -->
 
         <b-row class="m-0 mb-2 ml-1 pl-0 pr-0" v-if="edition.metrics">
@@ -323,6 +323,15 @@ import {
 
 export default class ManuscriptToolbar extends Vue {
 
+    private created() {
+        // Corrupted state event listener
+        this.$root.$on('delete-key-pressed', () => this.removeArtefactOrGroup());
+    }
+
+    protected beforeDestroy() {
+        this.$root.$off('delete-key-pressed', () => this.removeArtefactOrGroup());
+    }
+
     // @Prop() private params!: ScrollEditorParams;
     @Prop({ default: -1 }) public artefactId!: number;
 
@@ -641,7 +650,6 @@ export default class ManuscriptToolbar extends Vue {
         artefact.isPlaced = newIsPlaced;
         return op;
     }
-
 }
 </script>
 

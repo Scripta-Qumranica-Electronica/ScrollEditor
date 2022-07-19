@@ -53,7 +53,7 @@ Vue.use(VueLazyload, {
 Vue.prototype.$state = StateManager.instance;
 Vue.use(BootstrapVue);
 
-library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus, faInfo,faFont,
+library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus, faInfo, faFont,
             faSquare, faPen, faMousePointer, faEraser, faTrash, faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faSortAlphaUp, faSortAlphaDown );
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 

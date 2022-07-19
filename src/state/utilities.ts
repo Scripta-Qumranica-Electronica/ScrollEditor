@@ -284,7 +284,7 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
                 console.warn(`Can't removing ROI ${entry.id} from artefact ${entry.artefactId}, it is not in its ROI list`);
             } else {
                 const roi = artefact.rois[roiIndex];
-                if (roi.status === 'deleted') {
+                if (status === 'deleted') {
                     artefact.deleteRois.push(roi);
                 }
                 artefact.rois.splice(roiIndex, 1);

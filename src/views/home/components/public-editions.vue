@@ -12,7 +12,6 @@
                         class="direction"
                         :params="searchBarParams"
                         :value="searchValue"
-                        @search="onEditionsSearch($event)"
                     ></search-bar>
                 </b-col>
             </b-row>
@@ -24,7 +23,7 @@
 
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
 import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 import CopyEditionModal from './copy-edition-modal.vue';
@@ -51,7 +50,12 @@ export default class PublicEditions extends Vue {
     };
 
     public onEditionsSearch(event: SearchBarValue) {
-        // this.searchValue = event;
+        this.searchValue = {...event};
+        // this.onPublicEditionsLoad();
+    }
+
+    @Watch('searchValue', {deep: true})
+    private onSearchValueChanged() {
         this.onPublicEditionsLoad();
     }
 

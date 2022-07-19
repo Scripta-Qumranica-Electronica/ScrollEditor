@@ -4,7 +4,8 @@ import { LoginRequestDTO, DetailedUserDTO, UserDTO, ResetLoggedInUserPasswordReq
     ResetForgottenUserPasswordRequestDTO,
     AccountActivationRequestDTO,
     UserUpdateRequestDTO,
-    DetailedUserTokenDTO} from '@/dtos/sqe-dtos';
+    DetailedUserTokenDTO,
+    GithubIssueReportDTO} from '@/dtos/sqe-dtos';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
 import { StateManager } from '@/state';
@@ -93,6 +94,11 @@ class SessionService {
 
     public async updateUser(data: UserUpdateRequestDTO): Promise<DetailedUserDTO> {
         const response = await CommHelper.put<any>(ApiRoutes.usersUrl(), data);
+        return  response.data;
+    }
+
+    public async reportProblem(data: GithubIssueReportDTO): Promise<boolean> {
+        const response = await CommHelper.post<any>(ApiRoutes.reportProblemUrl(), data);
         return  response.data;
     }
 }

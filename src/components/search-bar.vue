@@ -80,7 +80,7 @@ export default class SearchBar extends Vue {
     public params!: SearchBarParams;
 
     @Prop()
-    private value!: SearchBarValue;
+    public value!: SearchBarValue;
 
     public mounted() {
         this.onSearch();
@@ -100,6 +100,7 @@ export default class SearchBar extends Vue {
 
     @Emit('search')
     private onSearch() {
+        this.value = {...this.value};
         return this.value;
     }
 }

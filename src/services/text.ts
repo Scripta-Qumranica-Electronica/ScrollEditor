@@ -7,7 +7,9 @@ import {
     InterpretationRoiDTO,
     BatchEditRoiResponseDTO,
     ArtefactTextFragmentMatchListDTO,
-    LineTextDTO
+    LineTextDTO,
+    DiffReplaceResponseDTO,
+    DiffReplaceRequestDTO
 } from '@/dtos/sqe-dtos';
 import {
     TextFragmentData,
@@ -83,6 +85,18 @@ class TextService {
 
     public async getLineText(editionId: number, lineId: number): Promise<LineTextDTO> {
         const response = await CommHelper.get<LineTextDTO>(ApiRoutes.lineText(editionId, lineId));
+        return response.data;
+    }
+
+    public async replaceText(editionId: number, priorSignInterpretationId: number, followingSignInterpretationId: number, newText: string): Promise<DiffReplaceResponseDTO> {
+        const dto: DiffReplaceRequestDTO = {
+            priorSignInterpretationId,
+            followingSignInterpretationId,
+            newText,
+        };
+
+        const url = ApiRoutes.diffReplaceText(editionId);
+        const response = await CommHelper.put<DiffReplaceResponseDTO>(url, dto);
         return response.data;
     }
 

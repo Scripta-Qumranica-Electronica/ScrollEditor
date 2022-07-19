@@ -48,7 +48,6 @@ export default class FontSizeButtonToolbox extends Vue {
         // return this.paramsZoom > 0 && Math.round(this.paramsZoom * 100) - this.delta > 0;
     }
 
-  
     public fontSizeChanged(delta: number) {
         this.onFontSizeChanged(this.fontSize + delta);
     }
