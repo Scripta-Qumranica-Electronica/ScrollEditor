@@ -22,7 +22,7 @@ services:
 
     sqe-http:
         container_name: SQE_HTTP_API
-        image: qumranica/sqe-http-api:0.13.2
+        image: qumranica/sqe-http-api:0.13.3
         restart: always
         ports:
             - 5000:5000
@@ -47,6 +47,10 @@ services:
             ## Dotnet telemetry optout
             - DOTNET_CLI_TELEMETRY_OPTOUT=1
 
+            ## GITHUB API settings
+            - GITHUB_URL
+            - GITHUB_API_TOKEN
+            
             ## Logging levels, valid values are: Verbose, Debug, Information, Warning, Error, Fatal
             - API_LOGLEVEL=Information # Log level for API generated messages
             - DOTNET_LOGLEVEL=Warning # Log level for dotnet core messages and Microsoft tooling

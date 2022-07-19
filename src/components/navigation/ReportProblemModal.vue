@@ -17,6 +17,7 @@
                                     type="text"
                                     v-model="username"
                                     placeholder="User Name"
+                                    :disabled="reported"
                                 ></b-form-input
                             ></b-col>
                         </b-row>
@@ -26,6 +27,7 @@
                                     type="text"
                                     v-model="title"
                                     placeholder="Title"
+                                    :disabled="reported"
                                 ></b-form-input
                             ></b-col>
                         </b-row>
@@ -37,6 +39,7 @@
                                     placeholder="Description Problem"
                                     rows="3"
                                     max-rows="6"
+                                    :disabled="reported"
                                 ></b-form-textarea>
                             </b-col>
                         </b-row>
@@ -44,21 +47,11 @@
                 </b-row>
             </form>
             <template v-slot:modal-footer>
-                <b-row v-if="!reported">
-                    <b-col>
-                        <b-button @click="reportProblem" :disabled="!readyToReport">
-                            {{ $t('misc.report') }}
-                        </b-button>
-                    </b-col>
-                </b-row>
-                <b-row v-if="reported">
-                    <b-col cols="9">
-                        Issue Reported
-                    </b-col>
-                    <b-col>
-                        <b-button @click="close">Close</b-button>
-                    </b-col>
-                </b-row>
+                <b-button @click="reportProblem" :disabled="!readyToReport" v-if="!reported">
+                    {{ $t('misc.report') }}
+                </b-button>
+                <span v-if="reported">Issue Reported</span>
+                <b-button v-if="reported" @click="close">Close</b-button>
             </template>
         </b-modal>
     </div>
@@ -107,6 +100,19 @@ export default class ReportProblemModal extends Vue {
 
     public close() {
         (this.$refs.ReportProblemModalRef as any).hide();
+    }
+
+    public mounted() {
+        this.$root.$on('bv::modal::show', (bvEvent: any, modalId: string) => {
+            if (modalId === 'ReportProblemModal') {
+                this.init();
+            }
+        });
+    }
+
+    private init() {
+        this.reported = false;
+        this.username = this.title = this.description = '';
     }
 }
 </script>
