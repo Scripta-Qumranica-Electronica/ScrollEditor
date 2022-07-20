@@ -1,31 +1,46 @@
 <template>
     <g
-        :class="{disabled: disabled}"
+        :class="{ disabled: disabled }"
         v-if="loaded"
         :key="artefact.id"
         :transform="groupTransform"
-        :data="artefact.zOrder"
+        :data="artefact.placement.zIndex"
         pointer-events="all"
-        @pointerdown="pointerDown($event)"
-        @pointermove="pointerMove($event)"
-        @pointerup="pointerUp($event)"
-        @pointercancel="pointerCancel($event)"
+        @pointerdown="onPointerDown($event)"
+        @pointermove="onPointerMove($event)"
+        @pointerup="onPointerUp($event)"
+        @pointercancel="onPointerCancel($event)"
+        @click="onClick($event)"
+        @contextmenu.prevent="onContextMenu($event)"
     >
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
             <clipPath :id="`clip-path-${artefact.id}`">
-                <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
+                <use
+                    stroke="none"
+                    fill="black"
+                    fill-rule="evenodd"
+                    :href="`#path-${artefact.id}`"
+                />
             </clipPath>
         </defs>
         <g @click="onSelect">
-            <g :clip-path="`url(#clip-path-${artefact.id})`">
-                <image
-                    :width="boundingBox.width"
-                    :height="boundingBox.height"
-                    :transform="imageTransform"
-                    :xlink:href="masterImageUrl"
+            <g
+                :clip-path="`url(#clip-path-${artefact.id})`"
+                v-if="!artefact.isVirtual"
+            >
+                <iiif-image
+                    :image="masterImage"
+                    :boundingBox="boundingBox"
+                    :scaleFactor="scaleFactor"
                 />
             </g>
+            <path
+                v-if="artefact.isVirtual"
+                class="virtual-artefact"
+                :d="artefact.mask.svg"
+                vector-effect="non-scaling-stroke"
+            />
             <path
                 class="selected"
                 v-if="selected"
@@ -33,8 +48,24 @@
                 vector-effect="non-scaling-stroke"
             />
         </g>
+        <roi-layer
+            v-if="withRois"
+            :withClass="false"
+            :rois="visibleRois"
+        ></roi-layer>
+        <template v-if="displayText || reconstructedText">
+            <use
+                v-for="d in displayedSigns"
+                :data-sign-id="d.id"
+                :key="d.id"
+                :href="`#path-${d.character}`"
+                class="sign"
+                :class="{ selected: d.id === selectedSignInterpretationId }"
+                :transform="d.svgTransform"
+            />
+        </template>
     </g>
-</template> 
+</template>
 
 <!--SVG transformation guide:
 
@@ -51,64 +82,117 @@ Finally we translate the image to its place.
 -->
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins, Emit } from 'vue-property-decorator';
+import { Component, Prop, Mixins, Emit } from 'vue-property-decorator';
 import { Artefact } from '@/models/artefact';
 import ArtefactDataMixin from '@/components/artefact/artefact-data-mixin';
-import { Polygon } from '@/utils/Polygons';
-import { Point } from '@/utils/helpers';
+import { BoundingBox, Point } from '@/utils/helpers';
 import {
     ScrollEditorOperation,
     ArtefactPlacementOperation,
     ArtefactPlacementOperationType,
-    GroupPlacementOperation
+    GroupPlacementOperation,
 } from './operations';
 import { Placement } from '../../utils/Placement';
-import { ArtefactGroup } from '@/models/edition';
+import IIIFImageComponent from '@/components/images/IIIFImage.vue';
+import { InterpretationRoi, SignInterpretation } from '@/models/text';
+import RoiLayer from '../artefact-editor/roi-layer.vue';
+
+class DisplayableSign {
+    public id: number;
+    public character: string;
+    public boundingBox: BoundingBox;
+    public yOffset: number = 0;
+
+    public constructor(
+        si: SignInterpretation,
+        rois: InterpretationRoi[],
+        yOffset: number
+    ) {
+        if (!si.character) {
+            throw new Error('DisplayedSign with no character');
+        }
+
+        if (!rois || !rois.length) {
+            throw new Error('DIsplayedSign with no rois');
+        }
+
+        this.id = si.id;
+        this.character = si.character;
+        this.yOffset = yOffset;
+
+        this.boundingBox = this.calculateBoundingBox(rois);
+    }
+
+    private calculateBoundingBox(rois: InterpretationRoi[]): BoundingBox {
+        const boundingBoxes: BoundingBox[] = [];
+
+        for (const roi of rois) {
+            const bbox = roi.shape.getBoundingBox();
+            bbox.x = roi.position.x;
+            bbox.y = roi.position.y;
+
+            boundingBoxes.push(bbox);
+        }
+
+        return BoundingBox.combine(boundingBoxes);
+    }
+
+    public get svgTransform() {
+        const x = this.boundingBox.x;
+        const y = this.boundingBox.y; //  - this.yOffset;
+
+        return `translate(${x} ${y})`;
+    }
+}
 
 @Component({
-    name: 'artefact-image-group'
+    name: 'artefact-image-group',
+    components: {
+        'iiif-image': IIIFImageComponent,
+        'roi-layer': RoiLayer,
+    },
 })
 export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     @Prop({
-        default: false
+        default: false,
     })
     public selected!: boolean;
     @Prop({
-        default: false
+        default: false,
     })
     public disabled!: boolean;
     @Prop({
-        default: undefined
+        default: false,
     })
-    public artefact!: Artefact;
-    @Prop() public readonly transformRootId!: string;
+    public withRois!: boolean;
+
+    @Prop({
+        default: false,
+    })
+    public displayText!: boolean;
+
+    @Prop({
+        default: false,
+    })
+    public reconstructedText!: boolean;
+
+    @Prop({
+        default: undefined,
+    })
+    public readonly transformRootId!: string;
+
     private mouseOrigin?: Point;
     private loaded = false;
     private pointerId: number = -1;
     private element!: SVGGElement | null;
     private previousPlacement!: any[];
+    @Prop({
+        default: 10,
+    })
+    private scaleFactor!: number;
 
-    private imageScale = 0.5; // TODO: Set a dynamic scale, based on actual element size.
-    // Wait until the IIIF server can handle requests of various sizes
-
-    get masterImageUrl() {
-        const image = this.imageStack!.master;
-        const url = image.getScaledAndCroppedUrl(
-            this.imageScale * 100,
-            this.boundingBox.x,
-            this.boundingBox.y,
-            this.boundingBox.width,
-            this.boundingBox.height
-        );
-        return url;
-    }
-
-    get imageTransform(): string {
-        // Note that we do not zoom the image at all, even though its original resolution depends on imageScale
-        // That's because we specify the width and height of the image element, and the browser makes sure the image
-        // is scaled to those
-        const translate = `translate(${this.boundingBox.x} ${this.boundingBox.y})`;
-        return translate;
+    get masterImage() {
+        return this.imageStack!.master;
     }
 
     public get groupTransform(): string {
@@ -125,6 +209,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         // Now, scale and rotate around (0 ,0)
         const scale = `scale(${placement.scale})`; // Scale by scale of transform
         const rotate = `rotate(${placement.rotate})`;
+        const scaleMirrored = placement.mirrored ? 'scale(-1, 1)' : '';
 
         // Finally, move to correct place. Remember that at this point the artefact's top left is (-midX, -midY)
         const translateX = this.boundingBox.width / 2 + placement.translate.x!;
@@ -132,7 +217,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         const translateToPlace = `translate(${translateX}, ${translateY})`;
 
         // Transformations are performed by SVG from right to left
-        return `${translateToPlace} ${rotate} ${scale} ${translateToZero}`;
+        return `${translateToPlace} ${rotate} ${scale} ${scaleMirrored} ${translateToZero}`;
     }
 
     private get svg(): SVGSVGElement {
@@ -145,8 +230,51 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         ) as SVGGraphicsElement;
     }
 
+    private get visibleRois(): InterpretationRoi[] {
+        return this.artefact.rois;
+    }
+
+    private get visibleSignInterpretations(): SignInterpretation[] {
+        return this.artefact.signInterpretations;
+    }
+
+    public get selectedSignInterpretationId() {
+        if (
+            this.$state.textFragmentEditor.selectedSignInterpretations
+                .length !== 1
+        ) {
+            return null;
+        }
+
+        return this.$state.textFragmentEditor.selectedSignInterpretations[0]
+            .signInterpretationId;
+    }
+
+    public get displayedSigns(): DisplayableSign[] {
+        const reconstructedOnly = this.reconstructedText && !this.displayText;
+        const displayedSigns: DisplayableSign[] = [];
+
+        for (const si of this.visibleSignInterpretations) {
+            if (reconstructedOnly && !si.isReconstructed) {
+                continue;
+            }
+
+            if (!si.character) {
+                continue;
+            }
+
+            const yOffset =
+                this.$state.editions.current?.script?.glyphs[si.character]
+                    ?.yOffset || 0;
+            const displayedSign = new DisplayableSign(si, si.rois, yOffset);
+            displayedSigns.push(displayedSign);
+        }
+
+        return displayedSigns;
+    }
+
     protected async mounted() {
-        await this.mountedDone;
+        // await this.mountedDone;
         this.loaded = true;
     }
 
@@ -181,13 +309,18 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 
-    private pointerDown($event: PointerEvent) {
+    // Implement dragging artefacts - but only in material mode.
+    private onPointerDown($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         if (this.pointerId > 0) {
             return;
         }
-        this.previousPlacement = this.selectedArtefacts.map(art => ({
+        this.previousPlacement = this.selectedArtefacts.map((art) => ({
             placement: art!.placement.clone(),
-            artefactId: art!.id
+            artefactId: art!.id,
         }));
 
         this.pointerId = $event.pointerId;
@@ -201,7 +334,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin = { x: pt.x, y: pt.y };
     }
 
-    private pointerMove($event: PointerEvent) {
+    private onPointerMove($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         if (
             !this.mouseOrigin ||
             !this.selected ||
@@ -214,10 +351,10 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
 
         const diffPt = {
             x: pt.x - this.mouseOrigin!.x,
-            y: pt.y - this.mouseOrigin!.y
+            y: pt.y - this.mouseOrigin!.y,
         };
 
-        this.selectedArtefacts.forEach(art => {
+        this.selectedArtefacts.forEach((art) => {
             art!.placement.translate.x! += diffPt.x;
             art!.placement.translate.y! += diffPt.y;
         });
@@ -226,7 +363,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin.y = pt.y;
     }
 
-    private pointerUp($event: PointerEvent) {
+    private onPointerUp($event: PointerEvent) {
+        if (!this.materialMode) {
+            return;
+        }
+
         const operations: ScrollEditorOperation[] = [];
         if (this.pointerId !== $event.pointerId || !this.selected) {
             this.cancelOperation($event.target as HTMLBaseElement);
@@ -242,7 +383,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             );
         }
         if (this.selectedGroup) {
-            this.selectedArtefacts.forEach(art => {
+            this.selectedArtefacts.forEach((art) => {
                 const trans = art!.placement.clone();
                 operations.push(this.createOperation('translate', trans, art));
             });
@@ -258,7 +399,11 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.cancelOperation($event.target as HTMLBaseElement);
     }
 
-    private pointerCancel() {
+    private onPointerCancel() {
+        if (!this.materialMode) {
+            return;
+        }
+
         this.cancelOperation();
     }
 
@@ -272,7 +417,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
             artefact!.id,
             opType,
             this.previousPlacement.find(
-                x => x.artefactId === artefact!.id
+                (x) => x.artefactId === artefact!.id
             ).placement,
             newPlacement,
             artefact!.isPlaced,
@@ -288,14 +433,55 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.pointerId = -1;
     }
 
+    private get materialMode() {
+        return this.$state.scrollEditor.mode === 'material';
+    }
+
     @Emit()
     private newOperation(op: ScrollEditorOperation) {
         return op;
+    }
+
+    public onClick(event: MouseEvent) {
+        if (this.materialMode) {
+            return;
+        }
+        this.$state.textFragmentEditor.selectSign(null);
+
+        // Find the letter this this event applies to, if any
+        const element = (event.target! as HTMLBaseElement)!.closest('use');
+        if (!element) {
+            return;
+        }
+
+        const sid = element.getAttribute('data-sign-id');
+        if (!sid) {
+            return;
+        }
+
+        const id = parseInt(sid);
+        const si = this.$state.signInterpretations.get(id, true) || null;
+        this.$state.textFragmentEditor.selectSign(si);
+    }
+
+    @Emit()
+    private onContextMenu(event: MouseEvent): Artefact {
+        event.stopPropagation();
+        return this.artefact;
     }
 }
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+
+path.virtual-artefact {
+    stroke-width: 1;
+    fill-opacity: 0.3;
+    stroke: $virtual-artefact-outline-color;
+}
+
 path.selected {
     stroke-width: 2;
     fill-opacity: 0.3;
@@ -306,4 +492,14 @@ path.selected {
 .disabled {
     cursor: not-allowed;
 }
-</style>                 
+
+.sign {
+    fill: black;
+    stroke: black;
+}
+
+.sign.selected {
+    fill: red;
+    stroke: red;
+}
+</style>

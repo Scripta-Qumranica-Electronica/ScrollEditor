@@ -1,0 +1,15 @@
+@import "./variables.scss";
+.editor {
+    background-color: $white;
+    margin-right: 1.5rem;
+    margin-left: 1.5rem;
+    margin-top: 24px;
+    height: calc(100vh - 95px);
+}
+
+form {
+    margin: auto;
+    margin-top: 20px;
+    max-width: 1000px;
+    padding: 0 20px;
+}

@@ -9,7 +9,7 @@
         @keypress="keyPress($event)"
     >
         <!-- add an invisible rectangle so that pointer events work -->
-        <rect style="stroke: none; fill: none" width="10000" height="10000" />
+        <rect style="stroke: none; fill: none" width="30000" height="30000" />
         <polygon v-if="closedPolygon" :points="polygonString" :style="polygonStyle" />
         <polyline v-else :points="polygonString" :style="polylineStyle" />
     </g>
@@ -20,7 +20,6 @@ import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
 import { Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 import UtilsService from '@/services/utils';
-import misc from '../../i18n/he/misc';
 export type ActionMode = 'select' | 'polygon' | 'box';
 type InternalMode =
     | 'before-polygon'
@@ -245,6 +244,10 @@ export default class BoundaryDrawer extends Vue {
     }
 
     private async checkPolygon() {
+        if (this.polygonPoints.length < 3) {
+            // This is not really a polygon
+            return;
+        }
         // Turn the polygon into an svg string, due it bit by bit
         const partials = [
             `M${this.polygonPoints[0].x} ${this.polygonPoints[0].y}`
@@ -283,20 +286,25 @@ export default class BoundaryDrawer extends Vue {
 </script>
 
 <style lang="scss" scoped>
-$crosshair: url('/assets/cursors/crosshair.svg'), crosshair;
-$crosshair1: url('/assets/cursors/crosshair1.svg'), crosshair;
-$crosshair2: url('/assets/cursors/crosshair2.svg'), crosshair;
+// Use a relative path so Webpack can reference these properly
+$crosshair: url('../../assets/cursors/crosshair.svg'), crosshair;
+$crosshair1: url('../../assets/cursors/crosshair1.svg'), crosshair;
+$crosshair2: url('../../assets/cursors/crosshair2.svg'), crosshair;
 
+// Set the middle of these crosshairs to be the point of selection
 .draw-first-corner {
-    cursor: $crosshair1;
+    cursor: crosshair;
+    cursor: $crosshair1 17 17, crosshair;
 }
 
 .draw-second-corner {
-    cursor: $crosshair2;
+    cursor: crosshair;
+    cursor: $crosshair2 17 17, crosshair;
 }
 
 .draw-boundary {
-    cursor: $crosshair;
+    cursor: crosshair;
+    cursor: $crosshair 17 17, crosshair;
 
     &.disabled {
         cursor: wait;

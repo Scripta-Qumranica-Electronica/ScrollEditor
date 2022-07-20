@@ -1,7 +1,7 @@
 export default {
     filter: "Filtre d'éditions",
-    publicEditionGroupCount: "Pas d'éditions publiques | Une édition publique | {count} éditions publiques",
-    personalEditionGroupCount: 'Aucune édition personnelle | Une édition personnelle | {count} éditions personnelles',
+    publicEditionGroupCount: "Pas d'éditions publiques | Une édition publique |  éditions publiques ({count})",
+    personalEditionGroupCount: 'Aucune édition personnelle | Une édition personnelle | éditions personnelles ({count}) ',
     publicEditionCount: ' | édition publique | éditions publiques',
     personalVersionCount: ' | édition personnelle | éditions personnelles',
     shares: ' | partage | partages',
@@ -27,5 +27,6 @@ export default {
     viewPortSize: "Taille d'affichage",
     lock: 'Lecture seulement',
     shared: 'Partagé',
-    admin: "Vos droits d'administrateur ont été révoqués"
+    admin: "Vos droits d'administrateur ont été révoqués",
+    search: 'Recherche'
 };

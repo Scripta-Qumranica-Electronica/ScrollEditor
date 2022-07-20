@@ -6,11 +6,14 @@ import { EditionCollection,
     InterpretationRoiMap,
     SignInterpretationMap,
     TextFragmentMap,
-    ArtefactGroupsMap } from './utilities';
-import { Polygon } from '@/utils/Polygons';
+    ArtefactGroupsMap} from './utilities';
 import StateService from './state-service';
 import { ScrollEditorState } from './scroll-editor';
 import { EventBus } from './event-bus';
+import { ArtefactEditorState } from './artefact-editor';
+import { ImagedObjectState } from './imaged-object';
+import { OperationsManagerBase } from '@/utils/operations-manager';
+import { TextFragmentState } from './text-fragment';
 
 export class StateManager {
     private static _instance: StateManager;
@@ -25,9 +28,15 @@ export class StateManager {
     public signInterpretations: SignInterpretationMap;
     public misc: MiscState;
     public scrollEditor: ScrollEditorState;
+    public artefactEditor: ArtefactEditorState;
+    public textFragmentEditor: TextFragmentState;
+    public imagedObject: ImagedObjectState;
     public eventBus: EventBus;
+    public operationsManager: OperationsManagerBase | null;
 
     public prepare: StateService;
+
+     public showEditReconTextBar: boolean =  false;
 
     private constructor() {
         this.session = new SessionState();
@@ -38,10 +47,21 @@ export class StateManager {
         this.textFragments = new TextFragmentMap();
         this.misc = new MiscState();
         this.scrollEditor = new ScrollEditorState();
+        this.artefactEditor = new ArtefactEditorState();
+        this.textFragmentEditor = new TextFragmentState();
+        this.imagedObject = new ImagedObjectState();
         this.interpretationRois = new InterpretationRoiMap();
         this.signInterpretations = new SignInterpretationMap();
         this.eventBus = new EventBus();
         this.prepare = new StateService(this);
+        this.operationsManager = null;
+        this.showEditReconTextBar = false;
+    }
+
+    public corrupted(msg: string): never {
+        console.error('State is corrupt: ', msg);
+        this.eventBus.emit('corrupted-state');
+        throw new Error('State is corrupt: ' + msg);
     }
 
     public static get instance() {

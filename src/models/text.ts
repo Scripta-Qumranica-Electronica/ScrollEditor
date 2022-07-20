@@ -10,11 +10,13 @@ import {
     NextSignInterpretationDTO,
     SetInterpretationRoiDTO,
     ArtefactTextFragmentMatchDTO,
-    TranslateDTO
+    TranslateDTO,
+    SignInterpretationCreateDTO
 } from '@/dtos/sqe-dtos';
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
 import { Position } from '@/models/misc';
+import { StateManager } from '@/state';
 
 class TextFragmentData {
     public id: number;
@@ -29,19 +31,24 @@ class TextFragmentData {
 }
 
 class ArtefactTextFragmentData extends TextFragmentData {
-    public static createFromEditionTextFragment(tf: TextFragmentData) {
-        return new ArtefactTextFragmentData({
+    public suggested: boolean;
+    public certain: boolean;
+
+    public static createFromEditionTextFragment(tf: TextFragmentData): ArtefactTextFragmentData {
+        const atf = new ArtefactTextFragmentData({
             id: tf.id,
             name: tf.name,
             editorId: tf.editorId,
-            suggested: true
+            suggested: false
         });
+        atf.certain = false;
+        return atf;
     }
-    public certain: boolean;
 
     constructor(obj: ArtefactTextFragmentMatchDTO) {
         super(obj);
         this.certain = !obj.suggested;
+        this.suggested = obj.suggested;
     }
 }
 
@@ -65,6 +72,40 @@ class Line {
 
         this.textFragment = textFragment;
     }
+
+    public addSign(sign: Sign) {
+        if (sign.line !== this) {
+            throw new Error("Can't add sign before it is attached to this line by the caller");
+        }
+        const index = sign.indexInLine;
+        if (this.signs.length < index - 1) {
+            throw new Error(`Can't add sign at index ${index}, line only has ${this.signs.length} signs in it`);
+        }
+        if (index < 0) {
+            throw new Error(`Can't add sign at negative index ${index}`);
+        }
+
+        this.signs.splice(index, 0, sign);
+        for (let i = index + 1; i < this.signs.length; i++) {
+            this.signs[i].indexInLine ++;
+        }
+    }
+
+    public removeSign(sign: Sign) {
+        if (sign.line !== this) {
+            throw new Error("Can't delete sign, it belongs to a different line");
+        }
+
+        const index = sign.indexInLine;
+        if (index < 0 || index >= this.signs.length) {
+            throw new Error(`Can't delete sign - index ${index} out of range`);
+        }
+
+        this.signs.splice(index, 1);
+        for (let i = index; i < this.signs.length; i++) {
+            this.signs[i].indexInLine --;
+        }
+    }
 }
 
 class TextFragment {
@@ -87,13 +128,6 @@ class TextFragment {
     public get id() {
         // State collections require an id field (look for ItemWithId)
         return this.textFragmentId;
-    }
-
-    private copyFrom(other: TextFragment) {
-        this.textFragmentId = other.textFragmentId;
-        this.textFragmentName = other.textFragmentName;
-        this.editorId = other.editorId;
-        this.lines = other.lines;
     }
 }
 
@@ -154,11 +188,20 @@ class Sign {
 }
 
 class SignInterpretation {
+    private static nextId = 0;
+    public static get nextAvailableId() {
+        SignInterpretation.nextId --;
+        return SignInterpretation.nextId;
+    }
+
     public signInterpretationId: number;
-    public character: string;
+    public character?: string;
     public attributes: InterpretationAttributeDTO[]; // InterpretationAttributeDTO[];
     public rois: InterpretationRoi[]; // InterpretationRoiDTO[];
     public nextSignInterpretations: NextSignInterpretationDTO[]; // NextSignInterpretationDTO[];
+    public commentary: string | null;
+    public signStreamSectionIds: number[];
+    public qwbWordIds: number[];
 
     public sign: Sign;
 
@@ -167,6 +210,9 @@ class SignInterpretation {
         this.character = obj.character;
         this.attributes = obj.attributes;
         this.nextSignInterpretations = obj.nextSignInterpretations;
+        this.commentary = obj.commentary?.commentary || null;
+        this.signStreamSectionIds = obj.signStreamSectionIds || [];
+        this.qwbWordIds = obj.qwbWordIds || [];
 
         if (obj.rois) {
             this.rois = obj.rois.map(roi => new InterpretationRoi(roi));
@@ -192,12 +238,71 @@ class SignInterpretation {
         }
     }
 
+    public findAttributeIndex(attributeValueId: number) {
+        return this.attributes.findIndex(attr => attr.attributeValueId === attributeValueId);
+    }
+
     public get isReconstructed(): boolean {
-        return !!this.attributes.find(attr => attr.attributeValueString === 'is-reconstructed-true');
+        return this.attributes.find(attr => attr.attributeString === 'is_reconstructed') !== undefined;
+    }
+
+    // Setting the isReconstructed and signType attributes is done when editing or creating a sign.
+    // We *hard-code* the attribute ids and strings, because they are very unlikely to change.
+    public set isReconstructed(value: boolean) {
+        // Remove the isReconstructed attributes
+        const newAttrs = this.attributes.filter(attr => attr.attributeId !== 6);  // 6 is 'is_reconstructed'
+        if (value) {
+            newAttrs.push({
+                attributeId: 6,  // is_reconstructed
+                attributeValueId: 20, // TRUE
+                attributeString: 'is_reconstructed',
+                attributeValueString: 'TRUE',
+                interpretationAttributeId: -171717, // Not used by us except as a vue key
+                creatorId: 0,
+                editorId: 0,
+            } as InterpretationAttributeDTO);
+        }
+        this.attributes = newAttrs;
+    }
+
+
+    public get htmlCharacter() {
+        if (!this.character || this.character === ' ' || this.signType[1] !== 'LETTER') {
+            return '&nbsp;';
+        }
+
+        return this.character;
+    }
+
+    // Set the sign type
+    public get signType(): [number, string] {
+        const attr = this.attributes.find(a => a.attributeString === 'sign_type');
+        if (!attr) {
+            return this.character && this.character !== ' ' ? [1, 'LETTER'] : [2, 'SPACE'];
+        }
+        return [attr.attributeValueId, attr.attributeValueString];
+    }
+
+    public set signType(pair: [number, string]) {
+        const attr = this.attributes.find(a => a.attributeString === 'sign_type');
+        if (!attr) {
+            this.attributes.push({
+                attributeId: 1,  // sign_type
+                attributeValueId: pair[0], // TRUE
+                attributeString: 'sign_type',
+                attributeValueString: pair[1],
+                interpretationAttributeId: -171718, // Not used by us except as a vue key
+                creatorId: 0,
+                editorId: 0,
+            } as InterpretationAttributeDTO);
+        } else {
+            attr.attributeValueId = pair[0];
+            attr.attributeValueString = pair[1];
+        }
     }
 }
 
-type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future
+export type RoiStatus = 'original' | 'new' | 'deleted'; // We may support updating in the future
 
 class InterpretationRoi {
     public static new(
@@ -232,7 +337,7 @@ class InterpretationRoi {
     public position: Position;
     public exceptional: boolean;
     public valuesSet: boolean;
-    public status: RoiStatus;
+    private _status: RoiStatus;
     public rotation: number;
 
     // UI related fields
@@ -256,7 +361,7 @@ class InterpretationRoi {
             this.interpretationRoiId = (obj as InterpretationRoiDTO).interpretationRoiId;
         }
 
-        this.status = 'original';
+        this._status = 'original';
     }
 
     public get id() {
@@ -279,6 +384,25 @@ class InterpretationRoi {
         copy.interpretationRoiId = this.interpretationRoiId;
 
         return copy;
+    }
+
+    public get status() {
+        return this._status;
+    }
+
+    public set status(newStatus: RoiStatus) {
+        if (newStatus === this._status) {
+            return;
+        }
+        if (newStatus === 'deleted') {
+            // Remove the ROI from the artefact controlling it
+            StateManager.instance.interpretationRois.detachRoiFromArtefact(this, newStatus);
+        } else if (this._status === 'deleted') {
+            // Add the ROI to the artefact
+            StateManager.instance.interpretationRois.attachRoiToArtefact(this);
+        }
+
+        this._status = newStatus;
     }
 }
 

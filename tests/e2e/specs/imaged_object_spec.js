@@ -1,11 +1,11 @@
 describe('Imaged Object', function() {
     beforeEach(() => {
-        cy.visit('/')
+        cy.visit('http://localhost:8080')
         cy.contains('button', 'Login').click()
 
         cy.typeLogin({ email: 'test@1.com', password: 'test' })
         cy.PostLogin()
-        cy.get('ul>li.list-item>.card').contains('1QS990').first()
+        cy.get('ul>li.list-item>.card').contains('1Q7Copy').first()
             .click({ multiple: true })
         cy.wait(2500)
         cy.get('.nav-item>a.nav-link>a.imagedObjects').click()

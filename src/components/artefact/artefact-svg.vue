@@ -16,19 +16,15 @@
             </defs>
 
             <g :clip-path="`url(#clip-path-${artefact.id})`">
-                <slot v-bind:getImageUrl="getImageUrl"></slot>
+                <slot></slot>
             </g>
         </svg>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Mixins } from 'vue-property-decorator';
-import { Artefact } from '@/models/artefact';
-import { ImageStack, IIIFImage } from '@/models/image';
-import { Polygon } from '@/utils/Polygons';
-import { BoundingBox } from '@/utils/helpers';
-import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
+import { Component, Prop, Mixins } from 'vue-property-decorator';
+import { IIIFImage } from '@/models/image';
 import ArtefactDataMixin from './artefact-data-mixin';
 
 @Component({
@@ -66,15 +62,6 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
         });
     }
 
-    protected getImageUrl(image: IIIFImage) {
-        const url = image.getScaledAndCroppedUrl(this.serverScale,
-            this.boundingBox.x,
-            this.boundingBox.y,
-            this.boundingBox.width,
-            this.boundingBox.height);
-        return url;
-    }
-
     private updateWidth() {
         this.elementWidth = this.$el.clientWidth;
         if (!this.loaded) {
@@ -84,13 +71,18 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
             return;
         }
 
-        this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
-            this.elementWidth / this.aspectRatio,
-            this.boundingBox);
+        if (this.imageStack) {
+            this.serverScale = this.imageStack!.master.getOptimizedScaleFactor(this.elementWidth,
+                this.elementWidth / this.aspectRatio,
+                this.boundingBox);
+        }
     }
 }
 
 </script>
 
 <style lang="scss" scoped>
+svg{
+    padding: 20px;
+}
 </style>

@@ -7,8 +7,13 @@ import ImageService from '@/services/image';
 import TextService from '@/services/text';
 import { SignalRWrapper } from './signalr-connection';
 import { NotificationHandler } from './notification-handler';
-import { ShareInfo, Permissions } from '@/models/edition';
+import { ShareInfo, Permissions, AttributeMetadata } from '@/models/edition';
 import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
+import { ImagedObject } from '@/models/imaged-object';
+import { svgPolygonToClipper } from '@/utils/VectorFactory';
+import { ScriptData } from '@/models/script';
+import { TextFragment } from '@/models/text';
+import router from '@/router';
 
 /*
  * This service handles all the state data.
@@ -26,6 +31,7 @@ class ProcessTracking {
     public startTime: number;
     public endTime: number | undefined;
     public failed: boolean;
+    public done: boolean;
 
     public constructor(promise: Promise<void>, id: number) {
         this.promise = promise;
@@ -33,14 +39,18 @@ class ProcessTracking {
         this.endTime = undefined;
         this.id = id;
         this.failed = false;
+        this.done = false;
 
-        promise.then(() => {
-            this.endTime = Date.now();
-            this.failed = false;
-        }).catch((err) => {
-            console.error('ProcessTracking encountered an error ', err);
-            this.failed = true;
-        });
+        promise
+            .then(() => {
+                this.endTime = Date.now();
+                this.failed = false;
+                this.done = true;
+            })
+            .catch(err => {
+                console.error('ProcessTracking encountered an error ', err);
+                this.failed = true;
+            });
     }
 
     public needsRefresh(): boolean {
@@ -48,8 +58,20 @@ class ProcessTracking {
     }
 }
 
-type ProcessProperties = 'allEditionsProcess' | 'editionProcess' | 'invitationsProcess' | 'imagedObjectsProcess' | 'artefactsProcess' |
-    'artefactProcess' | 'textFragmentsProcess' | 'textFragmentProcess' | 'artefactGroupsProcess';
+type ProcessProperties =
+    | 'allEditionsProcess'
+    | 'editionProcess'
+    | 'invitationsProcess'
+    | 'imagedObjectsProcess'
+    | 'artefactsProcess'
+    | 'artefactProcess'
+    | 'textFragmentsProcess'
+    | 'textFragmentProcess'
+    | 'artefactGroupsProcess'
+    | 'attributeMetadataProcess'
+    | 'editionScriptProcess'
+    | 'editionFullTextProcess'
+    | 'editionMetadataProcess';
 
 export default class StateService {
     private static alreadyCreated = false;
@@ -66,6 +88,10 @@ export default class StateService {
     private textFragmentProcess: ProcessTracking | undefined;
     private imageManifestProcesses: Map<string, ProcessTracking>; // Map from url to ProcessTracking
     private artefactGroupsProcess: ProcessTracking | undefined;
+    private attributeMetadataProcess: ProcessTracking | undefined;
+    private editionScriptProcess: ProcessTracking | undefined;
+    private editionFullTextProcess: ProcessTracking | undefined;
+    private editionMetadataProcess: ProcessTracking | undefined;
     // TODO: Add process for artefactGroups
 
     public constructor(state: StateManager) {
@@ -76,45 +102,113 @@ export default class StateService {
         this._state = state;
         this.imageManifestProcesses = new Map<string, ProcessTracking>();
         this._notificationHandler = new NotificationHandler();
-        SignalRWrapper.instance.registerNotificationHandler(this._notificationHandler);
+        SignalRWrapper.instance.registerNotificationHandler(
+            this._notificationHandler
+        );
         StateService.alreadyCreated = true;
     }
 
     public async allEditions(): Promise<void> {
-        return this.wrapInternal('allEditionsProcess', -1, (id: number) => this.allEditionsInternal());
+        return this.wrapInternal('allEditionsProcess', -1, (id: number) =>
+            this.allEditionsInternal()
+        );
     }
 
     public async edition(editionId: number): Promise<void> {
-        return this.wrapInternal('editionProcess', editionId, (id: number) => this.editionInternal(id));
+        return this.wrapInternal(
+            'editionProcess',
+            editionId,
+            (id: number) => this.editionInternal(id),
+            (id: number) => this.postEditionInternal(id)
+        );
+    }
+
+    public async editionScript(editionId: number): Promise<void> {
+        return this.wrapInternal(
+            'editionScriptProcess',
+            editionId,
+            (id: number) => this.editionScriptInternal(id)
+        );
+    }
+
+    public async editionMetadata(editionId: number): Promise<void> {
+        return this.wrapInternal(
+            'editionMetadataProcess',
+            editionId,
+            (id: number) => this.editionMetadataInternal(id)
+        );
     }
 
     public async invitations(editionId: number): Promise<void> {
-        return this.wrapInternal('invitationsProcess', editionId, (id: number) => this.invitationsInternal(id));
+        return this.wrapInternal(
+            'invitationsProcess',
+            editionId,
+            (id: number) => this.invitationsInternal(id)
+        );
     }
 
     public async textFragments(editionId: number): Promise<void> {
-        return this.wrapInternal('textFragmentsProcess', editionId, (id: number) => this.textFragmentsInternal(id));
+        return this.wrapInternal(
+            'textFragmentsProcess',
+            editionId,
+            (id: number) => this.textFragmentsInternal(id)
+        );
     }
 
     public async artefactGroups(editionId: number): Promise<void> {
-        return this.wrapInternal('artefactGroupsProcess', editionId, (id: number) => this.artefactGroupsInternal(id));
+        return this.wrapInternal(
+            'artefactGroupsProcess',
+            editionId,
+            (id: number) => this.artefactGroupsInternal(id)
+        );
     }
 
     public imagedObjects(editionId: number) {
-        return this.wrapInternal('imagedObjectsProcess', editionId, (id: number) => this.imagedObjectsInternal(id));
+        return this.wrapInternal(
+            'imagedObjectsProcess',
+            editionId,
+            (id: number) => this.imagedObjectsInternal(id)
+        );
     }
 
     public async artefacts(editionId: number): Promise<void> {
-        return this.wrapInternal('artefactsProcess', editionId, (id: number) => this.artefactsInternal(id));
+        return this.wrapInternal('artefactsProcess', editionId, (id: number) =>
+            this.artefactsInternal(id)
+        );
     }
 
     public artefact(editionId: number, artefactId: number): Promise<void> {
-        return this.wrapInternal('artefactProcess', artefactId, (id) => this.artefactInternal(editionId, id));
+        return this.wrapInternal(
+            'artefactProcess',
+            artefactId,
+            id => this.artefactInternal(editionId, id),
+            id => this.postArtefactInternal(id)
+        );
     }
 
-    public textFragment(editionId: number, textFragmentId: number): Promise<void> {
+    public textFragment(
+        editionId: number,
+        textFragmentId: number
+    ): Promise<void> {
+        return this.wrapInternal('textFragmentProcess', textFragmentId, id =>
+            this.textFragmentInternal(editionId, id)
+        );
+    }
+
+    public editionFullText(editionId: number): Promise<void> {
         return this.wrapInternal(
-            'textFragmentProcess', textFragmentId, (id) => this.textFragmentInternal(editionId, id));
+            'editionFullTextProcess',
+            editionId,
+            (id: number) => this.editionFullTextInternal(id)
+        );
+    }
+
+    public async attributeMetadata(editionId: number): Promise<void> {
+        return this.wrapInternal(
+            'attributeMetadataProcess',
+            editionId,
+            (id: number) => this.attributeMetadataInternal(id)
+        );
     }
 
     public async imageManifest(image: IIIFImage): Promise<void> {
@@ -129,7 +223,9 @@ export default class StateService {
         return pt.promise;
     }
 
-    private getProcess(processName: ProcessProperties): ProcessTracking | undefined {
+    private getProcess(
+        processName: ProcessProperties
+    ): ProcessTracking | undefined {
         const self = this as any;
         const pt = self[processName];
 
@@ -138,27 +234,48 @@ export default class StateService {
         }
 
         if (!(pt instanceof ProcessTracking)) {
-            console.error(`${processName} does not resolve to a ProcessTracking instance`);
-            throw Error(`${processName} does not resolve to a ProcessTracking instance`);
+            console.error(
+                `${processName} does not resolve to a ProcessTracking instance`
+            );
+            throw Error(
+                `${processName} does not resolve to a ProcessTracking instance`
+            );
         }
 
         return pt;
     }
 
-    private setProcess(processName: ProcessProperties, processTracking: ProcessTracking | undefined) {
+    private setProcess(
+        processName: ProcessProperties,
+        processTracking: ProcessTracking | undefined
+    ) {
         const self = this as any;
         self[processName] = processTracking;
     }
 
-    private wrapInternal(processName: ProcessProperties, id: number, internal: (id: number) => Promise<void>) {
-        // Waiting for a better solution:
-        // https://stackoverflow.com/questions/58209234/typescript-pass-property-by-name
+    private async wrapInternal(
+        processName: ProcessProperties,
+        id: number,
+        internal: (id: number) => Promise<void>,
+        postInternal?: (id: number) => void
+    ) {
+        // wrapInternal calls `internal` if it hasn't been run yet. It calls `postInternal` anyway. Use `postInternal` to set current
+        // entities in the state.
         let pt = this.getProcess(processName);
         if (pt && pt.id === id && !pt.needsRefresh()) {
+            if (pt.done && postInternal) {
+                postInternal(id);
+            }
             return pt.promise;
         }
 
         const promise = internal(id);
+        if (postInternal) {
+            promise.then(() => {
+                postInternal(id);
+            });
+        }
+
         pt = new ProcessTracking(promise, id);
         this.setProcess(processName, pt);
 
@@ -174,14 +291,23 @@ export default class StateService {
     private async editionInternal(editionId: number) {
         // First, make sure we have all editions
         await this.allEditions();
+        try {
+            const edition = this._state.editions.find(editionId);
+            if (!edition) {
+                console.error(
+                    `Can't find edition ${editionId} in all editions`
+                );
+                throw new Error(
+                    `Can't find edition ${editionId} in all editions`
+                );
+            }
 
-        const edition = this._state.editions.find(editionId);
-        if (!edition) {
-            console.error(`Can't find edition ${editionId} in all editions`);
-            throw new Error(`Can't find edition ${editionId} in all editions`);
+            this._state.editions.current = edition;
+        } catch (error) {
+            alert(error);
+            router.push('/');
+            return;
         }
-
-        this._state.editions.current = edition;
 
         // Clear data from the previous edition
         // TODO: process the artefactGroups, too (clear, prepare, wait in Promise.all)
@@ -195,18 +321,69 @@ export default class StateService {
         this.artefacts(editionId);
         this.textFragments(editionId);
         this.artefactGroups(editionId);
+        this.attributeMetadata(editionId);
+        this.editionScript(editionId);
+        this.editionMetadata(editionId);
         await Promise.all([
             this.imagedObjectsProcess!.promise,
             this.artefactsProcess!.promise,
             this.textFragmentsProcess!.promise,
             this.artefactGroupsProcess!.promise,
+            this.attributeMetadataProcess!.promise,
+            this.editionScriptProcess!.promise
         ]);
         SignalRWrapper.instance.subscribeEdition(editionId);
     }
 
+    private postEditionInternal(editionId: number) {
+        const edition = this._state.editions.find(editionId);
+        if (!edition) {
+            console.error(
+                `Can't find edition ${editionId} in postEditionInternal`
+            );
+            return;
+        }
+        this._state.editions.current = edition;
+    }
+
+    private async editionScriptInternal(editionId: number) {
+        if (this._state.editions.current?.id !== editionId) {
+            throw new Error(
+                `Can't fetch script for non-current edition ${editionId}`
+            );
+        }
+        this._state.editions.current!.script = null;
+
+        const svc = new EditionService();
+        const dto = await svc.getScribalFont(editionId);
+        if (!dto.scripts || !dto.scripts.length) {
+            // This should be fixed in the backend at some point.
+            console.warn(`Edition ${editionId} has no script data`);
+        } else {
+            this._state.editions.current!.script = new ScriptData(
+                dto.scripts[0]
+            );
+        }
+    }
+
+    private async editionMetadataInternal(editionId: number) {
+        if (this._state.editions.current?.id !== editionId) {
+            throw new Error(
+                `Can't fetch metadata for non-current edition ${editionId}`
+            );
+        }
+
+        this._state.editions.current!.metadata = null;
+        const svc = new EditionService();
+        const dto = await svc.getEditionMetadata(editionId);
+        this._state.editions.current!.metadata = dto;
+    }
+
     private async textFragmentsInternal(editionId: number) {
         if (this._state.editions.current?.id !== editionId) {
-            throw new Error(`Can't fetch text fragments for non-current edition ${editionId}`);
+            throw new Error(
+                `Can't fetch text fragments for non-current edition ${editionId}`
+            );
         }
         this._state.editions.current!.textFragments = [];
         const svc = new TextService();
@@ -216,7 +393,9 @@ export default class StateService {
 
     private async artefactGroupsInternal(editionId: number) {
         if (this._state.editions.current?.id !== editionId) {
-            throw new Error(`Can't fetch artefact Groups for non-current edition ${editionId}`);
+            throw new Error(
+                `Can't fetch artefact Groups for non-current edition ${editionId}`
+            );
         }
         this._state.editions.current!.artefactGroups = [];
 
@@ -239,7 +418,31 @@ export default class StateService {
         this._state.artefacts.items = artefacts;
     }
 
+    private async attributeMetadataInternal(editionId: number) {
+        if (
+            !this._state.editions.current ||
+            this._state.editions.current.id !== editionId
+        ) {
+            console.error(
+                "Can't load atribute metadata without the right edition being in the store"
+            );
+            throw Error(
+                "Can't load atribute metadata without the right edition being in the store"
+            );
+        }
+
+        const svc = new EditionService();
+        const dto = await svc.getAllAttributeMetadata(editionId);
+        this._state.editions.current.attributeMetadata = new AttributeMetadata(
+            dto
+        );
+    }
+
     private async imageManifestInternal(image: IIIFImage) {
+        if (image.manifest) {
+            return; // Most images get the manifests straight from the backend
+        }
+
         const svc = new ImageService();
         const manifest = await svc.getImageManifest(image);
 
@@ -250,37 +453,93 @@ export default class StateService {
         await this.edition(editionId);
         const artefact = this._state.artefacts.find(artefactId);
         if (!artefact) {
-            console.error(`Can't located artefact ${artefactId} in edition ${editionId}`);
-            throw new Error(`Can't located artefact ${artefactId} in edition ${editionId}`);
+            console.error(
+                `Can't located artefact ${artefactId} in edition ${editionId}`
+            );
+            throw new Error(
+                `Can't located artefact ${artefactId} in edition ${editionId}`
+            );
         }
 
-        const imagedObject = this._state.imagedObjects.find(artefact.imagedObjectId);
-        if (!imagedObject) {
-            console.error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
-            throw new Error(`Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`);
-        }
+        const promises: Array<Promise<any>> = [];
+        let imagedObject: ImagedObject | null = null; // undefined;
+        if (!artefact.isVirtual) {
+            imagedObject = this._state.imagedObjects.find(
+                artefact.imagedObjectId
+            );
+            if (!imagedObject) {
+                console.error(
+                    `Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`
+                );
+                throw new Error(
+                    `Can't locate imaged object ${artefact.imagedObjectId} for artefact ${artefact.id}`
+                );
+            }
 
-        const stack = artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
-        if (!stack) {
-            console.error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
-            throw new Error(`Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`);
-        }
+            const stack =
+                artefact.side === 'recto'
+                    ? imagedObject.recto
+                    : imagedObject.verso;
+            if (!stack) {
+                console.error(
+                    `Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`
+                );
+                throw new Error(
+                    `Can't locate ${artefact.side} in imaged object ${artefact.imagedObjectId}`
+                );
+            }
 
-        // Load the image's manifest
-        const imPromise = this.imageManifest(stack.master);
+            // Load the image's manifest
+            const imPromise = this.imageManifest(stack.master);
+
+            promises.push(imPromise);
+        }
 
         // Load the artefact's text fragments
         const textService = new TextService();
-        const tfPromise = textService.getArtefactTextFragments(editionId, artefactId);
+        const tfPromise = textService.getArtefactTextFragments(
+            editionId,
+            artefactId
+        );
+        promises.push(tfPromise);
 
-        await Promise.all([imPromise, tfPromise]); // Let both requests happen concurrently
+        await Promise.all(promises); // Let both requests happen concurrently
         artefact.textFragments = await tfPromise;
 
         this._state.artefacts.current = artefact;
-        this._state.imagedObjects.current = imagedObject;
+        this._state.imagedObjects.current = imagedObject; // will be undefined if the artefact is virtual
     }
 
-    private async textFragmentInternal(editionId: number, textFragmentId: number) {
+    private postArtefactInternal(id: number) {
+        const artefact = this._state.artefacts.find(id);
+        if (!artefact) {
+            console.error(
+                `Can't locate artefact ${id} in postArtefactInternal`
+            );
+            return;
+        }
+        this._state.artefacts.current = artefact;
+
+        if (!artefact.isVirtual) {
+            const imagedObject = this._state.imagedObjects.find(
+                artefact.imagedObjectId
+            );
+            if (!imagedObject) {
+                console.warn(
+                    `Can't located imaged object ${artefact.imagedObjectId} for artefact ${id} in postAretfactInternal`
+                );
+            } else {
+                this._state.imagedObjects.current = imagedObject;
+            }
+        } else {
+            this._state.imagedObjects.current = null;
+        }
+    }
+
+    private async textFragmentInternal(
+        editionId: number,
+        textFragmentId: number
+    ) {
         await this.edition(editionId);
 
         // See if the text fragment has already been loaded into the store
@@ -290,28 +549,63 @@ export default class StateService {
         }
 
         // Make sure the fragment really exists with the edition
-        const textFragmentData = this._state.editions.current!.textFragments!.find((tf) => tf.id === textFragmentId);
+        const textFragmentData = this._state.editions.current!.textFragments!.find(
+            tf => tf.id === textFragmentId
+        );
         if (!textFragmentData) {
-            console.error(`Can't located text fragment ID ${textFragmentId} in edition ${editionId}`);
-            throw new Error(`Can't located text fragment ID ${textFragmentId} in edition ${editionId}`);
+            console.error(
+                `Can't located text fragment ID ${textFragmentId} in edition ${editionId}`
+            );
+            throw new Error(
+                `Can't located text fragment ID ${textFragmentId} in edition ${editionId}`
+            );
         }
 
         // Load the text fragment from the server
         const svc = new TextService();
-        const textEdition = await svc.getTextFragment(editionId, textFragmentId);
+        const textEdition = await svc.getTextFragment(
+            editionId,
+            textFragmentId
+        );
 
         // For now, this is what the backend returns
-        if (textEdition.textFragments.length !== 1 || textEdition.textFragments[0].id !== textFragmentId) {
-            console.error(`Backend did not return the one expected text fragment ${textFragmentId}`);
-            throw new Error(`Backend did not return the one expected text fragment ${textFragmentId}`);
+        if (
+            textEdition.textFragments.length !== 1 ||
+            textEdition.textFragments[0].id !== textFragmentId
+        ) {
+            console.error(
+                `Backend did not return the one expected text fragment ${textFragmentId}`
+            );
+            throw new Error(
+                `Backend did not return the one expected text fragment ${textFragmentId}`
+            );
         }
 
         const current = textEdition.textFragments[0];
-        this._state.textFragments.put(current);
+        this.addTextFragmentToState(current);
+    }
+
+    private async editionFullTextInternal(editionId: number) {
+        this._state.signInterpretations.clear();
+        this._state.interpretationRois.clear();
+        this._state.textFragments.clear();
+
+        await this.edition(editionId);
+
+        const svc = new TextService();
+        const fullText = await svc.getEditionFullText(editionId);
+
+        for (const tf of fullText.textFragments) {
+            this.addTextFragmentToState(tf);
+        }
+    }
+
+    private addTextFragmentToState(tf: TextFragment) {
+        this._state.textFragments.put(tf);
 
         // Add all the sign interpretations and ROIs
 
-        for (const line of current.lines) {
+        for (const line of tf.lines) {
             for (const sign of line.signs) {
                 for (const si of sign.signInterpretations) {
                     this._state.signInterpretations.put(si);

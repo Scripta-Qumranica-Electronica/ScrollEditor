@@ -1,30 +1,28 @@
-### Production Deployment Notes
+# SQE Frontend Deployment
 
-Depending on the version of vue-cli you must add the proper static url to the `module.exports` of vue.config.js before building with `yarn build`:
+The SQE Frontend is stored in a Google Cloud Platform bucket called sqe-website.
 
-vue cli < 3.3
-```Javascript
-baseUrl: '/Scrollery/v0.3.0/',
+The bucket was created as explained in this tutorial: Hosting a static website  |  Cloud Storage  |  Google Cloud
+
+## Deploying to staging
+Staging is stored in an S3 bucket owned by The Research Software Company. It is accessible from https://sqe.researchsoftwarehosting.org .
+
+To deploy to staging you need to have the AWS CLI installed, and the proper Research Software Company WebDeployer IAM user credentials set up. Then run
+
+```bash
+yarn build
+cd dist
+aws s3 sync . s3://sqe-staging
 ```
 
-vue cli >= 3.3
-```Javascript
-publicPath: process.env.NODE_ENV === 'production'
-        ? '/Scrollery/v0.3.0/'
-        : '/',
+## Deploying to production
+Production is served from the GCP bucket `sqe-website`, owned by the SQE project. You need to have the GCloud SDK installed, and configured with a Google account that has access to the GCP SQE Project. Once you have this, open the GCloud SDK shell, and"
+
+```bash
+yarn build
+cd dist
+gsutil -m rsync -r . gs://sqe-website
+gcloud compute url-maps invalidate-cdn-cache sqe-website-lb --path "/*"
 ```
 
-Since we use the vue router in history mode, the webserver requires a rewrite rule.  This can be done with Apache using a .htaccess file in the deployment folder:
-
-```xml
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /Scrollery/v0.3.0/index.html [L]
-</IfModule>
-```
-
-**Note:** you should replace the `v0.3.0` part of both files with your current version tag.
+This last command invalidates the CDN cache, so users see the new version. It takes several minutes to complete.

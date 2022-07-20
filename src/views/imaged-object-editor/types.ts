@@ -1,7 +1,7 @@
 import { Polygon } from '@/utils/Polygons';
-import { Artefact } from '@/models/artefact';
 import { ImageSetting } from '@/components/image-settings/types';
 import { BaseEditorParams } from '@/models/editor-params';
+import { TranslateResult } from 'vue-i18n';
 
 export enum DrawingMode {
     DRAW, ERASE
@@ -9,6 +9,12 @@ export enum DrawingMode {
 
 export enum EditMode {
     DRAWING, ADJUSTING, NONE
+}
+
+export interface ModeButtonInfo {
+    icon: string;
+    val: string;
+    title: TranslateResult;
 }
 
 export class ImagedObjectEditorParams implements BaseEditorParams {
