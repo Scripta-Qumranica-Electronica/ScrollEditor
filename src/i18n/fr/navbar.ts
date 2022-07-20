@@ -22,7 +22,7 @@ export default {
     updateUserDetails: "Mise à jour des détails de l'utilisateur",
     update: 'Mise à jour',
 
-    forgotPassword: 'Mot de passe oublié',
+    forgotPassword: 'Mot de passe oublié?',
     changeForgottenPassword: 'Changer votre mot de passe oublié',
 
     activateUser: 'Utilisateur Activé',

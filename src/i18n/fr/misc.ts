@@ -1,8 +1,9 @@
 export default {
     cancel: 'Annuler',
-    new: 'Nouveau',
+    new: 'Nouveau Artefact',
     current: 'Actuel',
-    copy: 'Copie',
+    copy: 'Cree une copie',
+    anotherCopy: 'Cree une autre copie',
     permission: 'Autorisation',
     draw: 'Dessiner',
     box: 'Box',
@@ -23,5 +24,9 @@ export default {
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',
     leftRotate: 'Rotation à gauche',
-    RightRotate: 'Rotation à droite'
+    rightRotate: 'Rotation à droite',
+    editSign: 'Modifier le signe',
+    deleteSign: 'Supprimer le signe',
+    addToLeft: 'Ajouter à gauche',
+    addToRight: 'Ajouter à droite'
 };

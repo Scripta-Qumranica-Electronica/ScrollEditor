@@ -29,8 +29,8 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
-import { BoundingBox, Point } from '@/utils/helpers';
+import { Component, Vue, Emit, Watch } from 'vue-property-decorator';
+import { Point } from '@/utils/helpers';
 import ArtefactSillhouette from './artefact-sillhouette.vue';
 
 @Component({
@@ -77,7 +77,6 @@ export default class ScrollMap extends Vue {
     }
 
     private onResize() {
-        // Move this to a function called setScaleFactor and call it from onResize
         this.setScaleFactor();
     }
 
@@ -148,9 +147,9 @@ export default class ScrollMap extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #scroll-map {
-    background: #7bb6e0;
+     background: #d8e3eb;
 }
 
 rect {

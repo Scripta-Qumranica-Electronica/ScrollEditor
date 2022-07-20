@@ -1,26 +1,26 @@
 <template>
-    <div class="ruler" :style="{height: height + 'px', width: width + 'px'}">
+    <div class="ruler" :style="{ height: height + 'px', width: width + 'px' }">
         <div class="rule-horizontal">
             <ul class="ruler-bar-horizontal">
                 <li
-                    :style="{ left: ppm * zoom * index + 'px'}"
-                    :class="{ units : index % 10 !== 0 }"
+                    :style="{ left: ppm * zoom * index + 'px' }"
+                    :class="{ units: index % 10 !== 0 }"
                     v-for="(a, index) in horizontalTicksArray"
                     v-bind:key="index"
                 >
-                    <span v-if="(index % 10 === 0)">{{index}}</span>
+                    <span v-if="index % 10 === 0">{{ index }}</span>
                 </li>
             </ul>
         </div>
         <div class="rule-vertical">
             <ul class="ruler-bar-vertical">
                 <li
-                    :style="{ top: ppm * zoom * index + 'px'}"
-                    :class="{ units : index % 10 !== 0 }"
+                    :style="{ top: ppm * zoom * index + 'px' }"
+                    :class="{ units: index % 10 !== 0 }"
                     v-for="(a, index) in verticalTicksArray"
                     v-bind:key="index"
                 >
-                    <span v-if="(index % 10 === 0)">{{index}}</span>
+                    <span v-if="index % 10 === 0">{{ index }}</span>
                 </li>
             </ul>
         </div>
@@ -31,16 +31,29 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({
-    name: 'scroll-ruler'
+    name: 'scroll-ruler',
 })
 export default class ScrollRuler extends Vue {
-    @Prop() private horizontalTicks: number = 0;
-    @Prop() private verticalTicks: number = 0;
-    @Prop() private ppm: number = 1;
-    @Prop() private zoom: number = 1;
-    @Prop() private width: number = 1;
-    @Prop() private height: number = 1;
+    @Prop({
+        default: 0,
+    })
+    private horizontalTicks!: number;
 
+    @Prop({
+        default: 0,
+    }) private verticalTicks!: number;
+    @Prop({
+        default: 1,
+    }) private ppm!: number;
+    @Prop({
+        default: 1,
+    })private zoom!: number;
+    @Prop({
+        default: 1,
+    })private width!: number;
+    @Prop({
+        default: 1,
+    })  private height!: number;
 
     private get horizontalTicksArray() {
         return Array.from(Array(this.horizontalTicks).keys());

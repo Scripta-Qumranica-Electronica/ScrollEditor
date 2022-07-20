@@ -1,40 +1,42 @@
 <template>
     <div class="card">
-        <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imagedObject.id}` }">
+        <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imageObjectId}` }">
             <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
         </router-link>
-        <label>{{artefactsNames}}</label>
+        <label>{{imagedObject.name}}</label>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import { ImagedObject } from '@/models/imaged-object';
 
-export default Vue.extend({
-    props: {
-        imagedObject: Object as () => ImagedObject,
-    },
-    computed: {
-        imageUrl(): string | undefined {
-            if (this.imagedObject && this.imagedObject.recto && this.imagedObject.recto.master) {
-                return this.imagedObject.recto.master.getThumbnailUrl(600);
-            }
-            return undefined;
-        },
-        editionId(): number | undefined {
-            if (this.$state.editions.current) {
-                return this.$state.editions.current.id;
-            }
-            return undefined;
-        },
-        artefactsNames(): string {
-            const names = this.imagedObject.artefacts.map((a) => a.name);
-            const unique = [...new Set(names)]; // Taken from here: https://stackoverflow.com/a/42123984/871910
-            return unique.join(', ');
-        }
+@Component({
+    name: 'imaged-object-card',
+})
+
+export default class ImagedObjectCard extends Vue {
+
+     @Prop() private imagedObject!: ImagedObject;
+
+    private get imageUrl(): string | undefined {
+        // TS 3.7 and up , optional chaining returns undefined
+        // if any chain member is null or undefined
+         return this.imagedObject?.recto?.master?.getThumbnailUrl(600);
     }
-});
+
+    private get imageObjectId(): string  {
+        // encodes characters such as ?,=,/,&,:
+         return encodeURIComponent( this.imagedObject?.id) ;
+    }
+
+    private get editionId(): number | undefined {
+        return this.$state?.editions?.current?.id;
+    }
+
+}
+
 </script>
 
 <style lang="scss" scoped>

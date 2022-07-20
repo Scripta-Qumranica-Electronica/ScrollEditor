@@ -2,7 +2,8 @@ import { EditionInfo, ArtefactGroup } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
-import { TextFragment, InterpretationRoi, SignInterpretation } from '@/models/text';
+import { TextFragment, InterpretationRoi, SignInterpretation, RoiStatus } from '@/models/text';
+import { StateManager } from '.';
 
 export interface ItemWithId<U> {
     id: U;
@@ -10,11 +11,11 @@ export interface ItemWithId<U> {
 
 abstract class StateCollection<T extends ItemWithId<U>, U = number> {
     private _items: T[];
-    private _current: T | undefined;
+    private _current: T | null;
 
     constructor() {
         this._items = [];
-        this._current = undefined;
+        this._current = null;
     }
 
     public get items(): T[] {
@@ -23,14 +24,14 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
 
     public set items(items: T[]) {
         this._items = items;
-        this._current = undefined;
+        this._current = null;
     }
 
-    public get current(): T | undefined {
+    public get current(): T | null {
         return this._current;
     }
 
-    public set current(item: T | undefined) {
+    public set current(item: T | null) {
         if (item) {
             if (this._items) {
                 const existing = this._items.find((a) => a.id === item.id);
@@ -41,15 +42,23 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
             }
             this._current = item;
         } else {
-            this._current = undefined;
+            this._current = null;
         }
     }
 
-    public find(id: U): T | undefined {
+    // public find(id: U): T | undefined {
+    //     if (!this._items) {
+    //         return undefined;
+    //     }
+    //     return this._items.find((it) => it.id === id);
+    // }
+
+    public find(id: U): T | null { // } | undefined {
         if (!this._items) {
-            return undefined;
+            return null;
         }
-        return this._items.find((it) => it.id === id);
+        const res = this._items.find((it) => it.id === id);
+        return (undefined === res ) ?  null : res ;
     }
 
     public update(entity: T, failIfNotFound = true) {
@@ -73,7 +82,7 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         }
 
         if (this._current && this._current.id === entityId) {
-            this._current = undefined;
+            this._current = null;
         }
 
         const newItems = [...this._items]; // Create a new copy, for reactiveness
@@ -97,7 +106,8 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         const oldCurrent = this._current;
         this.items = newItems;
         const newCurrent = oldCurrent && this.find(oldCurrent.id);
-        this.current = newCurrent;
+        this.current = (undefined === newCurrent) ? null : newCurrent;
+        // this.current = newCurrent;
     }
 }
 
@@ -137,9 +147,26 @@ abstract class StateCache<T extends ItemWithId<U>, U = number> {
 // A map of items, used for holding
 abstract class StateMap<T extends ItemWithId<U>, U = number> {
     private _entries = new Map<U, T>();
+    private _frontendToServerIdMap = new Map<U, U>();
+    private _serverToFrontendIdMap = new Map<U, U>();
 
-    public get(key: U): T | undefined {
-        return this._entries.get(key);
+    public get(key: U, considerServerIds = false): T | undefined {
+        let actualKey: U | undefined = key;
+
+        if (!this._entries.has(key) && considerServerIds) {
+            if (this._frontendToServerIdMap.has(key)) {
+                actualKey = this._frontendToServerIdMap.get(key);
+            } else if (this._serverToFrontendIdMap.has(key)) {
+                actualKey = this._serverToFrontendIdMap.get(key);
+            }
+
+            if (!actualKey) {
+                return undefined;
+            }
+        }
+
+        const entry = this._entries.get(actualKey);
+        return entry;
     }
 
     public put(entry: T) {
@@ -148,6 +175,10 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
 
     public get size() {
         return this._entries.size;
+    }
+
+    public get keys() {
+        return this._entries.keys();
     }
 
     public *getItems() {
@@ -165,12 +196,31 @@ abstract class StateMap<T extends ItemWithId<U>, U = number> {
 
     public clear() {
         this._entries.clear();
+        this._frontendToServerIdMap.clear();
     }
 
     public delete(id: U) {
         this._entries.delete(id);
     }
+
+    // Sometimes we generate entity IDs in the frontend - when creating new entities. When the entities are saved
+    // the server returns their new - final ID. We update the state, but the undo stack still contains the old frontend-only
+    // IDs.
+    //
+    // We map these frontend IDs to server IDs here.
+    // Note that we do not do anything with these IDs, all logic should be implemented by the different view and operation
+    // classes.
+    public mapFrontendIdToServerId(frontendId: U, serverId: U) {
+        this._frontendToServerIdMap.set(frontendId, serverId);
+        this._serverToFrontendIdMap.set(serverId, frontendId);
+    }
+
+    public getServerId(frontendId: U): U | undefined {
+        return this._frontendToServerIdMap.get(frontendId);
+    }
 }
+
+
 
 export class EditionCollection extends StateCollection<EditionInfo> { }
 
@@ -184,18 +234,121 @@ export class TextFragmentMap extends StateMap<TextFragment> { }
 
 export class ImageCache extends StateCache<Image> { }
 
+function state() {
+    return StateManager.instance;
+}
 export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
-    public *getArtefactRois(artefact: Artefact) {
-        for (const item of this.getItems()) {
-            if (item.artefactId === artefact.id) {
-                yield item;
+    public put(entry: InterpretationRoi) {
+        this.attachRoiToArtefact(entry);
+        return super.put(entry);
+    }
+
+    public delete(id: number) {
+        const entry = this.get(id);
+        if (!entry) {
+            console.warn(`Can't remove ROI ${id} - it is not in the ROI state map`);
+            return;
+        }
+        this.detachRoiFromArtefact(entry, entry.status);
+        return super.delete(id);
+    }
+
+    public clear() {
+        for (const artefact of state().artefacts.items) {
+            artefact.rois = [];
+        }
+        super.clear();
+    }
+
+    // InterperationROIs are marked as deleted and not actually deleted (so undeleting is easy)
+    // We do not want to track deleted ROIs in artefacts
+    public attachRoiToArtefact(entry: InterpretationRoi) {
+        const artefact = state().artefacts.find(entry.artefactId);
+        if (!artefact) {
+            console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
+        } else {
+            const roiIndex = artefact.rois.findIndex(roi => roi.id === entry.id);
+            if (roiIndex === -1) {
+                artefact.rois.push(entry);
+            }
+        }
+    }
+
+    public detachRoiFromArtefact(entry: InterpretationRoi, status: RoiStatus) {
+        const artefact = state().artefacts.find(entry.artefactId);
+        if (!artefact) {
+            console.warn(`Adding ROI for artefact ${entry.artefactId}, while artefact is not in state`);
+        } else {
+            const roiIndex = artefact.rois.findIndex(roi => roi.id === entry.id);
+            if (roiIndex === -1) {
+                console.warn(`Can't removing ROI ${entry.id} from artefact ${entry.artefactId}, it is not in its ROI list`);
+            } else {
+                const roi = artefact.rois[roiIndex];
+                if (status === 'deleted') {
+                    artefact.deleteRois.push(roi);
+                }
+                artefact.rois.splice(roiIndex, 1);
             }
         }
     }
 }
 
-export class SignInterpretationMap extends StateMap<SignInterpretation> { }
+export class SignInterpretationMap extends StateMap<SignInterpretation> {
+    public put(entry: SignInterpretation) {
+        this.attachSignInterpretationToArtefact(entry);
+        return super.put(entry);
+    }
+
+    public delete(id: number) {
+        const si = state().signInterpretations.get(id);
+        if (!si) {
+            console.warn(`Can't delete sign interpretaetion ${id}, it is not in the state`);
+            return;
+        }
+
+        this.detachSignInterprerationFromArtefact(si);
+    }
+
+    public attachSignInterpretationToArtefact(si: SignInterpretation) {
+        for (const roi of si.rois) {
+            const artefact = state().artefacts.find(roi.artefactId);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${roi.artefactId} for ROI ${roi.id}`);
+                continue;
+            }
+
+            const index = artefact.signInterpretations.findIndex(s => s.id === si.id);
+            if (index === -1) {
+                artefact.signInterpretations.push(si);
+            }
+        }
+    }
+
+    public detachSignInterprerationFromArtefact(si: SignInterpretation) {
+        for (const roi of si.rois) {
+            const artefact = state().artefacts.find(roi.artefactId);
+            if (!artefact) {
+                console.warn(`Can't find artefact ${roi.artefactId} for ROI ${roi.id}`);
+                continue;
+            }
+
+            const index = artefact.signInterpretations.findIndex(s => s.id === si.id);
+            if (index === -1) {
+                console.warn(`Can't remove sign interpretation ${si.id} from artefact ${artefact.id} - it is not in its signInterpretations array`);
+            } else {
+                artefact.signInterpretations.splice(index, 1);
+            }
+        }
+    }
+
+    public clear() {
+        for (const artefact of state().artefacts.items) {
+            artefact.signInterpretations = [];
+        }
+        super.clear();
+    }
+}
 
 export class MiscState {
-    public newEditionId: number | undefined;
+    public newEditionId!: number ;
 }

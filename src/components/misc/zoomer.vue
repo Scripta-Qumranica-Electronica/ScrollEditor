@@ -21,7 +21,6 @@
  */
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Point } from '@/utils/helpers';
-import { VueHammer } from 'vue2-hammer';
 
 export interface ZoomEventArgs {
     zoom: number;
@@ -110,16 +109,6 @@ export default class Zoomer extends Vue {
     private get zoomTarget(): Element {
         return this.$el.parentElement!;
     }
-
-    // private onRotateStart(event:any){
-    //     console.log('rotate start');
-    //     this.degel = true;
-    // }
-
-    // private onRotateEnd(event:any){
-    //     console.log('rotate end');
-    //     this.degel = false;
-    // }
 
     private onRotate(event: any) {
         const angleCalc = event.angle;

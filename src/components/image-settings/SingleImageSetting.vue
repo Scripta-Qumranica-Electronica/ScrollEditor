@@ -1,6 +1,8 @@
 <template>
     <div class="row">
-        <b-form-checkbox v-model="visible" @change="onVisibleChange">{{ type }}</b-form-checkbox>
+        <div class="col-5">
+            <b-form-checkbox v-model="settings.visible" @change="onVisibleChange">{{ type }}</b-form-checkbox>
+        </div>
         <div class="col">
             <b-form-input
                 v-model="opacity"
@@ -21,7 +23,7 @@
 // 3. Use i18n for the type
 // 4. Add tooltip to the slider (with the current number)
 // 5. Disable slider when checkbox is false
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
 import { SingleImageSetting } from '../image-settings/types';
 
 @Component({
@@ -32,17 +34,17 @@ export default class SingleImageSettingComponent extends Vue {
     @Prop() private settings!: SingleImageSetting;
 
     private opacity = '1';
-    private visible = true;
+    // private visible = true;
 
     private mounted() {
         this.opacity = this.settings.opacity.toString(); // Binding works with strings
-        this.visible = this.settings.visible;
+        // this.visible = this.settings.visible;
     }
 
     private onVisibleChange() {
         // Use setTimeout since the binding occurs after the input event
         setTimeout(() => {
-            this.settings.visible = this.visible;
+            // this.settings.visible = this.visible;
             this.change();
         }, 0);
     }
@@ -51,9 +53,9 @@ export default class SingleImageSettingComponent extends Vue {
         // We use @input because we want to update the images as the slider slides.
         // @change only occurs once the slider stops sliding.
 
-        if (!this.visible) {
+        if (!this.settings.visible) {
             // Set the visibility checkbox when moving a slider
-            this.visible = true;
+            this.settings.visible = true;
             this.onVisibleChange();
         }
 

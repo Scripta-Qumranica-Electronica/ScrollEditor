@@ -1,103 +1,155 @@
  <template>
-  <div>
-    <b-modal ref="loginModalRef" id="loginModal" title="Login" @shown="shown">
-        <b-container fluid @keyup.enter="login">
-            <b-row class="mb-2">
-                <b-col cols="3">{{ $t('navbar.email') }}</b-col>
-                <b-col><b-form-input ref="email" v-model="email"  type="email"></b-form-input></b-col>
-            </b-row>
-            <b-row class="mb-2">
-                <b-col cols="3">{{ $t('navbar.password') }}</b-col>
-                <b-col>
-                    <b-form-input v-model="password" type="password"></b-form-input>
-                </b-col>
-            </b-row>
-            <b-row>
-                <button @click="forgotPassword" class="btn btn-link">
-                    {{ $t('navbar.forgotPassword') }}
-                </button>
-            </b-row>
-            <b-row>
-                <b-col class="text-danger">{{ errorMessage }}</b-col>
-            </b-row>
-        </b-container>
+    <div>
+        <b-modal
+            header-class="title-header"
+            footer-class="title-footer"
+            ref="loginModalRef"
+            id="loginModal"
+            @shown="shown"
+        >
+            <template v-slot:modal-header>
+                <b-row>
+                    <b-col cols="12">Log in to your account</b-col>
+                </b-row>
+            </template>
+            <b-container fluid @keyup.enter="login">
+                <b-row class="mb-2">
+                    <b-col
+                        ><b-form-input
+                            ref="email"
+                            v-model="email"
+                            type="email"
+                            placeholder="Username or email"
+                        ></b-form-input
+                    ></b-col>
+                </b-row>
+                <b-row class="mb-2">
+                    <b-col>
+                        <b-form-input
+                            v-model="password"
+                            type="password"
+                            placeholder="Password"
+                        ></b-form-input>
+                    </b-col>
+                </b-row>
+                <b-row class="justify-content-end">
+                    <b-link @click="forgotPassword" class="sign-link">
+                        {{ $t('navbar.forgotPassword') }}?
+                    </b-link>
+                </b-row>
+                <b-row>
+                    <b-col class="text-danger">{{ errorMessage }}</b-col>
+                </b-row>
+            </b-container>
+            <template v-slot:modal-footer>
+                <div class="w-100">
+                    <b-button
+                        @click="login"
+                        block
+                        variant="primary"
+                        class="btn-login-modal"
+                        :disabled="disabledLogin"
+                    >
+                        {{ $t('navbar.login') }}
+                        <span v-if="waiting">
+                            <font-awesome-icon
+                                icon="spinner"
+                                spin
+                            ></font-awesome-icon>
+                        </span>
+                    </b-button>
+                     <p class="sign-link">Can’t login? <b-link
+                        @click="register"
+                        >Sign up</b-link
+                    > for an account here</p>
+                </div>
 
-        <div slot="modal-footer">
-            <b-button @click="close" class="mr-1">{{ $t('misc.cancel') }}</b-button>
-            <b-button @click="login" variant="primary" type="submit" :disabled="disabledLogin">
-                {{ $t('navbar.login') }}
-                <span v-if="waiting">
-                    <font-awesome-icon icon="spinner" spin></font-awesome-icon>
-                </span>
-            </b-button>
-        </div>
-    </b-modal>
-    <forgot-password></forgot-password>
-  </div>
- </template>
+            </template>
+
+        </b-modal>
+        <forgot-password></forgot-password>
+    </div>
+</template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { localizedTexts } from '@/i18n';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
-import { StateManager } from '@/state';
+import router from '@/router';
 
-export default Vue.extend({
+@Component({
     name: 'login',
     components: {
         ForgotPassword,
-    },
-    data() {
-        return {
-            email: '',
-            // email: this.$state.session ? this.$state.session.user!.email : '',
-            password: '',
-            errorMessage: '',
-            sessionService: new SessionService(),
-            errorService: new ErrorService(this),
-            waiting: false,
-        };
-    },
-    computed: {
-        disabledLogin(): boolean {
-            return !this.email || !this.password || this.waiting;
-        },
-    },
-    methods: {
-        async login() {
-            if (this.disabledLogin) {
-                // Can be called due to ENTER key
-                return;
-            }
+    }
+})
 
-            try {
-                this.waiting = true;
-                await this.sessionService.login(this.email, this.password);
-                this.close();
-                location.reload();
-            } catch (err) {
-                this.errorMessage = this.errorService.getErrorMessage(err.response.data);
-            } finally {
-                this.waiting = false;
-            }
-        },
-        close() {
-            (this.$refs.loginModalRef as any).hide();
-        },
-        shown() {
-            this.errorMessage = '';
+export default class Login extends Vue {
+
+    public email: string = '';
+    // email: this.$state.session ? this.$state.session.user!.email : '',
+    public password: string = '';
+    public errorMessage: string = '';
+    private sessionService: SessionService = new SessionService();
+    private errorService: ErrorService = new ErrorService(this);
+    public waiting: boolean = false;
+
+
+    public get disabledLogin(): boolean {
+        return !this.email || !this.password || this.waiting;
+    }
+
+    public async login() {
+        if (this.disabledLogin) {
+            // Can be called due to ENTER key
+            return;
+        }
+
+        try {
+            this.waiting = true;
+            await this.sessionService.login(this.email, this.password);
+            this.close();
+            router.push('/home');
+            // Reload the personal editions
+            location.reload();
+        } catch (err: any) {
+            this.errorMessage = this.errorService.getErrorMessage(
+                err.response.data
+            );
+        } finally {
             this.waiting = false;
-            (this.$refs.email as any).focus();
-        },
-        forgotPassword() {
-            this.$root.$emit('bv::show::modal', 'passwordModal');
         }
     }
-});
+
+    private close() {
+        (this.$refs.loginModalRef as any).hide();
+    }
+
+    public shown(): void {
+        this.errorMessage = '';
+        this.waiting = false;
+        (this.$refs.email! as any).focus();
+    }
+
+    public forgotPassword() {
+        this.$root.$emit('bv::show::modal', 'passwordModal');
+        this.$bvModal.hide('loginModal');
+    }
+
+    public register() {
+        this.$root.$emit('bv::show::modal', 'registerModal');
+        this.$bvModal.hide('loginModal');
+    }
+
+}
+
 </script>
 
-<style scoped>
 
+<style lang="scss" scoped>
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+@import '@/assets/styles/_modals.scss';
 </style>

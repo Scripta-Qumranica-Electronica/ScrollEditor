@@ -24,6 +24,9 @@
     "radix": false,
     "variable-name": {
       "options": ["check-format", "allow-leading-underscore"]
-    }
+    },
+    "max-line-length": false,
+    "member-ordering": false,
+    "object-literal-key-quotes": false
   }
 }

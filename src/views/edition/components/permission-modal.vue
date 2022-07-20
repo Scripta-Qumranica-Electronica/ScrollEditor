@@ -115,12 +115,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { EditionInfo, ShareInfo, SimplifiedPermission } from '@/models/edition';
 import EditionService from '@/services/edition';
-import { ImagedObject } from '@/models/imaged-object';
-import { BvModalEvent } from 'bootstrap-vue';
-// import ErrorService from '@/services/error';
 
 interface ShareRow {
     email: string;

@@ -1,6 +1,6 @@
 describe('Register new User', function() {
     beforeEach(() => {
-        cy.visit('/')
+        cy.visit('http://localhost:8080')
     });
 
     Cypress.Commands.add('typeLogin', (user) => {
@@ -67,7 +67,7 @@ describe('Register new User', function() {
                 expect(resp.status).to.eq(200)
             })
 
-            cy.get('ul>li.list-item>.card').contains('1QS990').first()
+            cy.get('ul>li.list-item>.card').contains('1Q7Copy').first()
                 .click({ multiple: true })
             cy.get('.btn-permission').click();
             cy.wait(2500)
@@ -123,7 +123,7 @@ describe('Register new User', function() {
                         cy.get('@postUser').should((resp) => {
                             expect(resp.status).to.eq(200)
                         })
-                        cy.get('ul>li.list-item>.card').contains('1QS990').first().should(() => {
+                        cy.get('ul>li.list-item>.card').contains('1Q7Copy').first().should(() => {
                             expect('.fa-users').to.exist
                         })
                     }

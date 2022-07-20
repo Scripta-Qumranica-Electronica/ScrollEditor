@@ -11,56 +11,63 @@
         </clipPath>
       </defs>
       <g pointer-events="none" :clip-path="params.background ? 'url(#Full-clipping-outline)' : 'url(#Clipping-outline)'">
-        <image v-for="imageSetting in visibleImageSettings"
+        <iiif-image
+              v-for="imageSetting in visibleImageSettings"
               :key="'svg-image-' + imageSetting.image.url"
-              class="clippedImg" 
+              class="clippedImg"
               draggable="false"
-              :xlink:href="imageSetting.image.getFullUrl(100 / $render.scalingFactors.image)"
-              :width="width"
-              :height="height"
+              :image="imageSetting.image"
+              :scaleFactor="params.zoom"
               :opacity="imageSetting.normalizedOpacity"
-              ></image>
+              />
       </g>
       <!-- <use class="pulsate" v-if="clippingMask && !params.clipMask" stroke="blue" fill="none" fill-rule="evenodd" stroke-width="2" xlink:href="#Clip-path"></use>  -->
     </g>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { wktPolygonToSvg } from '@/utils/VectorFactory';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+
 import { ImagedObjectEditorParams } from './types';
-import { ImageStack, Image } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
+import IIIFImageComponent from '@/components/images/IIIFImage.vue';
 
-export default Vue.extend({
-  name: 'image-layer',
-  props: {
-    width: Number,
-    height: Number,
-    params: Object as () => ImagedObjectEditorParams,
-    editable: Boolean,
-    clippingMask: Object as () => Polygon,
-  },
-  data() {
-    return {
-    };
-  },
-  computed: {
-    fullImageMask(): string {
+@Component({
+name: 'image-layer',
+  components: {
+    'iiif-image': IIIFImageComponent,
+  }
+})
+
+export default class ImageLayer extends Vue {
+
+  // props
+    @Prop() protected width!: number;
+    @Prop() protected height!: number;
+    @Prop() protected params!: ImagedObjectEditorParams;
+                        // Object as () => ImagedObjectEditorParams;
+    @Prop() protected editable!: boolean;
+    @Prop() protected clippingMask!: Polygon;
+                        // Object as () => Polygon;
+
+  // computed
+
+    protected get fullImageMask(): string {
       return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
-    },
-    imageSettings(): SingleImageSetting[] {
+    }
+
+    protected get imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
       return values;
-    },
-    visibleImageSettings(): SingleImageSetting[] {
+    }
+
+    protected get visibleImageSettings(): SingleImageSetting[] {
       return this.imageSettings.filter((image) => image.visible);
     }
-  },
-  methods: {
-  },
-});
+
+}
+
 </script>
 
 <style lang="scss" scoped>

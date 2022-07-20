@@ -1,6 +1,6 @@
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-    ? '/production/path'
+    ? '/'
     : '/',
     configureWebpack: config => {
     if (process.env.NODE_ENV === 'development') {

@@ -1,13 +1,13 @@
 <template>
-    <div v-if="current">
+    <div v-if="currentEdition">
         <div class="sidebar-header">
             <h5>
-                {{ versionString(current) }}
+                {{ versionString(currentEdition) }}
                 <span
                     class="badge badge-success"
                     v-if="isNew"
                 >{{ $t('misc.new') }}</span>
-                <edition-icons :edition="edition" :show-text="false" />
+                <edition-icons :edition="currentEdition" :show-text="false" />
             </h5>
 
             <b-btn
@@ -29,33 +29,34 @@
             <b-nav-item>
                 <router-link
                     :class="{ bold: page === 'artefacts',artefacts }"
-                    :to="`/editions/${current.id}/artefacts`"
+                    :to="`/editions/${currentEdition.id}/artefacts`"
                     replace
                 >{{ $t('home.artefacts') }}: {{ artefacts }}</router-link>
             </b-nav-item>
             <b-nav-item>
                 <router-link
                     :class="{ bold: page === 'imaged-objects',imagedObjects  }"
-                    :to="`/editions/${current.id}/imaged-objects`"
+                    :to="`/editions/${currentEdition.id}/imaged-objects`"
                     replace
                 >{{ $t('home.imagedObjects') }}: {{ imagedObjects }}</router-link>
             </b-nav-item>
               <b-nav-item>
                 <router-link
+                    class="scroll"
                     :class="{ bold: page === 'scroll' }"
-                    :to="`/editions/${current.id}/scroll-editor`"
+                    :to="`/editions/${currentEdition.id}/scroll-editor`"
                     replace
                 >{{ $t('home.scroll') }}</router-link>
             </b-nav-item>
             <!-- {{ current.numOfFragments }} , {{ current.otherVersions.length + 1 }}-->
-            <b-nav-item-dropdown v-if="current.otherVersions.length" :text="$t('home.versions')">
+            <b-nav-item-dropdown v-if="currentEdition.otherVersions.length" :text="$t('home.versions')">
                 <b-dropdown-item
-                    v-for="version in current.otherVersions"
+                    v-for="version in currentEdition.otherVersions"
                     :key="version.id"
                     :to="`/editions/${version.id}`"
                 >{{ versionString(version) }}</b-dropdown-item>
             </b-nav-item-dropdown>
-            <b-nav-text v-if="!current.otherVersions.length">
+            <b-nav-text v-if="!currentEdition.otherVersions.length">
                 <small class="no-vers">{{ $t("home.noVersions") }}</small>
             </b-nav-text>
             <b-btn
@@ -74,7 +75,7 @@
         <b-modal
             id="copyModal"
             ref="copyModalRef"
-            :title="$t('home.copyTitle', { name: current.name, owner: current.owner.forename })"
+            :title="$t('home.copyTitle', { name: currentEdition.name, owner: currentEdition.owner.forename })"
             @shown="copyModalShown"
             @ok="copyEdition"
             :ok-title="$t('misc.copy')"
@@ -110,149 +111,164 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue';
-import { EditionInfo, ShareInfo } from '@/models/edition';
+import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import PermissionModal from './permission-modal.vue';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 
-export default Vue.extend({
+
+@Component({
     name: 'edition-ver-sidebar',
     components: {
         PermissionModal,
-        EditionIcons,
-    },
-    props: {
-        page: String
-    },
-    data() {
-        return {
-            editionService: new EditionService(),
-            newCopyName: '',
-            waiting: false,
-            errorMessage: '',
-            newEditionName: '',
-            renaming: false
-        };
-    },
-    computed: {
-        readOnly(): boolean {
-            return this.current!.permission.readOnly;
-        },
-        isAdmin(): boolean {
-            return this.current!.permission.isAdmin;
-        },
-        canRename(): boolean {
-            return this.current!.permission.mayWrite;
-        },
-        user(): boolean {
-            return this.$state.session.user ? true : false;
-        },
-        canCopy(): boolean {
-            return this.newCopyName.trim().length > 0;
-        },
-        current(): EditionInfo | undefined {
-            return this.$state.editions.current;
-        },
-        isNew(): boolean {
-            if (this.current) {
-                return this.current.id === this.$state.misc.newEditionId;
-            }
-            return false;
-        },
-        imagedObjects(): number {
-            if (this.$state.imagedObjects.items) {
-                return this.$state.imagedObjects.items.length;
-            }
-            return 0;
-        },
-        edition(): EditionInfo {
-            return this.$state.editions.current!;
-        },
-        artefacts(): number {
-            if (this.$state.imagedObjects.items) {
-                let artLen = 0;
-                this.$state.imagedObjects.items.forEach(
-                    (element: ImagedObject) => {
-                        artLen += element.artefacts.length;
-                    }
-                );
-                return artLen;
-            }
-            return 0;
+        EditionIcons
+    }
+})
+
+export default class SideBar extends Vue {
+
+    @Prop() private page!: string;
+
+
+    private editionId: number = 0;
+    private editionService: EditionService = new EditionService() ;
+    private newCopyName: string = '';
+    private waiting: boolean = false;
+    private errorMessage: string =  '';
+    private newEditionName: string =  '';
+    private renaming: boolean = false;
+
+    public get currentEdition(): EditionInfo | null {
+        return this.$state.editions.current ;
+    }
+
+
+    public get readOnly(): boolean {
+        return this.currentEdition!.permission.readOnly;
+    }
+
+    public get isAdmin(): boolean {
+        return this.currentEdition!.permission.isAdmin;
+    }
+
+    public get canRename(): boolean {
+        return this.currentEdition!.permission.mayWrite;
+    }
+
+    public get user(): boolean {
+        return this.$state.session.user ? true : false;
+    }
+
+    public get canCopy(): boolean {
+        return this.newCopyName.trim().length > 0;
+    }
+
+
+    public get isNew(): boolean {
+        if (this.currentEdition) {
+            return this.currentEdition.id === this.$state.misc.newEditionId;
         }
-    },
+        return false;
+    }
 
-    methods: {
-        openPermissionModal() {
-            this.$root.$emit('bv::show::modal', 'permissionModal');
-        },
-        openRename() {
-            this.renaming = true;
-            this.newEditionName = this.current!.name;
-        },
-        showMessage(msg: string, type: string = 'info') {
-            this.$toasted.show(this.$tc(msg), {
-                type,
-                position: 'top-right',
-                duration: 7000
+    public get imagedObjects(): number {
+        if (this.$state.imagedObjects.items) {
+            return this.$state.imagedObjects.items.length;
+        }
+        return 0;
+    }
+
+    public get artefacts(): number {
+        if (this.$state.imagedObjects.items) {
+            let artLen = 0;
+            this.$state.imagedObjects.items.forEach(
+                (element: ImagedObject) => {
+                    artLen += element.artefacts.length;
+                }
+            );
+            return artLen;
+        }
+        return 0;
+    }
+
+
+    private  openPermissionModal() {
+        this.$root.$emit('bv::show::modal', 'permissionModal');
+    }
+
+    private openRename() {
+        this.renaming = true;
+        this.newEditionName = this.currentEdition!.name;
+    }
+
+    private showMessage(msg: string, type: string = 'info') {
+        this.$toasted.show(this.$tc(msg), {
+            type,
+            position: 'top-right',
+            duration: 7000
+        });
+    }
+
+    private versionString(ver: EditionInfo) {
+        return ver.name;
+    }
+
+    private async copyEdition(evt: Event) {
+        evt.preventDefault();
+
+        if (!this.canCopy) {
+            return; // ENTER key calls this handler even if the button is disabled
+        }
+        this.newCopyName = this.newCopyName.trim();
+
+        this.waiting = true;
+        this.errorMessage = '';
+        try {
+            const newEdition = await this.editionService.copyEdition(
+                this.currentEdition!.id,
+                this.newCopyName
+            );
+
+            this.$state.misc.newEditionId = newEdition.id;
+
+            this.$router.push({
+                path: `/editions/${newEdition.id}`
             });
-        },
-        versionString(ver: EditionInfo) {
-            return ver.name;
-        },
-        async copyEdition(evt: Event) {
-            evt.preventDefault();
-
-            if (!this.canCopy) {
-                return; // ENTER key calls this handler even if the button is disabled
-            }
-            this.newCopyName = this.newCopyName.trim();
-
-            this.waiting = true;
-            this.errorMessage = '';
-            try {
-                const newEdition = await this.editionService.copyEdition(
-                    this.current!.id,
-                    this.newCopyName
-                );
-
-                this.$state.misc.newEditionId = newEdition.id;
-
-                this.$router.push({
-                    path: `/editions/${newEdition.id}`
-                });
-                (this.$refs.copyModalRef as any).hide();
-            } catch (err) {
-                this.errorMessage = err;
-            } finally {
-                this.waiting = false;
-            }
-        },
-        copyModalShown() {
-            this.newCopyName = this.current!.name;
-            (this.$refs.newCopyName as any).focus();
-        },
-        async onRename(newName: string) {
-            if (!this.current) {
-                throw new Error("Can't rename if there is no edition");
-            }
-            this.renaming = true;
-            try {
-                await this.editionService.renameEdition(
-                    this.current!.id,
-                    newName
-                );
-                this.showMessage('toasts.editionSuccess', 'success');
-            } catch (err) {
-                this.showMessage('toasts.editionError', 'error');
-            } finally {
-                this.renaming = false;
-            }
+            (this.$refs.copyModalRef as any).hide();
+        } catch (err) {
+            this.errorMessage = err;
+        } finally {
+            this.waiting = false;
         }
     }
-});
+
+    private copyModalShown() {
+        this.newCopyName = this.currentEdition!.name;
+        (this.$refs.newCopyName as any).focus();
+    }
+
+    private async onRename(newName: string) {
+        if (!this.currentEdition) {
+            throw new Error("Can't rename if there is no edition");
+        }
+        this.renaming = true;
+        try {
+            await this.editionService.renameEdition(
+                this.currentEdition!.id,
+                newName
+            );
+            this.showMessage('toasts.editionSuccess', 'success');
+        } catch (err) {
+            this.showMessage('toasts.editionError', 'error');
+        } finally {
+            this.renaming = false;
+        }
+    }
+
+}
+
 </script>
 
 <style lang="scss" scoped>

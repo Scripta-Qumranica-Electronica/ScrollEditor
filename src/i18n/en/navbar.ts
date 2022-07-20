@@ -1,7 +1,12 @@
 export default {
     home: 'Home',
     about: 'About',
-    login: 'Login',
+    faq: 'FAQ',
+    cite: 'Cite',
+    eula: 'Terms of Use',
+    documentation: 'Documentation',
+    contactus: 'Contact Us',
+    login: 'Log in',
     logout: 'Logout',
 
     forename: 'Forename',
@@ -14,6 +19,7 @@ export default {
 
     registration: 'Registration',
     register: 'Register',
+    start: 'Start Working',
 
     changePassword: 'Change Password',
     currentPassword: 'Current Password',

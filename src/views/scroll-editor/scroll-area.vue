@@ -1,26 +1,5 @@
 <template>
-
     <div ref="scrollArea" id="outer">
-        <div
-            v-draggable="draggableOptions"
-            v-show="selectedArtefact || selectedGroup"
-            style="position: fixed;"
-        >
-            <div
-                ref="handleTools"
-                style="width:16px;height:22px;background:#ccc; text-align:center; cursor: move"
-            >
-                <i class="fa fa-ellipsis-v"></i>
-            </div>
-            <artefact-toolbox
-                :keyboard-input="false"
-                :float="true"
-                @new-operation="onNewOperation($event)"
-                @save-group="onSaveGroup()"
-                @cancel-group="cancelGroup()"
-                @manageGroup="manageGroup()"
-            ></artefact-toolbox>
-        </div>
         <zoomer :zoom="zoomLevel" @new-zoom="onNewZoom($event)">
             <svg
                 id="the-scroll"
@@ -31,64 +10,67 @@
                 @mousemove="onMouseMove"
             >
                 <g id="root" :transform="transform">
+                    <defs id="before-root" v-if="currentScript">
+                        <path
+                            v-for="g of Object.values(scriptGlyphs)"
+                            :key="g.character"
+                            :d="g.shape.svg"
+                            :id="`path-${g.character}`"
+                            class="sign"
+                        />
+                    </defs>
+
                     <artefact-image-group
                         @on-select="selectArtefact(artefact)"
                         @new-operation="onNewOperation($event)"
                         transformRootId="root"
                         v-for="artefact in placedArtefacts"
                         :artefact="artefact"
+                        :imagedObject="
+                            $state.imagedObjects.find(artefact.imagedObjectId)
+                        "
                         :key="artefact.id"
                         :disabled="isArtefactDisabled(artefact)"
                         :selected="isArtefactSelected(artefact)"
+                        :scaleFactor="zoomLevel"
+                        :withRois="displayRois"
+                        :displayText="displayText"
+                        :reconstructedText="displayReconstructedText"
                     />
                 </g>
             </svg>
         </zoomer>
     </div>
-    
 </template>
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Vue, Emit } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
-import ScrollMenu from './scroll-menu.vue';
-import Zoomer, {
-    ZoomEventArgs,
-    RotateEventArgs
-} from '@/components/misc/zoomer.vue';
+import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { ScrollEditorParams } from '../artefact-editor/types';
 import { BoundingBox } from '@/utils/helpers';
-import {
-    SingleImageSetting,
-    ImageSetting
-} from '@/components/image-settings/types';
-import { ImageStack } from '@/models/image';
+import { ImageSetting } from '@/components/image-settings/types';
 import { Artefact } from '@/models/artefact';
-import { Polygon } from '@/utils/Polygons';
 import ArtefactImageGroup from './artefact-image-group.vue';
 import ArtefactToolbox from './artefact-toolbox.vue';
-import { Draggable, DraggableValue } from './drag-directive';
 import { ScrollEditorOperation } from './operations';
-import { ArtefactGroup } from '@/models/edition';
 import { ScrollEditorState } from '@/state/scroll-editor';
+import { ArtefactTextFragmentData } from '@/models/text';
+import { ScriptData, GlyphData } from '@/models/script';
 
 @Component({
     name: 'scroll-area',
     components: {
         Waiting,
-        'zoomer': Zoomer,
+        zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
-        'artefact-toolbox': ArtefactToolbox
+        'artefact-toolbox': ArtefactToolbox,
     },
-    directives: {
-        Draggable
-    }
 })
 export default class ScrollArea extends Vue {
     private imageSettings!: ImageSetting;
     private boundingBox = new BoundingBox(1, 1);
-    private draggableOptions: DraggableValue = {};
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.$emit('onSelectArtefact', artefact);
@@ -104,16 +86,32 @@ export default class ScrollArea extends Vue {
         this.$state.eventBus.off('select-artefact');
     }
 
-    private mounted() {
-        this.draggableOptions.handle = this.$refs.handleTools as HTMLElement;
-        this.draggableOptions.boundingElement = this.$refs
-            .scrollArea as HTMLElement;
+    private async mounted() {
+        // Prepare ROIs of placed artefacts
+        await this.placedArtefacts.forEach(async (artefact: Artefact) => {
+            await this.$state.prepare.artefact(artefact.editionId, artefact.id);
+            await Promise.all(
+                artefact.textFragments.map((tf: ArtefactTextFragmentData) =>
+                    this.$state.prepare.textFragment(artefact.editionId, tf.id)
+                )
+            );
+        });
     }
 
     private get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
     }
 
+    private get displayRois(): boolean {
+        return this.scrollEditorState.displayRois;
+    }
+    private get displayText(): boolean {
+        return this.scrollEditorState.displayText;
+    }
+
+    private get displayReconstructedText(): boolean {
+        return this.scrollEditorState.displayReconstructedText;
+    }
     private get params() {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
@@ -158,7 +156,7 @@ export default class ScrollArea extends Vue {
 
     private getArtefactGroup(artefact: Artefact) {
         return this.edition!.artefactGroups.find(
-            x =>
+            (x) =>
                 artefact &&
                 x.artefactIds.includes(artefact!.id) &&
                 x.artefactIds.length > 1
@@ -206,10 +204,19 @@ export default class ScrollArea extends Vue {
         return zoom;
     }
 
+    private get currentScript(): ScriptData | null {
+        return this.$state.editions.current!.script;
+    }
+
+    private get scriptGlyphs(): { [key: string]: GlyphData } | null {
+        return this.$state.editions.current!.script?.glyphs || null;
+    }
+
     private get placedArtefacts() {
-        return this.artefacts
-            .filter(x => x.isPlaced)
+        const visibleArtefacts = this.artefacts
+            .filter((x) => x.isPlaced && x.inViewport)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
+        return visibleArtefacts;
     }
 
     private onNewOperation(op: ScrollEditorOperation) {
@@ -243,15 +250,34 @@ export default class ScrollArea extends Vue {
 </script>
 
 <style lang="scss">
-
-
 #the-scroll {
-    background: #7bb6e0;
+    background: #d8e3eb;
 }
 
 #outer {
-	margin-left: 30px;
+    margin-left: 30px;
     margin-top: 30px;
     width: fit-content;
+}
+.handle-tools {
+    width: 16px;
+    height: 22px;
+    background: #ccc;
+    text-align: center;
+    cursor: move;
+}
+
+.sign {
+    fill: inherit;
+    stroke: inherit;
+}
+
+.display-letters {
+    font-family: 'scroll_hebrew';
+    stroke-width: 1px;
+    stroke: white;
+    fill: black;
+    font-size: 2px;
+    font-weight: 800;
 }
 </style>

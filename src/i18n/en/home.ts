@@ -1,9 +1,17 @@
 export default {
-    filter: 'Filter Editions',
-    publicEditionGroupCount: 'No public editions | One public edition | {count} public editions',
-    personalEditionGroupCount: 'No personal editions | One personal edition | {count} personal editions',
+    brand: 'Scripta Qumranica Electronica',
+    filter: 'Filter by',
+    show: 'Show',
+    search: 'Search',
+    view: 'View',
+    sort: 'Sort by',
+    publicEditionGroupCount: 'No public editions | One public edition |  Public Editions ({count})',
+    personalEditionGroupCount: 'No personal editions | One personal edition |  Personal Editions ({count})',
     publicEditionCount: ' | public edition | public editions',
     personalVersionCount: ' | personal edition | personal editions',
+    personalEditions: 'Personal Editions',
+    publicEditions: 'Public Editions',
+    userGuide: 'User Guide',
     shares: ' | share | shares',
     artefacts: 'Artefacts',
     scroll: 'Scroll',
@@ -28,5 +36,7 @@ export default {
     viewPortSize: 'Viewport Size',
     lock: 'Read Only',
     shared: 'Shared',
-    admin: 'Your Admin rights have been revoked'
+    admin: 'Your Admin rights have been revoked',
+    editorParameters: 'Editor Parameters',
+    reportProblem: 'Report Problem'
 };

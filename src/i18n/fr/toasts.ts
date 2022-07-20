@@ -7,10 +7,14 @@ export default {
 
     artefactInfo: 'Aucune modification à enregistrer',
     artefactSuccess: 'Artefact sauvegardé',
-    artefactError: 'La sauvegarde de l\'artefact à echoué',
+    artefactError: 'La sauvegarde de l\'artefact a echoué',
+    artefactsAutoModeError: 'Le mode automatique n\'est pas possible lorsque plus d\'une lettre est sélectionnée',
 
     editionSuccess: 'Edition renommée',
-    editionError: 'Le renommage de l\'édition à échoué',
+    editionError: 'Le renommage de l\'édition a échoué',
+
+    editionDeleteSuccess: 'edition supprimée',
+    editionDeleteError: 'La suppression de l\'édition a échoué',
 
     invitationSent: 'Invitation envoyée à {email}',
     permissionsUpdated: 'Autorisations de {email} mises à jour',
@@ -29,5 +33,6 @@ export default {
     deleteArtefactFailed: "Échec de la suppression de l'artefact",
     artefactCantOverlap: "L'artefact ne peut pas superposer d'autres artefacts"
 
+    // TODO: Translate attributeDeletedBySomeoneElse to French
 };
 

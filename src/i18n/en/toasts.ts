@@ -8,9 +8,13 @@ export default {
     artefactInfo: 'No changes to save',
     artefactSuccess: 'Artefact Saved',
     artefactError: 'Saving Artefact Failed',
+    artefactsAutoModeError: 'Auto mode is not possible when more than one letter is selected',
 
-    editionSuccess: 'edition renamed',
-    editionError: 'edition rename failed',
+    editionSuccess: 'Edition renamed',
+    editionError: 'Edition rename failed',
+
+    editionDeleteSuccess: 'Edition deleted',
+    editionDeleteError: 'Edition delete failed',
 
     invitationSent: 'Invitation sent to {email}',
     permissionsUpdated: 'Permissions of {email} updated',
@@ -27,7 +31,8 @@ export default {
 
     artefactDeleted: 'Artefact deleted',
     deleteArtefactFailed: 'Delete artefact failed',
-    artefactCantOverlap: "Artefact can't overlap other artefacts"
+    artefactCantOverlap: "Artefact can't overlap other artefacts",
 
+    attributeDeletedBySomeoneElse: 'Attribute was deleted by another user'
 };
 

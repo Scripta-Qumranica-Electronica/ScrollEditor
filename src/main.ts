@@ -9,19 +9,16 @@ import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
-// vue media
-import { install as MediaBreakPointsPlugin } from '@yutahaga/vue-media-breakpoints';
-
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faLanguage, faSpinner, faSearch, faRedo, faUndo, faArrowsAlt, faSync, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faLanguage, faSpinner, faSearch, faRedo, faUndo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus, faSquare, faPen,
+         faMousePointer, faTrash, faEraser, faArrowDown, faArrowUp, faArrowLeft, faArrowRight, faSortAlphaDown, faSortAlphaUp, faInfo, faFont} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Other plugins
 import Toasted from 'vue-toasted';
 import VueShortcuts from 'vue-shortcuts';
 import RenderingOptimizationPlugin from './plugins/rendering-optimization';
-import { GRID_BREAKPOINTS } from './plugins/media-breakpoints';
 
 // i18n
 import VueI18n from 'vue-i18n';
@@ -30,6 +27,12 @@ import { StateManager } from './state';
 
 // vue2-hammer
 import { VueHammer } from 'vue2-hammer';
+import VueVirtualScroller from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+
+// tslint:disable-next-line
+const CKEditor = require('@ckeditor/ckeditor5-vue');
+
 
 // import AsyncComputed from 'vue-async-computed';
 
@@ -50,12 +53,8 @@ Vue.use(VueLazyload, {
 Vue.prototype.$state = StateManager.instance;
 Vue.use(BootstrapVue);
 
-Vue.use(MediaBreakPointsPlugin, {
-  breakPoints: GRID_BREAKPOINTS
-});
-
-
-library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt);
+library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus, faInfo, faFont,
+            faSquare, faPen, faMousePointer, faEraser, faTrash, faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faSortAlphaUp, faSortAlphaDown );
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(VueI18n);
@@ -68,7 +67,10 @@ Vue.use(Toasted);
 Vue.use(VueShortcuts, { prevent: ['input'] });
 Vue.use(RenderingOptimizationPlugin);
 
-Vue.use(VueHammer.config);
+Vue.use(VueHammer);
+Vue.use(CKEditor);
+
+Vue.use(VueVirtualScroller);
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.activeUserRoute)) {

@@ -14,17 +14,44 @@ export namespace ApiRoutes {
     const optionalArtefact = 'optional=artefacts&optional=masks';
     const confirmAddEditionEditor = 'confirm-editorship';
     const listInvitationEdition = 'admin-share-requests';
+    const reportProblem = 'report-github-issue';
 
     export function allEditionsUrl() {
         return `${baseUrl}/${editions}`;
     }
 
-    export function editionUrl(editionId: number) {
-        return `${baseUrl}/${editions}/${editionId}`;
+    export function manuscriptEditions(manuscriptId: number) {
+        return `${baseUrl}/manuscripts/${manuscriptId}/${editions}`;
+    }
+
+    export function editionUrl(
+        editionId: number,
+        archiveForAllEditors?: boolean,
+        token?: string
+    ) {
+        const params: string[] = [];
+        const withParams = archiveForAllEditors || token;
+        if (archiveForAllEditors) {
+            params.push('optional=archiveForAllEditors');
+        }
+        if (token) {
+            params.push('token=' + token);
+        }
+        return `${baseUrl}/${editions}/${editionId}${
+            withParams ? '?' + params.join('&') : ''
+        }`;
     }
 
     export function editionArtefactUrl(editionId: number, artefactId: number) {
         return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}`;
+    }
+
+    export function editionMetadataUrl(editionId: number) {
+        return `${baseUrl}/${editions}/${editionId}/metadata`;
+    }
+
+    export function editionFullTextUrl(editionId: number) {
+        return `${baseUrl}/${editions}/${editionId}/full-text`;
     }
 
     export function editionRequestEditor(editionId: number) {
@@ -43,7 +70,10 @@ export namespace ApiRoutes {
         return `${baseUrl}/${editions}/${listInvitationEdition}`;
     }
 
-    export function allEditionArtefactsUrl(editionId: number, option: boolean = false) {
+    export function allEditionArtefactsUrl(
+        editionId: number,
+        option: boolean = false
+    ) {
         if (option) {
             return `/${baseUrl}/${editions}/${editionId}/${artefacts}?${optionalArtefact}`;
         }
@@ -53,14 +83,18 @@ export namespace ApiRoutes {
     export function editionImagedObjectUrl(
         editionId: number,
         imagedObjectId: string,
-        includeArtefacts: boolean = false) {
+        includeArtefacts: boolean = false
+    ) {
         if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}?${optionalArtefact}`;
         }
         return `${baseUrl}/${editions}/${editionId}/${imagedObjects}/${imagedObjectId}`;
     }
 
-    export function allEditionImagedObjectsUrl(editionId: number, includeArtefacts: boolean = false) {
+    export function allEditionImagedObjectsUrl(
+        editionId: number,
+        includeArtefacts: boolean = false
+    ) {
         if (includeArtefacts) {
             return `${baseUrl}/${editions}/${editionId}/${imagedObjects}?${optionalArtefact}`;
         }
@@ -95,11 +129,20 @@ export namespace ApiRoutes {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}`;
     }
 
-    export function artefactTextFragmentsUrl(editionId: number, artefactId: number) {
-        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}/text-fragments`;
+    export function artefactTextFragmentsUrl(
+        editionId: number,
+        artefactId: number,
+        suggested: boolean
+    ) {
+        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}/text-fragments${
+            suggested ? '?optional=suggested' : ''
+        }`;
     }
 
-    export function editionTextFragmentUrl(editionId: number, textFragmentId: number) {
+    export function editionTextFragmentUrl(
+        editionId: number,
+        textFragmentId: number
+    ) {
         return `/${baseUrl}/${editions}/${editionId}/${textFragments}/${textFragmentId}`;
     }
 
@@ -130,5 +173,109 @@ export namespace ApiRoutes {
         }
 
         return url;
+    }
+
+    export function editionAttributeMetadataUrl(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/sign-interpretations-attributes`;
+    }
+
+    export function attributeUrl(
+        editionId: number,
+        signInterpretationId: number,
+        attributeValueId?: number
+    ) {
+        let url = `/${baseUrl}/${editions}/${editionId}/sign-interpretations/${signInterpretationId}/attributes`;
+
+        if (attributeValueId) {
+            url += `/${attributeValueId}`;
+        }
+
+        return url;
+    }
+
+    export function signInterpretationCommentaryUrl(
+        editionId: number,
+        signInterpretationId: number
+    ) {
+        const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}/commentary`;
+
+        return url;
+    }
+
+    export function signInterpretationUrl(
+        editionId: number,
+        signInterpretationId?: number
+    ) {
+        let url = `v1/editions/${editionId}/sign-interpretations`;
+        if (signInterpretationId) {
+            url += `/${signInterpretationId}`;
+        }
+
+        return url;
+    }
+
+    export function signInterpretationCharacterUrl(
+        editionId: number,
+        signInterpretationId: number
+    ) {
+        const url = `v1/editions/${editionId}/sign-interpretations/${signInterpretationId}`;
+
+        return url;
+    }
+
+    export function searchUrl() {
+        return 'v1/search';
+    }
+
+    export function lineText(editionId: number, lineId: number) {
+        const url = `${baseUrl}/${editions}/${editionId}/lines/${lineId}`;
+
+        return url;
+    }
+
+    export function qwbWordVariantUrl(qwbWordId: number) {
+        const url = `${baseUrl}/qwb-proxy/words/${qwbWordId}/word-variants`;
+
+        return url;
+    }
+
+    export function qwbParallelTextUrl(
+        qwbStartWordId: number,
+        qwbEndWordId: number
+    ) {
+        const url = `${baseUrl}/qwb-proxy/parallels/start-word/${qwbStartWordId}/end-word/${qwbEndWordId}`;
+
+        return url;
+    }
+
+    export function qwbBibliographyUrl(qwbBibliographyId: number) {
+        const url = `${baseUrl}/qwb-proxy/bibliography/${qwbBibliographyId}`;
+
+        return url;
+    }
+
+    export function editionScirbalFontUrl(editionId: number) {
+        const url = `v1/editions/${editionId}/scribalfonts`;
+
+        return url;
+    }
+
+    export function diffReplaceTranscription(
+        editionId: number,
+        artefactId: number
+    ) {
+        const url = `v1/editions/${editionId}/artefacts/${artefactId}/diff-replace-transcription`;
+
+        return url;
+    }
+
+    export function diffReplaceText(editionId: number) {
+        const url = `v1/editions/${editionId}/diff-replace-text`;
+
+        return url;
+    }
+
+    export function reportProblemUrl(): string {
+        return `/${baseUrl}/${utils}/${reportProblem}`;
     }
 }

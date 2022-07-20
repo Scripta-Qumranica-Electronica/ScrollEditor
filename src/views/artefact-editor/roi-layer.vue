@@ -1,37 +1,78 @@
 <template>
-    <g>
-        <path
-            v-for="roi in rois"
-            :key="roi.id"
-            :d="roi.shape.svg"
-            :transform="`translate(${roi.position.x} ${roi.position.y})`"
-            :class="{ shine: roi.shiny, selected: roi === selected, highlighted: highlighted(roi) }"
-            @click="onPathClicked(roi)"
-            vector-effect="non-scaling-stroke"
-        />
+    <g>    
+        <template v-for="roi in rois">
+            <g
+                :key="roi.id"
+                :transform="`translate(${roi.position.x} ${roi.position.y})`"
+            >
+                <path
+                    :d="roi.shape.svg"
+                    :class="{
+                        shine: roi.shiny && withClass,
+                        selected: isSelectedRoi(roi) && withClass,
+                        highlighted: highlighted(roi) && withClass,
+                        highlightedComment:
+                            highlightedComment(roi) && withClass,
+                    }"
+                    @click="onPathClicked(roi)"
+                    vector-effect="non-scaling-stroke"
+                ></path>
+            </g>
+        </template>
     </g>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
-import { InterpretationRoi, SignInterpretation } from '@/models/text';
+import { InterpretationRoi } from '@/models/text';
 
 @Component({
     name: 'roi-layer',
-    components: {}
+    components: {},
 })
 export default class RoiLayer extends Vue {
     @Prop() public rois!: Iterator<InterpretationRoi>;
-    @Prop() public si!: SignInterpretation;
     @Prop({
-        default: null
+        default: true,
     })
-    public selected!: InterpretationRoi | null;
+    public withClass!: boolean;
 
     public highlighted(roi: InterpretationRoi) {
         if (this.si) {
             return roi.signInterpretationId === this.si.signInterpretationId;
         }
+    }
+    public highlightedComment(roi: InterpretationRoi) {
+        if (roi.signInterpretationId) {
+            const si = this.$state.signInterpretations.get(
+                roi.signInterpretationId
+            );
+            return (
+                this.artefactEditorState.highlightCommentMode &&
+                si &&
+                (si.commentary || si.attributes.some((attr) => attr.commentary))
+            );
+        }
+    }
+
+    public isSelectedRoi(roi: InterpretationRoi) {
+        return (
+            this.selectedInterpretationRoi &&
+            this.selectedInterpretationRoi.interpretationRoiId ===
+                roi.interpretationRoiId
+        );
+    }
+
+    public get selectedInterpretationRoi(): InterpretationRoi | null {
+        return this.$state.artefactEditor.selectedInterpretationRoi;
+    }
+
+    private get si() {
+        return this.$state.textFragmentEditor.singleSelectedSi;
+    }
+
+    public get artefactEditorState() {
+        return this.$state.artefactEditor;
     }
 
     private onPathClicked(roi: InterpretationRoi) {
@@ -47,6 +88,7 @@ export default class RoiLayer extends Vue {
 
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
 path {
     stroke-width: 2;
     fill: transparent;
@@ -56,6 +98,11 @@ path.highlighted {
     stroke-width: 2;
     fill: transparent;
     stroke: $red;
+}
+
+path.highlightedComment {
+    fill: $yellow-select;
+    fill-opacity: 0.3;
 }
 
 path.shiny {
@@ -83,4 +130,5 @@ path.selected {
         stroke-opacity: 0.4;
     }
 }
+
 </style>

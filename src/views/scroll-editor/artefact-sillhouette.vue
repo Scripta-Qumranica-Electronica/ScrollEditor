@@ -2,20 +2,28 @@
     <g
         :transform="transformer.artefactTransform"
         :data="artefact.zOrder"
+        style="background-color:green"
     >
         <defs>
             <path :id="`path-${artefact.id}`" :d="artefact.mask.svg" />
             <clipPath :id="`clip-path-${artefact.id}`">
-                <use stroke="none" fill="black" fill-rule="evenodd" :href="`#path-${artefact.id}`" />
+                <use fill="black" stroke="none"  fill-rule="evenodd" :href="`#path-${artefact.id}`"
+                style="background-color:green"
+
+                 />
             </clipPath>
         </defs>
+        <!-- Tsvia: Add a CSS class if the artefact is inViewport, and change its background to pink -->
         <path
             class="sillhouette"
             :d="artefact.mask.svg"
             vector-effect="non-scaling-stroke"
+            :style="inViewport ? 'fill:pink;fill-opacity:1;': 'fill:blue;fill-opacity:0'"
         />
+          <!-- style="fill:pink;fill-opacity:1;" -->
+           <!-- :class="[ inViewport ? 'pink-bg': 'pink-bg']" -->
     </g>
-</template> 
+</template>
 
 <!--SVG transformation guide:
 
@@ -48,13 +56,19 @@ export default class ArtefactSillouhette extends Vue {
     public created() {
         this.transformer = new ArtefactTransformer(this.artefact);
     }
+
+   private get inViewport(): boolean {
+        return this.artefact.inViewport ;
+
+   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 path {
     stroke: black;
     stroke-width: 1px;
     fill: darkgray;
 }
+
 </style>

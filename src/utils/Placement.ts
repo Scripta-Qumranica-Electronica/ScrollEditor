@@ -23,12 +23,14 @@ export class Placement implements PlacementDTO {
     public rotate: number;
     public translate: TranslateDTO;
     public zIndex: number;
+    public mirrored: boolean;
 
     public constructor(dto: PlacementDTO) {
         this.scale = dto.scale;
         this.rotate = dto.rotate;
-        this.translate = dto.translate;
+        this.translate = dto.translate || { x: 0, y: 0 };
         this.zIndex = dto.zIndex;
+        this.mirrored = dto.mirrored;
     }
 
     public clone(): Placement {
@@ -36,7 +38,8 @@ export class Placement implements PlacementDTO {
             scale: this.scale,
             rotate: this.rotate,
             translate: { ...this.translate },
-            zIndex: this.zIndex
+            zIndex: this.zIndex,
+            mirrored: this.mirrored
         });
     }
 }
