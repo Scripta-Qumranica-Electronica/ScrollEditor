@@ -26,6 +26,7 @@ export default {
     select: 'Select',
     edit: 'Edit',
     view: 'View',
+    side: 'Side',
     collapsedsidebar: 'Menu TextFragment',
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',

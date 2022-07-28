@@ -52,7 +52,7 @@ export default class ImagedObjects extends Vue {
     public searchBarParams: SearchBarParams = {
         filter: true,
         sort: false,
-        view: false,
+        side: false,
     };
     public get imagedObjects(): ImagedObject[] {
         return this.$state.imagedObjects!.items!;

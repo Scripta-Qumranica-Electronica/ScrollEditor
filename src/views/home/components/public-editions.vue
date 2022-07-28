@@ -47,6 +47,7 @@ export default class PublicEditions extends Vue {
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
+        side: false,
     };
 
     public get searchValue() {

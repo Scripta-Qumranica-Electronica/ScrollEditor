@@ -59,7 +59,7 @@ export default class PersonalEditions extends Vue {
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
-        view: false,
+        side: false,
     };
 
     public get searchValue() {

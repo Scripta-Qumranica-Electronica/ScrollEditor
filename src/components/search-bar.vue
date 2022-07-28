@@ -10,14 +10,14 @@
                 @input="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
-        <b-form-group v-if="params.view">
-            <label for="view" class="search-bar ml-2 mb-2">{{
-                $t('home.view')
+        <b-form-group v-if="params.side">
+            <label for="side" class="search-bar ml-2 mb-2">{{
+                $t('home.side')
             }}</label>
             <b-form-select
-                name="view"
+                name="side"
                 class="ml-2 size"
-                v-model="internalValue.view"
+                v-model="internalValue.side"
                 @change="onViewChange($event)"
             >
                 <b-form-select-option value="recto and verso"
@@ -56,7 +56,7 @@ import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
 // At some point we need to make those a little nicer
 export interface SearchBarParams {
     filter?: boolean;
-    view?: boolean;
+    side?: boolean;
     sort?: boolean;
 }
 

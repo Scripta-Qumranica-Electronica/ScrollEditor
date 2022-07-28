@@ -43,12 +43,12 @@ import { SearchBarValue } from '@/state/utilities';
 })
 export default class EditionArtefacts extends Vue {
     public filteredArtefacts: Artefact[] = [];
-    public searchValue: SearchBarValue = {};
+    public searchValue: SearchBarValue = { side: 'recto and verso'};
     public editionId: number = 0;
     public searchBarParams: SearchBarParams = {
         filter: true,
         sort: false,
-        view: true,
+        side: true,
     };
 
     private get sortedFragments(): Artefact[] {
@@ -71,17 +71,17 @@ export default class EditionArtefacts extends Vue {
                 }
 
                 if (
-                    this.searchValue.view &&
-                    this.searchValue.view !== 'recto and verso'
+                    this.searchValue.side &&
+                    this.searchValue.side !== 'recto and verso'
                 ) {
-                    filter = filter && art.side === this.searchValue.view;
+                    filter = filter && art.side === this.searchValue.side;
                 }
                 if (
                     this.searchValue.filter
                     ) {
                     filter =
                         filter &&
-                        art.name
+                        `${art.name} - ${art.side}`
                             .toLowerCase()
                             .includes(this.searchValue.filter.toLowerCase());
                 }
