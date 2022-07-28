@@ -26,6 +26,7 @@ export default class SignInterpretationService {
         };
 
         const siDto = await CommHelper.put<SignInterpretationDTO>(url, dto);
+        this.stateManager.touchEdition(edition.id);
         return siDto;
     }
 
@@ -33,6 +34,7 @@ export default class SignInterpretationService {
         const url = ApiRoutes.attributeUrl(edition.id, signInterpretation.id, attributeValueId);
 
         await CommHelper.delete(url);
+        this.stateManager.touchEdition(edition.id);
     }
 
     public async createAttribute(edition: EditionInfo, signInterpretation: SignInterpretation, attribute: InterpretationAttributeDTO) {
@@ -44,6 +46,7 @@ export default class SignInterpretationService {
         };
 
         const response = await CommHelper.post<SignInterpretationDTO>(url, dto);
+        this.stateManager.touchEdition(edition.id);
         return response.data;
     }
 
@@ -52,6 +55,7 @@ export default class SignInterpretationService {
         const dto: CommentaryCreateDTO = { commentary: signInterpretation.commentary || undefined };
 
         const response = await CommHelper.put<SignInterpretationDTO>(url, dto);
+        this.stateManager.touchEdition(edition.id);
         return response.data;
     }
 
@@ -62,6 +66,7 @@ export default class SignInterpretationService {
         }
 
         await CommHelper.delete(url);
+        this.stateManager.touchEdition(edition.id);
 
         signInterpretation.signInterpretationId = SignInterpretation.nextAvailableId;  // Give the sign interpretation a negative ID, so it can still remain in the undo/redo system
     }
@@ -116,6 +121,7 @@ export default class SignInterpretationService {
         // Update the sign intepretation from the old ID to the new one, and update the sign interpretation map as well
         this.stateManager.signInterpretations.mapFrontendIdToServerId(signInterpretation.id, newId);
         signInterpretation.signInterpretationId = newId;
+        this.stateManager.touchEdition(edition.id);
     }
 
     public async updateSignInterpretation(edition: EditionInfo, signInterpretation: SignInterpretation) {
@@ -127,5 +133,6 @@ export default class SignInterpretationService {
         };
 
         await CommHelper.put<SignInterpretationCreatedDTO>(url, dto);
+        this.stateManager.touchEdition(edition.id);
     }
 }

@@ -157,6 +157,8 @@ class EditionService {
         );
 
         edition.name = response.data.name;
+        edition.updateLastEdit(response.data.lastEdit);
+
         return edition;
     }
 
@@ -308,6 +310,7 @@ class EditionService {
             dto
         );
 
+        this.stateManager.touchEdition(editionId);
         return response.data;
     }
 
@@ -324,6 +327,7 @@ class EditionService {
             ApiRoutes.artefactGroupUrl(editionId),
             dto
         );
+        this.stateManager.touchEdition(editionId);
 
         return response.data;
     }
@@ -342,6 +346,7 @@ class EditionService {
             dto
         );
 
+        this.stateManager.touchEdition(editionId);
         return response.data;
     }
 
@@ -380,6 +385,7 @@ class EditionService {
         );
 
         edition.metrics = response.data.metrics;
+        edition.updateLastEdit(response.data.lastEdit);
         return edition;
     }
 

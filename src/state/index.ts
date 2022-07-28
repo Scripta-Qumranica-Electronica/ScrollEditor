@@ -64,6 +64,15 @@ export class StateManager {
         throw new Error('State is corrupt: ' + msg);
     }
 
+    public touchEdition(editionId: number) {
+        // Update the lastEdit of an edition
+
+        const edition = this.editions.find(editionId);
+        if (edition) {
+            edition.lastEdit = new Date();
+        }
+    }
+
     public static get instance() {
         if (!StateManager._instance) {
             StateManager._instance = new StateManager();

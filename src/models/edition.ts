@@ -187,9 +187,7 @@ class EditionInfo {
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
         this.artefactGroups = [];
-        if (dto.lastEdit) {
-            this.lastEdit = new Date(Date.parse(dto.lastEdit));
-        }
+        this.updateLastEdit(dto.lastEdit);
     }
 
     public copyFrom(other: EditionInfo) {
@@ -203,6 +201,15 @@ class EditionInfo {
         this.locked = other.locked;
         this.isPublic = other.isPublic;
         this.lastEdit = other.lastEdit;
+    }
+
+    public updateLastEdit(lastEdit: string | undefined) {
+        if (lastEdit) {
+            this.lastEdit = new Date(Date.parse(lastEdit));
+        }
+        else {
+            this.lastEdit = undefined;
+        }
     }
 }
 class ArtefactGroup {
