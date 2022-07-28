@@ -413,7 +413,6 @@ export default class IIIFImageComponent extends Vue {
         scale = Math.floor(scale);
         scale = Math.min(5, scale);  // No more than 5% of the original image - anyway
 
-        console.debug('Low res scale of ', scale);
         return scale;
     }
 

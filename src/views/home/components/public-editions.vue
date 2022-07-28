@@ -12,6 +12,7 @@
                         class="direction"
                         :params="searchBarParams"
                         :value="searchValue"
+                        @search="onEditionsSearch"
                     ></search-bar>
                 </b-col>
             </b-row>
@@ -25,11 +26,12 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
-import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
+import { SearchBarParams } from '@/components/search-bar.vue';
 import CopyEditionModal from './copy-edition-modal.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchBar from '@/components/search-bar.vue';
 import EditionsPublicList from './edition-public-list.vue';
+import { SearchBarValue } from '@/state/utilities';
 
 @Component({
     name: 'public-editions',
@@ -42,21 +44,26 @@ import EditionsPublicList from './edition-public-list.vue';
 })
 export default class PublicEditions extends Vue {
     private filteredEditions: EditionInfo[] = [];
-    private defaultSearchValue: SearchBarValue = { sort: 'lastEdit' };
-    @Prop() private searchValue!: SearchBarValue;
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
     };
 
-    public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = {...event};
-        // this.onPublicEditionsLoad();
+    public get searchValue() {
+        return this.$state.misc.editionSearchBarValue;
     }
 
-    @Watch('searchValue', {deep: true})
-    private onSearchValueChanged() {
+    public set searchValue(newVal: SearchBarValue) {
+        this.$state.misc.editionSearchBarValue = newVal;
+    }
+
+    @Watch('$state.misc.editionSearchBarValue', {deep: true})
+    public onSearchValueChanged() {
         this.onPublicEditionsLoad();
+    }
+
+    public onEditionsSearch(newSearch: SearchBarValue) {
+        this.searchValue = newSearch;
     }
 
     @Emit()
@@ -73,6 +80,7 @@ export default class PublicEditions extends Vue {
     private getFilteredEditions(): EditionInfo[] {
         // This function is not really efficient, but it does work quickly enough for the editions we have.
         // No need in optimizing it.
+
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
                 let filter: boolean = ed.isPublic === true;

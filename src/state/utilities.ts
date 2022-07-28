@@ -349,6 +349,13 @@ export class SignInterpretationMap extends StateMap<SignInterpretation> {
     }
 }
 
+export interface SearchBarValue {
+    filter?: string;
+    view?: string;
+    sort?: string;
+}
+
 export class MiscState {
     public newEditionId!: number ;
+    public editionSearchBarValue: SearchBarValue = {  sort: 'lastEdit' };
 }

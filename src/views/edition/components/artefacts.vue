@@ -30,7 +30,8 @@ import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactCard from './artefact-card.vue';
 import { Artefact } from '@/models/artefact';
 import SearchBar from '@/components/search-bar.vue';
-import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
+import { SearchBarParams } from '@/components/search-bar.vue';
+import { SearchBarValue } from '@/state/utilities';
 
 @Component({
     name: 'edition-artefacts',

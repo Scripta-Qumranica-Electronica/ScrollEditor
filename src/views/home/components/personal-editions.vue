@@ -13,6 +13,7 @@
                         class="direction"
                         :params="searchBarParams"
                         :value="searchValue"
+                        @search="onEditionsSearch"
                     ></search-bar>
                 </b-col>
             </b-row>
@@ -38,11 +39,12 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
 import { EditionInfo } from '@/models/edition';
-import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
+import { SearchBarParams } from '@/components/search-bar.vue';
 
 import Waiting from '@/components/misc/Waiting.vue';
 import SearchBar from '@/components/search-bar.vue';
 import EditionList from './edition-list.vue';
+import { SearchBarValue } from '@/state/utilities';
 
 @Component({
     name: 'personal-editions',
@@ -54,20 +56,27 @@ import EditionList from './edition-list.vue';
 })
 export default class PersonalEditions extends Vue {
     private filteredEditions: EditionInfo[] = [];
-    @Prop() private searchValue!: SearchBarValue;
     private searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
         view: false,
     };
 
-    public onEditionsSearch(event: SearchBarValue) {
-        this.searchValue = {...event};
-        // this.onPersonalEditionsLoad();
+    public get searchValue() {
+        return this.$state.misc.editionSearchBarValue;
     }
 
-    @Watch('searchValue', {deep: true})
-    private onSearchValueChanged() {
+    public set searchValue(newVal: SearchBarValue) {
+        this.$state.misc.editionSearchBarValue = newVal;
+    }
+
+    public onEditionsSearch(newSearch: SearchBarValue) {
+        this.searchValue = newSearch;
+        this.onPersonalEditionsLoad();
+    }
+
+    @Watch('$state.misc.editionSearchBarValue', {deep: true})
+    public onSearchValueChanged() {
         this.onPersonalEditionsLoad();
     }
 
@@ -78,7 +87,6 @@ export default class PersonalEditions extends Vue {
     }
 
     protected async mounted() {
-        console.debug('personal-editions mounted');
         await this.$state.prepare.allEditions();
         this.onPersonalEditionsLoad();
     }
