@@ -223,7 +223,7 @@ import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
 import Registration from '@/views/user/Registration.vue';
 import ToolbarIconButton from '../toolbars/toolbar-icon-button.vue';
 import EditionToolbox from '../toolbars/edition-toolbox.vue';
-import ReportProblemModal from './ReportProblemModal.vue';
+import ReportProblemModal from './report-problem-modal.vue';
 
 @Component({
     name: 'navbar',
@@ -247,7 +247,7 @@ export default class Navbar extends Vue {
     private currentLanguage = 'en';
     private allTexts = localizedTexts;
 
-    protected get edition() {
+    public get edition() {
         return this.$state.editions.current;
     }
 
@@ -271,49 +271,49 @@ export default class Navbar extends Vue {
         this.operationsManager!.redo();
     }
 
-    private goHome() {
+    public goHome() {
         this.$router.push({ path: '/' });
     }
 
-    private goGuide() {
+    public goGuide() {
         window.open(
             'https://sway.office.com/oiGhObqnG1IODSgZ?ref=Link',
             '_blank'
         );
     }
 
-    private goPrivate() {
+    public goPrivate() {
         this.$router.push({ path: '/home/private' });
     }
-    private goPublic() {
+    public goPublic() {
         this.$router.push({ path: '/home/public' });
     }
 
-    private goAbout() {
+    public goAbout() {
         window.open(' https://www.qumranica.org/', '_blank');
     }
 
-    private showFAQModal() {
+    public showFAQModal() {
         this.$root.$emit('bv::show::modal', 'FaqModal');
     }
 
-    private reportProblemModal() {
+    public reportProblemModal() {
         this.$root.$emit('bv::show::modal', 'ReportProblemModal');
     }
 
-    private showEulaModal() {
+    public showEulaModal() {
         this.$root.$emit('bv::show::modal', 'EulaModal');
     }
 
-    private showCitation() {
+    public showCitation() {
         this.$root.$emit('bv::show::modal', 'CitationModal');
     }
 
-    private contactUs() {
+    public contactUs() {
         location.href = 'mailto:sqe@deadseascrolls.org.il';
     }
 
-    protected get editionBadgeClass() {
+    public get editionBadgeClass() {
         if (!this.edition) {
             return '';
         }
@@ -322,7 +322,7 @@ export default class Navbar extends Vue {
             : 'status-badge-draft';
     }
 
-    protected get editionBadge() {
+    public get editionBadge() {
         if (!this.edition) {
             return '';
         }
@@ -330,7 +330,7 @@ export default class Navbar extends Vue {
         return this.edition.isPublic ? 'Published' : 'Draft';
     }
 
-    private get artefactLink() {
+    public get artefactLink() {
         if (this.$state.artefacts.current) {
             return `/editions/${this.edition!.id}/artefacts/${
                 this.$state.artefacts.current.id
@@ -339,11 +339,11 @@ export default class Navbar extends Vue {
         return `/editions/${this.edition!.id}/artefacts/`;
     }
 
-    private get artefactLabel() {
+    public get artefactLabel() {
         return this.$state.artefacts.current ? 'Artefact' : 'Artefacts';
     }
 
-    private get imagedObjectLink() {
+    public get imagedObjectLink() {
         if (this.$state.imagedObjects.current) {
             return `/editions/${
                 this.edition!.id
@@ -354,17 +354,17 @@ export default class Navbar extends Vue {
         return `/editions/${this.edition!.id}/imaged-objects/`;
     }
 
-    private get imagedObjectLabel() {
+    public get imagedObjectLabel() {
         return this.$state.imagedObjects.current
             ? 'Imaged Object'
             : 'Imaged Objects';
     }
 
-    protected userNameExists(): boolean {
+    public get userNameExists(): boolean {
         return undefined !== this.userName;
     }
 
-    private get userName(): string | undefined {
+    public get userName(): string | undefined {
         if (this.$state.session.user) {
             return (
                 this.$state.session.user.forename +
@@ -375,7 +375,7 @@ export default class Navbar extends Vue {
         return undefined;
     }
 
-    private get isActive(): boolean {
+    public get isActive(): boolean {
         return this.$state.session.user
             ? this.$state.session.user.activated
             : false;
@@ -398,21 +398,21 @@ export default class Navbar extends Vue {
         this.currentLanguage = this.$state.session.language;
     }
 
-    private logout() {
+    public logout() {
         this.sessionService.logout();
         router.push('/');
         location.reload();
     }
 
-    private login() {
+    public login() {
         this.$root.$emit('bv::show::modal', 'loginModal');
     }
 
-    private changePassword() {
+    public changePassword() {
         router.push('/changePassword');
     }
 
-    private updateUserDetails() {
+    public updateUserDetails() {
         router.push('/updateUserDetails');
     }
 }
