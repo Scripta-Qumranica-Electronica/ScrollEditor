@@ -41,15 +41,11 @@ import Waiting from '@/components/misc/Waiting.vue';
 export default class EditionMetadataModal extends Vue {
     public editionId: number = 0;
 
-    protected get edition() {
+    public get edition() {
         return this.$state.editions.current!;
     }
 
-    protected get metadata() {
-        return this.edition.metadata;
-    }
-
-    protected keys = [
+    public keys = [
         'manuscript',
         'composition',
         'copy',
@@ -64,7 +60,7 @@ export default class EditionMetadataModal extends Vue {
         'otherIdentifications',
         'publication',
     ];
-    protected headers = {
+    private _headers = {
         manuscript: 'Manuscript',
         composition: 'Composition',
         copy: 'Copy',
@@ -80,10 +76,27 @@ export default class EditionMetadataModal extends Vue {
         publication: 'Publication',
     };
 
+    // Return the following as 'any' so that eslint doesn't complain about headers[key] above
+    public get headers(): any {
+        return this._headers;
+    }
+    public get metadata(): any {
+        return this.edition.metadata;
+    }
+
     protected async mounted() {
         this.editionId = parseInt(this.$route.params.editionId, 10);
-        if(isNaN(this.editionId)) return;
+        if (isNaN(this.editionId)) {
+            return;
+        }
         await this.$state.prepare.edition(this.editionId);
+    }
+
+    public cleanString(): any {
+        // This is a placeholder to remove the error when calling the cleanString filter.
+        // Without this, Typescript complains that cleanString is not defined, even though Vue
+        // knows it should call the function defined as the filter.
+        // return 'WRONG FILTER'; // If you see this in the metadata, you know the function is called when it shouldn't.
     }
 }
 </script>

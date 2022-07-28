@@ -76,7 +76,7 @@ export default class SearchBar extends Vue {
 
     @Prop()
     public value!: SearchBarValue;
-    
+
     public internalValue: SearchBarValue = {};
 
     public mounted() {

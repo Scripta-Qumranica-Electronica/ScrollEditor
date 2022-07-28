@@ -56,7 +56,7 @@ import { SearchBarValue } from '@/state/utilities';
 })
 export default class PersonalEditions extends Vue {
     private filteredEditions: EditionInfo[] = [];
-    private searchBarParams: SearchBarParams = {
+    public searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
         side: false,
@@ -139,11 +139,11 @@ export default class PersonalEditions extends Vue {
             });
     }
 
-    private get draftEditions(): EditionInfo[] {
+    public get draftEditions(): EditionInfo[] {
         return this.filteredEditions.filter((ed) => !ed.isPublic);
     }
 
-    private get publishedEditions(): EditionInfo[] {
+    public get publishedEditions(): EditionInfo[] {
         return this.filteredEditions.filter((ed) => ed.isPublic);
     }
 }

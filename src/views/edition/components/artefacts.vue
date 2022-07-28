@@ -51,7 +51,7 @@ export default class EditionArtefacts extends Vue {
         side: true,
     };
 
-    private get sortedFragments(): Artefact[] {
+    public get sortedFragments(): Artefact[] {
         return this.filteredArtefacts.sort( (a: Artefact, b: Artefact) => {
                         return (a as any).name.localeCompare( (b as any).name,  undefined,
                         {

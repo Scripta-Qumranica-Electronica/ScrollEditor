@@ -206,8 +206,7 @@ class EditionInfo {
     public updateLastEdit(lastEdit: string | undefined) {
         if (lastEdit) {
             this.lastEdit = new Date(Date.parse(lastEdit));
-        }
-        else {
+        } else {
             this.lastEdit = undefined;
         }
     }

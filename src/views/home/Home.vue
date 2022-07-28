@@ -62,8 +62,8 @@ export default class Home extends Vue {
     // =====================
 
     private filter: string = '';
-    private editionsLoaded = false;
-    private activeTab: number = 0;
+    public editionsLoaded = false;
+    public activeTab: number = 0;
 
     // hooks as constructor
     // ========================
@@ -98,15 +98,15 @@ export default class Home extends Vue {
         return name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1;
     }
 
-    protected get personalEditionsCount() {
+    public get personalEditionsCount() {
         return this.$state.editions.items.filter((ed) => !ed.isPublic).length;
     }
 
-    protected get publicEditionsCount() {
+    public get publicEditionsCount() {
         return this.$state.editions.items.filter((ed) => ed.isPublic).length;
     }
 
-    protected onActivateTab(newTab: number, prevTab: number) {
+    public onActivateTab(newTab: number, prevTab: number) {
         if (prevTab === -1) {
             return;
         }
