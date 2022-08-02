@@ -4,6 +4,7 @@ export default {
     show: 'Show',
     search: 'Search',
     view: 'View',
+    side: 'Side',
     sort: 'Sort by',
     publicEditionGroupCount: 'No public editions | One public edition |  Public Editions ({count})',
     personalEditionGroupCount: 'No personal editions | One personal edition |  Personal Editions ({count})',

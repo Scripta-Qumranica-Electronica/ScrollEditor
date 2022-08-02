@@ -17,7 +17,6 @@
                     <div
                         id="artefact-container"
                         ref="artefactContainer"
-                        @keyup="checkCtrlRelease($event)"
                         @scroll="onScroll"
                     >
                         <scroll-ruler
@@ -137,19 +136,18 @@ import TextToolbar from './text-toolbar.vue';
 })
 export default class ScrollEditor
     extends Vue
-    implements SavingAgent<ScrollEditorOperation>
-{
+    implements SavingAgent<ScrollEditorOperation> {
     private operationsManager = new OperationsManager<
         ScrollEditorOperation | ArtefactEditorOperation
     >(this);
-    protected waiting: boolean = true;
+    public waiting: boolean = true;
     private editionId: number = 0;
     private observer?: ResizeObserver;
     private editionService = new EditionService();
 
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
-    protected secondaryToolbarHeight: number = 100;
+    public secondaryToolbarHeight: number = 100;
     //
 
     private get scrollEditorState(): ScrollEditorState {
@@ -164,10 +162,10 @@ export default class ScrollEditor
     public get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
-    private get params(): ScrollEditorParams {
+    public get params(): ScrollEditorParams {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
-    private get edition() {
+    public get edition() {
         return this.$state.editions.current! || {};
     }
     public get editionWidth(): number {
@@ -177,7 +175,7 @@ export default class ScrollEditor
         return this.edition.metrics.height;
     }
 
-    private get isTextMode(): boolean {
+    public get isTextMode(): boolean {
         return this.scrollEditorState.mode === 'text';
     }
 
@@ -191,10 +189,10 @@ export default class ScrollEditor
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
     }
-    private get actualWidth(): number {
+    public get actualWidth(): number {
         return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
     }
-    private get actualHeight(): number {
+    public get actualHeight(): number {
         return this.edition.metrics.height * this.edition.ppm * this.zoomLevel;
     }
 
@@ -407,7 +405,7 @@ export default class ScrollEditor
         this.calculateViewport();
     }
 
-    private onNewOperation(op: ArtefactEditorOperation) {
+    public onNewOperation(op: ArtefactEditorOperation) {
         this.operationsManager.addOperation(op);
     }
 
@@ -489,12 +487,12 @@ export default class ScrollEditor
         this.$emit('paramsChanged', args);
     }
 
-    private onZoomChangedGlobal(val: number) {
+    public onZoomChangedGlobal(val: number) {
         this.params.zoom = val; //
         this.calculateViewport();
     }
 
-    private selectArtefact(artefact: Artefact | undefined) {
+    public selectArtefact(artefact: Artefact | undefined) {
         if (!artefact) {
             this.selectGroup(undefined);
         }
@@ -538,7 +536,7 @@ export default class ScrollEditor
         this.calculateSecondaryToolbarHeight();
     }
 
-    private onScroll() {
+    public onScroll() {
         this.calculateViewport();
     }
 
@@ -602,7 +600,7 @@ export default class ScrollEditor
         return op;
     }
 
-    private navigateToPoint(pt: Point) {
+    public navigateToPoint(pt: Point) {
         const div = this.$refs.artefactContainer as Element;
         const viewport = this.$state.scrollEditor.viewport;
         const zoom = this.params?.zoom || 1;
@@ -728,7 +726,7 @@ export default class ScrollEditor
         this.scrollEditorState.selectGroup(group);
     }
 
-    private saveGroupArtefacts() {
+    public saveGroupArtefacts() {
         if (this.selectedGroup === null) {
             console.warn('Cannot save null group');
             return;
@@ -761,7 +759,7 @@ export default class ScrollEditor
         }
     }
 
-    private deleteGroup(groupId: number) {
+    public deleteGroup(groupId: number) {
         const groupArtefact = this.edition.artefactGroups.find(
             (x) => x.groupId === groupId
         );
@@ -770,7 +768,7 @@ export default class ScrollEditor
         }
     }
 
-    private cancelGroup() {
+    public cancelGroup() {
         this.selectGroup(undefined);
         this.params.mode = '';
     }
@@ -779,11 +777,11 @@ export default class ScrollEditor
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
 
-    private newOperation(operation: ScrollEditorOperation) {
+    public newOperation(operation: ScrollEditorOperation) {
         this.operationsManager.addOperation(operation);
     }
 
-    private async onTextChanged(params: {
+    public async onTextChanged(params: {
         text: string;
         editor: VirtualArtefactEditor;
     }) {
@@ -812,8 +810,7 @@ export default class ScrollEditor
         params.editor.updateText();
     }
 
-    protected onKeyDown(event: KeyboardEvent) {
-       
+    public onKeyDown(event: KeyboardEvent) {
         if (this.scrollEditorState.selectedArtefacts.length) {
             (this.$refs.topToolbar as ScrollTopToolbar).onKeyDown(event);
         } else {

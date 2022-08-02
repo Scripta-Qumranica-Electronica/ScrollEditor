@@ -79,6 +79,7 @@ class TextService {
         this.updateStateCreatedROIs(artefact, newROIs, response.createRois);
         this.updateStateDeletedROIs(artefact, deletedROIs);
         artefact.deleteRois = [];
+        this.stateManager.touchEdition(artefact.editionId);
 
         return deletedROIs.length + newROIs.length;
     }
@@ -97,6 +98,7 @@ class TextService {
 
         const url = ApiRoutes.diffReplaceText(editionId);
         const response = await CommHelper.put<DiffReplaceResponseDTO>(url, dto);
+        this.stateManager.touchEdition(editionId);
         return response.data;
     }
 
@@ -121,7 +123,7 @@ class TextService {
 
         const url = ApiRoutes.batchEditRoisUrl(artefact.editionId);
         const response = await CommHelper.post<BatchEditRoiResponseDTO>(url, body);
-
+        this.stateManager.touchEdition(artefact.editionId);
         return response.data;
     }
 
@@ -167,12 +169,14 @@ class TextService {
                 this.stateManager.interpretationRois.mapFrontendIdToServerId(preSave.id, roi.id);
             }
         }
+        this.stateManager.touchEdition(artefact.editionId);
     }
 
     private updateStateDeletedROIs(artefact: Artefact, rois: InterpretationRoi[]) {
         for (const roi of rois) {
             this.stateManager.interpretationRois.delete(roi.id);
         }
+        this.stateManager.touchEdition(artefact.editionId);
     }
 }
 

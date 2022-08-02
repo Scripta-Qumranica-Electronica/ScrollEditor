@@ -98,7 +98,7 @@ class TileInfo {
         this._inView = false;
     }
 
-    protected onLoadError() {
+    public onLoadError() {
         this.loadError = true;
         this.retries += 1;
         if (this.retries >= TileInfo.RETRY_LIMIT) {
@@ -114,14 +114,14 @@ class TileInfo {
     name: 'iiif-image',
 })
 export default class IIIFImageComponent extends Vue {
-    @Prop() private image!: Image;
-    @Prop() private boundingBox?: BoundingBoxInterface; // In SQE coordinates
-    @Prop({ default: 0.5 }) private scaleFactor!: number;
-    @Prop() private maxWidth?: number; // In Screen Coordinates
-    @Prop({ default: 1 }) private opacity!: number;
-    @Prop({ default: true}) private dynamic!: boolean;
+    @Prop() public image!: Image;
+    @Prop() public boundingBox?: BoundingBoxInterface; // In SQE coordinates
+    @Prop({ default: 0.5 }) public scaleFactor!: number;
+    @Prop() public maxWidth?: number; // In Screen Coordinates
+    @Prop({ default: 1 }) public opacity!: number;
+    @Prop({ default: true}) public dynamic!: boolean;
 
-    private tiles: TileInfo[] = [];
+    public tiles: TileInfo[] = [];
     private observer?: ResizeObserver;
     private refreshTimeoutId: number | null = null;
     private backgroundLoadError = false;
@@ -413,11 +413,10 @@ export default class IIIFImageComponent extends Vue {
         scale = Math.floor(scale);
         scale = Math.min(5, scale);  // No more than 5% of the original image - anyway
 
-        console.debug('Low res scale of ', scale);
         return scale;
     }
 
-    protected get backgroundImageUrl(): string | null {
+    public get backgroundImageUrl(): string | null {
         if (this.backgroundLoadError) {
             return null;
         }
@@ -430,18 +429,18 @@ export default class IIIFImageComponent extends Vue {
         );
     }
 
-    protected get backgroundImageTransform(): string {
+    public get backgroundImageTransform(): string {
         return `scale(${100 / this.backgroundImageScale })`; // Scale the image back to 100%
     }
 
-    protected onBackgroundLoadError() {
+    public onBackgroundLoadError() {
         this.backgroundLoadError = true;
         setTimeout(() => {
             this.backgroundLoadError = false;
         }, 100); // Try again in 100ms. Never stop trying.
     }
 
-    private get groupTransform(): string {
+    public get groupTransform(): string {
         // Scale the images back to sqe coordinates.
         // The images are in imageCoordinates * optimizedImageScaleFactor,
         const optimizedImageToSqe =

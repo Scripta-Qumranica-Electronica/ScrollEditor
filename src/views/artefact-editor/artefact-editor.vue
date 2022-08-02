@@ -146,11 +146,6 @@
                     :artefact="artefact"
                     :text-fragment="textFragment"
                     :font-size="params.fontSize"
-                    @sign-interpretation-clicked="
-                        onSignInterpretationClicked($event)
-                    "
-                    @text-fragment-selected="initVisibleRois()"
-                    @text-fragments-loaded="initVisibleRois()"
                 ></text-side>
                 <sign-attribute-pane id="attribute-pane" />
             </div>
@@ -239,24 +234,23 @@ import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
 })
 export default class ArtefactEditor
     extends Vue
-    implements SavingAgent<ArtefactEditorOperation>
-{
+    implements SavingAgent<ArtefactEditorOperation> {
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
-    private actionMode: ActionMode = 'box';
+    public actionMode: ActionMode = 'box';
     // Two modes of operation. In artefact mode, the artefact is  chosen, and text fragments can be added to it.
     // In text-fragment mode, the text fragment is constant, and artefacts can be changed.
-    private editorMode: ArtefactEditorMode = 'artefact';
-    private get artefactMode() {
+    public editorMode: ArtefactEditorMode = 'artefact';
+    public get artefactMode() {
         return this.editorMode === 'artefact';
     }
-    private get textFragmentMode() {
+    public get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
 
     private autoMode = false;
 
     private errorMessage = '';
-    private waiting = true;
+    public waiting = true;
     private saving = false;
     private imageStack: ImageStack | undefined = undefined;
     private boundingBox = new BoundingBox();
@@ -273,16 +267,16 @@ export default class ArtefactEditor
     private editionId: number = 0;
     private artefactId: number = 0; // Only relevent in artefact mode
     private textFragmentId: number = 0; // Only relevent in text-fragment mode
-    private textFragment: TextFragment | null = null; // The single Text Fragment in text-fragment mode
+    public textFragment: TextFragment | null = null; // The single Text Fragment in text-fragment mode
 
-    protected get artefact() {
+    public get artefact() {
         return this.$state.artefacts.current!;
     }
-    private get params(): ArtefactEditorParams {
+    public get params(): ArtefactEditorParams {
         return this.$state.artefactEditor.params || new ArtefactEditorParams();
     }
 
-    protected get visibleRois() {
+    public get visibleRois() {
         return this.artefact.rois;
     }
 
@@ -335,7 +329,7 @@ export default class ArtefactEditor
 
         return true;
     }
-    private openCopyToEdtion() {
+    public openCopyToEdtion() {
         this.$root.$bvModal.show('copy-to-edition-modal');
     }
 
@@ -481,7 +475,7 @@ export default class ArtefactEditor
         this.$state.textFragmentEditor.textEditingMode = 'artefact';
     }
 
-    private get edition(): EditionInfo {
+    public get edition(): EditionInfo {
         return this.$state.editions.current!;
     }
 
@@ -492,38 +486,38 @@ export default class ArtefactEditor
     private get masterImage(): IIIFImage {
         return this.imageStack!.master;
     }
-    private get zoomLevel(): number {
+    public get zoomLevel(): number {
         return this.params.zoom;
     }
-    private get readOnly(): boolean {
+    public get readOnly(): boolean {
         return this.edition.permission.readOnly;
     }
     // On computer screen - Active means closed, for example sidebar active means the sidebar is closed.
     // On tablet screen - Active means opened.
 
-    private get imageWidth(): number {
+    public get imageWidth(): number {
         if (this.artefact?.isVirtual) {
             return this.boundingBox.width * 1.5;
         }
         return this.masterImage.width;
     }
 
-    private get imageHeight(): number {
+    public get imageHeight(): number {
         if (this.artefact?.isVirtual) {
             return this.boundingBox.height * 1.5;
         }
         return this.masterImage.height;
     }
 
-    private get actualWidth(): number {
+    public get actualWidth(): number {
         return this.boundingBox.width * this.zoomLevel;
     }
 
-    private get actualHeight(): number {
+    public get actualHeight(): number {
         return this.boundingBox.height * this.zoomLevel;
     }
 
-    private get actualBoundingBox(): string {
+    public get actualBoundingBox(): string {
         return (
             `${this.boundingBox.x * this.zoomLevel} ${
                 this.boundingBox.y * this.zoomLevel
@@ -531,22 +525,22 @@ export default class ArtefactEditor
         );
     }
 
-    private get isDrawingEnabled() {
+    public get isDrawingEnabled() {
         return (
             !!this.textFragmentEditorState.singleSelectedSi &&
             !this.textFragmentEditorState.singleSelectedSi.isReconstructed
         );
     }
 
-    private get isDeleteEnabled() {
+    public get isDeleteEnabled() {
         return !!this.selectedInterpretationRoi;
     }
 
-    private get rotationAngle(): number {
+    public get rotationAngle(): number {
         return this.params.rotationAngle;
     }
 
-    private async selectArtefact(artefactId: number) {
+    public async selectArtefact(artefactId: number) {
         await this.prepareArtefact(artefactId);
     }
 
@@ -623,7 +617,7 @@ export default class ArtefactEditor
         );
     }
 
-    private onDeleteRoi() {
+    public onDeleteRoi() {
         const roi = this.selectedInterpretationRoi;
         const si = this.selectedSignInterpretations;
         if (!roi || !si) {
@@ -638,21 +632,21 @@ export default class ArtefactEditor
         this.onNewOperation(op);
     }
 
-    private onNewZoom(event: ZoomEventArgs) {
+    public onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
     }
-    private onNewRotate(event: RotateEventArgs) {
+    public onNewRotate(event: RotateEventArgs) {
         this.params.rotationAngle = event.rotate;
     }
 
-    private get transform(): string {
+    public get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
         const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
 
         return `${zoom} ${rotate}`;
     }
 
-    private get selectedLine(): Line | null {
+    public get selectedLine(): Line | null {
         if (!this.textFragmentEditorState.singleSelectedSi) {
             return null;
         }
@@ -684,7 +678,7 @@ export default class ArtefactEditor
         }
     }
 
-    private onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
+    public onParamsChanged(evt: ArtefactEditorParamsChangedArgs) {
         if (evt.property === 'rotationAngle') {
             const op: ArtefactRotateOperation = new ArtefactRotateOperation(
                 this.artefact.placement.rotate,
@@ -694,7 +688,7 @@ export default class ArtefactEditor
         }
     }
 
-    private onAuto() {
+    public onAuto() {
         if (
             this.textFragmentEditorState.selectedSignInterpretations.length >
                 1 &&
@@ -711,7 +705,7 @@ export default class ArtefactEditor
         }
     }
 
-    private onHighlightComment(checked: boolean) {
+    public onHighlightComment(checked: boolean) {
         this.$state.artefactEditor.highlightCommentMode = checked;
     }
 
@@ -768,7 +762,7 @@ export default class ArtefactEditor
         };
     }
 
-    private onRoiClicked(roi: InterpretationRoi) {
+    public onRoiClicked(roi: InterpretationRoi) {
         this.artefactEditorState.selectRoi(roi);
         this.textFragmentEditorState.selectedSignInterpretations = [];
 
@@ -782,7 +776,7 @@ export default class ArtefactEditor
         }
     }
 
-    private onModeClick(newMode: ActionMode) {
+    public onModeClick(newMode: ActionMode) {
         this.actionMode = newMode;
     }
 

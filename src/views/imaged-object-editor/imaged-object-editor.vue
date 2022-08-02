@@ -148,7 +148,7 @@
                                     "
                                     class="btn btn-sm"
                                     :disabled="!art.name"
-                                    @click="onRename(art)"
+                                    @click="onRename"
                                     >Rename</b-button
                                 >
                                 <b-button
@@ -258,8 +258,7 @@ import ResizeBar from '@/components/misc/resizeBar.vue';
 })
 export default class ImagedObjectEditor
     extends Vue
-    implements SavingAgent<ImagedObjectEditorOperation>
-{
+    implements SavingAgent<ImagedObjectEditorOperation> {
     private static colors = [
         'purple',
         'blue',
@@ -273,19 +272,19 @@ export default class ImagedObjectEditor
         'cadetBlue',
     ];
 
-    private errorMessage: string = '';
-    private newArtefactName: string = '';
+    public errorMessage: string = '';
+    public newArtefactName: string = '';
     private artefactService = new ArtefactService();
     // private params = new ImagedObjectEditorParams();
-    private artefactId: number = -1;
-    private renaming = false;
-    private operationsManager =
+    public artefactId: number = -1;
+    public renaming = false;
+    public operationsManager =
         new OperationsManager<ImagedObjectEditorOperation>(this);
-    private side: Side = 'recto';
-    private renameInputActive: Artefact | null = null;
-    private waiting: boolean = true;
-    private displayResizeBar: boolean = false;
-    private masterImage?: IIIFImage | null = null;
+    public side: Side = 'recto';
+    public renameInputActive: Artefact | null = null;
+    public waiting: boolean = true;
+    public displayResizeBar: boolean = false;
+    public masterImage?: IIIFImage | null = null;
     private initialMask = new Polygon();
     private nonSelectedMask = new Polygon();
 
@@ -318,7 +317,7 @@ export default class ImagedObjectEditor
     public get imagedObjectState(): ImagedObjectState {
         return this.$state.imagedObject;
     }
-    private get params(): ImagedObjectEditorParams {
+    public get params(): ImagedObjectEditorParams {
         return this.imagedObjectState.params || new ImagedObjectEditorParams();
     }
     public get canCreate(): boolean {
@@ -411,7 +410,7 @@ export default class ImagedObjectEditor
         this.$state.operationsManager = null;
     }
 
-    private get artefact(): Artefact | undefined {
+    public get artefact(): Artefact | undefined {
         const artefact = this.artefacts.find((x) => x.id === this.artefactId);
         return artefact;
     }
@@ -420,7 +419,7 @@ export default class ImagedObjectEditor
         return this.imagedObject!.artefacts || [];
     }
 
-    private get imagedObject(): ImagedObject | null {
+    public get imagedObject(): ImagedObject | null {
         return this.$state.imagedObjects.current;
     }
 
@@ -428,38 +427,38 @@ export default class ImagedObjectEditor
         return parseInt(this.$route.params.editionId);
     }
 
-    private get edition(): EditionInfo | null {
+    public get edition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
-    private get removeColor() {
+    public get removeColor() {
         return this.params.highLight === false;
     }
 
-    private get canEdit(): boolean {
+    public get canEdit(): boolean {
         return this.$state.editions.current?.permission?.mayWrite || false;
     }
 
-    private get visibleArtefacts(): Artefact[] {
+    public get visibleArtefacts(): Artefact[] {
         return this.artefacts.filter((item) => item.side === this.side);
     }
 
-    private get imageWidth(): number {
+    public get imageWidth(): number {
         return this.masterImage!.width;
     }
 
-    private get imageHeight(): number {
+    public get imageHeight(): number {
         return this.masterImage!.height;
     }
 
-    private get actualWidth(): number {
+    public get actualWidth(): number {
         return (
             (this.rotationAngle % 180 ? this.imageHeight : this.imageWidth) *
             this.zoomLevel
         );
     }
 
-    private get actualHeight(): number {
+    public get actualHeight(): number {
         return (
             (this.rotationAngle % 180 ? this.imageWidth : this.imageHeight) *
             this.zoomLevel
@@ -470,11 +469,11 @@ export default class ImagedObjectEditor
         return ((this.params.rotationAngle % 360) + 360) % 360;
     }
 
-    private get zoomLevel(): number {
+    public get zoomLevel(): number {
         return this.params.zoom;
     }
 
-    private get transform(): string {
+    public get transform(): string {
         // Rotation
         const rotate = `rotate(${this.rotationAngle}, ${this.imageWidth / 2}, ${
             this.imageHeight / 2
@@ -498,7 +497,7 @@ export default class ImagedObjectEditor
         return `${scale} ${translate} ${rotate}`;
     }
 
-    private get editList(): ModeButtonInfo[] {
+    public get editList(): ModeButtonInfo[] {
         if (this.canEdit) {
             return [
                 {
@@ -543,11 +542,11 @@ export default class ImagedObjectEditor
         }
     }
 
-    private get isErasing() {
+    public get isErasing() {
         return this.params.drawingMode === DrawingMode.ERASE;
     }
 
-    private onNewZoom(event: ZoomEventArgs) {
+    public onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = event.zoom;
     }
 
@@ -555,11 +554,11 @@ export default class ImagedObjectEditor
         (this as any).params.drawingMode = DrawingMode[val];
     }
 
-    private inputRenameChanged(art: Artefact | undefined) {
+    public inputRenameChanged(art: Artefact | undefined) {
         this.renameInputActive = art ? art : null;
     }
 
-    private onArtefactChanged(art: Artefact) {
+    public onArtefactChanged(art: Artefact) {
         this.artefactId = art.id;
 
         // const index = this.artefacts.indexOf(art); // index artefact in artefact list.
@@ -576,7 +575,7 @@ export default class ImagedObjectEditor
         }
     }
 
-    private async onRename() {
+    public async onRename() {
         if (!this.artefact) {
             throw new Error("Can't rename if there is no artefact");
         }
@@ -598,7 +597,7 @@ export default class ImagedObjectEditor
     // private onParamsChanged(evt: EditorParamsChangedArgs) {
     //     this.params = evt.params; // This makes sure a change is triggered in child components
     // }
-    private onNewPolygon(poly: Polygon) {
+    public onNewPolygon(poly: Polygon) {
         let newPolygon: Polygon;
 
         if (this.isErasing) {
@@ -632,7 +631,7 @@ export default class ImagedObjectEditor
         this.artefact!.mask = newPolygon;
     }
 
-    private sideArtefactChanged(side: DropdownOption) {
+    public sideArtefactChanged(side: DropdownOption) {
         this.side = side.name as Side;
         if (this.artefact!.side !== side.name && this.visibleArtefacts.length) {
             this.onArtefactChanged(this.visibleArtefacts[0]);
@@ -684,7 +683,7 @@ export default class ImagedObjectEditor
         });
     }
 
-    private getArtefactColor(art: Artefact) {
+    public getArtefactColor(art: Artefact) {
         const idx = this.visibleArtefacts.indexOf(art);
         if (idx === -1) {
             console.error("Can't locate artefact in this.artefacts");
@@ -696,7 +695,7 @@ export default class ImagedObjectEditor
         ];
     }
 
-    private async onDeleteArtefact(art: Artefact) {
+    public async onDeleteArtefact(art: Artefact) {
         try {
             await this.artefactService.deleteArtefact(art);
             this.showMessage('toasts.artefactDeleted', 'success');

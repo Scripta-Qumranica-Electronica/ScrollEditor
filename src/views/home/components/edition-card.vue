@@ -19,15 +19,11 @@
         </b-row>
         <div class="details-edition-personal-grid">
             <div class="status-edition-public-grid">
-                <span class="card-label"> Edited: </span>
+                <span class="card-label">Edit: </span>
                 <span
                     class="card-label card-date mr-1"
                     style="white-space: nowrap"
-                    >{{
-                        edition.lastEdit
-                            ? edition.lastEdit.toDateString().substr(4)
-                            : ''
-                    }}
+                    >{{ lastEditText }}
                 </span>
                 <p class="card-label ml-0 mr-9">
                     Status:
@@ -78,7 +74,7 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
     components: { EditionIcons },
 })
 export default class EditionCard extends Vue {
-    @Prop() private edition!: EditionInfo;
+    @Prop() public edition!: EditionInfo;
 
     private get thumbnailSource(): string | undefined {
         return this.edition?.thumbnail?.thumbnailUrl;
@@ -91,6 +87,28 @@ export default class EditionCard extends Vue {
     private editionEditRightClick() {
         const editionLink = this.$router.resolve({ path: `/editions/${this.edition.id}` });
         window.open(editionLink.href);
+    }
+
+    public get lastEditText() {
+        function date2str(dt: Date) {
+            return dt.toISOString().split('T')[0];
+        }
+
+        if (!this.edition.lastEdit) {
+            return '';
+        }
+
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        if (today.getDate() === this.edition.lastEdit.getDate()) {
+            return 'Today';
+        } else if (yesterday.getDate() === this.edition.lastEdit.getDate()) {
+            return 'Yesterday';
+        }
+
+        return date2str(this.edition.lastEdit);
     }
 
     @Emit()

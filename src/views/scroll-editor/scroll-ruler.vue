@@ -10,6 +10,17 @@
                 >
                     <span v-if="index % 10 === 0">{{ index }}</span>
                 </li>
+
+                <!-- Right to left version
+                <li dir="rtl"
+                    :style="{ right: ppm * zoom * index + 'px' }"
+                    :class="{ units: index % 10 !== 0 }"
+                    v-for="(a, index) in horizontalTicksArray"
+                    v-bind:key="index"
+                >
+                    <span v-if="index % 10 === 0">{{ index }}</span>
+                </li>
+                -->
             </ul>
         </div>
         <div class="rule-vertical">
@@ -37,29 +48,29 @@ export default class ScrollRuler extends Vue {
     @Prop({
         default: 0,
     })
-    private horizontalTicks!: number;
+    public horizontalTicks!: number;
 
     @Prop({
         default: 0,
-    }) private verticalTicks!: number;
+    }) public verticalTicks!: number;
     @Prop({
         default: 1,
-    }) private ppm!: number;
+    }) public ppm!: number;
     @Prop({
         default: 1,
-    })private zoom!: number;
+    })public zoom!: number;
     @Prop({
         default: 1,
-    })private width!: number;
+    })public width!: number;
     @Prop({
         default: 1,
-    })  private height!: number;
+    })  public height!: number;
 
-    private get horizontalTicksArray() {
+    public get horizontalTicksArray() {
         return Array.from(Array(this.horizontalTicks).keys());
     }
 
-    private get verticalTicksArray() {
+    public get verticalTicksArray() {
         return Array.from(Array(this.verticalTicks).keys());
     }
 }
