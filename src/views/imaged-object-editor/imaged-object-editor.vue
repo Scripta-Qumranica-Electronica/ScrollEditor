@@ -383,7 +383,7 @@ export default class ImagedObjectEditor
             const stack = this.imagedObject.getImageStack(this.side)!;
             this.masterImage = stack?.master;
 
-            if (this.imagedObject.artefacts.length) {
+            if (this.visibleArtefacts.length) {
                 this.onArtefactChanged(this.visibleArtefacts[0]);
 
                 // Remove this because it will happen in onArtefactChanged function.
