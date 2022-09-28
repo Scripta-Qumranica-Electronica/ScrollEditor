@@ -355,7 +355,12 @@ export interface SearchBarValue {
     sort?: string;
 }
 
+interface ReportIssueData {
+    title: string;
+    description: string;
+}
 export class MiscState {
     public newEditionId!: number ;
     public editionSearchBarValue: SearchBarValue = {  sort: 'lastEdit', side: 'recto and verso' };
+    public reportIssueData?: ReportIssueData;
 }

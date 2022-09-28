@@ -112,7 +112,10 @@ export default class ReportProblemModal extends Vue {
 
     private init() {
         this.reported = false;
-        this.username = this.title = this.description = '';
+        this.username = '';
+        this.title = this.$state.misc.reportIssueData?.title || '';
+        this.description = this.$state.misc.reportIssueData?.description || '';
+        this.$state.misc.reportIssueData = undefined;
     }
 }
 </script>

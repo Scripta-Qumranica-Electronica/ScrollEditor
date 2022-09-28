@@ -70,6 +70,14 @@
                             />
                             <copy-to-edition-modal></copy-to-edition-modal>
                         </toolbox>
+                        <toolbox subject="">
+                            <toolbar-icon-button
+                                v-if="edition.isPublic"
+                                title="Report Mask"
+                                @click="openReportMask()"
+                                :show-text="true"
+                            />
+                        </toolbox>
                         <copy-edition-toolbox />
                     </artefact-editor-toolbar>
                 </toolbar>
@@ -331,6 +339,14 @@ export default class ArtefactEditor
     }
     public openCopyToEdtion() {
         this.$root.$bvModal.show('copy-to-edition-modal');
+    }
+
+    public openReportMask() {
+        this.$state.misc.reportIssueData = {
+            'title': `Problem with mask of artefact ${this.artefactId} in edition ${this.edition.name} (${this.edition.id})`,
+            'description': '',
+        };
+        this.$root.$emit('bv::show::modal', 'ReportProblemModal');
     }
 
     public onNewPolygon(poly: Polygon) {

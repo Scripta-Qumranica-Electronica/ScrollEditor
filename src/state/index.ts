@@ -36,7 +36,7 @@ export class StateManager {
 
     public prepare: StateService;
 
-     public showEditReconTextBar: boolean =  false;
+    public showEditReconTextBar: boolean =  false;
 
     private constructor() {
         this.session = new SessionState();
