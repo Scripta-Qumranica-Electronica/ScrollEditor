@@ -14,10 +14,12 @@
             >
             <ul v-if="metadata" class="metadata">
                 <li class="row m-2" v-for="key in keys" :key="key">
-                    <span class="key col-2">{{ headers[key] }}:</span>
-                    <span class="value col">{{
-                        (metadata[key] || '-') | cleanString
-                    }}</span>
+                    <div v-if="metadata[key]">
+                        <span class="key col-2">{{ headers[key] }}:</span>
+                        <span class="value col">{{
+                            (metadata[key] || '-') | cleanString
+                        }}</span>
+                    </div>
                 </li>
             </ul>
         </div>
