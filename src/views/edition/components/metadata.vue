@@ -1,6 +1,6 @@
 <template>
     <b-modal
-        v-if="edition"
+        v-if="edition && metadata"
         id="editionMetadataModal"
         ref="editionMetadataModalRef"
         header-class="header"
@@ -14,12 +14,10 @@
             >
             <ul v-if="metadata" class="metadata">
                 <li class="row m-2" v-for="key in keys" :key="key">
-                    <div v-if="metadata[key]">
-                        <span class="key col-2">{{ headers[key] }}:</span>
-                        <span class="value col">{{
-                            (metadata[key] || '-') | cleanString
-                        }}</span>
-                    </div>
+                    <span class="key col-2">{{ headers[key] }}:</span>
+                    <span class="value col">{{
+                        (metadata[key] || '-') | cleanString
+                    }}</span>
                 </li>
             </ul>
         </div>
@@ -62,7 +60,7 @@ export default class EditionMetadataModal extends Vue {
         'otherIdentifications',
         'publication',
     ];
-    private _headers = {
+    private static _headers = {
         manuscript: 'Manuscript',
         composition: 'Composition',
         copy: 'Copy',
@@ -80,7 +78,7 @@ export default class EditionMetadataModal extends Vue {
 
     // Return the following as 'any' so that eslint doesn't complain about headers[key] above
     public get headers(): any {
-        return this._headers;
+        return EditionMetadataModal._headers;
     }
     public get metadata(): any {
         return this.edition.metadata;
@@ -98,7 +96,7 @@ export default class EditionMetadataModal extends Vue {
         // This is a placeholder to remove the error when calling the cleanString filter.
         // Without this, Typescript complains that cleanString is not defined, even though Vue
         // knows it should call the function defined as the filter.
-        // return 'WRONG FILTER'; // If you see this in the metadata, you know the function is called when it shouldn't.
+        return 'WRONG FILTER'; // If you see this in the metadata, you know the function is called when it shouldn't.
     }
 }
 </script>
