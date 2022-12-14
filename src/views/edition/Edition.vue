@@ -63,7 +63,6 @@
             </div>
         </div>
         <permission-modal v-if="currentEdition"></permission-modal>
-        <edition-metadata-modal></edition-metadata-modal>
          <delete-edition-modal></delete-edition-modal>
         <!-- :visible="false" to prevent false display of the modal -->
     </div>
