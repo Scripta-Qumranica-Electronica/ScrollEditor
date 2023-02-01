@@ -114,6 +114,12 @@
                 </b-col>
 
         </b-row>
+        <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12 ">
+            <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2" v-if="selectedArtefact">
+                <p>Selected Artefact Max Width : {{ getArtefactWidth() }} mm</p>     
+                <p>Selected Artefact Max Height : {{ getArtefactHeight() }} mm</p>
+            </b-col>
+        </b-row>
 
         <hr class="solid">
 
@@ -441,7 +447,7 @@ export default class ManuscriptToolbar extends Vue {
     public get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
-
+    
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
@@ -500,7 +506,38 @@ export default class ManuscriptToolbar extends Vue {
         this.params.mode = mode;
     }
 
-
+    private getArtefactHeight(){
+        if (this.selectedArtefact){
+            let pointsAttribute = this.selectedArtefact.mask.svg;
+            let points = pointsAttribute.split("L");
+            let maxY = -Infinity, minY = Infinity;
+            for (let point of points) {
+                let [x, y] = point.split(" ").map(n => parseFloat(n));
+                maxY = Math.max(maxY, y);
+                minY = Math.min(minY, y);
+            }
+            let maxHeight = maxY - minY;
+            console.log(maxHeight);
+            return maxHeight;
+        }
+    }
+        private getArtefactWidth(){
+        if (this.selectedArtefact){
+            let pointsAttribute = this.selectedArtefact.mask.svg;
+            let points = pointsAttribute.split("L");
+            let maxX = -Infinity, minX = Infinity;
+            for (let point of points) {
+                if (point[0]=='M'){
+                    point = point.substring(1);
+                }
+                let [x, y] = point.split(" ").map(n => parseFloat(n));
+                maxX = Math.max(maxX, x);
+                minX = Math.min(minX, x);
+            }
+            let maxWidth = maxX - minX;
+            return maxWidth;
+        }
+    }
     private resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
             ...this.edition.metrics,
