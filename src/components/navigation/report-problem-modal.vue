@@ -88,10 +88,10 @@ export default class ReportProblemModal extends Vue {
         if (!actualUsername) {
             actualUsername = 'Not Specified';
         }
-
+        const titleWithUserName = this.title + ' (' + actualUsername + ')';
         await this.sessionService.reportProblem({
             username: actualUsername,
-            title: this.title,
+            title: titleWithUserName,
             comment: this.description,
             url: window.location.toString(),
         });
