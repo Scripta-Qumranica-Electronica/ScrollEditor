@@ -343,6 +343,7 @@ export default class ManuscriptToolbar extends Vue {
 
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
+    private ppi = Math.sqrt((Math.pow(window.screen.width, 2)) + (Math.pow(window.screen.height, 2)) )/15;
 
     private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
@@ -517,8 +518,7 @@ export default class ManuscriptToolbar extends Vue {
                 minY = Math.min(minY, y);
             }
             let maxHeight = maxY - minY;
-            console.log(maxHeight);
-            return maxHeight;
+            return maxHeight/this.ppi*2.54;
         }
     }
         private getArtefactWidth(){
@@ -535,7 +535,7 @@ export default class ManuscriptToolbar extends Vue {
                 minX = Math.min(minX, x);
             }
             let maxWidth = maxX - minX;
-            return maxWidth;
+            return maxWidth/this.ppi*2.54;
         }
     }
     private resizeScroll(direction: number) {
