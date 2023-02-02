@@ -275,6 +275,12 @@
                             </b-tr>
                         </b-tbody>
                     </b-table-simple>
+        <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12 " v-if="selectedArtefacts.length">
+            <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2">
+                <p>Group Max Width : {{ getGroupSize().width }} mm</p>     
+                <p>Group Max Height : {{ getGroupSize().height }} mm</p>
+            </b-col>
+        </b-row>
             </b-col>
         </b-row>
 
@@ -537,7 +543,7 @@ export default class ManuscriptToolbar extends Vue {
             return Math.round((maxHeight / this.ppi * 2.54) * 100) / 100;
         }
     }
-        private getArtefactWidth(artifact?: Artefact) {
+    private getArtefactWidth(artifact?: Artefact) {
         if (artifact) {
             const pointsAttribute = artifact.mask.svg;
             const points = pointsAttribute.split('L');
@@ -554,6 +560,30 @@ export default class ManuscriptToolbar extends Vue {
             const maxWidth = maxX - minX;
             return Math.round((maxWidth / this.ppi * 2.54) * 100) / 100;
         }
+    }
+    private convertToMM(number: number) {
+        return Math.round((number / this.ppi * 2.54) * 100) / 100;
+    }
+    private getGroupSize() {
+        const arts = this.selectedArtefacts;
+        let minimumsX: number[] = [];
+        let minimumsY: number[] = [];
+
+        let maximumsX: number[] = [];
+        let maximumsY: number[] = [];
+
+        for (let i = 0; i < this.selectedArtefacts.length; i++) {
+            minimumsX.push(this.convertToMM(arts[i].placement.translate.x));
+            maximumsX.push(this.convertToMM(arts[i].placement.translate.x) + this.convertToMM(arts[i].boundingBox.width));
+            minimumsY.push(this.convertToMM(arts[i].placement.translate.y));
+            maximumsY.push(this.convertToMM(arts[i].placement.translate.y) + this.convertToMM(arts[i].boundingBox.height));
+        }
+        const globalWidth = Math.max.apply(Math, maximumsX) - Math.min.apply(Math, minimumsX);
+        const globalHeight = Math.max.apply(Math, maximumsY) - Math.min.apply(Math, minimumsY);
+        return {
+                width: Math.round( globalWidth * 100) / 100,
+                height: Math.round( globalHeight * 100) / 100
+            };
     }
     private resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
