@@ -116,8 +116,8 @@
         </b-row>
         <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12 ">
             <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2" v-if="selectedArtefact">
-                <p>Selected Artefact Max Width : {{ getArtefactWidth() }} mm</p>     
-                <p>Selected Artefact Max Height : {{ getArtefactHeight() }} mm</p>
+                <p>Selected Artefact Max Width : {{ getArtefactWidth(selectedArtefact) }} mm</p>     
+                <p>Selected Artefact Max Height : {{ getArtefactHeight(selectedArtefact) }} mm</p>
             </b-col>
         </b-row>
 
@@ -259,6 +259,22 @@
                     </b-col>
 
                 </b-row>
+                    <b-table-simple responsive class="manuscript-artefacts-table" v-if="selectedArtefacts.length">
+                        <b-thead>
+                            <b-tr>
+                                <b-th>Name</b-th>
+                                <b-th>Width</b-th>
+                                <b-th>Height</b-th>
+                            </b-tr>
+                        </b-thead>
+                        <b-tbody>
+                            <b-tr v-for="(item, index) in selectedArtefacts" :key="index">
+                                <b-td>{{ item.name}}</b-td>
+                                <b-td>{{ getArtefactWidth(item) }} mm</b-td>
+                                <b-td>{{ getArtefactHeight(item) }} mm</b-td>
+                            </b-tr>
+                        </b-tbody>
+                    </b-table-simple>
             </b-col>
         </b-row>
 
@@ -307,7 +323,7 @@
 <script lang="ts">
 import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
 import { ScrollEditorState } from '@/state/scroll-editor';
-import { EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
+import { ArtefactDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
 import { Placement } from '@/utils/Placement';
 import { Artefact } from '@/models/artefact';
@@ -343,7 +359,7 @@ export default class ManuscriptToolbar extends Vue {
 
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
-    private ppi = Math.sqrt((Math.pow(window.screen.width, 2)) + (Math.pow(window.screen.height, 2)) )/15;
+    private ppi = Math.sqrt((Math.pow(window.screen.width, 2)) + (Math.pow(window.screen.height, 2)) ) / 15;
 
     private sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
@@ -448,7 +464,6 @@ export default class ManuscriptToolbar extends Vue {
     public get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
-    
     private openAddArtefactModal() {
         this.$root.$emit('bv::show::modal', 'addArtefactModal');
     }
@@ -507,35 +522,37 @@ export default class ManuscriptToolbar extends Vue {
         this.params.mode = mode;
     }
 
-    private getArtefactHeight(){
-        if (this.selectedArtefact){
-            let pointsAttribute = this.selectedArtefact.mask.svg;
-            let points = pointsAttribute.split("L");
-            let maxY = -Infinity, minY = Infinity;
-            for (let point of points) {
-                let [x, y] = point.split(" ").map(n => parseFloat(n));
+    private getArtefactHeight(artefact?: Artefact) {
+        if (artefact) {
+            const pointsAttribute = artefact.mask.svg;
+            const points = pointsAttribute.split('L');
+            let maxY = -Infinity;
+            let minY = Infinity;
+            for (const point of points) {
+                const [x, y] = point.split(' ').map(n => parseFloat(n));
                 maxY = Math.max(maxY, y);
                 minY = Math.min(minY, y);
             }
-            let maxHeight = maxY - minY;
-            return maxHeight/this.ppi*2.54;
+            const maxHeight = maxY - minY;
+            return Math.round((maxHeight / this.ppi * 2.54) * 100) / 100;
         }
     }
-        private getArtefactWidth(){
-        if (this.selectedArtefact){
-            let pointsAttribute = this.selectedArtefact.mask.svg;
-            let points = pointsAttribute.split("L");
-            let maxX = -Infinity, minX = Infinity;
+        private getArtefactWidth(artifact?: Artefact) {
+        if (artifact) {
+            const pointsAttribute = artifact.mask.svg;
+            const points = pointsAttribute.split('L');
+            let maxX = -Infinity;
+            let minX = Infinity;
             for (let point of points) {
-                if (point[0]=='M'){
+                if (point[0] === 'M') {
                     point = point.substring(1);
                 }
-                let [x, y] = point.split(" ").map(n => parseFloat(n));
+                const [x, y] = point.split(' ').map(n => parseFloat(n));
                 maxX = Math.max(maxX, x);
                 minX = Math.min(minX, x);
             }
-            let maxWidth = maxX - minX;
-            return maxWidth/this.ppi*2.54;
+            const maxWidth = maxX - minX;
+            return Math.round((maxWidth / this.ppi * 2.54) * 100) / 100;
         }
     }
     private resizeScroll(direction: number) {
@@ -719,6 +736,16 @@ hr.solid {
 .card-body-cancel {
     padding: 0rem !important;
 }
+
+.manuscript-artefacts-table {
+    margin-top :1rem;
+    text-align: center;
+    border:1px solid #dee2e6;
+}
+table tr:nth-child(odd) td{
+    background-color: #F5F5F5	;
+}
+
 
 
 </style>
