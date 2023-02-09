@@ -116,8 +116,8 @@
         </b-row>
         <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12 ">
             <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2" v-if="selectedArtefact">
-                <p>Selected Artefact Max Width : {{ getArtefactWidth(selectedArtefact) }} mm</p>     
-                <p>Selected Artefact Max Height : {{ getArtefactHeight(selectedArtefact) }} mm</p>
+                <p>Selected Artefact Max Width : {{ artifactMaxWidth }} mm</p>     
+                <p>Selected Artefact Max Height : {{ artifactMaxHeight }} mm</p>
             </b-col>
         </b-row>
 
@@ -259,7 +259,7 @@
                     </b-col>
 
                 </b-row>
-                    <b-table-simple responsive class="manuscript-artefacts-table" v-if="selectedArtefacts.length">
+                    <b-table-simple responsive class="manuscript-artefacts-table" v-if="selectedGroup  && selectedGroup.artefactIds.length>1">
                         <b-thead>
                             <b-tr>
                                 <b-th>Name</b-th>
@@ -270,15 +270,15 @@
                         <b-tbody>
                             <b-tr v-for="(item, index) in selectedArtefacts" :key="index">
                                 <b-td>{{ item.name}}</b-td>
-                                <b-td>{{ getArtefactWidth(item) }} mm</b-td>
-                                <b-td>{{ getArtefactHeight(item) }} mm</b-td>
+                                <b-td >{{ selectedArtifactsSize[index].width }} mm</b-td>
+                                <b-td>{{ selectedArtifactsSize[index].height }} mm</b-td>
                             </b-tr>
                         </b-tbody>
                     </b-table-simple>
-        <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12 " v-if="selectedArtefacts.length">
+        <b-row no-gutters class="btn-tf m-1 mt-0 mb-0 p-1 col-12 " v-if="selectedGroup  && selectedGroup.artefactIds.length>1">
             <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2">
-                <p>Group Max Width : {{ getGroupSize().width }} mm</p>     
-                <p>Group Max Height : {{ getGroupSize().height }} mm</p>
+                <p>Group Max Width : {{ groupSize.width }} mm</p>     
+                <p>Group Max Height : {{ groupSize.height }} mm</p>
             </b-col>
         </b-row>
             </b-col>
@@ -362,9 +362,17 @@ export default class ManuscriptToolbar extends Vue {
 
     // @Prop() private params!: ScrollEditorParams;
     @Prop({ default: -1 }) public artefactId!: number;
-
     private selectedSide: string = 'left';
     private metricsInput: number = 1;
+    private artifactMaxWidth: number = 0;
+    private artifactMaxHeight: number = 0;
+    public selectedArtifactsSize: {width: number ,height: number }[] = [];
+    private groupSize: {width: number , height: number} = {width: 0, height: 0};
+
+
+    // Calculates the pixels per inch (PPI) of the device screen
+    // It uses the Pythagorean theorem to find the diagonal length of the screen, and then divides it by 15 to get the PPI.
+    // The diagonal length is calculated by finding the square root of the sum of the squares of the width and height of the screen (in pixels).
     private ppi = Math.sqrt((Math.pow(window.screen.width, 2)) + (Math.pow(window.screen.height, 2)) ) / 15;
 
     private sidesOptions: Array<{ text: string; value: string }> = [
@@ -437,8 +445,24 @@ export default class ManuscriptToolbar extends Vue {
         return this.$state.artefacts.items || [];
     }
 
-    private get selectedArtefacts() {
+    public get selectedArtefacts() {
+        this.updateSelectedArtefactsSizes();
+        this.getGroupSize(this.scrollEditorState.selectedArtefacts);
         return this.scrollEditorState.selectedArtefacts;
+    }
+    public updateSelectedArtefactsSizes(): void {
+        // when we update the selectedArtifacts ,we update the selectedArtifactsSize (to display each artifact width and heigth)
+        this.selectedArtifactsSize = [];
+        const arts = this.scrollEditorState.selectedArtefacts;
+        for (let i = 0; i < arts.length; i++) {
+            const artifactSize = {
+                width: this.getArtefactWidth(arts[i]),
+                height: this.getArtefactHeight(arts[i])
+            };
+            if (this.selectedArtifactsSize.indexOf(artifactSize) === -1) {
+                this.selectedArtifactsSize.push(artifactSize);
+            }
+        }
     }
     private get placedArtefacts() {
         return this.artefacts.filter((x) => x.isPlaced);
@@ -449,6 +473,11 @@ export default class ManuscriptToolbar extends Vue {
     }
 
     public get selectedArtefact() {
+        const artifact = this.scrollEditorState.selectedArtefact;
+        if (artifact) {
+            this.artifactMaxWidth = this.getArtefactWidth(artifact);
+            this.artifactMaxHeight = this.getArtefactHeight(artifact);
+        }
         return this.scrollEditorState.selectedArtefact;
     }
 
@@ -516,6 +545,9 @@ export default class ManuscriptToolbar extends Vue {
         if (groupArtefact) {
             groupArtefact.artefactIds = [];
         }
+        if (this.selectedGroup) { // making the artefactsIds empty make sure we get rid of the artefacts group we removed
+            this.selectedGroup.artefactIds = [];
+        }
     }
 
 
@@ -528,51 +560,56 @@ export default class ManuscriptToolbar extends Vue {
         this.params.mode = mode;
     }
 
-    private getArtefactHeight(artefact?: Artefact) {
-        if (artefact) {
-            const pointsAttribute = artefact.mask.svg;
-            const points = pointsAttribute.split('L');
-            let maxY = -Infinity;
-            let minY = Infinity;
-            for (const point of points) {
-                const [x, y] = point.split(' ').map(n => parseFloat(n));
-                maxY = Math.max(maxY, y);
-                minY = Math.min(minY, y);
-            }
-            const maxHeight = maxY - minY;
-            return Math.round((maxHeight / this.ppi * 2.54) * 100) / 100;
+    private getArtefactHeight(artefact: Artefact): number {
+        // Artifact svg property contains the string representation of the SVG polygon.
+        // It looks like this "M3349.131736526946 9179.191616766468L3349.131736526946 9193.74251497006L3353.982035928143"
+        const pointsAttribute = artefact.mask.svg;
+        // The result of splitting the string by "L" is an array of strings in the format "x y".(each string is a polygon vertex)
+        const points = pointsAttribute.split('L');
+        let maxY = -Infinity;
+        let minY = Infinity;
+        for (const point of points) {
+            // The [x, y] assignment syntax is used to assign the first and second elements of the resulting array to the variables
+            // x and y respectively which were converting to number first.
+            const [x, y] = point.split(' ').map(n => parseFloat(n));
+            maxY = Math.max(maxY, y);
+            minY = Math.min(minY, y);
         }
+        const maxHeight = maxY - minY;
+        return this.convertToMM(maxHeight);
     }
-    private getArtefactWidth(artifact?: Artefact) {
-        if (artifact) {
-            const pointsAttribute = artifact.mask.svg;
-            const points = pointsAttribute.split('L');
-            let maxX = -Infinity;
-            let minX = Infinity;
-            for (let point of points) {
-                if (point[0] === 'M') {
-                    point = point.substring(1);
-                }
-                const [x, y] = point.split(' ').map(n => parseFloat(n));
-                maxX = Math.max(maxX, x);
-                minX = Math.min(minX, x);
+    private getArtefactWidth(artifact: Artefact): number {
+        // Artifact svg property contains the string representation of the SVG polygon.
+        // It looks like this "M3349.131736526946 9179.191616766468L3349.131736526946 9193.74251497006L3353.982035928143"
+        const pointsAttribute = artifact.mask.svg;
+        // The result of splitting the string by "L" is an array of strings in the format "x y".(each string is a polygon vertex)
+        const points = pointsAttribute.split('L');
+        let maxX = -Infinity;
+        let minX = Infinity;
+        for (let point of points) {
+            if (point[0] === 'M') { // we remove the M from the first string (which messes with the calculation).
+                point = point.substring(1);
             }
-            const maxWidth = maxX - minX;
-            return Math.round((maxWidth / this.ppi * 2.54) * 100) / 100;
+            // The [x, y] assignment syntax is used to assign the first and second elements of the resulting array to the variables
+            // x and y respectively which were converting to number first.
+            const [x, y] = point.split(' ').map(n => parseFloat(n));
+            maxX = Math.max(maxX, x);
+            minX = Math.min(minX, x);
         }
+        const maxWidth = maxX - minX;
+        return this.convertToMM(maxWidth);
     }
-    private convertToMM(number: number) {
+    private convertToMM(number: number): number {
         return Math.round((number / this.ppi * 2.54) * 100) / 100;
     }
-    private getGroupSize() {
-        const arts = this.selectedArtefacts;
+    private getGroupSize(arts: Artefact[]): void {
         let minimumsX: number[] = [];
         let minimumsY: number[] = [];
 
         let maximumsX: number[] = [];
         let maximumsY: number[] = [];
-
-        for (let i = 0; i < this.selectedArtefacts.length; i++) {
+        // We go over all the artifacts and get the "extreme left one" and the "extreme right one", then get the width between them .(Same for height)
+        for (let i = 0; i < arts.length; i++) {
             minimumsX.push(this.convertToMM(arts[i].placement.translate.x));
             maximumsX.push(this.convertToMM(arts[i].placement.translate.x) + this.convertToMM(arts[i].boundingBox.width));
             minimumsY.push(this.convertToMM(arts[i].placement.translate.y));
@@ -580,10 +617,9 @@ export default class ManuscriptToolbar extends Vue {
         }
         const globalWidth = Math.max.apply(Math, maximumsX) - Math.min.apply(Math, minimumsX);
         const globalHeight = Math.max.apply(Math, maximumsY) - Math.min.apply(Math, minimumsY);
-        return {
-                width: Math.round( globalWidth * 100) / 100,
+        this.groupSize = {width: Math.round( globalWidth * 100) / 100,
                 height: Math.round( globalHeight * 100) / 100
-            };
+                };
     }
     private resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
