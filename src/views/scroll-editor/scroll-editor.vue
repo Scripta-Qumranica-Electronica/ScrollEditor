@@ -229,7 +229,7 @@ export default class ScrollEditor
                 op.operations.forEach((artOp) =>
                     allMovedArtefactIds.add(artOp.getId())
                 );
-                if (op.type === 'delete') {
+                if (op.type === 'delete' && op.groupId >= 0) {
                     allDeletedGroupIds.add(op.groupId);
                 }
                 // Take EditGroup operations
