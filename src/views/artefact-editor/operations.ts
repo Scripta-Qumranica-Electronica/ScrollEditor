@@ -4,13 +4,14 @@ import { StateManager } from '@/state';
 import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import Vue from 'vue';
+import TextService from '@/services/text';
 import { NumberFormatResult } from 'vue-i18n';
 
 function state() {
     return StateManager.instance;
 }
 
-export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary' | 'sign';
+export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary' | 'sign' | 'editLine';
 
 
 export abstract class ArtefactEditorOperation extends Operation<ArtefactEditorOperation> {
@@ -78,6 +79,59 @@ export class ArtefactRotateOperation extends ArtefactEditorOperation {
         state().eventBus.emit('change-artefact-rotation', this.next);
 
         // this.artefactEditorInstance.params.rotationAngle = this.next;
+    }
+}
+export class ArtefactEditLineOperation extends ArtefactEditorOperation {
+    public checkText: TextService = new TextService();
+    public editionId: number;
+    public firstChar: number;
+    public lastChar: number;
+    public next: string;
+    public prev: string;
+
+
+    public constructor(
+        editionId: number,
+        firstChar: number,
+        lastChar: number,
+        next: string,
+        prev: string
+
+    ) {
+        super('editLine');
+        this.editionId = editionId;
+        this.firstChar = firstChar;
+        this.lastChar = lastChar;
+        this.prev = prev;
+        this.next = next;
+    }
+
+    public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+        // Unite operations of the same type
+        if (op.type !== 'editLine') {
+            return undefined;
+        }
+
+        if (op.type !== this.type) {
+            return undefined;
+        }
+
+        // Operations are of the same type on the same artefact, we can unite them
+        return new ArtefactEditLineOperation(this.editionId,this.firstChar,this.lastChar,
+            this.next,
+            (op as ArtefactEditLineOperation).prev
+
+        );
+    }
+
+    protected internalUndo(): void {
+        state().eventBus.emit('change-artefact-edit-line', this.prev);
+        this.checkText.replaceText(this.editionId, this.firstChar, this.lastChar, this.prev);
+    }
+
+    protected internalRedo(): void {
+        this.checkText.replaceText(this.editionId, this.firstChar, this.lastChar, this.next);
+        state().eventBus.emit('change-artefact-edit-line', this.next);
     }
 }
 
