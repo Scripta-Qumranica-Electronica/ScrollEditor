@@ -29,6 +29,8 @@ import { Line, SignInterpretation } from '@/models/text';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import TextLine from '@/components/text/text-line.vue';
 import TextService from '@/services/text';
+import { ArtefactEditLineOperation, ArtefactEditorOperation } from '@/views/artefact-editor/operations';
+import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
 
 @Component({
     name: 'edit-line-modal',
@@ -38,11 +40,19 @@ import TextService from '@/services/text';
 })
 export default class EditLineModal extends Vue {
     public checkText: TextService = new TextService();
+        private operationsManager = new OperationsManager<ArtefactEditorOperation>(
+        this
+    );
+    public prevText: string = '';
     public arrayDiff: any[] = [];
-
     public textLine: string = '';
     public get editorState() {
         return this.$state.textFragmentEditor;
+    }
+    public async saveEntities(
+        ops: ArtefactEditorOperation[]
+    ): Promise<boolean> {
+        return true;
     }
 
     public get selectedSignInterpretation(): SignInterpretation {
@@ -80,8 +90,20 @@ export default class EditLineModal extends Vue {
                 sel?.addRange(range);
                 line.focus();
             }
+            this.prevText = line.innerText;
         });
     }
+    protected async mounted() {
+        this.$state.operationsManager = this.operationsManager;
+    }
+     protected async created() {
+                this.$state.eventBus.on(
+            'change-artefact-edit-line',
+            (prevText: Line) => {
+                console.log(this.line, prevText);
+            }
+        );
+     }
 
     // public checkDifference() {
     //     const editDiffLib = require('@/utils/edit-diff');
@@ -153,6 +175,8 @@ export default class EditLineModal extends Vue {
         const firstChar = this.line.signs[0].signInterpretations[0].id;
         const lastChar = this.line.signs[this.line.signs.length - 1].signInterpretations[0].id;
         const newText = this.textLine;
+        const op: ArtefactEditLineOperation = new ArtefactEditLineOperation(this.editionId, firstChar, lastChar, newText, this.prevText );
+        this.operationsManager.addOperation(op);
         this.checkText.replaceText(this.editionId, firstChar, lastChar, newText);
     }
 }
