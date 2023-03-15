@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal id="editLineModal" title="Edit Line" @shown="shown">
+        <b-modal ref="editLineModal" id="editLineModal" title="Edit Line" @shown="shown">
             <div ref="editLineModalRef">
                 <text-line
                     :line="line"
@@ -178,6 +178,8 @@ export default class EditLineModal extends Vue {
         const op: ArtefactEditLineOperation = new ArtefactEditLineOperation(this.editionId, firstChar, lastChar, newText, this.prevText );
         this.operationsManager.addOperation(op);
         this.checkText.replaceText(this.editionId, firstChar, lastChar, newText);
+        const modal = this.$refs['editLineModal'] as any & { hide: () => void };
+        modal.hide();
     }
 }
 </script>
