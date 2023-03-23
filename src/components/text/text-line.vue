@@ -339,3 +339,8 @@ span.qwb-parallel-word {
     }
 }
 </style>
+<style lang="scss">
+.line-container{
+    display: flex; flex-wrap: wrap;
+}
+</style>
