@@ -15,6 +15,7 @@ export namespace ApiRoutes {
     const confirmAddEditionEditor = 'confirm-editorship';
     const listInvitationEdition = 'admin-share-requests';
     const reportProblem = 'report-github-issue';
+    const lines = 'lines';
 
     export function allEditionsUrl() {
         return `${baseUrl}/${editions}`;
@@ -148,6 +149,13 @@ export namespace ApiRoutes {
 
     export function batchCreateRoisUrl(editionId: number) {
         return `/${baseUrl}/${editions}/${editionId}/rois/batch`;
+    }
+
+    export function createLine(editionId: number, textFragmentId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/${textFragments}/${textFragmentId}/lines`;
+    }
+    export function deleteLine(editionId: number, lineId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/lines/${lineId}`;
     }
 
     export function batchEditRoisUrl(editionId: number) {

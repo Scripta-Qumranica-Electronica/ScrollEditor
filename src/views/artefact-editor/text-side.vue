@@ -79,6 +79,9 @@
         </div>
         <edit-sign-modal></edit-sign-modal>
         <edit-line-modal></edit-line-modal>
+        <add-line-modal></add-line-modal>
+        <delete-line-modal></delete-line-modal>
+
     </div>
 </template>
 
@@ -89,7 +92,8 @@ import { TextFragment, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
 import EditLineModal from '@/components/text/edit-line-modal.vue';
-
+import AddLineModal from '@/components/text/add-line-modal.vue';
+import DeleteLineModal from '@/components/text/delete-line-modal.vue';
 import { ArtefactEditorMode } from './types';
 
 @Component({
@@ -98,6 +102,8 @@ import { ArtefactEditorMode } from './types';
         'text-fragment': TextFragmentComponent,
         'edit-sign-modal': EditSignModal,
         'edit-line-modal': EditLineModal,
+        'add-line-modal': AddLineModal,
+        'delete-line-modal': DeleteLineModal,
     },
 })
 export default class TextSide extends Vue {

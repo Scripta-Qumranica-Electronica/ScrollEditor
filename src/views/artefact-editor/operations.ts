@@ -2,7 +2,7 @@ import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
 import { StateManager } from '@/state';
 import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
-import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
+import { InterpretationAttributeDTO, SignDTO, LineDTO } from '@/dtos/sqe-dtos';
 import Vue from 'vue';
 import TextService from '@/services/text';
 import { NumberFormatResult } from 'vue-i18n';
@@ -11,7 +11,7 @@ function state() {
     return StateManager.instance;
 }
 
-export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary' | 'sign' | 'editLine';
+export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary' | 'sign' | 'editLine' | 'addLine' | 'deleteLine';
 
 
 export abstract class ArtefactEditorOperation extends Operation<ArtefactEditorOperation> {
@@ -117,7 +117,7 @@ export class ArtefactEditLineOperation extends ArtefactEditorOperation {
         }
 
         // Operations are of the same type on the same artefact, we can unite them
-        return new ArtefactEditLineOperation(this.editionId,this.firstChar,this.lastChar,
+        return new ArtefactEditLineOperation(this.editionId, this.firstChar, this.lastChar,
             this.next,
             (op as ArtefactEditLineOperation).prev
 
@@ -134,6 +134,153 @@ export class ArtefactEditLineOperation extends ArtefactEditorOperation {
         state().eventBus.emit('change-artefact-edit-line', this.next);
     }
 }
+export class ArtefactAddLineOperation extends ArtefactEditorOperation {
+    public checkText: TextService = new TextService();
+    public line: LineDTO;
+    public textFragmentId: number;
+    public previousLineId: number ;
+    public subsequentLineId: number;
+
+
+    public constructor(
+        line: LineDTO,
+        textFragmentId: number,
+        previousLineId: number ,
+        subsequentLineId: number
+
+    ) {
+        super('addLine');
+        this.line = line;
+        this.textFragmentId = textFragmentId;
+        this.previousLineId = previousLineId;
+        this.subsequentLineId = subsequentLineId;
+    }
+
+    public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+        // Unite operations of the same type
+        if (op.type !== 'addLine') {
+            return undefined;
+        }
+
+        if (op.type !== this.type) {
+            return undefined;
+        }
+
+        // Operations are of the same type on the same artefact, we can unite them
+        return new ArtefactAddLineOperation(this.line, this.textFragmentId, this.previousLineId,
+            this.subsequentLineId,
+        );
+    }
+
+    protected internalUndo(): void {
+        // state().eventBus.emit('change-artefact-add-line', this.prev);
+        this.checkText.deleteLine(this.line.editorId, this.line.lineId);
+    }
+
+    protected internalRedo(): void {
+        this.checkText.createLine(this.line, this.textFragmentId, this.previousLineId, this.subsequentLineId);
+        // state().eventBus.emit('change-artefact-add-line', this.next);
+    }
+}
+export class ArtefactDeleteLineOperation extends ArtefactEditorOperation {
+    public checkText: TextService = new TextService();
+    public line: LineDTO;
+    public textFragmentId: number;
+    public previousLineId: number ;
+    public subsequentLineId: number;
+
+
+    public constructor(
+        line: LineDTO,
+        textFragmentId: number,
+        previousLineId: number ,
+        subsequentLineId: number
+
+    ) {
+        super('deleteLine');
+        this.line = line;
+        this.textFragmentId = textFragmentId;
+        this.previousLineId = previousLineId;
+        this.subsequentLineId = subsequentLineId;
+    }
+
+    public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+        // Unite operations of the same type
+        if (op.type !== 'deleteLine') {
+            return undefined;
+        }
+
+        if (op.type !== this.type) {
+            return undefined;
+        }
+
+        // Operations are of the same type on the same artefact, we can unite them
+        return new ArtefactDeleteLineOperation(this.line, this.textFragmentId, this.previousLineId,
+            this.subsequentLineId,
+        );
+    }
+
+    protected internalUndo(): void {
+        // state().eventBus.emit('change-artefact-add-line', this.prev);
+        this.checkText.createLine(this.line, this.textFragmentId, this.previousLineId, this.subsequentLineId);
+    }
+
+    protected internalRedo(): void {
+        this.checkText.deleteLine(this.line.editorId, this.line.lineId);
+        // state().eventBus.emit('change-artefact-add-line', this.next);
+    }
+}
+// export class ArtefactAddLineOperation extends ArtefactEditorOperation {
+//     public checkText: TextService = new TextService();
+//     //new line inside sign 
+//     public editionId: number;
+//     public next: string;
+//     public prev: string;
+//     public constructor(
+//         editionId: number,
+//         next: string,
+//         prev: string
+//     )
+//     {
+//         super('addLine');
+//         this.editionId = editionId;
+//         this.prev = prev;
+//         this.next = next;
+//     }
+//     public uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined {
+//         // Unite operations of the same type
+//         if (op.type !== 'addLine') {
+//             return undefined;
+//         }
+
+//         if (op.type !== this.type) {
+//             return undefined;
+//         }
+
+//         // Operations are of the same type on the same artefact, we can unite them
+//         return new ArtefactAddLineOperation(this.editionId,
+//             this.next,
+//             (op as ArtefactAddLineOperation).prev
+
+//         );
+//     }
+//     // take care of before and after
+//     // we need prev and next
+//     // send to backend new line with ngative id
+//     // get the new line from backend along with artefact (the line will be positive and updated )
+//     // we need here a internal undo and internal redo that delete the line just added
+//     protected internalUndo(): void {
+// // 
+//                 // state().eventBus.emit('change-artefact-edit-line', this.prev);
+//         // this.checkText.replaceText(this.editionId, this.firstChar, this.lastChar, this.prev);
+//     }
+
+//     protected internalRedo(): void {
+//         // this.checkText.replaceText(this.editionId, this.firstChar, this.lastChar, this.next);
+//         // state().eventBus.emit('change-artefact-edit-line', this.next);
+//     }
+
+// }
 
 export class ArtefactROIOperation extends ArtefactEditorOperation {
 

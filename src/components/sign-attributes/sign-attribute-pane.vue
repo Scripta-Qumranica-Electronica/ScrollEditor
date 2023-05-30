@@ -270,7 +270,6 @@ export default class SignAttributePane extends Vue {
                 attributesValuesSet.add(attribute.attributeValueId);
             }
         }
-        console.log(this.attributesMetadata);
         for (const attributeMeta of this.attributesMetadata) {
             const attributeCopy = { ...attributeMeta };
             // check repeatable
