@@ -9,12 +9,16 @@ import {
     ArtefactTextFragmentMatchListDTO,
     LineTextDTO,
     DiffReplaceResponseDTO,
-    DiffReplaceRequestDTO
+    DiffReplaceRequestDTO,
+    LineDTO,
+    CreateLineDTO,
+    LineDataDTO
 } from '@/dtos/sqe-dtos';
 import {
     TextFragmentData,
     TextEdition,
-    ArtefactTextFragmentData
+    ArtefactTextFragmentData,
+    Line
 } from '@/models/text';
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
@@ -100,6 +104,15 @@ class TextService {
         const response = await CommHelper.put<DiffReplaceResponseDTO>(url, dto);
         this.stateManager.touchEdition(editionId);
         return response.data;
+    }
+    public async createLine(line: LineDTO, textFragmentId: number, previousLineId?: number, subsequentLineId?: number) {
+        const dto: CreateLineDTO = {previousLineId, subsequentLineId, lineName: line.lineName};
+        const url = ApiRoutes.createLine(line.editorId, textFragmentId);
+        const response = await CommHelper.post<LineDataDTO>(url , dto);
+    }
+    public async deleteLine(editorId: number, lineId: number) {
+        const url = ApiRoutes.deleteLine(editorId, lineId);
+        const response = await CommHelper.delete(url);
     }
 
     private async updateServerROIs(artefact: Artefact, newROIs: InterpretationRoi[], deletedROIs: InterpretationRoi[]) {

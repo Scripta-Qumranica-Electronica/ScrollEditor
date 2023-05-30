@@ -43,13 +43,11 @@ import TextService from '@/services/text';
 import {
     ArtefactEditLineOperation,
     ArtefactEditorOperation,
-    TextFragmentAttributeOperation
 } from '@/views/artefact-editor/operations';
 import { SavingAgent, OperationsManager } from '@/utils/operations-manager';
 import {
     AttributeDTO,
     AttributeValueDTO,
-    InterpretationAttributeDTO
 } from '@/dtos/sqe-dtos';
 
 @Component({
@@ -279,7 +277,9 @@ export default class EditLineModal extends Vue {
         const lineVue = this.$refs['line-' + this.line.lineId] as any;
         const lineA = (lineVue && lineVue.$el) as HTMLElement;
         const line = lineA.querySelector('.line-container') as HTMLElement;
-        const newText = line.innerText;
+        let newText = line.innerText;
+        newText = newText.trim();
+        newText = newText.replace(/(\r\n|\n|\r)/gm, "");
         const op: ArtefactEditLineOperation = new ArtefactEditLineOperation(
             this.editionId,
             firstChar,

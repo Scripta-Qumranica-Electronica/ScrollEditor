@@ -13,7 +13,11 @@ export type EventBusEvents =
 | 'update-operation-id'
 | 'new-operation'         // New operaton for the active operations manager
 | 'new-bulk-operations'  // New bulk operations for the active operations manager
-| 'change-artefact-edit-line';
+| 'change-artefact-edit-line'
+| 'change-artefact-add-line'
+| 'change-artefact-delete-line';
+
+
 
 export class EventBus {
     private eventBus: Vue;

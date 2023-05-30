@@ -22,7 +22,7 @@
                     :withMenu="true"
                     :id="
                         'popover-si-' +
-                        sign.signInterpretations[0].signInterpretationId
+                            sign.signInterpretations[0].signInterpretationId
                     "
                     :key="sign.signInterpretations[0].signInterpretationId"
                     :sign="sign"
@@ -34,7 +34,7 @@
                     class="edited"
                     :key="
                         'edited-' +
-                        sign.signInterpretations[0].signInterpretationId
+                            sign.signInterpretations[0].signInterpretationId
                     "
                 ></span>
             </template>
@@ -59,6 +59,21 @@
                         </p>
                     </li>
                     <li>
+                        <p @click="addLineBefore(line)">
+                            {{ $t('misc.addLineBefore') }}
+                        </p>
+                    </li>
+                    <li>
+                        <p @click="addLineAfter(line)">
+                            {{ $t('misc.addLineAfter') }}
+                        </p>
+                    </li>
+                    <li>
+                        <p @click="deleteLine(line)">
+                            {{ $t('misc.deleteLine') }}
+                        </p>
+                    </li>
+                    <li>
                         <p @click="showVariants()">Show Variant Editions</p>
                     </li>
                     <li>
@@ -79,7 +94,7 @@
                     :withMenu="true"
                     :id="
                         'popover-si-' +
-                        sign.signInterpretations[0].signInterpretationId
+                            sign.signInterpretations[0].signInterpretationId
                     "
                     v-for="sign in line.signs"
                     :key="sign.signInterpretations[0].signInterpretationId"
@@ -115,7 +130,7 @@
                     :withMenu="true"
                     :id="
                         'popover-si-' +
-                        sign.signInterpretations[0].signInterpretationId
+                            sign.signInterpretations[0].signInterpretationId
                     "
                     v-for="sign in line.signs"
                     :key="sign.signInterpretations[0].signInterpretationId"
@@ -130,7 +145,9 @@
                         <text-sign
                             :withMenu="false"
                             v-for="sign in variant.signs"
-                            :key="`ed-${variant.editionId}-line-${sign.signInterpretations[0].signInterpretationId}`"
+                            :key="
+                                `ed-${variant.editionId}-line-${sign.signInterpretations[0].signInterpretationId}`
+                            "
                             :sign="sign"
                         >
                             ></text-sign
@@ -147,14 +164,14 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
-import { Line, TextDirection } from '@/models/text';
+import { Line, TextDirection, TextFragment } from '@/models/text';
 import TextSign from '@/components/text/text-sign.vue';
 import {
     EditorDTO,
     LineDTO,
     QwbParallelListDTO,
     LineTextDTO,
-    SignDTO,
+    SignDTO
 } from '@/dtos/sqe-dtos';
 import QwbProxyService from '@/services/qwb-proxy';
 import EditionService from '@/services/edition';
@@ -163,14 +180,15 @@ import TextService from '@/services/text';
 @Component({
     name: 'text-line',
     components: {
-        'text-sign': TextSign,
-    },
+        'text-sign': TextSign
+    }
 })
 export default class TextLineComponent extends Vue {
+    // public text_service: TextService = new TextService();
     @Prop() public isEditMode!: boolean;
     @Prop() public line!: Line;
     @Prop({
-        default: 'rtl',
+        default: 'rtl'
     })
     public direction!: TextDirection;
     private parallels: QwbParallelListDTO | null = null;
@@ -183,8 +201,8 @@ export default class TextLineComponent extends Vue {
         this.closeLineMenu();
         this.$bvModal.show(`parallel-line-${this.line.lineId}`);
         if (this.parallels === null) {
-            const qwbWordIds = this.line.signs.flatMap((x) =>
-                x.signInterpretations.flatMap((y) => y.qwbWordIds)
+            const qwbWordIds = this.line.signs.flatMap(x =>
+                x.signInterpretations.flatMap(y => y.qwbWordIds)
             );
             if (qwbWordIds.length > 0) {
                 const qwbStartId = qwbWordIds[0];
@@ -214,14 +232,39 @@ export default class TextLineComponent extends Vue {
         event.currentTarget.blur();
     }
     private openEditLineModal(line: Line) {
-        this.$state.textFragmentEditor.selectSign(line.signs[0].signInterpretations[0]);
+        this.$state.textFragmentEditor.selectSign(
+            line.signs[0].signInterpretations[0]
+        );
         this.$root.$emit('bv::show::modal', 'editLineModal');
+    }
+    private addLineBefore(line: Line) {
+        console.log(this.$state.textFragmentEditor.selectedSignInterpretations)
+        this.$state.textFragmentEditor.selectSign(
+            line.signs[0].signInterpretations[0]
+        );
+        this.$root.$emit('bv::show::modal', 'addLineModal', 'before');
+    }
+    public deleteLine(line: Line) {
+        this.$state.textFragmentEditor.selectSign(
+        line.signs[0].signInterpretations[0]
+        );
+        this.$root.$emit('bv::show::modal', 'deleteLineModal');
+        // const ts = new TextService();
+        // // add operation on delete 
+        // ts.deleteLine(line.editorId, line.lineId);
+    }
+    private addLineAfter(line: Line) {
+        console.log(this.$state.textFragmentEditor.selectedSignInterpretations)
+        this.$state.textFragmentEditor.selectSign(
+        line.signs[0].signInterpretations[0]
+        );
+        this.$root.$emit('bv::show::modal', 'addLineModal', 'after');
     }
 
     private onPaste(event: any) {
-        const paste = (event.clipboardData || (window as any).ClipboardItem).getData(
-            'text'
-        );
+        const paste = (
+            event.clipboardData || (window as any).ClipboardItem
+        ).getData('text');
         const selection = window.getSelection();
         if (selection) {
             if (!selection.rangeCount) {
@@ -244,7 +287,7 @@ export default class TextLineComponent extends Vue {
                 currentEdition.primary.manuscriptId
             );
             const variantEditions = variantEditionList.editions.flatMap(
-                (x) => x[0]
+                x => x[0]
             );
             const ts = new TextService();
             for (const variantEdition of variantEditions) {
@@ -266,7 +309,7 @@ export default class TextLineComponent extends Vue {
                             lineId: this.line.lineId,
                             lineName: 'NA',
                             editorId: 0,
-                            signs: [],
+                            signs: []
                         } as DetailedLineTextDTO);
                     }
                 }
@@ -340,7 +383,8 @@ span.qwb-parallel-word {
 }
 </style>
 <style lang="scss">
-.line-container{
-    display: flex; flex-wrap: wrap;
+.line-container {
+    display: flex;
+    flex-wrap: wrap;
 }
 </style>
