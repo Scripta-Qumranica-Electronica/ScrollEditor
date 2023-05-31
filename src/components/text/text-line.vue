@@ -351,6 +351,7 @@ div.text-line {
 span.line-name {
     padding-left: 10px;
     cursor: pointer;
+    direction:ltr;
 }
 
 span.qwb-parallel-word {

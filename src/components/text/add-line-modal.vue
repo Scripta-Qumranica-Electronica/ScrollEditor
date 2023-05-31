@@ -7,7 +7,6 @@
             <div v-if="line && line.lineName">
                 Do you want to add line #      
                       <input
-                style="background-color:red"
                 :value="line.lineName"
                 @input="event => onLineNamed(event.target.value)"
             />
@@ -142,6 +141,7 @@ export default class AddLineModal extends Vue {
             };
             return this.selectedSignInterpretation && line;
         } else {
+            debugger
             // creating new line with negativ id + name updated
             const index: string = this.selectedSignInterpretation?.sign.line
                 .lineName;
