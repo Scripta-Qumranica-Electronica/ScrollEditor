@@ -83,7 +83,6 @@ export default class AddLineModal extends Vue {
                 if (modalId === 'addLineModal') {
                     this.position = parameter;
                 } else {
-                    debugger
                     this.notInTheRightComponent = true;
                 }
             }
@@ -108,7 +107,6 @@ export default class AddLineModal extends Vue {
     }
     public updateLineName(index: string, textFragment: TextFragment) {
         if (textFragment) {
-            debugger;
             // first one before
             // last one after
             // others
@@ -164,26 +162,41 @@ export default class AddLineModal extends Vue {
                 if (
                     this.selectedSignInterpretation?.sign.line.textFragment
                         .lines[i].lineName === index
-                ) {
+                        // we clicked on the line 
+                )
+                 {
                     if (
                         Number(index) !==
                         this.selectedSignInterpretation?.sign.line.textFragment
-                            .lines.length
+                            .lines.length // we are not the last one
                     ) {
-                        this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                        // separate this in 2
+                        // if we clkicked on after
+                        // if we clicked on before 
+                        if (this.position == 'after'){                        this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
                             i
                         ].lineId;
                         this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
                             i + 1
+                        ].lineId;}
+                        else{
+                            this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                            i -1
                         ].lineId;
+                        this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                            i 
+                        ].lineId;
+                        }
+
                     } else {
                         this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
                             i
                         ].lineId;
-                        this.subsequentLineId = 0;
+                        this.subsequentLineId = 0; // chqnge this to null
                     }
                 }
             }
+            debugger
             return this.selectedSignInterpretation && line;
         }
     }
