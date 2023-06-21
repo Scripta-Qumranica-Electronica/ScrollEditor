@@ -63,7 +63,6 @@ export default class DeleteLineModal extends Vue {
             (modalId: string, parameter: string) => {
                 if (modalId === 'deleteLineModal') {
                 } else {
-                    debugger
                     this.notInTheRightComponent = true;
                 }
             }
@@ -85,6 +84,7 @@ export default class DeleteLineModal extends Vue {
         );
     }
     public get line(): LineDTO {
+        //tqke cqre if it is before or after here 
         if (this.notInTheRightComponent) {
             const line: any = {
                 editorId: this.selectedSignInterpretation?.sign.line.editorId,
@@ -95,7 +95,7 @@ export default class DeleteLineModal extends Vue {
             return this.selectedSignInterpretation && line;
         } else {
             const index: string = this.selectedSignInterpretation?.sign.line
-                .lineName;
+                .lineName; // line we clicked on
             const textFragment: TextFragment = this.selectedSignInterpretation
                 ?.sign.line.textFragment;
             const line: any = {
@@ -116,6 +116,8 @@ export default class DeleteLineModal extends Vue {
                     this.selectedSignInterpretation?.sign.line.textFragment
                         .lines[i].lineName === index
                 ) {
+                    // in case we clicked on after 
+                    // get the previous and the subsequent 
                     this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
                         i
                     ].lineId;

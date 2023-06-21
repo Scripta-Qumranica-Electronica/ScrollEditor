@@ -40,8 +40,8 @@ export default {
     deleteLine: 'Delete this line',
     addToLeft: 'Add to left',
     addToRight: 'Add to right',
-    showQwbVariants: 'Show QWB Variants',
-    showQwbParallels: 'Show QWB Parallels',
+    showQwbVariants: 'Show QD Variants',
+    showQwbParallels: 'Show QD Parallels',
     noImages: 'No Images Available',
     report: 'Report'
 };

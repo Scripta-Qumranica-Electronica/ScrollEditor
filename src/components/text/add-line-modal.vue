@@ -5,17 +5,12 @@
                 <text-line :line="line"></text-line>
             </div> -->
             <div v-if="line && line.lineName">
-                Do you want to add line #      
-                      <input
-                :value="line.lineName"
-                @input="event => onLineNamed(event.target.value)"
-            />
+                Do you want to add line #
+                <input :value="line.lineName" @input="event => onLineNamed(event.target.value)" />
             </div>
             <div v-else>
-                Please name the line you want to add  
-                          <input
-                @input="event => onLineNamed(event.target.value)"
-            />
+                Please name the line you want to add
+                <input @input="event => onLineNamed(event.target.value)" />
             </div>
 
 
@@ -23,9 +18,7 @@
 
             <template v-slot:modal-footer>
                 <div class="w-100-flex">
-                    <b-button variant="outline-primary" @click="saveNewLine()"
-                        >Save</b-button
-                    >
+                    <b-button variant="outline-primary" @click="saveNewLine()">Save</b-button>
                 </div>
             </template>
         </b-modal>
@@ -60,8 +53,8 @@ export default class AddLineModal extends Vue {
         editorId: 0
     };
     public textService: TextService = new TextService();
-    public previousLineId: number = 0;
-    public subsequentLineId: number = 0;
+    public previousLineId: number | null = 0;
+    public subsequentLineId: number | null = 0;
     public textFragmentId: number = 0;
     private operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
@@ -107,21 +100,46 @@ export default class AddLineModal extends Vue {
     }
     public updateLineName(index: string, textFragment: TextFragment) {
         if (textFragment) {
-            // first one before
-            // last one after
-            // others
             let name: string = '';
             for (let i = 0; i < textFragment?.lines.length; i++) {
                 if (textFragment?.lines[i].lineName === index) {
-                    if (!index.includes('_')) {
+                    if ((index.match(/_/g) || []).length == 0) {
                         if (this.position === 'before') {
                             const before = Number(index) - 1;
                             name = before.toString() + '_' + 1;
                         } else {
                             name = index + '_' + '1';
                         }
-                    } else {
-                        name = '';
+                    } else if ((index.match(/_/g) || []).length == 1){
+                        if (this.position === 'before') {
+                            const parts = index.split("_");
+                            const a = parts[0];
+                            const b = parts[1];
+                            const c = Number(b)-1;
+                            const d = a + "_" + c
+                            if (textFragment?.lines[i-1].lineName == d){
+                                name = d + "_0"
+                            }
+                            else{
+                                name = d;
+                            }
+                        }
+                        else{
+                            const parts = index.split("_");
+                            const a = parts[0];
+                            const b = parts[1];
+                            const c = Number(b)+1;  
+                            const d = a + "_" + c
+                            if (textFragment?.lines[i+1].lineName == d){
+                                name = a + "_" + b + "_0" 
+                            }
+                            else{
+                                name = d;
+                            }
+                        }
+                    }
+                    else{
+                        name = "";
                     }
                 }
             }
@@ -139,7 +157,6 @@ export default class AddLineModal extends Vue {
             };
             return this.selectedSignInterpretation && line;
         } else {
-            debugger
             // creating new line with negativ id + name updated
             const index: string = this.selectedSignInterpretation?.sign.line
                 .lineName;
@@ -162,41 +179,42 @@ export default class AddLineModal extends Vue {
                 if (
                     this.selectedSignInterpretation?.sign.line.textFragment
                         .lines[i].lineName === index
-                        // we clicked on the line 
-                )
-                 {
-                    if (
-                        Number(index) !==
-                        this.selectedSignInterpretation?.sign.line.textFragment
-                            .lines.length // we are not the last one
-                    ) {
-                        // separate this in 2
-                        // if we clkicked on after
-                        // if we clicked on before 
-                        if (this.position == 'after'){                        this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
-                            i
-                        ].lineId;
-                        this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
-                            i + 1
-                        ].lineId;}
-                        else{
+                ) {
+                    if (this.position == 'after') {
+                        if (index !== this.selectedSignInterpretation?.sign.line.textFragment.lines[this.selectedSignInterpretation?.sign.line.textFragment.lines.length - 1].lineName) {
                             this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
-                            i -1
-                        ].lineId;
-                        this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
-                            i 
-                        ].lineId;
+                                i
+                            ].lineId;
+                            this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                                i + 1
+                            ].lineId;
+                        }
+                        else {
+                            this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                                i
+                            ].lineId;
+                            this.subsequentLineId = null; // chqnge this to null
+                        }
+                    }
+                    else if (this.position == 'before') {
+                        if (index !== this.selectedSignInterpretation?.sign.line.textFragment.lines[0].lineName) {
+                            this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                                i - 1
+                            ].lineId;
+                            this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                                i
+                            ].lineId;
+                        }
+                        else {
+                            this.previousLineId = null
+                            this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
+                                i
+                            ].lineId;
                         }
 
-                    } else {
-                        this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
-                            i
-                        ].lineId;
-                        this.subsequentLineId = 0; // chqnge this to null
                     }
                 }
             }
-            debugger
             return this.selectedSignInterpretation && line;
         }
     }
@@ -236,6 +254,7 @@ export default class AddLineModal extends Vue {
     display: flex;
     flex-direction: row;
 }
+
 .recontructedCheckbox {
     margin-left: 1rem;
 }

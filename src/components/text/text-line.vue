@@ -77,7 +77,7 @@
                         <p @click="showVariants()">Show Variant Editions</p>
                     </li>
                     <li>
-                        <p @click="showParallels()">Show QWB Parallels</p>
+                        <p @click="showParallels()">Show QD Parallels</p>
                     </li>
                 </ul>
             </div>
@@ -86,7 +86,7 @@
         <b-modal
             :id="`parallel-line-${line.lineId}`"
             hide-footer
-            title="Parallel Texts from QWB"
+            title="Parallel Texts from QD"
         >
             <b class="line-name">Line {{ line.lineName }}</b>
             <div class="text-line" :dir="direction">
@@ -115,7 +115,7 @@
                 </div>
             </div>
             <div v-if="parallels === null || parallels.parallels.length === 0">
-                <p>No parallel text found in the QWB database.</p>
+                <p>No parallel text found in the QD database.</p>
             </div>
         </b-modal>
 
