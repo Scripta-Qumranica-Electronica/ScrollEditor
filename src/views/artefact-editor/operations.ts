@@ -138,15 +138,15 @@ export class ArtefactAddLineOperation extends ArtefactEditorOperation {
     public checkText: TextService = new TextService();
     public line: LineDTO;
     public textFragmentId: number;
-    public previousLineId: number ;
-    public subsequentLineId: number;
+    public previousLineId: number | undefined;
+    public subsequentLineId: number |undefined;
 
 
     public constructor(
         line: LineDTO,
         textFragmentId: number,
-        previousLineId: number ,
-        subsequentLineId: number
+        previousLineId: number | undefined,
+        subsequentLineId: number | undefined
 
     ) {
         super('addLine');
