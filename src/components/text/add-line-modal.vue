@@ -59,6 +59,9 @@ export default class AddLineModal extends Vue {
     private operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
+    public get editionId() {
+        return parseInt(this.$route.params.editionId);
+    }
     public textLine: string = '';
     public get editorState() {
         return this.$state.textFragmentEditor;
@@ -223,8 +226,9 @@ export default class AddLineModal extends Vue {
         // call the operation
 
         this.textService.createLine(
-            this.line,
+            this.editionId,
             this.textFragmentId,
+            this.line,
             this.previousLineId,
             this.subsequentLineId
         );

@@ -105,9 +105,10 @@ class TextService {
         this.stateManager.touchEdition(editionId);
         return response.data;
     }
-    public async createLine(line: LineDTO, textFragmentId: number, previousLineId?: number, subsequentLineId?: number) {
+    public async createLine(editionId: number, textFragmentId: number,line: LineDTO, previousLineId?: number, subsequentLineId?: number) {
         const dto: CreateLineDTO = {previousLineId, subsequentLineId, lineName: line.lineName};
-        const url = ApiRoutes.createLine(line.editorId, textFragmentId);
+        const url = ApiRoutes.createLine(editionId, textFragmentId);
+        // get the editionId and send it on first param
         const response = await CommHelper.post<LineDataDTO>(url , dto);
     }
     public async deleteLine(editorId: number, lineId: number) {
