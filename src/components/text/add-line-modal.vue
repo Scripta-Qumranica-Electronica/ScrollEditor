@@ -233,6 +233,7 @@ export default class AddLineModal extends Vue {
             this.subsequentLineId
         );
         const op: ArtefactAddLineOperation = new ArtefactAddLineOperation(
+            this.editionId,
             this.line,
             this.textFragmentId,
             this.previousLineId,
