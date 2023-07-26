@@ -134,7 +134,7 @@ export default class DeleteLineModal extends Vue {
     }
     public deleteLine() {
 
-        this.textService.deleteLine(this.line.editorId, this.line.lineId);
+        this.textService.deleteLine(this.editionId, this.line.lineId);
         const op: ArtefactDeleteLineOperation = new ArtefactDeleteLineOperation(
             this.editionId,
             this.line,

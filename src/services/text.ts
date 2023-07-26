@@ -111,8 +111,8 @@ class TextService {
         // get the editionId and send it on first param
         const response = await CommHelper.post<LineDataDTO>(url , dto);
     }
-    public async deleteLine(editorId: number, lineId: number) {
-        const url = ApiRoutes.deleteLine(editorId, lineId);
+    public async deleteLine(editionId: number, lineId: number) {
+        const url = ApiRoutes.deleteLine(editionId, lineId);
         const response = await CommHelper.delete(url);
     }
 
