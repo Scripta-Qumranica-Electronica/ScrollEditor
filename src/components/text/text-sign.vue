@@ -1,5 +1,5 @@
 <template>
-    <span contenteditable="false">
+    <span contenteditable=true>
         <span
             class="text-sign"
             :class="[
