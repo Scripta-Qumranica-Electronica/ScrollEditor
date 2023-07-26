@@ -174,8 +174,6 @@ export class ArtefactAddLineOperation extends ArtefactEditorOperation {
             this.subsequentLineId,
         );
     }
-    // public async createLine(editionId: number, textFragmentId: number,line: LineDTO, previousLineId?: number, subsequentLineId?: number) {
-    //     const dto: CreateLineDTO = {previousLineId, subsequentLineId, lineName: line.lineName};
     protected internalUndo(): void {
         // state().eventBus.emit('change-artefact-add-line', this.prev);
         this.checkText.deleteLine(this.line.editorId, this.line.lineId);
