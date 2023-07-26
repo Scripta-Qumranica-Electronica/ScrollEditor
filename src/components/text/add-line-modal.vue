@@ -53,12 +53,15 @@ export default class AddLineModal extends Vue {
         editorId: 0
     };
     public textService: TextService = new TextService();
-    public previousLineId: number | null = 0;
-    public subsequentLineId: number | null = 0;
+    public previousLineId: number | undefined = 0;
+    public subsequentLineId: number | undefined = 0;
     public textFragmentId: number = 0;
     private operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
+    public get editionId() {
+        return parseInt(this.$route.params.editionId);
+    }
     public textLine: string = '';
     public get editorState() {
         return this.$state.textFragmentEditor;
@@ -193,7 +196,7 @@ export default class AddLineModal extends Vue {
                             this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
                                 i
                             ].lineId;
-                            this.subsequentLineId = null; // chqnge this to null
+                            this.subsequentLineId = undefined; // chqnge this to null
                         }
                     }
                     else if (this.position == 'before') {
@@ -206,7 +209,7 @@ export default class AddLineModal extends Vue {
                             ].lineId;
                         }
                         else {
-                            this.previousLineId = null
+                            this.previousLineId = undefined
                             this.subsequentLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
                                 i
                             ].lineId;
@@ -223,8 +226,9 @@ export default class AddLineModal extends Vue {
         // call the operation
 
         this.textService.createLine(
-            this.line,
+            this.editionId,
             this.textFragmentId,
+            this.line,
             this.previousLineId,
             this.subsequentLineId
         );
