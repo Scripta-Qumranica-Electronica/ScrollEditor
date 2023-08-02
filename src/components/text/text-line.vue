@@ -387,5 +387,4 @@ span.qwb-parallel-word {
 .line-container {
     display: flex;
     flex-wrap: wrap;
-}
-</style>
+}</style>

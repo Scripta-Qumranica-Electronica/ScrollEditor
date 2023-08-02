@@ -12,7 +12,7 @@
                     direction="rtl"
                     class="d-flex w-100"
                     :ref="'line-' + (line && line.lineId)"
-                    :isEditMode="true"
+                    :isEditMode=true
                     @line-change="onLineChanged($event)"
                 ></text-line>
             </div>

@@ -42,6 +42,9 @@ export default class DeleteLineModal extends Vue {
         signs: [],
         editorId: 0
     };
+    public get editionId() {
+        return parseInt(this.$route.params.editionId);
+    }
     public notInTheRightComponent: boolean = false;
     public textService: TextService = new TextService();
     public previousLineId: number = 0;
@@ -131,8 +134,9 @@ export default class DeleteLineModal extends Vue {
     }
     public deleteLine() {
 
-        this.textService.deleteLine(this.line.editorId, this.line.lineId);
+        this.textService.deleteLine(this.editionId, this.line.lineId);
         const op: ArtefactDeleteLineOperation = new ArtefactDeleteLineOperation(
+            this.editionId,
             this.line,
             this.textFragmentId,
             this.previousLineId,
