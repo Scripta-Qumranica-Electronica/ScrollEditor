@@ -3,7 +3,7 @@
         <span
             class="text-sign"
             :class="[
-                { selected: isSelected, highlighted: isHighlighted },
+                { selected: isSelected,notSelected:!isSelected, highlighted: isHighlighted },
                 cssStrings,
             ]"
             @click="onSignInterpretationClicked($event)"
@@ -286,6 +286,9 @@ div {
 span {
     color: $black;
     cursor: default;
+}
+span.notSelected{
+    cursor: auto;
 }
 
 span.selected {

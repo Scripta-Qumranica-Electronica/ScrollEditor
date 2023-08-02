@@ -139,6 +139,7 @@ class EditionInfo {
     public shares: ShareInfo[];
     public invitations: ShareInfo[];
     public locked: boolean;
+    public copyright: string;
     public isPublic: boolean;
     public lastEdit?: Date;
     public metrics: EditionManuscriptMetricsDTO;
@@ -163,6 +164,7 @@ class EditionInfo {
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;
+        this.copyright = dto.copyright;
         this.name = dto.name;
         this.permission = new Permissions(dto.permission); // isAdmin, mayWrite
         this.owner = new UserInfo(dto.owner);

@@ -7,6 +7,9 @@
                 @change="onReconstructedCheckBoxChanged"
             >Reconstructed</b-form-checkbox>
         </div>
+        <div v-if="currentEdition.copyright">
+            Copyright : © {{currentEdition.copyright}}
+        </div>
         <ul class="attribute-list">
             <li v-if="!readOnly" class="attribute-pane-add-attribute">
                 <b-dropdown
@@ -75,6 +78,7 @@ import {
 } from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
+import { EditionInfo } from '@/models/edition';
 import {
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
@@ -97,6 +101,9 @@ export default class SignAttributePane extends Vue {
 
     private get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
+    }
+    private get currentEdition(): EditionInfo | null {
+        return this.$state.editions.current;
     }
 
     public get editorState() {
