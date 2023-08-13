@@ -436,7 +436,7 @@ export default class Navbar extends Vue {
 
 $background: #0a142e;
 $foreground: $qumran-white;
-
+// check how merging is made , todo remove this line 
 /* scoped has to be removed in order to set b-nav-dropdown color  */
 #main-nav-bar {
     /* background: #041d5c !important; */
