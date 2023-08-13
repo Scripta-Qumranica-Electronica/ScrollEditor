@@ -60,6 +60,16 @@
             <b-navbar-nav class="ml-auto"></b-navbar-nav>
 
             <b-navbar-nav toggleable class="search-user-nav" align="right">
+                <b-nav-item active>
+                    <b-button size="sm" variant="outline" class="navbar-button" @click="reportProblemModal">
+                        <i
+                        class="fa fa-exclamation-triangle"
+                            aria-hidden="true"
+                            style="font-size: 1.3rem"
+                            v-b-tooltip.hover.bottomleft="$t('home.search')"
+                        ></i>
+                    </b-button>
+                </b-nav-item>
                 <b-nav-item to="/search" active>
                     <b-button size="sm" variant="outline" class="navbar-button">
                         <i
@@ -70,6 +80,7 @@
                         ></i>
                     </b-button>
                 </b-nav-item>
+
 
                 <!-- User menu -->
                 <b-nav-item-dropdown
@@ -201,6 +212,7 @@
                         {{ $t('navbar.contactus') }}
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
+                
             </b-navbar-nav>
         </b-navbar>
         <login></login>
@@ -421,12 +433,12 @@ export default class Navbar extends Vue {
 <style lang="scss">
 @import '@/assets/styles/_variables.scss';
 @import '@/assets/styles/_fonts.scss';
+// just a check for the pull request todo remove it next pull request
 
 $background: #0a142e;
 $foreground: $qumran-white;
 
 /* scoped has to be removed in order to set b-nav-dropdown color  */
-
 #main-nav-bar {
     /* background: #041d5c !important; */
     background: $background !important;
