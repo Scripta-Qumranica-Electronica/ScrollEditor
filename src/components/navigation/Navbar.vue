@@ -66,7 +66,7 @@
                         class="fa fa-exclamation-triangle"
                             aria-hidden="true"
                             style="font-size: 1.3rem"
-                            v-b-tooltip.hover.bottomleft="$t('home.search')"
+                            v-b-tooltip.hover.bottomleft="'Report Problem'"
                         ></i>
                     </b-button>
                 </b-nav-item>
