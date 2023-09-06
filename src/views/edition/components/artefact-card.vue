@@ -1,5 +1,5 @@
 <template>
-    <div id="card" ref="card">
+    <div id="card" ref="card"   v-b-tooltip.hover.right title="Rename this artefact">
         <router-link :to="{ path: `/editions/${editionId}/artefacts/${artefact.id}` }">
             <span class="line-name" :id="'popover-line-' + artefact.id"
                 @contextmenu="openLineMenu($event, 'popover-line-' + artefact.id)">
