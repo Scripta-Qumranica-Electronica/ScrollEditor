@@ -99,21 +99,29 @@ class TextService {
             followingSignInterpretationId,
             newText,
         };
-
+debugger
         const url = ApiRoutes.diffReplaceText(editionId);
+        debugger
         const response = await CommHelper.put<DiffReplaceResponseDTO>(url, dto);
+        debugger
         this.stateManager.touchEdition(editionId);
+        debugger
         return response.data;
     }
-    public async createLine(editionId: number, textFragmentId: number,line: LineDTO, previousLineId?: number, subsequentLineId?: number) {
+    public async createLine(editionId: number, textFragmentId: number,line: LineDTO, previousLineId?: number, subsequentLineId?: number): Promise<LineDataDTO>{
         const dto: CreateLineDTO = {previousLineId, subsequentLineId, lineName: line.lineName};
         const url = ApiRoutes.createLine(editionId, textFragmentId);
-        // get the editionId and send it on first param
         const response = await CommHelper.post<LineDataDTO>(url , dto);
+        this.stateManager.touchEdition(editionId);
+        return response.data;
+
     }
     public async deleteLine(editionId: number, lineId: number) {
         const url = ApiRoutes.deleteLine(editionId, lineId);
         const response = await CommHelper.delete(url);
+        this.stateManager.touchEdition(editionId);
+        return response.data;
+
     }
 
     private async updateServerROIs(artefact: Artefact, newROIs: InterpretationRoi[], deletedROIs: InterpretationRoi[]) {

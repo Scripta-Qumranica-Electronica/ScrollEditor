@@ -50,13 +50,33 @@
                                 </b-button>
                             </b-button-group>
                         </div>
-                        <div class="col" role="tab">
+                        <div class="col" role="tab" v-b-tooltip.hover.left title="Rename this fragment">
+                            <span class="line-name" :id="'popover-line-' + artefact.id"
+                @contextmenu="openLineMenu($event, 'popover-line-' + artefact.id)">
                             <b-button
                                 block
                                 href="#"
                                 v-b-toggle="'accordion-' + index"
-                                >{{ textFragment.textFragmentName }}</b-button
+                                >{{ textFragment.textFragmentName }}
+                            </b-button
                             >
+                            </span>
+                            <b-popover custom-class="popover-sign-body" :target="'popover-line-' + artefact.id">
+                <div class="character-popover"  ref="lineMenu">
+                 <b>
+                    Rename this fragment
+                 </b>   
+                    <input ref="newFragmentName" id="newName" v-model="newArtefactName" type="text" required
+                        :placeholder="$t('home.newArtefactName')" />
+                    <div>
+                        <b-button @click="renameFragment(textFragment,newArtefactName)" size="sm">
+                            Rename 
+                        </b-button>
+                        <b-button @click="closeLineMenu()" size="sm">Close</b-button>
+                    </div>
+
+                </div>
+            </b-popover>
                         </div>
                     </b-row>
                 </b-card-header>
@@ -112,7 +132,15 @@ export default class TextSide extends Vue {
     public editorMode!: ArtefactEditorMode;
     @Prop() public textFragment!: TextFragment;
     @Prop() public fontSize!: number;
+    public newArtefactName: string = '';
+    private prevLineMenuId: string = '';
 
+    public openLineMenu(event: MouseEvent, artefactId: any) {
+        event.preventDefault();
+        this.$root.$emit('bv::show::popover', artefactId);
+        this.prevLineMenuId = artefactId;
+        console.log(this.textFragment.textFragmentName)
+    }
     private get artefactMode() {
         return this.editorMode === 'artefact';
     }
@@ -120,7 +148,17 @@ export default class TextSide extends Vue {
     private get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
+    public async renameFragment(a:any ,fr:string) {
+        console.log(a ,fr)
+        a.textFragmentName =  fr;
+        // this.artefact.name = this.newArtefactName;
+        // await this..changeArtefact(
+        //     this.editionId,
+        //     this.artefact
+        // );
+        this.$root.$emit('bv::hide::popover', this.prevLineMenuId);
 
+    }
     // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
@@ -213,6 +251,8 @@ export default class TextSide extends Vue {
                 }
             });
         }
+        this.newArtefactName =  this.textFragment.textFragmentName;
+
     }
 
     private async loadFragment(event: Event) {
