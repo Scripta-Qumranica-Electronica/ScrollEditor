@@ -101,7 +101,6 @@ export default class EditLineModal extends Vue {
         this.textLine = event;
     }
     public shown(): void {
-        debugger
         this.$nextTick(() => {
             const lineVue = this.$refs['line-' + this.line.lineId] as any;
             const lineA = (lineVue && lineVue.$el) as HTMLElement;
@@ -204,14 +203,12 @@ export default class EditLineModal extends Vue {
             this.prevText
         );
         this.operationsManager.addOperation(op);
-        debugger
         this.checkText.replaceText(
             this.editionId,
             firstChar,
             lastChar,
             newText
         );
-        debugger
         const modal = this.$refs['editLineModal'] as any & { hide: () => void };
         modal.hide();
     }

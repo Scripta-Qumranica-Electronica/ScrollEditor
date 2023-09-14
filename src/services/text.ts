@@ -119,13 +119,9 @@ class TextService {
             followingSignInterpretationId,
             newText,
         };
-debugger
         const url = ApiRoutes.diffReplaceText(editionId);
-        debugger
         const response = await CommHelper.put<DiffReplaceResponseDTO>(url, dto);
-        debugger
         this.stateManager.touchEdition(editionId);
-        debugger
         return response.data;
     }
     public async createLine(editionId: number, textFragmentId: number,line: LineDTO, previousLineId?: number, subsequentLineId?: number): Promise<LineDataDTO>{

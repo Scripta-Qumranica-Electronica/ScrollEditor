@@ -151,18 +151,12 @@ export default class TextSide extends Vue {
     private get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
-    public async renameFragment(a:any ,fr:string) {
-        console.log(a ,fr)
-        a.textFragmentName =  fr;
+    public async renameFragment(newFragment:TextFragment ,fragmentName:string) {
+        newFragment.textFragmentName =  fragmentName;
         await this.textService.changeTextFragment(
             this.editionId,
-            a
+            newFragment
         );
-        // this.artefact.name = this.newArtefactName;
-        // await this..changeArtefact(
-        //     this.editionId,
-        //     this.artefact
-        // );
         this.$root.$emit('bv::hide::popover', this.prevLineMenuId);
 
     }
