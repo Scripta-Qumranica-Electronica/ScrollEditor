@@ -50,13 +50,33 @@
                                 </b-button>
                             </b-button-group>
                         </div>
-                        <div class="col" role="tab">
+                        <div class="col" role="tab" v-b-tooltip.hover.left title="Rename this fragment">
+                            <span class="line-name" :id="'popover-line-' + textFragment.textFragmentId"
+                @contextmenu="openLineMenu($event, 'popover-line-' + textFragment.textFragmentId)">
                             <b-button
                                 block
                                 href="#"
                                 v-b-toggle="'accordion-' + index"
-                                >{{ textFragment.textFragmentName }}</b-button
+                                >{{ textFragment.textFragmentName }}
+                            </b-button
                             >
+                            </span>
+                            <b-popover custom-class="popover-sign-body" :target="'popover-line-' + textFragment.textFragmentId">
+                <div class="character-popover"  ref="lineMenu">
+                 <b>
+                    Rename this fragment
+                 </b>   
+                    <input ref="newFragmentName" id="newName" v-model="newFragmentName" type="text" required
+                        :placeholder="$t('home.newFragmentName')" />
+                    <div>
+                        <b-button @click="renameFragment(textFragment,newFragmentName)" size="sm">
+                            Rename 
+                        </b-button>
+                        <b-button @click="closeLineMenu()" size="sm">Close</b-button>
+                    </div>
+
+                </div>
+            </b-popover>
                         </div>
                     </b-row>
                 </b-card-header>
@@ -95,6 +115,7 @@ import EditLineModal from '@/components/text/edit-line-modal.vue';
 import AddLineModal from '@/components/text/add-line-modal.vue';
 import DeleteLineModal from '@/components/text/delete-line-modal.vue';
 import { ArtefactEditorMode } from './types';
+import TextService from '@/services/text';
 
 @Component({
     name: 'text-side',
@@ -112,7 +133,17 @@ export default class TextSide extends Vue {
     public editorMode!: ArtefactEditorMode;
     @Prop() public textFragment!: TextFragment;
     @Prop() public fontSize!: number;
+    public newArtefactName: string = '';
+    public newFragmentName: string = '';
+    private prevLineMenuId: string = '';
+    private textService = new TextService();
 
+    public openLineMenu(event: MouseEvent, artefactId: any) {
+        event.preventDefault();
+        this.$root.$emit('bv::show::popover', artefactId);
+        this.prevLineMenuId = artefactId;
+    
+    }
     private get artefactMode() {
         return this.editorMode === 'artefact';
     }
@@ -120,7 +151,15 @@ export default class TextSide extends Vue {
     private get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
+    public async renameFragment(newFragment:TextFragment ,fragmentName:string) {
+        newFragment.textFragmentName =  fragmentName;
+        await this.textService.changeTextFragment(
+            this.editionId,
+            newFragment
+        );
+        this.$root.$emit('bv::hide::popover', this.prevLineMenuId);
 
+    }
     // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
     private errorMessage = '';
     private loading = false;
@@ -213,6 +252,8 @@ export default class TextSide extends Vue {
                 }
             });
         }
+
+
     }
 
     private async loadFragment(event: Event) {
@@ -237,6 +278,7 @@ export default class TextSide extends Vue {
 
             await this.getFragmentText(textFragmentData.id);
             const tf = this.$state.textFragments.get(textFragmentData.id);
+            this.newFragmentName =  textFragmentData.name;
 
             if (tf) {
                 this.displayedTextFragments = [
