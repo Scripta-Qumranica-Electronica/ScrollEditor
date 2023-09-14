@@ -12,13 +12,16 @@ import {
     DiffReplaceRequestDTO,
     LineDTO,
     CreateLineDTO,
-    LineDataDTO
+    LineDataDTO,
+    TextFragmentDTO,
+    UpdateTextFragmentDTO
 } from '@/dtos/sqe-dtos';
 import {
     TextFragmentData,
     TextEdition,
     ArtefactTextFragmentData,
-    Line
+    Line,
+    TextFragment
 } from '@/models/text';
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
@@ -87,7 +90,24 @@ class TextService {
 
         return deletedROIs.length + newROIs.length;
     }
-
+    public async changeTextFragment(
+        editionId: number,
+        fragment: TextFragment
+    ): Promise<TextFragmentDTO> {
+        const body = {
+            name: fragment.textFragmentName,
+        } as UpdateTextFragmentDTO;
+        const response = await CommHelper.put<TextFragmentDTO>(
+            ApiRoutes.editionTextFragmentUrl(editionId, fragment.id),
+            body
+        );
+        // Update the state
+        const changed = new TextFragment(response.data);
+        // todo find the update of textfragmentstate manager
+        // this.stateManager.artefacts.update(changed);
+        this.stateManager.touchEdition(editionId);
+        return response.data;
+    }
     public async getLineText(editionId: number, lineId: number): Promise<LineTextDTO> {
         const response = await CommHelper.get<LineTextDTO>(ApiRoutes.lineText(editionId, lineId));
         return response.data;

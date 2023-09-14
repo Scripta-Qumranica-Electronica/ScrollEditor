@@ -26,6 +26,7 @@ export default {
     noVersions: 'No other versions',
 
     newArtefactName: 'New Artefact Name',
+    newFragmentName: 'New Fragment Name',
     newArtefact: 'New Artefact',
     creatingNewArtefact: 'Creating New Artefact',
     undo: 'Undo',
