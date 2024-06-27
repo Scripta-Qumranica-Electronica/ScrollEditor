@@ -7,9 +7,6 @@
                 @change="onReconstructedCheckBoxChanged"
             >Reconstructed</b-form-checkbox>
         </div>
-        <div v-if="currentEdition.copyright">
-            Copyright : {{currentEdition.copyright}}
-        </div>
         <ul class="attribute-list">
             <li v-if="!readOnly" class="attribute-pane-add-attribute">
                 <b-dropdown
