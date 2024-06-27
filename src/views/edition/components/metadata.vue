@@ -19,6 +19,10 @@
                         (metadata[key] || '-') | cleanString
                     }}</span>
                 </li>
+                <li class="row m-2">
+                    <span class="key col-2">Copyright:</span>
+                    <span class="value col">{{edition.copyright}}</span>
+                </li>
             </ul>
         </div>
     </b-modal>
@@ -58,8 +62,8 @@ export default class EditionMetadataModal extends Vue {
         'script',
         'material',
         'otherIdentifications',
-        'publication',
-    ];
+        'publication'
+            ];
     private static _headers = {
         manuscript: 'Manuscript',
         composition: 'Composition',
@@ -74,6 +78,7 @@ export default class EditionMetadataModal extends Vue {
         material: 'Material',
         otherIdentifications: 'Other Identifications',
         publication: 'Publication',
+        copyright: 'Copyright',
     };
 
     // Return the following as 'any' so that eslint doesn't complain about headers[key] above
