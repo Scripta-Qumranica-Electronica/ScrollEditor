@@ -144,6 +144,7 @@ export interface EditionDTO {
     locked: boolean;
     isPublic: boolean;
     lastEdit?: string;
+    publicationDate?: string;
     copyright: string;
 }
 

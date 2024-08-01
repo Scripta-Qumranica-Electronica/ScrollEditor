@@ -141,6 +141,7 @@ class EditionInfo {
     public locked: boolean;
     public copyright: string;
     public isPublic: boolean;
+    public publicationDate?: Date;
     public lastEdit?: Date;
     public metrics: EditionManuscriptMetricsDTO;
     public attributeMetadata?: AttributeMetadata;
@@ -202,6 +203,7 @@ class EditionInfo {
         this.invitations = other.invitations;
         this.locked = other.locked;
         this.isPublic = other.isPublic;
+        this.publicationDate = other.publicationDate;
         this.lastEdit = other.lastEdit;
     }
 
