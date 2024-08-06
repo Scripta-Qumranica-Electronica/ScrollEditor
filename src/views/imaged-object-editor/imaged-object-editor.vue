@@ -34,7 +34,7 @@
                 {{ imagedObject.id }}
                 <edition-icons :edition="edition" :show-text="true" />
             </div>
-            <div id="imaged-object-container">
+            <div id="imaged-object-container" class="iiif-container">
                 <zoomer
                     class="img-obj-container"
                     v-if="masterImage"

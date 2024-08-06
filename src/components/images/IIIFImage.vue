@@ -102,7 +102,9 @@ class TileInfo {
         this.loadError = true;
         this.retries += 1;
         if (this.retries >= TileInfo.RETRY_LIMIT) {
-            console.error(`Giving up loading ${this._url} after ${this.retries}`);
+            console.error(
+                `Giving up loading ${this._url} after ${this.retries}`
+            );
         }
         setTimeout(() => {
             this.loadError = false;
@@ -119,7 +121,7 @@ export default class IIIFImageComponent extends Vue {
     @Prop({ default: 0.5 }) public scaleFactor!: number;
     @Prop() public maxWidth?: number; // In Screen Coordinates
     @Prop({ default: 1 }) public opacity!: number;
-    @Prop({ default: true}) public dynamic!: boolean;
+    @Prop({ default: true }) public dynamic!: boolean;
 
     public tiles: TileInfo[] = [];
     private observer?: ResizeObserver;
@@ -131,7 +133,11 @@ export default class IIIFImageComponent extends Vue {
     protected get surroundingDiv() {
         const imageGroup = this.$refs.imageGroup as SVGGElement;
         const svg = imageGroup.ownerSVGElement!;
-        const div = svg.closest('div')!;
+        const div = svg.closest('div.iiif-container');
+        if (!div)
+        {
+            throw new Error("Can't locate surrounding div of iiif-image");
+        }
 
         return div;
     }
@@ -168,7 +174,6 @@ export default class IIIFImageComponent extends Vue {
             this.refreshTimeoutId = null;
         }, IIIFImageComponent.CHECK_IN_VIEW_TIMEOUT);
     }
-
     @Watch('scaleFactor')
     private onScalePropertyChanged(value: number, oldValue: number) {
         this.loadTiles();
@@ -249,19 +254,30 @@ export default class IIIFImageComponent extends Vue {
             return;
         }
         const div = this.surroundingDiv;
-        const bboxDiv = { left: div.offsetLeft, top: div.offsetTop, right: div.offsetLeft + div.clientWidth, bottom: div.offsetTop + div.clientHeight };
+        const bboxDiv = {
+            left: div.offsetLeft,
+            top: div.offsetTop,
+            right: div.offsetLeft + div.clientWidth,
+            bottom: div.offsetTop + div.clientHeight,
+        };
         // console.debug('Div scrolled-area ', div, ' bounding box ', bboxDiv);
 
         for (const [idx, tile] of this.tiles.entries()) {
             const tileId = `iiif-image-${this.image.id}-tile-${idx}`;
-            const tileElement = document.getElementById(tileId) as SVGImageElement | null;
+            const tileElement = document.getElementById(
+                tileId
+            ) as SVGImageElement | null;
             if (!tileElement) {
                 // console.debug(`Can't locate element for tile ${tileId}`);
                 continue;
             }
             const bbox = tileElement.getBoundingClientRect();
 
-            const inView = bbox.left <= bboxDiv.right && bboxDiv.left <= bbox.right && bbox.top <= bboxDiv.bottom && bboxDiv.top <= bbox.bottom;
+            const inView =
+                bbox.left <= bboxDiv.right &&
+                bboxDiv.left <= bbox.right &&
+                bbox.top <= bboxDiv.bottom &&
+                bboxDiv.top <= bbox.bottom;
             tile.inView = inView;
             // console.debug(`Tile ${idx} bounding box:`, tileElement.getBoundingClientRect(), 'inView: ', inView);
         }
@@ -408,10 +424,13 @@ export default class IIIFImageComponent extends Vue {
     // tile - it is enough for removing the rounding artefacts.
     private get backgroundImageScale(): number {
         // Return the scale in percentages
-        const max = Math.max(this.imageBoundingBox.width, this.imageBoundingBox.height); // Max dimension of image
-        let scale = 1000 / max * 100;  // Scale down (in percents) of max dimension down to 1000
+        const max = Math.max(
+            this.imageBoundingBox.width,
+            this.imageBoundingBox.height
+        ); // Max dimension of image
+        let scale = (1000 / max) * 100; // Scale down (in percents) of max dimension down to 1000
         scale = Math.floor(scale);
-        scale = Math.min(5, scale);  // No more than 5% of the original image - anyway
+        scale = Math.min(5, scale); // No more than 5% of the original image - anyway
 
         return scale;
     }
@@ -430,7 +449,7 @@ export default class IIIFImageComponent extends Vue {
     }
 
     public get backgroundImageTransform(): string {
-        return `scale(${100 / this.backgroundImageScale })`; // Scale the image back to 100%
+        return `scale(${100 / this.backgroundImageScale})`; // Scale the image back to 100%
     }
 
     public onBackgroundLoadError() {
@@ -455,5 +474,4 @@ export default class IIIFImageComponent extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
