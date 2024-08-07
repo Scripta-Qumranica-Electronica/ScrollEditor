@@ -37,7 +37,7 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.yml pull
           docker compose -f docker/docker-compose.yml build
-          COMPOSE_HTTP_TIMEOUT=600 dockercompose -f docker/docker-compose.yml up -d
+          COMPOSE_HTTP_TIMEOUT=600 docker compose -f docker/docker-compose.yml up -d
           yarn serve & npx wait-on http://localhost:8080
       - name: Run tests
         run: yarn test-ci
