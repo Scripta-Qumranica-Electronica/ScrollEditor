@@ -35,8 +35,8 @@ jobs:
           MAILER_EMAIL_SMTP_URL: ${{ secrets.MAILER_EMAIL_SMTP_URL }}
           MAILER_EMAIL_USERNAME: ${{ secrets.MAILER_EMAIL_USERNAME }}
         run: |
-          docker-compose -f docker/docker-compose.yml pull
-          docker-compose -f docker/docker-compose.yml build
+          docker compose -f docker/docker-compose.yml pull
+          docker compose -f docker/docker-compose.yml build
           COMPOSE_HTTP_TIMEOUT=600 docker-compose -f docker/docker-compose.yml up -d
           yarn serve & npx wait-on http://localhost:8080
       - name: Run tests
