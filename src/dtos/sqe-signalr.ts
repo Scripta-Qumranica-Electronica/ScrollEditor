@@ -190,7 +190,7 @@ export class SignalRUtilities {
 	 * @param editionId - Unique Id of the desired edition
 	 * @param payload - A CreateArtefactDTO with the data for the new artefact
 	 *
-	 */
+	 */ 
     public async postV1EditionsEditionIdArtefacts(editionId: number, payload: CreateArtefactDTO): Promise<ArtefactDTO> {
         return await this._connection.invoke('PostV1EditionsEditionIdArtefacts', editionId, payload);
     }
