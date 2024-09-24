@@ -253,7 +253,7 @@ export default class IIIFImageComponent extends Vue {
         if (!this.dynamic) {
             return;
         }
-        const div = this.surroundingDiv;
+        const div = this.surroundingDiv as HTMLElement;
         const bboxDiv = {
             left: div.offsetLeft,
             top: div.offsetTop,
