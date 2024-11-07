@@ -133,10 +133,10 @@ export default class IIIFImageComponent extends Vue {
     protected get surroundingDiv() {
         const imageGroup = this.$refs.imageGroup as SVGGElement;
         const svg = imageGroup.ownerSVGElement!;
-        const div = svg.closest('div.iiif-container');
+        let div = svg.closest('div.iiif-container');
         if (!div)
         {
-            throw new Error("Can't locate surrounding div of iiif-image");
+            div = svg.closest('div')!;
         }
 
         return div;
@@ -149,7 +149,6 @@ export default class IIIFImageComponent extends Vue {
         });
         this.observer = new ResizeObserver(() => this.onSurroundingChanged());
         this.observer!.observe(div);
-
         this.loadTiles();
         // this.scaleFactor = 0;
         // this.scaleFactor = this.scaleFactor;
