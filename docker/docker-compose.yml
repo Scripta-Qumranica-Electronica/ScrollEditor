@@ -1,6 +1,5 @@
 # This docker-compose file is for deploying a fully working backend
 
-version: '3.7'
 
 services:
     sqe-database:
