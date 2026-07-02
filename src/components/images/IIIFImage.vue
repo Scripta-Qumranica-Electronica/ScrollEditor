@@ -213,10 +213,14 @@ export default class IIIFImageComponent extends Vue {
         let xTranslate = 0; // How much to translate the tile
         for (let x = this.imageBoundingBox.x; x < endX; x += tileWidth) {
             const currentTileWidth = Math.min(tileWidth, endX - x);
+            // Overlap the next tile by 1px to hide the seam between tiles (0 on the last column).
+            const seamX = x + tileWidth < endX ? 1 : 0;
 
             let yTranslate = 0;
             for (let y = this.imageBoundingBox.y; y < endY; y += tileHeight) {
                 const currentTileHeight = Math.min(tileHeight, endY - y);
+                // Overlap the next tile by 1px to hide the seam between tiles (0 on the last row).
+                const seamY = y + tileHeight < endY ? 1 : 0;
 
                 // Now we have a tile we can create
                 const url = this.image.getScaledAndCroppedUrl(
@@ -229,18 +233,22 @@ export default class IIIFImageComponent extends Vue {
                 const tile = new TileInfo(
                     url,
                     `translate(${xTranslate}, ${yTranslate})`,
-                    currentTileWidth * this.optimizedImageScaleFactor,
-                    currentTileHeight * this.optimizedImageScaleFactor
+                    currentTileWidth * this.optimizedImageScaleFactor + seamX,
+                    currentTileHeight * this.optimizedImageScaleFactor + seamY
                 );
                 if (!this.dynamic) {
                     tile.inView = true;
                 }
 
                 this.tiles.push(tile);
-                yTranslate +=
-                    currentTileHeight * this.optimizedImageScaleFactor - 1; // For some reason without the -1 we see thin lines between tiles
+                // Advance by the EXACT tile size. (This used to subtract 1 to hide seams, but
+                // subtracting from the CUMULATIVE translate shifts every later tile, so the image
+                // drifted progressively left/up relative to the un-tiled overlays — small on normal
+                // plates, large on wide/stitched ones. Seams are now hidden by the +seam overlap on
+                // the tile size above, which doesn't move any tile's origin.)
+                yTranslate += currentTileHeight * this.optimizedImageScaleFactor;
             }
-            xTranslate += currentTileWidth * this.optimizedImageScaleFactor - 1;
+            xTranslate += currentTileWidth * this.optimizedImageScaleFactor;
         }
 
         this.$nextTick(() => {
