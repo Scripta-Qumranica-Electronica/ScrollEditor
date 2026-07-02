@@ -162,7 +162,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
@@ -263,6 +263,8 @@ export default class ArtefactEditor
     private imageStack: ImageStack | undefined = undefined;
     private boundingBox = new BoundingBox();
     private boundingBoxCenter = { x: 0, y: 0 } as Position;
+    private centeringReady = false;      // suppress zoom/rotate re-centering until after the first layout
+    private zoomHandledByZoomer = false; // set by onNewZoom (wheel/pinch); the zoom watcher then skips
 
     private artefactService = new ArtefactService();
     private textService = new TextService();
@@ -485,6 +487,9 @@ export default class ArtefactEditor
         this.$nextTick(() => {
             this.$nextTick(() => {
                 this.setFirstZoom();
+                this.$nextTick(() => {
+                    this.centeringReady = true; // enable zoom/rotate re-centering after the initial fit
+                });
             });
         });
         this.$state.operationsManager = this.operationsManager;
@@ -649,10 +654,66 @@ export default class ArtefactEditor
     }
 
     public onNewZoom(event: ZoomEventArgs) {
+        // Wheel/pinch: zoomer already scrolled to keep the cursor point fixed — flag so the
+        // zoom watcher below doesn't also re-centre (which would double-adjust).
+        this.zoomHandledByZoomer = true;
         this.params.zoom = event.zoom;
     }
     public onNewRotate(event: RotateEventArgs) {
         this.params.rotationAngle = event.rotate;
+    }
+
+    // Keep the image point at the viewport centre fixed when zooming via the toolbar.
+    @Watch('zoomLevel')
+    private recentreOnZoom(newZoom: number, oldZoom: number) {
+        if (this.zoomHandledByZoomer) {
+            this.zoomHandledByZoomer = false; // wheel/pinch already handled by the zoomer
+            return;
+        }
+        if (!this.centeringReady || !oldZoom) {
+            return;
+        }
+        const el = this.$refs.infoBox as HTMLDivElement | undefined;
+        if (!el) {
+            return;
+        }
+        const k = newZoom / oldZoom;
+        const cx = el.scrollLeft + el.clientWidth / 2;
+        const cy = el.scrollTop + el.clientHeight / 2;
+        this.$nextTick(() => {
+            el.scrollLeft = cx * k - el.clientWidth / 2;
+            el.scrollTop = cy * k - el.clientHeight / 2;
+        });
+    }
+
+    // Keep the image point at the viewport centre fixed when rotating (toolbar or gesture): the
+    // content rotates about the fixed pivot (boundingBoxCenter), so we counter-scroll to the new
+    // position of the point that was at the centre — i.e. it appears to rotate about the viewport.
+    @Watch('rotationAngle')
+    private recentreOnRotate(newAngle: number, oldAngle: number) {
+        if (!this.centeringReady || oldAngle === undefined || oldAngle === null) {
+            return;
+        }
+        const el = this.$refs.infoBox as HTMLDivElement | undefined;
+        if (!el) {
+            return;
+        }
+        const delta = ((newAngle - oldAngle) * Math.PI) / 180;
+        const zoom = this.zoomLevel;
+        const ox = zoom * (this.boundingBoxCenter.x - this.boundingBox.x); // pivot in content px
+        const oy = zoom * (this.boundingBoxCenter.y - this.boundingBox.y);
+        const sx = el.scrollLeft + el.clientWidth / 2; // viewport centre in content px (pre-rotate)
+        const sy = el.scrollTop + el.clientHeight / 2;
+        const dx = sx - ox;
+        const dy = sy - oy;
+        const c = Math.cos(delta);
+        const s = Math.sin(delta);
+        const nx = dx * c - dy * s + ox; // where that point lands after rotating by delta
+        const ny = dx * s + dy * c + oy;
+        this.$nextTick(() => {
+            el.scrollLeft = nx - el.clientWidth / 2;
+            el.scrollTop = ny - el.clientHeight / 2;
+        });
     }
 
     public get transform(): string {

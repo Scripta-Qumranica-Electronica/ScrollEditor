@@ -16,6 +16,7 @@
                 :key="'svg-image-' + imageSetting.image.url"
                 :image="imageSetting.image"
                 :boundingBox="boundingBox"
+                :mask="clippingMask"
                 :scaleFactor="params.zoom"
                 :opacity="imageSetting.normalizedOpacity"
             />
