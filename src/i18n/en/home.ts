@@ -4,6 +4,7 @@ export default {
     show: 'Show',
     search: 'Search',
     view: 'View',
+    side: 'Side',
     sort: 'Sort by',
     publicEditionGroupCount: 'No public editions | One public edition |  Public Editions ({count})',
     personalEditionGroupCount: 'No personal editions | One personal edition |  Personal Editions ({count})',
@@ -25,6 +26,7 @@ export default {
     noVersions: 'No other versions',
 
     newArtefactName: 'New Artefact Name',
+    newFragmentName: 'New Fragment Name',
     newArtefact: 'New Artefact',
     creatingNewArtefact: 'Creating New Artefact',
     undo: 'Undo',

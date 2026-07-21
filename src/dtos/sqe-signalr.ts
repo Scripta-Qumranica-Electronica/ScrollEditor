@@ -178,7 +178,7 @@ export class SignalRUtilities {
     /*
      * Server methods.
      */
-
+ 
     /**
 	 * Creates a new artefact with the provided data.
 	 *		 If no mask is provided, a placeholder mask will be created with the values:

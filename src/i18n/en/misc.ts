@@ -26,6 +26,7 @@ export default {
     select: 'Select',
     edit: 'Edit',
     view: 'View',
+    side: 'Side',
     collapsedsidebar: 'Menu TextFragment',
     collapsedsidebarObject: 'Menu ImageObject',
     collapsedsidebarArtefact: 'Menu Artefact',
@@ -34,10 +35,13 @@ export default {
     editSign: 'Edit sign',
     deleteSign: 'Delete sign',
     editLine: ' Edit line',
+    addLineBefore: ' Add a line before',
+    addLineAfter: ' Add a line after',
+    deleteLine: 'Delete this line',
     addToLeft: 'Add to left',
     addToRight: 'Add to right',
-    showQwbVariants: 'Show QWB Variants',
-    showQwbParallels: 'Show QWB Parallels',
+    showQwbVariants: 'Show QD Variants',
+    showQwbParallels: 'Show QD Parallels',
     noImages: 'No Images Available',
     report: 'Report'
 };

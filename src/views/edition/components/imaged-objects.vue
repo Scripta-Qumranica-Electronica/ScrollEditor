@@ -35,7 +35,8 @@ import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectCard from './imaged-object-card.vue';
 import { ImagedObject } from '@/models/imaged-object';
 import SearchBar from '@/components/search-bar.vue';
-import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
+import { SearchBarParams } from '@/components/search-bar.vue';
+import { SearchBarValue } from '@/state/utilities';
 
 @Component({
     name: 'imaged-objects',
@@ -51,7 +52,7 @@ export default class ImagedObjects extends Vue {
     public searchBarParams: SearchBarParams = {
         filter: true,
         sort: false,
-        view: false,
+        side: false,
     };
     public get imagedObjects(): ImagedObject[] {
         return this.$state.imagedObjects!.items!;

@@ -8,7 +8,7 @@
         <b-popover
             class="popover-body"
             target="popover-adjust"
-            triggers="focus"
+            triggers="click blur"
             placement="bottom"
         >
             <div>
@@ -44,7 +44,9 @@ export default class AdjustImageToolbox extends Vue {
     @Prop() public params!: ArtefactEditorParams;
 
     protected onImageSettingChanged(event: SingleImageSetting) {
-        this.$emit('image-settings-changed', event);
+        // Match the event the parent toolbar listens for (@image-setting-changed); it was
+        // emitting the plural "image-settings-changed", so the toolbar's handler never fired.
+        this.$emit('image-setting-changed', event);
     }
 }
 </script>

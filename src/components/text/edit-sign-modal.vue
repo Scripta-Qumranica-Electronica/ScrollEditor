@@ -9,7 +9,8 @@
         >
             <b-row v-if="editedSi">
                 <b-col>
-                    <div>
+                    <div
+                    class="modal">
                         <b-input
                             type="text"
                             @keydown="isLetter($event)"
@@ -199,5 +200,9 @@ export default class EditSignModal extends Vue {
     width: 100px;
     font-weight: 700;
     font-size: 18px;
+}
+.modal{
+    background-color: red;
+    color:aqua;
 }
 </style>

@@ -17,14 +17,14 @@ import { EditionInfo } from '@/models/edition';
     name: 'edition-icons',
 })
 export default class EditionIcons extends Vue {
-    @Prop() private edition!: EditionInfo;
-    @Prop({ default: false }) private showText!: boolean;
+    @Prop() public edition!: EditionInfo;
+    @Prop({ default: false }) public showText!: boolean;
 
-    private get readOnly() {
+    public get readOnly() {
         return this.edition.permission.readOnly;
     }
 
-    private get shared() {
+    public get shared() {
         // Some shares have no read permission, which means they have been revoked.
         return this.edition.shares.filter(share => share.permissions.mayRead).length > 1;
     }

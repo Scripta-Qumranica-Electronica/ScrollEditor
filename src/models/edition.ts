@@ -139,7 +139,9 @@ class EditionInfo {
     public shares: ShareInfo[];
     public invitations: ShareInfo[];
     public locked: boolean;
+    public copyright: string;
     public isPublic: boolean;
+    public publicationDate?: Date;
     public lastEdit?: Date;
     public metrics: EditionManuscriptMetricsDTO;
     public attributeMetadata?: AttributeMetadata;
@@ -163,6 +165,7 @@ class EditionInfo {
 
     constructor(dto: EditionDTO) {
         this.id = dto.id;
+        this.copyright = dto.copyright;
         this.name = dto.name;
         this.permission = new Permissions(dto.permission); // isAdmin, mayWrite
         this.owner = new UserInfo(dto.owner);
@@ -187,9 +190,7 @@ class EditionInfo {
         this.locked = dto.locked;
         this.isPublic = dto.isPublic;
         this.artefactGroups = [];
-        if (dto.lastEdit) {
-            this.lastEdit = new Date(Date.parse(dto.lastEdit));
-        }
+        this.updateLastEdit(dto.lastEdit);
     }
 
     public copyFrom(other: EditionInfo) {
@@ -202,7 +203,16 @@ class EditionInfo {
         this.invitations = other.invitations;
         this.locked = other.locked;
         this.isPublic = other.isPublic;
+        this.publicationDate = other.publicationDate;
         this.lastEdit = other.lastEdit;
+    }
+
+    public updateLastEdit(lastEdit: string | undefined) {
+        if (lastEdit) {
+            this.lastEdit = new Date(Date.parse(lastEdit));
+        } else {
+            this.lastEdit = undefined;
+        }
     }
 }
 class ArtefactGroup {

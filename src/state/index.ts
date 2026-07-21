@@ -36,7 +36,7 @@ export class StateManager {
 
     public prepare: StateService;
 
-     public showEditReconTextBar: boolean =  false;
+    public showEditReconTextBar: boolean =  false;
 
     private constructor() {
         this.session = new SessionState();
@@ -62,6 +62,15 @@ export class StateManager {
         console.error('State is corrupt: ', msg);
         this.eventBus.emit('corrupted-state');
         throw new Error('State is corrupt: ' + msg);
+    }
+
+    public touchEdition(editionId: number) {
+        // Update the lastEdit of an edition
+
+        const edition = this.editions.find(editionId);
+        if (edition) {
+            edition.lastEdit = new Date();
+        }
     }
 
     public static get instance() {

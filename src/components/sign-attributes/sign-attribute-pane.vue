@@ -75,6 +75,7 @@ import {
 } from '@/dtos/sqe-dtos';
 import SignAttribute from './sign-attribute.vue';
 import SignAttributeModal from './sign-attribute-modal.vue';
+import { EditionInfo } from '@/models/edition';
 import {
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
@@ -97,6 +98,9 @@ export default class SignAttributePane extends Vue {
 
     private get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
+    }
+    private get currentEdition(): EditionInfo | null {
+        return this.$state.editions.current;
     }
 
     public get editorState() {
@@ -270,7 +274,6 @@ export default class SignAttributePane extends Vue {
                 attributesValuesSet.add(attribute.attributeValueId);
             }
         }
-        console.log(this.attributesMetadata);
         for (const attributeMeta of this.attributesMetadata) {
             const attributeCopy = { ...attributeMeta };
             // check repeatable

@@ -9,12 +9,19 @@ import {
     ArtefactTextFragmentMatchListDTO,
     LineTextDTO,
     DiffReplaceResponseDTO,
-    DiffReplaceRequestDTO
+    DiffReplaceRequestDTO,
+    LineDTO,
+    CreateLineDTO,
+    LineDataDTO,
+    TextFragmentDTO,
+    UpdateTextFragmentDTO
 } from '@/dtos/sqe-dtos';
 import {
     TextFragmentData,
     TextEdition,
-    ArtefactTextFragmentData
+    ArtefactTextFragmentData,
+    Line,
+    TextFragment
 } from '@/models/text';
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
@@ -79,10 +86,28 @@ class TextService {
         this.updateStateCreatedROIs(artefact, newROIs, response.createRois);
         this.updateStateDeletedROIs(artefact, deletedROIs);
         artefact.deleteRois = [];
+        this.stateManager.touchEdition(artefact.editionId);
 
         return deletedROIs.length + newROIs.length;
     }
-
+    public async changeTextFragment(
+        editionId: number,
+        fragment: TextFragment
+    ): Promise<TextFragmentDTO> {
+        const body = {
+            name: fragment.textFragmentName,
+        } as UpdateTextFragmentDTO;
+        const response = await CommHelper.put<TextFragmentDTO>(
+            ApiRoutes.editionTextFragmentUrl(editionId, fragment.id),
+            body
+        );
+        // Update the state
+        const changed = new TextFragment(response.data);
+        // todo find the update of textfragmentstate manager
+        // this.stateManager.artefacts.update(changed);
+        this.stateManager.touchEdition(editionId);
+        return response.data;
+    }
     public async getLineText(editionId: number, lineId: number): Promise<LineTextDTO> {
         const response = await CommHelper.get<LineTextDTO>(ApiRoutes.lineText(editionId, lineId));
         return response.data;
@@ -94,10 +119,25 @@ class TextService {
             followingSignInterpretationId,
             newText,
         };
-
         const url = ApiRoutes.diffReplaceText(editionId);
         const response = await CommHelper.put<DiffReplaceResponseDTO>(url, dto);
+        this.stateManager.touchEdition(editionId);
         return response.data;
+    }
+    public async createLine(editionId: number, textFragmentId: number,line: LineDTO, previousLineId?: number, subsequentLineId?: number): Promise<LineDataDTO>{
+        const dto: CreateLineDTO = {previousLineId, subsequentLineId, lineName: line.lineName};
+        const url = ApiRoutes.createLine(editionId, textFragmentId);
+        const response = await CommHelper.post<LineDataDTO>(url , dto);
+        this.stateManager.touchEdition(editionId);
+        return response.data;
+
+    }
+    public async deleteLine(editionId: number, lineId: number) {
+        const url = ApiRoutes.deleteLine(editionId, lineId);
+        const response = await CommHelper.delete(url);
+        this.stateManager.touchEdition(editionId);
+        return response.data;
+
     }
 
     private async updateServerROIs(artefact: Artefact, newROIs: InterpretationRoi[], deletedROIs: InterpretationRoi[]) {
@@ -121,7 +161,7 @@ class TextService {
 
         const url = ApiRoutes.batchEditRoisUrl(artefact.editionId);
         const response = await CommHelper.post<BatchEditRoiResponseDTO>(url, body);
-
+        this.stateManager.touchEdition(artefact.editionId);
         return response.data;
     }
 
@@ -167,12 +207,14 @@ class TextService {
                 this.stateManager.interpretationRois.mapFrontendIdToServerId(preSave.id, roi.id);
             }
         }
+        this.stateManager.touchEdition(artefact.editionId);
     }
 
     private updateStateDeletedROIs(artefact: Artefact, rois: InterpretationRoi[]) {
         for (const roi of rois) {
             this.stateManager.interpretationRois.delete(roi.id);
         }
+        this.stateManager.touchEdition(artefact.editionId);
     }
 }
 

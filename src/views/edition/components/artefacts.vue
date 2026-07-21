@@ -30,7 +30,8 @@ import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactCard from './artefact-card.vue';
 import { Artefact } from '@/models/artefact';
 import SearchBar from '@/components/search-bar.vue';
-import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
+import { SearchBarParams } from '@/components/search-bar.vue';
+import { SearchBarValue } from '@/state/utilities';
 
 @Component({
     name: 'edition-artefacts',
@@ -42,15 +43,15 @@ import { SearchBarParams, SearchBarValue } from '@/components/search-bar.vue';
 })
 export default class EditionArtefacts extends Vue {
     public filteredArtefacts: Artefact[] = [];
-    public searchValue: SearchBarValue = {};
+    public searchValue: SearchBarValue = { side: 'recto and verso'};
     public editionId: number = 0;
     public searchBarParams: SearchBarParams = {
         filter: true,
         sort: false,
-        view: true,
+        side: true,
     };
 
-    private get sortedFragments(): Artefact[] {
+    public get sortedFragments(): Artefact[] {
         return this.filteredArtefacts.sort( (a: Artefact, b: Artefact) => {
                         return (a as any).name.localeCompare( (b as any).name,  undefined,
                         {
@@ -70,17 +71,17 @@ export default class EditionArtefacts extends Vue {
                 }
 
                 if (
-                    this.searchValue.view &&
-                    this.searchValue.view !== 'recto and verso'
+                    this.searchValue.side &&
+                    this.searchValue.side !== 'recto and verso'
                 ) {
-                    filter = filter && art.side === this.searchValue.view;
+                    filter = filter && art.side === this.searchValue.side;
                 }
                 if (
                     this.searchValue.filter
                     ) {
                     filter =
                         filter &&
-                        art.name
+                        `${art.name} - ${art.side}`
                             .toLowerCase()
                             .includes(this.searchValue.filter.toLowerCase());
                 }

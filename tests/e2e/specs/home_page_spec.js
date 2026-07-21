@@ -13,9 +13,8 @@ describe('The Home Page', function() {
     })
 
     Cypress.Commands.add('PostLogin', () => {
-        cy.server()
-        cy.route('POST', '/v1/users/login').as('postUser')
-        cy.get('button[type=submit]').click()
+        cy.intercept('POST', '/v1/users/login').as('postUser')
+        cy.get('.btn-login-modal').should('not.be.disabled').click()
         cy.wait('@postUser')
     })
 
@@ -24,46 +23,46 @@ describe('The Home Page', function() {
     it('Login Fails', () => {
         /*check if status equal 401 after Incorrect values  */
 
-        cy.contains('button', 'Login').click()
+        cy.get('.btn-login').click()
 
         cy.typeLogin({ email: 'tests@1.com', password: 'tests' })
 
         cy.PostLogin()
 
         cy.get('@postUser').should((resp) => {
-            expect(resp.status).to.eq(401)
+            expect(resp.response.statusCode).to.eq(401)
         })
-        cy.contains('button', 'Forgot Password').click()
+        cy.get('a.sign-link').contains('Forgot Password').click()
         cy.get('#forgetPass')
             .type(userEmail)
-        cy.get('.forgetPass').click()
+        cy.get('.btn-login-modal').should('not.be.disabled').click()
 
     })
 
     it('Login Fails Data ', () => { /*check if status equal 400 after Incorrect email address  */
 
-        cy.contains('button', 'Login').click()
+        cy.get('.btn-login').click()
 
         cy.typeLogin({ email: 'tests1.com', password: 'tests' })
 
         cy.PostLogin()
 
         cy.get('@postUser').should((resp) => {
-            expect(resp.status).to.eq(400)
+            expect(resp.response.statusCode).to.eq(400)
         })
 
     })
 
     it('Login Sucess', () => { /*check if status equal 200 after Correct values  */
 
-        cy.contains('button', 'Login').click()
+        cy.get('.btn-login').click()
 
         cy.typeLogin({ email: 'test@1.com', password: 'test' })
 
         cy.PostLogin()
 
         cy.get('@postUser').should((resp) => {
-            expect(resp.status).to.eq(200)
+            expect(resp.response.statusCode).to.eq(200)
         })
 
 

@@ -12,67 +12,54 @@ describe('Copy Edition', function() {
     })
 
     Cypress.Commands.add('PostLogin', () => {
-        cy.server()
-        cy.route('POST', '/v1/users/login').as('postUser')
-        cy.get('button[type=submit]').click()
+        cy.intercept('POST', '/v1/users/login').as('postUser')
+        cy.get('.btn-login-modal').should('not.be.disabled').click()
         cy.wait('@postUser')
     })
 
+    // Click the "Copy" button on the public edition card whose title is exactly `name`.
+    // (Clicking the card body itself navigates to the edition, so we scope to the button.)
+    Cypress.Commands.add('ClickCopyOnCard', (name) => {
+        cy.contains('.card-title', new RegExp('^\\s*' + name + '\\s*$'))
+            .parents('.edition-public-grid')
+            .contains('button', 'Copy')
+            .click()
+    })
 
-    Cypress.Commands.add('PostCopyArtefact', () => {
-        cy.server()
-        cy.route('POST', '/v1/editions/*').as('postCopy')
-        cy.get('#copyModal___BV_modal_footer_>button:nth-child(2)').click()
+    Cypress.Commands.add('PostCopyEdition', () => {
+        cy.intercept('POST', '/v1/editions/*').as('postCopy')
+        cy.get('#copy-edition-modal___BV_modal_footer_').contains('button', 'Copy').click()
         cy.wait('@postCopy')
     })
 
     it('CopyNotLogin', function() {
-        let valueText
-        cy.get('ul li.list-item .card').contains('1Q7 ').click()
-        cy.get('.no-vers')
-            .invoke('text')
-            .then(text => {
-                valueText = text.trim();
-                expect(valueText).to.eq('No other versions')
-                    /*Checks if  variable valueText equal 'No other versions' 
-                                   if yes statut not login*/
-            });
-
+        // A logged-out visitor can browse public editions but cannot copy one:
+        // the copy modal tells them to log in first.
+        cy.visit('http://localhost:8080/home/public')
+        cy.ClickCopyOnCard('1Q7')
+        cy.get('#copy-edition-modal', { timeout: 15000 })
+            .should('be.visible')
+            .and('contain', 'logged in')
     })
 
     it('CopyLogin', () => {
 
-        cy.contains('button', 'Login').click()
+        cy.get('.btn-login').click()
 
         cy.typeLogin({ email: 'test@1.com', password: 'test' })
 
         cy.PostLogin()
 
-        let name /* create variable  to be equal to artefact id  */
+        cy.contains('[role="tab"]', 'Public').click()
 
-        cy.get('ul#all-search-results>li.list-item>.card').contains('1Q7 ').click()
+        cy.ClickCopyOnCard('1Q7')
 
-        cy.get('.sidebar-header>h5')
-            .invoke('text')
-            .then(text => {
-                name = text.trim();
-
-            });
-        cy.get('.btn-copy').click() /*create copy and check if value in the input equal with variable name*/
-        cy.wait(2500)
-        cy.get('#newName')
-            .invoke('val')
-            .then(text => {
-                const someText = text;
-                expect(someText).to.eq(name)
-
-            });
-        cy.wait(2500)
-        cy.get('#newName').clear() /* clear the input and create new name */
-        cy.get('#newName').type('1Q7Copy')
-        cy.PostCopyArtefact()
+        cy.get('#newCopyName', { timeout: 15000 }).should('be.visible')
+        cy.get('#newCopyName').clear() /* clear the prefilled name and set a new one */
+        cy.get('#newCopyName').type('1Q7Copy')
+        cy.PostCopyEdition()
         cy.get('@postCopy').should((response) => {
-            expect(response.status).to.eq(200) /* check if statut equal 200  */
+            expect(response.response.statusCode).to.eq(200) /* copy succeeded */
         })
     })
 

@@ -63,7 +63,6 @@
             </div>
         </div>
         <permission-modal v-if="currentEdition"></permission-modal>
-        <edition-metadata-modal></edition-metadata-modal>
          <delete-edition-modal></delete-edition-modal>
         <!-- :visible="false" to prevent false display of the modal -->
     </div>
@@ -99,7 +98,7 @@ export default class Edition extends Vue {
 
     // protected waiting: boolean = true;
 
-    protected editionId: number = 0;
+    public editionId: number = 0;
     protected page: string = '';
     protected isLoading: boolean = false;
 
@@ -131,13 +130,13 @@ export default class Edition extends Vue {
         );
     }
 
-    private openMetadata() {
+    public openMetadata() {
         this.$root.$emit('bv::show::modal', 'editionMetadataModal');
     }
-    private deleteEdition() {
+    public deleteEdition() {
        this.$root.$emit('bv::show::modal', 'deleteEditionModal');
   }
-    protected get artefactsLength(): number {
+    public get artefactsLength(): number {
         const virtualCount = this.$state.artefacts.items.reduce(
             (count, art: Artefact) => {
                 if (art.isVirtual) {
@@ -151,7 +150,7 @@ export default class Edition extends Vue {
         return this.$state.artefacts.items.length - virtualCount;
     }
 
-    protected get imagedObjectsLength(): number {
+    public get imagedObjectsLength(): number {
         return this.$state.imagedObjects.items.length;
     }
 
@@ -208,13 +207,13 @@ export default class Edition extends Vue {
 
     // methods => member functions of the class
     // ============================================================
- 
-    protected openPermissionModal() {
+
+    public openPermissionModal() {
         this.$root.$emit('bv::show::modal', 'permissionModal');
         // event, new_value
     }
 
-    protected versionString(ver: EditionInfo): string {
+    public versionString(ver: EditionInfo): string {
         return ver.name;
     }
 

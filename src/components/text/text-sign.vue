@@ -1,9 +1,9 @@
 <template>
-    <span contenteditable="false">
+    <span contenteditable=true>
         <span
             class="text-sign"
             :class="[
-                { selected: isSelected, highlighted: isHighlighted },
+                { selected: isSelected,notSelected:!isSelected, highlighted: isHighlighted },
                 cssStrings,
             ]"
             @click="onSignInterpretationClicked($event)"
@@ -66,12 +66,12 @@
         <b-modal
             :id="`qwb-word-${si.signInterpretationId}`"
             hide-footer
-            title="Variant Readings from QWB"
+            title="Variant Readings from QD"
         >
             <div
                 v-if="qwbVariants === null || qwbVariants.variants.length === 0"
             >
-                <p>No variants found in the QWB database.</p>
+                <p>No variants found in the QD database.</p>
             </div>
             <div v-else>
                 <div v-for="variant in qwbVariants.variants">
@@ -286,6 +286,9 @@ div {
 span {
     color: $black;
     cursor: default;
+}
+span.notSelected{
+    cursor: auto;
 }
 
 span.selected {

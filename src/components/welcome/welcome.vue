@@ -118,6 +118,11 @@
                                 </b-link>
                             </div>
                         </div>
+                        <div class="row footer">
+                            <div class="col p-3">
+                                Built with the help of <a href="https://www.researchsoftware.co.il" target="_blank">The Research Software Company</a> at {{ buildTime }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -136,13 +141,13 @@ import router from '@/router';
 })
 export default class Welcome extends Vue {
     private sessionService = new SessionService();
-    private login() {
+    public login() {
         this.$root.$emit('bv::show::modal', 'loginModal');
     }
-    private register() {
+    public register() {
         this.$root.$emit('bv::show::modal', 'registerModal');
     }
-    private get userName(): string | undefined {
+    public get userName(): string | undefined {
         if (this.$state.session.user) {
             return (
                 this.$state.session.user.forename +
@@ -161,6 +166,15 @@ export default class Welcome extends Vue {
         this.sessionService.logout();
         router.push('/');
         location.reload();
+    }
+
+    public get buildTime(): string {
+        const buildTime = document.documentElement.dataset.buildTime;
+        if (!buildTime) {
+            return 'N/A';
+        }
+
+        return buildTime.substring(0, 10);
     }
 }
 </script>
@@ -217,6 +231,17 @@ export default class Welcome extends Vue {
 
 .intro {
     padding: 4%;
+}
+
+.footer {
+    font-size: $font-size-0;
+    color: darkgray;
+
+    a {
+        color: darkgray;
+        text-decoration: underline;
+    }
+    text-align: center;
 }
 
 .welcome:after {

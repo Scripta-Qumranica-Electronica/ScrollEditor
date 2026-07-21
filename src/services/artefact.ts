@@ -60,6 +60,7 @@ class ArtefactService {
 
         const artefact = new Artefact(response.data);
         this.stateManager.artefacts.add(artefact, false);
+        this.stateManager.touchEdition(editionId);
 
         return artefact;
     }
@@ -68,6 +69,7 @@ class ArtefactService {
         await CommHelper.delete(
             ApiRoutes.editionArtefactUrl(art.editionId, art.id)
         );
+        this.stateManager.touchEdition(art.editionId);
     }
 
     public async copyArtefact(
@@ -98,6 +100,7 @@ class ArtefactService {
 
         const newArtefact = new Artefact(response.data);
         this.stateManager.artefacts.add(artefact, false);
+        this.stateManager.touchEdition(editionId);
 
         return newArtefact;
     }
@@ -124,6 +127,7 @@ class ArtefactService {
         // Update the state
         const changed = new Artefact(response.data);
         this.stateManager.artefacts.update(changed);
+        this.stateManager.touchEdition(editionId);
         return response.data;
     }
 

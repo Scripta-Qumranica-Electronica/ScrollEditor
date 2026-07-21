@@ -6,18 +6,18 @@
             }}</label>
             <b-form-input
                 id="filter"
-                v-model="value.filter"
+                v-model="internalValue.filter"
                 @input="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
-        <b-form-group v-if="params.view">
-            <label for="view" class="search-bar ml-2 mb-2">{{
-                $t('home.view')
+        <b-form-group v-if="params.side">
+            <label for="side" class="search-bar ml-2 mb-2">{{
+                $t('home.side')
             }}</label>
             <b-form-select
-                name="view"
+                name="side"
                 class="ml-2 size"
-                v-model="value.view"
+                v-model="internalValue.side"
                 @change="onViewChange($event)"
             >
                 <b-form-select-option value="recto and verso"
@@ -34,7 +34,7 @@
             <b-form-select
                 name="sort"
                 class="ml-2"
-                v-model="value.sort"
+                v-model="internalValue.sort"
                 @change="onSortChange($event)"
             >
                 <!-- <b-form-select-option :value="null"
@@ -50,19 +50,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { SearchBarValue } from '@/state/utilities';
+import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
 
 // At some point we need to make those a little nicer
 export interface SearchBarParams {
     filter?: boolean;
-    view?: boolean;
+    side?: boolean;
     sort?: boolean;
-}
-
-export interface SearchBarValue {
-    filter?: string;
-    view?: string;
-    sort?: string;
 }
 
 @Component({
@@ -82,7 +77,10 @@ export default class SearchBar extends Vue {
     @Prop()
     public value!: SearchBarValue;
 
+    public internalValue: SearchBarValue = {};
+
     public mounted() {
+        this.internalValue = {...this.value};
         this.onSearch();
     }
 
@@ -98,10 +96,15 @@ export default class SearchBar extends Vue {
         this.onSearch();
     }
 
+    @Watch('value')
+    private onValueParamChange(newValueParam: SearchBarValue) {
+        this.internalValue = {...this.value};
+    }
+
     @Emit('search')
     private onSearch() {
-        this.value = {...this.value};
-        return this.value;
+        this.internalValue = {...this.internalValue};
+        return this.internalValue;
     }
 }
 </script>
