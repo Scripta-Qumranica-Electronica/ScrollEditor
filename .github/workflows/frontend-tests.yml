@@ -18,9 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install node
-        uses: actions/setup-node@v2-beta
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Setup environment
         env:
           CHILD_CONCURRENCY: 1   # Otherwise Cypress installation fails, due to multiple versions specified
@@ -38,6 +40,6 @@ jobs:
           docker compose -f docker/docker-compose.yml pull
           docker compose -f docker/docker-compose.yml build
           COMPOSE_HTTP_TIMEOUT=600 docker compose -f docker/docker-compose.yml up -d
-          yarn serve & npx wait-on http://localhost:8080
+          yarn serve & npx wait-on -t 180000 http://localhost:8080
       - name: Run tests
         run: yarn test-ci
