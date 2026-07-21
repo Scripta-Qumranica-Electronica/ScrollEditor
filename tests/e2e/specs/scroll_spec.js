@@ -11,26 +11,29 @@ describe('Scroll Editor', function() {
         cy.visit('http://localhost:8080')
     });
 
-    Cypress.Commands.add('typeLogin', (user) => {
-        cy.get('input[type=email]').type(user.email)
-        cy.get('input[type=password]').type(user.password)
-    })
-
-    Cypress.Commands.add('PostLogin', () => {
-        cy.intercept('POST', '/v1/users/login').as('postUser')
-        cy.get('.btn-login-modal').should('not.be.disabled').click()
-        cy.wait('@postUser')
-    })
-
-    // Log in, open the copied edition 1Q7Copy, and go to its Manuscript (scroll) editor.
+    // Authenticate against the API, resolve the copied edition's id, seed the app's auth token
+    // (localStorage 'token', the same key the app uses) and jump straight to its scroll editor.
+    // This avoids the home-page tabs, whose async re-render as editions load makes card/tab clicks
+    // racy ("page updated while this command was executing").
     Cypress.Commands.add('OpenScrollEditor', () => {
-        cy.get('.btn-login').click()
-        cy.typeLogin({ email: 'test@1.com', password: 'test' })
-        cy.PostLogin()
-        // 1Q7Copy is a personal (owned) edition; open it from the home list.
-        cy.contains('.card-title', /^\s*1Q7Copy\s*$/, { timeout: 15000 }).click()
-        // The edition navbar exposes the Manuscript (scroll) editor.
-        cy.contains('a', 'Manuscript', { timeout: 15000 }).click()
+        cy.request('POST', '/v1/users/login', { email: 'test@1.com', password: 'test' })
+            .its('body.token')
+            .then((token) => {
+                cy.request({
+                    url: '/v1/editions',
+                    headers: { Authorization: `Bearer ${token}` },
+                }).then((res) => {
+                    // /v1/editions returns an array of groups (each an array of versions).
+                    const all = [].concat.apply([], res.body.editions || [])
+                    const match = all.find((e) => e.name === '1Q7Copy')
+                    expect(match, '1Q7Copy edition').to.exist
+                    cy.visit(`/editions/${match.id}/scroll-editor/`, {
+                        onBeforeLoad(win) {
+                            win.localStorage.setItem('token', token)
+                        },
+                    })
+                })
+            })
         cy.url().should('include', 'scroll-editor')
     })
 
