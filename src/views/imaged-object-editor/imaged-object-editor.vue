@@ -379,6 +379,12 @@ export default class ImagedObjectEditor
             );
             await Promise.all(promises);
 
+            // Masks are loaded lazily; the editor draws and edits the artefact
+            // outlines for this imaged object, so ensure their masks are present.
+            await this.$state.prepare.ensureArtefactMasks(
+                this.imagedObject.artefacts
+            );
+
             // Get the current master image
             const stack = this.imagedObject.getImageStack(this.side)!;
             this.masterImage = stack?.master;

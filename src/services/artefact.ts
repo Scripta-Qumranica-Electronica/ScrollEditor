@@ -13,11 +13,35 @@ import { StateManager } from '@/state';
 
 class ArtefactService {
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
+        // Load the artefacts mask-free. Masks are large and fetched lazily on
+        // demand (see StateService.artefactMask / getArtefactMask below).
         const response = await CommHelper.get<ArtefactListDTO>(
-            ApiRoutes.allEditionArtefactsUrl(editionId, true)
+            ApiRoutes.allEditionArtefactsUrl(editionId)
         );
 
         return response.data.artefacts.map((d: any) => new Artefact(d));
+    }
+
+    // Fetch a single artefact's mask (WKT). Used for lazy per-artefact loading.
+    public async getArtefactMask(
+        editionId: number,
+        artefactId: number
+    ): Promise<string> {
+        const response = await CommHelper.get<ArtefactDTO>(
+            ApiRoutes.editionArtefactUrl(editionId, artefactId, true)
+        );
+        return response.data.mask || '';
+    }
+
+    // Fetch all masks for an edition in one request. Used when a mask-heavy view
+    // (e.g. the scroll editor) needs many masks at once.
+    public async getEditionArtefactMasks(
+        editionId: number
+    ): Promise<ArtefactDTO[]> {
+        const response = await CommHelper.get<ArtefactListDTO>(
+            ApiRoutes.allEditionArtefactMasksUrl(editionId)
+        );
+        return response.data.artefacts;
     }
 
     public async createArtefact(

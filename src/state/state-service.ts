@@ -187,6 +187,78 @@ export default class StateService {
         );
     }
 
+    // --- Lazy artefact mask loading ---------------------------------------
+    // Masks are large, so artefacts load mask-free and each mask is fetched on
+    // demand. Requests made within the same tick are coalesced into one batch:
+    // a large batch (e.g. the scroll editor ensuring every placed artefact) is
+    // served by a single bulk request, a small batch by per-artefact requests.
+    private maskInFlight = new Map<number, Promise<void>>();
+    private pendingMaskIds = new Set<number>();
+    private pendingMaskFlush: Promise<void> | null = null;
+    private static readonly maskBulkThreshold = 40;
+
+    public artefactMask(artefact: Artefact): Promise<void> {
+        if (artefact.maskLoaded || artefact.isVirtual) {
+            return Promise.resolve();
+        }
+        const inFlight = this.maskInFlight.get(artefact.id);
+        if (inFlight) {
+            return inFlight;
+        }
+
+        const editionId = artefact.editionId;
+        this.pendingMaskIds.add(artefact.id);
+        if (!this.pendingMaskFlush) {
+            this.pendingMaskFlush = Promise.resolve().then(() =>
+                this.flushArtefactMasks(editionId)
+            );
+        }
+        const promise = this.pendingMaskFlush.finally(() => {
+            this.maskInFlight.delete(artefact.id);
+        });
+        this.maskInFlight.set(artefact.id, promise);
+        return promise;
+    }
+
+    public ensureArtefactMasks(artefacts: Artefact[]): Promise<void> {
+        return Promise.all(artefacts.map(a => this.artefactMask(a))).then(
+            () => undefined
+        );
+    }
+
+    private async flushArtefactMasks(editionId: number): Promise<void> {
+        const ids = Array.from(this.pendingMaskIds);
+        this.pendingMaskIds.clear();
+        this.pendingMaskFlush = null;
+        if (!ids.length) {
+            return;
+        }
+
+        const svc = new ArtefactService();
+        if (ids.length >= StateService.maskBulkThreshold) {
+            // Many masks needed at once: one bulk request for the whole edition.
+            const dtos = await svc.getEditionArtefactMasks(editionId);
+            const byId = new Map(dtos.map(d => [d.id, d]));
+            for (const artefact of this._state.artefacts.items) {
+                const dto = byId.get(artefact.id);
+                if (dto && !artefact.maskLoaded) {
+                    artefact.applyMask(dto.mask || '');
+                }
+            }
+        } else {
+            await Promise.all(
+                ids.map(async id => {
+                    const artefact = this._state.artefacts.find(id);
+                    if (!artefact || artefact.maskLoaded) {
+                        return;
+                    }
+                    const wkt = await svc.getArtefactMask(editionId, id);
+                    artefact.applyMask(wkt);
+                })
+            );
+        }
+    }
+
     public textFragment(
         editionId: number,
         textFragmentId: number

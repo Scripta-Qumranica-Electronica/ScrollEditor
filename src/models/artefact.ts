@@ -16,6 +16,10 @@ export class Artefact {
     public imagedObjectId = '';
     public name = '';
     public mask: Polygon = new Polygon('');
+    // Masks are large and loaded lazily (see StateService.artefactMask). This is
+    // false when the artefact was fetched without its mask, true once the mask is
+    // present (either from the API or because it is a client-built virtual mask).
+    public maskLoaded = false;
     public artefactMaskEditorId = 0;
     public isPlaced: boolean = false;
     public placement: Placement = Placement.empty;
@@ -33,7 +37,11 @@ export class Artefact {
         this.editionId = obj.editionId;
         this.imagedObjectId = obj.imagedObjectId || '';
         this.name = obj.name;
-        this.mask = Polygon.fromWkt(obj.mask);
+        this.mask = Polygon.fromWkt(obj.mask || '');
+        // A non-empty mask means it was included in the response; an empty one
+        // means the artefact was fetched mask-free and the mask must be lazily
+        // loaded on demand.
+        this.maskLoaded = !!(obj.mask && obj.mask.length > 2);
         this.artefactMaskEditorId = obj.artefactMaskEditorId;
         this.isPlaced = obj.isPlaced;
         this.placement = new Placement(obj.placement);
@@ -43,6 +51,13 @@ export class Artefact {
 
     public get isVirtual() {
         return !this.imagedObjectId;
+    }
+
+    // Apply a lazily-fetched mask (WKT) to this artefact. Reassigning `mask`
+    // triggers Vue reactivity so consumers (bounding box, SVG, layout) update.
+    public applyMask(wkt: string) {
+        this.mask = Polygon.fromWkt(wkt || '');
+        this.maskLoaded = true;
     }
 
     public get inViewport(): boolean {
@@ -192,6 +207,7 @@ export class Artefact {
         this.imagedObjectId = other.imagedObjectId;
         this.name = other.name;
         this.mask = other.mask;
+        this.maskLoaded = other.maskLoaded;
         this.artefactMaskEditorId = other.artefactMaskEditorId;
         this.isPlaced = other.isPlaced;
         this.placement = other.placement;

@@ -567,6 +567,9 @@ export default class ArtefactEditor
 
     private async prepareArtefact(artefactId: number) {
         await this.$state.prepare.artefact(this.editionId, artefactId);
+        // The artefact editor works directly with the mask (clipping, bounding
+        // box); ensure it is loaded before we use it.
+        await this.$state.prepare.artefactMask(this.artefact);
 
         if (!this.artefact?.isVirtual) {
             const imagedObject = this.$state.imagedObjects.find(

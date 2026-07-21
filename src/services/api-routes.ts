@@ -43,8 +43,17 @@ export namespace ApiRoutes {
         }`;
     }
 
-    export function editionArtefactUrl(editionId: number, artefactId: number) {
-        return `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}`;
+    export function editionArtefactUrl(
+        editionId: number,
+        artefactId: number,
+        withMask: boolean = false
+    ) {
+        const url = `${baseUrl}/${editions}/${editionId}/${artefacts}/${artefactId}`;
+        return withMask ? `${url}?optional=masks` : url;
+    }
+
+    export function allEditionArtefactMasksUrl(editionId: number) {
+        return `/${baseUrl}/${editions}/${editionId}/${artefacts}?optional=masks`;
     }
 
     export function editionMetadataUrl(editionId: number) {

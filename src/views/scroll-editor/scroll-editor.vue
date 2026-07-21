@@ -370,6 +370,9 @@ export default class ScrollEditor
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         await this.$state.prepare.editionFullText(this.editionId);
+        // The scroll layout (viewBox / bounds) is derived from every placed
+        // artefact's mask bounding box, so ensure their masks are loaded up front.
+        await this.$state.prepare.ensureArtefactMasks(this.placedArtefacts);
 
         const edition = this.$state.editions.find(this.editionId); // Set the current scroll
         if (!edition) {

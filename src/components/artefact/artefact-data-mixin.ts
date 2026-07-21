@@ -32,6 +32,9 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
             this.masterImageManifest = this.imageStack.master.manifest || null;
         }
 
+        // Masks are loaded lazily; ensure this artefact's mask is present before
+        // deriving its bounding box (batched with any other masks needed now).
+        await this.$state.prepare.artefactMask(this.artefact);
         this.boundingBox = this.artefact.mask.getBoundingBox();
     }
 }
