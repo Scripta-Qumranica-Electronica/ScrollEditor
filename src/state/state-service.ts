@@ -547,6 +547,9 @@ export default class StateService {
 
     private async artefactInternal(editionId: number, artefactId: number) {
         await this.edition(editionId);
+        // Imaged objects are loaded lazily (not on edition open); the artefact
+        // editor needs the artefact's imaged object (and its full image stack).
+        await this.imagedObjects(editionId);
         const artefact = this._state.artefacts.find(artefactId);
         if (!artefact) {
             console.error(
