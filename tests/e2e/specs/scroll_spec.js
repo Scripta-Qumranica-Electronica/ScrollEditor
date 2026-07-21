@@ -11,26 +11,32 @@ describe('Scroll Editor', function() {
         cy.visit('http://localhost:8080')
     });
 
-    // Authenticate against the API, resolve the copied edition's id, seed the app's auth token
-    // (localStorage 'token', the same key the app uses) and jump straight to its scroll editor.
-    // This avoids the home-page tabs, whose async re-render as editions load makes card/tab clicks
-    // racy ("page updated while this command was executing").
+    // Set up an owned, editable edition and open its scroll editor — self-contained so it does not
+    // depend on copy_spec's edition being visible yet. We authenticate against the API, copy the
+    // public seed edition 1Q7 (the POST returns the new edition's id directly), seed the app's auth
+    // token (localStorage 'token', the key the app reads) and jump straight to the scroll editor.
+    // This avoids the home-page tabs, whose async re-render as editions load makes clicks racy.
     Cypress.Commands.add('OpenScrollEditor', () => {
         cy.request('POST', '/v1/users/login', { email: 'test@1.com', password: 'test' })
             .its('body.token')
             .then((token) => {
-                cy.request({
-                    url: '/v1/editions',
-                    headers: { Authorization: `Bearer ${token}` },
-                }).then((res) => {
+                const auth = { Authorization: `Bearer ${token}` }
+                cy.request({ url: '/v1/editions', headers: auth }).then((res) => {
                     // /v1/editions returns an array of groups (each an array of versions).
                     const all = [].concat.apply([], res.body.editions || [])
-                    const match = all.find((e) => e.name === '1Q7Copy')
-                    expect(match, '1Q7Copy edition').to.exist
-                    cy.visit(`/editions/${match.id}/scroll-editor/`, {
-                        onBeforeLoad(win) {
-                            win.localStorage.setItem('token', token)
-                        },
+                    const src = all.find((e) => e.name === '1Q7')
+                    expect(src, 'public seed edition 1Q7').to.exist
+                    cy.request({
+                        method: 'POST',
+                        url: `/v1/editions/${src.id}`,
+                        headers: auth,
+                        body: { name: 'ScrollSmoke' },
+                    }).then((copyRes) => {
+                        cy.visit(`/editions/${copyRes.body.id}/scroll-editor/`, {
+                            onBeforeLoad(win) {
+                                win.localStorage.setItem('token', token)
+                            },
+                        })
                     })
                 })
             })
