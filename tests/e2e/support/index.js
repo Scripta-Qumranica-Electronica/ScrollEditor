@@ -18,3 +18,13 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+// The app emits benign "ResizeObserver loop" notifications (and a couple of other
+// non-fatal runtime warnings) that Cypress would otherwise treat as a failing
+// uncaught exception. Swallow just those so real errors still fail the test.
+Cypress.on('uncaught:exception', (err) => {
+    if (/ResizeObserver loop/.test(err.message)) {
+        return false
+    }
+    return undefined
+})

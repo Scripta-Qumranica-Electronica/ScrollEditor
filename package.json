@@ -7,7 +7,7 @@
         "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --mode production",
         "lint": "vue-cli-service lint",
         "build-staging": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --mode staging",
-        "test-ci": "cypress run --config video=false",
+        "test-ci": "cypress run",
         "test": "cypress open"
     },
     "dependencies": {
@@ -55,7 +55,7 @@
         "@vue/cli-plugin-typescript": "~4.5.13",
         "@vue/cli-service": "^4.5.13",
         "cross-env": "^7.0.3",
-        "cypress": "9.7.0",
+        "cypress": "14.5.4",
         "mailslurp-client": "^12.0.0",
         "sass": "^1.53.0",
         "sass-loader": "^10",
