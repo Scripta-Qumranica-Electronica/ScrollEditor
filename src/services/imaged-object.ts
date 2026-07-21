@@ -18,8 +18,12 @@ class ImagedObjectService {
             throw new Error(`Can't get imaged objects of non existing edition ${editionId}`);
         }
 
+        // Note: we deliberately do NOT request the embedded artefacts/masks here.
+        // They duplicate the separately-loaded artefacts collection (and its masks,
+        // which are large). The state service links each imaged object's artefacts
+        // from $state.artefacts by imagedObjectId after both collections load.
         const response = await CommHelper.get<ImagedObjectListDTO>(
-            ApiRoutes.allEditionImagedObjectsUrl(editionId, true)
+            ApiRoutes.allEditionImagedObjectsUrl(editionId)
         );
 
         return response.data.imagedObjects.map(d => new ImagedObject(d, edition));

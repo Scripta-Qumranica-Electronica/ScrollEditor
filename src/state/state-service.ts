@@ -10,6 +10,7 @@ import { NotificationHandler } from './notification-handler';
 import { ShareInfo, Permissions, AttributeMetadata } from '@/models/edition';
 import { AdminEditorRequestDTO } from '@/dtos/sqe-dtos';
 import { ImagedObject } from '@/models/imaged-object';
+import { Artefact } from '@/models/artefact';
 import { svgPolygonToClipper } from '@/utils/VectorFactory';
 import { ScriptData } from '@/models/script';
 import { TextFragment } from '@/models/text';
@@ -332,7 +333,29 @@ export default class StateService {
             this.attributeMetadataProcess!.promise,
             this.editionScriptProcess!.promise
         ]);
+        // The imaged-objects call no longer embeds artefacts (they duplicate the
+        // artefacts collection). Link them locally by imagedObjectId so consumers
+        // that read imagedObject.artefacts keep working.
+        this.linkArtefactsToImagedObjects();
         SignalRWrapper.instance.subscribeEdition(editionId);
+    }
+
+    // Populate each imaged object's artefacts from the artefacts collection.
+    // The Artefact instances are shared with $state.artefacts (single source of
+    // truth), so edits to an artefact are reflected everywhere.
+    private linkArtefactsToImagedObjects() {
+        const byImagedObject = new Map<string, Artefact[]>();
+        for (const artefact of this._state.artefacts.items) {
+            if (!artefact.imagedObjectId) {
+                continue; // virtual artefact, not tied to an imaged object
+            }
+            const list = byImagedObject.get(artefact.imagedObjectId) || [];
+            list.push(artefact);
+            byImagedObject.set(artefact.imagedObjectId, list);
+        }
+        for (const imagedObject of this._state.imagedObjects.items) {
+            imagedObject.artefacts = byImagedObject.get(imagedObject.id) || [];
+        }
     }
 
     private postEditionInternal(editionId: number) {
