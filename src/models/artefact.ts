@@ -1,5 +1,6 @@
 import { Polygon } from '@/utils/Polygons';
 import { ArtefactDTO } from '@/dtos/sqe-dtos';
+import { ImageStack } from './image';
 import { Side } from './misc';
 import { ArtefactTextFragmentData, InterpretationRoi, SignInterpretation } from './text';
 import { BoundingBox } from '@/utils/helpers';
@@ -25,6 +26,11 @@ export class Artefact {
     public placement: Placement = Placement.empty;
     public artefactPlacementEditorId: number | undefined;
     public side: Side = 'recto';
+
+    // Master image for this artefact, built from the artefacts?optional=images
+    // response so the artefacts view can render without loading imaged objects.
+    // Undefined for virtual artefacts or when images were not requested.
+    public imageStack?: ImageStack;
 
     public textFragments: ArtefactTextFragmentData[] = [];
 

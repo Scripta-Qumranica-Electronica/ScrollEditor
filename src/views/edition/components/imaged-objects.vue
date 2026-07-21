@@ -63,9 +63,15 @@ export default class ImagedObjects extends Vue {
    }
 
     protected async created() {
-        const editionId = this.$state.editions.current!.id;
+        // Read the id from the route so this works on direct navigation, before
+        // the parent edition view has set editions.current.
+        const editionId =
+            parseInt(this.$route.params.editionId, 10) ||
+            this.$state.editions.current!.id;
         await this.$state.prepare.edition(editionId);
-        // await this.$state.prepare.edition(this.$state.editions.current!.id);
+        // Imaged objects are loaded lazily (not on edition open); this view needs them.
+        await this.$state.prepare.imagedObjects(editionId);
+        this.filteredImagedObjects = this.getFilteredImagedObjects();
     }
 
     public onImagedObjectsSearch(searchEvent: SearchBarValue) {

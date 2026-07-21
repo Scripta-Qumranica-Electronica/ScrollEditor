@@ -418,9 +418,11 @@ export default class ArtefactEditor
     }
 
     protected async created() {
-        await this.$state.prepare.edition(
-            parseInt(this.$route.params.editionId)
-        );
+        const editionId = parseInt(this.$route.params.editionId);
+        await this.$state.prepare.edition(editionId);
+        // Imaged objects are loaded lazily (not on edition open); the artefact
+        // editor works with the full imaged-object image stack.
+        await this.$state.prepare.imagedObjects(editionId);
         this.$state.eventBus.on(
             'change-artefact-rotation',
             (angle: number) => (this.params.rotationAngle = angle)

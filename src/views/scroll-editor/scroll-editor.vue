@@ -370,6 +370,9 @@ export default class ScrollEditor
         this.editionId = parseInt(this.$route.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         await this.$state.prepare.editionFullText(this.editionId);
+        // Imaged objects are loaded lazily (not on edition open); the scroll editor
+        // needs them for adding/copying artefacts.
+        await this.$state.prepare.imagedObjects(this.editionId);
         // The scroll layout (viewBox / bounds) is derived from every placed
         // artefact's mask bounding box, so ensure their masks are loaded up front.
         await this.$state.prepare.ensureArtefactMasks(this.placedArtefacts);

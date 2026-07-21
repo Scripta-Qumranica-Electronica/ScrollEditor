@@ -18,12 +18,19 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
         // await this.$state.prepare.edition(this.artefact.editionId);
 
         if (!this.artefact.isVirtual) {
-            const imagedObject = this.imagedObject || this.$state.imagedObjects.find(this.artefact.imagedObjectId);
-            if (!imagedObject) {
-                throw new Error(
-                    `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`);
+            // Prefer the artefact's own master image (from artefacts?optional=images)
+            // so we don't need the edition's imaged objects loaded. Fall back to the
+            // imaged object when an explicit one is passed or already in state.
+            if (this.artefact.imageStack && !this.imagedObject) {
+                this.imageStack = this.artefact.imageStack;
+            } else {
+                const imagedObject = this.imagedObject || this.$state.imagedObjects.find(this.artefact.imagedObjectId);
+                if (!imagedObject) {
+                    throw new Error(
+                        `Can't find imaged object ${this.artefact.imagedObjectId} belonging to artefact ${this.artefact.id}`);
+                }
+                this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
             }
-            this.imageStack = this.artefact.side === 'recto' ? imagedObject.recto : imagedObject.verso;
             if (!this.imageStack) {
                 throw new Error(`ImagedObject ${this.artefact.imagedObjectId} doesn't contain the ` +
                                 `${this.artefact.side} side even though artefact ${this.artefact.id} references it`);

@@ -31,6 +31,7 @@ export interface ArtefactDTO extends ArtefactDataDTO {
 export interface ExtendedArtefactDTO extends ArtefactDTO {
     url?: string;
     ppi: number;
+    imageManifest?: string;
 }
 
 export interface ArtefactListDTO {

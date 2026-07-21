@@ -2,24 +2,43 @@ import { CommHelper } from './comm-helper';
 import { ImagedObject } from '@/models/imaged-object';
 import {
     ArtefactListDTO,
+    ExtendedArtefactListDTO,
+    ExtendedArtefactDTO,
     CreateArtefactDTO,
     ArtefactDTO,
     UpdateArtefactDTO
 } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
+import { ImageStack } from '@/models/image';
 import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
 import { StateManager } from '@/state';
 
 class ArtefactService {
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
-        // Load the artefacts mask-free. Masks are large and fetched lazily on
-        // demand (see StateService.artefactMask / getArtefactMask below).
-        const response = await CommHelper.get<ArtefactListDTO>(
-            ApiRoutes.allEditionArtefactsUrl(editionId)
+        // Load the artefacts mask-free but WITH their master image (url + IIIF
+        // manifest). Carrying the master image lets the artefacts view render
+        // without loading the edition's imaged objects. Masks stay lazy (see
+        // StateService.artefactMask / getArtefactMask below).
+        const response = await CommHelper.get<ExtendedArtefactListDTO>(
+            ApiRoutes.allEditionArtefactsUrl(editionId, 'images')
         );
+        const edition = this.stateManager.editions.find(editionId);
 
-        return response.data.artefacts.map((d: any) => new Artefact(d));
+        return response.data.artefacts.map((d: ExtendedArtefactDTO) => {
+            const artefact = new Artefact(d);
+            if (edition && d.url && d.imageManifest && !artefact.isVirtual) {
+                artefact.imageStack = ImageStack.fromMasterImage(
+                    d.imageId,
+                    d.url,
+                    d.imageManifest,
+                    d.ppi,
+                    d.side,
+                    edition
+                );
+            }
+            return artefact;
+        });
     }
 
     // Fetch a single artefact's mask (WKT). Used for lazy per-artefact loading.

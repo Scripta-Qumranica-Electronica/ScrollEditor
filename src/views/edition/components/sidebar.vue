@@ -38,7 +38,7 @@
                     :class="{ bold: page === 'imaged-objects',imagedObjects  }"
                     :to="`/editions/${currentEdition.id}/imaged-objects`"
                     replace
-                >{{ $t('home.imagedObjects') }}: {{ imagedObjects }}</router-link>
+                >{{ $t('home.imagedObjects') }}: {{ imagedObjects || '…' }}</router-link>
             </b-nav-item>
               <b-nav-item>
                 <router-link
@@ -181,16 +181,10 @@ export default class SideBar extends Vue {
     }
 
     public get artefacts(): number {
-        if (this.$state.imagedObjects.items) {
-            let artLen = 0;
-            this.$state.imagedObjects.items.forEach(
-                (element: ImagedObject) => {
-                    artLen += element.artefacts.length;
-                }
-            );
-            return artLen;
-        }
-        return 0;
+        // Count real (non-virtual) artefacts directly. Previously summed from the
+        // imaged objects, but those are now loaded lazily, so read the artefacts
+        // collection instead.
+        return this.$state.artefacts.items.filter(a => !a.isVirtual).length;
     }
 
 

@@ -1,5 +1,5 @@
 import { ImageStackDTO } from '@/dtos/sqe-dtos';
-import { ImageDTO } from '@/dtos/sqe-dtos';
+import { ImageDTO, SideDesignation } from '@/dtos/sqe-dtos';
 import { Polygon } from '@/utils/Polygons';
 import { BoundingBox } from '@/utils/helpers';
 import { EditionInfo } from './edition';
@@ -206,5 +206,32 @@ export class ImageStack {
 
     public get master(): Image {
         return this.images[this.masterIndex];
+    }
+
+    // Build a single-image stack from just an artefact's master image data
+    // (url + IIIF manifest + ppi). Used so the artefacts view can render without
+    // loading the edition's imaged objects (see ArtefactService.getEditionArtefacts).
+    public static fromMasterImage(
+        imageId: number,
+        url: string,
+        imageManifest: string,
+        ppi: number,
+        side: SideDesignation,
+        edition: EditionInfo
+    ): ImageStack {
+        const dto: ImageDTO = {
+            id: imageId,
+            url,
+            imageManifest,
+            ppi,
+            side,
+            master: true,
+            type: 'master',
+            waveLength: [],
+            lightingType: 'direct',
+            lightingDirection: 'top',
+            catalogNumber: 0
+        };
+        return new ImageStack({ id: imageId, images: [dto], masterIndex: 0 }, edition);
     }
 }

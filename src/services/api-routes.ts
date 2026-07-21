@@ -82,12 +82,12 @@ export namespace ApiRoutes {
 
     export function allEditionArtefactsUrl(
         editionId: number,
-        option: boolean = false
+        optional?: 'images' | 'masks'
     ) {
-        if (option) {
-            return `/${baseUrl}/${editions}/${editionId}/${artefacts}?${optionalArtefact}`;
-        }
-        return `/${baseUrl}/${editions}/${editionId}/${artefacts}`;
+        return (
+            `/${baseUrl}/${editions}/${editionId}/${artefacts}` +
+            (optional ? `?optional=${optional}` : '')
+        );
     }
 
     export function editionImagedObjectUrl(

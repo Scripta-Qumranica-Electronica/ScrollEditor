@@ -389,8 +389,10 @@ export default class StateService {
         this._state.signInterpretations.clear();
         this._state.artefactGroups.clear();
 
-        // Load the new data
-        this.imagedObjects(editionId);
+        // Load the new data. Imaged objects are NOT loaded here: the artefacts
+        // view renders from each artefact's own master image
+        // (artefacts?optional=images), and only the imaged-object browse/editor
+        // and the scroll editor need the imaged objects, which they load on entry.
         this.artefacts(editionId);
         this.textFragments(editionId);
         this.artefactGroups(editionId);
@@ -398,17 +400,12 @@ export default class StateService {
         this.editionScript(editionId);
         this.editionMetadata(editionId);
         await Promise.all([
-            this.imagedObjectsProcess!.promise,
             this.artefactsProcess!.promise,
             this.textFragmentsProcess!.promise,
             this.artefactGroupsProcess!.promise,
             this.attributeMetadataProcess!.promise,
             this.editionScriptProcess!.promise
         ]);
-        // The imaged-objects call no longer embeds artefacts (they duplicate the
-        // artefacts collection). Link them locally by imagedObjectId so consumers
-        // that read imagedObject.artefacts keep working.
-        this.linkArtefactsToImagedObjects();
         SignalRWrapper.instance.subscribeEdition(editionId);
     }
 
@@ -504,6 +501,10 @@ export default class StateService {
         const svc = new ImagedObjectService();
         const imagedObjects = await svc.getEditionImagedObjects(editionId);
         this._state.imagedObjects.items = imagedObjects;
+        // Imaged objects are loaded lazily and carry no embedded artefacts; link
+        // the (already-loaded) artefacts into them by imagedObjectId so consumers
+        // that read imagedObject.artefacts keep working.
+        this.linkArtefactsToImagedObjects();
     }
 
     private async artefactsInternal(editionId: number) {

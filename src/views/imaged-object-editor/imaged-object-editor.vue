@@ -341,6 +341,8 @@ export default class ImagedObjectEditor
             this.waiting = true;
 
             await this.$state.prepare.edition(this.editionId);
+            // Imaged objects are loaded lazily (not on edition open); this editor needs them.
+            await this.$state.prepare.imagedObjects(this.editionId);
 
             this.$state.imagedObjects.current = this.$state.imagedObjects.find(
                 this.$route.params.imagedObjectId

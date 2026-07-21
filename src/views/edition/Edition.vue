@@ -52,7 +52,7 @@
                     <b-button
                         variant="outline-primary"
                         :to="`/editions/${editionId}/imaged-objects`"
-                        >Imaged Objects {{ imagedObjectsLength }}</b-button
+                        >Imaged Objects {{ imagedObjectsLength || '' }}</b-button
                     >
                 </b-button-group>
             </div>
