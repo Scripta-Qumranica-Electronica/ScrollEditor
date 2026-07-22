@@ -1,10 +1,37 @@
 import _Vue from 'vue';
-import signalR, { LogLevel, HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { LogLevel, HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { StateManager } from '@/state';
 import { SignalRUtilities } from '@/dtos/sqe-signalr';
 import { NotificationHandler } from './notification-handler';
+import { HANDLED_EVENTS, UNHANDLED_EVENTS } from './notification-coverage';
 
 type ConnectionStatus = 'closed' | 'connecting' | 'connected' | 'closing';
+
+interface DispatchEntry {
+    event: string;
+    fn: (msg: any) => void;
+}
+
+function logUnhandledNotification(event: string, msg: unknown): void {
+    if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.debug(`[signalr] unhandled notification '${event}'`, msg);
+    }
+}
+
+function buildDispatch(handler: NotificationHandler): DispatchEntry[] {
+    const handled: DispatchEntry[] = HANDLED_EVENTS.map(([event, key]) => ({
+        event,
+        // Handlers are written to be called unbound (they use module-level
+        // state(), never `this` — see the note in notification-handler.ts).
+        fn: (handler[key] as unknown) as (msg: any) => void,
+    }));
+    const unhandled: DispatchEntry[] = UNHANDLED_EVENTS.map((event) => ({
+        event,
+        fn: (msg: any) => logUnhandledNotification(event, msg),
+    }));
+    return [...handled, ...unhandled];
+}
 
 export class SignalRWrapper {
     // Manage the SignalR connection. This is a singleton class
@@ -13,6 +40,7 @@ export class SignalRWrapper {
     private _connection?: HubConnection;
     private _utils?: SignalRUtilities;
     private _currentHandler?: NotificationHandler;
+    private _dispatch?: DispatchEntry[];
     private _status: ConnectionStatus = 'closed';
     private _subscribedEditionId?: number;
 
@@ -68,43 +96,34 @@ export class SignalRWrapper {
     public registerNotificationHandler(handler: NotificationHandler) {
         this.unregisterNotificationHandler();
         this._currentHandler = handler;
+        this._dispatch = buildDispatch(handler);
         this.connectHandler();
     }
 
     public unregisterNotificationHandler() {
-        if (this._currentHandler && this._utils) {
-            this._utils.disconnectUpdatedEdition(this._currentHandler.handleUpdatedEdition);
-            this._utils.disconnectCreatedArtefact(this._currentHandler.handleCreatedArtefact);
-            this._utils.disconnectDeletedArtefact(this._currentHandler.handleDeletedArtefact);
-            this._utils.disconnectUpdatedArtefact(this._currentHandler.handleUpdatedArtefact);
-            this._utils.disconnectCreatedRoisBatch(this._currentHandler.handleCreatedRoisBatch);
-            this._utils.disconnectEditedRoisBatch(this._currentHandler.handleEditedRoisBatch);
-            this._utils.disconnectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
-            this._utils.disconnectDeletedRoi(this._currentHandler.handleDeletedRoi);
-            this._utils.disconnectCreatedEditor(this._currentHandler.handleCreatedEditor);
-            this._utils.disconnectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
-            this._utils.disconnectUpdatedSignInterpretations(this._currentHandler.handleUpdatedSignInterpretations);
-            this._utils.disconnectDeletedSignInterpretation(this._currentHandler.handleDeletedSignInterpretation);
-            this._utils.disconnectCreatedSignInterpretation(this._currentHandler.handleCreatedSignInterpretation);
-        }
+        this.disconnectHandlers();
         this._currentHandler = undefined;
+        this._dispatch = undefined;
     }
 
+    // Register every dispatch entry on the connection. Handled events reach their
+    // NotificationHandler method; the rest reach a dev-only logger. Registering
+    // the full set (rather than a hand-picked subset) is what makes coverage gaps
+    // visible. Behaviour for the currently-handled events is unchanged: the
+    // generated connect* wrappers do exactly `this._connection.on(name, handler)`.
     private connectHandler() {
-        if (this._utils && this._currentHandler) {
-            this._utils.connectUpdatedEdition(this._currentHandler.handleUpdatedEdition);
-            this._utils.connectCreatedArtefact(this._currentHandler. handleCreatedArtefact);
-            this._utils.connectDeletedArtefact(this._currentHandler.handleDeletedArtefact);
-            this._utils.connectUpdatedArtefact(this._currentHandler.handleUpdatedArtefact);
-            this._utils.connectCreatedRoisBatch(this._currentHandler.handleCreatedRoisBatch);
-            this._utils.connectEditedRoisBatch(this._currentHandler.handleEditedRoisBatch);
-            this._utils.connectUpdatedRoisBatch(this._currentHandler.handleUpdatedRoisBatch);
-            this._utils.connectDeletedRoi(this._currentHandler.handleDeletedRoi);
-            this._utils.connectCreatedEditor(this._currentHandler.handleCreatedEditor);
-            this._utils.connectUpdatedSignInterpretation(this._currentHandler.handleUpdatedSignInterpretation);
-            this._utils.connectUpdatedSignInterpretations(this._currentHandler.handleUpdatedSignInterpretations);
-            this._utils.connectDeletedSignInterpretation(this._currentHandler.handleDeletedSignInterpretation);
-            this._utils.connectCreatedSignInterpretation(this._currentHandler.handleCreatedSignInterpretation);
+        if (this._connection && this._dispatch) {
+            for (const { event, fn } of this._dispatch) {
+                this._connection.on(event, fn);
+            }
+        }
+    }
+
+    private disconnectHandlers() {
+        if (this._connection && this._dispatch) {
+            for (const { event, fn } of this._dispatch) {
+                this._connection.off(event, fn);
+            }
         }
     }
 
@@ -116,7 +135,7 @@ export class SignalRWrapper {
         this._connection = new HubConnectionBuilder()
             .withUrl(process.env.VUE_APP_SIGNALR_URL!, {
                 accessTokenFactory: () => StateManager.instance.session.token || '',
-                // transport: 4 // signalR.HttpTransportType.LongPolling,
+                // transport: HttpTransportType.LongPolling, // import HttpTransportType if needed
             }).configureLogging(process.env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Error)
             .withAutomaticReconnect()
             .build();

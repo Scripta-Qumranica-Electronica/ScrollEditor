@@ -102,6 +102,21 @@ abstract class StateCollection<T extends ItemWithId<U>, U = number> {
         this.replaceItems(newItems);
     }
 
+    // Idempotent write: update the entity if present, otherwise add it. Both
+    // paths go through replaceItems, so reactivity is always triggered. Use this
+    // as the single reactive entry point for notification-driven writes where the
+    // entity instance may be replaced wholesale. NOTE: this swaps in `entity` by
+    // reference; if consumers hold a reference to the *existing* instance, mutate
+    // that instance in place (copyFrom) and call update() instead, to preserve
+    // identity (see upsertArtefact in notification-handler.ts).
+    public upsert(entity: T) {
+        if (this.find(entity.id)) {
+            this.update(entity, false);
+        } else {
+            this.add(entity, false);
+        }
+    }
+
     protected replaceItems(newItems: T[]) {
         const oldCurrent = this._current;
         this.items = newItems;

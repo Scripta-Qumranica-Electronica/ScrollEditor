@@ -8,11 +8,13 @@ import {
     UpdatedInterpretationRoiDTO,
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
-    DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO, DeleteIntIdDTO
+    DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO, DeleteIntIdDTO,
+    ArtefactGroupDTO
 } from '@/dtos/sqe-dtos';
-import { EditionInfo, ShareInfo, Permissions } from '@/models/edition';
+import { EditionInfo, ShareInfo, Permissions, ArtefactGroup } from '@/models/edition';
 import { StateManager } from '.';
 import { Artefact } from '@/models/artefact';
+import { Placement } from '@/utils/Placement';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
 import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 import Vue from 'vue';
@@ -41,8 +43,15 @@ export class NotificationHandler {
     }
 
     public handleCreatedArtefact(artefact: ArtefactDTO): void {
-        const newArtefact = new Artefact(artefact);
+        // If we already hold this artefact (e.g. our own echo), apply it through
+        // the single reactive write path instead of ignoring it.
+        const existing = state().artefacts.find(artefact.id);
+        if (existing) {
+            applyArtefactUpdate(existing, artefact);
+            return;
+        }
 
+        const newArtefact = new Artefact(artefact);
         state().artefacts.add(newArtefact, false); // Safely ignore error if artefact is already there
         if (state().imagedObjects.current?.id === artefact.imagedObjectId) {
             addToArray(newArtefact, StateManager.instance.imagedObjects.current?.artefacts);
@@ -62,14 +71,32 @@ export class NotificationHandler {
     public handleUpdatedArtefact(dto: ArtefactDTO): void {
         const existingArtefact = state().artefacts.find(dto.id);
         if (!existingArtefact) {
-            // We don't have this aretfact, no need to update it
+            // We don't have this artefact, no need to update it
             return;
         }
-        if (!dto.mask) {
-            dto.mask = existingArtefact.mask.wkt;
+        applyArtefactUpdate(existingArtefact, dto);
+    }
+
+    public handleCreatedArtefactGroup(dto: ArtefactGroupDTO): void {
+        upsertArtefactGroup(dto);
+    }
+
+    public handleUpdatedArtefactGroup(dto: ArtefactGroupDTO): void {
+        upsertArtefactGroup(dto);
+    }
+
+    public handleDeletedArtefactGroup(dto: DeleteIntIdDTO): void {
+        const edition = state().editions.current;
+        if (!edition) {
+            return;
         }
-        const newArtefact = new Artefact(dto);
-        existingArtefact.copyFrom(newArtefact);
+        for (const id of dto.ids) {
+            const idx = edition.artefactGroups.findIndex(g => g.groupId === id);
+            if (idx > -1) {
+                // splice is a reactive array mutation in Vue 2.
+                edition.artefactGroups.splice(idx, 1);
+            }
+        }
     }
 
     public handleCreatedRoi(roi: InterpretationRoiDTO): void {
@@ -236,6 +263,99 @@ export class NotificationHandler {
  * After updating ROIs, components displaying ROIs should be notified (since not all properties are computed
  * from the state). We use the event bus to fire an roi-changed event, causing components to refresh.
  */
+
+// Single reactive write path for an artefact coming from a notification. Copies
+// the DTO into the EXISTING instance (preserving object identity for components
+// bound to it) and then replaces it in the collection so the new array reference
+// re-triggers reactivity for every consumer (e.g. the manuscript view's
+// `placedArtefacts` computed). Without the collection replace, copyFrom mutates
+// the instance in place but the collection array is unchanged, dependent computeds
+// never re-run, and the manuscript view stays stale until reload. Mirrors the HTTP
+// path (services/artefact.ts) and the handleUpdatedEdition reference handler.
+// This is the ONE place artefact geometry/placement is written from notifications.
+function applyArtefactUpdate(existing: Artefact, dto: ArtefactDTO): Artefact {
+    // Pending-op guard (P3 reconciliation): if the local user has an unsaved
+    // operation on this artefact (e.g. mid drag/edit before the 3s auto-save),
+    // do not let an inbound update overwrite their in-progress local state. The
+    // conflict resolves last-write-wins on their next save, and a later broadcast
+    // (once clean) reconciles. Prevents geometry being yanked out mid-edit.
+    const om = state().operationsManager;
+    if (om && om.isEntityDirty(existing.id)) {
+        return existing;
+    }
+    if (!dto.mask) {
+        // The server omits the mask when it did not change; keep the one we have.
+        dto.mask = existing.mask.wkt;
+    }
+    const updated = new Artefact(dto);
+    // Diff-before-write (P3 reconciliation): if the incoming artefact is
+    // render-identical to what we already hold — e.g. our own change echoed back
+    // because the caller stays in the edition group, or a placement-only update
+    // whose mask we backfilled — skip the reactive write entirely. No new array
+    // reference, no re-render, no SVG re-emit, no flicker. Only a genuine change
+    // touches Vue reactivity.
+    if (artefactRenderEqual(existing, updated)) {
+        return existing;
+    }
+    existing.copyFrom(updated);
+    state().artefacts.update(existing, false);
+    return existing;
+}
+
+// Structural equality on the fields that affect rendering/layout. Used to avoid
+// redundant reactive writes (see applyArtefactUpdate).
+function artefactRenderEqual(a: Artefact, b: Artefact): boolean {
+    return a.mask.wkt === b.mask.wkt
+        && a.name === b.name
+        && a.isPlaced === b.isPlaced
+        && a.side === b.side
+        && placementEqual(a.placement, b.placement);
+}
+
+function placementEqual(a: Placement, b: Placement): boolean {
+    return a.scale === b.scale
+        && a.rotate === b.rotate
+        && a.zIndex === b.zIndex
+        && a.mirrored === b.mirrored
+        && a.translate.x === b.translate.x
+        && a.translate.y === b.translate.y;
+}
+
+// Reactive upsert of an artefact group into the current edition. `artefactGroups`
+// is a plain array on the reactive EditionInfo instance, so mutating an existing
+// group's fields in place (preserving identity for any held reference, e.g. a
+// selected group) or pushing/Vue.set-ing a new one triggers reactivity for the
+// scroll editor. We deliberately do NOT emit 'select-group' here — a remote
+// change must not hijack the local user's current selection.
+function upsertArtefactGroup(dto: ArtefactGroupDTO): void {
+    const edition = state().editions.current;
+    if (!edition) {
+        return;
+    }
+    const existing = edition.artefactGroups.find(g => g.groupId === dto.id);
+    if (existing) {
+        // Diff-before-write (P3): skip if unchanged (e.g. our own echo).
+        if (existing.name === dto.name && numberArraysEqual(existing.artefactIds, dto.artefacts)) {
+            return;
+        }
+        existing.name = dto.name;
+        existing.artefactIds = [...dto.artefacts]; // reassign -> reactive
+    } else {
+        edition.artefactGroups.push(new ArtefactGroup(dto));
+    }
+}
+
+function numberArraysEqual(a: number[], b: number[]): boolean {
+    if (a.length !== b.length) {
+        return false;
+    }
+    for (let i = 0; i < a.length; i = i + 1) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
 function handleCreatedRoi(dto: InterpretationRoiDTO) {
     console.debug('handleCreatedRoi', dto);

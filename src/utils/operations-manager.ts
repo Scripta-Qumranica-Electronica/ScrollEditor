@@ -59,6 +59,11 @@ export interface OperationsManagerBase {
     canRedo: boolean;
     saveMessage: string;
 
+    // True when the entity with this id has an unsaved local operation. The
+    // notification layer uses this to avoid clobbering an in-progress local edit
+    // with an inbound remote update (pending-op guard).
+    isEntityDirty(id: number): boolean;
+
     undo(): void;
     redo(): void;
 }
@@ -131,6 +136,17 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
 
     public get isSaving(): boolean {
         return this.saveInProgress;
+    }
+
+    // True when this entity has an unsaved local operation (still in the dirty
+    // set). Each Operation exposes its affected entity id via getId().
+    public isEntityDirty(id: number): boolean {
+        for (const op of this.dirty) {
+            if ((op.getId() as unknown as number) === id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public get saveMessage(): string {
