@@ -19,9 +19,9 @@ export class CommHelper {
                             CommHelper.getRequestOptions(useCredentials));
     }
 
-    public static put<T>(url: string, body?: any, useCredentials: boolean = true) {
+    public static put<T>(url: string, body?: any, useCredentials: boolean = true, opId?: string) {
         return axios.put<T>(CommHelper.getFullUrl(url),
-                            body, CommHelper.getRequestOptions(useCredentials));
+                            body, CommHelper.getRequestOptions(useCredentials, opId));
     }
 
     public static post<T>(url: string, body?: any, useCredentials: boolean = true) {
@@ -34,14 +34,14 @@ export class CommHelper {
                             CommHelper.getRequestOptions(useCredentials));
     }
 
-    private static getRequestOptions(useCredentials: boolean) {
-        if (useCredentials) {
-            return {
-                headers: authHeader()
-            };
-        } else {
-            return undefined;
+    private static getRequestOptions(useCredentials: boolean, opId?: string) {
+        const headers: Record<string, string> = useCredentials ? { ...authHeader() } as Record<string, string> : {};
+        if (opId) {
+            // Correlation id so the server echoes it on the broadcast, letting the
+            // reducer recognise this client's own change (opId reconciliation).
+            headers['X-Operation-Id'] = opId;
         }
+        return Object.keys(headers).length ? { headers } : undefined;
     }
 
     private static getFullUrl(url: string) {

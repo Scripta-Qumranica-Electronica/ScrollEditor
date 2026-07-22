@@ -272,14 +272,37 @@ export class NotificationHandler {
 // never re-run, and the manuscript view stays stale until reload. Mirrors the HTTP
 // path (services/artefact.ts) and the handleUpdatedEdition reference handler.
 // This is the ONE place artefact geometry/placement is written from notifications.
-function applyArtefactUpdate(existing: Artefact, dto: ArtefactDTO): Artefact {
+// Op-ids of local mutations sent to the server and awaiting their broadcast echo.
+// When an UpdatedArtefact carries one of these it is our own confirmed change
+// (opId reconciliation): apply it authoritatively and bypass the pending-op guard
+// rather than treat it as a foreign edit.
+const pendingOpIds = new Set<string>();
+
+export function registerPendingOperation(opId: string): void {
+    pendingOpIds.add(opId);
+}
+
+// Public single reducer for an artefact DTO — used by BOTH the SignalR handler
+// and the HTTP-response path (services/artefact.ts) so the two share one code
+// path. Pass isOwnChange=true for a locally-originated write (its HTTP response).
+export function applyArtefactDto(dto: ArtefactDTO, isOwnChange = false): void {
+    const existing = state().artefacts.find(dto.id);
+    if (existing) {
+        applyArtefactUpdate(existing, dto, isOwnChange);
+    } else {
+        state().artefacts.add(new Artefact(dto), false);
+    }
+}
+
+function applyArtefactUpdate(existing: Artefact, dto: ArtefactDTO, isOwnChange = false): Artefact {
+    // A broadcast carrying one of our pending op-ids is our own confirmed change.
+    const own = isOwnChange || (!!dto.operationId && pendingOpIds.delete(dto.operationId));
     // Pending-op guard (P3 reconciliation): if the local user has an unsaved
     // operation on this artefact (e.g. mid drag/edit before the 3s auto-save),
-    // do not let an inbound update overwrite their in-progress local state. The
-    // conflict resolves last-write-wins on their next save, and a later broadcast
-    // (once clean) reconciles. Prevents geometry being yanked out mid-edit.
+    // do not let an inbound PEER update overwrite their in-progress local state.
+    // Our own confirmed change (own=true) bypasses this and applies authoritatively.
     const om = state().operationsManager;
-    if (om && om.isEntityDirty(existing.id)) {
+    if (!own && om && om.isEntityDirty(existing.id)) {
         return existing;
     }
     if (!dto.mask) {

@@ -10,6 +10,8 @@ import {
 } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import { ImageStack } from '@/models/image';
+import { v7 as uuidv7 } from 'uuid';
+import { applyArtefactDto, registerPendingOperation } from '@/state/notification-handler';
 import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
 import { StateManager } from '@/state';
@@ -162,14 +164,20 @@ class ArtefactService {
             statusMessage: ''
         } as UpdateArtefactDTO;
 
+        // opId reconciliation: tag this mutation with a sortable UUIDv7 so we
+        // recognise its own broadcast echo, and apply the response through the
+        // SAME reducer the SignalR handler uses (unifying the HTTP + realtime
+        // write paths — see applyArtefactDto in notification-handler.ts).
+        const opId = uuidv7();
+        registerPendingOperation(opId);
         const response = await CommHelper.put<ArtefactDTO>(
             ApiRoutes.editionArtefactUrl(editionId, artefact.id),
-            body
+            body,
+            true,
+            opId
         );
 
-        // Update the state
-        const changed = new Artefact(response.data);
-        this.stateManager.artefacts.update(changed);
+        applyArtefactDto(response.data, true);
         this.stateManager.touchEdition(editionId);
         return response.data;
     }
