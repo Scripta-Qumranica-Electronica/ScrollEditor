@@ -8,6 +8,7 @@
         >
             <div ref="editLineModalRef">
                 <text-line
+                    v-if="line"
                     :line="line"
                     direction="rtl"
                     class="d-flex w-100"

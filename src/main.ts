@@ -10,6 +10,7 @@ import router from './router';
 
 // Bootstrap
 import { createBootstrap } from 'bootstrap-vue-next';
+import * as BootstrapVueNext from 'bootstrap-vue-next';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
 
@@ -54,6 +55,16 @@ const i18n = createI18n({
 app.use(i18n);
 
 app.use(createBootstrap());
+
+// createBootstrap() registers directives + composables but does NOT globally
+// register components. Register every exported B* component so kebab-case tags
+// (<b-modal>, <b-button>, ...) resolve app-wide, matching the old
+// `Vue.use(BootstrapVue)` behaviour used throughout the templates.
+for (const [name, comp] of Object.entries(BootstrapVueNext)) {
+    if (/^B[A-Z]/.test(name) && comp && typeof comp === 'object') {
+        app.component(name, comp as never);
+    }
+}
 
 // Rendering optimization plugin ($render global). Ported to a Vue 3 plugin
 // shape (install(app)).
