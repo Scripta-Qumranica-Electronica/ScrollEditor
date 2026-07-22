@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
@@ -72,18 +72,18 @@ import router from '@/router';
 @Component({
     name: 'update-user',
 })
-export default class UpdateUser extends Vue {
+class UpdateUser extends Vue {
     // data
-    protected password: string = '';
-    protected surname: string | undefined = this.$state.session.user!.surname;
-    protected forename: string | undefined = this.$state.session.user!.forename;
-    protected email: string = this.$state.session.user!.email;
-    protected organization: string | undefined =
+    public password: string = '';
+    public surname: string | undefined = this.$state.session.user!.surname;
+    public forename: string | undefined = this.$state.session.user!.forename;
+    public email: string = this.$state.session.user!.email;
+    public organization: string | undefined =
         this.$state.session.user!.organization;
-    protected errorMessage: string = '';
-    protected sessionService: SessionService = new SessionService();
-    protected errorService: ErrorService = new ErrorService(this);
-    protected waiting: boolean = false;
+    public errorMessage: string = '';
+    public sessionService: SessionService = new SessionService();
+    public errorService: ErrorService = new ErrorService(this);
+    public waiting: boolean = false;
 
     // computed
 
@@ -99,7 +99,7 @@ export default class UpdateUser extends Vue {
 
     // methods
 
-    protected async change() {
+    public async change() {
         let emailChanged = false;
         if (this.email !== this.$state.session.user!.email) {
             emailChanged = true;
@@ -118,13 +118,14 @@ export default class UpdateUser extends Vue {
             const userInfo = await this.sessionService.updateUser(data);
             router.push('/');
 
-            this.$toasted.show(this.$tc('toasts.detailsChanged'), {
+            // TODO(vue3): replace $toasted with vue-toastification or similar
+            (this as any).$toasted.show(this.$t('toasts.detailsChanged'), {
                 type: 'info',
                 position: 'top-right',
                 duration: 7000,
             });
             if (emailChanged) {
-                this.$toasted.show(this.$tc('toasts.activationLink'), {
+                (this as any).$toasted.show(this.$t('toasts.activationLink'), {
                     type: 'info',
                     position: 'top-right',
                     duration: 7000,
@@ -134,13 +135,14 @@ export default class UpdateUser extends Vue {
             this.$state.session.user = userInfo;
         } catch (err) {
             this.errorMessage = this.errorService.getErrorMessage(
-                err.response.data
+                (err as any).response.data
             );
         } finally {
             this.waiting = false;
         }
     }
 }
+export default toNative(UpdateUser);
 </script>
 
 <style  lang="scss" scoped>

@@ -1,7 +1,7 @@
 <template>
     <g v-if="image" :transform="groupTransform" ref="imageGroup">
         <image
-            :xlink:href="backgroundImageUrl"
+            :href="backgroundImageUrl"
             :transform="backgroundImageTransform"
             :opacity="opacity"
             @error="onBackgroundLoadError()"
@@ -12,7 +12,7 @@
             :id="`iiif-image-${image.id}-tile-${idx}`"
             :width="tile.width"
             :height="tile.height"
-            :xlink:href="tile.url"
+            :href="tile.url"
             :opacity="opacity"
             :transform="tile.transform"
             @error="tile.onLoadError()"
@@ -53,7 +53,7 @@
 import { Image } from '@/models/image';
 import { BoundingBox, BoundingBoxInterface } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
 
 interface ManifestTileInfo {
     width: number;
@@ -120,17 +120,17 @@ function rectIntersectsRings(r: Rect, rings: Ring[]): boolean {
 }
 
 class TileInfo {
-    private static RETRY_LIMIT = 10;
+    public static RETRY_LIMIT = 10;
 
     public transform: string;
     public loadError: boolean;
-    private _inView: boolean;
+    public _inView: boolean;
     public retries: number;
     public width: number;
     public height: number;
-    private _url: string;
-    public get url() {
-        return this.inView && !this.loadError ? this._url : null;
+    public _url: string;
+    public get url(): string | undefined {
+        return this.inView && !this.loadError ? this._url : undefined;
     }
 
     public get inView() {
@@ -175,7 +175,7 @@ class TileInfo {
 @Component({
     name: 'iiif-image',
 })
-export default class IIIFImageComponent extends Vue {
+class IIIFImageComponent extends Vue {
     @Prop() public image!: Image;
     @Prop() public boundingBox?: BoundingBoxInterface; // In SQE coordinates
     @Prop({ default: 0.5 }) public scaleFactor!: number;
@@ -185,10 +185,10 @@ export default class IIIFImageComponent extends Vue {
     @Prop() public mask?: Polygon; // artefact clip mask (SQE coords); tiles fully outside it are skipped
 
     public tiles: TileInfo[] = [];
-    private _maskRingsCache: { svg: string; rings: Ring[] } | null = null;
+    public _maskRingsCache: { svg: string; rings: Ring[] } | null = null;
 
     // Mask polygon parsed into rings (SQE coords), cached by its svg string. null = no usable mask.
-    private get maskRings(): Ring[] | null {
+    public get maskRings(): Ring[] | null {
         if (!this.mask) return null;
         const svg = this.mask.svg;
         if (!this._maskRingsCache || this._maskRingsCache.svg !== svg) {
@@ -196,15 +196,15 @@ export default class IIIFImageComponent extends Vue {
         }
         return this._maskRingsCache.rings.length ? this._maskRingsCache.rings : null;
     }
-    private observer?: ResizeObserver;
-    private refreshTimeoutId: number | null = null;
-    private backgroundLoadError = false;
+    public observer?: ResizeObserver;
+    public refreshTimeoutId: number | null = null;
+    public backgroundLoadError = false;
 
-    private static CHECK_IN_VIEW_TIMEOUT = 50; // Update tiles in view 50ms after scroll or resize
-    private static PREBUFFER = 0.5; // load tiles within half a viewport beyond each edge (prebuffer)
-    private static MASK_FILTER_MAX_COST = 200000; // #tiles * #maskPoints cap; above it, skip the mask filter
+    public static CHECK_IN_VIEW_TIMEOUT = 50; // Update tiles in view 50ms after scroll or resize
+    public static PREBUFFER = 0.5; // load tiles within half a viewport beyond each edge (prebuffer)
+    public static MASK_FILTER_MAX_COST = 200000; // #tiles * #maskPoints cap; above it, skip the mask filter
 
-    protected get surroundingDiv() {
+    public get surroundingDiv() {
         const imageGroup = this.$refs.imageGroup as SVGGElement;
         const svg = imageGroup.ownerSVGElement!;
         let div = svg.closest('div.iiif-container');
@@ -228,7 +228,7 @@ export default class IIIFImageComponent extends Vue {
         // this.scaleFactor = this.scaleFactor;
     }
 
-    public destroyed() {
+    public unmounted() {
         const div = this.surroundingDiv;
         div.removeEventListener('scroll', () => {
             this.onSurroundingChanged();
@@ -238,7 +238,7 @@ export default class IIIFImageComponent extends Vue {
         }
     }
 
-    private onSurroundingChanged() {
+    public onSurroundingChanged() {
         if (this.refreshTimeoutId) {
             window.clearTimeout(this.refreshTimeoutId);
         }
@@ -248,19 +248,19 @@ export default class IIIFImageComponent extends Vue {
         }, IIIFImageComponent.CHECK_IN_VIEW_TIMEOUT);
     }
     @Watch('scaleFactor')
-    private onScalePropertyChanged(value: number, oldValue: number) {
+    public onScalePropertyChanged(value: number, oldValue: number) {
         this.loadTiles();
     }
 
     @Watch('boundingBox')
-    private onBoundingBoxPropertyChanged(value: number, oldValue: number) {
+    public onBoundingBoxPropertyChanged(value: number, oldValue: number) {
         // Sometimes loading of the bounding box lags behind reception of
         // other values, make sure to trigger a tile load when a new bounding
         // box appears.
         this.loadTiles();
     }
 
-    private loadTiles() {
+    public loadTiles() {
         // If the bounding box has no width or height, don't go any further; nothing to display
         if (
             !this.imageBoundingBox.width ||
@@ -351,7 +351,7 @@ export default class IIIFImageComponent extends Vue {
         });
     }
 
-    private checkTilesInView() {
+    public checkTilesInView() {
         if (!this.dynamic) {
             return;
         }
@@ -389,7 +389,7 @@ export default class IIIFImageComponent extends Vue {
 
     // The actual bounding box - either the supplied bounding box argument or the entire image
     // in SQE coordinates
-    private get sqeBoundingBox(): BoundingBoxInterface {
+    public get sqeBoundingBox(): BoundingBoxInterface {
         if (this.boundingBox) {
             return this.boundingBox;
         }
@@ -404,7 +404,7 @@ export default class IIIFImageComponent extends Vue {
     }
 
     // Bounding box in Image Coordinates
-    private get imageBoundingBox(): BoundingBoxInterface {
+    public get imageBoundingBox(): BoundingBoxInterface {
         const sqeBB = this.sqeBoundingBox;
         const f = this.image.ppiAdjustmentFactor;
 
@@ -418,7 +418,7 @@ export default class IIIFImageComponent extends Vue {
     }
 
     // Screen bounding box - in Screen Coordinates
-    private get screenBoundingBox(): BoundingBoxInterface {
+    public get screenBoundingBox(): BoundingBoxInterface {
         const sqeBB = this.sqeBoundingBox;
         let f;
 
@@ -438,7 +438,7 @@ export default class IIIFImageComponent extends Vue {
     }
 
     // The IIIF manifest can contain tile information. If not, we have a default tile information we use.
-    private get manifestTileInfo(): ManifestTileInfo {
+    public get manifestTileInfo(): ManifestTileInfo {
         if (this.image.manifest?.tiles) {
             // Use the first tile - we haven't seen an example with more than one tile entry
             return this.image.manifest.tiles[0] as ManifestTileInfo;
@@ -456,7 +456,7 @@ export default class IIIFImageComponent extends Vue {
     // imageCoordinate * imageScaleFactor = screenCoordinate
     //
     // This scale factor is the basis of what is sent to the server
-    private get imageScaleFactor(): number {
+    public get imageScaleFactor(): number {
         const imageScaleFactor = Math.min(
             this.screenBoundingBox.width / this.imageBoundingBox.width,
             1
@@ -466,7 +466,7 @@ export default class IIIFImageComponent extends Vue {
 
     // The imageScaleFactor rounded up to the nearest scale optimized in the server
     // (based on the tile info)
-    private get optimizedImageScaleFactor() {
+    public get optimizedImageScaleFactor() {
         for (
             let i = this.manifestTileInfo.scaleFactors.length - 1;
             i >= 0;
@@ -526,7 +526,7 @@ export default class IIIFImageComponent extends Vue {
     // A low-res background image placed behind the tiles, to fill out any rounding artefacts between tiles.
     // The IIA IIIF server has a hard limit of 1000x1000 tiles. We want the scaled down image to fit in just one
     // tile - it is enough for removing the rounding artefacts.
-    private get backgroundImageScale(): number {
+    public get backgroundImageScale(): number {
         // Return the scale in percentages
         const max = Math.max(
             this.imageBoundingBox.width,
@@ -539,9 +539,9 @@ export default class IIIFImageComponent extends Vue {
         return scale;
     }
 
-    public get backgroundImageUrl(): string | null {
+    public get backgroundImageUrl(): string | undefined {
         if (this.backgroundLoadError) {
-            return null;
+            return undefined;
         }
         return this.image.getScaledAndCroppedUrl(
             this.backgroundImageScale,
@@ -576,6 +576,7 @@ export default class IIIFImageComponent extends Vue {
         return translateTransform + ' ' + scaleTransform;
     }
 }
+export default toNative(IIIFImageComponent);
 </script>
 
 <style lang="scss" scoped></style>

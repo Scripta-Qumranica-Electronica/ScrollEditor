@@ -1,8 +1,9 @@
 <template>
     <b-modal
         id="sign-attribute-modal"
+        :model-value="isVisible"
+        @update:model-value="onVisibilityChange"
         @hide="onHide"
-        ref="signAttributeModalRef"
         title="Attribute Information"
     >
         <div v-if="attribute">
@@ -20,7 +21,7 @@
                         <option :disabled="true" :value="null">{{attribute.attributeValueString}}</option>
                         <option
                             v-for="attrVal in possibleAttributeValues"
-                            :key="attrVal.attributeValueId"
+                            :key="attrVal.id"
                             :value="attrVal"
                         >{{ attrVal.value }}</option>
                     </b-form-select>
@@ -30,6 +31,7 @@
                 </b-col>
             </b-row>
 
+            <!-- TODO(vue3): comment.vue still uses value/input (Vue 2 v-model); update when comment.vue is migrated -->
             <comment v-if="!isMultiSelect" v-model="comment" class="mt-3" />
         </div>
         <template v-slot:modal-footer>
@@ -50,8 +52,7 @@ import {
     InterpretationAttributeDTO,
 } from '@/dtos/sqe-dtos';
 import { TextFragmentAttributeOperation } from '@/views/artefact-editor/operations';
-import { BvModalEvent } from 'bootstrap-vue';
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
 import CommentComponent from '../comment/comment.vue';
 import SignAttributeBadge from './sign-attribute-badge.vue';
 // import ErrorService from '@/services/error';
@@ -63,26 +64,39 @@ import SignAttributeBadge from './sign-attribute-badge.vue';
         'comment': CommentComponent,
     },
 })
-export default class SignAttributeModal extends Vue {
-    private selected: string | null = null;
-    private hidingStarted = false;
+class SignAttributeModal extends Vue {
+    public selected: string | null = null;
+    public hidingStarted = false;
 
-    private get readOnly(): boolean {
+    // Vue 3: b-modal is controlled by v-model (boolean) instead of $refs.x.show()/hide()
+    // The modal is shown when attribute is set (from sign-attribute-pane via state),
+    // and hidden by setting the state back to null.
+    public get isVisible(): boolean {
+        return !!this.attribute;
+    }
+
+    public onVisibilityChange(val: boolean) {
+        if (!val) {
+            this.hide();
+        }
+    }
+
+    public get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
     }
 
-    private get attribute() {
+    public get attribute() {
         return this.$state.textFragmentEditor.selectedAttribute;
     }
 
-    private get comment() {
+    public get comment() {
         if (this.isMultiSelect) {
             return '';
         }
         return this.attribute?.commentary?.commentary || '';
     }
 
-    private set comment(val: string) {
+    public set comment(val: string) {
         if (!this.attribute || this.isMultiSelect) {
             console.warn("Can't set comment without an attribute or with multi selection");
             return;
@@ -106,11 +120,11 @@ export default class SignAttributeModal extends Vue {
         this.$state.eventBus.emit('new-operation', op);
     }
 
-    private get deleteAllowed() {
+    public get deleteAllowed() {
         return this.attributeMetadata?.removable || false;
     }
 
-    private get editAllowed() {
+    public get editAllowed() {
         if (this.isMultiSelect) {
             return this.attributeMetadata?.batchEditable || false;
         } else {
@@ -118,7 +132,7 @@ export default class SignAttributeModal extends Vue {
         }
     }
 
-    private get attributeMetadata() {
+    public get attributeMetadata() {
         if (!this.attribute) {
             return undefined;
         }
@@ -127,7 +141,7 @@ export default class SignAttributeModal extends Vue {
         );
     }
 
-    private get possibleAttributeValues() {
+    public get possibleAttributeValues() {
         if (!this.attribute || !this.attributeMetadata) {
             console.warn(
                 "Can't return possible values if there is no attribute or metedata"
@@ -148,13 +162,13 @@ export default class SignAttributeModal extends Vue {
         return values;
     }
 
-    private get isMultiSelect() {
+    public get isMultiSelect() {
         return (
             this.$state.textFragmentEditor.selectedSignInterpretations.length !== 1
         );
     }
 
-    private get description(): string {
+    public get description(): string {
         const metadata = this.$state.editions.current!.attributeMetadata!;
         const attrMetadata = metadata.getAttribute(this.attribute!.attributeId);
 
@@ -178,7 +192,7 @@ export default class SignAttributeModal extends Vue {
         return description;
     }
 
-    private onDeleteAttribute() {
+    public onDeleteAttribute() {
         const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.textFragmentEditor.selectedSignInterpretations) {
             const op = new TextFragmentAttributeOperation(
@@ -193,7 +207,7 @@ export default class SignAttributeModal extends Vue {
         this.hide();
     }
 
-    private onAttributeValueChanged(attrVal: AttributeValueDTO) {
+    public onAttributeValueChanged(attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.textFragmentEditor.selectedSignInterpretations) {
             for (const attr of si.attributes.filter(
@@ -216,25 +230,29 @@ export default class SignAttributeModal extends Vue {
         this.selected = null;
     }
 
-    private hide() {
-        (this.$refs.signAttributeModalRef as any).hide();
+    public hide() {
+        // Vue 3: dismiss by clearing the state-driven attribute (isVisible computed from attribute)
+        this.hidingStarted = true;
+        this.$state.textFragmentEditor.selectedAttribute = null;
     }
 
-    private onHide() {
+    public onHide() {
         this.hidingStarted = true;
         this.$state.textFragmentEditor.selectedAttribute = null;
     }
 
     @Watch('attribute')
-    private onAttributeChanged() {
+    public onAttributeChanged() {
         // The attribute can be deleted by another user
         if (!this.attribute && !this.hidingStarted) {
             this.hide();
-            this.$toasted.info(this.$tc('toasts.attributeDeletedBySomeoneElse'));
+            // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
+            console.info(this.$t('toasts.attributeDeletedBySomeoneElse'));
         }
         this.hidingStarted = false;
     }
 }
+export default toNative(SignAttributeModal);
 </script>
 
 

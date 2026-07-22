@@ -5,14 +5,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 //   name: 'home',
  name: 'waiting',
 })
-
-export default class Waiting extends Vue {}
+class Waiting extends Vue {}
+export default toNative(Waiting);
 </script>
 
 <style>

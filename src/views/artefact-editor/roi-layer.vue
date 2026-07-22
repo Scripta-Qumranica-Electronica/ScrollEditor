@@ -1,14 +1,13 @@
 <template>
     <g>    
-        <template v-for="roi in rois">
+        <template v-for="roi in rois" :key="roi.id">
             <g
-                :key="roi.id"
                 :transform="`translate(${roi.position.x} ${roi.position.y})`"
             >
                 <path
                     :d="roi.shape.svg"
                     :class="{
-                        shine: roi.shiny && withClass,
+                        shine: roi.shine && withClass,
                         selected: isSelectedRoi(roi) && withClass,
                         highlighted: highlighted(roi) && withClass,
                         highlightedComment:
@@ -23,15 +22,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
 import { InterpretationRoi } from '@/models/text';
 
 @Component({
     name: 'roi-layer',
     components: {},
 })
-export default class RoiLayer extends Vue {
-    @Prop() public rois!: Iterator<InterpretationRoi>;
+class RoiLayer extends Vue {
+    @Prop() public rois!: InterpretationRoi[];
     @Prop({
         default: true,
     })
@@ -67,7 +66,7 @@ export default class RoiLayer extends Vue {
         return this.$state.artefactEditor.selectedInterpretationRoi;
     }
 
-    private get si() {
+    public get si() {
         return this.$state.textFragmentEditor.singleSelectedSi;
     }
 
@@ -75,15 +74,16 @@ export default class RoiLayer extends Vue {
         return this.$state.artefactEditor;
     }
 
-    private onPathClicked(roi: InterpretationRoi) {
+    public onPathClicked(roi: InterpretationRoi) {
         this.roiClicked(roi);
     }
 
     @Emit()
-    private roiClicked(roi: InterpretationRoi) {
+    public roiClicked(roi: InterpretationRoi) {
         return roi;
     }
 }
+export default toNative(RoiLayer);
 </script>
 
 <style lang="scss" scoped>

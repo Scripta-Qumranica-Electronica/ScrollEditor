@@ -39,12 +39,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'scroll-ruler',
 })
-export default class ScrollRuler extends Vue {
+class ScrollRuler extends Vue {
     @Prop({
         default: 0,
     })
@@ -74,6 +74,7 @@ export default class ScrollRuler extends Vue {
         return Array.from(Array(this.verticalTicks).keys());
     }
 }
+export default toNative(ScrollRuler);
 </script>
 <style lang="scss" scoped>
 .ruler {
@@ -168,4 +169,3 @@ export default class ScrollRuler extends Vue {
     width: 15px;
 }
 </style>
-

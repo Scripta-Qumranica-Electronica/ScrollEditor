@@ -98,31 +98,35 @@
 <script lang="ts">
 import { DetailedSearchRequestDTO } from '@/dtos/sqe-dtos';
 import SearchService from '@/services/search';
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { vBTooltip } from 'bootstrap-vue-next';
 import { SearchFormData } from './types';
 import Waiting from '@/components/misc/Waiting.vue';
 @Component({
     name: 'search',
+    directives: {
+        'b-tooltip': vBTooltip,
+    },
 })
-export default class SearchForm extends Vue {
-    private searchService: SearchService = new SearchService();
-    private searchData: SearchFormData = new SearchFormData();
+class SearchForm extends Vue {
+    public searchService: SearchService = new SearchService();
+    public searchData: SearchFormData = new SearchFormData();
     @Prop({ default: false })
-    private disabled!: boolean;
+    public disabled!: boolean;
 
-    private mounted() {
+    public mounted() {
         this.searchData = new SearchFormData();
     }
 
-    private textToArray(
+    public textToArray(
         input: string,
         field: 'textReference' | 'artefactDesignation'
     ) {
         const list = input.split('\n').filter((s) => !!s); // Remove empty items from the list
-        Vue.set(this.searchData, field, list);
+        this.searchData[field] = list;
     }
 
-    private get noSearch() {
+    public get noSearch() {
         return (
             this.disabled ||
             (!this.searchData.textDesignation &&
@@ -133,10 +137,11 @@ export default class SearchForm extends Vue {
     }
 
     @Emit()
-    private search() {
+    public search() {
         return this.searchData;
     }
 }
+export default toNative(SearchForm);
 </script>
 
 <style lang="scss" scoped>

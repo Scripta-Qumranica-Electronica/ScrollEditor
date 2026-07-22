@@ -1,4 +1,4 @@
-import _Vue from 'vue';
+import type { App } from 'vue';
 
 export class RenderScalingData {
     public constructor(public image: number, public canvas: number) {
@@ -14,9 +14,12 @@ export interface RenderingOptimizationData {
     scalingFactors: RenderScalingData;
 }
 
-export default function RenderingOptimizationPlugin(vue: typeof _Vue, options?: any): void {
-    // TODO: Let a function calculate this based on the current browser abilities
-    vue.prototype.$render = {
-        scalingFactors: new RenderScalingData(2, 4),
-    } as RenderingOptimizationData;
-}
+// Vue 3 plugin: exposes `this.$render` as a global property.
+export default {
+    install(app: App, options?: any): void {
+        // TODO: Let a function calculate this based on the current browser abilities
+        app.config.globalProperties.$render = {
+            scalingFactors: new RenderScalingData(2, 4),
+        } as RenderingOptimizationData;
+    },
+};

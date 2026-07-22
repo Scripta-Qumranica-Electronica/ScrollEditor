@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal id="permissionModal" hide-footer @shown="shown">
+        <b-modal id="permissionModal" v-model="visible" hide-footer @show="shown">
            <div v-if="isAdmin">
             <form>
                 <!-- editor invitation row -->
@@ -115,7 +115,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
 import { EditionInfo, ShareInfo, SimplifiedPermission } from '@/models/edition';
 import EditionService from '@/services/edition';
 
@@ -132,15 +132,20 @@ interface ShareRow {
     name: 'permission-modal',
     components: {}
 })
-export default class PermissionModal extends Vue {
+class PermissionModal extends Vue {
     public invitationRow: ShareRow = { permission: 'read' } as ShareRow;
     public editionService: EditionService = new EditionService();
+    public visible: boolean = false;
 
     // public errorService:ErrorService= new ErrorService(this)
     public sharesRows: ShareRow[] = [];
     public invitationsRows: ShareRow[] = [];
-    private waiting = false;
-    private errorMessage = '';
+    public waiting = false;
+    public errorMessage = '';
+
+    public show() {
+        this.visible = true;
+    }
 
     public async shown() {
         await this.editionService.stateManager.prepare.invitations(this.current.id);
@@ -171,7 +176,7 @@ export default class PermissionModal extends Vue {
             msg = 'toasts.permissionsUpdated';
         }
 
-        this.$toasted.show(this.$tc(msg, undefined, {email: share.email}), {
+        this.$toasted.show(this.$t(msg, {email: share.email}), {
             type: 'info',
             position: 'top-right',
             duration: 5000,
@@ -224,25 +229,25 @@ export default class PermissionModal extends Vue {
         }
     }
 
-    private get invitationList() {
+    public get invitationList() {
         return this.current.invitations;
     }
 
     @Watch('invitationList')
-    private onInvitationsChange(newInvitations: ShareInfo[]) {
+    public onInvitationsChange(newInvitations: ShareInfo[]) {
         this.fillInvitationRows(newInvitations);
     }
 
-    private get shareList() {
+    public get shareList() {
         return this.current.shares;
     }
 
     @Watch('shareList')
-    private onSharesChange(newShares: ShareInfo[]) {
+    public onSharesChange(newShares: ShareInfo[]) {
         this.fillShareRows(newShares);
     }
 
-    private fillInvitationRows(invitations: ShareInfo[]) {
+    public fillInvitationRows(invitations: ShareInfo[]) {
         this.invitationsRows = this.current!.invitations.map(x => ({
             email: x.email,
             oldPermission: x.simplified,
@@ -258,7 +263,7 @@ export default class PermissionModal extends Vue {
         }
     }
 
-    private fillShareRows(shares: ShareInfo[]) {
+    public fillShareRows(shares: ShareInfo[]) {
         this.sharesRows = this.current!.shares.map(x => ({
             email: x.email,
             oldPermission: x.simplified,
@@ -274,6 +279,7 @@ export default class PermissionModal extends Vue {
         }
     }
 }
+export default toNative(PermissionModal);
 </script>
 
 

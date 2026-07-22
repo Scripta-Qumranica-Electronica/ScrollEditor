@@ -29,7 +29,7 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Vue, Emit, Watch } from 'vue-property-decorator';
+import { Component, Vue, Emit, Watch, toNative } from 'vue-facing-decorator';
 import { Point } from '@/utils/helpers';
 import ArtefactSillhouette from './artefact-sillhouette.vue';
 
@@ -39,11 +39,11 @@ import ArtefactSillhouette from './artefact-sillhouette.vue';
         'artefact-sillhouette': ArtefactSillhouette
     }
 })
-export default class ScrollMap extends Vue {
-    private width: number = 0;
-    private ready = false;
-    private observer?: ResizeObserver;
-    private scaleFactor = 1;
+class ScrollMap extends Vue {
+    public width: number = 0;
+    public ready = false;
+    public observer?: ResizeObserver;
+    public scaleFactor = 1;
 
     public created() {
         this.observer = new ResizeObserver(entities => this.onResize());
@@ -56,78 +56,78 @@ export default class ScrollMap extends Vue {
         this.ready = true;
     }
 
-    public destroyed() {
+    public unmounted() {
         this.observer!.disconnect();
     }
 
-    private get transform() {
+    public get transform() {
         return `scale(${this.scaleFactor})`;
     }
 
-    private get edition() {
+    public get edition() {
         return this.$state.editions.current!;
     }
 
     @Watch('actualWidth')
-    private setScaleFactor() {
+    public setScaleFactor() {
         const div = this.$refs.scrollMap as Element;
         const width = div.clientWidth;
 
         this.scaleFactor = width / (this.edition.metrics.width * this.edition.ppm);
     }
 
-    private onResize() {
+    public onResize() {
         this.setScaleFactor();
     }
 
-    private get viewport() {
+    public get viewport() {
         return this.$state.scrollEditor.viewport;
     }
 
     // Add a watch on `this.edition.metrics.width` - when it changes call setScaleFactor
-    private get actualWidth() {
+    public get actualWidth() {
         return this.edition.metrics.width * this.edition.ppm * this.scaleFactor;
     }
 
-    private get actualHeight() {
+    public get actualHeight() {
         return (
             this.edition.metrics.height * this.edition.ppm * this.scaleFactor
         );
     }
 
-    private get totalWidth() {
+    public get totalWidth() {
         return this.edition.metrics.width * this.edition.ppm;
     }
 
-    private get totalHeight() {
+    public get totalHeight() {
         return this.edition.metrics.height * this.edition.ppm;
     }
 
-    private get actualXOrigin() {
+    public get actualXOrigin() {
         return (
             this.edition.metrics.xOrigin * this.edition.ppm * this.scaleFactor
         );
     }
 
-    private get actualYOrigin() {
+    public get actualYOrigin() {
         return (
             this.edition.metrics.yOrigin * this.edition.ppm * this.scaleFactor
         );
     }
 
-    private get placedArtefacts() {
+    public get placedArtefacts() {
         const artefacts = this.$state.artefacts.items;
         return artefacts
             .filter(x => x.isPlaced)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
     }
 
-    private onClick(ev: MouseEvent) {
+    public onClick(ev: MouseEvent) {
         const pt = this.eventToPoint(ev);
         this.navigateToPoint(pt);
     }
 
-    private eventToPoint($event: MouseEvent): Point {
+    public eventToPoint($event: MouseEvent): Point {
         // Changing coordinate systems taken from:
         // https://www.sitepoint.com/how-to-translate-from-dom-to-svg-coordinates-and-back-again/
         const svg = this.$refs.svg as SVGSVGElement;
@@ -141,10 +141,11 @@ export default class ScrollMap extends Vue {
     }
 
     @Emit()
-    private navigateToPoint(pt: Point): Point {
+    public navigateToPoint(pt: Point): Point {
         return pt;
     }
 }
+export default toNative(ScrollMap);
 </script>
 
 <style lang="scss" scoped>

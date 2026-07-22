@@ -3,20 +3,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'resizeBar',
 })
-export default class ResizeBar extends Vue {
+class ResizeBar extends Vue {
     @Prop({
         default: null,
     })
-    protected gridElement!: HTMLDivElement;
+    public gridElement!: HTMLDivElement;
 
-    @Prop() private storageKey!: string;
-    private isDragging = false;
-    private leftPaneWidth!: number;
+    @Prop() public storageKey!: string;
+    public isDragging = false;
+    public leftPaneWidth!: number;
     public mounted() {
         if (this.gridElement) {
             const storedLeftPaneWidth = parseFloat(
@@ -64,6 +64,7 @@ export default class ResizeBar extends Vue {
         }
     }
 }
+export default toNative(ResizeBar);
 </script>
 
 <style>

@@ -1,15 +1,12 @@
 <template>
     <div>
         <b-modal
+            v-model="visible"
             header-class="title-header"
             footer-class="title-footer"
-            ref="FaqModalRef"
             id="FaqModal"
-            aria-role="dialog"
             aria-label="FAQ Modal"
-            scroll="keep"
             ok-only
-            trap-focus
             :destroy-on-hide="true"
             size="lg"
         >
@@ -51,17 +48,21 @@
 
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'Faq',
     components: {
     }
 })
+class FaqModal extends Vue {
+    public visible = false;
 
-export default class FaqModal extends Vue {
+    public show() {
+        this.visible = true;
+    }
 }
-
+export default toNative(FaqModal);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

@@ -4,14 +4,14 @@
         <text-sign
             v-for="signInfo in signs"
             :class="signInfo.class"
-            :key="signInfo.sign.signId"
+            :key="signInfo.index"
             :sign="signInfo.sign"
         ></text-sign>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
 import { Line, SignInterpretation, TextDirection, Sign } from '@/models/text';
 import TextSign from '@/components/text/text-sign.vue';
 
@@ -27,7 +27,7 @@ interface SignInfo {
         'text-sign': TextSign
     }
 })
-export default class SignWheel extends Vue {
+class SignWheel extends Vue {
     @Prop() public line!: Line;
     @Prop({
         default: 'rtl'
@@ -38,8 +38,8 @@ export default class SignWheel extends Vue {
     })
     public signsOnEachSide!: number;
 
-    private signs: SignInfo[] = [];
-    private selectedIndex = 0;
+    public signs: SignInfo[] = [];
+    public selectedIndex = 0;
 
     public mounted() {
         this.fillWheel();
@@ -55,14 +55,14 @@ export default class SignWheel extends Vue {
     }
 
     @Watch('selectedSignInterpretations')
-    private onSelectedSignInterpretationChanged(
+    public onSelectedSignInterpretationChanged(
         curSign: SignInterpretation,
         oldSign: SignInterpretation
     ) {
         this.fillWheel();
     }
 
-    private fillWheel() {
+    public fillWheel() {
         this.selectedIndex = this.findSignIndex();
         if (this.selectedIndex === -1) {
             return;
@@ -88,7 +88,7 @@ export default class SignWheel extends Vue {
         }
     }
 
-    private findSignIndex() {
+    public findSignIndex() {
         if (!this.textFragmentEditor.singleSelectedSi) {
             return -1;
         }
@@ -107,6 +107,7 @@ export default class SignWheel extends Vue {
         return -1;
     }
 }
+export default toNative(SignWheel);
 </script>
 
 <style lang="scss" scoped>

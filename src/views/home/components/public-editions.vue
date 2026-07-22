@@ -11,20 +11,27 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        :value="searchValue"
+                        :model-value="searchValue"
                         @search="onEditionsSearch"
                     ></search-bar>
                 </b-col>
             </b-row>
         </div>
-        <editions-public-list class="p-1" :editions="filteredEditions"></editions-public-list>
-        <copy-edition-modal :visible="true" />
+        <editions-public-list
+            class="p-1"
+            :editions="filteredEditions"
+            @show-copy-modal="showCopyModal = true"
+        ></editions-public-list>
+        <!-- TODO(vue3): copy-edition-modal needs to emit 'update:visible' so we can
+             reset showCopyModal on dismiss; for now showCopyModal stays true until
+             $state.editions.current is cleared externally. -->
+        <copy-edition-modal :visible="showCopyModal" />
     </div>
 </template>
 
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Emit, Vue, Watch, toNative } from 'vue-facing-decorator';
 import { EditionInfo } from '@/models/edition';
 import { SearchBarParams } from '@/components/search-bar.vue';
 import CopyEditionModal from './copy-edition-modal.vue';
@@ -42,8 +49,9 @@ import { SearchBarValue } from '@/state/utilities';
         CopyEditionModal,
     },
 })
-export default class PublicEditions extends Vue {
+class PublicEditions extends Vue {
     public filteredEditions: EditionInfo[] = [];
+    public showCopyModal: boolean = false;
     public searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
@@ -73,12 +81,12 @@ export default class PublicEditions extends Vue {
         return this.filteredEditions.length;
     }
 
-    protected async mounted() {
+    public async mounted() {
         await this.$state.prepare.allEditions();
         this.onPublicEditionsLoad();
     }
 
-    private getFilteredEditions(): EditionInfo[] {
+    public getFilteredEditions(): EditionInfo[] {
         // This function is not really efficient, but it does work quickly enough for the editions we have.
         // No need in optimizing it.
 
@@ -129,6 +137,7 @@ export default class PublicEditions extends Vue {
             });
     }
 }
+export default toNative(PublicEditions);
 </script>
 
 

@@ -1,5 +1,4 @@
-// tslint:disable-next-line:no-var-requires
-const clipperLib = require('js-clipper/clipper');
+import clipperLib from 'js-clipper/clipper';
 import * as jsts from 'jsts';
 
 import { svgPolygonToWKT,
@@ -10,7 +9,6 @@ import { svgPolygonToWKT,
     clipperToSVGPolygon,
 } from './VectorFactory';
 import { BoundingBox } from './helpers';
-import { BCol } from 'bootstrap-vue';
 
 // A class representing a polygon. The internal representation is SVG.
 // We have methods that translate the polygon to other formats, and static factory methods that import

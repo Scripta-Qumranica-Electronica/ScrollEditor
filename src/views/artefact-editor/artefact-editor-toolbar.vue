@@ -29,11 +29,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
-import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import {
     ArtefactEditorParams,
@@ -66,22 +65,22 @@ import CopyToEditionModal from '../home/components/copy-to-edition-modal.vue';
         'copy-edition-toolbox': CopyEditionToolbox
     },
 })
-export default class ArtefactEditorToolbar extends Vue {
-    private errorMessage: string = '';
-    private imagedObjectService: ImagedObjectService =
+class ArtefactEditorToolbar extends Vue {
+    public errorMessage: string = '';
+    public imagedObjectService: ImagedObjectService =
         new ImagedObjectService();
-    private imageStack: ImageStack = {} as ImageStack;
+    public imageStack: ImageStack = {} as ImageStack;
 
-    @Prop() private artefact!: Artefact;
+    @Prop() public artefact!: Artefact;
     // @Prop() private params: ArtefactEditorParams = {} as ArtefactEditorParams;
 
     public get editionId(): number {
-        return parseInt(this.$route.params.editionId);
+        return parseInt(String(this.$route.params.editionId));
     }
     public get artefactEditorState(): ArtefactEditorState {
         return this.$state.artefactEditor;
     }
-    private get params(): ArtefactEditorParams {
+    public get params(): ArtefactEditorParams {
         return this.artefactEditorState.params || new ArtefactEditorParams();
     }
 
@@ -134,7 +133,7 @@ export default class ArtefactEditorToolbar extends Vue {
         this.notifyChange('rotationAngle', this.params.rotationAngle);
     }
 
-    private onZoomChanged(val: number) {
+    public onZoomChanged(val: number) {
         this.params.zoom = val; //
         this.notifyChange('zoomArtefact', this.params.zoom);
     }
@@ -143,6 +142,7 @@ export default class ArtefactEditorToolbar extends Vue {
         this.notifyChange('fontSize', this.params.fontSize);
     }
 }
+export default toNative(ArtefactEditorToolbar);
 </script>
 
 <style lang="scss" scoped>

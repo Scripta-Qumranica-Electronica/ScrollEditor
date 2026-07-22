@@ -1,14 +1,14 @@
 <template>
     <b-modal
         id="corrupted-state-dialog"
-         ref="corruptedModalRef"
+        v-model="isVisible"
         header-class="title-header"
         footer-class="title-footer"
     >
         <div>
             <label> We are facing some issues, please reload this page</label>
         </div>
-        <template v-slot:modal-footer>
+        <template #footer>
             <div class="w-100">
                 <b-button variant="outline-primary" @click="reloadPage()"
                     >Reload</b-button
@@ -18,15 +18,22 @@
     </b-modal>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'corrupted-state-dialog',
 })
-export default class CorruptedStateDialog extends Vue {
+class CorruptedStateDialog extends Vue {
+    public isVisible = false;
+
+    public show() {
+        this.isVisible = true;
+    }
+
     public reloadPage() {
+        this.isVisible = false;
         this.$router.go(0);
-        (this.$refs.corruptedModalRef as any).hide();
     }
 }
+export default toNative(CorruptedStateDialog);
 </script>

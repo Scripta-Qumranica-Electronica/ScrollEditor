@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 
@@ -56,22 +56,23 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
     name: 'edition-public-card',
     components: { EditionIcons },
 })
-export default class EditionPublicCard extends Vue {
+class EditionPublicCard extends Vue {
     @Prop() public edition!: EditionInfo;
 
-    private get thumbnailSource(): string | undefined {
+    public get thumbnailSource(): string | undefined {
         return this.edition?.thumbnail?.thumbnailUrl;
     }
 
-    private editionViewClick() {
+    public editionViewClick() {
         this.$router.push({ path: `/editions/${this.edition.id}` });
     }
 
     @Emit()
-    private editionCopyClick() {
+    public editionCopyClick() {
         return true;
     }
 }
+export default toNative(EditionPublicCard);
 </script>
 
 <style lang="scss" scoped>

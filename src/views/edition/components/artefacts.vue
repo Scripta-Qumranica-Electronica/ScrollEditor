@@ -6,7 +6,7 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        :value="searchValue"
+                        :model-value="searchValue"
                         @search="onArtefactsSearch($event)"
                     ></search-bar>
                 </b-col>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactCard from './artefact-card.vue';
 import { Artefact } from '@/models/artefact';
@@ -41,7 +41,7 @@ import { SearchBarValue } from '@/state/utilities';
         SearchBar,
     },
 })
-export default class EditionArtefacts extends Vue {
+class EditionArtefacts extends Vue {
     public filteredArtefacts: Artefact[] = [];
     public searchValue: SearchBarValue = { side: 'recto and verso'};
     public editionId: number = 0;
@@ -105,18 +105,18 @@ export default class EditionArtefacts extends Vue {
         this.filteredArtefacts = this.getFilteredArtefacts();
     }
 
-    protected async mounted() {
-        this.editionId = parseInt(this.$route.params.editionId, 10);
+    public async mounted() {
+        this.editionId = parseInt(String(this.$route.params.editionId), 10);
         await this.$state.prepare.edition(this.editionId);
         await this.$state.prepare.artefacts(this.editionId);
         this.filteredArtefacts = this.getFilteredArtefacts();
    }
 
-   private get containerRef() {
+   public get containerRef() {
        return this.$refs.container as Element;
    }
 }
-
+export default toNative(EditionArtefacts);
 </script>
 <style scoped>
 .scroll-bar {

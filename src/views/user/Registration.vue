@@ -3,7 +3,7 @@
         <b-modal
             header-class="title-header"
             footer-class="title-footer"
-            ref="registerModalRef"
+            v-model="modalVisible"
             id="registerModal"
         >
             <template v-slot:modal-header>
@@ -75,7 +75,7 @@
 
                 <b-row class="mb-3">
                     <b-col>
-                        <b-checkbox v-model="termsOfUse">I have read and accept the <b-link href="#"  @click="showTermsOfUse">Terms of Use</b-link>.</b-checkbox>
+                        <b-form-checkbox v-model="termsOfUse">I have read and accept the <b-link href="#"  @click="showTermsOfUse">Terms of Use</b-link>.</b-form-checkbox>
                     </b-col>
                 </b-row>
             </b-container>
@@ -104,34 +104,31 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import { NewUserRequestDTO } from '@/dtos/sqe-dtos';
-import router from '@/router';
-
-
 
 @Component({
     name: 'registration',
 })
-
-export default class Registration extends Vue {
+class Registration extends Vue {
 
     // data
 
-    protected forename: string = '';
-    protected surname: string = '';
-    protected email: string = '';
-    protected password: string = '';
-    protected repassword: string = '';
-    protected organization: string = '';
-    protected errorMessage: string = '';
-    protected sessionService: SessionService = new SessionService();
-    protected errorService: ErrorService = new ErrorService(this);
-    protected waiting: boolean = false;
-    protected termsOfUse: boolean = false;
+    public forename: string = '';
+    public surname: string = '';
+    public email: string = '';
+    public password: string = '';
+    public repassword: string = '';
+    public organization: string = '';
+    public errorMessage: string = '';
+    public sessionService: SessionService = new SessionService();
+    public errorService: ErrorService = new ErrorService(this);
+    public waiting: boolean = false;
+    public termsOfUse: boolean = false;
+    public modalVisible: boolean = false;
 
 
     // computed
@@ -160,12 +157,17 @@ export default class Registration extends Vue {
         return '';
     }
 
-    protected showTermsOfUse() {
-        this.$root.$emit('bv::show::modal', 'EulaModal');
+    public show() {
+        this.modalVisible = true;
+    }
+
+    public showTermsOfUse() {
+        // TODO(vue3): replace $root.$emit('bv::show::modal') with direct component ref or event bus
+        (this.$root as any).$emit('bv::show::modal', 'EulaModal');
     }
 
     // methods
-    protected async register() {
+    public async register() {
         const data = {
             forename: this.forename,
             surname: this.surname,
@@ -176,37 +178,29 @@ export default class Registration extends Vue {
         this.waiting = true;
 
         try {
-            const userInfo = await this.sessionService.register(data);
+            await this.sessionService.register(data);
 
-            // this causes
-            // vue-router.esm.js?8c4f:2008 Uncaught (in promise)
-            // NavigationDuplicated: Avoided redundant navigation to current
-            // location: "/".
-            // Also no need, since login will be done from adtivation page.
-
-            // router.push('/');
-            // this.$router.push('/');
-
-            this.$toasted.show(this.$tc('toasts.activationLink'), {
+            // TODO(vue3): replace $toasted with vue-toastification or similar
+            (this as any).$toasted.show(this.$t('toasts.activationLink'), {
                 type: 'info',
                 position: 'top-right',
                 duration: 9000, // was 7000
             });
         } catch (err) {
             this.errorMessage = this.errorService.getErrorMessage(
-                err.response.data
+                (err as any).response.data
             );
         } finally {
             this.waiting = false;
 
             // Close modal window,
             // But the login will be done from the activation page.
-            (this.$refs.registerModalRef as any).hide();
+            this.modalVisible = false;
         }
     }
 
 }
-
+export default toNative(Registration);
 </script>
 
 <style scoped>

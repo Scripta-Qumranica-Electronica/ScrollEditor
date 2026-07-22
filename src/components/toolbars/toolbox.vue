@@ -10,13 +10,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 export type breakpoints = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 @Component({
     name: 'toolbox'
 })
-export default class Toolbox extends Vue {
+class Toolbox extends Vue {
     @Prop({ default: 'xs' }) public hideBelow!: string;
     @Prop({ default: '' }) public subject!: string;
     @Prop({ default: false }) public noMargins!: boolean;
@@ -37,6 +37,7 @@ export default class Toolbox extends Vue {
         return classes;
     }
 }
+export default toNative(Toolbox);
 </script>
 
 <style lang="scss" scoped>

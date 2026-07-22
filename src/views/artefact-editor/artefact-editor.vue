@@ -48,7 +48,7 @@
                         </toolbox>
                         <toolbox subject="">
                             <b-form-checkbox
-                                @input="onHighlightComment($event)"
+                                @update:modelValue="onHighlightComment($event)"
                                 switch
                                 size="sm"
                                 >Comments</b-form-checkbox
@@ -57,7 +57,7 @@
                                 switch
                                 size="sm"
                                 v-if="!readOnly"
-                                @input="onAuto()"
+                                @update:modelValue="onAuto()"
                                 id="auto-character"
                                 >Auto character select</b-form-checkbox
                             >
@@ -85,7 +85,7 @@
                     <span v-if="artefactMode">{{ artefact.name }}</span>
                     <b-form-select
                         v-if="textFragmentMode"
-                        @input="selectArtefact($event)"
+                        @update:modelValue="selectArtefact(Number($event))"
                         :options="artefacts"
                         value-field="id"
                         text-field="name"
@@ -162,11 +162,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
-import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import {
     ArtefactEditorMode,
@@ -240,7 +239,7 @@ import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
         'copy-edition-toolbox': CopyEditionToolbox
     },
 })
-export default class ArtefactEditor
+class ArtefactEditor
     extends Vue
     implements SavingAgent<ArtefactEditorOperation> {
     // public params: ArtefactEditorParams = new ArtefactEditorParams();
@@ -255,28 +254,28 @@ export default class ArtefactEditor
         return this.editorMode === 'text-fragment';
     }
 
-    private autoMode = false;
+    public autoMode = false;
 
-    private errorMessage = '';
+    public errorMessage = '';
     public waiting = true;
-    private saving = false;
-    private imageStack: ImageStack | undefined = undefined;
-    private boundingBox = new BoundingBox();
-    private boundingBoxCenter = { x: 0, y: 0 } as Position;
-    private centeringReady = false;      // suppress zoom/rotate re-centering until after the first layout
-    private zoomHandledByZoomer = false; // set by onNewZoom (wheel/pinch); the zoom watcher then skips
+    public saving = false;
+    public imageStack: ImageStack | undefined = undefined;
+    public boundingBox = new BoundingBox();
+    public boundingBoxCenter = { x: 0, y: 0 } as Position;
+    public centeringReady = false;      // suppress zoom/rotate re-centering until after the first layout
+    public zoomHandledByZoomer = false; // set by onNewZoom (wheel/pinch); the zoom watcher then skips
 
-    private artefactService = new ArtefactService();
-    private textService = new TextService();
-    private signInterpretationService = new SignInterpretationService();
-    private operationsManager = new OperationsManager<ArtefactEditorOperation>(
+    public artefactService = new ArtefactService();
+    public textService = new TextService();
+    public signInterpretationService = new SignInterpretationService();
+    public operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
 
     // Arguments retrieved from the URL
-    private editionId: number = 0;
-    private artefactId: number = 0; // Only relevent in artefact mode
-    private textFragmentId: number = 0; // Only relevent in text-fragment mode
+    public editionId: number = 0;
+    public artefactId: number = 0; // Only relevent in artefact mode
+    public textFragmentId: number = 0; // Only relevent in text-fragment mode
     public textFragment: TextFragment | null = null; // The single Text Fragment in text-fragment mode
 
     public get artefact() {
@@ -340,7 +339,8 @@ export default class ArtefactEditor
         return true;
     }
     public openCopyToEdtion() {
-        this.$root.$bvModal.show('copy-to-edition-modal');
+        // TODO(vue3): $bvModal.show is gone in bootstrap-vue-next — expose a v-model boolean on copy-to-edition-modal and toggle it here
+        (this.$root as any).$bvModal?.show('copy-to-edition-modal');
     }
 
     public openReportMask() {
@@ -348,7 +348,8 @@ export default class ArtefactEditor
             'title': `Problem with mask of artefact ${this.artefactId} in edition ${this.edition.name} (${this.edition.id})`,
             'description': '',
         };
-        this.$root.$emit('bv::show::modal', 'ReportProblemModal');
+        // TODO(vue3): replace bv::show::modal bus event — update when report-problem-modal.vue is migrated to v-model modal
+        this.$root!.$emit('bv::show::modal', 'ReportProblemModal');
     }
 
     public onNewPolygon(poly: Polygon) {
@@ -417,8 +418,8 @@ export default class ArtefactEditor
         this.textFragmentEditorState.selectedSignInterpretations = [];
     }
 
-    protected async created() {
-        const editionId = parseInt(this.$route.params.editionId);
+    public async created() {
+        const editionId = parseInt(String(this.$route.params.editionId));
         await this.$state.prepare.edition(editionId);
         // Imaged objects are loaded lazily (not on edition open); the artefact
         // editor works with the full imaged-object image stack.
@@ -435,7 +436,7 @@ export default class ArtefactEditor
         );
     }
 
-    protected destroyed() {
+    public unmounted() {
         this.$state.eventBus.off('change-artefact-rotation');
         this.$state.eventBus.off('remove-roi', this.removeRoi);
         this.$state.eventBus.off('new-operation', this.onNewOperation);
@@ -447,16 +448,16 @@ export default class ArtefactEditor
         this.$state.operationsManager = null;
     }
 
-    protected async mounted() {
+    public async mounted() {
         this.waiting = true;
         //  verifier url
-        this.editionId = parseInt(this.$route.params.editionId);
+        this.editionId = parseInt(String(this.$route.params.editionId));
         if (this.$route.params.artefactId) {
-            this.artefactId = parseInt(this.$route.params.artefactId);
+            this.artefactId = parseInt(String(this.$route.params.artefactId));
             this.editorMode = 'artefact';
         }
         if (this.$route.params.textFragmentId) {
-            this.textFragmentId = parseInt(this.$route.params.textFragmentId);
+            this.textFragmentId = parseInt(String(this.$route.params.textFragmentId));
             this.editorMode = 'text-fragment';
 
             // Note that artefactId and textFragmentId can't be both specified, because there is no Route that has both.
@@ -506,7 +507,7 @@ export default class ArtefactEditor
         return this.$state.artefacts.items || [];
     }
 
-    private get masterImage(): IIIFImage {
+    public get masterImage(): IIIFImage {
         return this.imageStack!.master;
     }
     public get zoomLevel(): number {
@@ -567,7 +568,7 @@ export default class ArtefactEditor
         await this.prepareArtefact(artefactId);
     }
 
-    private async prepareArtefact(artefactId: number) {
+    public async prepareArtefact(artefactId: number) {
         await this.$state.prepare.artefact(this.editionId, artefactId);
         // The artefact editor works directly with the mask (clipping, bounding
         // box); ensure it is loaded before we use it.
@@ -605,7 +606,7 @@ export default class ArtefactEditor
         this.calculateBoundingBox();
     }
 
-    private statusTextFragment(roi: InterpretationRoi) {
+    public statusTextFragment(roi: InterpretationRoi) {
         const si = this.$state.signInterpretations.get(
             roi.signInterpretationId!
         );
@@ -633,7 +634,7 @@ export default class ArtefactEditor
             }
         }
     }
-    private setFirstZoom() {
+    public setFirstZoom() {
         const infoBox = this.$refs.infoBox as HTMLDivElement;
         const height = infoBox.clientHeight;
         const width = infoBox.clientWidth;
@@ -670,7 +671,7 @@ export default class ArtefactEditor
 
     // Keep the image point at the viewport centre fixed when zooming via the toolbar.
     @Watch('zoomLevel')
-    private recentreOnZoom(newZoom: number, oldZoom: number) {
+    public recentreOnZoom(newZoom: number, oldZoom: number) {
         if (this.zoomHandledByZoomer) {
             this.zoomHandledByZoomer = false; // wheel/pinch already handled by the zoomer
             return;
@@ -695,7 +696,7 @@ export default class ArtefactEditor
     // content rotates about the fixed pivot (boundingBoxCenter), so we counter-scroll to the new
     // position of the point that was at the centre — i.e. it appears to rotate about the viewport.
     @Watch('rotationAngle')
-    private recentreOnRotate(newAngle: number, oldAngle: number) {
+    public recentreOnRotate(newAngle: number, oldAngle: number) {
         if (!this.centeringReady || oldAngle === undefined || oldAngle === null) {
             return;
         }
@@ -736,7 +737,7 @@ export default class ArtefactEditor
         return this.textFragmentEditorState.singleSelectedSi!.sign.line;
     }
 
-    private nextSign() {
+    public nextSign() {
         if (this.textFragmentEditorState.singleSelectedSi) {
             let newIndex =
                 this.textFragmentEditorState.singleSelectedSi!.sign
@@ -753,7 +754,7 @@ export default class ArtefactEditor
         }
     }
 
-    private playSound(sound: string) {
+    public playSound(sound: string) {
         if (sound) {
             const audio = new Audio(sound);
             audio.play();
@@ -787,11 +788,11 @@ export default class ArtefactEditor
         }
     }
 
-    public onHighlightComment(checked: boolean) {
-        this.$state.artefactEditor.highlightCommentMode = checked;
+    public onHighlightComment(checked: unknown) {
+        this.$state.artefactEditor.highlightCommentMode = Boolean(checked);
     }
 
-    private fillImageSettings() {
+    public fillImageSettings() {
         this.params.imageSettings = {};
         if (this.artefact?.isVirtual) {
             return;
@@ -813,14 +814,14 @@ export default class ArtefactEditor
                     opacity: 1,
                     normalizedOpacity: 1,
                 };
-                // Make sure this object is tracked by Vue
-                this.$set(this.params.imageSettings, imageType, imageSetting);
+                // Vue 3 proxy reactivity: direct assignment is tracked
+                this.params.imageSettings[imageType] = imageSetting;
             }
         }
         normalizeOpacity(this.params.imageSettings);
     }
 
-    private calculateBoundingBox() {
+    public calculateBoundingBox() {
         // We want to support rotation without moving or scroll the artefact. This requires a little
         // math. We start with the artefact's actual bounding box, which is a rectangle. We need to calculate the
         // bounding box that will contain all the possible rotations of the artefact's original bounding box.
@@ -862,7 +863,7 @@ export default class ArtefactEditor
         this.actionMode = newMode;
     }
 
-    private async saveRotation() {
+    public async saveRotation() {
         const rotation = (this.rotationAngle % 360) + (360 % 360);
         if (rotation === this.artefact.placement.rotate) {
             return false;
@@ -877,7 +878,7 @@ export default class ArtefactEditor
         return true;
     }
 
-    private async saveROIs(mode: 'created' | 'deleted') {
+    public async saveROIs(mode: 'created' | 'deleted') {
         const selected = this.textFragmentEditorState.singleSelectedSi;
 
         const updated = await this.textService.updateArtefactROIs(
@@ -892,7 +893,7 @@ export default class ArtefactEditor
         return updated > 0;
     }
 
-    private async saveSignInterpretations(
+    public async saveSignInterpretations(
         ops: SignInterpretationEditOperation[]
     ) {
         for (const op of ops) {
@@ -941,7 +942,7 @@ export default class ArtefactEditor
         }
     }
 
-    private async saveAttributes(ops: TextFragmentAttributeOperation[]) {
+    public async saveAttributes(ops: TextFragmentAttributeOperation[]) {
         for (const op of ops) {
             const opType = op.attributeOperationType;
             const si = this.$state.signInterpretations.get(
@@ -1049,7 +1050,7 @@ export default class ArtefactEditor
         }
     }
 
-    private async saveCommentaries(ops: SignInterpretationCommentOperation[]) {
+    public async saveCommentaries(ops: SignInterpretationCommentOperation[]) {
         for (const op of ops) {
             const si = this.$state.signInterpretations.get(
                 op.signInterpretationId
@@ -1068,7 +1069,7 @@ export default class ArtefactEditor
         }
     }
 
-    private showMessage(msg: string, type: string = 'info') {
+    public showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
@@ -1076,14 +1077,15 @@ export default class ArtefactEditor
         });
     }
 
-    private onNewOperation(op: ArtefactEditorOperation) {
+    public onNewOperation(op: ArtefactEditorOperation) {
         this.operationsManager.addOperation(op);
     }
 
-    private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
+    public onNewBulkOperations(ops: ArtefactEditorOperation[]) {
         this.operationsManager.addBulkOperations(ops);
     }
 }
+export default toNative(ArtefactEditor);
 </script>
 
 <style lang="scss" scoped>

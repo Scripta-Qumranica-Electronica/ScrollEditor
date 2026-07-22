@@ -3,7 +3,6 @@ import { Artefact } from '@/models/artefact';
 import { StateManager } from '@/state';
 import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 import { InterpretationAttributeDTO, SignDTO, LineDTO } from '@/dtos/sqe-dtos';
-import Vue from 'vue';
 import TextService from '@/services/text';
 import { NumberFormatResult } from 'vue-i18n';
 
@@ -410,7 +409,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
             }
         } else {
             if (existingIndex !== -1) {
-                Vue.set(this.signInterpretation.attributes, existingIndex, this.prev);
+                this.signInterpretation.attributes[existingIndex] = this.prev;
             } else {
                 this.signInterpretation.attributes.push(this.prev);
             }
@@ -422,7 +421,7 @@ export class TextFragmentAttributeOperation extends ArtefactEditorOperation {
 
         if (this.next) {
             if (existingIndex !== -1) {
-                Vue.set(this.signInterpretation.attributes, existingIndex, this.next);
+                this.signInterpretation.attributes[existingIndex] = this.next;
             } else {
                 this.signInterpretation.attributes.push(this.next);
             }

@@ -36,7 +36,8 @@ import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import SearchService from '@/services/search';
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { vBToggle } from 'bootstrap-vue-next';
 import EditionList from '../home/components/edition-list.vue';
 import { SearchFormData, SearchResults } from './types';
 
@@ -46,11 +47,14 @@ interface ExpandedImagedObjectResponse extends ImageSearchResponseDTO {
 
 @Component({
     name: 'imaged-object-results',
+    directives: {
+        'b-toggle': vBToggle,
+    },
 })
-export default class ImagedObjectResultComponent extends Vue {
+class ImagedObjectResultComponent extends Vue {
     @Prop( { default: null })
-    private imagedObjects!: ImageSearchResponseDTO[] | null;
-    private get expandedObjects() {
+    public imagedObjects!: ImageSearchResponseDTO[] | null;
+    public get expandedObjects() {
         const expanded = [] as ExpandedImagedObjectResponse[];
 
         for (const im of this.imagedObjects || []) {
@@ -73,18 +77,19 @@ export default class ImagedObjectResultComponent extends Vue {
 
         return expanded;
     }
-    private ready = false;
+    public ready = false;
 
-    private async mounted() {
+    public async mounted() {
         this.ready = false;
         await this.$state.prepare.allEditions();
         this.ready = true;
     }
 
-    private get title() {
+    public get title() {
         return `Imaged Objects (${this.imagedObjects?.length || 0})`;
     }
 }
+export default toNative(ImagedObjectResultComponent);
 </script>
 
 <style lang="scss" scoped>

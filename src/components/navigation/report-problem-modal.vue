@@ -1,12 +1,13 @@
 <template>
     <div>
         <b-modal
+            v-model="visible"
             title="Report Problem"
             footer-class="title-footer"
-            ref="ReportProblemModalRef"
             id="ReportProblemModal"
             aria-role="dialog"
             size="lg"
+            @show="init"
         >
             <form>
                 <b-row>
@@ -59,18 +60,23 @@
 
 <script lang="ts">
 import SessionService from '@/services/session';
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'ReportProblemModal',
     components: {},
 })
-export default class ReportProblemModal extends Vue {
+class ReportProblemModal extends Vue {
+    public visible = false;
     public username: string = '';
     public description: string = '';
     public title = '';
     public reported = false;
-    protected sessionService: SessionService = new SessionService();
+    public sessionService: SessionService = new SessionService();
+
+    public show() {
+        this.visible = true;
+    }
 
     public get readyToReport() {
         return (this.loggedIn || this.username.trim() !== '') && this.title.trim() !== '' && this.description.trim() !== '';
@@ -99,18 +105,10 @@ export default class ReportProblemModal extends Vue {
     }
 
     public close() {
-        (this.$refs.ReportProblemModalRef as any).hide();
+        this.visible = false;
     }
 
-    public mounted() {
-        this.$root.$on('bv::modal::show', (bvEvent: any, modalId: string) => {
-            if (modalId === 'ReportProblemModal') {
-                this.init();
-            }
-        });
-    }
-
-    private init() {
+    public init() {
         this.reported = false;
         this.username = '';
         this.title = this.$state.misc.reportIssueData?.title || '';
@@ -118,6 +116,7 @@ export default class ReportProblemModal extends Vue {
         this.$state.misc.reportIssueData = undefined;
     }
 }
+export default toNative(ReportProblemModal);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

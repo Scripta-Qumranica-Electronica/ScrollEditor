@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import SignAttributeBadge from './sign-attribute-badge.vue';
 
@@ -15,21 +15,22 @@ import SignAttributeBadge from './sign-attribute-badge.vue';
         'sign-attribute-badge': SignAttributeBadge,
     }
 })
-export default class SignAttribute extends Vue {
+class SignAttribute extends Vue {
     @Prop()
     public attribute!: InterpretationAttributeDTO;
     @Prop({ default: false })
     public multipleSigns!: boolean;
 
-    private onClick() {
+    public onClick() {
         this.attributeClick();
     }
 
     @Emit()
-    private attributeClick() {
+    public attributeClick() {
         return this.attribute;
     }
 }
+export default toNative(SignAttribute);
 </script>
 
 <style lang="scss" scoped>

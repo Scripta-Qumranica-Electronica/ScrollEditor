@@ -35,7 +35,8 @@ import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import SearchService from '@/services/search';
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { vBToggle } from 'bootstrap-vue-next';
 import EditionList from '../home/components/edition-list.vue';
 import { SearchFormData, SearchResults } from './types';
 
@@ -49,20 +50,23 @@ interface ArtefactWithEdition {
     name: 'artefact-results',
     components: {
         'artefact-image': ArtefactImage,
-    }
+    },
+    directives: {
+        'b-toggle': vBToggle,
+    },
 })
-export default class ArtefactResultComponent extends Vue {
+class ArtefactResultComponent extends Vue {
     @Prop( { default: null })
-    private artefacts!: ExtendedArtefactDTO[] | null;
-    private ready = false;
+    public artefacts!: ExtendedArtefactDTO[] | null;
+    public ready = false;
 
-    private async mounted() {
+    public async mounted() {
         this.ready = false;
         await this.$state.prepare.allEditions();
         this.ready = true;
     }
 
-    private createImagedObjectDTO(dto: ExtendedArtefactDTO) {
+    public createImagedObjectDTO(dto: ExtendedArtefactDTO) {
         // Create a DTO for the imaged object.
         // This DTO has a lot of default fields, we only need the id, recto and verso urls and ppi
 
@@ -111,7 +115,7 @@ export default class ArtefactResultComponent extends Vue {
         return imagedObjectDTO;
     }
 
-    private get artefactsWithEditions() {
+    public get artefactsWithEditions() {
         const artefacts: ArtefactWithEdition[] = [];
 
         if (!this.artefacts) {
@@ -131,10 +135,11 @@ export default class ArtefactResultComponent extends Vue {
         return artefacts;
     }
 
-    private get title() {
+    public get title() {
         return `Artefacts (${this.artefactsWithEditions.length || 0})`;
     }
 }
+export default toNative(ArtefactResultComponent);
 </script>
 
 <style lang="scss" scoped>

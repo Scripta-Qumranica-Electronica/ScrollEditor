@@ -2,8 +2,8 @@
     <b-modal
         :title="'Copy artefact to edition ' + editionTargetName"
         id="copy-to-edition-modal"
+        v-model="internalVisible"
         @show="editionTargetName = ''; editionTargetId = 0"
-        ref="copyToEditionModalRef"
         footer-class="title-footer"
         @ok="copyToEdition"
         @hide="onHide"
@@ -45,19 +45,34 @@ import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import ArtefactService from '@/services/artefact';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
+import type { BvTriggerableEvent } from 'bootstrap-vue-next';
 
 @Component({
     name: 'copy-to-edition-modal',
 })
-export default class CopyToEditionModal extends Vue {
+class CopyToEditionModal extends Vue {
+    @Prop() public modelValue!: boolean;
+
     public searchValue = '';
     public editionTargetId: number = 0;
     public editionTargetName: string = '';
-    private errorMessage: string = '';
-    private waiting: boolean = false;
-    private filteredEditions: EditionInfo[] = [];
-    private artefactService: ArtefactService = new ArtefactService();
+    public errorMessage: string = '';
+    public waiting: boolean = false;
+    public filteredEditions: EditionInfo[] = [];
+    public artefactService: ArtefactService = new ArtefactService();
+    public internalVisible: boolean = false;
+
+    @Watch('modelValue')
+    onModelValueChanged(val: boolean) {
+        this.internalVisible = val;
+    }
+
+    @Watch('internalVisible')
+    onInternalVisibleChanged(val: boolean) {
+        this.$emit('update:modelValue', val);
+    }
+
     public get editions() {
         this.filteredEditions = this.$state.editions.items;
         return this.filteredEditions
@@ -67,15 +82,15 @@ export default class CopyToEditionModal extends Vue {
             );
     }
 
-    private get currentArtefact(): Artefact {
+    public get currentArtefact(): Artefact {
         return this.$state.artefacts.current!;
     }
 
-    private get imagedObject(): ImagedObject | null {
+    public get imagedObject(): ImagedObject | null {
         return this.$state.imagedObjects.current;
     }
 
-    private async copyToEdition() {
+    public async copyToEdition() {
         this.waiting = true;
         this.errorMessage = '';
 
@@ -85,7 +100,7 @@ export default class CopyToEditionModal extends Vue {
                 this.currentArtefact
                 );
 
-            (this.$refs.copyToEditionModalRef as any).hide();
+            this.internalVisible = false;
 
             this.$router.push({
                 path: `/editions/${this.editionTargetId}/artefacts/${artefactCopy.id}`,
@@ -99,9 +114,10 @@ export default class CopyToEditionModal extends Vue {
             this.waiting = false;
         }
     }
-    private onHide(evt: Event) {
-        // (this.$refs.copyToEditionModalRef as any).blur();
-        (this.$refs.copyToEditionModalRef as any).hide();
+
+    public onHide(evt: Event | BvTriggerableEvent) {
+        this.internalVisible = false;
     }
 }
+export default toNative(CopyToEditionModal);
 </script>

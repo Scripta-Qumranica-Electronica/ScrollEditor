@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
 import SignAttributePane from '@/components/sign-attributes/sign-attribute-pane.vue';
 import EditSignModal from '@/components/text/edit-sign-modal.vue';
@@ -39,18 +39,17 @@ import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 
     },
 })
-
-export default class TextToolbar extends Vue {
+class TextToolbar extends Vue {
 
     public get textFragment() {
         return this.$state.textFragmentEditor.selectedTextFragment;
     }
 
-    private get showEditReconTextBar(): boolean {
+    public get showEditReconTextBar(): boolean {
         return this.$state.showEditReconTextBar;
     }
 
-    protected onVirtualTextClose(param: { text: string, originalText: string, editor: VirtualArtefactEditor }) {
+    public onVirtualTextClose(param: { text: string, originalText: string, editor: VirtualArtefactEditor }) {
         this.$state.showEditReconTextBar = false;
 
         if (param.text !== param.originalText) {
@@ -59,6 +58,7 @@ export default class TextToolbar extends Vue {
     }
 
 }
+export default toNative(TextToolbar);
 </script>
 
 <style lang="scss" scoped>

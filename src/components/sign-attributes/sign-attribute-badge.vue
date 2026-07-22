@@ -10,13 +10,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 
 @Component({
     name: 'sign-attribute-badge',
 })
-export default class SignAttributeBadge extends Vue {
+class SignAttributeBadge extends Vue {
     @Prop()
     public attribute!: InterpretationAttributeDTO;
 
@@ -32,6 +32,7 @@ export default class SignAttributeBadge extends Vue {
         );
     }
 }
+export default toNative(SignAttributeBadge);
 </script>
 
 <style lang="scss" scoped>

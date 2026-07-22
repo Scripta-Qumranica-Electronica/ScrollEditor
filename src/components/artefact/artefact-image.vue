@@ -3,8 +3,8 @@
                   :artefact="artefact"
                   :imaged-object="imagedObject"
                   :aspect-ratio="aspectRatio">
-        <g v-if="!this.artefact.isVirtual">
-            <iiif-image 
+        <g v-if="!artefact.isVirtual">
+            <iiif-image
                 v-for="imageSetting in visibleImageSettings"
                 :key="imageSetting.image.url"
                 :image="imageSetting.image"
@@ -17,12 +17,12 @@
                 class="virtual-path"
                 :d="artefact.mask.svg"
                 vector-effect="non-scaling-stroke"
-        />            
+        />
     </artefact-svg>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator';
+import { Component, Prop, mixins, toNative } from 'vue-facing-decorator';
 import { ImageSetting, SingleImageSetting } from '@/components/image-settings/types';
 import ArtefactDataMixin from './artefact-data-mixin';
 import ArtefactSvg from './artefact-svg.vue';
@@ -35,17 +35,17 @@ import IIIFImageComponent from '../images/IIIFImage.vue';
         'iiif-image': IIIFImageComponent,
     },
 })
-export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
-    @Prop({default: 1.3}) private aspectRatio!: number;
+class ArtefactImage extends mixins(ArtefactDataMixin) {
+    @Prop({default: 1.3}) public aspectRatio!: number;
     @Prop({
         default: () => {
             return {} as ImageSetting;
         }
     }) private imageSettings!: ImageSetting;
     @Prop({ default: 400 })
-    private maxWidth!: number;
+    public maxWidth!: number;
 
-    private loaded = false;
+    public loaded = false;
 
     get visibleImageSettings(): SingleImageSetting[] {
         if (this.artefact.isVirtual) {
@@ -68,12 +68,13 @@ export default class ArtefactImage extends Mixins(ArtefactDataMixin) {
         return visibleImages;
     }
 
-    protected async mounted() {
+    public async mounted() {
         await this.mountedDone;
         this.loaded = true;
     }
 }
 
+export default toNative(ArtefactImage);
 </script>
 
 <style lang="scss" scoped>

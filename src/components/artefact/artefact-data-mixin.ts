@@ -1,4 +1,4 @@
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import { Artefact } from '@/models/artefact';
 import { IIIFManifest, ImageStack } from '@/models/image';
 import { BoundingBox } from '@/utils/helpers';
@@ -7,14 +7,14 @@ import { ImagedObject } from '@/models/imaged-object';
 
 @Component
 export default class ArtefactDataMixin extends AsyncMountedMixinBase {
-    @Prop() protected artefact!: Artefact;
-    @Prop({ default: undefined }) protected imagedObject: ImagedObject | undefined;
+    @Prop() public artefact!: Artefact;
+    @Prop({ default: undefined }) public imagedObject: ImagedObject | undefined;
 
-    protected imageStack: ImageStack | undefined = undefined;
-    protected masterImageManifest: IIIFManifest | null = null;
-    protected boundingBox = new BoundingBox();
+    public imageStack: ImageStack | undefined = undefined;
+    public masterImageManifest: IIIFManifest | null = null;
+    public boundingBox = new BoundingBox();
 
-    protected async asyncMounted() {
+    public async asyncMounted() {
         // await this.$state.prepare.edition(this.artefact.editionId);
 
         if (!this.artefact.isVirtual) {

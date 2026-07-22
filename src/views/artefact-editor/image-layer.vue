@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { IIIFImage } from '@/models/image';
 import { Polygon } from '@/utils/Polygons';
 import { SingleImageSetting } from '../../components/image-settings/types';
@@ -48,7 +48,7 @@ import { Artefact } from '@/models/artefact';
         'iiif-image': IIIFImageComponent,
     }
 })
-export default class ImageLayer extends Vue {
+class ImageLayer extends Vue {
     @Prop() public width!: number;
     @Prop() public height!: number;
     @Prop() public params!: BaseEditorParams;
@@ -67,6 +67,7 @@ export default class ImageLayer extends Vue {
         return this.imageSettings.filter(image => image.visible);
     }
 }
+export default toNative(ImageLayer);
 </script>
 
 

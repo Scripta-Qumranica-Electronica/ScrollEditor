@@ -1,33 +1,33 @@
 <template>
     <div>
         <b-modal
+            v-model="modalVisible"
             id="editSignModal"
             :title="isEditMode ? 'Edit' : 'Add'"
             hide-footer
             @shown="shown"
-            ref="my-modal"
         >
             <b-row v-if="editedSi">
                 <b-col>
                     <div
                     class="modal">
-                        <b-input
+                        <b-form-input
                             type="text"
                             @keydown="isLetter($event)"
                             v-model="newCharacter"
                             class="w-input"
                             autofocus
-                        ></b-input>
+                        ></b-form-input>
                     </div>
                 </b-col>
                 <b-col>
                     <div>
                         <b-form-select
-                            v-model="newAttributeValueId"
+                            v-model="newAttributeValueIdModel"
                             :options="signTypes"
                             value-field="id"
                             text-field="value"
-                            @input="valueField($event)"
+                            @update:modelValue="valueField(Number($event))"
                         ></b-form-select>
                     </div>
                 </b-col>
@@ -35,7 +35,6 @@
             <b-row v-if="editedSi">
                 <b-col>
                     <b-form-checkbox
-                        :checked="isReconstructed"
                         v-model="isReconstructed"
                         class="mt-3"
                         :disabled="isEditMode"
@@ -72,16 +71,24 @@ import {
     CreateSignInterpretationOperation,
 } from '@/views/artefact-editor/operations';
 import { Attributes } from '@fortawesome/fontawesome-svg-core';
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'edit-sign-modal',
 })
-export default class EditSignModal extends Vue {
-    private editedSi: SignInterpretation | null = null;
-    private newAttributeValueId: number = 0;
-    private newCharacter: string = '';
-    private isReconstructed: boolean = false;
+class EditSignModal extends Vue {
+    public modalVisible: boolean = false;
+    public editedSi: SignInterpretation | null = null;
+    public newAttributeValueId: number = 0;
+    public newCharacter: string = '';
+    public isReconstructed: boolean = false;
+
+    public get newAttributeValueIdModel(): string {
+        return String(this.newAttributeValueId);
+    }
+    public set newAttributeValueIdModel(value: string | string[] | null) {
+        this.newAttributeValueId = Number(Array.isArray(value) ? value[0] : value);
+    }
 
     public get isEditMode(): boolean {
         return this.$state.textFragmentEditor.modeSignModal === 'edit';
@@ -151,14 +158,14 @@ export default class EditSignModal extends Vue {
     public statusMode() {
         if (!this.isEditMode) {
             this.createSignInterpretation();
-            (this.$refs['my-modal'] as any).hide();
+            this.modalVisible = false;
         } else {
             this.updateSignInterpretation();
-            (this.$refs['my-modal'] as any).hide();
+            this.modalVisible = false;
         }
     }
 
-    private valueField(valueID: number) {
+    public valueField(valueID: number) {
         const attributeValue = this.signTypes.find(
             (attrValue: AttributeValueDTO) => attrValue.id === valueID
         );
@@ -167,7 +174,7 @@ export default class EditSignModal extends Vue {
         }
     }
 
-    private get signTypes() {
+    public get signTypes() {
         return (
             this.$state.editions.current?.attributeMetadata?.allAttributes || []
         )
@@ -176,7 +183,7 @@ export default class EditSignModal extends Vue {
                 return a.id > b.id ? 1 : -1;
             });
     }
-    private get modeButtonApply(): boolean | undefined {
+    public get modeButtonApply(): boolean | undefined {
         const attributeValue = this.signTypes.find(
             (attrValue: AttributeValueDTO) =>
                 attrValue.id === this.newAttributeValueId
@@ -193,6 +200,8 @@ export default class EditSignModal extends Vue {
     }
 
 }
+
+export default toNative(EditSignModal);
 </script>
 
 <style lang="scss" scoped>

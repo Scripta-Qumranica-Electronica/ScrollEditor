@@ -2,7 +2,7 @@
     <div>
         <b-modal
             scrollable
-            ref="addArtefactModalRef"
+            v-model="modalVisible"
             id="addArtefactModal"
             footer-class="footer"
             header-class="header"
@@ -101,7 +101,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ArtefactImage from '@/components/artefact/artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import { Side } from '@/models/misc';
@@ -112,18 +112,25 @@ import { Side } from '@/models/misc';
         'artefact-image': ArtefactImage,
     },
 })
-export default class AddArtefactModal extends Vue {
-    private artefact: Artefact | undefined = {} as Artefact;
+class AddArtefactModal extends Vue {
+    public artefact: Artefact | undefined = {} as Artefact;
     public chekedArtefacts: number[] = [];
     public searchValue: string = '';
-    private isLoaded = false;
+    public isLoaded = false;
+    // bootstrap-vue-next: v-model on b-modal controls visibility
+    public modalVisible: boolean = false;
 
-    private async scrollModalShown() {
+    /** Called by parent via $refs to open the modal (replaces bv::show::modal event). */
+    public show() {
+        this.modalVisible = true;
+    }
+
+    public async scrollModalShown() {
         this.isLoaded = false;
         await this.$state.prepare.artefacts(this.$state.editions.current!.id);
     }
 
-    private checkedAllSide(side: Side) {
+    public checkedAllSide(side: Side) {
         this.chekedArtefacts = this.nonPlacedArtefacts
             .filter(
                 (x: Artefact) =>
@@ -135,11 +142,11 @@ export default class AddArtefactModal extends Vue {
             .map((x) => x.id);
     }
 
-    private get artefacts() {
+    public get artefacts() {
         return this.$state.artefacts.items || [];
     }
 
-    private get nonPlacedArtefacts() {
+    public get nonPlacedArtefacts() {
         return this.artefacts.filter((x) => !x.isPlaced);
     }
 
@@ -156,7 +163,7 @@ export default class AddArtefactModal extends Vue {
         return this.artefact!.id === artId;
     }
 
-    private selectArtefact(id: number) {
+    public selectArtefact(id: number) {
         this.isLoaded = false;
 
         setTimeout(() => {
@@ -165,16 +172,21 @@ export default class AddArtefactModal extends Vue {
         }, 0);
     }
 
-    private closeModal() {
-        (this.$refs.addArtefactModalRef as any).hide(this.chekedArtefacts);
+    public closeModal() {
+        // bootstrap-vue-next: hide via v-model; emit selected IDs to parent
+        // TODO(vue3): parent (scroll-editor.vue) must be updated to listen for @close
+        //             instead of 'bv::modal::hide' with modalId === 'addArtefactModal'
+        this.$emit('close', this.chekedArtefacts);
+        this.modalVisible = false;
         this.uncheckAll();
     }
 
-    private uncheckAll() {
+    public uncheckAll() {
         this.searchValue = '';
         this.chekedArtefacts = [];
     }
 }
+export default toNative(AddArtefactModal);
 </script>
 
 

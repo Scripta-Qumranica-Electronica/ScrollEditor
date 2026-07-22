@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import type { ComponentPublicInstance } from 'vue';
 
 interface ErrorDTO {
     msg: string;
@@ -6,7 +6,7 @@ interface ErrorDTO {
 
 class ErrorService {
 
-    constructor(private vue: Vue) {
+    constructor(private vue: ComponentPublicInstance) {
     }
 
     public getErrorMessage(error: ErrorDTO): string {

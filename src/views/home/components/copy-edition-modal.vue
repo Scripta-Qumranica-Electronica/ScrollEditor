@@ -2,10 +2,9 @@
         <!-- :visible="currentEdition !== null &&  visible === true" -->
     <b-modal
         v-if="currentEdition"
-        :visible="currentEdition !== null &&  visible === true"
+        v-model="internalVisible"
         :destroy-on-hide="true"
         id="copy-edition-modal"
-        ref="copyModalRef"
         header-class="title-header"
         footer-class="title-footer"
         @shown="copyModalShown"
@@ -49,13 +48,13 @@
             <p class="text-danger" v-if="errorMessage">
                 {{ errorMessage }}
             </p>
-            <div v-if="currentEdition.copyrightHolder">
+            <div v-if="currentEdition.copyright">
                 <label>
-                    Copy RightHolder {{currentEdition.copyrightHolder}}
+                    Copy RightHolder {{currentEdition.copyright}}
                 </label>
             </div>
-            <div v-if="currentEdition.collaboators">
-                <label>Collaborators {{edition.collaboators}}</label>
+            <div v-if="currentEdition.shares">
+                <label>Collaborators {{currentEdition.shares}}</label>
             </div>
         </form>
         <div v-else>
@@ -90,7 +89,8 @@
     </b-modal>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
+import type { BvTriggerableEvent } from 'bootstrap-vue-next';
 import { EditionInfo } from '@/models/edition';
 // import EditionIcons from '@/components/cues/edition-icons.vue';
 import EditionService from '@/services/edition';
@@ -98,50 +98,62 @@ import EditionService from '@/services/edition';
 @Component({
     name: 'copy-edition-modal',
 })
-export default class CopyEditionModal extends Vue {
-    @Prop() private visible!: boolean ;
+class CopyEditionModal extends Vue {
+    @Prop() public modelValue!: boolean;
 
-    private editionService: EditionService = new EditionService();
-    private newCopyName: string = '';
-    private errorMessage: string = '';
-    private waiting: boolean = false;
+    public editionService: EditionService = new EditionService();
+    public newCopyName: string = '';
+    public errorMessage: string = '';
+    public waiting: boolean = false;
+    public internalVisible: boolean = false;
 
-    private get user(): boolean {
+    @Watch('modelValue')
+    onModelValueChanged(val: boolean) {
+        this.internalVisible = val;
+    }
+
+    @Watch('internalVisible')
+    onInternalVisibleChanged(val: boolean) {
+        this.$emit('update:modelValue', val);
+    }
+
+    public get user(): boolean {
         return this.$state.session.user ? true : false;
     }
 
-    private get isWaiting(): boolean {
+    public get isWaiting(): boolean {
         return  !this.currentEdition;
     }
 
-    private get currentEdition(): EditionInfo | null {
+    public get currentEdition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
-    private get canCopy(): boolean {
+    public get canCopy(): boolean {
         return this.newCopyName.trim().length > 0;
     }
 
-    private copyModalShown() {
+    public copyModalShown() {
         this.newCopyName = this.currentEdition!.name;
         if (this.user) {
             (this.$refs.newCopyNameRef as any).focus();
         }
     }
 
-    private onShow( bvModalevt: Event ) {
+    public onShow( bvModalevt: Event ) {
         bvModalevt.preventDefault();
     }
 
-    private onHide(evt: Event) {
-      if ( evt.type === 'backdrop') {
+    public onHide(evt: Event | BvTriggerableEvent) {
+      const trigger = 'trigger' in evt ? evt.trigger : evt.type;
+      if ( trigger === 'backdrop') {
         // evt.preventDefault();
         (this.$refs.newCopyNameRef as any).blur();
-        (this.$refs.newCopyNameRef as any).hide();
+        // Note: hide is handled by v-model internalVisible
       }
     }
 
-    private async copyEdition(evt: Event) {
+    public async copyEdition(evt: Event | BvTriggerableEvent) {
         evt.preventDefault();
 
         if (!this.canCopy) {
@@ -162,7 +174,7 @@ export default class CopyEditionModal extends Vue {
 
             this.$state.misc.newEditionId = newEdition.id;
 
-            (this.$refs.copyModalRef as any).hide();
+            this.internalVisible = false;
 
             this.$router.push({
                 path: `/editions/${this.$state.misc.newEditionId}`,
@@ -176,21 +188,26 @@ export default class CopyEditionModal extends Vue {
             this.$router.go(0);
 
         } catch (err) {
-            this.errorMessage = err;
+            this.errorMessage = String(err);
             console.error('Error copying an edition!', err);
         } finally {
             this.waiting = false;
         }
     }
 
-    protected onLogin() {
-        this.$root.$emit('bv::show::modal', 'loginModal');
-        this.$bvModal.hide('copy-edition-modal');
+    public onLogin() {
+        // TODO(vue3): bootstrap-vue-next no longer uses $root.$emit('bv::show::modal').
+        // loginModal needs to be migrated to use a v-model prop for visibility.
+        this.$root!.$emit('bv::show::modal', 'loginModal');
+        this.internalVisible = false;
     }
 
-    protected onRegister() {
-        this.$root.$emit('bv::show::modal', 'registerModal');
-        this.$bvModal.hide('copy-edition-modal');
+    public onRegister() {
+        // TODO(vue3): bootstrap-vue-next no longer uses $root.$emit('bv::show::modal').
+        // registerModal needs to be migrated to use a v-model prop for visibility.
+        this.$root!.$emit('bv::show::modal', 'registerModal');
+        this.internalVisible = false;
     }
 }
+export default toNative(CopyEditionModal);
 </script>

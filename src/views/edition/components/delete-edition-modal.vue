@@ -1,12 +1,11 @@
 <template>
     <b-modal
         v-if="currentEdition"
+        v-model="visible"
         id="deleteEditionModal"
-        ref="deleteEditionModalRef"
         :title="'Delete edition: ' + currentEdition.name"
         header-class="header"
         footer-class="footer"
-        size="md"
     >
         <div class="modal-body">
             <p>Are you sure you want to delete edition?</p>
@@ -43,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { boolean, re } from 'mathjs';
 import EditionService from '@/services/edition';
@@ -54,17 +53,22 @@ import { DetailedUserDTO } from '@/dtos/sqe-dtos';
         Waiting,
     },
 })
-export default class DeleteEditionModal extends Vue {
+class DeleteEditionModal extends Vue {
     public confirmation: string = '';
     public deleting: boolean = false;
-    private editionService = new EditionService();
+    public visible: boolean = false;
+    public editionService = new EditionService();
 
-    protected get currentEdition() {
+    public get currentEdition() {
         return this.$state.editions.current!;
     }
 
-    protected get currentUser(): DetailedUserDTO {
+    public get currentUser(): DetailedUserDTO {
         return this.$state.session.user!;
+    }
+
+    public show() {
+        this.visible = true;
     }
 
     public async delete(adminDelete?: boolean) {
@@ -81,7 +85,7 @@ export default class DeleteEditionModal extends Vue {
             this.showMessage('toasts.editionDeleteError', 'error');
         } finally {
             this.deleting = false;
-            this.hide();
+            this.visible = false;
         }
     }
 
@@ -123,18 +127,15 @@ export default class DeleteEditionModal extends Vue {
         }
     }
 
-    private showMessage(msg: string, type: string = 'info') {
+    public showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
             duration: 7000,
         });
     }
-
-    private hide() {
-        (this.$refs.deleteEditionModalRef as any).hide();
-    }
 }
+export default toNative(DeleteEditionModal);
 </script>
 <style lang="scss" scoped>
 </style>

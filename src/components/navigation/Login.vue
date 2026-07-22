@@ -1,11 +1,11 @@
  <template>
     <div>
         <b-modal
+            v-model="visible"
             header-class="title-header"
             footer-class="title-footer"
-            ref="loginModalRef"
             id="loginModal"
-            @shown="shown"
+            @show="shown"
         >
             <template v-slot:modal-header>
                 <b-row>
@@ -58,7 +58,7 @@
                             ></font-awesome-icon>
                         </span>
                     </b-button>
-                     <p class="sign-link">Can’t login? <b-link
+                     <p class="sign-link">Can't login? <b-link
                         @click="register"
                         >Sign up</b-link
                     > for an account here</p>
@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
@@ -85,17 +85,20 @@ import router from '@/router';
         ForgotPassword,
     }
 })
+class Login extends Vue {
 
-export default class Login extends Vue {
-
+    public visible = false;
     public email: string = '';
     // email: this.$state.session ? this.$state.session.user!.email : '',
     public password: string = '';
     public errorMessage: string = '';
-    private sessionService: SessionService = new SessionService();
-    private errorService: ErrorService = new ErrorService(this);
+    public sessionService: SessionService = new SessionService();
+    public errorService: ErrorService = new ErrorService(this);
     public waiting: boolean = false;
 
+    public show() {
+        this.visible = true;
+    }
 
     public get disabledLogin(): boolean {
         return !this.email || !this.password || this.waiting;
@@ -110,7 +113,7 @@ export default class Login extends Vue {
         try {
             this.waiting = true;
             await this.sessionService.login(this.email, this.password);
-            this.close();
+            this.visible = false;
             router.push('/home');
             // Reload the personal editions
             location.reload();
@@ -123,28 +126,27 @@ export default class Login extends Vue {
         }
     }
 
-    private close() {
-        (this.$refs.loginModalRef as any).hide();
-    }
-
     public shown(): void {
         this.errorMessage = '';
         this.waiting = false;
-        (this.$refs.email! as any).focus();
+        // Focus the email input after the modal opens
+        this.$nextTick(() => {
+            (this.$refs.email as any)?.focus?.();
+        });
     }
 
     public forgotPassword() {
-        this.$root.$emit('bv::show::modal', 'passwordModal');
-        this.$bvModal.hide('loginModal');
+        this.visible = false;
+        // TODO(vue3): show passwordModal — update when ForgotPassword is migrated to expose a show() ref method
     }
 
     public register() {
-        this.$root.$emit('bv::show::modal', 'registerModal');
-        this.$bvModal.hide('loginModal');
+        this.visible = false;
+        // TODO(vue3): show registerModal — update when Registration is migrated to expose a show() ref method
     }
 
 }
-
+export default toNative(Login);
 </script>
 
 

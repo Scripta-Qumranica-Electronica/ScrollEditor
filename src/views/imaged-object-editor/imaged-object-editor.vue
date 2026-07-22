@@ -23,9 +23,9 @@
                 <toolbox>
                     <b-btn
                         v-if="canEdit"
-                        v-b-modal.modal="'newModal'"
                         variant="outline-secondary"
                         class="btn"
+                        @click="showNewModal = true"
                         >{{ $t('misc.new') }}</b-btn
                     >
                 </toolbox>
@@ -96,7 +96,7 @@
                     v-for="art in visibleArtefacts"
                     :key="art.id"
                     :class="{
-                        selectedRow: art.id === artefact.id,
+                        selectedRow: art.id === artefact?.id,
                     }"
                 >
                     <b-row class="py-2">
@@ -104,7 +104,7 @@
                             <span
                                 v-if="renameInputActive !== art"
                                 :class="{
-                                    selected: art.id === artefact.id,
+                                    selected: art.id === artefact?.id,
                                 }"
                                 @click="onArtefactChanged(art)"
                                 class="rename-art"
@@ -120,7 +120,7 @@
                             <span
                                 v-if="renameInputActive !== art"
                                 :class="{
-                                    selected: art.id === artefact.id,
+                                    selected: art.id === artefact?.id,
                                 }"
                                 class="select-art-name"
                                 @click="onArtefactChanged(art)"
@@ -175,7 +175,7 @@
         </div>
         <b-modal
             id="newModal"
-            ref="newArtRef"
+            v-model="showNewModal"
             :title="$t('home.newArtefact')"
             @shown="newModalShown"
             @ok="newArtefact"
@@ -212,7 +212,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactService from '@/services/artefact';
 import {
@@ -256,10 +256,10 @@ import ResizeBar from '@/components/misc/resizeBar.vue';
         'resize-bar': ResizeBar,
     },
 })
-export default class ImagedObjectEditor
+class ImagedObjectEditor
     extends Vue
     implements SavingAgent<ImagedObjectEditorOperation> {
-    private static colors = [
+    public static colors = [
         'purple',
         'blue',
         'orange',
@@ -274,7 +274,8 @@ export default class ImagedObjectEditor
 
     public errorMessage: string = '';
     public newArtefactName: string = '';
-    private artefactService = new ArtefactService();
+    public showNewModal: boolean = false;
+    public artefactService = new ArtefactService();
     // private params = new ImagedObjectEditorParams();
     public artefactId: number = -1;
     public renaming = false;
@@ -285,8 +286,8 @@ export default class ImagedObjectEditor
     public waiting: boolean = true;
     public displayResizeBar: boolean = false;
     public masterImage?: IIIFImage | null = null;
-    private initialMask = new Polygon();
-    private nonSelectedMask = new Polygon();
+    public initialMask = new Polygon();
+    public nonSelectedMask = new Polygon();
 
     public async saveEntities(
         ops: ImagedObjectEditorOperation[]
@@ -336,7 +337,7 @@ export default class ImagedObjectEditor
     // occuring during render befor mounted,
     // e.g. selectedRow: art.id === artefact.id returns undefined
 
-    private async created() {
+    public async created() {
         try {
             this.waiting = true;
 
@@ -345,7 +346,7 @@ export default class ImagedObjectEditor
             await this.$state.prepare.imagedObjects(this.editionId);
 
             this.$state.imagedObjects.current = this.$state.imagedObjects.find(
-                this.$route.params.imagedObjectId
+                String(this.$route.params.imagedObjectId)
             );
 
             if (!this.imagedObject) {
@@ -414,7 +415,7 @@ export default class ImagedObjectEditor
         this.$state.operationsManager = this.operationsManager;
     }
 
-    public destroyed() {
+    public unmounted() {
         this.$state.operationsManager = null;
     }
 
@@ -423,7 +424,7 @@ export default class ImagedObjectEditor
         return artefact;
     }
 
-    private get artefacts(): Artefact[] {
+    public get artefacts(): Artefact[] {
         return this.imagedObject!.artefacts || [];
     }
 
@@ -431,8 +432,8 @@ export default class ImagedObjectEditor
         return this.$state.imagedObjects.current;
     }
 
-    private get editionId(): number {
-        return parseInt(this.$route.params.editionId);
+    public get editionId(): number {
+        return parseInt(String(this.$route.params.editionId));
     }
 
     public get edition(): EditionInfo | null {
@@ -473,7 +474,7 @@ export default class ImagedObjectEditor
         );
     }
 
-    private get rotationAngle(): number {
+    public get rotationAngle(): number {
         return ((this.params.rotationAngle % 360) + 360) % 360;
     }
 
@@ -537,7 +538,7 @@ export default class ImagedObjectEditor
                 this.side as Side
             );
 
-            (this.$refs.newArtRef as any).hide();
+            this.showNewModal = false;
             this.onArtefactChanged(newArtefact);
 
             this.editingModeChanged('DRAW');
@@ -558,7 +559,7 @@ export default class ImagedObjectEditor
         this.params.zoom = event.zoom;
     }
 
-    private editingModeChanged(val: any) {
+    public editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
     }
 
@@ -620,11 +621,8 @@ export default class ImagedObjectEditor
             this.nonSelectedMask
         );
         if (!intersection.empty) {
-            this.$toasted.show(this.$tc('toasts.artefactCantOverlap'), {
-                type: 'info',
-                position: 'top-center',
-                duration: 5000,
-            });
+            // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
+            console.info(this.$t('toasts.artefactCantOverlap'));
             return;
         }
 
@@ -647,7 +645,7 @@ export default class ImagedObjectEditor
         this.fillImageSettings();
     }
 
-    private fillImageSettings() {
+    public fillImageSettings() {
         this.params.imageSettings = {};
         if (this.imagedObject) {
             if (
@@ -671,11 +669,7 @@ export default class ImagedObjectEditor
                             opacity: 1,
                             normalizedOpacity: 1,
                         };
-                        this.$set(
-                            this.params.imageSettings,
-                            imageType,
-                            imageSetting
-                        ); // Make sure this object is tracked by Vue
+                        this.params.imageSettings[imageType] = imageSetting; // Vue 3 proxy reactivity: direct assignment suffices
                     }
                 }
                 normalizeOpacity(this.params.imageSettings);
@@ -683,12 +677,14 @@ export default class ImagedObjectEditor
         }
     }
 
-    private showMessage(msg: string, type: string = 'info') {
-        this.$toasted.show(this.$tc(msg), {
-            type,
-            position: 'top-right',
-            duration: 7000,
-        });
+    public showMessage(msg: string, type: string = 'info') {
+        // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
+        const text = this.$t(msg) as string;
+        if (type === 'error') {
+            console.error(text);
+        } else {
+            console.info(text);
+        }
     }
 
     public getArtefactColor(art: Artefact) {
@@ -721,6 +717,7 @@ export default class ImagedObjectEditor
         }
     }
 }
+export default toNative(ImagedObjectEditor);
 </script>
 
 <style lang="scss" scoped>

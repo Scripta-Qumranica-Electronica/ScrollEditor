@@ -1,16 +1,20 @@
 <template @modal-show="onModalShow">
     <div>
-        <b-modal ref="addLineModal" id="addLineModal" title="Add Line">
+        <b-modal
+            v-model="modalVisible"
+            id="addLineModal"
+            title="Add Line"
+        >
             <!-- <div ref="addLineModalRef">
                 <text-line :line="line"></text-line>
             </div> -->
             <div v-if="line && line.lineName">
                 Do you want to add line #
-                <input :value="line.lineName" @input="event => onLineNamed(event.target.value)" />
+                <input :value="line.lineName" @input="event => onLineNamed((event.target as HTMLInputElement).value)" />
             </div>
             <div v-else>
                 Please name the line you want to add
-                <input @input="event => onLineNamed(event.target.value)" />
+                <input @input="event => onLineNamed((event.target as HTMLInputElement).value)" />
             </div>
 
 
@@ -27,7 +31,7 @@
 
 <script lang="ts">
 import { Line, SignInterpretation, TextFragment } from '@/models/text';
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
 import TextLine from '@/components/text/text-line.vue';
 import TextService from '@/services/text';
 import {
@@ -43,7 +47,8 @@ import { OperationsManager } from '@/utils/operations-manager';
         'text-line': TextLine
     }
 })
-export default class AddLineModal extends Vue {
+class AddLineModal extends Vue {
+    public modalVisible: boolean = false;
     public position: string = '';
     public notInTheRightComponent: boolean = false;
     public tempLine: LineDTO = {
@@ -56,11 +61,11 @@ export default class AddLineModal extends Vue {
     public previousLineId: number | undefined = 0;
     public subsequentLineId: number | undefined = 0;
     public textFragmentId: number = 0;
-    private operationsManager = new OperationsManager<ArtefactEditorOperation>(
+    public operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
     public get editionId() {
-        return parseInt(this.$route.params.editionId);
+        return parseInt(String(this.$route.params.editionId));
     }
     public textLine: string = '';
     public get editorState() {
@@ -72,17 +77,8 @@ export default class AddLineModal extends Vue {
     public onModalShow(parameter: any) {
         console.log(parameter);
     }
-    protected async mounted() {
-        this.$root.$on(
-            'bv::show::modal',
-            (modalId: string, parameter: string) => {
-                if (modalId === 'addLineModal') {
-                    this.position = parameter;
-                } else {
-                    this.notInTheRightComponent = true;
-                }
-            }
-        );
+    public async mounted() {
+        // Vue 3: bv::show::modal event bus is not available; open modal via modalVisible prop
         this.$state.operationsManager = this.operationsManager;
     }
     public async saveEntities(
@@ -93,7 +89,7 @@ export default class AddLineModal extends Vue {
     public onLineNamed(name: string) {
         this.line.lineName = name;
     }
-    protected async created() {
+    public async created() {
         this.$state.eventBus.on(
             'change-artefact-add-line',
             (prevText: Line) => {
@@ -131,10 +127,10 @@ export default class AddLineModal extends Vue {
                             const parts = index.split("_");
                             const a = parts[0];
                             const b = parts[1];
-                            const c = Number(b)+1;  
+                            const c = Number(b)+1;
                             const d = a + "_" + c
                             if (textFragment?.lines[i+1].lineName == d){
-                                name = a + "_" + b + "_0" 
+                                name = a + "_" + b + "_0"
                             }
                             else{
                                 name = d;
@@ -240,10 +236,11 @@ export default class AddLineModal extends Vue {
             this.subsequentLineId
         );
         this.operationsManager.addOperation(op);
-        const modal = this.$refs['addLineModal'] as any & { hide: () => void };
-        modal.hide();
+        this.modalVisible = false;
     }
 }
+
+export default toNative(AddLineModal);
 </script>
 
 <style lang="scss" scoped>

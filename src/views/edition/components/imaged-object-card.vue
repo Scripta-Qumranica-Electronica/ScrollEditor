@@ -8,35 +8,34 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 import { ImagedObject } from '@/models/imaged-object';
 
 @Component({
     name: 'imaged-object-card',
 })
+class ImagedObjectCard extends Vue {
 
-export default class ImagedObjectCard extends Vue {
+     @Prop() public imagedObject!: ImagedObject;
 
-     @Prop() private imagedObject!: ImagedObject;
-
-    private get imageUrl(): string | undefined {
+    public get imageUrl(): string | undefined {
         // TS 3.7 and up , optional chaining returns undefined
         // if any chain member is null or undefined
          return this.imagedObject?.recto?.master?.getThumbnailUrl(600);
     }
 
-    private get imageObjectId(): string  {
+    public get imageObjectId(): string  {
         // encodes characters such as ?,=,/,&,:
          return encodeURIComponent( this.imagedObject?.id) ;
     }
 
-    private get editionId(): number | undefined {
+    public get editionId(): number | undefined {
         return this.$state?.editions?.current?.id;
     }
 
 }
-
+export default toNative(ImagedObjectCard);
 </script>
 
 <style lang="scss" scoped>

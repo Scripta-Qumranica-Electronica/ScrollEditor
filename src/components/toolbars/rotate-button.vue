@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Model, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
 import ToolbarIconButton from './toolbar-icon-button.vue';
 
 export type Direction = 'left' | 'right';
@@ -18,13 +18,13 @@ export type Direction = 'left' | 'right';
     name: 'repeat-button',
     components: { 'toolbar-icon-button': ToolbarIconButton }
 })
-export default class RepeatButton extends Vue {
-    @Prop() private direction!: Direction;
-    @Prop({ default: 300 }) private repeatDelay!: number;
-    private pressed = false;
-    private timer?: number;
+class RepeatButton extends Vue {
+    @Prop() public direction!: Direction;
+    @Prop({ default: 300 }) public repeatDelay!: number;
+    public pressed = false;
+    public timer?: number;
 
-    protected mounted() {
+    public mounted() {
         this.pressed = false;
         this.timer = undefined;
     }
@@ -45,7 +45,7 @@ export default class RepeatButton extends Vue {
         }
     }
 
-    protected onMouseDown() {
+    public onMouseDown() {
         if (this.pressed) {
             console.warn('Ignoring handle mouse-down while pressed');
             return;
@@ -56,15 +56,15 @@ export default class RepeatButton extends Vue {
         this.emitClick();
     }
 
-    protected onMouseUp() {
+    public onMouseUp() {
         this.stopRepeat();
     }
 
-    protected onMouseLeave() {
+    public onMouseLeave() {
         this.stopRepeat();
     }
 
-    protected stopRepeat() {
+    public stopRepeat() {
         if (!this.pressed) {
             // This sometimes happens when the browser window is brought to focus - the mouse up event is fired
             // without a mouse down. No need to do anything here.
@@ -77,9 +77,10 @@ export default class RepeatButton extends Vue {
     }
 
     @Emit('click')
-    private emitClick() {
+    public emitClick() {
         // Emits the click event, with no arguments at all
     }
 
 }
+export default toNative(RepeatButton);
 </script>

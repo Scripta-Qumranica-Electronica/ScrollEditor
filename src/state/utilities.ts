@@ -153,7 +153,9 @@ abstract class StateCache<T extends ItemWithId<U>, U = number> {
             // least-recently used cache eviction strategy
             // Map keeps keys in the order they were added
             const keyToDelete = this._entries.keys().next().value;
-            this._entries.delete(keyToDelete);
+            if (keyToDelete !== undefined) {
+                this._entries.delete(keyToDelete);
+            }
         }
         this._entries.set(key, value);
     }

@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
@@ -48,17 +48,16 @@ import { ResetForgottenUserPasswordRequestDTO } from '@/dtos/sqe-dtos';
 @Component({
      name: 'change-forgotten-password'
 })
-
-export default class ChangeForgottenPassword extends Vue {
+class ChangeForgottenPassword extends Vue {
 
   // data
-  protected newPassword: string = '';
-  protected rePassword: string = '';
-  protected token: string = '';
-  protected errorMessage: string = '';
-  protected sessionService: SessionService = new SessionService();
-  protected errorService: ErrorService = new ErrorService(this);
-  protected waiting: boolean = false;
+  public newPassword: string = '';
+  public rePassword: string = '';
+  public token: string = '';
+  public errorMessage: string = '';
+  public sessionService: SessionService = new SessionService();
+  public errorService: ErrorService = new ErrorService(this);
+  public waiting: boolean = false;
 
   // computed
   public get disableChange(): boolean {
@@ -73,7 +72,7 @@ export default class ChangeForgottenPassword extends Vue {
       return '';
   }
 
-  protected mounted() {
+  public mounted() {
     const url  = window.location.href;
     this.token = url.split('token/')[1];
     if (this.token === '') {
@@ -92,15 +91,16 @@ export default class ChangeForgottenPassword extends Vue {
       try {
         await this.sessionService.changeForgottenPassword(data);
         router.push('/');
-        this.$root.$emit('bv::show::modal', 'loginModal');
-      } catch (e) {
+        // TODO(vue3): open the login modal after redirect — $root.$emit('bv::show::modal') is gone;
+        // the Navbar's Login component exposes show() via ref, but is not accessible from here.
+      } catch (e: any) {
         this.errorMessage = this.errorService.getErrorMessage(e.response.data);
       } finally {
         this.waiting = false;
       }
   }
 }
-
+export default toNative(ChangeForgottenPassword);
 </script>
 
 <style scoped>

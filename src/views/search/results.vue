@@ -2,21 +2,21 @@
     <div v-if="results" class="mt-4">
         <p v-if="empty">Search returned no results</p>
         <div v-else class="accordion" role="tablist">
-            <edition-results :editions="results.editions.editions" />
+            <edition-results :editions="results.editions?.editions" />
             <imaged-object-results
-                :imaged-objects="results.images.imagedObjects"
+                :imaged-objects="results.images?.imagedObjects"
             />
             <text-fragment-results
-                :text-fragments="results.textFragments.textFragments"
+                :text-fragments="results.textFragments?.textFragments"
             />
-            <artefact-results :artefacts="results.artefacts.artefacts" />
+            <artefact-results :artefacts="results.artefacts?.artefacts" />
         </div>
     </div>
 </template>
 <script lang="ts">
 import { DetailedSearchRequestDTO } from '@/dtos/sqe-dtos';
 import SearchService from '@/services/search';
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ArtefactResultComponent from './artefact-results.vue';
 import EditionResultsComponent from './edition-results.vue';
 import ImagedObjectResultComponent from './imaged-object-results.vue';
@@ -32,11 +32,11 @@ import { SearchFormData, SearchResults } from './types';
         'text-fragment-results': TextFragmentResultComponent,
     },
 })
-export default class SearchResultComponent extends Vue {
+class SearchResultComponent extends Vue {
     @Prop({ default: null })
-    private results!: SearchResults | null;
+    public results!: SearchResults | null;
 
-    private get empty() {
+    public get empty() {
         function items<T>(a?: T[]) {
             if (!a) {
                 return 0;
@@ -58,7 +58,7 @@ export default class SearchResultComponent extends Vue {
         return count === 0;
     }
 
-    private get prettyResults(): string {
+    public get prettyResults(): string {
         if (!this.results) {
             return '';
         }
@@ -66,6 +66,7 @@ export default class SearchResultComponent extends Vue {
         return JSON.stringify(this.results, null, 4);
     }
 }
+export default toNative(SearchResultComponent);
 </script>
 
 <style lang="scss" scoped>

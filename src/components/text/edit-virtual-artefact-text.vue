@@ -18,7 +18,7 @@
             <b-col>
                  <!---->
                 <div class="bottom-scroll-bar m-2 ml-1 mr-1">
-                    <b-input
+                    <b-form-input
                         id="w-text-input"
                         type="text"
                         dir="rtl"
@@ -30,7 +30,7 @@
                         cols="100"
                         max-rows="0"
                     >
-                    </b-input>
+                    </b-form-input>
                 </div>
             </b-col>
         </b-row>
@@ -38,25 +38,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
 import { VirtualArtefactEditor } from '@/services/virtual-artefact';
 import { Artefact } from '@/models/artefact';
 
 @Component({
     name: 'edit-virtual-artefact-text-pane',
 })
-// export default class EditVirtualArtefactTextModal extends Vue {
-export default class EditVirtualArtefactTextPane extends Vue {
-    private text = '';
-    private originalText = '';
-    private editor?: VirtualArtefactEditor;
-    private originalArtefact?: Artefact;
+class EditVirtualArtefactTextPane extends Vue {
+    public text = '';
+    public originalText = '';
+    public editor?: VirtualArtefactEditor;
+    public originalArtefact?: Artefact;
 
-    private mounted() {
+    public mounted() {
         this.onShown();
     }
 
-    private onShown() {
+    public onShown() {
 
         if (!this.$state.textFragmentEditor.editedVirtualArtefact) {
             this.$state.corrupted('EditorVirtualArtefact modal is shown with no edited virtual artefact');
@@ -70,7 +69,7 @@ export default class EditVirtualArtefactTextPane extends Vue {
         this.text = this.originalText = this.editor.text;
     }
 
-    private onHide() {
+    public onHide() {
 
         if (!this.editor) {
             return;
@@ -84,11 +83,11 @@ export default class EditVirtualArtefactTextPane extends Vue {
         this.editor = undefined;
     }
 
-    private destroyed() {
+    public unmounted() {
         this.onHide();
     }
 
-    private onTextChanged() {
+    public onTextChanged() {
         // Tsvia: If the new text contains illegal characters (non Hebrew and not space), remove the illegal
         // characters
         if (!this.editor) {
@@ -103,7 +102,7 @@ export default class EditVirtualArtefactTextPane extends Vue {
         });
     }
 
-    private stripNonHebChars(input: string): string {
+    public stripNonHebChars(input: string): string {
         const hebrewAlphabet = 'אבגדהוזחטיכךלמנסעפצקרשתםןףץ ';
         let output = '';
 
@@ -116,6 +115,8 @@ export default class EditVirtualArtefactTextPane extends Vue {
         return output;
     }
 }
+
+export default toNative(EditVirtualArtefactTextPane);
 </script>
 
 <style lang="scss" scoped>

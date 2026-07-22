@@ -25,7 +25,8 @@ import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { ImagedObject } from '@/models/imaged-object';
 import SearchService from '@/services/search';
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { vBToggle } from 'bootstrap-vue-next';
 import EditionList from '../home/components/edition-list.vue';
 import { SearchFormData, SearchResults } from './types';
 
@@ -35,15 +36,19 @@ interface ExpandedImagedObjectResponse extends ImageSearchResponseDTO {
 
 @Component({
     name: 'text-fragment-results',
+    directives: {
+        'b-toggle': vBToggle,
+    },
 })
-export default class TextFragmentResultComponent extends Vue {
+class TextFragmentResultComponent extends Vue {
     @Prop( { default: null })
-    private textFragments!: TextFragmentSearchResponseDTO[] | null;
+    public textFragments!: TextFragmentSearchResponseDTO[] | null;
 
-    private get title() {
+    public get title() {
         return `Text Fragments (${this.textFragments?.length || 0})`;
     }
 }
+export default toNative(TextFragmentResultComponent);
 </script>
 
 <style lang="scss" scoped>

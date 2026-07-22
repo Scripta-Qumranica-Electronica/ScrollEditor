@@ -5,7 +5,7 @@
         @pointerdown="pointerDown($event)"
         @pointermove="pointerMove($event)"
         @pointerup="pointerUp($event)"
-        @pointercancel="pointerCancel($event)"
+        @pointercancel="pointerCancel()"
         @keypress="keyPress($event)"
     >
         <!-- add an invisible rectangle so that pointer events work -->
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, Emit, toNative } from 'vue-facing-decorator';
 import { Point } from '@/utils/helpers';
 import { Polygon } from '@/utils/Polygons';
 import UtilsService from '@/services/utils';
@@ -30,7 +30,7 @@ type InternalMode =
 @Component({
     name: 'boundary-drawer'
 })
-export default class BoundaryDrawer extends Vue {
+class BoundaryDrawer extends Vue {
     @Prop({
         default: 'polygon'
     })
@@ -41,42 +41,42 @@ export default class BoundaryDrawer extends Vue {
     public readonly color!: string;
     @Prop() public readonly transformRootId!: string;
 
-    private internalMode: InternalMode = 'before-polygon';
-    private utilsService: UtilsService = new UtilsService();
-    private waiting = false;
+    public internalMode: InternalMode = 'before-polygon';
+    public utilsService: UtilsService = new UtilsService();
+    public waiting = false;
     // corner1 and corner2 are the two corners of the box in box mode,
     // or of the polygon's bounding box in polygon mode
-    private corner1?: Point;
-    private corner2?: Point;
+    public corner1?: Point;
+    public corner2?: Point;
 
     // The list of points of the polygon
-    private polygonPoints: Point[] = [];
+    public polygonPoints: Point[] = [];
 
     // We only support single touch events. When a second pointer is used,
     // we cancel everything
-    private activePointers: Set<number> = new Set<number>();
-    private get polygonString(): string {
+    public activePointers: Set<number> = new Set<number>();
+    public get polygonString(): string {
         const pts = this.polygonPoints.map(pt => `${pt.x}, ${pt.y}`);
         return pts.join(' ');
     }
 
-    private get polygonStyle(): string {
+    public get polygonStyle(): string {
         return `stroke: ${this.color};`;
     }
 
-    private get polylineStyle(): string {
+    public get polylineStyle(): string {
         return `stroke: ${this.color};`;
     }
 
     // True when the polygon is closed
-    private closedPolygon: boolean = false;
+    public closedPolygon: boolean = false;
 
-    private created() {
+    public created() {
         this.onModeChanged(this.mode);
     }
 
     @Watch('mode')
-    private onModeChanged(newMode: ActionMode) {
+    public onModeChanged(newMode: ActionMode) {
         if (this.mode === 'polygon') {
             this.internalMode = 'before-polygon';
         } else if (this.mode === 'box') {
@@ -85,7 +85,7 @@ export default class BoundaryDrawer extends Vue {
         this.pointerCancel();
     }
 
-    private get svgClass() {
+    public get svgClass() {
         if (
             this.internalMode === 'before-polygon' ||
             this.internalMode === 'polygon'
@@ -103,7 +103,7 @@ export default class BoundaryDrawer extends Vue {
         return [];
     }
 
-    private pointerDown($event: PointerEvent) {
+    public pointerDown($event: PointerEvent) {
         this.activePointers.add($event.pointerId);
         if (this.activePointers.size > 1) {
             this.cancelOperation();
@@ -124,7 +124,7 @@ export default class BoundaryDrawer extends Vue {
         this.polygonPoints = [pt];
     }
 
-    private pointerMove($event: PointerEvent) {
+    public pointerMove($event: PointerEvent) {
         if (this.activePointers.size > 1 || this.waiting) {
             return;
         }
@@ -164,7 +164,7 @@ export default class BoundaryDrawer extends Vue {
     // This is done by looking at the distance between the last point and the first point. If they
     // are close enough (less than 5% of the diagonal of the polygon's bounding box),
     // the polygon is considered closed.
-    private checkPolygonCloseness(): boolean {
+    public checkPolygonCloseness(): boolean {
         const threshold = 0.25;
 
         const width = this.corner1!.x - this.corner2!.x; // No Math.abs since we square these
@@ -182,12 +182,12 @@ export default class BoundaryDrawer extends Vue {
         return ratio < threshold * threshold;
     }
 
-    private pointerCancel() {
+    public pointerCancel() {
         this.cancelOperation();
         this.activePointers = new Set<number>();
     }
 
-    private cancelOperation() {
+    public cancelOperation() {
         this.corner1 = this.corner2 = undefined;
         this.polygonPoints = [];
         if (this.mode === 'polygon') {
@@ -198,14 +198,14 @@ export default class BoundaryDrawer extends Vue {
         this.closedPolygon = false;
     }
 
-    private keyPress($event: KeyboardEvent) {
+    public keyPress($event: KeyboardEvent) {
         if ($event.key === 'Escape') {
             this.cancelOperation();
             $event.preventDefault();
         }
     }
 
-    private pointerUp($event: PointerEvent) {
+    public pointerUp($event: PointerEvent) {
         this.activePointers.delete($event.pointerId);
 
         // TODO: Make sure the polygon is closed
@@ -215,7 +215,7 @@ export default class BoundaryDrawer extends Vue {
         this.cancelOperation();
     }
 
-    private eventToPoint($event: PointerEvent): Point {
+    public eventToPoint($event: PointerEvent): Point {
         // Changing coordinate systems taken from:
         // https://www.sitepoint.com/how-to-translate-from-dom-to-svg-coordinates-and-back-again/
         const pt = this.svg.createSVGPoint();
@@ -228,22 +228,22 @@ export default class BoundaryDrawer extends Vue {
         return svgPt;
     }
 
-    private get svg(): SVGSVGElement {
+    public get svg(): SVGSVGElement {
         return this.$el.closest('svg') as SVGSVGElement;
     }
 
-    private get transformRoot(): SVGGraphicsElement {
+    public get transformRoot(): SVGGraphicsElement {
         return this.svg.getElementById(
             this.transformRootId
         ) as SVGGraphicsElement;
     }
 
     @Emit()
-    private newPolygon(polygon: Polygon) {
+    public newPolygon(polygon: Polygon) {
         return polygon;
     }
 
-    private async checkPolygon() {
+    public async checkPolygon() {
         if (this.polygonPoints.length < 3) {
             // This is not really a polygon
             return;
@@ -272,17 +272,15 @@ export default class BoundaryDrawer extends Vue {
                 );
                 this.newPolygon(fixedPolygon);
             } catch (e) {
-                this.$toasted.show(this.$tc('toasts.repairPolygon'), {
-                    type: 'error',
-                    position: 'top-right',
-                    duration: 3000
-                });
+                // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
+                console.error(this.$t('toasts.repairPolygon'), e);
             } finally {
                 this.waiting = false;
             }
         }
     }
 }
+export default toNative(BoundaryDrawer);
 </script>
 
 <style lang="scss" scoped>

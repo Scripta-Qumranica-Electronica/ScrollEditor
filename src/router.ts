@@ -1,5 +1,4 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import Home from './views/home/Home.vue';
 import Search from './views/search/main.vue';
 import Welcome from './components/welcome/welcome.vue';
@@ -16,12 +15,10 @@ import ConfirmInvitation from './views/edition/components/confirm-invitation.vue
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
 import EditionMetadata from './views/edition/components/metadata.vue';
+import { StateManager } from './state';
 
-Vue.use(Router);
-
-export default new Router({
-    mode: 'history',
-    base: process.env.BASE_URL,
+const router = createRouter({
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: '/',
@@ -108,3 +105,18 @@ export default new Router({
         }
     ]
 });
+
+// vue-router 4 guard signature: return true/false or a route location.
+router.beforeEach((to) => {
+    if (to.matched.some((record) => record.meta.activeUserRoute)) {
+        // This route requires an activated user. If not activated, redirect home.
+        const user = StateManager.instance.session.user;
+        const activated = user ? user.activated : false;
+        if (!activated) {
+            return { path: '/' };
+        }
+    }
+    return true;
+});
+
+export default router;

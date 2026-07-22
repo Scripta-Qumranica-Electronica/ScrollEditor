@@ -33,7 +33,7 @@
 import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import CopyEditionModal from '@/views/home/components/copy-edition-modal.vue';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import Toolbox from './toolbox.vue';
 
 @Component({
@@ -43,20 +43,21 @@ import Toolbox from './toolbox.vue';
         toolbox: Toolbox,
     },
 })
-export default class CopyEditionToolbox extends Vue {
+class CopyEditionToolbox extends Vue {
     public editionService: EditionService = new EditionService();
     public variantEditions: EditionInfo[] = [];
 
-    private get currentEdition(): EditionInfo | null {
+    public get currentEdition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
-    private openCopyEdtion() {
-        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
-        this.$root.$bvModal.show('copy-edition-modal');
+    public openCopyEdtion() {
+        // TODO(vue3): copy-edition-modal not yet migrated; switch to a boolean v-model once that
+        // component exposes a modelValue prop instead of its :visible/:id bus pattern.
+        this.$root!.$bvModal.show('copy-edition-modal');
     }
 
-    private async mounted() {
+    public async mounted() {
         if (this.currentEdition) {
             const variantEditionList =
                 await this.editionService.getManuscriptEditions(
@@ -69,6 +70,7 @@ export default class CopyEditionToolbox extends Vue {
         }
     }
 }
+export default toNative(CopyEditionToolbox);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

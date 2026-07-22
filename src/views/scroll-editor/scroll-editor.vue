@@ -95,7 +95,7 @@ import { ScrollEditorState } from '@/state/scroll-editor';
 import { BoundingBox, Point } from '@/utils/helpers';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import { Placement } from '@/utils/Placement';
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { ArtefactGroup } from '../../models/edition';
 import { ArtefactEditorOperation } from '../artefact-editor/operations';
 import { ScrollEditorParams } from '../artefact-editor/types';
@@ -134,26 +134,26 @@ import TextToolbar from './text-toolbar.vue';
         'resize-bar': ResizeBar,
     },
 })
-export default class ScrollEditor
+class ScrollEditor
     extends Vue
     implements SavingAgent<ScrollEditorOperation> {
-    private operationsManager = new OperationsManager<
+    public operationsManager = new OperationsManager<
         ScrollEditorOperation | ArtefactEditorOperation
     >(this);
     public waiting: boolean = true;
-    private editionId: number = 0;
-    private observer?: ResizeObserver;
-    private editionService = new EditionService();
+    public editionId: number = 0;
+    public observer?: ResizeObserver;
+    public editionService = new EditionService();
 
-    private selectedSide: string = 'left';
-    private metricsInput: number = 1;
+    public selectedSide: string = 'left';
+    public metricsInput: number = 1;
     public secondaryToolbarHeight: number = 100;
     //
 
-    private get scrollEditorState(): ScrollEditorState {
+    public get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
     }
-    private get selectedArtefacts() {
+    public get selectedArtefacts() {
         return this.scrollEditorState.selectedArtefacts;
     }
     public get selectedArtefact() {
@@ -179,12 +179,12 @@ export default class ScrollEditor
         return this.scrollEditorState.mode === 'text';
     }
 
-    private get viewportSizeWidth() {
+    public get viewportSizeWidth() {
         return Math.round(
             this.scrollEditorState.viewport!.width / this.edition.ppm
         );
     }
-    private get viewportSizeHeight() {
+    public get viewportSizeHeight() {
         return Math.round(
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
@@ -196,18 +196,18 @@ export default class ScrollEditor
         return this.edition.metrics.height * this.edition.ppm * this.zoomLevel;
     }
 
-    private get zoomLevel() {
+    public get zoomLevel() {
         return (this.params && this.params.zoom) || 1;
     }
 
-    private get pointerPositionX() {
+    public get pointerPositionX() {
         return (
             this.scrollEditorState.pointerPosition.x /
             this.params.zoom /
             this.edition.ppm
         ).toFixed(2);
     }
-    private get pointerPositionY() {
+    public get pointerPositionY() {
         return (
             this.scrollEditorState.pointerPosition.y /
             this.params.zoom /
@@ -316,19 +316,19 @@ export default class ScrollEditor
             return true;
         } catch (error: any) {
             console.error(error);
-            this.$toasted.error(error, { duration: 3000 });
+            // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
             return false;
         }
     }
 
-    private get artefacts() {
+    public get artefacts() {
         return this.$state.artefacts.items || [];
     }
-    private get placedArtefacts() {
+    public get placedArtefacts() {
         return this.artefacts.filter((x) => x.isPlaced);
     }
 
-    protected created() {
+    public created() {
         this.$state.eventBus.on('select-group', this.selectGroup);
         this.$state.eventBus.on('save-group', this.saveGroupArtefacts);
         this.$state.eventBus.on('delete-group', this.deleteGroup);
@@ -344,7 +344,7 @@ export default class ScrollEditor
         this.$state.scrollEditor = new ScrollEditorState();
     }
 
-    protected destroyed() {
+    public unmounted() {
         this.$state.eventBus.off('select-group', this.selectGroup);
         this.$state.eventBus.off('save-group', this.saveGroupArtefacts);
         this.$state.eventBus.off('delete-group', this.deleteGroup);
@@ -362,12 +362,12 @@ export default class ScrollEditor
         this.$state.operationsManager = null;
     }
 
-    private async mounted() {
+    public async mounted() {
         this.waiting = true;
         // This code is not in the created method since it's asynchronous, and Vue doesn't wait for
         // an asynchornous created to finish before calling mounted. Instead of adding a synchronization
         // between created and mounted, we just moved it to mounted.
-        this.editionId = parseInt(this.$route.params.editionId, 10);
+        this.editionId = parseInt(String(this.$route.params.editionId), 10);
         await this.$state.prepare.edition(this.editionId);
         await this.$state.prepare.editionFullText(this.editionId);
         // Imaged objects are loaded lazily (not on edition open); the scroll editor
@@ -386,12 +386,13 @@ export default class ScrollEditor
         this.$state.imagedObjects.current = null;
         this.waiting = false;
         await this.$nextTick();
-        this.$root.$on('bv::modal::hide', (bvEvent: any, modalId: any) => {
-            if (modalId === 'addArtefactModal') {
-                const artefactIds = bvEvent.trigger;
-                this.onAddArtefactModalClose(artefactIds);
-            }
-        });
+        // TODO(vue3): bv::modal::hide event bus is not available in Vue 3; replace with a boolean v-model prop on add-artefact-modal and listen to @hide or @update:model-value
+        // this.$root.$on('bv::modal::hide', (bvEvent: any, modalId: any) => {
+        //     if (modalId === 'addArtefactModal') {
+        //         const artefactIds = bvEvent.trigger;
+        //         this.onAddArtefactModalClose(artefactIds);
+        //     }
+        // });
 
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.observer!.observe(this.$refs.artefactSidebar as Element);
@@ -400,14 +401,14 @@ export default class ScrollEditor
         this.$state.textFragmentEditor.textEditingMode = 'manuscript';
     }
 
-    private async beforeRouteUpdate(to: any, from: any, next: () => void) {
+    public async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
         await this.$state.prepare.edition(this.editionId);
         await this.$state.prepare.editionFullText(this.editionId);
         next();
     }
 
-    private onMetricsChange() {
+    public onMetricsChange() {
         this.calculateViewport();
     }
 
@@ -415,11 +416,11 @@ export default class ScrollEditor
         this.operationsManager.addOperation(op);
     }
 
-    private onNewBulkOperations(ops: ArtefactEditorOperation[]) {
+    public onNewBulkOperations(ops: ArtefactEditorOperation[]) {
         this.operationsManager.addBulkOperations(ops);
     }
 
-    private async onAddArtefactModalClose(artIds: number[]) {
+    public async onAddArtefactModalClose(artIds: number[]) {
         const artefacts = this.$state.artefacts.items.filter((art: Artefact) =>
             artIds.includes(art.id)
         );
@@ -484,7 +485,7 @@ export default class ScrollEditor
         }
     }
 
-    private notifyChange(paramName: string, paramValue: any) {
+    public notifyChange(paramName: string, paramValue: any) {
         const args = {
             property: paramName,
             value: paramValue,
@@ -537,7 +538,7 @@ export default class ScrollEditor
         }
     }
 
-    private onResize(entries: ResizeObserverEntry[]) {
+    public onResize(entries: ResizeObserverEntry[]) {
         this.calculateViewport();
         this.calculateSecondaryToolbarHeight();
     }
@@ -546,7 +547,7 @@ export default class ScrollEditor
         this.calculateViewport();
     }
 
-    private calculateViewport() {
+    public calculateViewport() {
         const div = this.$refs.artefactContainer as Element;
         const zoom = this.params?.zoom || 1;
 
@@ -568,7 +569,7 @@ export default class ScrollEditor
         this.$state.scrollEditor.viewport = viewport;
     }
 
-    private calculateSecondaryToolbarHeight() {
+    public calculateSecondaryToolbarHeight() {
         // Set the height of the secondary toolbar to the artefactSidebar height, minus the scrollmap's height.
         // We must set the height explicitly, otherwise the vertical scrollbar on the secondary toolbar misbehaves
         const artefactsContainer = this.$refs.artefactContainer as Element;
@@ -582,11 +583,11 @@ export default class ScrollEditor
         this.secondaryToolbarHeight = height;
     }
 
-    private updateOperationId(oldId: number, newId: number) {
+    public updateOperationId(oldId: number, newId: number) {
         this.operationsManager.updateStackIds(oldId, newId);
     }
 
-    private createOperation(
+    public createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact | undefined,
@@ -632,7 +633,7 @@ export default class ScrollEditor
         div.scroll(left, top);
     }
 
-    private resizeScroll(direction: number) {
+    public resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
             ...this.edition.metrics,
         };
@@ -658,10 +659,8 @@ export default class ScrollEditor
             direction === -1 &&
             !this.allowResizing(this.selectedSide, newMetrics)
         ) {
-            this.$toasted.error(
-                'Cannot resize scroll because artefacts will be cropped',
-                { duration: 3000 }
-            );
+            // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
+            console.error('Cannot resize scroll because artefacts will be cropped');
         } else {
             const metricsOperation = new EditionMetricOperation(
                 this.edition.id,
@@ -673,7 +672,7 @@ export default class ScrollEditor
             this.$emit('onMetricsChange');
         }
     }
-    private allowResizing(
+    public allowResizing(
         side: string,
         newMetrics: EditionManuscriptMetricsDTO
     ): boolean {
@@ -728,7 +727,7 @@ export default class ScrollEditor
 
     //
 
-    private selectGroup(group: ArtefactGroup | undefined) {
+    public selectGroup(group: ArtefactGroup | undefined) {
         this.scrollEditorState.selectGroup(group);
     }
 
@@ -779,8 +778,9 @@ export default class ScrollEditor
         this.params.mode = '';
     }
 
-    private openAddArtefactModal() {
-        this.$root.$emit('bv::show::modal', 'addArtefactModal');
+    public openAddArtefactModal() {
+        // TODO(vue3): bv::show::modal event bus is not available in Vue 3; open modal via a boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'addArtefactModal');
     }
 
     public newOperation(operation: ScrollEditorOperation) {
@@ -818,7 +818,7 @@ export default class ScrollEditor
 
     public onKeyDown(event: KeyboardEvent) {
         if (this.scrollEditorState.selectedArtefacts.length) {
-            (this.$refs.topToolbar as ScrollTopToolbar).onKeyDown(event);
+            (this.$refs.topToolbar as unknown as { onKeyDown(e: KeyboardEvent): void }).onKeyDown(event);
         } else {
             const el = this.$refs.artefactContainer as Element;
             const amount = 30;
@@ -852,7 +852,8 @@ export default class ScrollEditor
             }
         }
         if (event.key === 'Delete') {
-            this.$root.$emit('delete-key-pressed');
+            // TODO(vue3): $root.$emit is removed in Vue 3; replace with a shared event bus or Pinia action
+            this.$root!.$emit('delete-key-pressed');
         }
     }
 
@@ -868,6 +869,7 @@ export default class ScrollEditor
         }
     }
 }
+export default toNative(ScrollEditor);
 </script>
 
 <style lang="scss" scoped>

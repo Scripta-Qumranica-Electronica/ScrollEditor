@@ -31,7 +31,7 @@
                         variant="link"
                         boundary="viewport"
                         class="attribute-pane-dropdown-attr"
-                        dropright
+                        drop-end
                         @show="onValuesMenuShow()"
                         @hide="onValuesMenuHide()"
                     >
@@ -66,7 +66,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
+import type { BvTriggerableEvent } from 'bootstrap-vue-next';
 import { SignInterpretation } from '@/models/text';
 import {
     AttributeDTO,
@@ -80,7 +81,6 @@ import {
     SignInterpretationCommentOperation,
     TextFragmentAttributeOperation,
 } from '@/views/artefact-editor/operations';
-import { BDropdown, BvEvent } from 'bootstrap-vue';
 import CommentComponent from '../comment/comment.vue';
 
 @Component({
@@ -91,15 +91,15 @@ import CommentComponent from '../comment/comment.vue';
         comment: CommentComponent,
     },
 })
-export default class SignAttributePane extends Vue {
-    private status: boolean = false;
-    private keepOpen = false;
-    private attributesMenu: AttributeDTO[] = [];
+class SignAttributePane extends Vue {
+    public status: boolean = false;
+    public keepOpen = false;
+    public attributesMenu: AttributeDTO[] = [];
 
-    private get readOnly(): boolean {
+    public get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
     }
-    private get currentEdition(): EditionInfo | null {
+    public get currentEdition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
@@ -125,7 +125,7 @@ export default class SignAttributePane extends Vue {
     }
 
     // The comment in the state.
-    private get comment(): string {
+    public get comment(): string {
         if (this.selectedSignInterpretations.length !== 1) {
             return '';
         }
@@ -133,7 +133,7 @@ export default class SignAttributePane extends Vue {
         return this.selectedSignInterpretations[0].commentary || '';
     }
 
-    private set comment(val: string) {
+    public set comment(val: string) {
         if (this.selectedSignInterpretations.length !== 1) {
             console.warn(
                 "Can't change ta comment without one selected sign interperation"
@@ -149,7 +149,7 @@ export default class SignAttributePane extends Vue {
         this.$state.eventBus.emit('new-operation', op);
     }
 
-    private get attributesMetadata() {
+    public get attributesMetadata() {
         return (
             this.$state.editions.current?.attributeMetadata?.allAttributes || []
         );
@@ -186,19 +186,20 @@ export default class SignAttributePane extends Vue {
         return attributes;
     }
 
-    private get isMultiSelect() {
+    public get isMultiSelect() {
         return (
             this.$state.textFragmentEditor.selectedSignInterpretations
                 .length !== 1
         );
     }
 
-    private onAttributeClick(attribute: InterpretationAttributeDTO) {
+    public onAttributeClick(attribute: InterpretationAttributeDTO) {
+        // Vue 3: sign-attribute-modal is now controlled by selectedAttribute state.
+        // Setting selectedAttribute makes isVisible true in sign-attribute-modal.
         this.$state.textFragmentEditor.selectedAttribute = attribute;
-        this.$root.$emit('bv::show::modal', 'sign-attribute-modal');
     }
 
-    private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
+    public onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.textFragmentEditor
             .selectedSignInterpretations) {
@@ -213,10 +214,10 @@ export default class SignAttributePane extends Vue {
         }
         this.$state.eventBus.emit('new-bulk-operations', ops);
         this.keepOpen = false;
-        (this.$refs.attributesMenu as BDropdown).hide();
+        (this.$refs.attributesMenu as any).hide();
     }
 
-    private onDeleteAttribute(attrVal: AttributeValueDTO) {
+    public onDeleteAttribute(attrVal: AttributeValueDTO) {
         const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.textFragmentEditor
             .selectedSignInterpretations) {
@@ -231,7 +232,7 @@ export default class SignAttributePane extends Vue {
         this.$state.eventBus.emit('new-bulk-operations', ops);
     }
 
-    private onReconstructedCheckBoxChanged(event: boolean) {
+    public onReconstructedCheckBoxChanged(event: boolean) {
         let reconstructedAttrDTO: AttributeDTO;
         let reconstructedAttrValueDTO: AttributeValueDTO;
         const reconstructedAttrMeta = this.attributesMetadata.find(
@@ -255,11 +256,11 @@ export default class SignAttributePane extends Vue {
         }
     }
 
-    private onAddAttributesMenuOpen() {
+    public onAddAttributesMenuOpen() {
         this.attributesMenu = this.prepareAttributesMenu();
     }
 
-    private prepareAttributesMenu(): AttributeDTO[] {
+    public prepareAttributesMenu(): AttributeDTO[] {
         if (!this.selectedSignInterpretations.length) {
             return [];
         }
@@ -320,21 +321,22 @@ export default class SignAttributePane extends Vue {
         return filteredAttributes;
     }
 
-    private onValuesMenuShow() {
+    public onValuesMenuShow() {
         this.keepOpen = true;
     }
 
-    private onValuesMenuHide() {
+    public onValuesMenuHide() {
         this.keepOpen = false;
-        // (this.$refs.attributesMenu as BDropdown).hide();
+        // (this.$refs.attributesMenu as any).hide();
     }
 
-    private onAttributesMenuHide(event: BvEvent) {
+    public onAttributesMenuHide(event: Event | BvTriggerableEvent) {
         if (this.keepOpen) {
             event.preventDefault();
         }
     }
 }
+export default toNative(SignAttributePane);
 </script>
 
 <style lang="scss" scoped>

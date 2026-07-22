@@ -3,7 +3,6 @@
  */
 
 import { ItemWithId } from '@/state/utilities';
-import Vue from 'vue';
 
 function findInArray<T extends ItemWithId<U>, U>(entityId: U, array: T[]): number {
     return array.findIndex(e => e.id === entityId);
@@ -29,7 +28,8 @@ export function updateInArray<T extends ItemWithId<U>, U>(entity: T, array?: T[]
     if (idx === -1) {
         return array;
     }
-    Vue.set(array, idx, entity);
+    // Vue 3: arrays are natively reactive, direct index assignment is tracked.
+    array[idx] = entity;
 }
 
 export function removeFromArray<T extends ItemWithId<U>, U>(entityId: U, array?: T[]) {

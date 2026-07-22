@@ -3,7 +3,7 @@
         <svg v-if="loaded"
             :viewBox="`${boundingBox.x} ${boundingBox.y} ${boundingBox.width} ${boundingBox.height}`"
             :width="elementWidth"
-            :height="elementHeight" 
+            :height="elementHeight"
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink">
             <defs>
@@ -23,19 +23,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator';
+import { Component, Prop, mixins, toNative } from 'vue-facing-decorator';
 import { IIIFImage } from '@/models/image';
 import ArtefactDataMixin from './artefact-data-mixin';
 
 @Component({
     name: 'artefact-svg',
 })
-export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
-    @Prop({default: 1.3}) private aspectRatio!: number;
+class ArtefactSvg extends mixins(ArtefactDataMixin) {
+    @Prop({default: 1.3}) public aspectRatio!: number;
 
-    private elementWidth = 0;
-    private serverScale = 5;
-    private loaded = false;
+    public elementWidth = 0;
+    public serverScale = 5;
+    public loaded = false;
 
     get scale(): number {
         if (this.elementWidth && this.masterImageManifest) {
@@ -53,7 +53,7 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
         return 100;
     }
 
-    protected async mounted() {
+    public async mounted() {
         await this.mountedDone;
         this.loaded = true;
         this.updateWidth();
@@ -62,7 +62,7 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
         });
     }
 
-    private updateWidth() {
+    public updateWidth() {
         this.elementWidth = this.$el.clientWidth;
         if (!this.loaded) {
             // This should never happen
@@ -79,6 +79,7 @@ export default class ArtefactSvg extends  Mixins(ArtefactDataMixin) {
     }
 }
 
+export default toNative(ArtefactSvg);
 </script>
 
 <style lang="scss" scoped>

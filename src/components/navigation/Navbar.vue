@@ -59,9 +59,9 @@
             <!-- empty navbar just to right-align the rest -->
             <b-navbar-nav class="ml-auto"></b-navbar-nav>
 
-            <b-navbar-nav toggleable class="search-user-nav" align="right">
+            <b-navbar-nav toggleable class="search-user-nav" align="end">
                 <b-nav-item active>
-                    <b-button size="sm" variant="outline" class="navbar-button" @click="reportProblemModal">
+                    <b-button size="sm" variant="outline-secondary" class="navbar-button" @click="reportProblemModal">
                         <i
                         class="fa fa-exclamation-triangle"
                             aria-hidden="true"
@@ -71,7 +71,7 @@
                     </b-button>
                 </b-nav-item>
                 <b-nav-item to="/search" active>
-                    <b-button size="sm" variant="outline" class="navbar-button">
+                    <b-button size="sm" variant="outline-secondary" class="navbar-button">
                         <i
                             class="fa fa-search fa-2x green-text"
                             aria-hidden="true"
@@ -88,8 +88,8 @@
                     right
                     v-b-tooltip.hover.bottomleft="'User Account'"
                 >
-                    <template slot="button-content" size="xs">
-                        <b-button variant="outline" size="sm">
+                    <template v-slot:button-content>
+                        <b-button variant="outline-secondary" size="sm">
                             <i
                                 class="fa fa-user fa-2x green-text"
                                 aria-hidden="true"
@@ -134,16 +134,12 @@
                 <b-nav-item-dropdown
                     id="hamburger"
                     right
-                    text-center
                     class="bm-0 p-0 pl-1 pr-1"
                     no-caret
                 >
-                    <template slot="button-content" size="xs">
-                        <b-icon
-                            icon="list"
-                            class="border rounded"
-                            font-scale="1.6"
-                        ></b-icon>
+                    <template v-slot:button-content>
+                        <!-- bootstrap-vue-next has no b-icon; use FA bars icon -->
+                        <span class="border rounded hamburger-icon">&#9776;</span>
                     </template>
 
                     <b-dropdown-item
@@ -180,7 +176,6 @@
                     >
                         {{ $t('navbar.faq') }}
                     </b-dropdown-item>
-                    <faq-modal />
 
                     <b-dropdown-item
                         id="popover-target-eula"
@@ -189,12 +184,10 @@
                     >
                         {{ $t('navbar.eula') }}
                     </b-dropdown-item>
-                    <eula-modal />
 
                     <b-dropdown-item @click="showCitation">
                         {{ $t('navbar.cite') }}
                     </b-dropdown-item>
-                    <citation-modal />
 
                     <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-item placement="left" @click="goGuide">{{
@@ -207,21 +200,26 @@
                         @click="reportProblemModal"
                         >{{ $t('home.reportProblem') }}</b-dropdown-item
                     >
-                    <report-problem-modal />
                     <b-dropdown-item @click="contactUs">
                         {{ $t('navbar.contactus') }}
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
-                
+
             </b-navbar-nav>
         </b-navbar>
-        <login></login>
+        <!-- Modals rendered outside navbar/dropdown to avoid nesting issues -->
+        <login ref="loginModal"></login>
         <register></register>
+        <faq-modal ref="faqModal" />
+        <eula-modal ref="eulaModal" />
+        <citation-modal ref="citationModal" />
+        <report-problem-modal ref="reportProblemModalRef" />
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { vBTooltip } from 'bootstrap-vue-next';
 import { localizedTexts } from '@/i18n';
 import SessionService from '@/services/session';
 import Login from './Login.vue';
@@ -231,9 +229,7 @@ import CitationModal from './CitationModal.vue';
 // import ScreenSizeAlert from '../../views/home/components/ScreenSizeAlert.vue';
 import router from '@/router';
 import { EditionInfo } from '../../models/edition';
-import { BIcon, BIconSearch, BIconPersonFill, BIconList } from 'bootstrap-vue';
 import Registration from '@/views/user/Registration.vue';
-import ToolbarIconButton from '../toolbars/toolbar-icon-button.vue';
 import EditionToolbox from '../toolbars/edition-toolbox.vue';
 import ReportProblemModal from './report-problem-modal.vue';
 
@@ -248,26 +244,25 @@ import ReportProblemModal from './report-problem-modal.vue';
         'report-problem-modal': ReportProblemModal,
         register: Registration,
         // 'screen-size-alert': ScreenSizeAlert,
-        BIcon,
-        BIconSearch,
-        BIconPersonFill,
-        BIconList,
+    },
+    directives: {
+        'b-tooltip': vBTooltip,
     },
 })
-export default class Navbar extends Vue {
-    private sessionService = new SessionService();
-    private currentLanguage = 'en';
-    private allTexts = localizedTexts;
+class Navbar extends Vue {
+    public sessionService = new SessionService();
+    public currentLanguage = 'en';
+    public allTexts = localizedTexts;
 
     public get edition() {
         return this.$state.editions.current;
     }
 
-    protected get operationsManager() {
+    public get operationsManager() {
         return this.$state.operationsManager;
     }
 
-    protected get showOperationsManager() {
+    public get showOperationsManager() {
         return (
             !!this.operationsManager &&
             !!this.edition &&
@@ -275,11 +270,11 @@ export default class Navbar extends Vue {
         );
     }
 
-    protected onUndo() {
+    public onUndo() {
         this.operationsManager!.undo();
     }
 
-    protected onRedo() {
+    public onRedo() {
         this.operationsManager!.redo();
     }
 
@@ -306,19 +301,19 @@ export default class Navbar extends Vue {
     }
 
     public showFAQModal() {
-        this.$root.$emit('bv::show::modal', 'FaqModal');
+        (this.$refs.faqModal as any).show();
     }
 
     public reportProblemModal() {
-        this.$root.$emit('bv::show::modal', 'ReportProblemModal');
+        (this.$refs.reportProblemModalRef as any).show();
     }
 
     public showEulaModal() {
-        this.$root.$emit('bv::show::modal', 'EulaModal');
+        (this.$refs.eulaModal as any).show();
     }
 
     public showCitation() {
-        this.$root.$emit('bv::show::modal', 'CitationModal');
+        (this.$refs.citationModal as any).show();
     }
 
     public contactUs() {
@@ -393,11 +388,11 @@ export default class Navbar extends Vue {
             : false;
     }
 
-    private get currentEdition(): EditionInfo | null {
+    public get currentEdition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
-    private changeLanguage(language: string) {
+    public changeLanguage(language: string) {
         this.$i18n.locale = language;
         this.$state.session.language = language;
         this.currentLanguage = language;
@@ -406,7 +401,7 @@ export default class Navbar extends Vue {
         // Vue doesn't handle getter changes very well.
     }
 
-    private mounted() {
+    public mounted() {
         this.currentLanguage = this.$state.session.language;
     }
 
@@ -417,7 +412,7 @@ export default class Navbar extends Vue {
     }
 
     public login() {
-        this.$root.$emit('bv::show::modal', 'loginModal');
+        (this.$refs.loginModal as any).show();
     }
 
     public changePassword() {
@@ -428,6 +423,7 @@ export default class Navbar extends Vue {
         router.push('/updateUserDetails');
     }
 }
+export default toNative(Navbar);
 </script>
 
 <style lang="scss">
@@ -436,7 +432,7 @@ export default class Navbar extends Vue {
 
 $background: #0a142e;
 $foreground: $qumran-white;
-// check how merging is made , todo remove this line 
+// check how merging is made , todo remove this line
 /* scoped has to be removed in order to set b-nav-dropdown color  */
 #main-nav-bar {
     /* background: #041d5c !important; */
@@ -550,6 +546,12 @@ $foreground: $qumran-white;
 
         .border {
             border-color: $foreground !important;
+        }
+
+        .hamburger-icon {
+            color: $foreground;
+            font-size: 1.6rem;
+            padding: 0.1rem 0.3rem;
         }
     }
 

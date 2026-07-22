@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Vue } from 'vue-property-decorator';
+import { Component, Emit, Vue, toNative } from 'vue-facing-decorator';
 import ErrorService from '@/services/error';
 import router from '@/router';
 import {
@@ -41,18 +41,19 @@ import EditionService from '@/services/edition';
 
     // },
 })
-export default class ConfirmInvitation extends Vue {
+class ConfirmInvitation extends Vue {
     // data
 
-    protected token: string =  '';
-    protected errorMessage: string = '';
-    protected editionService: EditionService = new EditionService();
-    protected errorService: ErrorService = new ErrorService(this);
-    protected waiting: boolean = false;
+    public token: string =  '';
+    public errorMessage: string = '';
+    public editionService: EditionService = new EditionService();
+    public errorService: ErrorService = new ErrorService(this);
+    public waiting: boolean = false;
 
-    protected mounted() {
+    public mounted() {
         if (!this.isLogged) {
-            this.$root.$emit('bv::show::modal', 'loginModal');
+            // TODO(vue3): replace bv::show::modal bus event — open loginModal via a shared boolean prop or emitted event
+            this.$root!.$emit('bv::show::modal', 'loginModal');
         }
 
         const url = window.location.href;
@@ -63,21 +64,21 @@ export default class ConfirmInvitation extends Vue {
     }
 
     // computed: {
-    protected get currentUser(): DetailedUserDTO {
+    public get currentUser(): DetailedUserDTO {
             return this.$state.session.user!;
     }
 
-    protected get isLogged(): boolean {
+    public get isLogged(): boolean {
             return this.currentUser !== null && this.currentUser !== undefined;
     }
 
     // methods: {
-    protected async change() {
+    public async change() {
         this.waiting = true;
         try {
             await this.editionService.confirmAddEditionEditor(this.token);
             router.push('/');
-        } catch (e) {
+        } catch (e: any) {
             this.errorMessage = this.errorService.getErrorMessage(
                 e.response.data
             );
@@ -87,7 +88,7 @@ export default class ConfirmInvitation extends Vue {
     }
 
 }
-
+export default toNative(ConfirmInvitation);
 </script>
 
 <style scoped>

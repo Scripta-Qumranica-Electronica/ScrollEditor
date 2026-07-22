@@ -9,11 +9,11 @@
  * await this.mountedDone in your mounted method.
  */
 
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-facing-decorator';
 
 @Component
 export default class AsyncMountedMixinBase extends Vue {
-    protected mountedDone!: Promise<void>;
+    public mountedDone!: Promise<void>;
 
     protected mounted() {
         this.mountedDone = this.asyncMounted();

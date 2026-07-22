@@ -13,8 +13,7 @@
     </toolbox>
 </template>
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop, Model } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ToolbarIconButton from './toolbar-icon-button.vue';
 import Toolbox from './toolbox.vue';
 
@@ -25,38 +24,42 @@ import Toolbox from './toolbox.vue';
         'toolbar-icon-button': ToolbarIconButton,
     },
 })
-export default class FontSizeButtonToolbox extends Vue {
+class FontSizeButtonToolbox extends Vue {
     @Prop({ default: '' }) public subject!: string;
-    @Model('fontSizeChanged', { type: Number }) private fontSize!: number;
+    /** v-model binding (Vue 3: modelValue / update:modelValue) */
+    @Prop({ type: Number }) public modelValue!: number;
     @Prop({ default: 2 }) public delta!: number;
     @Prop({ default: 'left' }) public align!: 'left' | 'right';
 
-    private fontSizeLimits: { min: number; max: number } = { min: 10, max: 40 };
+    public fontSizeLimits: { min: number; max: number } = { min: 10, max: 40 };
 
     public get canFontSizePlus(): boolean {
         return (
-            this.fontSize < this.fontSizeLimits.max &&
-            this.fontSize + this.delta < this.fontSizeLimits.max
+            this.modelValue < this.fontSizeLimits.max &&
+            this.modelValue + this.delta < this.fontSizeLimits.max
         );
     }
 
     public get canFontSizeMinus(): boolean {
         return (
-            this.fontSize > this.fontSizeLimits.min &&
-            this.fontSize - +this.delta > this.fontSizeLimits.min
+            this.modelValue > this.fontSizeLimits.min &&
+            this.modelValue - +this.delta > this.fontSizeLimits.min
         );
-        // return this.paramsZoom > 0 && Math.round(this.paramsZoom * 100) - this.delta > 0;
     }
 
     public fontSizeChanged(delta: number) {
-        this.onFontSizeChanged(this.fontSize + delta);
+        this.onFontSizeChanged(this.modelValue + delta);
     }
 
     public onFontSizeChanged(val: number) {
         localStorage.setItem('font-size', val.toString());
+        this.$emit('update:modelValue', val);
+        // Also emit the legacy event name so the parent @fontSizeChanged listener
+        // continues to work until artefact-editor-toolbar.vue is migrated.
         this.$emit('fontSizeChanged', val);
     }
 }
+export default toNative(FontSizeButtonToolbox);
 
 
 </script>

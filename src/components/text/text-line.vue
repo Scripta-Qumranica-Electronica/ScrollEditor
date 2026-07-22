@@ -14,7 +14,10 @@
             @paste="onPaste($event)"
             tabindex="-1"
         >
-            <template v-for="sign in line.signs">
+            <template
+                v-for="sign in line.signs"
+                :key="sign.signInterpretations[0].signInterpretationId"
+            >
                 <text-sign
                     :tabindex="
                         +sign.signInterpretations[0].signInterpretationId
@@ -24,7 +27,6 @@
                         'popover-si-' +
                             sign.signInterpretations[0].signInterpretationId
                     "
-                    :key="sign.signInterpretations[0].signInterpretationId"
                     :sign="sign"
                 ></text-sign>
                 <span
@@ -32,10 +34,6 @@
                         +sign.signInterpretations[0].signInterpretationId
                     "
                     class="edited"
-                    :key="
-                        'edited-' +
-                            sign.signInterpretations[0].signInterpretationId
-                    "
                 ></span>
             </template>
         </div>
@@ -84,7 +82,7 @@
         </b-popover>
 
         <b-modal
-            :id="`parallel-line-${line.lineId}`"
+            v-model="showParallelModal"
             hide-footer
             title="Parallel Texts from QD"
         >
@@ -102,7 +100,7 @@
                 ></text-sign>
             </div>
             <hr />
-            <div v-if="parallels !== null && parallels.parallels.length > 0">
+            <div v-if="parallels !== null && (parallels.parallels?.length ?? 0) > 0">
                 <div v-for="parallel in parallels.parallels">
                     <b>{{ parallel.qwbTextReference }}</b>
                     <p>
@@ -114,13 +112,13 @@
                     </p>
                 </div>
             </div>
-            <div v-if="parallels === null || parallels.parallels.length === 0">
+            <div v-if="parallels === null || (parallels.parallels?.length ?? 0) === 0">
                 <p>No parallel text found in the QD database.</p>
             </div>
         </b-modal>
 
         <b-modal
-            :id="`variant-line-${line.lineId}`"
+            v-model="showVariantModal"
             hide-footer
             title="Variant Edition Transcriptions"
         >
@@ -163,7 +161,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { Line, TextDirection, TextFragment } from '@/models/text';
 import TextSign from '@/components/text/text-sign.vue';
 import {
@@ -183,7 +181,7 @@ import TextService from '@/services/text';
         'text-sign': TextSign
     }
 })
-export default class TextLineComponent extends Vue {
+class TextLineComponent extends Vue {
     // public text_service: TextService = new TextService();
     @Prop() public isEditMode!: boolean;
     @Prop() public line!: Line;
@@ -191,15 +189,18 @@ export default class TextLineComponent extends Vue {
         default: 'rtl'
     })
     public direction!: TextDirection;
-    private parallels: QwbParallelListDTO | null = null;
-    private variants: DetailedLineTextDTO[] = [];
-    private prevLineMenuId: string = '';
-    private get editionId() {
-        return parseInt(this.$route.params.editionId);
+    public parallels: QwbParallelListDTO | null = null;
+    public variants: DetailedLineTextDTO[] = [];
+    public prevLineMenuId: string = '';
+    public showParallelModal: boolean = false;
+    public showVariantModal: boolean = false;
+
+    public get editionId() {
+        return parseInt(this.$route.params.editionId as string);
     }
-    private async showParallels() {
+    public async showParallels() {
         this.closeLineMenu();
-        this.$bvModal.show(`parallel-line-${this.line.lineId}`);
+        this.showParallelModal = true;
         if (this.parallels === null) {
             const qwbWordIds = this.line.signs.flatMap(x =>
                 x.signInterpretations.flatMap(y => y.qwbWordIds)
@@ -223,45 +224,49 @@ export default class TextLineComponent extends Vue {
     }
 
     @Emit()
-    private lineChange(event: any) {
+    public lineChange(event: any) {
         return event.target.textContent;
     }
 
-    private checkEnter(event: any) {
+    public checkEnter(event: any) {
         event.preventDefault();
         event.currentTarget.blur();
     }
-    private openEditLineModal(line: Line) {
+    public openEditLineModal(line: Line) {
         this.$state.textFragmentEditor.selectSign(
             line.signs[0].signInterpretations[0]
         );
-        this.$root.$emit('bv::show::modal', 'editLineModal');
+        // TODO(vue3): replace bv::show::modal bus event — open editLineModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'editLineModal');
     }
-    private addLineBefore(line: Line) {
+    public addLineBefore(line: Line) {
         console.log(this.$state.textFragmentEditor.selectedSignInterpretations)
         this.$state.textFragmentEditor.selectSign(
             line.signs[0].signInterpretations[0]
         );
-        this.$root.$emit('bv::show::modal', 'addLineModal', 'before');
+        // TODO(vue3): replace bv::show::modal bus event — open addLineModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'addLineModal', 'before');
     }
     public deleteLine(line: Line) {
         this.$state.textFragmentEditor.selectSign(
         line.signs[0].signInterpretations[0]
         );
-        this.$root.$emit('bv::show::modal', 'deleteLineModal');
+        // TODO(vue3): replace bv::show::modal bus event — open deleteLineModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'deleteLineModal');
         // const ts = new TextService();
-        // // add operation on delete 
+        // // add operation on delete
         // ts.deleteLine(line.editorId, line.lineId);
     }
-    private addLineAfter(line: Line) {
+    public addLineAfter(line: Line) {
         console.log(this.$state.textFragmentEditor.selectedSignInterpretations)
         this.$state.textFragmentEditor.selectSign(
         line.signs[0].signInterpretations[0]
         );
-        this.$root.$emit('bv::show::modal', 'addLineModal', 'after');
+        // TODO(vue3): replace bv::show::modal bus event — open addLineModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'addLineModal', 'after');
     }
 
-    private onPaste(event: any) {
+    public onPaste(event: any) {
         const paste = (
             event.clipboardData || (window as any).ClipboardItem
         ).getData('text');
@@ -277,9 +282,9 @@ export default class TextLineComponent extends Vue {
         event.preventDefault();
     }
 
-    private async showVariants() {
+    public async showVariants() {
         this.closeLineMenu();
-        this.$bvModal.show(`variant-line-${this.line.lineId}`);
+        this.showVariantModal = true;
         if (this.variants.length === 0) {
             const es = new EditionService();
             const currentEdition = await es.getSingleEditions(this.editionId);
@@ -316,22 +321,26 @@ export default class TextLineComponent extends Vue {
             }
         }
     }
-    private openLineMenu(event: MouseEvent, lineMenuId: string) {
+    public openLineMenu(event: MouseEvent, lineMenuId: string) {
         if (this.isEditMode) {
             return;
         }
         // prevent usual menu to display
         event.preventDefault();
-        this.$root.$emit('bv::show::popover', lineMenuId);
+        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::show::popover', lineMenuId);
         this.prevLineMenuId = lineMenuId;
     }
-    private closeLineMenu() {
-        this.$root.$emit('bv::hide::popover', this.prevLineMenuId);
+    public closeLineMenu() {
+        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
     }
-    private focusPopover() {
+    public focusPopover() {
         (this.$refs.lineMenu as any).focus();
     }
 }
+export default toNative(TextLineComponent);
+
 interface DetailedLineTextDTO extends LineTextDTO {
     name: string;
     editionId: number;

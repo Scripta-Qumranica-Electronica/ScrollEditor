@@ -9,14 +9,14 @@
                 :disabled="!canZoomOut || disabled"
             />
 
-            <b-input
+            <b-form-input
                 class="zoom-input no-arrows"
                 v-model="zoom"
                 type="number"
                 min="1"
                 max="100"
                 :disabled="disabled"
-            ></b-input>
+            ></b-form-input>
 
             <toolbar-icon-button title="Zoom In" icon="plus"
                 :disabled="!canZoomIn || disabled"
@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Model, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ToolbarIconButton from './toolbar-icon-button.vue';
 import Toolbox from './toolbox.vue';
 
@@ -38,8 +38,8 @@ import Toolbox from './toolbox.vue';
         'toolbox': Toolbox,
     }
 })
-export default class ZoomToolbox extends Vue {
-    @Model('zoomChanged', { type: Number }) private paramsZoom!: number;
+class ZoomToolbox extends Vue {
+    @Prop({ type: Number, default: 0.1 }) public modelValue!: number;
 
     @Prop({ default: 0.05 }) public delta!: number;
     @Prop({ default: false }) public reset!: boolean;
@@ -47,7 +47,7 @@ export default class ZoomToolbox extends Vue {
 
     @Prop({ default: 'Zoom'}) public subject!: string;
 
-    private localZoom: number = this.paramsZoom || 0.1;
+    public localZoom: number = this.modelValue || 0.1;
 
     // TODO: delete this
     // public mounted() {
@@ -62,11 +62,11 @@ export default class ZoomToolbox extends Vue {
     //     }, 200);
     // }
 
-    private get zoom(): number {
-        return Math.round(this.paramsZoom * 100);
+    public get zoom(): number {
+        return Math.round(this.modelValue * 100);
     }
 
-    private set zoom(val: number) {
+    public set zoom(val: number) {
         if (!val) {
             val = 10;
         }
@@ -76,36 +76,38 @@ export default class ZoomToolbox extends Vue {
         this.onZoomChanged(this.localZoom);
     }
 
-    private zoomClick(percent: number) {
-        if (this.paramsZoom + percent > 1) {
+    public zoomClick(percent: number) {
+        if (this.modelValue + percent > 1) {
             this.localZoom = 1;
-        } else if (this.paramsZoom + percent < 0) {
+        } else if (this.modelValue + percent < 0) {
             this.localZoom = 0.01;
         } else {
-            this.localZoom = this.paramsZoom + percent;
+            this.localZoom = this.modelValue + percent;
         }
 
         this.onZoomChanged(this.localZoom);
     }
 
-    private onZoomChanged(val: number) {
+    public onZoomChanged(val: number) {
+        this.$emit('update:modelValue', val);
         this.$emit('zoomChanged', val);
     }
 
-    private get canZoomIn(): boolean {
-        return this.paramsZoom < 1;
-        //  return this.paramsZoom < 1 && Math.round(this.paramsZoom * 100) + this.delta <= 100;
+    public get canZoomIn(): boolean {
+        return this.modelValue < 1;
+        //  return this.modelValue < 1 && Math.round(this.modelValue * 100) + this.delta <= 100;
     }
 
-    private get canZoomOut(): boolean {
-        return this.paramsZoom > 0;
-        // return this.paramsZoom > 0 && Math.round(this.paramsZoom * 100) - this.delta > 0;
+    public get canZoomOut(): boolean {
+        return this.modelValue > 0;
+        // return this.modelValue > 0 && Math.round(this.modelValue * 100) - this.delta > 0;
     }
 
-    protected onReset() {
+    public onReset() {
       this.zoom = 100;
     }
 }
+export default toNative(ZoomToolbox);
 </script>
 
 

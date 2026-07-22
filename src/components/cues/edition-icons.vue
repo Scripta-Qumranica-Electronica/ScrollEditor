@@ -10,13 +10,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { vBTooltip } from 'bootstrap-vue-next';
 import { EditionInfo } from '@/models/edition';
 
 @Component({
     name: 'edition-icons',
+    directives: {
+        'b-tooltip': vBTooltip,
+    },
 })
-export default class EditionIcons extends Vue {
+class EditionIcons extends Vue {
     @Prop() public edition!: EditionInfo;
     @Prop({ default: false }) public showText!: boolean;
 
@@ -29,6 +33,8 @@ export default class EditionIcons extends Vue {
         return this.edition.shares.filter(share => share.permissions.mayRead).length > 1;
     }
 }
+
+export default toNative(EditionIcons);
 </script>
 
 <style lang="scss" scoped>

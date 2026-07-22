@@ -1,8 +1,8 @@
 <template>
     <b-modal
         v-if="edition && metadata"
+        v-model="visible"
         id="editionMetadataModal"
-        ref="editionMetadataModalRef"
         header-class="header"
         hide-footer
         :title="'Additional Information for Edition ' + edition.name"
@@ -16,7 +16,7 @@
                 <li class="row m-2" v-for="key in keys" :key="key">
                     <span class="key col-2">{{ headers[key] }}:</span>
                     <span class="value col">{{
-                        (metadata[key] || '-') | cleanString
+                        cleanString(metadata[key] || '-')
                     }}</span>
                 </li>
                 <li class="row m-2">
@@ -29,21 +29,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 @Component({
     name: 'edition-metadata-modal',
     components: {
         Waiting,
     },
-    filters: {
-        cleanString(value: string) {
-            return value.replace(/\$/g, '');
-        },
-    },
 })
-export default class EditionMetadataModal extends Vue {
+class EditionMetadataModal extends Vue {
     public editionId: number = 0;
+    public visible: boolean = false;
 
     public get edition() {
         return this.$state.editions.current!;
@@ -64,7 +60,7 @@ export default class EditionMetadataModal extends Vue {
         'otherIdentifications',
         'publication'
             ];
-    private static _headers = {
+    public static _headers = {
         manuscript: 'Manuscript',
         composition: 'Composition',
         copy: 'Copy',
@@ -89,21 +85,23 @@ export default class EditionMetadataModal extends Vue {
         return this.edition.metadata;
     }
 
-    protected async mounted() {
-        this.editionId = parseInt(this.$route.params.editionId, 10);
+    public async mounted() {
+        this.editionId = parseInt(String(this.$route.params.editionId), 10);
         if (isNaN(this.editionId)) {
             return;
         }
         await this.$state.prepare.edition(this.editionId);
     }
 
-    public cleanString(): any {
-        // This is a placeholder to remove the error when calling the cleanString filter.
-        // Without this, Typescript complains that cleanString is not defined, even though Vue
-        // knows it should call the function defined as the filter.
-        return 'WRONG FILTER'; // If you see this in the metadata, you know the function is called when it shouldn't.
+    public show() {
+        this.visible = true;
+    }
+
+    public cleanString(value: string): string {
+        return value.replace(/\$/g, '');
     }
 }
+export default toNative(EditionMetadataModal);
 </script>
 <style lang="scss" scoped>
 .background {

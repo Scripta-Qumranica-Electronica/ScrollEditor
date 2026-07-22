@@ -13,7 +13,7 @@
             <datalist id="my-list-id">
                 <option
                     v-for="tf of dropdownTextFragmentsData"
-                    :key="tf.textFragmentId"
+                    :key="tf.id"
                 >
                     {{ tf.name }}
                 </option>
@@ -65,12 +65,12 @@
                 <div class="character-popover"  ref="lineMenu">
                  <b>
                     Rename this fragment
-                 </b>   
+                 </b>
                     <input ref="newFragmentName" id="newName" v-model="newFragmentName" type="text" required
                         :placeholder="$t('home.newFragmentName')" />
                     <div>
                         <b-button @click="renameFragment(textFragment,newFragmentName)" size="sm">
-                            Rename 
+                            Rename
                         </b-button>
                         <b-button @click="closeLineMenu()" size="sm">Close</b-button>
                     </div>
@@ -106,7 +106,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
 import { Artefact } from '@/models/artefact';
 import { TextFragment, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
@@ -127,7 +127,7 @@ import TextService from '@/services/text';
         'delete-line-modal': DeleteLineModal,
     },
 })
-export default class TextSide extends Vue {
+class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
     @Prop({ default: 'artefact'})
     public editorMode!: ArtefactEditorMode;
@@ -135,20 +135,27 @@ export default class TextSide extends Vue {
     @Prop() public fontSize!: number;
     public newArtefactName: string = '';
     public newFragmentName: string = '';
-    private prevLineMenuId: string = '';
-    private textService = new TextService();
+    public prevLineMenuId: string = '';
+    public textService = new TextService();
 
     public openLineMenu(event: MouseEvent, artefactId: any) {
         event.preventDefault();
-        this.$root.$emit('bv::show::popover', artefactId);
+        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::show::popover', artefactId);
         this.prevLineMenuId = artefactId;
-    
+
     }
-    private get artefactMode() {
+
+    public closeLineMenu() {
+        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
+    }
+
+    public get artefactMode() {
         return this.editorMode === 'artefact';
     }
 
-    private get textFragmentMode() {
+    public get textFragmentMode() {
         return this.editorMode === 'text-fragment';
     }
     public async renameFragment(newFragment:TextFragment ,fragmentName:string) {
@@ -157,32 +164,33 @@ export default class TextSide extends Vue {
             this.editionId,
             newFragment
         );
-        this.$root.$emit('bv::hide::popover', this.prevLineMenuId);
+        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
 
     }
     // @Prop() public selectedSignInterpretation!: SignInterpretation | null;
-    private errorMessage = '';
-    private loading = false;
-    private textFragmentId = 0;
+    public errorMessage = '';
+    public loading = false;
+    public textFragmentId = 0;
 
-    private displayedTextFragments: TextFragment[] = []; // Text fragments that are going to be displayed
-    private displayedTextFragmentsShow: { [key: number]: boolean } = {}; // Map - form text fragment id to boolean
-    private get editionId(): number {
-        return parseInt(this.$route.params.editionId);
+    public displayedTextFragments: TextFragment[] = []; // Text fragments that are going to be displayed
+    public displayedTextFragmentsShow: { [key: number]: boolean } = {}; // Map - form text fragment id to boolean
+    public get editionId(): number {
+        return parseInt(String(this.$route.params.editionId));
     }
 
-    private get readOnly(): boolean {
+    public get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
     }
 
-    private get dropdownTextFragmentsData() {
+    public get dropdownTextFragmentsData() {
         const displayedTfIds = this.displayedTextFragments.map((tf) => tf.id);
         return this.allTextFragmentsData.filter(
             (x) => (!x.certain || !x.suggested)  && !displayedTfIds.includes(x.id)
         );
     }
 
-    private get displayedTextFragmentsData() {
+    public get displayedTextFragmentsData() {
         // Try first to get 'certain' matches,
         // if there are none, then fall back to 'suggested' (which might also be none)
         const certain = this.allTextFragmentsData.filter((x) => x.certain);
@@ -190,7 +198,7 @@ export default class TextSide extends Vue {
         return certain.length > 0 ? certain : this.allTextFragmentsData.filter((x) => x.suggested);
     }
 
-    private get openedTextFragement() {
+    public get openedTextFragement() {
         if (this.$state.textFragmentEditor.singleSelectedSi) {
             const tfId = this.$state.textFragmentEditor.singleSelectedSi.sign.line
                 .textFragment.textFragmentId;
@@ -201,11 +209,11 @@ export default class TextSide extends Vue {
         return 0;
     }
 
-    private isTfShown(tfId: number) {
+    public isTfShown(tfId: number) {
         return this.displayedTextFragmentsShow[tfId];
     }
 
-    private get allTextFragmentsData() {
+    public get allTextFragmentsData() {
         let textFragments = this.$state.editions.current!.textFragments.map(
             (tf) => ArtefactTextFragmentData.createFromEditionTextFragment(tf)
         );
@@ -236,7 +244,7 @@ export default class TextSide extends Vue {
         return textFragments;
     }
 
-    private async mounted() {
+    public async mounted() {
         await this.$state.prepare.artefact(this.editionId, this.artefact.id);
         if (this.textFragmentMode) {
             this.displayedTextFragments = [this.textFragment];
@@ -256,7 +264,7 @@ export default class TextSide extends Vue {
 
     }
 
-    private async loadFragment(event: Event) {
+    public async loadFragment(event: Event) {
         const target = event.target as HTMLInputElement;
         this.errorMessage = '';
         const textFragmentData = this.allTextFragmentsData.find(
@@ -289,7 +297,7 @@ export default class TextSide extends Vue {
             this.emptySelectedState();
         }
     }
-    private emptySelectedState(id?: number) {
+    public emptySelectedState(id?: number) {
         if (
             id &&
             this.$state.textFragmentEditor.singleSelectedSi &&
@@ -301,7 +309,7 @@ export default class TextSide extends Vue {
         this.$state.textFragmentEditor.selectedSignInterpretations = [];
         this.$state.artefactEditor.selectRoi(null);
     }
-    private changePosition(index: number, up: boolean) {
+    public changePosition(index: number, up: boolean) {
         const indexToChange = up ? index - 1 : index + 1;
         const isInBoudaries = up
             ? indexToChange >= 0
@@ -316,7 +324,7 @@ export default class TextSide extends Vue {
         }
     }
 
-    private async getFragmentText(textFragmentId: number) {
+    public async getFragmentText(textFragmentId: number) {
         this.loading = true;
         await this.$state.prepare.textFragment(this.editionId, textFragmentId);
         this.loading = false;
@@ -324,15 +332,16 @@ export default class TextSide extends Vue {
     }
 
     @Emit()
-    private textFragmentSelected(textFragmentId: number) {
+    public textFragmentSelected(textFragmentId: number) {
         return textFragmentId;
     }
 
     @Emit()
-    private textFragmentsLoaded() {
+    public textFragmentsLoaded() {
         // Let the artefact editor know we've loaded all the initial ROIs
     }
 }
+export default toNative(TextSide);
 </script>
 
 <style lang="scss" scoped>

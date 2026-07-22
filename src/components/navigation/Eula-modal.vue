@@ -1,16 +1,13 @@
 <template>
     <div>
         <b-modal
+            v-model="visible"
             header-class="title-header"
             footer-class="title-footer"
-            ref="EulaModalRef"
             id="EulaModal"
-            aria-role="dialog"
             aria-label="EULA Modal"
-            scroll="keep"
             size="lg"
             ok-only
-            trap-focus
             :destroy-on-hide="true"
         >
             <template v-slot:modal-header>
@@ -55,17 +52,21 @@
 
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'EulaModal',
     components: {
     }
 })
+class EulaModal extends Vue {
+    public visible = false;
 
-export default class EulaModal extends Vue {
+    public show() {
+        this.visible = true;
+    }
 }
-
+export default toNative(EulaModal);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

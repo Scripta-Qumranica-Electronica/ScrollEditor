@@ -1,5 +1,5 @@
 <template>
-    <b-form inline class="" @submit.prevent>
+    <b-form class="" @submit.prevent>
         <b-form-group v-if="params.filter">
             <label for="filter" class="search-bar mb-2">{{
                 $t('home.filter')
@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import { SearchBarValue } from '@/state/utilities';
-import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
 
 // At some point we need to make those a little nicer
 export interface SearchBarParams {
@@ -64,7 +64,7 @@ export interface SearchBarParams {
     name: 'search-bar',
     components: {},
 })
-export default class SearchBar extends Vue {
+class SearchBar extends Vue {
     @Prop({
         default: () => ({
             filter: false,
@@ -74,13 +74,14 @@ export default class SearchBar extends Vue {
     })
     public params!: SearchBarParams;
 
+    // Vue 3: prop renamed from 'value' to 'modelValue' for v-model support
     @Prop()
-    public value!: SearchBarValue;
+    public modelValue!: SearchBarValue;
 
     public internalValue: SearchBarValue = {};
 
     public mounted() {
-        this.internalValue = {...this.value};
+        this.internalValue = {...this.modelValue};
         this.onSearch();
     }
 
@@ -96,17 +97,18 @@ export default class SearchBar extends Vue {
         this.onSearch();
     }
 
-    @Watch('value')
-    private onValueParamChange(newValueParam: SearchBarValue) {
-        this.internalValue = {...this.value};
+    @Watch('modelValue')
+    public onValueParamChange(newValueParam: SearchBarValue) {
+        this.internalValue = {...this.modelValue};
     }
 
     @Emit('search')
-    private onSearch() {
+    public onSearch() {
         this.internalValue = {...this.internalValue};
         return this.internalValue;
     }
 }
+export default toNative(SearchBar);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

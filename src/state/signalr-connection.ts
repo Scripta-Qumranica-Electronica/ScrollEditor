@@ -1,4 +1,3 @@
-import _Vue from 'vue';
 import { LogLevel, HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { StateManager } from '@/state';
 import { SignalRUtilities } from '@/dtos/sqe-signalr';

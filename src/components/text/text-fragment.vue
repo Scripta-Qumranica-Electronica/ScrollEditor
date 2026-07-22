@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { TextFragment } from '@/models/text';
 import TextLine from '@/components/text/text-line.vue';
 
@@ -25,11 +25,12 @@ import TextLine from '@/components/text/text-line.vue';
         'text-line': TextLine
     },
 })
-export default class TextFragmentComponent extends Vue {
+class TextFragmentComponent extends Vue {
     @Prop() public fragment!: TextFragment;
      @Prop() public fontSize!: number;
 }
 
+export default toNative(TextFragmentComponent);
 </script>
 
 <style lang="scss" scoped>

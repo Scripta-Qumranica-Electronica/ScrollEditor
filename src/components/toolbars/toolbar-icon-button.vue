@@ -3,19 +3,20 @@
             :title="title"
             :disabled="disabled"
             :pressed="pressed"
-            v-on="$listeners">
+            v-bind="$attrs">
         <font-awesome-icon v-if="icon" :icon="icon" />
         <span :class="classes">{{ title }}</span>
     </b-button>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
-    name: 'toolbar-icon-button'
+    name: 'toolbar-icon-button',
+    inheritAttrs: false,
 })
-export default class ToolbarIconButton extends Vue {
+class ToolbarIconButton extends Vue {
     @Prop() public title!: string;
     @Prop() public icon!: string;
     @Prop( { default: false }) public disabled!: boolean;
@@ -23,11 +24,11 @@ export default class ToolbarIconButton extends Vue {
     @Prop( { default: undefined} ) public pressed?: boolean;
     @Prop( { default: 'xl' }) public textBreakPoint!: string;
 
-    protected get button() {
+    public get button() {
         return this.$refs.button;
     }
 
-    protected get classes() {
+    public get classes() {
         const classes = ['button-text'];
         if (!this.showText) {
             classes.push('d-none');
@@ -41,6 +42,7 @@ export default class ToolbarIconButton extends Vue {
         return classes;
     }
 }
+export default toNative(ToolbarIconButton);
 </script>
 
 <style lang="scss" scoped>

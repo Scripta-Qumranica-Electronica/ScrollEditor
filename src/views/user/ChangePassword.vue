@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
@@ -66,16 +66,16 @@ import router from '@/router';
 @Component({
     name: 'change-password',
 })
-export default class ChangePassword extends Vue {
+class ChangePassword extends Vue {
     // data
 
-    protected currentPassword: string = '';
-    protected newPassword: string = '';
-    protected rePassword: string = '';
-    protected errorMessage: string = '';
-    protected sessionService: SessionService = new SessionService();
-    protected errorService: ErrorService = new ErrorService(this);
-    protected waiting: boolean = false;
+    public currentPassword: string = '';
+    public newPassword: string = '';
+    public rePassword: string = '';
+    public errorMessage: string = '';
+    public sessionService: SessionService = new SessionService();
+    public errorService: ErrorService = new ErrorService(this);
+    public waiting: boolean = false;
 
     // computed
     public get disableChange(): boolean {
@@ -100,7 +100,7 @@ export default class ChangePassword extends Vue {
     }
 
     // methods
-    protected async change() {
+    public async change() {
         const data = {
             oldPassword: this.currentPassword,
             newPassword: this.newPassword,
@@ -110,20 +110,22 @@ export default class ChangePassword extends Vue {
         try {
             await this.sessionService.changePassword(data);
             router.push('/');
-            this.$toasted.show(this.$tc('toasts.passwordChanged'), {
+            // TODO(vue3): replace $toasted with vue-toastification or similar
+            (this as any).$toasted.show(this.$t('toasts.passwordChanged'), {
                 type: 'info',
                 position: 'top-right',
                 duration: 7000,
             });
         } catch (err) {
             this.errorMessage = this.errorService.getErrorMessage(
-                err.response.data
+                (err as any).response.data
             );
         } finally {
             this.waiting = false;
         }
     }
 }
+export default toNative(ChangePassword);
 </script>
 
 <style  lang="scss" scoped>

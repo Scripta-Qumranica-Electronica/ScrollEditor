@@ -25,8 +25,7 @@
 <script lang="ts">
 import { ImageStack } from '@/models/image';
 import { ArtefactEditorParams } from '@/views/artefact-editor/types';
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ImageSettingsComponent from '../image-settings/ImageSettings.vue';
 import { SingleImageSetting } from '../image-settings/types';
 import Toolbox from './toolbox.vue';
@@ -38,15 +37,16 @@ import Toolbox from './toolbox.vue';
         toolbox: Toolbox,
     },
 })
-export default class AdjustImageToolbox extends Vue {
+class AdjustImageToolbox extends Vue {
     @Prop({ default: '' }) public subject!: string;
     @Prop() public imageStack!: ImageStack;
     @Prop() public params!: ArtefactEditorParams;
 
-    protected onImageSettingChanged(event: SingleImageSetting) {
+    public onImageSettingChanged(event: SingleImageSetting) {
         // Match the event the parent toolbar listens for (@image-setting-changed); it was
         // emitting the plural "image-settings-changed", so the toolbar's handler never fired.
         this.$emit('image-setting-changed', event);
     }
 }
+export default toNative(AdjustImageToolbox);
 </script>

@@ -9,7 +9,7 @@
         @pointerdown="onPointerDown($event)"
         @pointermove="onPointerMove($event)"
         @pointerup="onPointerUp($event)"
-        @pointercancel="onPointerCancel($event)"
+        @pointercancel="onPointerCancel()"
         @click="onClick($event)"
         @contextmenu.prevent="onContextMenu($event)"
     >
@@ -82,7 +82,7 @@ Finally we translate the image to its place.
 -->
 
 <script lang="ts">
-import { Component, Prop, Mixins, Emit } from 'vue-property-decorator';
+import { Component, Prop, mixins, Emit, toNative } from 'vue-facing-decorator';
 import { Artefact } from '@/models/artefact';
 import ArtefactDataMixin from '@/components/artefact/artefact-data-mixin';
 import { BoundingBox, Point } from '@/utils/helpers';
@@ -123,7 +123,7 @@ class DisplayableSign {
         this.boundingBox = this.calculateBoundingBox(rois);
     }
 
-    private calculateBoundingBox(rois: InterpretationRoi[]): BoundingBox {
+    public calculateBoundingBox(rois: InterpretationRoi[]): BoundingBox {
         const boundingBoxes: BoundingBox[] = [];
 
         for (const roi of rois) {
@@ -152,7 +152,7 @@ class DisplayableSign {
         'roi-layer': RoiLayer,
     },
 })
-export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
+class ArtefactImageGroup extends mixins(ArtefactDataMixin) {
     @Prop({
         default: false,
     })
@@ -181,15 +181,15 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     })
     public readonly transformRootId!: string;
 
-    private mouseOrigin?: Point;
-    private loaded = false;
-    private pointerId: number = -1;
-    private element!: SVGGElement | null;
-    private previousPlacement!: any[];
+    public mouseOrigin?: Point;
+    public loaded = false;
+    public pointerId: number = -1;
+    public element!: SVGGElement | null;
+    public previousPlacement!: any[];
     @Prop({
         default: 10,
     })
-    private scaleFactor!: number;
+    public scaleFactor!: number;
 
     get masterImage() {
         return this.imageStack!.master;
@@ -220,21 +220,21 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return `${translateToPlace} ${rotate} ${scale} ${scaleMirrored} ${translateToZero}`;
     }
 
-    private get svg(): SVGSVGElement {
+    public get svg(): SVGSVGElement {
         return this.$el.closest('svg') as SVGSVGElement;
     }
 
-    private get transformRoot(): SVGGraphicsElement {
+    public get transformRoot(): SVGGraphicsElement {
         return this.svg.getElementById(
             this.transformRootId
         ) as SVGGraphicsElement;
     }
 
-    private get visibleRois(): InterpretationRoi[] {
+    public get visibleRois(): InterpretationRoi[] {
         return this.artefact.rois;
     }
 
-    private get visibleSignInterpretations(): SignInterpretation[] {
+    public get visibleSignInterpretations(): SignInterpretation[] {
         return this.artefact.signInterpretations;
     }
 
@@ -273,18 +273,18 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return displayedSigns;
     }
 
-    protected async mounted() {
+    public async mounted() {
         // await this.mountedDone;
         this.loaded = true;
     }
 
     @Emit()
-    private onSelect(event: MouseEvent): Artefact {
+    public onSelect(event: MouseEvent): Artefact {
         event.stopPropagation();
         return this.artefact;
     }
 
-    private eventToPoint($event: PointerEvent): Point {
+    public eventToPoint($event: PointerEvent): Point {
         // Changing coordinate systems taken from:
         // https://www.sitepoint.com/how-to-translate-from-dom-to-svg-coordinates-and-back-again/
         const pt = this.svg.createSVGPoint();
@@ -305,12 +305,12 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return this.$state.scrollEditor.selectedArtefact;
     }
 
-    private get selectedArtefacts() {
+    public get selectedArtefacts() {
         return this.$state.scrollEditor.selectedArtefacts;
     }
 
     // Implement dragging artefacts - but only in material mode.
-    private onPointerDown($event: PointerEvent) {
+    public onPointerDown($event: PointerEvent) {
         if (!this.materialMode) {
             return;
         }
@@ -334,7 +334,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin = { x: pt.x, y: pt.y };
     }
 
-    private onPointerMove($event: PointerEvent) {
+    public onPointerMove($event: PointerEvent) {
         if (!this.materialMode) {
             return;
         }
@@ -363,7 +363,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.mouseOrigin.y = pt.y;
     }
 
-    private onPointerUp($event: PointerEvent) {
+    public onPointerUp($event: PointerEvent) {
         if (!this.materialMode) {
             return;
         }
@@ -399,7 +399,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.cancelOperation($event.target as HTMLBaseElement);
     }
 
-    private onPointerCancel() {
+    public onPointerCancel() {
         if (!this.materialMode) {
             return;
         }
@@ -407,7 +407,7 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         this.cancelOperation();
     }
 
-    private createOperation(
+    public createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact | undefined,
@@ -426,19 +426,19 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
         return op;
     }
 
-    private cancelOperation(targetElement?: HTMLBaseElement) {
+    public cancelOperation(targetElement?: HTMLBaseElement) {
         this.mouseOrigin = undefined;
         (targetElement || this.element)!.releasePointerCapture(this.pointerId);
         this.element = null;
         this.pointerId = -1;
     }
 
-    private get materialMode() {
+    public get materialMode() {
         return this.$state.scrollEditor.mode === 'material';
     }
 
     @Emit()
-    private newOperation(op: ScrollEditorOperation) {
+    public newOperation(op: ScrollEditorOperation) {
         return op;
     }
 
@@ -465,11 +465,12 @@ export default class ArtefactImageGroup extends Mixins(ArtefactDataMixin) {
     }
 
     @Emit()
-    private onContextMenu(event: MouseEvent): Artefact {
+    public onContextMenu(event: MouseEvent): Artefact {
         event.stopPropagation();
         return this.artefact;
     }
 }
+export default toNative(ArtefactImageGroup);
 </script>
 
 <style lang="scss" scoped>

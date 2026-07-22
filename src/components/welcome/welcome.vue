@@ -8,19 +8,18 @@
                 </p>
                 <b-nav class="btn-inscription" align="center">
                     <b-nav-item v-if="!userName">
-                        <b-btn size="md" @click="login" class="btn-login">
-                            {{ $t('navbar.login') }}</b-btn
-                        >
+                        <b-button @click="login" class="btn-login">
+                            {{ $t('navbar.login') }}
+                        </b-button>
                     </b-nav-item>
                     <b-nav-item v-if="!userName">
-                        <b-btn
-                            size="md"
+                        <b-button
                             @click="register"
                             variant="primary"
                             class="btn-regis"
                         >
                             {{ $t('navbar.register') }}
-                        </b-btn>
+                        </b-button>
                     </b-nav-item>
                 </b-nav>
                 <p class="link">
@@ -131,21 +130,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import Login from '../navigation/Login.vue';
-import Registration from '@/views/user/Registration.vue';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import SessionService from '@/services/session';
 import router from '@/router';
 @Component({
     name: 'welcome',
 })
-export default class Welcome extends Vue {
-    private sessionService = new SessionService();
+class Welcome extends Vue {
+    public sessionService = new SessionService();
     public login() {
-        this.$root.$emit('bv::show::modal', 'loginModal');
+        // TODO(vue3): replace bv::show::modal bus event — update when Login.vue is migrated to v-model modal
+        this.$root!.$emit('bv::show::modal', 'loginModal');
     }
     public register() {
-        this.$root.$emit('bv::show::modal', 'registerModal');
+        // TODO(vue3): replace bv::show::modal bus event — update when Registration.vue is migrated to v-model modal
+        this.$root!.$emit('bv::show::modal', 'registerModal');
     }
     public get userName(): string | undefined {
         if (this.$state.session.user) {
@@ -158,11 +157,11 @@ export default class Welcome extends Vue {
         return undefined;
     }
 
-    private startWorking() {
+    public startWorking() {
         router.push('/home');
     }
 
-    private logout() {
+    public logout() {
         this.sessionService.logout();
         router.push('/');
         location.reload();
@@ -177,6 +176,7 @@ export default class Welcome extends Vue {
         return buildTime.substring(0, 10);
     }
 }
+export default toNative(Welcome);
 </script>
 
 <style lang="scss" scoped>
@@ -188,7 +188,7 @@ export default class Welcome extends Vue {
 .welcome {
     height: 400px;
     position: relative;
-    background-image: url('~@/assets/images/welcome.jpg');
+    background-image: url('@/assets/images/welcome.jpg');
     background-position: bottom left;
     .welcome-wrapper {
         position: relative;

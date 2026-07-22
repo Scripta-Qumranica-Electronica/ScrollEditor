@@ -19,7 +19,7 @@
  * The zoomer component should be placed right inside the div with the scrollbars. Zooming occurs on the zoomer's
  * parent element.
  */
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
 import { Point } from '@/utils/helpers';
 
 export interface ZoomEventArgs {
@@ -33,21 +33,21 @@ export interface RotateEventArgs {
 @Component({
     name: 'zoomer'
 })
-export default class Zoomer extends Vue {
-    @Prop() private zoom!: number;
-    @Prop({ default: 0 }) private angle!: number;
-    private degel = false;
+class Zoomer extends Vue {
+    @Prop() public zoom!: number;
+    @Prop({ default: 0 }) public angle!: number;
+    public degel = false;
 
     @Emit()
-    private newZoom(zoom: number): ZoomEventArgs {
+    public newZoom(zoom: number): ZoomEventArgs {
         return { zoom };
     }
 
     @Emit()
-    private newRotate(rotate: number): RotateEventArgs {
+    public newRotate(rotate: number): RotateEventArgs {
         return { rotate };
     }
-    private onWheel(event: WheelEvent) {
+    public onWheel(event: WheelEvent) {
         if (!event.ctrlKey) {
             return;
         }
@@ -66,7 +66,7 @@ export default class Zoomer extends Vue {
         this.applyZoom(amount, mousePosition);
     }
 
-    private applyZoom(amount: number, position: Point) {
+    public applyZoom(amount: number, position: Point) {
         const oldZoom = this.zoom;
         const newZoom = Math.min(Math.max(oldZoom + amount, 0.05), 1);
 
@@ -92,7 +92,7 @@ export default class Zoomer extends Vue {
         this.zoomTarget.scrollLeft += scrollDelta.x;
         this.zoomTarget.scrollTop += scrollDelta.y;
     }
-    private onPinch(event: any) {
+    public onPinch(event: any) {
         // Determine the amount based on additionalEvent: pinchin for zooming out, pinchout for zooming in
         const amount = event.additionalEvent === 'pinchin' ? -0.01 : 0.01;
 
@@ -106,15 +106,16 @@ export default class Zoomer extends Vue {
         this.applyZoom(amount, position);
     }
 
-    private get zoomTarget(): Element {
+    public get zoomTarget(): Element {
         return this.$el.parentElement!;
     }
 
-    private onRotate(event: any) {
+    public onRotate(event: any) {
         const angleCalc = event.angle;
         this.newRotate(angleCalc);
     }
 }
+export default toNative(Zoomer);
 </script>
 
 <style lang="scss" scoped>

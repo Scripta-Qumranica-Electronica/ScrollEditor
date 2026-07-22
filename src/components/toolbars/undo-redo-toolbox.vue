@@ -5,8 +5,7 @@
     </toolbox>
 </template>
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ToolbarIconButton from './toolbar-icon-button.vue';
 import Toolbox from './toolbox.vue';
 
@@ -17,23 +16,24 @@ import Toolbox from './toolbox.vue';
         'toolbar-icon-button': ToolbarIconButton
     }
 })
-export default class UndoRedoToolbox extends Vue {
+class UndoRedoToolbox extends Vue {
     @Prop({ default: 'Undo/redo'}) public subject!: string;
 
-    protected get canUndo() {
+    public get canUndo() {
         return this.$state.operationsManager?.canUndo || false;
     }
 
-    protected get canRedo() {
+    public get canRedo() {
         return this.$state.operationsManager?.canRedo || false;
     }
 
-    protected onUndo() {
+    public onUndo() {
         this.$state.operationsManager!.undo();
     }
 
-    protected onRedo() {
+    public onRedo() {
         this.$state.operationsManager!.redo();
     }
 }
+export default toNative(UndoRedoToolbox);
 </script>

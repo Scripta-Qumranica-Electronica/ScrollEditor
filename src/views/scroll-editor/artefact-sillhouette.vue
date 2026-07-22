@@ -1,7 +1,7 @@
 <template>
     <g
-        :transform="transformer.artefactTransform"
-        :data="artefact.zOrder"
+        :transform="transformer?.artefactTransform"
+        :data="artefact.placement.zIndex"
         style="background-color:green"
     >
         <defs>
@@ -40,28 +40,29 @@ Finally we translate the image to its place.
 -->
 
 <script lang="ts">
-import { Component, Prop, Vue, } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { Artefact } from '@/models/artefact';
 import { ArtefactTransformer } from '@/utils/artefact-transformer';
 
 @Component({
     name: 'artefact-sillhouette'
 })
-export default class ArtefactSillouhette extends Vue {
+class ArtefactSillouhette extends Vue {
     @Prop()
     public artefact!: Artefact;
 
-    private transformer: ArtefactTransformer | null = null;
+    public transformer: ArtefactTransformer | null = null;
 
     public created() {
         this.transformer = new ArtefactTransformer(this.artefact);
     }
 
-   private get inViewport(): boolean {
+   public get inViewport(): boolean {
         return this.artefact.inViewport ;
 
    }
 }
+export default toNative(ArtefactSillouhette);
 </script>
 
 <style lang="scss" scoped>

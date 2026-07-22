@@ -11,12 +11,12 @@
                 <div class="character-popover"  ref="lineMenu">
                  <b>
                     Rename this artefact
-                 </b>   
+                 </b>
                     <input ref="newArtefactName" id="newName" v-model="newArtefactName" type="text" required
                         :placeholder="$t('home.newArtefactName')" />
                     <div>
                         <b-button @click="renameArtefact()" size="sm">
-                            Rename 
+                            Rename
                         </b-button>
                         <b-button @click="closeLineMenu()" size="sm">Close</b-button>
                     </div>
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ArtefactService from '@/services/artefact';
 import { Artefact } from '@/models/artefact';
 import ArtefactImage from '@/components/artefact/artefact-image.vue';
@@ -39,13 +39,13 @@ import ArtefactImage from '@/components/artefact/artefact-image.vue';
         ArtefactImage,
     }
 })
-export default class ArtefactCard extends Vue {
+class ArtefactCard extends Vue {
     @Prop() public readonly artefact!: Artefact;
     public newArtefactName: string = '';
     public observed = false;
-    private prevLineMenuId: string = '';
-    private intersectionObserver?: IntersectionObserver;
-    private artefactService = new ArtefactService();
+    public prevLineMenuId: string = '';
+    public intersectionObserver?: IntersectionObserver;
+    public artefactService = new ArtefactService();
 
     public mounted() {
         this.intersectionObserver = new IntersectionObserver((entries) => this.onObserved(entries), {
@@ -63,20 +63,23 @@ export default class ArtefactCard extends Vue {
             this.editionId,
             this.artefact
         );
-        this.$root.$emit('bv::hide::popover', this.prevLineMenuId);
+        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
 
     }
     public closeLineMenu() {
-        this.$root.$emit('bv::hide::popover', this.prevLineMenuId);
+        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
     }
 
     public openLineMenu(event: MouseEvent, artefactId: any) {
         event.preventDefault();
-        this.$root.$emit('bv::show::popover', artefactId);
+        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::show::popover', artefactId);
         this.prevLineMenuId = artefactId;
     }
 
-    private onObserved(entries: IntersectionObserverEntry[]) {
+    public onObserved(entries: IntersectionObserverEntry[]) {
         if (entries.length !== 1) {
             console.warn('Intersection handler received numerous entries, 1 expected', entries);
         }
@@ -95,10 +98,10 @@ export default class ArtefactCard extends Vue {
     }
 
     public get editionId(): number {
-        return parseInt(this.$route.params.editionId);
+        return parseInt(String(this.$route.params.editionId));
     }
 
-    public destroyed() {
+    public unmounted() {
         if (this.intersectionObserver) {
             this.intersectionObserver.disconnect();
             this.intersectionObserver = undefined;
@@ -106,7 +109,7 @@ export default class ArtefactCard extends Vue {
     }
 
 }
-
+export default toNative(ArtefactCard);
 </script>
 
 <style lang="scss" scoped>

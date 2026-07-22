@@ -61,7 +61,7 @@
             </b-nav-text>
             <b-btn
                 v-if="user"
-                v-b-modal.modal="'copyModal'"
+                @click="copyModalVisible = true"
                 class="btn btn-sm btn-outline btn-copy"
             >{{ $t('misc.copy') }}</b-btn>
             <!-- v-b-modal.permissionModal -->
@@ -74,7 +74,7 @@
 
         <b-modal
             id="copyModal"
-            ref="copyModalRef"
+            v-model="copyModalVisible"
             :title="$t('home.copyTitle', { name: currentEdition.name, owner: currentEdition.owner.forename })"
             @shown="copyModalShown"
             @ok="copyEdition"
@@ -90,7 +90,7 @@
                     :description="$t('home.newEditionDesc')"
                 >
                     <b-form-input
-                        ref="newCopyName"
+                        ref="newCopyNameRef"
                         id="newName"
                         v-model="newCopyName"
                         type="text"
@@ -111,7 +111,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
+import type { BvTriggerableEvent } from 'bootstrap-vue-next';
 import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
 import { ImagedObject } from '@/models/imaged-object';
@@ -126,19 +127,19 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
         EditionIcons
     }
 })
+class SideBar extends Vue {
 
-export default class SideBar extends Vue {
-
-    @Prop() private page!: string;
+    @Prop() public page!: string;
 
 
-    private editionId: number = 0;
-    private editionService: EditionService = new EditionService() ;
-    private newCopyName: string = '';
-    private waiting: boolean = false;
-    private errorMessage: string =  '';
-    private newEditionName: string =  '';
-    private renaming: boolean = false;
+    public editionId: number = 0;
+    public editionService: EditionService = new EditionService() ;
+    public newCopyName: string = '';
+    public waiting: boolean = false;
+    public errorMessage: string =  '';
+    public newEditionName: string =  '';
+    public renaming: boolean = false;
+    public copyModalVisible: boolean = false;
 
     public get currentEdition(): EditionInfo | null {
         return this.$state.editions.current ;
@@ -188,16 +189,18 @@ export default class SideBar extends Vue {
     }
 
 
-    private  openPermissionModal() {
-        this.$root.$emit('bv::show::modal', 'permissionModal');
+    public openPermissionModal() {
+        // TODO(vue3): bootstrap-vue-next no longer uses $root.$emit('bv::show::modal').
+        // permission-modal needs to be migrated to use a v-model prop for visibility.
+        this.$root!.$emit('bv::show::modal', 'permissionModal');
     }
 
-    private openRename() {
+    public openRename() {
         this.renaming = true;
         this.newEditionName = this.currentEdition!.name;
     }
 
-    private showMessage(msg: string, type: string = 'info') {
+    public showMessage(msg: string, type: string = 'info') {
         this.$toasted.show(this.$tc(msg), {
             type,
             position: 'top-right',
@@ -205,11 +208,11 @@ export default class SideBar extends Vue {
         });
     }
 
-    private versionString(ver: EditionInfo) {
+    public versionString(ver: EditionInfo) {
         return ver.name;
     }
 
-    private async copyEdition(evt: Event) {
+    public async copyEdition(evt: Event | BvTriggerableEvent) {
         evt.preventDefault();
 
         if (!this.canCopy) {
@@ -230,20 +233,20 @@ export default class SideBar extends Vue {
             this.$router.push({
                 path: `/editions/${newEdition.id}`
             });
-            (this.$refs.copyModalRef as any).hide();
+            this.copyModalVisible = false;
         } catch (err) {
-            this.errorMessage = err;
+            this.errorMessage = String(err);
         } finally {
             this.waiting = false;
         }
     }
 
-    private copyModalShown() {
+    public copyModalShown() {
         this.newCopyName = this.currentEdition!.name;
-        (this.$refs.newCopyName as any).focus();
+        (this.$refs.newCopyNameRef as any).focus();
     }
 
-    private async onRename(newName: string) {
+    public async onRename(newName: string) {
         if (!this.currentEdition) {
             throw new Error("Can't rename if there is no edition");
         }
@@ -262,7 +265,7 @@ export default class SideBar extends Vue {
     }
 
 }
-
+export default toNative(SideBar);
 </script>
 
 <style lang="scss" scoped>

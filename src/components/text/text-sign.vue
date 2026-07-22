@@ -64,12 +64,12 @@
         </b-popover> -->
 
         <b-modal
-            :id="`qwb-word-${si.signInterpretationId}`"
+            v-model="showQwbVariantsModal"
             hide-footer
             title="Variant Readings from QD"
         >
             <div
-                v-if="qwbVariants === null || qwbVariants.variants.length === 0"
+                v-if="qwbVariants === null || (qwbVariants.variants?.length ?? 0) === 0"
             >
                 <p>No variants found in the QD database.</p>
             </div>
@@ -89,7 +89,7 @@
             </div>
             <b-button
                 block
-                @click="$bvModal.hide(`qwb-word-${si.signInterpretationId}`)"
+                @click="showQwbVariantsModal = false"
                 >Close</b-button
             >
         </b-modal>
@@ -97,7 +97,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 import { SignInterpretation, Sign, Line } from '@/models/text';
 import QwbProxyService from '@/services/qwb-proxy';
 import EditSignModal from './edit-sign-modal.vue';
@@ -112,30 +112,32 @@ import { QwbWordVariantListDTO } from '@/dtos/sqe-dtos';
 @Component({
     name: 'text-sign',
 })
-export default class TextSign extends Vue {
+class TextSign extends Vue {
     @Prop() public sign!: Sign;
     @Prop() public withMenu!: boolean;
-    private previousMenuId: string = '';
-    private qwbVariants: QwbWordVariantListDTO | null = null;
-    private contenteditable: boolean = false;
-    private get readOnly(): boolean {
+    public previousMenuId: string = '';
+    public qwbVariants: QwbWordVariantListDTO | null = null;
+    public contenteditable: boolean = false;
+    public showQwbVariantsModal: boolean = false;
+
+    public get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
     }
 
-    private get editingMode() {
+    public get editingMode() {
         return this.$state.textFragmentEditor.textEditingMode;
     }
 
     // Each sign offers alternative readings. For now we always show the first suggestion
-    private get si() {
+    public get si() {
         return this.sign.signInterpretations[0];
     }
 
-    private get isSelected() {
+    public get isSelected() {
         return this.$state.textFragmentEditor.isSiSelected(this.si);
     }
 
-    private get isHighlighted() {
+    public get isHighlighted() {
         return (
             this.$state.artefactEditor.highlightCommentMode &&
             (this.si.commentary ||
@@ -143,7 +145,7 @@ export default class TextSign extends Vue {
         );
     }
 
-    private get cssStrings(): string {
+    public get cssStrings(): string {
         return this.si.attributes
             .map((x) =>
                 `${x.attributeString}-${x.attributeValueString}`
@@ -153,7 +155,7 @@ export default class TextSign extends Vue {
             .join(' ');
     }
 
-    private get virtualArtefact(): Artefact | null {
+    public get virtualArtefact(): Artefact | null {
         if (this.si.rois.length !== 1) {
             return null;
         }
@@ -166,7 +168,7 @@ export default class TextSign extends Vue {
         return artefact.isVirtual ? artefact : null;
     }
 
-    private get qwbWordId(): number | undefined {
+    public get qwbWordId(): number | undefined {
         const allQwbWordIds = this.sign.signInterpretations.flatMap(
             (x) => x.qwbWordIds
         );
@@ -176,7 +178,7 @@ export default class TextSign extends Vue {
         return this.$state.textFragmentEditor;
     }
 
-    private deleteSignInterpretation(si: SignInterpretation) {
+    public deleteSignInterpretation(si: SignInterpretation) {
         const delOps = this.si.rois.map(
             (roi) => new ArtefactROIOperation('erase', roi)
         );
@@ -190,7 +192,7 @@ export default class TextSign extends Vue {
         this.$state.eventBus.emit('new-bulk-operations', [...delOps, op]);
     }
 
-    private onSignInterpretationClicked(event: MouseEvent) {
+    public onSignInterpretationClicked(event: MouseEvent) {
         if (event.ctrlKey || event.metaKey) {
             this.$state.textFragmentEditor.toggleSelectSign(this.si);
         } else {
@@ -206,45 +208,49 @@ export default class TextSign extends Vue {
     //     this.$root.$emit('bv::show::modal', 'editLineModal');
     // }
 
-    private openEditSignModal() {
+    public openEditSignModal() {
         this.$state.textFragmentEditor.modeSignModal = 'edit';
-        this.$root.$emit('bv::show::modal', 'editSignModal');
+        // TODO(vue3): replace bv::show::modal bus event — open editSignModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'editSignModal');
     }
 
-    private openAddLeftSignModal() {
+    public openAddLeftSignModal() {
         this.$state.textFragmentEditor.modeSignModal = 'create';
-        this.$root.$emit('bv::show::modal', 'editSignModal');
+        // TODO(vue3): replace bv::show::modal bus event — open editSignModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'editSignModal');
     }
 
-    private openAddRightSignModal() {
+    public openAddRightSignModal() {
         this.$state.textFragmentEditor.modeSignModal = 'create';
         const si =
             this.si.sign.line.signs[this.si.sign.indexInLine - 1]
                 .signInterpretations[0];
         this.$state.textFragmentEditor.selectSign(si);
-        this.$root.$emit('bv::show::modal', 'editSignModal');
+        // TODO(vue3): replace bv::show::modal bus event — open editSignModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'editSignModal');
     }
 
-    private async openQwbVariantsModal() {
+    public async openQwbVariantsModal() {
         if (this.qwbWordId !== undefined) {
             if (this.qwbVariants === null && this.qwbWordId !== undefined) {
                 const qps = new QwbProxyService();
                 this.qwbVariants = await qps.getQwbWordVariants(this.qwbWordId);
             }
-            this.$bvModal.show(`qwb-word-${this.si.signInterpretationId}`);
+            this.showQwbVariantsModal = true;
         }
     }
 
-    private openSignMenu(event: MouseEvent, signMenuId: string) {
+    public openSignMenu(event: MouseEvent, signMenuId: string) {
         // prevent usual menu to display
         event.preventDefault();
         this.$state.textFragmentEditor.selectSign(this.si);
 
-        this.$root.$emit('bv::show::popover', signMenuId);
+        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::show::popover', signMenuId);
         this.previousMenuId = signMenuId;
     }
 
-    private openEditVirtualArtefact() {
+    public openEditVirtualArtefact() {
         if (!this.virtualArtefact) {
             console.warn(
                 "Can't edit virtual artefact when no virtual artefact is set"
@@ -262,18 +268,20 @@ export default class TextSign extends Vue {
     }
 
     @Emit()
-    private showReconTextEditor() {
+    public showReconTextEditor() {
         return true;
     }
 
-    private closeSignMenu() {
-        this.$root.$emit('bv::hide::popover', this.previousMenuId);
+    public closeSignMenu() {
+        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
+        this.$root!.$emit('bv::hide::popover', this.previousMenuId);
     }
 
-    private focusPopover() {
+    public focusPopover() {
         (this.$refs.signMenu as any).focus();
     }
 }
+export default toNative(TextSign);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

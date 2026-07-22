@@ -12,7 +12,7 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        :value="searchValue"
+                        :model-value="searchValue"
                         @search="onEditionsSearch"
                     ></search-bar>
                 </b-col>
@@ -37,7 +37,7 @@
 
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Emit, Vue, Watch, toNative } from 'vue-facing-decorator';
 import { EditionInfo } from '@/models/edition';
 import { SearchBarParams } from '@/components/search-bar.vue';
 
@@ -54,8 +54,8 @@ import { SearchBarValue } from '@/state/utilities';
         EditionList,
     },
 })
-export default class PersonalEditions extends Vue {
-    private filteredEditions: EditionInfo[] = [];
+class PersonalEditions extends Vue {
+    public filteredEditions: EditionInfo[] = [];
     public searchBarParams: SearchBarParams = {
         filter: true,
         sort: true,
@@ -86,12 +86,12 @@ export default class PersonalEditions extends Vue {
         return this.filteredEditions.length;
     }
 
-    protected async mounted() {
+    public async mounted() {
         await this.$state.prepare.allEditions();
         this.onPersonalEditionsLoad();
     }
 
-    private getFilteredEditions(): EditionInfo[] {
+    public getFilteredEditions(): EditionInfo[] {
         return this.$state.editions.items
             .filter((ed: EditionInfo) => {
                 let filter: boolean = ed.mine === true;
@@ -147,6 +147,7 @@ export default class PersonalEditions extends Vue {
         return this.filteredEditions.filter((ed) => ed.isPublic);
     }
 }
+export default toNative(PersonalEditions);
 </script>
 
 

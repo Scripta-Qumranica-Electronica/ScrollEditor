@@ -4,15 +4,16 @@
     </b-row>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'toolbar',
 })
-export default class Toolbar extends Vue {
+class Toolbar extends Vue {
     @Prop({default: false}) public noGutters!: boolean;
 
 }
+export default toNative(Toolbar);
 </script>
 <style lang="scss" scoped>
 

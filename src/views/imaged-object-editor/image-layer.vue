@@ -5,7 +5,7 @@
         <clipPath id="Full-clipping-outline">
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Full-clip-path"></use>
         </clipPath>
-        <path id="Clip-path" v-if="clippingMask" :d="this.clippingMask.svg"></path>
+        <path id="Clip-path" v-if="clippingMask" :d="clippingMask.svg"></path>
         <clipPath id="Clipping-outline">
           <use stroke="none" fill="black" fill-rule="evenodd" xlink:href="#Clip-path"></use>
         </clipPath>
@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 
 import { ImagedObjectEditorParams } from './types';
 import { Polygon } from '@/utils/Polygons';
@@ -39,35 +39,34 @@ name: 'image-layer',
     'iiif-image': IIIFImageComponent,
   }
 })
-
-export default class ImageLayer extends Vue {
+class ImageLayer extends Vue {
 
   // props
-    @Prop() protected width!: number;
-    @Prop() protected height!: number;
-    @Prop() protected params!: ImagedObjectEditorParams;
+    @Prop() public width!: number;
+    @Prop() public height!: number;
+    @Prop() public params!: ImagedObjectEditorParams;
                         // Object as () => ImagedObjectEditorParams;
-    @Prop() protected editable!: boolean;
-    @Prop() protected clippingMask!: Polygon;
+    @Prop() public editable!: boolean;
+    @Prop() public clippingMask!: Polygon;
                         // Object as () => Polygon;
 
   // computed
 
-    protected get fullImageMask(): string {
+    public get fullImageMask(): string {
       return `M0 0L${this.width} 0L${this.width} ${this.height}L0 ${this.height}`;
     }
 
-    protected get imageSettings(): SingleImageSetting[] {
+    public get imageSettings(): SingleImageSetting[] {
       const values = Object.keys(this.params.imageSettings).map((key) => this.params.imageSettings[key]);
       return values;
     }
 
-    protected get visibleImageSettings(): SingleImageSetting[] {
+    public get visibleImageSettings(): SingleImageSetting[] {
       return this.imageSettings.filter((image) => image.visible);
     }
 
 }
-
+export default toNative(ImageLayer);
 </script>
 
 <style lang="scss" scoped>

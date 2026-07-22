@@ -65,26 +65,28 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
+import { vBTooltip } from 'bootstrap-vue-next';
 
 @Component({
     name: 'edition-card',
     components: { EditionIcons },
+    directives: { 'b-tooltip': vBTooltip },
 })
-export default class EditionCard extends Vue {
+class EditionCard extends Vue {
     @Prop() public edition!: EditionInfo;
 
-    private get thumbnailSource(): string | undefined {
+    public get thumbnailSource(): string | undefined {
         return this.edition?.thumbnail?.thumbnailUrl;
     }
 
-    private editionEditClick() {
+    public editionEditClick() {
         this.$router.push({ path: `/editions/${this.edition.id}` });
     }
 
-    private editionEditRightClick() {
+    public editionEditRightClick() {
         const editionLink = this.$router.resolve({ path: `/editions/${this.edition.id}` });
         window.open(editionLink.href);
     }
@@ -112,10 +114,11 @@ export default class EditionCard extends Vue {
     }
 
     @Emit()
-    private editionCopyClick() {
+    public editionCopyClick() {
         return true;
     }
 }
+export default toNative(EditionCard);
 </script>
 
 <style lang="scss" scoped>

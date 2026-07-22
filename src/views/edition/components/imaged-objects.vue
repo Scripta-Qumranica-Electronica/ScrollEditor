@@ -6,7 +6,7 @@
                     <search-bar
                         class="direction"
                         :params="searchBarParams"
-                        :value="searchValue"
+                        :model-value="searchValue"
                         @search="onImagedObjectsSearch($event)"
                     ></search-bar>
                 </b-col>
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 
 import Waiting from '@/components/misc/Waiting.vue';
 import ImagedObjectCard from './imaged-object-card.vue';
@@ -46,7 +46,7 @@ import { SearchBarValue } from '@/state/utilities';
         SearchBar,
     },
 })
-export default class ImagedObjects extends Vue {
+class ImagedObjects extends Vue {
     public filteredImagedObjects: ImagedObject[] = [];
     public searchValue: SearchBarValue = {};
     public searchBarParams: SearchBarParams = {
@@ -58,15 +58,15 @@ export default class ImagedObjects extends Vue {
         return this.$state.imagedObjects!.items!;
     }
 
-    protected async mounted() {
+    public async mounted() {
         this.filteredImagedObjects = this.getFilteredImagedObjects();
    }
 
-    protected async created() {
+    public async created() {
         // Read the id from the route so this works on direct navigation, before
         // the parent edition view has set editions.current.
         const editionId =
-            parseInt(this.$route.params.editionId, 10) ||
+            parseInt(String(this.$route.params.editionId), 10) ||
             this.$state.editions.current!.id;
         await this.$state.prepare.edition(editionId);
         // Imaged objects are loaded lazily (not on edition open); this view needs them.
@@ -116,6 +116,7 @@ export default class ImagedObjects extends Vue {
 
 
 }
+export default toNative(ImagedObjects);
 </script>
 <style scoped>
 .direction {

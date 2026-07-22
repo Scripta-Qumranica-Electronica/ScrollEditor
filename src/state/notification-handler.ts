@@ -17,7 +17,6 @@ import { Artefact } from '@/models/artefact';
 import { Placement } from '@/utils/Placement';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
 import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
-import Vue from 'vue';
 
 /* This file contains the implementation of all the incoming events from SignalR */
 
@@ -148,7 +147,7 @@ export class NotificationHandler {
             const newShare = ShareInfo.fromDTO(dto);
 
             if (shareIndex > -1) {
-                Vue.set(edition.shares, shareIndex, newShare);
+                edition.shares[shareIndex] = newShare;
             } else {
                 edition.shares.push(newShare);
             }
@@ -418,13 +417,13 @@ function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
     if (index < 0) {
         console.warn("Can't locate sign interpretation in sign!");
     } else {
-        Vue.set(sign.signInterpretations, index, newSI);
+        sign.signInterpretations[index] = newSI;
     }
 
     // Update the selected sign interpretations
     const selectedIndex = state().textFragmentEditor.selectedSignInterpretations.findIndex(si => si.id === newSI.id);
     if (selectedIndex !== -1) {
-        Vue.set(state().textFragmentEditor.selectedSignInterpretations, selectedIndex, newSI);
+        state().textFragmentEditor.selectedSignInterpretations[selectedIndex] = newSI;
 
         // Update the selected attribute, too
         const selectedAttribute = state().textFragmentEditor.selectedAttribute;

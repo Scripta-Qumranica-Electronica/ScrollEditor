@@ -1,6 +1,6 @@
 <template>
 
-     <b-container no-gutters class="ml-0 mr-0 pl-0 pr-0" @keypress="shortcut($event)">
+     <b-container no-gutters class="ml-0 mr-0 pl-0 pr-0">
         <!-- <b-row class="ml-3 mb-3"> -->
 
         <b-row class="m-0 mb-2 ml-1 pl-0 pr-0" v-if="edition.metrics">
@@ -68,7 +68,7 @@
                 <b-form-checkbox
                     switch
                     size="sm"
-                    disabled="disabled"
+                    disabled
                     @input="
                         onDisplayReconstructedText($event)
                     "
@@ -83,7 +83,7 @@
                 <b-form-checkbox
                     switch
                     size="sm"
-                     disabled="disabled"
+                     disabled
                     v-model ="isDisplayText"
                     @input="onDisplayText($event)"
                     >Display Text
@@ -128,8 +128,8 @@
             <b-col no-gutters cols="12" md="auto" lg="auto"
                    class="col-xl-8 col-lg-10 col-md-12 col-sm-12 m-0 mb-2 ">
 
-                <b-form-row align-v="end" align-h="center">
-                    <b-col no-gutters cols="12" md="auto" lg="auto"
+                <b-row align-v="end" align-h="center">
+                    <b-col cols="12" md="auto" lg="auto"
                            class="col-xl-5 col-lg-5 col-md-5 col-sm-8 m-0  ">
                         <b-form-select
                             v-model="selectedSide"
@@ -139,7 +139,7 @@
                         ></b-form-select>
                     </b-col>
 
-                    <b-col no-gutters cols="9" md="auto" lg="auto"
+                    <b-col cols="9" md="auto" lg="auto"
                            class="col-xl-4 col-lg-4 col-md-4 col-sm-8 m-0">
                         <b-form-input
                             size="sm"
@@ -149,9 +149,9 @@
                             v-model="metricsInput"
                         ></b-form-input>
                     </b-col>
-                    <span align-v="end" class="ml-2 mt-3">mm</span>
+                    <span class="ml-2 mt-3">mm</span>
 
-                </b-form-row>
+                </b-row>
             </b-col>
 
 
@@ -327,7 +327,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Model, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Model, Vue, toNative } from 'vue-facing-decorator';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
@@ -348,73 +348,73 @@ import {
     components: {
     },
 })
+class ManuscriptToolbar extends Vue {
 
-export default class ManuscriptToolbar extends Vue {
-
-    private created() {
-        // Corrupted state event listener
-        this.$root.$on('delete-key-pressed', () => this.removeArtefactOrGroup());
+    public created() {
+        // TODO(vue3): $root.$on is removed in Vue 3; replace with a shared event bus or Pinia action
+        // this.$root.$on('delete-key-pressed', () => this.removeArtefactOrGroup());
     }
 
-    protected beforeDestroy() {
-        this.$root.$off('delete-key-pressed', () => this.removeArtefactOrGroup());
+    public beforeUnmount() {
+        // TODO(vue3): $root.$off is removed in Vue 3; replace with a shared event bus or Pinia action
+        // this.$root.$off('delete-key-pressed', () => this.removeArtefactOrGroup());
     }
 
     // @Prop() private params!: ScrollEditorParams;
     @Prop({ default: -1 }) public artefactId!: number;
-    private selectedSide: string = 'left';
-    private metricsInput: number = 1;
-    private artifactMaxWidth: number = 0;
-    private artifactMaxHeight: number = 0;
+    public selectedSide: string = 'left';
+    public metricsInput: number = 1;
+    public artifactMaxWidth: number = 0;
+    public artifactMaxHeight: number = 0;
     public selectedArtifactsSize: {width: number ,height: number }[] = [];
-    private groupSize: {width: number , height: number} = {width: 0, height: 0};
+    public groupSize: {width: number , height: number} = {width: 0, height: 0};
 
 
     // Calculates the pixels per inch (PPI) of the device screen
     // It uses the Pythagorean theorem to find the diagonal length of the screen, and then divides it by 15 to get the PPI.
     // The diagonal length is calculated by finding the square root of the sum of the squares of the width and height of the screen (in pixels).
-    private ppi = Math.sqrt((Math.pow(window.screen.width, 2)) + (Math.pow(window.screen.height, 2)) ) / 15;
+    public ppi = Math.sqrt((Math.pow(window.screen.width, 2)) + (Math.pow(window.screen.height, 2)) ) / 15;
 
-    private sidesOptions: Array<{ text: string; value: string }> = [
+    public sidesOptions: Array<{ text: string; value: string }> = [
         { text: 'Left', value: 'left' },
         { text: 'Right', value: 'right' },
         { text: 'Top', value: 'top' },
         { text: 'Down', value: 'down' },
     ];
 
-    private keyboardInput: boolean = true;
-    private zoomDelta!: number;
+    public keyboardInput: boolean = true;
+    public zoomDelta!: number;
 
     @Emit()
-    private saveGroup() {
+    public saveGroup() {
         return true;
     }
     @Emit()
-    private manageGroup() {
+    public manageGroup() {
         return true;
     }
     @Emit()
-    private newOperation(op: ScrollEditorOperation) {
+    public newOperation(op: ScrollEditorOperation) {
         return op;
     }
     @Emit()
-    private cancelGroup() {
+    public cancelGroup() {
         return true;
     }
 
-    private get edition() {
+    public get edition() {
         return this.$state.editions.current! || {};
     }
 
-    private get scrollEditorState(): ScrollEditorState {
+    public get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
     }
 
-    private get params(): ScrollEditorParams {
+    public get params(): ScrollEditorParams {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
 
-    private get pointerPositionX() {
+    public get pointerPositionX() {
         return (
             this.scrollEditorState.pointerPosition.x /
             this.params.zoom /
@@ -422,7 +422,7 @@ export default class ManuscriptToolbar extends Vue {
         ).toFixed(2);
     }
 
-    private get pointerPositionY() {
+    public get pointerPositionY() {
         return (
             this.scrollEditorState.pointerPosition.y /
             this.params.zoom /
@@ -430,18 +430,18 @@ export default class ManuscriptToolbar extends Vue {
         ).toFixed(2);
     }
 
-    private get viewportSizeWidth() {
+    public get viewportSizeWidth() {
         return Math.round(
             this.scrollEditorState.viewport!.width / this.edition.ppm
         );
     }
-    private get viewportSizeHeight() {
+    public get viewportSizeHeight() {
         return Math.round(
             this.scrollEditorState.viewport!.height / this.edition.ppm
         );
     }
 
-    private get artefacts() {
+    public get artefacts() {
         return this.$state.artefacts.items || [];
     }
 
@@ -464,11 +464,11 @@ export default class ManuscriptToolbar extends Vue {
             }
         }
     }
-    private get placedArtefacts() {
+    public get placedArtefacts() {
         return this.artefacts.filter((x) => x.isPlaced);
     }
 
-    private get artefact() {
+    public get artefact() {
         return this.$state.artefacts.find(this.artefactId);
     }
 
@@ -481,17 +481,17 @@ export default class ManuscriptToolbar extends Vue {
         return this.scrollEditorState.selectedArtefact;
     }
 
-    private onDisplayROIs(value: boolean) {
+    public onDisplayROIs(value: boolean) {
         this.scrollEditorState.displayRois = value;
     }
-    private onDisplayReconstructedText(value: boolean) {
+    public onDisplayReconstructedText(value: boolean) {
         this.scrollEditorState.displayReconstructedText = value;
     }
 
-    private get isDisplayText(): boolean {
+    public get isDisplayText(): boolean {
         return this.scrollEditorState.displayText;
     }
-    private onDisplayText(value: boolean) {
+    public onDisplayText(value: boolean) {
         this.scrollEditorState.displayText = value;
     }
 
@@ -499,12 +499,13 @@ export default class ManuscriptToolbar extends Vue {
     public get selectedGroup() {
         return this.scrollEditorState.selectedGroup;
     }
-    private openAddArtefactModal() {
-        this.$root.$emit('bv::show::modal', 'addArtefactModal');
+    public openAddArtefactModal() {
+        // TODO(vue3): bv::show::modal event bus is not available in Vue 3; open modal via a boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'addArtefactModal');
     }
 
 
-    private removeArtefactOrGroup() {
+    public removeArtefactOrGroup() {
         if (this.selectedArtefact) {
             const operation = this.createOperation(
                 'delete',
@@ -538,7 +539,7 @@ export default class ManuscriptToolbar extends Vue {
     }
 
 
-    private deleteGroup(groupId: number) {
+    public deleteGroup(groupId: number) {
         const groupArtefact = this.edition.artefactGroups.find(
             (x) => x.groupId === groupId
         );
@@ -552,15 +553,15 @@ export default class ManuscriptToolbar extends Vue {
 
 
 
-    private get mode(): ScrollEditorOpMode {
+    public get mode(): ScrollEditorOpMode {
         return this.params!.mode;
     }
 
-    private setMode(mode: ScrollEditorOpMode) {
+    public setMode(mode: ScrollEditorOpMode) {
         this.params.mode = mode;
     }
 
-    private getArtefactHeight(artefact: Artefact): number {
+    public getArtefactHeight(artefact: Artefact): number {
         // Artifact svg property contains the string representation of the SVG polygon.
         // It looks like this "M3349.131736526946 9179.191616766468L3349.131736526946 9193.74251497006L3353.982035928143"
         const pointsAttribute = artefact.mask.svg;
@@ -578,7 +579,7 @@ export default class ManuscriptToolbar extends Vue {
         const maxHeight = maxY - minY;
         return this.convertToMM(maxHeight);
     }
-    private getArtefactWidth(artifact: Artefact): number {
+    public getArtefactWidth(artifact: Artefact): number {
         // Artifact svg property contains the string representation of the SVG polygon.
         // It looks like this "M3349.131736526946 9179.191616766468L3349.131736526946 9193.74251497006L3353.982035928143"
         const pointsAttribute = artifact.mask.svg;
@@ -599,10 +600,10 @@ export default class ManuscriptToolbar extends Vue {
         const maxWidth = maxX - minX;
         return this.convertToMM(maxWidth);
     }
-    private convertToMM(number: number): number {
+    public convertToMM(number: number): number {
         return Math.round((number / this.ppi * 2.54) * 100) / 100;
     }
-    private getGroupSize(arts: Artefact[]): void {
+    public getGroupSize(arts: Artefact[]): void {
         let minimumsX: number[] = [];
         let minimumsY: number[] = [];
 
@@ -621,7 +622,7 @@ export default class ManuscriptToolbar extends Vue {
                 height: Math.round( globalHeight * 100) / 100
                 };
     }
-    private resizeScroll(direction: number) {
+    public resizeScroll(direction: number) {
         const newMetrics: EditionManuscriptMetricsDTO = {
             ...this.edition.metrics,
         };
@@ -647,10 +648,8 @@ export default class ManuscriptToolbar extends Vue {
             direction === -1 &&
             !this.allowResizing(this.selectedSide, newMetrics)
         ) {
-            this.$toasted.error(
-                'Cannot resize scroll because artefacts will be cropped',
-                { duration: 3000 }
-            );
+            // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
+            console.error('Cannot resize scroll because artefacts will be cropped');
         } else {
             const metricsOperation = new EditionMetricOperation(
                 this.edition.id,
@@ -663,7 +662,7 @@ export default class ManuscriptToolbar extends Vue {
         }
     }
 
-    private allowResizing(
+    public allowResizing(
         side: string,
         newMetrics: EditionManuscriptMetricsDTO
     ): boolean {
@@ -717,7 +716,7 @@ export default class ManuscriptToolbar extends Vue {
     }
 
 
-    private setZIndex(zIndexDirection: number) {
+    public setZIndex(zIndexDirection: number) {
         const operations: ScrollEditorOperation[] = [];
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
         const placedArtefacts = this.$state.artefacts.items.filter(
@@ -752,7 +751,7 @@ export default class ManuscriptToolbar extends Vue {
     }
 
 
-    private createOperation(
+    public createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact,
@@ -771,6 +770,7 @@ export default class ManuscriptToolbar extends Vue {
         return op;
     }
 }
+export default toNative(ManuscriptToolbar);
 </script>
 
 <style lang="scss" scoped>

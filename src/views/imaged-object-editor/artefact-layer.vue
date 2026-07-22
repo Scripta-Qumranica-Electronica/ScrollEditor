@@ -10,26 +10,27 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { Artefact } from '@/models/artefact';
 
 @Component({
     name: 'artefact-layer',
 })
-export default class ArtefactLayer extends Vue {
+class ArtefactLayer extends Vue {
     @Prop() public readonly artefact!: Artefact;
     @Prop() public readonly color!: string;
     @Prop() public readonly editable!: boolean;
     @Prop() public readonly selected!: boolean;
 
-    private get additionalStyle() {
+    public get additionalStyle() {
         return `stroke: ${this.color}; fill: ${this.color}`;
     }
 
-    private get polygon() {
+    public get polygon() {
         return this.artefact.mask;
     }
 }
+export default toNative(ArtefactLayer);
 </script>
 
 <style lang="scss" scoped>

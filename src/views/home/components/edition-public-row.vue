@@ -12,7 +12,7 @@
 </template>
 <script lang="ts">
 import { EditionInfo } from '@/models/edition';
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
 import EditionPublicCard from './edition-public-card.vue';
 
 @Component({
@@ -21,20 +21,23 @@ import EditionPublicCard from './edition-public-card.vue';
         EditionPublicCard,
     },
 })
-export default class EditionPublicRow extends Vue {
+class EditionPublicRow extends Vue {
     @Prop() public editions!: EditionInfo[];
     @Prop() public index!: number;
 
-    protected get rowEditions() {
+    public get rowEditions() {
         return this.editions.slice(this.index, this.index + 4);
     }
 
-    protected editionCopyClick(edition: EditionInfo) {
+    @Emit('show-copy-modal')
+    public editionCopyClick(edition: EditionInfo) {
         this.$state.editions.current = edition;
-        this.$root.$bvModal.show('copy-edition-modal');
-        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
+        // Vue 3: $root.$bvModal is gone; emit upward so public-editions can
+        // toggle the copy modal's v-model.
+        return edition;
     }
 }
+export default toNative(EditionPublicRow);
 </script>
 
 <style lang="scss">

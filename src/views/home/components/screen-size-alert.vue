@@ -18,7 +18,7 @@
             :destroy-on-hide="false"
             :clickToClose="false"
             :no-close-on-backdrop="true"
-            :visible="visible"
+            :model-value="visible"
 
         >
             <!-- These lines prevent modal closing by background click -->
@@ -51,20 +51,19 @@
 
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'ScreenSizeAlert',
     components: {
     }
 })
+class ScreenSizeAlert extends Vue {
 
-export default class ScreenSizeAlert extends Vue {
-
-     @Prop({default: false}) private visible!: boolean ;
+     @Prop({default: false}) public visible!: boolean;
 
 }
-
+export default toNative(ScreenSizeAlert);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

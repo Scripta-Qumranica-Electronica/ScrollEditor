@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-modal
-            ref="editLineModal"
+            v-model="modalVisible"
             id="editLineModal"
             title="Edit Line"
             @shown="shown"
@@ -25,8 +25,8 @@
                     <b-form-checkbox
                     class="recontructedCheckbox"
                         name="allSiAreReconstructed-checkbox"
-                        :checked="allSiAreReconstructed"
-                        @change="onReconstructedCheckBoxChanged"
+                        v-model="allSiAreReconstructed"
+                        @update:modelValue="onReconstructedCheckBoxChanged"
                         >Reconstructed</b-form-checkbox
                     >
                 </div>
@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import { Line, SignInterpretation } from '@/models/text';
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
 import TextLine from '@/components/text/text-line.vue';
 import TextService from '@/services/text';
 import {
@@ -56,9 +56,10 @@ import {
         'text-line': TextLine
     }
 })
-export default class EditLineModal extends Vue {
+class EditLineModal extends Vue {
+    public modalVisible: boolean = false;
     public checkText: TextService = new TextService();
-    private operationsManager = new OperationsManager<ArtefactEditorOperation>(
+    public operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
     public prevText: string = '';
@@ -95,7 +96,7 @@ export default class EditLineModal extends Vue {
         );
     }
     public get editionId() {
-        return parseInt(this.$route.params.editionId);
+        return parseInt(String(this.$route.params.editionId));
     }
     public onLineChanged(event: string) {
         this.textLine = event;
@@ -118,12 +119,12 @@ export default class EditLineModal extends Vue {
             this.prevText = line.innerText;
         });
     }
-    private get attributesMetadata() {
+    public get attributesMetadata() {
         return (
             this.$state.editions.current?.attributeMetadata?.allAttributes || []
         );
     }
-    private onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
+    public onAddAttribute(attr: AttributeDTO, attrVal: AttributeValueDTO) {
         // const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.textFragmentEditor
             .selectedSignInterpretations) {
@@ -132,7 +133,7 @@ export default class EditLineModal extends Vue {
             }
     }
 
-    private onDeleteAttribute(attrVal: AttributeValueDTO) {
+    public onDeleteAttribute(attrVal: AttributeValueDTO) {
         // const ops: TextFragmentAttributeOperation[] = [];
         for (const si of this.$state.textFragmentEditor
             .selectedSignInterpretations) {
@@ -149,7 +150,8 @@ export default class EditLineModal extends Vue {
         }
         // this.$state.eventBus.emit('new-bulk-operations', ops);
     }
-    private onReconstructedCheckBoxChanged(event: boolean) {
+    public onReconstructedCheckBoxChanged(rawEvent: unknown) {
+        const event = Boolean(rawEvent);
         let reconstructedAttrDTO: AttributeDTO;
         let reconstructedAttrValueDTO: AttributeValueDTO;
         const reconstructedAttrMeta = this.attributesMetadata.find(
@@ -173,10 +175,10 @@ export default class EditLineModal extends Vue {
             }
         }
     }
-    protected async mounted() {
+    public async mounted() {
         this.$state.operationsManager = this.operationsManager;
     }
-    protected async created() {
+    public async created() {
         this.$state.eventBus.on(
             'change-artefact-edit-line',
             (prevText: Line) => {
@@ -209,10 +211,11 @@ export default class EditLineModal extends Vue {
             lastChar,
             newText
         );
-        const modal = this.$refs['editLineModal'] as any & { hide: () => void };
-        modal.hide();
+        this.modalVisible = false;
     }
 }
+
+export default toNative(EditLineModal);
 </script>
 
 <style lang="scss" scoped>

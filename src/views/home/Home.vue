@@ -2,7 +2,7 @@
     <div>
         <b-tabs
             nav-wrapper-class="tabs-wrapper"
-            v-model="activeTab"
+            v-model:index="activeTab"
             @activate-tab="onActivateTab"
         >
             <b-tab
@@ -42,12 +42,11 @@
 
 <script lang="ts">
 // import Vue from 'vue';
-import { Component, Prop, Emit, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, Watch, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import { EditionInfo } from '@/models/edition';
 import PersonalEditions from './components/personal-editions.vue';
 import PublicEditions from './components/public-editions.vue';
-import { Route } from 'vue-router';
 
 @Component({
     name: 'home',
@@ -57,22 +56,22 @@ import { Route } from 'vue-router';
         PublicEditions,
     },
 })
-export default class Home extends Vue {
+class Home extends Vue {
     // component data
     // =====================
 
-    private filter: string = '';
+    public filter: string = '';
     public editionsLoaded = false;
     public activeTab: number = 0;
 
     // hooks as constructor
     // ========================
-    protected created() {
+    public created() {
         this.$state.prepare.allEditions();
         this.$state.editions.current = null;
     }
 
-    protected async mounted() {
+    public async mounted() {
         if (this.$route.params.editionType === 'public') {
             this.$nextTick(() => {
                 this.activeTab = 1;
@@ -106,7 +105,17 @@ export default class Home extends Vue {
         return this.$state.editions.items.filter((ed) => ed.isPublic).length;
     }
 
-    public onActivateTab(newTab: number, prevTab: number) {
+    public onActivateTab(
+        obj: {
+            newTabId: string;
+            prevTabId: string;
+            newTabIndex: number;
+            prevTabIndex: number;
+            event: any;
+        }
+    ) {
+        const newTab = obj.newTabIndex;
+        const prevTab = obj.prevTabIndex;
         if (prevTab === -1) {
             return;
         }
@@ -121,7 +130,7 @@ export default class Home extends Vue {
     }
 
     @Watch('$route')
-    protected onRouteChanged(to: Route, from: Route) {
+    public onRouteChanged(to: any, from: any) {
         if (to.name !== 'home') {
             return; // Changed to some other page, ignore it.
         }
@@ -133,6 +142,7 @@ export default class Home extends Vue {
         }
     }
 }
+export default toNative(Home);
 </script>
 
 <style lang="scss">

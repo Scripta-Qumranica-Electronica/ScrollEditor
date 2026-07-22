@@ -16,7 +16,7 @@ import {
     DetailedSearchResponseDTO,
 } from '@/dtos/sqe-dtos';
 import SearchService from '@/services/search';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import SearchForm from './form.vue';
 import { SearchFormData, SearchResults } from './types';
 import Waiting from '@/components/misc/Waiting.vue';
@@ -30,17 +30,17 @@ import SearchResultComponent from './results.vue';
         'search-results': SearchResultComponent,
     },
 })
-export default class Search extends Vue {
+class Search extends Vue {
     public searchService: SearchService = new SearchService();
-    private searchData = new SearchFormData();
-    private searchResults: SearchResults | null = null;
-    private searching = false;
+    public searchData = new SearchFormData();
+    public searchResults: SearchResults | null = null;
+    public searching = false;
 
-    private mounted() {
+    public mounted() {
         this.searchResults = null;
     }
 
-    private async onSearch(data: SearchFormData) {
+    public async onSearch(data: SearchFormData) {
         this.searching = true;
         this.searchData = data;
         this.searchResults = null;
@@ -51,6 +51,7 @@ export default class Search extends Vue {
         }
     }
 }
+export default toNative(Search);
 </script>
 
 

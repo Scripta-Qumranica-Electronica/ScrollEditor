@@ -20,7 +20,7 @@
 
 
 <script lang="ts">
-import { Component, Prop, Model, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import RotateButton from './rotate-button.vue';
 import Toolbox from './toolbox.vue';
 
@@ -28,29 +28,29 @@ import Toolbox from './toolbox.vue';
     name: 'rotation-toolbox',
     components: {'rotate-button': RotateButton, toolbox: Toolbox},
 })
-export default class RotationToolbox extends Vue {
-    @Model('rotationAngleChanged', { type: Number })
-    private paramsRotationAngle!: number;
-    @Prop({ default: 1 }) private delta!: number;
-    @Prop() private enableText!: number;
+class RotationToolbox extends Vue {
+    // Vue 3 v-model: prop is modelValue, event is update:modelValue.
+    // Parent usages that previously used @Model('rotationAngleChanged') / .sync must be updated
+    // to v-model (or :modelValue + @update:modelValue). See unresolved note.
+    @Prop({ type: Number }) public modelValue!: number;
+    @Prop({ default: 1 }) public delta!: number;
+    @Prop() public enableText!: number;
     @Prop({ default: 'Rotate Artefact'}) public subject!: string;
 
-    private localRotateAngle: number = this.paramsRotationAngle || 0;
-
-    //  angle = ((angle % 360) + 360) % 360;
+    public localRotateAngle: number = this.modelValue || 0;
 
     public onRotateClick(degrees: number) {
         this.localRotateAngle =
-            (((this.paramsRotationAngle + degrees) % 360) + 360) % 360;
+            (((this.modelValue + degrees) % 360) + 360) % 360;
         this.onRotationAngleChanged(this.localRotateAngle);
     }
 
-    private onRotationAngleChanged(val: number) {
-        this.$emit('rotationAngleChanged', val);
+    public onRotationAngleChanged(val: number) {
+        this.$emit('update:modelValue', val);
     }
 
     public get rotationAngle(): number {
-        return ((this.paramsRotationAngle % 360) + 360) % 360;
+        return ((this.modelValue % 360) + 360) % 360;
     }
 
     public set rotationAngle(val: number) {
@@ -61,6 +61,7 @@ export default class RotationToolbox extends Vue {
         this.onRotationAngleChanged(this.localRotateAngle);
     }
 }
+export default toNative(RotationToolbox);
 </script>
 
 

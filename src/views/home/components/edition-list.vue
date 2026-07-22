@@ -6,7 +6,7 @@
         <b-collapse visible :id="title" class="mt-2">
             <div
                 v-if="editions.length"
-                :class="{ 'after-login': this.editions.length > 0 }"
+                :class="{ 'after-login': editions.length > 0 }"
             >
                 <b-card
                     class="p-3"
@@ -24,11 +24,12 @@
                 </b-card>
             </div>
         </b-collapse>
+        <copy-edition-modal v-model="copyModalVisible" />
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import Waiting from '@/components/misc/Waiting.vue';
@@ -44,20 +45,18 @@ import CopyEditionModal from './copy-edition-modal.vue';
         CopyEditionModal,
     },
 })
-export default class EditionsList extends Vue {
+class EditionsList extends Vue {
     @Prop() public title!: string;
     @Prop() public editions!: EditionInfo[];
 
-    private openCopyEditionModal(edition: EditionInfo) {
+    public copyModalVisible: boolean = false;
+
+    public openCopyEditionModal(edition: EditionInfo) {
         this.$state.editions.current = edition;
-
-        // this.$root.$emit('bv::show::modal', 'copy-edition-modal');
-
-        // BootstrapVue recomends to use this method:
-        // this.$bvModal.show('copy-edition-modal');
-        this.$root.$bvModal.show('copy-edition-modal');
+        this.copyModalVisible = true;
     }
 }
+export default toNative(EditionsList);
 </script>
 
 <style  lang="scss" scoped>

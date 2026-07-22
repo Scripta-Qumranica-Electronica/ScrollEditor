@@ -56,11 +56,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
-import ArtefactSideMenu from '@/views/artefact-editor/artefact-side-menu.vue';
 import TextSide from '@/views/artefact-editor/text-side.vue';
 import {
     ArtefactEditorParams,
@@ -83,7 +82,6 @@ import ImagedObjectService from '@/services/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { DrawingMode, EditorParamsChangedArgs, ModeButtonInfo } from './types';
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
-import { PropOptions } from 'vue';
 import { ImagedObjectState } from '../../state/imaged-object';
 import ZoomToolbox from '@/components/toolbars/zoom-toolbox.vue';
 import RotationToolbox from '@/components/toolbars/rotation-toolbox.vue';
@@ -110,41 +108,41 @@ import CopyEditionToolbox from '@/components/toolbars/copy-edition-toolbox.vue';
         'copy-edition-toolbox': CopyEditionToolbox
     },
 })
-export default class ImagedObjectEditorToolbar extends Vue {
-    private sideFilter: DropdownOption = {} as DropdownOption;
+class ImagedObjectEditorToolbar extends Vue {
+    public sideFilter: DropdownOption = {} as DropdownOption;
 
-    private errorMessage: string = '';
-    private imagedObjectService: ImagedObjectService =
+    public errorMessage: string = '';
+    public imagedObjectService: ImagedObjectService =
         new ImagedObjectService();
-    private artefactService: ArtefactService = new ArtefactService();
-    private newArtefactName: string = '';
-    private waiting: boolean = false;
+    public artefactService: ArtefactService = new ArtefactService();
+    public newArtefactName: string = '';
+    public waiting: boolean = false;
 
-    @Prop() private artefact!: Artefact;
-    @Prop() private imagedObject!: ImagedObject;
-    @Prop() private modes!: ModeButtonInfo[];
+    @Prop() public artefact!: Artefact;
+    @Prop() public imagedObject!: ImagedObject;
+    @Prop() public modes!: ModeButtonInfo[];
 
     @Prop({ type: Array, default: () => [] })
-    private artefacts!: PropOptions<Artefact[]>;
+    public artefacts!: Artefact[];
 
     @Prop({
         type: String as () => Side,
     })
-    private side!: Side;
+    public side!: Side;
 
-    private get imageStack() {
+    public get imageStack() {
         return this.imagedObject.getImageStack(
             (this.artefact && this.artefact.side) || this.side
         );
     }
-    private get params(): ImagedObjectEditorParams {
+    public get params(): ImagedObjectEditorParams {
         return this.imagedObjectState.params!;
     }
     public get imagedObjectState(): ImagedObjectState {
         return this.$state.imagedObject!;
     }
     public get editionId(): number {
-        return parseInt(this.$route.params.editionId);
+        return parseInt(String(this.$route.params.editionId));
     }
 
     public get scrolled(): boolean {
@@ -160,7 +158,7 @@ export default class ImagedObjectEditorToolbar extends Vue {
         // this.notifyChange('zoomImagedObject', val);
     }
 
-    private onZoomChanged(val: number) {
+    public onZoomChanged(val: number) {
         this.params.zoom = val; //
         // this.imagedObjectState.params!.zoom = val  ;
     }
@@ -233,16 +231,17 @@ export default class ImagedObjectEditorToolbar extends Vue {
         this.notifyChange('imageSettings', this.params.imageSettings);
     }
 
-    private editingModeChanged(val: any) {
+    public editingModeChanged(val: any) {
         (this as any).params.drawingMode = DrawingMode[val];
     }
 
-    private modeChosen(val: DrawingMode): boolean {
+    public modeChosen(val: string): boolean {
         return (
-            DrawingMode[val].toString() === this.params.drawingMode.toString()
+            DrawingMode[val as keyof typeof DrawingMode].toString() === this.params.drawingMode.toString()
         );
     }
 }
+export default toNative(ImagedObjectEditorToolbar);
 </script>
 
 <style lang="scss" scoped>

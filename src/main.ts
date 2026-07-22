@@ -1,13 +1,17 @@
-import Vue from 'vue';
+import { createApp } from 'vue';
+// `configureCompat` is provided by @vue/compat at runtime (via the vite alias
+// vue -> @vue/compat). @vue/compat ships no types and `vue` does not re-export
+// this symbol, so its declaration is provided via a local ambient shim
+// (see src/globals.d.ts).
+import { configureCompat } from '@vue/compat';
+import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
-// TODO can we add or find a .d.ts file for this?
-import VueLazyload from 'vue-lazyload';
 
 // Bootstrap
-import BootstrapVue from 'bootstrap-vue';
+import { createBootstrap } from 'bootstrap-vue-next';
 import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
 
 // Font awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -16,79 +20,50 @@ import { faLanguage, faSpinner, faSearch, faRedo, faUndo, faArrowsAlt, faSync, f
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Other plugins
-import Toasted from 'vue-toasted';
-import VueShortcuts from 'vue-shortcuts';
 import RenderingOptimizationPlugin from './plugins/rendering-optimization';
 
 // i18n
-import VueI18n from 'vue-i18n';
+import { createI18n } from 'vue-i18n';
 import { localizedTexts } from './i18n';
 import { StateManager } from './state';
 
-// vue2-hammer
-import { VueHammer } from 'vue2-hammer';
-import VueVirtualScroller from 'vue-virtual-scroller';
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+// TODO(vue3) The following plugins have not yet been ported / verified against
+// Vue 3. Component migrators should re-enable and validate these individually:
+// import VueLazyload from 'vue-lazyload';         // TODO(vue3) v-lazy usages
+// import Toasted from 'vue-toasted';              // TODO(vue3) $toasted usages
+// import { VueHammer } from 'vue2-hammer';        // removed dep; replace with mitt/native gestures
+// import VueShortcuts from 'vue-shortcuts';       // removed dep
+// import VueVirtualScroller from 'vue-virtual-scroller';
+// import CKEditor from '@ckeditor/ckeditor5-vue';
 
-// tslint:disable-next-line
-const CKEditor = require('@ckeditor/ckeditor5-vue');
+// Enable global Vue 2 compat behavior. Individual components can opt out as
+// they are migrated to the Vue 3 idioms.
+configureCompat({ MODE: 2 });
 
+const app = createApp(App);
 
-// import AsyncComputed from 'vue-async-computed';
+const pinia = createPinia();
+app.use(pinia);
+app.use(router);
 
-Vue.config.productionTip = false;
-
-// TODO use a real loading image and add an error image
-// TODO do we need a polyfill for Intersection Observer?
-Vue.use(VueLazyload, {
-  /*error: 'dist/error.png',*/
-  loading: require('@/assets/images/rings.svg'),
-  observer: true,
-  observerOptions: {
-    rootMargin: '0px',
-    threshold: 0.5
-  }
+const i18n = createI18n({
+    legacy: true,
+    locale: 'en',
+    messages: localizedTexts,
 });
+app.use(i18n);
 
-Vue.prototype.$state = StateManager.instance;
-Vue.use(BootstrapVue);
+app.use(createBootstrap());
+
+// Rendering optimization plugin ($render global). Ported to a Vue 3 plugin
+// shape (install(app)).
+app.use(RenderingOptimizationPlugin);
 
 library.add(faLanguage, faSpinner, faSearch, faUndo, faRedo, faArrowsAlt, faSync, faTrashAlt, faMinus, faPlus, faInfo, faFont,
             faSquare, faPen, faMousePointer, faEraser, faTrash, faArrowUp, faArrowDown, faArrowLeft, faArrowRight, faSortAlphaUp, faSortAlphaDown );
-Vue.component('font-awesome-icon', FontAwesomeIcon);
+app.component('font-awesome-icon', FontAwesomeIcon);
 
-Vue.use(VueI18n);
-const i18n = new VueI18n({
-  locale: 'en',
-  messages: localizedTexts,
-});
+// Legacy global: components read `this.$state`.
+app.config.globalProperties.$state = StateManager.instance;
 
-Vue.use(Toasted);
-Vue.use(VueShortcuts, { prevent: ['input'] });
-Vue.use(RenderingOptimizationPlugin);
-
-Vue.use(VueHammer);
-Vue.use(CKEditor);
-
-Vue.use(VueVirtualScroller);
-
-router.beforeEach((to, from, next) => {
-  if (to.matched.some((record) => record.meta.activeUserRoute)) {
-    // this route requires activated user
-    // if not, redirect to home page.
-    if (StateManager.instance.session.user ? StateManager.instance.session.user.activated : false) {
-      // We know it's ugly but we do not have a vue instance, and that's how we can know what the value is.
-      next();
-    } else {
-      next({ path: '/' });
-    }
-  } else {
-    next(); // make sure to always call next()!
-  }
-});
-
-new Vue({
-  router,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+app.mount('#app');

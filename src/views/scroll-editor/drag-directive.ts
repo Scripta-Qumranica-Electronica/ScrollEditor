@@ -3,10 +3,9 @@
 // https://github.com/IsraelZablianov/draggable-vue-directive
 // Version 2.1.0
 
-import Vue, { DirectiveOptions, VNodeDirective, VNode } from 'vue';
-import { DirectiveBinding } from 'vue/types/options';
+import type { ObjectDirective, DirectiveBinding, VNode, ComponentPublicInstance } from 'vue';
 
-export type HandleType = Vue | HTMLElement;
+export type HandleType = ComponentPublicInstance | HTMLElement;
 export type MouseOrTouchEvent = MouseEvent | TouchEvent;
 export interface Position {
     left: number;
@@ -38,7 +37,7 @@ export interface DraggableValue {
     initialPosition?: Position;
 }
 
-export interface DraggableBindings extends VNodeDirective {
+export interface DraggableBindings extends DirectiveBinding {
     value: DraggableValue;
 }
 
@@ -56,7 +55,7 @@ enum ChangePositionType {
 }
 
 function extractHandle(handle: HandleType): HTMLElement {
-    return (handle && (handle as Vue).$el || handle) as HTMLElement;
+    return (handle && (handle as ComponentPublicInstance).$el || handle) as HTMLElement;
 }
 
 function getPosWithBoundaries(
@@ -91,11 +90,12 @@ function getPosWithBoundaries(
     return adjustedPos;
 }
 
-export const Draggable: DirectiveOptions = {
-    bind(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode) {
-        Draggable.update!(el, binding, vnode, oldVnode);
+export const Draggable: ObjectDirective<HTMLElement, DraggableValue> = {
+    // Vue 3 renamed the Vue 2 `bind`/`update` hooks to `beforeMount`/`updated`.
+    beforeMount(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode | null) {
+        (Draggable.updated as any)!(el, binding, vnode, oldVnode);
     },
-    update(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode) {
+    updated(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode) {
         if (binding.value && binding.value.stopDragging) {
             return;
         }

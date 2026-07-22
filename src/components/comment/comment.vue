@@ -17,12 +17,12 @@
             </b-button>
         </div>
 
-        <b-modal ref="viewCommentModalRef" id="viewCommentModal" title="Comment" hide-footer hide-header>
+        <b-modal v-model="viewCommentVisible" id="viewCommentModal" title="Comment" hide-footer hide-header>
             <div id="comment-view" v-html="comment">
             </div>
         </b-modal>
 
-        <b-modal ref="editCommentModalRef" id="editCommentModal" title="Comment" hide-footer hide-header>
+        <b-modal v-model="editCommentVisible" id="editCommentModal" title="Comment" hide-footer hide-header>
             <div id="comment-edit">
                 <ckeditor :editor="editor" v-model="comment" @input="onCommentUpdated" />
             </div>
@@ -32,30 +32,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-
-// We use require because with imports webpack complains a lot.
-// tslint:disable-next-line
-const ClassicEditor = require('@ckeditor/ckeditor5-build-classic');
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 @Component({
     name: 'comment',
     components: {
     },
 })
-export default class CommentComponent extends Vue {
-    // Follow the v-model pattern as described here: https://www.digitalocean.com/community/tutorials/vuejs-add-v-model-support
+class CommentComponent extends Vue {
+    // Follow the v-model pattern (Vue 3): modelValue prop + update:modelValue emit
     @Prop()
-    public value!: string;
+    public modelValue!: string;
 
-    private comment: string = ''; // Use v-model to bind here, we can't use v-model to bind to the value property
-    private editor = ClassicEditor;
+    public comment: string = ''; // Use v-model to bind here, we can't use v-model to bind to the modelValue property
+    public editor = ClassicEditor;
+    public viewCommentVisible: boolean = false;
+    public editCommentVisible: boolean = false;
 
-    private get readOnly(): boolean {
+    public get readOnly(): boolean {
         return this.$state.editions.current!.permission.readOnly;
     }
 
-    private get commentDisplay() {
+    public get commentDisplay() {
         if (!this.comment) {
             return 'None';
         }
@@ -67,34 +66,34 @@ export default class CommentComponent extends Vue {
         return shortened;
     }
 
-    private mounted() {
-        this.comment = this.value || '';
+    public mounted() {
+        this.comment = this.modelValue || '';
     }
 
-    private onCommentUpdated() {
-        this.$emit('input', this.comment);
+    public onCommentUpdated() {
+        this.$emit('update:modelValue', this.comment);
     }
 
-    @Watch('value')
-    private onValueChanged() {
-        this.comment = this.value || '';
+    @Watch('modelValue')
+    public onValueChanged() {
+        this.comment = this.modelValue || '';
     }
 
-    private onDeleteComment() {
+    public onDeleteComment() {
         this.comment = '';
         this.onCommentUpdated();
     }
 
-    private onViewComment() {
-        (this.$refs.viewCommentModalRef as any).show();
-        // this.$bvModal.show('viewCommentModal');
+    public onViewComment() {
+        this.viewCommentVisible = true;
     }
 
-    private onEditComment() {
-        (this.$refs.editCommentModalRef as any).show();
-        // this.$bvModal.show('editCommentModal');
+    public onEditComment() {
+        this.editCommentVisible = true;
     }
 }
+
+export default toNative(CommentComponent);
 </script>
 
 <style lang="scss" scoped>

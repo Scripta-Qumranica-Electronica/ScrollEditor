@@ -7,20 +7,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 import SingleImageSettingComponent from '@/components/image-settings/SingleImageSetting.vue';
 import { ImageStack } from '@/models/image';
 import { SingleImageSetting, normalizeOpacity } from './types';
 import { BaseEditorParams } from '@/models/editor-params';
-
-
-
-import EditionSidebar from './components/sidebar.vue';
-import { EditionInfo } from '@/models/edition.js';
-import Waiting from '@/components/misc/Waiting.vue';
-
-import PermissionModal from './components/permission-modal.vue';
 
 
 @Component({
@@ -30,12 +22,12 @@ import PermissionModal from './components/permission-modal.vue';
   },
 })
 
-export default class ImageSettings extends Vue {
+class ImageSettings extends Vue {
 
   // props
-    @Prop() protected imageStack!: ImageStack;
+    @Prop() public imageStack!: ImageStack;
 
-    @Prop() protected params!: BaseEditorParams;
+    @Prop() public params!: BaseEditorParams;
 
   // methods
     public onSingleImageSettingChanged($event: SingleImageSetting) {
@@ -45,6 +37,7 @@ export default class ImageSettings extends Vue {
 
 }
 
+export default toNative(ImageSettings);
 </script>
 
 <style lang="scss" scoped>

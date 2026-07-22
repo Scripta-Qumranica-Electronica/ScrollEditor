@@ -23,25 +23,25 @@
 // 3. Use i18n for the type
 // 4. Add tooltip to the slider (with the current number)
 // 5. Disable slider when checkbox is false
-import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, Watch, toNative } from 'vue-facing-decorator';
 import { SingleImageSetting } from '../image-settings/types';
 
 @Component({
     name: 'single-image-setting',
 })
-export default class SingleImageSettingComponent extends Vue {
-    @Prop() private type!: string;
-    @Prop() private settings!: SingleImageSetting;
+class SingleImageSettingComponent extends Vue {
+    @Prop() public type!: string;
+    @Prop() public settings!: SingleImageSetting;
 
-    private opacity = '1';
+    public opacity = '1';
     // private visible = true;
 
-    private mounted() {
+    public mounted() {
         this.opacity = this.settings.opacity.toString(); // Binding works with strings
         // this.visible = this.settings.visible;
     }
 
-    private onVisibleChange() {
+    public onVisibleChange() {
         // Use setTimeout since the binding occurs after the input event
         setTimeout(() => {
             // this.settings.visible = this.visible;
@@ -49,7 +49,7 @@ export default class SingleImageSettingComponent extends Vue {
         }, 0);
     }
 
-    private onOpacityInput() {
+    public onOpacityInput() {
         // We use @input because we want to update the images as the slider slides.
         // @change only occurs once the slider stops sliding.
 
@@ -67,10 +67,11 @@ export default class SingleImageSettingComponent extends Vue {
     }
 
     @Emit()
-    private change() {
+    public change() {
         return this.settings;
     }
 }
+export default toNative(SingleImageSettingComponent);
 </script>
 
 <style lang="scss" scoped>

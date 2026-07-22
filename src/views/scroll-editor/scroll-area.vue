@@ -12,7 +12,7 @@
                 <g id="root" :transform="transform">
                     <defs id="before-root" v-if="currentScript">
                         <path
-                            v-for="g of Object.values(scriptGlyphs)"
+                            v-for="g of Object.values(scriptGlyphs || {})"
                             :key="g.character"
                             :d="g.shape.svg"
                             :id="`path-${g.character}`"
@@ -45,7 +45,7 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Vue, Emit } from 'vue-property-decorator';
+import { Component, Vue, Emit, toNative } from 'vue-facing-decorator';
 import Waiting from '@/components/misc/Waiting.vue';
 import Zoomer, { ZoomEventArgs } from '@/components/misc/zoomer.vue';
 import { ScrollEditorParams } from '../artefact-editor/types';
@@ -68,25 +68,25 @@ import { ScriptData, GlyphData } from '@/models/script';
         'artefact-toolbox': ArtefactToolbox,
     },
 })
-export default class ScrollArea extends Vue {
-    private imageSettings!: ImageSetting;
-    private boundingBox = new BoundingBox(1, 1);
+class ScrollArea extends Vue {
+    public imageSettings!: ImageSetting;
+    public boundingBox = new BoundingBox(1, 1);
 
     public selectArtefact(artefact: Artefact | undefined) {
         this.$emit('onSelectArtefact', artefact);
     }
 
-    private created() {
+    public created() {
         this.$state.eventBus.on('select-artefact', (art: Artefact) =>
             this.selectArtefact(art)
         );
     }
 
-    private destroyed() {
+    public unmounted() {
         this.$state.eventBus.off('select-artefact');
     }
 
-    private async mounted() {
+    public async mounted() {
         // Prepare ROIs of placed artefacts
         await this.placedArtefacts.forEach(async (artefact: Artefact) => {
             await this.$state.prepare.artefact(artefact.editionId, artefact.id);
@@ -98,21 +98,21 @@ export default class ScrollArea extends Vue {
         });
     }
 
-    private get scrollEditorState(): ScrollEditorState {
+    public get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
     }
 
-    private get displayRois(): boolean {
+    public get displayRois(): boolean {
         return this.scrollEditorState.displayRois;
     }
-    private get displayText(): boolean {
+    public get displayText(): boolean {
         return this.scrollEditorState.displayText;
     }
 
-    private get displayReconstructedText(): boolean {
+    public get displayReconstructedText(): boolean {
         return this.scrollEditorState.displayReconstructedText;
     }
-    private get params() {
+    public get params() {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
 
@@ -124,7 +124,7 @@ export default class ScrollArea extends Vue {
         return this.scrollEditorState.selectedArtefact;
     }
 
-    private isArtefactSelected(artefact: Artefact): boolean {
+    public isArtefactSelected(artefact: Artefact): boolean {
         if (this.selectedArtefact) {
             return this.selectedArtefact === artefact;
         }
@@ -134,7 +134,7 @@ export default class ScrollArea extends Vue {
         return false;
     }
 
-    private isArtefactDisabled(artefact: Artefact): boolean {
+    public isArtefactDisabled(artefact: Artefact): boolean {
         const artefactGroup = this.getArtefactGroup(artefact);
         if (this.selectedGroup) {
             return (
@@ -146,15 +146,15 @@ export default class ScrollArea extends Vue {
         return false;
     }
 
-    private get edition() {
+    public get edition() {
         return this.$state.editions.current!;
     }
 
-    private get artefacts() {
+    public get artefacts() {
         return this.$state.artefacts.items || [];
     }
 
-    private getArtefactGroup(artefact: Artefact) {
+    public getArtefactGroup(artefact: Artefact) {
         return this.edition!.artefactGroups.find(
             (x) =>
                 artefact &&
@@ -163,90 +163,91 @@ export default class ScrollArea extends Vue {
         );
     }
 
-    private get actualWidth(): number {
+    public get actualWidth(): number {
         return this.edition.metrics.width * this.edition.ppm * this.zoomLevel;
     }
 
-    private get actualHeight(): number {
+    public get actualHeight(): number {
         return this.edition.metrics.height * this.edition.ppm * this.zoomLevel;
     }
 
-    private get actualXOrigin(): number {
+    public get actualXOrigin(): number {
         return this.edition.metrics.xOrigin * this.edition.ppm * this.zoomLevel;
     }
 
-    private get actualYOrigin(): number {
+    public get actualYOrigin(): number {
         return this.edition.metrics.yOrigin * this.edition.ppm * this.zoomLevel;
     }
 
-    private get positionX(): number {
+    public get positionX(): number {
         return this.actualWidth / 2;
     }
 
-    private get positionY(): number {
+    public get positionY(): number {
         return this.actualHeight / 2;
     }
 
-    private get imgWidth(): number {
+    public get imgWidth(): number {
         return 200;
     }
 
-    private get zoomLevel() {
+    public get zoomLevel() {
         return (this.params && this.params.zoom) || 1;
     }
 
-    private onNewZoom(event: ZoomEventArgs) {
+    public onNewZoom(event: ZoomEventArgs) {
         this.params.zoom = parseFloat(event.zoom.toString());
     }
 
-    private get transform(): string {
+    public get transform(): string {
         const zoom = `scale(${this.zoomLevel})`;
         return zoom;
     }
 
-    private get currentScript(): ScriptData | null {
+    public get currentScript(): ScriptData | null {
         return this.$state.editions.current!.script;
     }
 
-    private get scriptGlyphs(): { [key: string]: GlyphData } | null {
+    public get scriptGlyphs(): { [key: string]: GlyphData } | null {
         return this.$state.editions.current!.script?.glyphs || null;
     }
 
-    private get placedArtefacts() {
+    public get placedArtefacts() {
         const visibleArtefacts = this.artefacts
             .filter((x) => x.isPlaced && x.inViewport)
             .sort((a, b) => (a.placement.zIndex > b.placement.zIndex ? 1 : -1));
         return visibleArtefacts;
     }
 
-    private onNewOperation(op: ScrollEditorOperation) {
+    public onNewOperation(op: ScrollEditorOperation) {
         this.newOperation(op);
     }
 
-    private onSaveGroup() {
+    public onSaveGroup() {
         this.$emit('onSaveGroupArtefacts');
     }
-    private cancelGroup() {
+    public cancelGroup() {
         this.$emit('onCancelGroup');
     }
-    private manageGroup() {
+    public manageGroup() {
         this.$emit('onManageGroup');
     }
 
-    private onScrollClick(event: MouseEvent) {
+    public onScrollClick(event: MouseEvent) {
         this.scrollEditorState.selectGroup(undefined);
     }
 
-    private onMouseMove(event: MouseEvent) {
+    public onMouseMove(event: MouseEvent) {
         this.scrollEditorState.pointerPosition.x = event.offsetX;
         this.scrollEditorState.pointerPosition.y = event.offsetY;
     }
 
     @Emit()
-    private newOperation(op: ScrollEditorOperation) {
+    public newOperation(op: ScrollEditorOperation) {
         return op;
     }
 }
+export default toNative(ScrollArea);
 </script>
 
 <style lang="scss">

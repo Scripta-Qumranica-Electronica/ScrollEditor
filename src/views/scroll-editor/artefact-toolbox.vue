@@ -380,7 +380,7 @@
 
 <!-- <script src="https://unpkg.com/vue-toasted"></script>-->
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
 import { Artefact } from '@/models/artefact';
 import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
 import {
@@ -397,38 +397,38 @@ import { ScrollEditorState } from '../../state/scroll-editor';
     name: 'artefact-toolbox',
     components: {},
 })
-export default class ArtefactToolbox extends Vue {
+class ArtefactToolbox extends Vue {
     @Prop({ default: -1 }) public artefactId!: number;
 
     @Prop({ default: false }) public float!: boolean;
 
     @Prop({ default: true }) public keyboardInput!: boolean;
 
-    private reset!: number;
-    private zoomDelta!: number;
+    public reset!: number;
+    public zoomDelta!: number;
 
-    protected mounted() {
+    public mounted() {
         if (this.keyboardInput) {
             window.addEventListener('keydown', this.onKeyPress);
         }
     }
 
-    private get scrollEditorState(): ScrollEditorState {
+    public get scrollEditorState(): ScrollEditorState {
         return this.$state.scrollEditor;
     }
 
-    private get params(): ScrollEditorParams {
+    public get params(): ScrollEditorParams {
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
-    private get edition() {
+    public get edition() {
         return this.$state.editions.current! || {};
     }
 
-    private get mode(): ScrollEditorOpMode {
+    public get mode(): ScrollEditorOpMode {
         return this.params!.mode;
     }
 
-    private get artefact() {
+    public get artefact() {
         return this.$state.artefacts.find(this.artefactId);
     }
 
@@ -440,11 +440,11 @@ export default class ArtefactToolbox extends Vue {
         return this.scrollEditorState.selectedGroup;
     }
 
-    private get selectedArtefacts() {
+    public get selectedArtefacts() {
         return this.scrollEditorState.selectedArtefacts;
     }
 
-    public destroyed() {
+    public unmounted() {
         if (this.keyboardInput) {
             window.removeEventListener('keydown', this.onKeyPress);
         }
@@ -699,7 +699,7 @@ export default class ArtefactToolbox extends Vue {
         this.newOperation(operation);
     }
 
-    private setZIndex(zIndexDirection: number) {
+    public setZIndex(zIndexDirection: number) {
         const operations: ScrollEditorOperation[] = [];
         let operation: ScrollEditorOperation = {} as ScrollEditorOperation;
         const placedArtefacts = this.$state.artefacts.items.filter(
@@ -733,7 +733,7 @@ export default class ArtefactToolbox extends Vue {
         this.newOperation(operation);
     }
 
-    private createOperation(
+    public createOperation(
         opType: ArtefactPlacementOperationType,
         newPlacement: Placement,
         artefact: Artefact,
@@ -750,11 +750,11 @@ export default class ArtefactToolbox extends Vue {
         artefact.placement = newPlacement;
         return op;
     }
-    private setMode(mode: ScrollEditorOpMode) {
+    public setMode(mode: ScrollEditorOpMode) {
         this.params.mode = mode;
     }
 
-    private onKeyPress(event: KeyboardEvent) {
+    public onKeyPress(event: KeyboardEvent) {
         if (this.artefact) {
             return;
         }
@@ -808,22 +808,23 @@ export default class ArtefactToolbox extends Vue {
         }
     }
     @Emit()
-    private saveGroup() {
+    public saveGroup() {
         return true;
     }
     @Emit()
-    private manageGroup() {
+    public manageGroup() {
         return true;
     }
     @Emit()
-    private newOperation(op: ScrollEditorOperation) {
+    public newOperation(op: ScrollEditorOperation) {
         return op;
     }
     @Emit()
-    private cancelGroup() {
+    public cancelGroup() {
         return true;
     }
 }
+export default toNative(ArtefactToolbox);
 </script>
 
 <style lang="scss" scoped>

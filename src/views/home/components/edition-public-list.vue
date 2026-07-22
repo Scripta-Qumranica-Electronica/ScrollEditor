@@ -15,13 +15,14 @@
                 :editions="editions"
                 :key="item"
                 :index="item"
+                @show-copy-modal="$emit('show-copy-modal')"
             />
         </DynamicScrollerItem>
     </DynamicScroller>
-</template>       
+</template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { EditionInfo } from '@/models/edition';
 import EditionPublicRow from './edition-public-row.vue';
 
@@ -30,11 +31,12 @@ import EditionPublicRow from './edition-public-row.vue';
     components: {
         EditionPublicRow,
     },
+    emits: ['show-copy-modal'],
 })
-export default class EditionsPublicList extends Vue {
+class EditionsPublicList extends Vue {
     @Prop() public editions!: EditionInfo[];
 
-    protected get indices() {
+    public get indices() {
         const indices: number[] = [];
         for (let idx = 0; idx < this.editions.length; idx += 4) {
             indices.push(idx);
@@ -43,10 +45,11 @@ export default class EditionsPublicList extends Vue {
         return indices;
     }
 
-    protected getWindowWidth() {
+    public getWindowWidth() {
         return window.outerWidth;
     }
 }
+export default toNative(EditionsPublicList);
 </script>
 
 <style  lang="scss" scoped>

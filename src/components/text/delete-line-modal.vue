@@ -1,6 +1,10 @@
 <template>
     <div>
-        <b-modal ref="deleteLineModal" id="deleteLineModal" title="Delete Line">
+        <b-modal
+            v-model="modalVisible"
+            id="deleteLineModal"
+            title="Delete Line"
+        >
             <div v-if="line">
                 Are you sure you want to delete line {{ line.lineName }}
             </div>
@@ -17,7 +21,7 @@
 
 <script lang="ts">
 import { Line, SignInterpretation, TextFragment } from '@/models/text';
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
 import TextLine from '@/components/text/text-line.vue';
 import TextService from '@/services/text';
 import {
@@ -33,7 +37,8 @@ import { OperationsManager } from '@/utils/operations-manager';
         'text-line': TextLine
     }
 })
-export default class DeleteLineModal extends Vue {
+class DeleteLineModal extends Vue {
+    public modalVisible: boolean = false;
     // if line.lineId is undefined the linelineName will be bad
     public position: string = '';
     public tempLine: LineDTO = {
@@ -43,14 +48,14 @@ export default class DeleteLineModal extends Vue {
         editorId: 0
     };
     public get editionId() {
-        return parseInt(this.$route.params.editionId);
+        return parseInt(String(this.$route.params.editionId));
     }
     public notInTheRightComponent: boolean = false;
     public textService: TextService = new TextService();
     public previousLineId: number = 0;
     public subsequentLineId: number = 0;
     public textFragmentId: number = 0;
-    private operationsManager = new OperationsManager<ArtefactEditorOperation>(
+    public operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
     );
     public textLine: string = '';
@@ -60,16 +65,8 @@ export default class DeleteLineModal extends Vue {
     public get selectedSignInterpretation(): SignInterpretation {
         return this.editorState.selectedSignInterpretations[0];
     }
-    protected async mounted() {
-        this.$root.$on(
-            'bv::show::modal',
-            (modalId: string, parameter: string) => {
-                if (modalId === 'deleteLineModal') {
-                } else {
-                    this.notInTheRightComponent = true;
-                }
-            }
-        );
+    public async mounted() {
+        // Vue 3: bv::show::modal event bus is not available; open modal via modalVisible prop
         this.$state.operationsManager = this.operationsManager;
     }
     public async saveEntities(
@@ -77,7 +74,7 @@ export default class DeleteLineModal extends Vue {
     ): Promise<boolean> {
         return true;
     }
-    protected async created() {
+    public async created() {
         // check what with line.lineId
         this.$state.eventBus.on(
             'change-artefact-delete-line',
@@ -87,7 +84,7 @@ export default class DeleteLineModal extends Vue {
         );
     }
     public get line(): LineDTO {
-        //tqke cqre if it is before or after here 
+        //tqke cqre if it is before or after here
         if (this.notInTheRightComponent) {
             const line: any = {
                 editorId: this.selectedSignInterpretation?.sign.line.editorId,
@@ -119,8 +116,8 @@ export default class DeleteLineModal extends Vue {
                     this.selectedSignInterpretation?.sign.line.textFragment
                         .lines[i].lineName === index
                 ) {
-                    // in case we clicked on after 
-                    // get the previous and the subsequent 
+                    // in case we clicked on after
+                    // get the previous and the subsequent
                     this.previousLineId = this.selectedSignInterpretation?.sign.line.textFragment.lines[
                         i
                     ].lineId;
@@ -143,12 +140,11 @@ export default class DeleteLineModal extends Vue {
             this.subsequentLineId
         );
         this.operationsManager.addOperation(op);
-        const modal = this.$refs['deleteLineModal'] as any & {
-            hide: () => void;
-        };
-        modal.hide();
+        this.modalVisible = false;
     }
 }
+
+export default toNative(DeleteLineModal);
 </script>
 
 <style lang="scss" scoped>

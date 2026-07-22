@@ -1,15 +1,13 @@
 <template>
     <div>
         <b-modal
+            v-model="visible"
             header-class="title-header"
             footer-class="title-footer"
-            ref="CitationModalRef"
             id="CitationModal"
-            aria-role="dialog"
             aria-label="Citation Modal"
-            size="lg" scroll="keep"
+            size="lg"
             ok-only
-            trap-focus
             :destroy-on-hide="true"
         >
             <template v-slot:modal-header>
@@ -45,17 +43,21 @@ For more information on licensing please contact us at contact@deadseascrolls.or
 
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
     name: 'Citation',
     components: {
     }
 })
+class CitationModal extends Vue {
+    public visible = false;
 
-export default class CitationModal extends Vue {
+    public show() {
+        this.visible = true;
+    }
 }
-
+export default toNative(CitationModal);
 </script>
 <style lang="scss" scoped>
 @import '@/assets/styles/_variables.scss';

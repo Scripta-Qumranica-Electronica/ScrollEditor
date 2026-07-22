@@ -70,7 +70,7 @@
 
 <script lang="ts">
 // import Vue from 'vue';
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 
 import EditionSidebar from './components/sidebar.vue';
 import { EditionInfo } from '@/models/edition.js';
@@ -92,21 +92,21 @@ import DeleteEditionModal from './components/delete-edition-modal.vue';
         'edition-metadata-modal': EditionMetadataModal,
     },
 })
-export default class Edition extends Vue {
+class Edition extends Vue {
     // protected (not private) to allow future inheritance
     // =======================================================
 
     // protected waiting: boolean = true;
 
     public editionId: number = 0;
-    protected page: string = '';
-    protected isLoading: boolean = false;
+    public page: string = '';
+    public isLoading: boolean = false;
 
     public get isWaiting(): boolean {
         return this.isLoading;
     }
 
-    private get user(): boolean {
+    public get user(): boolean {
         return this.$state.session.user ? true : false;
     }
 
@@ -118,7 +118,7 @@ export default class Edition extends Vue {
         return this.currentEdition!.permission.isAdmin;
     }
 
-    private get copyTooltip(): string {
+    public get copyTooltip(): string {
         const publicStr = this.currentEdition!.isPublic
             ? 'This is a public Edition. '
             : '';
@@ -131,11 +131,13 @@ export default class Edition extends Vue {
     }
 
     public openMetadata() {
-        this.$root.$emit('bv::show::modal', 'editionMetadataModal');
+        // TODO(vue3): replace bv::show::modal bus event — open editionMetadataModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'editionMetadataModal');
     }
     public deleteEdition() {
-       this.$root.$emit('bv::show::modal', 'deleteEditionModal');
-  }
+        // TODO(vue3): replace bv::show::modal bus event — open deleteEditionModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'deleteEditionModal');
+    }
     public get artefactsLength(): number {
         const virtualCount = this.$state.artefacts.items.reduce(
             (count, art: Artefact) => {
@@ -161,9 +163,9 @@ export default class Edition extends Vue {
     //  we just moved it to mounted.
     // ( same mechanism as in scroll-editor.vue )
 
-    protected async mounted() {
+    public async mounted() {
         this.isLoading = true;
-        this.editionId = parseInt(this.$route.params.editionId, 10);
+        this.editionId = parseInt(String(this.$route.params.editionId), 10);
 
         // Wait for editionInfo object to be valid
         // (in order not to get run-time undefined errors)
@@ -193,7 +195,7 @@ export default class Edition extends Vue {
     // while resource is being fetched for the incoming view
     // ==========================================================
 
-    protected async beforeRouteUpdate(to: any, from: any, next: () => void) {
+    public async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
 
         // Wait for editionInfo object to be valid
@@ -209,7 +211,8 @@ export default class Edition extends Vue {
     // ============================================================
 
     public openPermissionModal() {
-        this.$root.$emit('bv::show::modal', 'permissionModal');
+        // TODO(vue3): replace bv::show::modal bus event — open permissionModal via a shared boolean prop or emitted event
+        this.$root!.$emit('bv::show::modal', 'permissionModal');
         // event, new_value
     }
 
@@ -217,7 +220,7 @@ export default class Edition extends Vue {
         return ver.name;
     }
 
-    protected getPage(url: string) {
+    public getPage(url: string) {
         if (url.endsWith('artefacts')) {
             this.page = 'artefacts';
         } else {
@@ -225,6 +228,7 @@ export default class Edition extends Vue {
         }
     }
 }
+export default toNative(Edition);
 </script>
 
 <style lang="scss" scoped>

@@ -1,7 +1,7 @@
- <template>
+<template>
     <div>
         <b-modal
-            ref="passwordModalRef"
+            v-model="modalVisible"
             id="passwordModal"
             header-class="title-header"
             footer-class="title-footer"
@@ -53,25 +53,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
-// import ForgotPassword from '@/views/user/ForgotPassword.vue';
 
 @Component({
     name: 'forgot-password',
 })
-
-export default class ForgotPassword extends Vue {
+class ForgotPassword extends Vue {
 
     // data
 
-    protected email: string = '';
-    protected errorMessage: string = '';
-    protected sessionService: SessionService = new SessionService();
-    protected errorService: ErrorService = new ErrorService(this);
-    protected waiting: boolean = false;
+    public email: string = '';
+    public errorMessage: string = '';
+    public sessionService: SessionService = new SessionService();
+    public errorService: ErrorService = new ErrorService(this);
+    public waiting: boolean = false;
+    public modalVisible: boolean = false;
 
 
     // computed
@@ -81,7 +80,11 @@ export default class ForgotPassword extends Vue {
 
     // methods
 
-    protected async submit() {
+    public show() {
+        this.modalVisible = true;
+    }
+
+    public async submit() {
         if (this.disabledSubmit) {
             // Can be called due to ENTER key
             return;
@@ -92,32 +95,33 @@ export default class ForgotPassword extends Vue {
             await this.sessionService.forgotPassword(this.email);
             this.close();
 
-            this.$toasted.show(this.$tc('toasts.reset'), {
+            // TODO(vue3): replace $toasted with vue-toastification or similar
+            (this as any).$toasted.show(this.$t('toasts.reset'), {
                 type: 'info',
                 position: 'top-right',
                 duration: 7000,
             });
         } catch (err) {
             this.errorMessage = this.errorService.getErrorMessage(
-                err.response.data
+                (err as any).response.data
             );
         } finally {
             this.waiting = false;
         }
     }
 
-    protected close() {
-        (this.$refs.passwordModalRef as any).hide();
+    public close() {
+        this.modalVisible = false;
     }
 
-    protected shown() {
+    public shown() {
         this.errorMessage = '';
         this.waiting = false;
         (this.$refs.emailRef as any).focus();
     }
 
 }
-
+export default toNative(ForgotPassword);
 </script>
 
 <style scoped>

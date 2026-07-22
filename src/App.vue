@@ -7,7 +7,7 @@
         <div v-if="!waiting" class="container-fluid" id="main-container">
             <router-view></router-view>
         </div>
-        <corrupted-state-dialog />
+        <corrupted-state-dialog v-model="corruptedStateVisible" />
         <screen-size-alert :visible="alertVisible" />
     </div>
 
@@ -15,8 +15,7 @@
 </template>
 
 <script lang="ts">
-
-import { Component, Prop, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 
 import Navbar from '@/components/navigation/Navbar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
@@ -37,12 +36,14 @@ import ScreenSizeAlert from './views/home/components/screen-size-alert.vue';
     }
 })
 
-export default class App extends Vue {
+class App extends Vue {
 
-    private waiting: boolean = true;
-    private alertVisible: boolean = false;
+    public waiting: boolean = true;
+    public alertVisible: boolean = false;
+    // TODO(vue3): CorruptedStateDialog needs to accept v-model for show/hide once it is migrated
+    public corruptedStateVisible: boolean = false;
 
-    private created() {
+    public created() {
         // Set the language
         this.$i18n.locale = this.$state.session.language;
         this.initializeApp();
@@ -58,7 +59,7 @@ export default class App extends Vue {
         );
     }
 
-    private destroyed() {
+    public destroyed() {
         this.$state.eventBus.off(
             'corrupted-state',
             this.openCorruptedStateDialog
@@ -71,7 +72,7 @@ export default class App extends Vue {
 
 
 
-    private showScreenSizeAlert(e: Event ) {
+    public showScreenSizeAlert(e: Event ) {
         e.preventDefault();
 
         const curOW = window.outerWidth;
@@ -81,8 +82,7 @@ export default class App extends Vue {
 
             this.$nextTick( () => {
                 this.alertVisible = true;
-                this.$root.$bvModal.show('screen-size-alert');
-
+                // TODO(vue3): screen-size-alert uses :visible prop; modal visibility is driven by alertVisible
             });
 
         } else {
@@ -90,24 +90,25 @@ export default class App extends Vue {
 
             this.$nextTick( () => {
                 this.alertVisible = false;
-                this.$root.$bvModal.hide('screen-size-alert');
+                // TODO(vue3): screen-size-alert uses :visible prop; modal visibility is driven by alertVisible
             });
         }
 
 
    }
-    private async initializeApp() {
+    public async initializeApp() {
         const session = new SessionService();
         await session.isTokenValid();
         this.waiting = false;
     }
 
-    private openCorruptedStateDialog() {
-            this.$root.$emit('bv::show::modal', 'corrupted-state-dialog');
+    public openCorruptedStateDialog() {
+        this.corruptedStateVisible = true;
     }
 
 }
 
+export default toNative(App);
 </script>
 
 <style lang="scss">
