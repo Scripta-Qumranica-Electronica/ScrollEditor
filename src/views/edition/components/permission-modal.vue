@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal id="permissionModal" v-model="visible" hide-footer @show="shown">
+        <b-modal lazy id="permissionModal" v-model="visible" hide-footer @show="shown">
            <div v-if="isAdmin">
             <form>
                 <!-- editor invitation row -->
@@ -116,6 +116,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 import { EditionInfo, ShareInfo, SimplifiedPermission } from '@/models/edition';
 import EditionService from '@/services/edition';
 
@@ -142,6 +143,19 @@ class PermissionModal extends Vue {
     public invitationsRows: ShareRow[] = [];
     public waiting = false;
     public errorMessage = '';
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'permissionModal',
+            () => { this.visible = true; },
+            () => { this.visible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
     public show() {
         this.visible = true;

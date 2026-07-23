@@ -1,5 +1,5 @@
 <template>
-    <b-modal
+    <b-modal lazy
         :title="'Copy artefact to edition ' + editionTargetName"
         id="copy-to-edition-modal"
         v-model="internalVisible"

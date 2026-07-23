@@ -328,6 +328,7 @@
 
 <script lang="ts">
 import { Component, Prop, Emit, Model, Vue, toNative } from 'vue-facing-decorator';
+import { showModal } from '@/utils/modal-bus';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 import { ScrollEditorParams, ScrollEditorOpMode } from '../artefact-editor/types';
@@ -500,8 +501,7 @@ class ManuscriptToolbar extends Vue {
         return this.scrollEditorState.selectedGroup;
     }
     public openAddArtefactModal() {
-        // TODO(vue3): bv::show::modal event bus is not available in Vue 3; open modal via a boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'addArtefactModal');
+        showModal('addArtefactModal');
     }
 
 

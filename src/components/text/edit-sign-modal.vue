@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="modalVisible"
             id="editSignModal"
             :title="isEditMode ? 'Edit' : 'Add'"
@@ -72,12 +72,26 @@ import {
 } from '@/views/artefact-editor/operations';
 import { Attributes } from '@fortawesome/fontawesome-svg-core';
 import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 
 @Component({
     name: 'edit-sign-modal',
 })
 class EditSignModal extends Vue {
     public modalVisible: boolean = false;
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'editSignModal',
+            () => { this.modalVisible = true; },
+            () => { this.modalVisible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
     public editedSi: SignInterpretation | null = null;
     public newAttributeValueId: number = 0;
     public newCharacter: string = '';

@@ -14,6 +14,7 @@ import EditionCopyrightInfoModal from '@/views/edition/components/copyright.vue'
 import EditionMetadataModal from '@/views/edition/components/metadata.vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import Toolbox from './toolbox.vue';
+import { showModal } from '@/utils/modal-bus';
 
 @Component({
     name: 'edition-toolbox',
@@ -26,15 +27,11 @@ import Toolbox from './toolbox.vue';
 class EditionToolbox extends Vue {
     public openMetadata() {
         console.debug('openMetadata called');
-        // TODO(vue3): metadata.vue not yet migrated; switch to a boolean v-model once that
-        // component exposes a modelValue prop instead of its id/bus pattern.
-        this.$root!.$emit('bv::show::modal', 'editionMetadataModal');
+        showModal('editionMetadataModal');
     }
     public openCopyrightInfo() {
         console.debug('openCopyrightInfo called');
-        // TODO(vue3): copyright.vue not yet migrated; switch to a boolean v-model once that
-        // component exposes a modelValue prop instead of its id/bus pattern.
-        this.$root!.$emit('bv::show::modal', 'editionCopyrightInfoModal');
+        showModal('editionCopyrightInfoModal');
     }
 }
 export default toNative(EditionToolbox);

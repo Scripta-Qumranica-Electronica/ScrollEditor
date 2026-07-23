@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="modalVisible"
             id="editLineModal"
             title="Edit Line"
@@ -39,6 +39,7 @@
 <script lang="ts">
 import { Line, SignInterpretation } from '@/models/text';
 import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 import TextLine from '@/components/text/text-line.vue';
 import TextService from '@/services/text';
 import {
@@ -59,6 +60,7 @@ import {
 })
 class EditLineModal extends Vue {
     public modalVisible: boolean = false;
+    private disposeModalListener?: () => void;
     public checkText: TextService = new TextService();
     public operationsManager = new OperationsManager<ArtefactEditorOperation>(
         this
@@ -178,6 +180,14 @@ class EditLineModal extends Vue {
     }
     public async mounted() {
         this.$state.operationsManager = this.operationsManager;
+        this.disposeModalListener = registerModalListener(
+            'editLineModal',
+            () => { this.modalVisible = true; },
+            () => { this.modalVisible = false; },
+        );
+    }
+    public beforeUnmount() {
+        this.disposeModalListener?.();
     }
     public async created() {
         this.$state.eventBus.on(

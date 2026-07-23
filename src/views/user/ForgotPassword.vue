@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="modalVisible"
             id="passwordModal"
             header-class="title-header"

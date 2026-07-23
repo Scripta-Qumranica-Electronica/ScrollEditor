@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             header-class="title-header"
             footer-class="title-footer"
             v-model="modalVisible"
@@ -105,6 +105,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { showModal, registerModalListener } from '@/utils/modal-bus';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
@@ -129,6 +130,19 @@ class Registration extends Vue {
     public waiting: boolean = false;
     public termsOfUse: boolean = false;
     public modalVisible: boolean = false;
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'registerModal',
+            () => { this.modalVisible = true; },
+            () => { this.modalVisible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
 
     // computed
@@ -162,8 +176,7 @@ class Registration extends Vue {
     }
 
     public showTermsOfUse() {
-        // TODO(vue3): replace $root.$emit('bv::show::modal') with direct component ref or event bus
-        (this.$root as any).$emit('bv::show::modal', 'EulaModal');
+        showModal('EulaModal');
     }
 
     // methods

@@ -17,12 +17,12 @@
             </b-button>
         </div>
 
-        <b-modal v-model="viewCommentVisible" id="viewCommentModal" title="Comment" hide-footer hide-header>
+        <b-modal lazy v-model="viewCommentVisible" id="viewCommentModal" title="Comment" hide-footer hide-header>
             <div id="comment-view" v-html="comment">
             </div>
         </b-modal>
 
-        <b-modal v-model="editCommentVisible" id="editCommentModal" title="Comment" hide-footer hide-header>
+        <b-modal lazy v-model="editCommentVisible" id="editCommentModal" title="Comment" hide-footer hide-header>
             <div id="comment-edit">
                 <ckeditor :editor="editor" v-model="comment" @input="onCommentUpdated" />
             </div>

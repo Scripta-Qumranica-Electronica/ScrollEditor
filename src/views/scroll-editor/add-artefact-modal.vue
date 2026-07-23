@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             scrollable
             v-model="modalVisible"
             id="addArtefactModal"
@@ -102,6 +102,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 import ArtefactImage from '@/components/artefact/artefact-image.vue';
 import { Artefact } from '@/models/artefact';
 import { Side } from '@/models/misc';
@@ -119,6 +120,19 @@ class AddArtefactModal extends Vue {
     public isLoaded = false;
     // bootstrap-vue-next: v-model on b-modal controls visibility
     public modalVisible: boolean = false;
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'addArtefactModal',
+            () => { this.modalVisible = true; },
+            () => { this.modalVisible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
     /** Called by parent via $refs to open the modal (replaces bv::show::modal event). */
     public show() {

@@ -173,7 +173,7 @@
                 </div>
             </div>
         </div>
-        <b-modal
+        <b-modal lazy
             id="newModal"
             v-model="showNewModal"
             :title="$t('home.newArtefact')"

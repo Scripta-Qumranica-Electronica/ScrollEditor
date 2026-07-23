@@ -96,6 +96,7 @@ import { BoundingBox, Point } from '@/utils/helpers';
 import { OperationsManager, SavingAgent } from '@/utils/operations-manager';
 import { Placement } from '@/utils/Placement';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { showModal } from '@/utils/modal-bus';
 import { ArtefactGroup } from '../../models/edition';
 import { ArtefactEditorOperation } from '../artefact-editor/operations';
 import { ScrollEditorParams } from '../artefact-editor/types';
@@ -779,8 +780,7 @@ class ScrollEditor
     }
 
     public openAddArtefactModal() {
-        // TODO(vue3): bv::show::modal event bus is not available in Vue 3; open modal via a boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'addArtefactModal');
+        showModal('addArtefactModal');
     }
 
     public newOperation(operation: ScrollEditorOperation) {

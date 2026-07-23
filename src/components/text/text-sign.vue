@@ -63,7 +63,7 @@
             </div>
         </b-popover> -->
 
-        <b-modal
+        <b-modal lazy
             v-model="showQwbVariantsModal"
             hide-footer
             title="Variant Readings from QD"
@@ -108,6 +108,7 @@ import {
 } from '../../views/artefact-editor/operations';
 import { Artefact } from '@/models/artefact';
 import { QwbWordVariantListDTO } from '@/dtos/sqe-dtos';
+import { showModal } from '@/utils/modal-bus';
 
 @Component({
     name: 'text-sign',
@@ -210,14 +211,12 @@ class TextSign extends Vue {
 
     public openEditSignModal() {
         this.$state.textFragmentEditor.modeSignModal = 'edit';
-        // TODO(vue3): replace bv::show::modal bus event — open editSignModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'editSignModal');
+        showModal('editSignModal');
     }
 
     public openAddLeftSignModal() {
         this.$state.textFragmentEditor.modeSignModal = 'create';
-        // TODO(vue3): replace bv::show::modal bus event — open editSignModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'editSignModal');
+        showModal('editSignModal');
     }
 
     public openAddRightSignModal() {
@@ -226,8 +225,7 @@ class TextSign extends Vue {
             this.si.sign.line.signs[this.si.sign.indexInLine - 1]
                 .signInterpretations[0];
         this.$state.textFragmentEditor.selectSign(si);
-        // TODO(vue3): replace bv::show::modal bus event — open editSignModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'editSignModal');
+        showModal('editSignModal');
     }
 
     public async openQwbVariantsModal() {

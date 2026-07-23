@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="visible"
             header-class="title-header"
             footer-class="title-footer"

@@ -1,5 +1,5 @@
 <template>
-    <b-modal
+    <b-modal lazy
         v-if="currentEdition"
         v-model="visible"
         id="deleteEditionModal"
@@ -43,6 +43,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 import Waiting from '@/components/misc/Waiting.vue';
 import { boolean, re } from 'mathjs';
 import EditionService from '@/services/edition';
@@ -58,6 +59,19 @@ class DeleteEditionModal extends Vue {
     public deleting: boolean = false;
     public visible: boolean = false;
     public editionService = new EditionService();
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'deleteEditionModal',
+            () => { this.visible = true; },
+            () => { this.visible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
     public get currentEdition() {
         return this.$state.editions.current!;

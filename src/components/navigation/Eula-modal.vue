@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="visible"
             header-class="title-header"
             footer-class="title-footer"
@@ -53,6 +53,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 
 @Component({
     name: 'EulaModal',
@@ -61,6 +62,19 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 })
 class EulaModal extends Vue {
     public visible = false;
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'EulaModal',
+            () => { this.visible = true; },
+            () => { this.visible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
     public show() {
         this.visible = true;

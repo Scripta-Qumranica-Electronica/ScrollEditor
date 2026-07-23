@@ -91,8 +91,6 @@ class ChangeForgottenPassword extends Vue {
       try {
         await this.sessionService.changeForgottenPassword(data);
         router.push('/');
-        // TODO(vue3): open the login modal after redirect — $root.$emit('bv::show::modal') is gone;
-        // the Navbar's Login component exposes show() via ref, but is not accessible from here.
       } catch (e: any) {
         this.errorMessage = this.errorService.getErrorMessage(e.response.data);
       } finally {

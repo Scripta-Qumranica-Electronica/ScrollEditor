@@ -1,6 +1,6 @@
 <template>
             <!-- :width="600" :height="600" -->
-        <b-modal
+        <b-modal lazy
             ref="ScreenSizeAlertRef"
             id="ScreenSizeAlertModal"
             header-class="title-header"

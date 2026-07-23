@@ -72,7 +72,7 @@
             >{{ $t('misc.permission') }}</b-btn>
         </b-nav>
 
-        <b-modal
+        <b-modal lazy
             id="copyModal"
             v-model="copyModalVisible"
             :title="$t('home.copyTitle', { name: currentEdition.name, owner: currentEdition.owner.forename })"
@@ -112,6 +112,7 @@
 
 <script lang="ts">
 import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
+import { showModal } from '@/utils/modal-bus';
 import type { BvTriggerableEvent } from 'bootstrap-vue-next';
 import { EditionInfo } from '@/models/edition';
 import EditionService from '@/services/edition';
@@ -190,9 +191,7 @@ class SideBar extends Vue {
 
 
     public openPermissionModal() {
-        // TODO(vue3): bootstrap-vue-next no longer uses $root.$emit('bv::show::modal').
-        // permission-modal needs to be migrated to use a v-model prop for visibility.
-        this.$root!.$emit('bv::show::modal', 'permissionModal');
+        showModal('permissionModal');
     }
 
     public openRename() {

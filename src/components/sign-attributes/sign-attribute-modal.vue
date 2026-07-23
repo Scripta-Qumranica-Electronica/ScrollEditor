@@ -1,5 +1,5 @@
 <template>
-    <b-modal
+    <b-modal lazy
         id="sign-attribute-modal"
         :model-value="isVisible"
         @update:model-value="onVisibilityChange"

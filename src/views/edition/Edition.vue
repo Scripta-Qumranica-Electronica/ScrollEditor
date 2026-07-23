@@ -71,6 +71,7 @@
 <script lang="ts">
 // import Vue from 'vue';
 import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
+import { showModal } from '@/utils/modal-bus';
 
 import EditionSidebar from './components/sidebar.vue';
 import { EditionInfo } from '@/models/edition.js';
@@ -131,12 +132,10 @@ class Edition extends Vue {
     }
 
     public openMetadata() {
-        // TODO(vue3): replace bv::show::modal bus event — open editionMetadataModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'editionMetadataModal');
+        showModal('editionMetadataModal');
     }
     public deleteEdition() {
-        // TODO(vue3): replace bv::show::modal bus event — open deleteEditionModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'deleteEditionModal');
+        showModal('deleteEditionModal');
     }
     public get artefactsLength(): number {
         const virtualCount = this.$state.artefacts.items.reduce(
@@ -211,8 +210,7 @@ class Edition extends Vue {
     // ============================================================
 
     public openPermissionModal() {
-        // TODO(vue3): replace bv::show::modal bus event — open permissionModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'permissionModal');
+        showModal('permissionModal');
         // event, new_value
     }
 

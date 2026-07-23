@@ -1,5 +1,5 @@
 <template>
-    <b-modal
+    <b-modal lazy
         v-if="edition"
         v-model="visible"
         id="editionCopyrightInfoModal"
@@ -16,6 +16,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 import Waiting from '@/components/misc/Waiting.vue';
 @Component({
     name: 'edition-metadata-modal',
@@ -26,17 +27,27 @@ import Waiting from '@/components/misc/Waiting.vue';
 class EditionMetadataModal extends Vue {
     public editionId: number = 0;
     public visible: boolean = false;
+    private disposeModalListener?: () => void;
 
     public get edition() {
         return this.$state.editions.current!;
     }
 
     public async mounted() {
+        this.disposeModalListener = registerModalListener(
+            'editionCopyrightInfoModal',
+            () => { this.visible = true; },
+            () => { this.visible = false; },
+        );
         this.editionId = parseInt(String(this.$route.params.editionId), 10);
         if (isNaN(this.editionId)) {
             return;
         }
         await this.$state.prepare.edition(this.editionId);
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
     }
 
     public show() {

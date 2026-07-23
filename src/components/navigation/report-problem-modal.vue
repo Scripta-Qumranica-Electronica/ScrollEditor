@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="visible"
             title="Report Problem"
             footer-class="title-footer"
@@ -61,6 +61,7 @@
 <script lang="ts">
 import SessionService from '@/services/session';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { registerModalListener } from '@/utils/modal-bus';
 
 @Component({
     name: 'ReportProblemModal',
@@ -73,6 +74,19 @@ class ReportProblemModal extends Vue {
     public title = '';
     public reported = false;
     public sessionService: SessionService = new SessionService();
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'ReportProblemModal',
+            () => { this.visible = true; },
+            () => { this.visible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
     public show() {
         this.visible = true;

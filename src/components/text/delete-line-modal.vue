@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="modalVisible"
             id="deleteLineModal"
             title="Delete Line"
@@ -30,6 +30,7 @@ import {
 } from '@/views/artefact-editor/operations';
 import { LineDTO, TextFragmentDTO } from '@/dtos/sqe-dtos';
 import { OperationsManager } from '@/utils/operations-manager';
+import { registerModalListener } from '@/utils/modal-bus';
 
 @Component({
     name: 'delete-line-modal',
@@ -39,6 +40,7 @@ import { OperationsManager } from '@/utils/operations-manager';
 })
 class DeleteLineModal extends Vue {
     public modalVisible: boolean = false;
+    private disposeModalListener?: () => void;
     // if line.lineId is undefined the linelineName will be bad
     public position: string = '';
     public tempLine: LineDTO = {
@@ -66,8 +68,15 @@ class DeleteLineModal extends Vue {
         return this.editorState.selectedSignInterpretations[0];
     }
     public async mounted() {
-        // Vue 3: bv::show::modal event bus is not available; open modal via modalVisible prop
         this.$state.operationsManager = this.operationsManager;
+        this.disposeModalListener = registerModalListener(
+            'deleteLineModal',
+            () => { this.modalVisible = true; },
+            () => { this.modalVisible = false; },
+        );
+    }
+    public beforeUnmount() {
+        this.disposeModalListener?.();
     }
     public async saveEntities(
         ops: ArtefactEditorOperation[]

@@ -1,6 +1,6 @@
 <template @modal-show="onModalShow">
     <div>
-        <b-modal
+        <b-modal lazy
             v-model="modalVisible"
             id="addLineModal"
             title="Add Line"
@@ -40,6 +40,7 @@ import {
 } from '@/views/artefact-editor/operations';
 import { LineDTO, TextFragmentDTO } from '@/dtos/sqe-dtos';
 import { OperationsManager } from '@/utils/operations-manager';
+import { registerModalListener } from '@/utils/modal-bus';
 
 @Component({
     name: 'add-line-modal',
@@ -49,6 +50,7 @@ import { OperationsManager } from '@/utils/operations-manager';
 })
 class AddLineModal extends Vue {
     public modalVisible: boolean = false;
+    private disposeModalListener?: () => void;
     public position: string = '';
     public notInTheRightComponent: boolean = false;
     public tempLine: LineDTO = {
@@ -78,8 +80,15 @@ class AddLineModal extends Vue {
         console.log(parameter);
     }
     public async mounted() {
-        // Vue 3: bv::show::modal event bus is not available; open modal via modalVisible prop
         this.$state.operationsManager = this.operationsManager;
+        this.disposeModalListener = registerModalListener(
+            'addLineModal',
+            () => { this.modalVisible = true; },
+            () => { this.modalVisible = false; },
+        );
+    }
+    public beforeUnmount() {
+        this.disposeModalListener?.();
     }
     public async saveEntities(
         ops: ArtefactEditorOperation[]

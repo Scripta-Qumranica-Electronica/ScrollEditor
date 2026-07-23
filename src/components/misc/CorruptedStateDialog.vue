@@ -1,5 +1,5 @@
 <template>
-    <b-modal
+    <b-modal lazy
         id="corrupted-state-dialog"
         v-model="isVisible"
         header-class="title-header"

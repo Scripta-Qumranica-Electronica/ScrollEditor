@@ -81,7 +81,7 @@
             </div>
         </b-popover>
 
-        <b-modal
+        <b-modal lazy
             v-model="showParallelModal"
             hide-footer
             title="Parallel Texts from QD"
@@ -117,7 +117,7 @@
             </div>
         </b-modal>
 
-        <b-modal
+        <b-modal lazy
             v-model="showVariantModal"
             hide-footer
             title="Variant Edition Transcriptions"
@@ -174,6 +174,7 @@ import {
 import QwbProxyService from '@/services/qwb-proxy';
 import EditionService from '@/services/edition';
 import TextService from '@/services/text';
+import { showModal } from '@/utils/modal-bus';
 
 @Component({
     name: 'text-line',
@@ -236,23 +237,20 @@ class TextLineComponent extends Vue {
         this.$state.textFragmentEditor.selectSign(
             line.signs[0].signInterpretations[0]
         );
-        // TODO(vue3): replace bv::show::modal bus event — open editLineModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'editLineModal');
+        showModal('editLineModal');
     }
     public addLineBefore(line: Line) {
         console.log(this.$state.textFragmentEditor.selectedSignInterpretations)
         this.$state.textFragmentEditor.selectSign(
             line.signs[0].signInterpretations[0]
         );
-        // TODO(vue3): replace bv::show::modal bus event — open addLineModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'addLineModal', 'before');
+        showModal('addLineModal');
     }
     public deleteLine(line: Line) {
         this.$state.textFragmentEditor.selectSign(
         line.signs[0].signInterpretations[0]
         );
-        // TODO(vue3): replace bv::show::modal bus event — open deleteLineModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'deleteLineModal');
+        showModal('deleteLineModal');
         // const ts = new TextService();
         // // add operation on delete
         // ts.deleteLine(line.editorId, line.lineId);
@@ -262,8 +260,7 @@ class TextLineComponent extends Vue {
         this.$state.textFragmentEditor.selectSign(
         line.signs[0].signInterpretations[0]
         );
-        // TODO(vue3): replace bv::show::modal bus event — open addLineModal via a shared boolean prop or emitted event
-        this.$root!.$emit('bv::show::modal', 'addLineModal', 'after');
+        showModal('addLineModal');
     }
 
     public onPaste(event: any) {

@@ -27,6 +27,7 @@
 
 <script lang="ts">
 import { Component, Emit, Vue, toNative } from 'vue-facing-decorator';
+import { showModal } from '@/utils/modal-bus';
 import ErrorService from '@/services/error';
 import router from '@/router';
 import {
@@ -52,8 +53,7 @@ class ConfirmInvitation extends Vue {
 
     public mounted() {
         if (!this.isLogged) {
-            // TODO(vue3): replace bv::show::modal bus event — open loginModal via a shared boolean prop or emitted event
-            this.$root!.$emit('bv::show::modal', 'loginModal');
+            showModal('loginModal');
         }
 
         const url = window.location.href;

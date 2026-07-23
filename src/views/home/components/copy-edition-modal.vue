@@ -1,6 +1,6 @@
 <template>
         <!-- :visible="currentEdition !== null &&  visible === true" -->
-    <b-modal
+    <b-modal lazy
         v-if="currentEdition"
         v-model="internalVisible"
         :destroy-on-hide="true"
@@ -94,6 +94,7 @@ import type { BvTriggerableEvent } from 'bootstrap-vue-next';
 import { EditionInfo } from '@/models/edition';
 // import EditionIcons from '@/components/cues/edition-icons.vue';
 import EditionService from '@/services/edition';
+import { showModal } from '@/utils/modal-bus';
 
 @Component({
     name: 'copy-edition-modal',
@@ -196,16 +197,12 @@ class CopyEditionModal extends Vue {
     }
 
     public onLogin() {
-        // TODO(vue3): bootstrap-vue-next no longer uses $root.$emit('bv::show::modal').
-        // loginModal needs to be migrated to use a v-model prop for visibility.
-        this.$root!.$emit('bv::show::modal', 'loginModal');
+        showModal('loginModal');
         this.internalVisible = false;
     }
 
     public onRegister() {
-        // TODO(vue3): bootstrap-vue-next no longer uses $root.$emit('bv::show::modal').
-        // registerModal needs to be migrated to use a v-model prop for visibility.
-        this.$root!.$emit('bv::show::modal', 'registerModal');
+        showModal('registerModal');
         this.internalVisible = false;
     }
 }

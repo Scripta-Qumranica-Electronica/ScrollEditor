@@ -163,6 +163,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
+import { showModal } from '@/utils/modal-bus';
 import Waiting from '@/components/misc/Waiting.vue';
 import ArtefactService from '@/services/artefact';
 import SignInterpretationService from '@/services/sign-interpretation';
@@ -348,8 +349,7 @@ class ArtefactEditor
             'title': `Problem with mask of artefact ${this.artefactId} in edition ${this.edition.name} (${this.edition.id})`,
             'description': '',
         };
-        // TODO(vue3): replace bv::show::modal bus event — update when report-problem-modal.vue is migrated to v-model modal
-        this.$root!.$emit('bv::show::modal', 'ReportProblemModal');
+        showModal('ReportProblemModal');
     }
 
     public onNewPolygon(poly: Polygon) {
