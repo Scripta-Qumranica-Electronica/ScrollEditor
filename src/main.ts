@@ -39,7 +39,12 @@ import { StateManager } from './state';
 
 // Enable global Vue 2 compat behavior. Individual components can opt out as
 // they are migrated to the Vue 3 idioms.
-configureCompat({ MODE: 2 });
+// MODE 2 = full Vue-2 compat, EXCEPT COMPONENT_V_MODEL: bootstrap-vue-next is a
+// native Vue-3 library and reads `modelValue`/`update:modelValue`. Leaving the
+// Vue-2 v-model compat on made `v-model` compile to `value`/`input`, so bvn
+// modals (and other bvn v-model bindings) never received their value and never
+// opened. Custom components were migrated to the `modelValue` convention.
+configureCompat({ MODE: 2, COMPONENT_V_MODEL: false });
 
 const app = createApp(App);
 
