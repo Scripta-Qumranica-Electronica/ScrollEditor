@@ -8,6 +8,9 @@
         "preview": "vite preview",
         "test-ci": "cypress run",
         "test": "cypress open",
+        "test:unit": "vitest run",
+        "test:unit:watch": "vitest",
+        "test:unit:cov": "vitest run --coverage",
         "check:notifications": "node scripts/check-notification-coverage.js"
     },
     "dependencies": {
@@ -50,13 +53,20 @@
     "devDependencies": {
         "@babel/plugin-proposal-nullish-coalescing-operator": "^7.14.2",
         "@babel/plugin-proposal-optional-chaining": "^7.14.2",
+        "@cypress/code-coverage": "^3",
         "@vitejs/plugin-vue": "^6.0.8",
+        "@vitest/coverage-v8": "^4.1.10",
+        "@vue/test-utils": "^2.4.11",
         "cross-env": "^7.0.3",
         "cypress": "14.5.4",
+        "happy-dom": "^20.11.1",
         "mailslurp-client": "^12.0.0",
+        "nyc": "^18.0.0",
         "sass": "^1.101.3",
         "typescript": "^5.9.3",
         "vite": "^8.1.5",
+        "vite-plugin-istanbul": "^6",
+        "vitest": "^4.1.10",
         "vue-tsc": "^3.3.7"
     }
 }

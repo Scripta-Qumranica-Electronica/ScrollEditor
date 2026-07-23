@@ -16,6 +16,9 @@
 // Import commands.js using ES2015 syntax:
 import './commands'
 
+// Collect istanbul code coverage emitted by the instrumented app (COVERAGE=true).
+import '@cypress/code-coverage/support'
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 

@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv, Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import istanbul from 'vite-plugin-istanbul';
 import fs from 'fs';
 import path from 'path';
 
@@ -43,6 +44,11 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
+            // Code-coverage instrumentation for e2e. Gated behind COVERAGE=true so
+            // it never slows normal dev/build. Used with @cypress/code-coverage.
+            ...(process.env.COVERAGE
+                ? [istanbul({ include: ['src/**'], extension: ['.ts', '.vue'], requireEnv: false })]
+                : []),
         ],
         resolve: {
             alias: {

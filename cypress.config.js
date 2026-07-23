@@ -25,6 +25,7 @@ module.exports = defineConfig({
             'tests/e2e/specs/scroll_spec.js',
         ],
         setupNodeEvents(on, config) {
+            require('@cypress/code-coverage/task')(on, config)
             return config
         },
     },

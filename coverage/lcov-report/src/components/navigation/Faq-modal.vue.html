@@ -1,0 +1,295 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/components/navigation/Faq-modal.vue</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/components/navigation</a> Faq-modal.vue</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">57.14% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>4/7</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">66.66% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>2/3</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/3</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">50% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>3/6</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line medium'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&lt;template&gt;
+    &lt;div&gt;
+        &lt;b-modal lazy
+            v-model="<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >visible"</span></span>
+            header-class="title-header"
+            footer-class="title-footer"
+            id="FaqModal"
+            aria-label="FAQ Modal"
+            ok-only
+            :destroy-on-hide="true"
+            size="lg"
+        &gt;
+            &lt;template v-slot:header&gt;
+                &lt;b-row&gt;
+                    &lt;b-col cols="12"&gt; &lt;b&gt;{{ `${$t('home.brand')} - ${$t('navbar.faq')}` }} &lt;/b&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" > &lt;/b-col&gt;</span></span>
+                &lt;/b-row&gt;
+&nbsp;
+            &lt;/template&gt;
+&nbsp;
+            &lt;b-container fluid&gt;
+                &lt;h2 id="where-can-i-find-out-about-the-scripta-qumranica-electronica-project-"&gt;Where can I find out about the Scripta Qumranica Electronica project?&lt;/h2&gt;<span class="branch-0 cbranch-no" title="branch not covered" ></span>
+                &lt;p&gt;You can find detailed information about the SQE project at &lt;a target="_blank" href="https://qumranica.org"&gt;https://qumranica.org&lt;/a&gt;.&lt;/p&gt;
+                &lt;h2 id="do-you-have-any-instructional-materials-"&gt;Do you have any instructional materials?&lt;/h2&gt;
+                &lt;p&gt;Yes, you can access the instructional materials HERE.&lt;/p&gt;
+                &lt;h2 id="why-can-t-i-find-my-favorite-scroll-"&gt;Why can&amp;#39;t I find my favorite scroll?&lt;/h2&gt;
+                &lt;p&gt;Currently the SQE platform only contains material images by the IAA. So, you won&amp;#39;t yet find scrolls from other places here, for instance: &lt;/p&gt;
+                &lt;ul&gt;
+                &lt;li&gt;the great Isaiah scroll is housed at the Shrine of the Book&lt;/li&gt;
+                &lt;li&gt;the Copper Scroll is at the Jordan Museum in Amman&lt;/li&gt;
+                &lt;li&gt;several of the Cave 1 scrolls are at the BNF&lt;/li&gt;
+                &lt;li&gt;there are still others scattered in collections around the world&lt;/li&gt;
+                &lt;/ul&gt;
+                &lt;p&gt;You will find, however, that we have included a few scrolls/manuscripts from outside the IAA in order to prove that our technology can work with outside data. We include images of 1Q7 from the Bibliothèque nationale de France and also images of the Cairo Geniza Damascus Document (T-S 10K6 and T-S 16.311) from the University of Cambridge Digital Library.&lt;/p&gt;
+                &lt;h2 id="i-am-looking-for-a-manuscript-that-is-part-of-the-iaa-collection-why-can-t-i-find-it-"&gt;I am looking for a manuscript that is part of the IAA collection, why can&amp;#39;t I find it?&lt;/h2&gt;
+                &lt;p&gt;We are still working on organizing some of the IAA images, they will come available as soon as we are able to fix the cataloging issues and any problems with the state of the images.&lt;/p&gt;
+                &lt;h2 id="how-were-the-fragments-masked-in-the-images-and-why-don-t-they-always-look-right-"&gt;How were the fragments masked in the images, and why don&amp;#39;t they always look right?&lt;/h2&gt;
+                &lt;p&gt;The computer science team of the SQE project, led by Nachum Dershowitz, developed a process to automatically find the region of the fragment in an image. Sometimes, this process works great, other times it fails.&lt;/p&gt;
+                &lt;p&gt;The good news is that as a registered user you can change the mask yourself and label the fragments however you wish.&lt;/p&gt;
+                &lt;h2 id="how-come-i-see-the-wrong-text-next-to-a-fragment-"&gt;How come I see the wrong text next to a fragment?&lt;/h2&gt;
+                &lt;p&gt;At first our matching of fragments in an image to the transcribed text is based upon cataloging data, which was not always complete or consistent. The usage of one referencing system for the images and a different one for the texts caused many difficulties, and we have not manually fixed all the errors and lacunae yet.&lt;/p&gt;
+                &lt;p&gt;You can always choose proper text reference yourself, and once you link a letter in the transcription to a letter on the fragment, the proper connection between image and transcription will be made for you.&lt;/p&gt;
+            &lt;/b-container&gt;
+&nbsp;
+        &lt;/b-modal&gt;
+&nbsp;
+    &lt;/div&gt;
+&lt;/template&gt;
+&nbsp;
+&nbsp;
+&lt;script lang="ts"&gt;
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+&nbsp;
+@Component({
+    name: 'Faq',
+    components: {
+    }
+})
+class FaqModal extends Vue {
+    public visible = false;
+&nbsp;
+<span class="fstat-no" title="function not covered" >    public show() </span>{
+<span class="cstat-no" title="statement not covered" >        this.visible = true;</span>
+    }
+}
+export default toNative(FaqModal);
+&lt;/script&gt;
+&lt;style lang="scss" scoped&gt;
+@import '@/assets/styles/_variables.scss';
+@import '@/assets/styles/_fonts.scss';
+@import '@/assets/styles/_modals.scss';
+&lt;/style&gt;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-07-23T06:56:29.154Z
+            </div>
+        <script src="../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
+    </body>
+</html>
+    
