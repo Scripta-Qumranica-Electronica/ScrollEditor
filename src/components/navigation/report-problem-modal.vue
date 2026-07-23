@@ -47,7 +47,7 @@
                     </b-col>
                 </b-row>
             </form>
-            <template v-slot:modal-footer>
+            <template v-slot:footer>
                 <b-button @click="reportProblem" :disabled="!readyToReport" v-if="!reported">
                     {{ $t('misc.report') }}
                 </b-button>

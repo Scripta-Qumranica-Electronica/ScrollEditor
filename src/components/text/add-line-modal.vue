@@ -20,7 +20,7 @@
 
             <!-- <input style="background-color:blue" value="222" v-else @input="event => onLineNamed(event.target.value)"/> -->
 
-            <template v-slot:modal-footer>
+            <template v-slot:footer>
                 <div class="w-100-flex">
                     <b-button variant="outline-primary" @click="saveNewLine()">Save</b-button>
                 </div>

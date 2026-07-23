@@ -7,7 +7,7 @@
             footer-class="title-footer"
             @shown="shown"
         >
-         <template v-slot:modal-header>
+         <template v-slot:header>
                 <b-row class="mt-3">
                     <b-col cols="12">Forgot Password</b-col>
                 </b-row>
@@ -29,7 +29,7 @@
                     <b-col class="text-danger">{{ errorMessage }}</b-col>
                 </b-row>
             </b-container>
-             <template v-slot:modal-footer>
+             <template v-slot:footer>
                 <div class="w-100">
                     <b-button
                         @click="submit"

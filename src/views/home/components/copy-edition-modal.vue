@@ -19,7 +19,7 @@
                         })"
         aria-labelledby="copy-edition-modal"
     >
-        <template v-slot:modal-header>
+        <template v-slot:header>
             <b-row class="mt-3">
                 <b-col cols="12">
                     {{
@@ -60,7 +60,7 @@
         <div v-else>
             You must be registered and logged in before you can create a copy of an edition.
         </div>
-        <template v-slot:modal-footer>
+        <template v-slot:footer>
             <b-row>
                 <b-col>
                     <b-button

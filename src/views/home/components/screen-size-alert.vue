@@ -32,7 +32,7 @@
                 :ok-disabled="true"
             -->
 
-            <template v-slot:modal-header>
+            <template v-slot:header>
                 <div w-100 m-3 p-3>
                     <h1 text-center><b>This screen size is not supported yet. </b></h1>
                 </div>

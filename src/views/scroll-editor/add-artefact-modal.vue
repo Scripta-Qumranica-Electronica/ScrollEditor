@@ -51,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            <template #modal-footer>
+            <template #footer>
                 <div class="w-100">
                     <div
                         style="

@@ -8,7 +8,7 @@
             <div v-if="line">
                 Are you sure you want to delete line {{ line.lineName }}
             </div>
-            <template v-slot:modal-footer>
+            <template v-slot:footer>
                 <div class="w-100-flex">
                     <b-button variant="outline-primary" @click="deleteLine()"
                         >Confirm</b-button

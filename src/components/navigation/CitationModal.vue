@@ -10,7 +10,7 @@
             ok-only
             :destroy-on-hide="true"
         >
-            <template v-slot:modal-header>
+            <template v-slot:header>
                 <b-row>
                     <b-col cols="12"> <b>{{ `${$t('home.brand')} - Citation` }} </b> </b-col>
                 </b-row>

@@ -7,7 +7,7 @@
             id="loginModal"
             @show="shown"
         >
-            <template v-slot:modal-header>
+            <template v-slot:header>
                 <b-row>
                     <b-col cols="12">Log in to your account</b-col>
                 </b-row>
@@ -41,7 +41,7 @@
                     <b-col class="text-danger">{{ errorMessage }}</b-col>
                 </b-row>
             </b-container>
-            <template v-slot:modal-footer>
+            <template v-slot:footer>
                 <div class="w-100">
                     <b-button
                         @click="login"

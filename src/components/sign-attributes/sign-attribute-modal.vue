@@ -34,12 +34,12 @@
             <!-- TODO(vue3): comment.vue still uses value/input (Vue 2 v-model); update when comment.vue is migrated -->
             <comment v-if="!isMultiSelect" v-model="comment" class="mt-3" />
         </div>
-        <template v-slot:modal-footer>
+        <template v-slot:footer>
             <b-button :disabled="!deleteAllowed || readOnly" @click="onDeleteAttribute">
                 <i class="fa fa-trash"></i>
             </b-button>
         </template>
-        <!-- <template v-slot:modal-footer>
+        <!-- <template v-slot:footer>
             <b-button size="sm" @click="onSave">Save</b-button>
         </template>-->
     </b-modal>

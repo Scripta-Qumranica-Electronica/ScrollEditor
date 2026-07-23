@@ -24,7 +24,7 @@
                 </b-row>
             </div>
         </div>
-        <template #modal-footer>
+        <template #footer>
             <div class="w-100">
                 <div>
                     <b-button

@@ -10,7 +10,7 @@
             :destroy-on-hide="true"
             size="lg"
         >
-            <template v-slot:modal-header>
+            <template v-slot:header>
                 <b-row>
                     <b-col cols="12"> <b>{{ `${$t('home.brand')} - ${$t('navbar.faq')}` }} </b> </b-col>
                 </b-row>

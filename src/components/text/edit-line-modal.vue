@@ -17,7 +17,7 @@
                     @line-change="onLineChanged($event)"
                 ></text-line>
             </div>
-            <template v-slot:modal-footer>
+            <template v-slot:footer>
                 <div class="w-100-flex">
                     <b-button
                         variant="outline-primary"

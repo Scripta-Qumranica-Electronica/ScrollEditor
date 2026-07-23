@@ -29,7 +29,7 @@
                 </b-col>
             </b-row>
         </form>
-        <template v-slot:modal-footer>
+        <template v-slot:footer>
             <b-row>
                 <b-col>
                     <b-button @click.once="copyToEdition" :disabled="!editionTargetId">
