@@ -39,13 +39,22 @@ class Permissions {
             mayLock: false
         };
 
+        // Permissions cascade: admin implies write implies read. Written
+        // explicitly (rather than switch fall-through) so it is type-checkable
+        // under noFallthroughCasesInSwitch. Unknown values grant nothing.
         switch (simplified) {
             case 'admin':
                 rights.mayLock = rights.isAdmin = true;
+                rights.mayWrite = true;
+                rights.mayRead = true;
+                break;
             case 'write':
                 rights.mayWrite = true;
+                rights.mayRead = true;
+                break;
             case 'read':
                 rights.mayRead = true;
+                break;
         }
 
         return rights;

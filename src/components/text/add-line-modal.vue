@@ -144,6 +144,7 @@ class AddLineModal extends Vue {
             }
             return name;
         }
+        return '';
     }
     public get line(): LineDTO {
         // when it enters addline without reason

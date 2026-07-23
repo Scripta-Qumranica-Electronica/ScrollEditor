@@ -273,7 +273,7 @@ class TextLineComponent extends Vue {
         const selection = window.getSelection();
         if (selection) {
             if (!selection.rangeCount) {
-                return false;
+                return;
             }
             selection.deleteFromDocument();
             selection.getRangeAt(0).insertNode(document.createTextNode(paste));

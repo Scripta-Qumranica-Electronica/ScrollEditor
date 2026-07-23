@@ -14,7 +14,7 @@ export default class ArtefactDataMixin extends AsyncMountedMixinBase {
     public masterImageManifest: IIIFManifest | null = null;
     public boundingBox = new BoundingBox();
 
-    public async asyncMounted() {
+    public override async asyncMounted() {
         // await this.$state.prepare.edition(this.artefact.editionId);
 
         if (!this.artefact.isVirtual) {

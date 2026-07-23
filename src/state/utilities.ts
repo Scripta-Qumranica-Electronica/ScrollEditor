@@ -255,12 +255,12 @@ function state() {
     return StateManager.instance;
 }
 export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
-    public put(entry: InterpretationRoi) {
+    public override put(entry: InterpretationRoi) {
         this.attachRoiToArtefact(entry);
         return super.put(entry);
     }
 
-    public delete(id: number) {
+    public override delete(id: number) {
         const entry = this.get(id);
         if (!entry) {
             console.warn(`Can't remove ROI ${id} - it is not in the ROI state map`);
@@ -270,7 +270,7 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
         return super.delete(id);
     }
 
-    public clear() {
+    public override clear() {
         for (const artefact of state().artefacts.items) {
             artefact.rois = [];
         }
@@ -311,12 +311,12 @@ export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
 }
 
 export class SignInterpretationMap extends StateMap<SignInterpretation> {
-    public put(entry: SignInterpretation) {
+    public override put(entry: SignInterpretation) {
         this.attachSignInterpretationToArtefact(entry);
         return super.put(entry);
     }
 
-    public delete(id: number) {
+    public override delete(id: number) {
         const si = state().signInterpretations.get(id);
         if (!si) {
             console.warn(`Can't delete sign interpretaetion ${id}, it is not in the state`);
@@ -358,7 +358,7 @@ export class SignInterpretationMap extends StateMap<SignInterpretation> {
         }
     }
 
-    public clear() {
+    public override clear() {
         for (const artefact of state().artefacts.items) {
             artefact.signInterpretations = [];
         }

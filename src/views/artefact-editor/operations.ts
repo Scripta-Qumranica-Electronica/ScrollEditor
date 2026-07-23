@@ -20,7 +20,7 @@ export abstract class ArtefactEditorOperation extends Operation<ArtefactEditorOp
         super();
     }
 
-    public abstract uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined;
+    public abstract override uniteWith(op: ArtefactEditorOperation): ArtefactEditorOperation | undefined;
 
     public getId(): number {
         return this.artefact.id;

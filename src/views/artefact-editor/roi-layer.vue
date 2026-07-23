@@ -40,6 +40,7 @@ class RoiLayer extends Vue {
         if (this.si) {
             return roi.signInterpretationId === this.si.signInterpretationId;
         }
+        return false;
     }
     public highlightedComment(roi: InterpretationRoi) {
         if (roi.signInterpretationId) {
@@ -52,6 +53,7 @@ class RoiLayer extends Vue {
                 (si.commentary || si.attributes.some((attr) => attr.commentary))
             );
         }
+        return false;
     }
 
     public isSelectedRoi(roi: InterpretationRoi) {

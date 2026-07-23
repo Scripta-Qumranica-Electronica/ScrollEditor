@@ -30,6 +30,7 @@ export function updateInArray<T extends ItemWithId<U>, U>(entity: T, array?: T[]
     }
     // Vue 3: arrays are natively reactive, direct index assignment is tracked.
     array[idx] = entity;
+    return array;
 }
 
 export function removeFromArray<T extends ItemWithId<U>, U>(entityId: U, array?: T[]) {

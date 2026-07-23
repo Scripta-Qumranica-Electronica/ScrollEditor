@@ -218,6 +218,7 @@ export const Draggable: ObjectDirective<HTMLElement, DraggableValue> = {
                     top: touch.clientY - 56
                 };
             }
+            return undefined;
         }
 
         function getRectPosition(): Position | undefined {

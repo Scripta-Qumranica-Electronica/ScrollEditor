@@ -16,9 +16,9 @@ export abstract class ScrollEditorOperation extends Operation<ScrollEditorOperat
         super();
     }
 
-    public abstract uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined;
-    public abstract getId(): number;
-    public abstract replaceEntityId(newId: number): void;
+    public abstract override uniteWith(op: ScrollEditorOperation): ScrollEditorOperation | undefined;
+    public abstract override getId(): number;
+    public abstract override replaceEntityId(newId: number): void;
 }
 
 export type ArtefactPlacementOperationType = 'translate' | 'scale' | 'rotate' | 'add' | 'delete' | 'z-index' | 'mirror';
@@ -166,6 +166,7 @@ export class GroupPlacementOperation extends ScrollEditorOperation {
 
             return undefined;
         }
+        return undefined;
     }
 
     public getId() {
