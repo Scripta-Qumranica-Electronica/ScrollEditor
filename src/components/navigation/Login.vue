@@ -78,6 +78,7 @@ import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
 import router from '@/router';
+import { registerModalListener } from '@/utils/modal-bus';
 
 @Component({
     name: 'login',
@@ -95,6 +96,20 @@ class Login extends Vue {
     public sessionService: SessionService = new SessionService();
     public errorService: ErrorService = new ErrorService(this);
     public waiting: boolean = false;
+    private disposeModalListener?: () => void;
+
+    public mounted() {
+        // Bridge the legacy `$root.$emit('bv::show::modal', 'loginModal')` callers.
+        this.disposeModalListener = registerModalListener(
+            'loginModal',
+            () => { this.visible = true; },
+            () => { this.visible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
     public show() {
         this.visible = true;

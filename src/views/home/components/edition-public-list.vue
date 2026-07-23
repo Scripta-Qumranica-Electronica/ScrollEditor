@@ -1,24 +1,16 @@
 <template>
-    <DynamicScroller
-        id="public-list"
-        :items="indices"
-        :min-item-size="173"
-        v-slot="{ item, index, active }"
-    >
-        <DynamicScrollerItem
-            :item="item"
-            :active="active"
-            :size-dependencies="[getWindowWidth(), item]"
-            :index="index"
-        >
-            <edition-public-row style="min-height: 173px"
-                :editions="editions"
-                :key="item"
-                :index="item"
-                @show-copy-modal="$emit('show-copy-modal')"
-            />
-        </DynamicScrollerItem>
-    </DynamicScroller>
+    <!-- TODO(vue3): DynamicScroller (vue-virtual-scroller v1) is not Vue-3 compatible.
+         Rendered without virtualization for now; re-add a Vue-3 virtual scroller for perf. -->
+    <div id="public-list">
+        <edition-public-row
+            v-for="item in indices"
+            :key="item"
+            style="min-height: 173px"
+            :editions="editions"
+            :index="item"
+            @show-copy-modal="$emit('show-copy-modal')"
+        />
+    </div>
 </template>
 
 <script lang="ts">

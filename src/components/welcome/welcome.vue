@@ -133,18 +133,17 @@
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import SessionService from '@/services/session';
 import router from '@/router';
+import { showModal } from '@/utils/modal-bus';
 @Component({
     name: 'welcome',
 })
 class Welcome extends Vue {
     public sessionService = new SessionService();
     public login() {
-        // TODO(vue3): replace bv::show::modal bus event — update when Login.vue is migrated to v-model modal
-        this.$root!.$emit('bv::show::modal', 'loginModal');
+        showModal('loginModal');
     }
     public register() {
-        // TODO(vue3): replace bv::show::modal bus event — update when Registration.vue is migrated to v-model modal
-        this.$root!.$emit('bv::show::modal', 'registerModal');
+        showModal('registerModal');
     }
     public get userName(): string | undefined {
         if (this.$state.session.user) {
