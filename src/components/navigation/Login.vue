@@ -78,7 +78,7 @@ import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
 import router from '@/router';
-import { registerModalListener } from '@/utils/modal-bus';
+import { registerModalListener, showModal } from '@/utils/modal-bus';
 
 @Component({
     name: 'login',
@@ -152,12 +152,12 @@ class Login extends Vue {
 
     public forgotPassword() {
         this.visible = false;
-        // TODO(vue3): show passwordModal — update when ForgotPassword is migrated to expose a show() ref method
+        showModal('passwordModal');
     }
 
     public register() {
         this.visible = false;
-        // TODO(vue3): show registerModal — update when Registration is migrated to expose a show() ref method
+        showModal('registerModal');
     }
 
 }

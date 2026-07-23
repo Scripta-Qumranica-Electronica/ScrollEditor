@@ -57,6 +57,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 import SessionService from '@/services/session';
 import ErrorService from '@/services/error';
+import { registerModalListener } from '@/utils/modal-bus';
 
 @Component({
     name: 'forgot-password',
@@ -71,7 +72,19 @@ class ForgotPassword extends Vue {
     public errorService: ErrorService = new ErrorService(this);
     public waiting: boolean = false;
     public modalVisible: boolean = false;
+    private disposeModalListener?: () => void;
 
+    public mounted() {
+        this.disposeModalListener = registerModalListener(
+            'passwordModal',
+            () => { this.modalVisible = true; },
+            () => { this.modalVisible = false; },
+        );
+    }
+
+    public beforeUnmount() {
+        this.disposeModalListener?.();
+    }
 
     // computed
     public get disabledSubmit(): boolean {
