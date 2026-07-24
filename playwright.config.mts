@@ -11,6 +11,9 @@ import { defineConfig, devices } from '@playwright/test';
 // window.__coverage__ into .nyc_output; `npx nyc report` to summarise).
 export default defineConfig({
     testDir: './tests/playwright',
+    // Sweep the throwaway `pw-*`/`layout-audit-*`/`route-coverage-*` editions the specs
+    // create, so the dev DB doesn't accumulate bloat that degrades the API across runs.
+    globalTeardown: './tests/playwright/global-teardown.ts',
     // Realtime tests mutate shared backend edition state, so keep them serial for
     // now. Individual read-only specs can opt into parallelism later.
     fullyParallel: false,
