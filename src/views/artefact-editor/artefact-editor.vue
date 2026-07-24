@@ -1125,7 +1125,11 @@ export default toNative(ArtefactEditor);
     display: grid;
 
     grid-template-columns: 70% 1fr 30%;
-    grid-template-rows: $toolbar-height 70px 1fr auto;
+    // The toolbar wraps to two rows at ~1280-1440, so it occupies grid rows 1-2. Give
+    // #artefact-info its OWN row (3) below it instead of sharing row 2 with the toolbar —
+    // otherwise it paints on top of the toolbar's second-row controls (e.g. the "Select"
+    // mode button), making them unclickable.
+    grid-template-rows: $toolbar-height $toolbar-height 70px 1fr auto;
 
     /* .hidden-sidebar {
         grid-template-columns: 1fr 0px 50px;
@@ -1139,13 +1143,13 @@ export default toNative(ArtefactEditor);
 
 #artefact-info {
     grid-column: 1 / 3;
-    grid-row: 2 / 3;
+    grid-row: 3 / 4;
     text-align: center;
 }
 
 #artefact-image {
     grid-column: 1 / 3;
-    grid-row: 3 / 5;
+    grid-row: 4 / 6;
     height: 100%;
     width: 100%;
     overflow: auto;
@@ -1166,12 +1170,12 @@ export default toNative(ArtefactEditor);
 
 #text-side {
     grid-column: 3 / 3;
-    grid-row: 2 / 4;
+    grid-row: 3 / 5;
 }
 
 #attribute-pane {
     grid-column: 3 / 3;
-    grid-row: 4 / 4;
+    grid-row: 5 / 6;
 }
 
 .editor-actions {
