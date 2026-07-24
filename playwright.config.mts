@@ -15,11 +15,12 @@ export default defineConfig({
     // now. Individual read-only specs can opt into parallelism later.
     fullyParallel: false,
     workers: 1,
-    timeout: 45_000,
     // The full serial suite copies many editions; the source API (Debug build) + the
-    // growing editions table degrade under that sustained load, occasionally tripping a
-    // beforeAll `loginToken` past its timeout. Those are transient (they pass on a re-run
-    // once load subsides), so retry once. A test that fails deterministically still fails.
+    // growing editions table degrade under that sustained load, so a per-spec beforeAll
+    // `loginToken` can crawl. A generous per-test/hook budget keeps those transient slow
+    // logins from failing the whole spec (they pass in isolation). retries:1 covers the
+    // rest. A test that fails deterministically still fails well under this ceiling.
+    timeout: 90_000,
     retries: 1,
     expect: { timeout: 10_000 },
     reporter: [['list']],
