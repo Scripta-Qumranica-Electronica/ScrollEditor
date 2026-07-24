@@ -255,13 +255,24 @@ toolbar `scrollHeight ≈ clientHeight` (no vertical overflow), controls content
 full-row width), `img.naturalWidth > 0` (images decode), no `pageerror`. Known offender
 pattern: bootstrap `.row > *` width:100% + fixed-height toolbars (fixed in `toolbar.vue`).
 
-| route | screenshot | invariants asserted | covered-by | status |
-|---|---|---|---|---|
-| / | _TBD_ | | | |
-| /home/private, /home/public | _TBD_ | | | |
-| /search | _TBD_ | | | |
-| /editions/:id (+tabs) | _TBD_ | | | |
-| /editions/:id/scroll-editor | _TBD_ | toolbar no-overflow (guarded editor-controls.spec) | | |
-| /editions/:id/artefacts/:id | _TBD_ | | | |
-| /editions/:id/imaged-objects/:id | _TBD_ | | | |
-| auth routes | _TBD_ | | | |
+**Implemented in `layout-audit.spec.ts`** — each route × {1280, 1440}: screenshot to
+`test-results/layout/`, assert (a) no horizontal overflow (`documentElement.scrollWidth ≤
+clientWidth + 2`), (b) no `.toolbar` overflows its bar vertically (`scrollHeight ≈
+clientHeight`), (c) no `pageerror`. Images are dropped (this env's IIIF host cert is invalid).
+
+| route | 1280 | 1440 | notes |
+|---|---|---|---|
+| / | ✅ | ✅ | |
+| /home/public | ✅ | ✅ | |
+| /home/private | ✅ | ✅ | |
+| /search | ✅ | ✅ | |
+| /editions/:id/artefacts | ✅ | ✅ | |
+| /editions/:id/imaged-objects | ✅ | ✅ | |
+| /editions/:id/scroll-editor | ⚠️ | ⚠️ | **KNOWN ISSUE (found by this audit):** top toolbar sits in a fixed-height CSS-grid row; at 1280–1440 its controls wrap to a 2nd row but grid sizes the `auto` track by the flex bar's *unwrapped* max-content (1 row), so **~55px of buttons spill onto the canvas**. Partial mitigation applied (`grid-template-rows: minmax($toolbar-height,auto)`); the real fix is to lift the toolbar out of the fixed grid row (re-assign the row-2 grid children + `resize-bar`). Test asserts it doesn't regress past 90px until fixed. |
+| /editions/:id/artefacts/:id | ✅ | ✅ | |
+| /editions/:id/imaged-objects/:id | ✅ | ✅ | |
+| /editions/:id/text-fragments/:id | ✅ | ✅ | |
+
+Screenshots in `test-results/layout/` are for manual comparison against production
+(`https://sqe.deadseascrolls.org.il/`). Auth routes (registration/change-password/etc.) are
+modal/simple-form views already covered by public-user-flows / user-account specs.

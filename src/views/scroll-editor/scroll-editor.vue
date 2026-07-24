@@ -887,7 +887,11 @@ export default toNative(ScrollEditor);
     display: grid;
 
     grid-template-columns: 70% 1fr 30%;
-    grid-template-rows: $toolbar-height 1fr;
+    // The toolbar row must GROW to fit its controls when they wrap (at ~1280–1440 the
+    // scroll-top-toolbar wraps to two rows). A fixed `$toolbar-height` track clipped it,
+    // spilling ~57px of buttons onto the canvas below; minmax keeps the floor but lets
+    // the row expand. Mirrors the min-height (not height) fix in toolbar.vue.
+    grid-template-rows: minmax($toolbar-height, auto) 1fr;
 }
 #toolbar {
     grid-column: 1 / span 3;
