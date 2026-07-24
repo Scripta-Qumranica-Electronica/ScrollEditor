@@ -1,12 +1,12 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
 import { Placement } from '@/utils/Placement';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 import { ArtefactGroup, EditionInfo } from '@/models/edition';
 import { UpdateEditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 
 export type ScrollEditorOperationCategory = 'artefact' | 'group' | 'edit-group' | 'edition-metrics';

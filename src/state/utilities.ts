@@ -3,7 +3,7 @@ import { ImagedObject } from '@/models/imaged-object';
 import { Artefact } from '@/models/artefact';
 import { Image } from '@/models/image';
 import { TextFragment, InterpretationRoi, SignInterpretation, RoiStatus } from '@/models/text';
-import { StateManager } from '.';
+import { currentState } from './current';
 
 export interface ItemWithId<U> {
     id: U;
@@ -252,7 +252,7 @@ export class TextFragmentMap extends StateMap<TextFragment> { }
 export class ImageCache extends StateCache<Image> { }
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 export class InterpretationRoiMap extends StateMap<InterpretationRoi> {
     public override put(entry: InterpretationRoi) {

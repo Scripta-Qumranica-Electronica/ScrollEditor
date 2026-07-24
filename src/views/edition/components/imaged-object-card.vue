@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <router-link :to="{ path: `/editions/${editionId}/imaged-objects/${imageObjectId}` }">
-            <img class="card-img-top" v-lazy="imageUrl" v-if="imageUrl" alt="Imaged-Object">
+            <img class="card-img-top" :src="imageUrl" loading="lazy" v-if="imageUrl" alt="Imaged-Object">
         </router-link>
         <label>{{imagedObject.name}}</label>
     </div>

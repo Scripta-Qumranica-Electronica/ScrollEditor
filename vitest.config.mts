@@ -28,5 +28,19 @@ export default defineConfig({
         include: ['tests/unit/**/*.spec.ts'],
         // The app imports js-clipper (CJS/latin1); exclude heavy e2e dirs.
         exclude: ['node_modules', 'tests/e2e/**'],
+        coverage: {
+            // istanbul (not v8) so unit coverage merges with the e2e istanbul output
+            // (window.__coverage__ -> .nyc_output) into one combined nyc report.
+            provider: 'istanbul',
+            include: ['src/**'],
+            // all:true counts every src file (untested -> 0%) so the denominator is
+            // the WHOLE codebase, not just what a test happened to import.
+            all: true,
+            // Potrace.js is a vendored, battle-tested bitmap-tracing library (no
+            // side effects, "just works") — exclude it from the coverage denominator.
+            exclude: ['src/utils/Potrace.js'],
+            reporter: ['json', 'text-summary'],
+            reportsDirectory: './coverage-unit',
+        },
     },
 });

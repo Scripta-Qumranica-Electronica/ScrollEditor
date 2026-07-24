@@ -1,10 +1,10 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 import { Polygon } from '@/utils/Polygons';
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 
 export type ImagedObjectEditorOperationType = 'draw' | 'erase';

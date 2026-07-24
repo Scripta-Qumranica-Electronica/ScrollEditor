@@ -10,7 +10,7 @@
                 min="0"
                 max="1"
                 step="0.05"
-               @input="onOpacityInput"
+                @update:model-value="onOpacityInput"
             ></b-form-input> <!-- Instead of change, find an event that is reported during tracking, or use a watcher -->
         </div>
     </div>

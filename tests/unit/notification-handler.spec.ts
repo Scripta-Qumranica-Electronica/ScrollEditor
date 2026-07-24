@@ -42,8 +42,11 @@ describe('notification reducer — realtime state sync', () => {
     });
 
     it('P0: updated-artefact writes placement + mask onto the SAME instance', () => {
-        const a = new Artefact(makeArtefactDto({ id: 7 }));
-        st.artefacts.add(a);
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 7 })));
+        // Capture the instance AS HELD BY THE STORE (a reactive proxy), so the
+        // identity check below verifies copyFrom mutated it in place rather than
+        // comparing against the pre-insert raw object.
+        const a = st.artefacts.find(7)!;
         new NotificationHandler().handleUpdatedArtefact(
             makeArtefactDto({
                 id: 7,

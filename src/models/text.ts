@@ -16,7 +16,7 @@ import {
 import { Artefact } from './artefact';
 import { Polygon } from '@/utils/Polygons';
 import { Position } from '@/models/misc';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 
 class TextFragmentData {
     public id: number;
@@ -396,10 +396,10 @@ class InterpretationRoi {
         }
         if (newStatus === 'deleted') {
             // Remove the ROI from the artefact controlling it
-            StateManager.instance.interpretationRois.detachRoiFromArtefact(this, newStatus);
+            currentState().interpretationRois.detachRoiFromArtefact(this, newStatus);
         } else if (this._status === 'deleted') {
             // Add the ROI to the artefact
-            StateManager.instance.interpretationRois.attachRoiToArtefact(this);
+            currentState().interpretationRois.attachRoiToArtefact(this);
         }
 
         this._status = newStatus;

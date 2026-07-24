@@ -16,7 +16,7 @@ import { DiffReconstructedResponseDTO, DiffReplaceReconstructionRequestDTO, Diff
 import { Artefact } from '@/models/artefact';
 import { EditionInfo } from '@/models/edition';
 import { InterpretationRoi, Line, Sign, SignInterpretation, TextFragment } from '@/models/text';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 import { NotificationHandler } from '@/state/notification-handler';
 import { BoundingBox, Point } from '@/utils/helpers';
 import { Placement } from '@/utils/Placement';
@@ -47,7 +47,7 @@ export class VirtualArtefactEditor {
     }
 
     private get $state() {
-        return StateManager.instance;
+        return currentState();
     }
 
     public constructor(originalArtefact: Artefact) {

@@ -8,11 +8,15 @@
                 <b-card
                     class="p-3"
                     no-body
-                    v-for="edition in actualEditions"
+                    v-for="edition in displayedEditions"
                     :key="edition.id"
                 >
                     <edition-card :edition="edition"></edition-card>
                 </b-card>
+                <p v-if="actualEditions.length > renderLimit" class="more-results">
+                    Showing the first {{ renderLimit }} of {{ actualEditions.length }}
+                    editions — refine your search to narrow the results.
+                </p>
             </div>
         </b-collapse>
     </div>
@@ -40,6 +44,11 @@ class EditionResultsComponent extends Vue {
     @Prop( { default: null })
     public editions!: EditionDTO[] | null;
     public ready = false;
+    // Cap how many result cards render at once. A loose designation (e.g. "1Q")
+    // can match 100 editions; rendering that many <edition-card>s (each with an
+    // IntersectionObserver) blocks the initial paint of the results tab. The full
+    // count still shows in the tab title; the rest surface once the user refines.
+    public readonly renderLimit = 24;
 
     public async mounted() {
         this.ready = false;
@@ -54,6 +63,10 @@ class EditionResultsComponent extends Vue {
         }
 
         return this.editions.map(ed => this.$state.editions.find(ed.id)).filter(ed => !!ed) as EditionInfo[];
+    }
+
+    public get displayedEditions(): EditionInfo[] {
+        return this.actualEditions.slice(0, this.renderLimit);
     }
 
     public get title() {
@@ -91,5 +104,11 @@ p {
     display: inline-block;
     width: calc(25% - 20px);
     margin: 10px;
+}
+
+.more-results {
+    margin: 10px;
+    font-style: italic;
+    color: $blue;
 }
 </style>

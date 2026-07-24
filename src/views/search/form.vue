@@ -43,7 +43,7 @@
             <b-col class="col-5">
                 <b-form-textarea
                     id="textarea"
-                    @input="textToArray($event, 'textReference')"
+                    @update:model-value="textToArray($event, 'textReference')"
                     placeholder="Designation for a portion of text, e.g., Frg. 134"
                     rows="3"
                     max-rows="6"
@@ -64,7 +64,7 @@
             <b-col class="col-5">
                 <b-form-textarea
                     id="textarea"
-                    @input="textToArray($event, 'artefactDesignation')"
+                    @update:model-value="textToArray($event, 'artefactDesignation')"
                     placeholder="Designation for a manuscript fragment, e.g., Frg. 134"
                     rows="3"
                     max-rows="6"

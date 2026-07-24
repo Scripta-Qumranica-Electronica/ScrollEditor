@@ -12,9 +12,10 @@ import { Artefact } from '@/models/artefact';
 import { ImageStack } from '@/models/image';
 import { v7 as uuidv7 } from 'uuid';
 import { applyArtefactDto, registerPendingOperation } from '@/state/notification-handler';
+import { addToArray, removeFromArray } from '@/utils/collection-utils';
 import { ApiRoutes } from '@/services/api-routes';
 import { Side } from '@/models/misc';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 
 class ArtefactService {
     public async getEditionArtefacts(editionId: number): Promise<Artefact[]> {
@@ -105,6 +106,11 @@ class ArtefactService {
 
         const artefact = new Artefact(response.data);
         this.stateManager.artefacts.add(artefact, false);
+        // The imaged-object editor lists imagedObject.artefacts (a stored array, not
+        // derived from the global collection), so add the new artefact there too or it
+        // never appears in the right-side listing until reload. addToArray dedupes, so
+        // this is safe even if the CreatedArtefact SignalR broadcast also arrives.
+        addToArray(artefact, imagedObject.artefacts);
         this.stateManager.touchEdition(editionId);
 
         return artefact;
@@ -114,6 +120,11 @@ class ArtefactService {
         await CommHelper.delete(
             ApiRoutes.editionArtefactUrl(art.editionId, art.id)
         );
+        // Remove locally now (don't rely on the DeletedArtefact broadcast): both the
+        // global collection and the owning imaged object's stored list.
+        this.stateManager.artefacts.remove(art.id, false);
+        const imagedObject = this.stateManager.imagedObjects.find(art.imagedObjectId);
+        removeFromArray(art.id, imagedObject?.artefacts);
         this.stateManager.touchEdition(art.editionId);
     }
 
@@ -183,7 +194,7 @@ class ArtefactService {
     }
 
     private get stateManager() {
-        return StateManager.instance;
+        return currentState();
     }
 }
 

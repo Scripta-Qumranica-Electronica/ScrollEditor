@@ -35,3 +35,15 @@ docker/logs/*
 tests/e2e/screenshots
 cypress/screenshots
 cypress/videos
+
+# Playwright / e2e coverage artifacts
+/test-results/
+/playwright-report/
+/.nyc_output/
+
+# Combined coverage inputs
+/coverage-unit/
+/.nyc_combined/
+
+# Env-guarded API-audit recorder output (throwaway)
+tests/playwright/.api-audit.jsonl

@@ -53,7 +53,6 @@ import { BoundingBox } from '@/utils/helpers';
 import { ImageSetting } from '@/components/image-settings/types';
 import { Artefact } from '@/models/artefact';
 import ArtefactImageGroup from './artefact-image-group.vue';
-import ArtefactToolbox from './artefact-toolbox.vue';
 import { ScrollEditorOperation } from './operations';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactTextFragmentData } from '@/models/text';
@@ -65,7 +64,6 @@ import { ScriptData, GlyphData } from '@/models/script';
         Waiting,
         zoomer: Zoomer,
         'artefact-image-group': ArtefactImageGroup,
-        'artefact-toolbox': ArtefactToolbox,
     },
 })
 class ScrollArea extends Vue {

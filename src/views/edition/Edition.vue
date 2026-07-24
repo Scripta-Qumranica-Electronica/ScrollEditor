@@ -73,7 +73,6 @@
 import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 import { showModal } from '@/utils/modal-bus';
 
-import EditionSidebar from './components/sidebar.vue';
 import { EditionInfo } from '@/models/edition.js';
 import Waiting from '@/components/misc/Waiting.vue';
 
@@ -86,7 +85,6 @@ import DeleteEditionModal from './components/delete-edition-modal.vue';
 @Component({
     name: 'edition',
     components: {
-        EditionSidebar,
         Waiting,
         PermissionModal,
         'delete-edition-modal': DeleteEditionModal,

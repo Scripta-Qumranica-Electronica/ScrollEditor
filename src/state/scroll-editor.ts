@@ -1,14 +1,14 @@
 import { Artefact } from '@/models/artefact';
 import { ArtefactGroup } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
-import { StateManager } from '@/state';
+import { currentState } from './current';
 import { BoundingBox, Point } from '@/utils/helpers';
 import { ScrollEditorParams } from '@/views/artefact-editor/types';
 import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
 
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 
 export type ScrollEditorMode = 'text' | 'material';

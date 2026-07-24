@@ -1,8 +1,8 @@
 import { ImagedObjectEditorParams } from '@/views/imaged-object-editor/types';
-import { StateManager } from '.';
+import { currentState } from './current';
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 
 export class ImagedObjectState {

@@ -20,7 +20,7 @@ import { Component, Prop, Emit, Vue, toNative } from 'vue-facing-decorator';
 import Navbar from '@/components/navigation/Navbar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
 import SessionService from '@/services/session';
-import { StateManager } from './state';
+import type { StateManager } from './state';
 import CorruptedStateDialog from '@/components/misc/CorruptedStateDialog.vue';
 
 import ScreenSizeAlert from './views/home/components/screen-size-alert.vue';

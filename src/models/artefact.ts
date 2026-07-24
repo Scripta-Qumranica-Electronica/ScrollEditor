@@ -6,7 +6,7 @@ import { ArtefactTextFragmentData, InterpretationRoi, SignInterpretation } from 
 import { BoundingBox } from '@/utils/helpers';
 import { Placement } from '@/utils/Placement';
 import { Point } from '@/utils/helpers';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 import { TimeoutError } from '@microsoft/signalr';
 
 export class Artefact {
@@ -72,7 +72,7 @@ export class Artefact {
             return false;
         }
 
-        const viewport = StateManager.instance.scrollEditor.viewport;
+        const viewport = currentState().scrollEditor.viewport;
         if (!viewport) {
             return false;
         }

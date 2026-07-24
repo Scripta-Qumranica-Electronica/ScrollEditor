@@ -268,4 +268,15 @@ export class OperationsManager<OP extends Operation<OP, K>, K = number> implemen
             this.autoSaveTimer = window.setTimeout(() => this.save(), this.autoSaveInterval);
         }
     }
+
+    // Cancel any pending autosave. Editors MUST call this on unmount: otherwise a
+    // change made <autoSaveInterval before navigating away fires save() against the
+    // torn-down editor (its SavingAgent), throwing on stale state and issuing a
+    // save request for the wrong/previous edition.
+    public dispose() {
+        if (this.autoSaveTimer) {
+            window.clearTimeout(this.autoSaveTimer);
+            this.autoSaveTimer = undefined;
+        }
+    }
 }

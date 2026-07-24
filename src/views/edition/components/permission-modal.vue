@@ -51,7 +51,7 @@
                                 <span class="col-6">{{share.email}}</span>
                                 <b-form-select
                                     :disabled="share.disableRow || waiting"
-                                    @change="setRowShareStatus(share)"
+                                    @update:model-value="setRowShareStatus(share)"
                                     size="sm"
                                     class="col-4"
                                     id="inline-form-custom-select-pref"
@@ -84,7 +84,7 @@
                                 <span class="col-6">{{invit.email}}</span>
                                 <b-form-select
                                     :disabled="invit.disableRow || invit.disableButton || waiting"
-                                    @change="setRowInvitStatus(invit)"
+                                    @update:model-value="setRowInvitStatus(invit)"
                                     size="sm"
                                     class="col-4"
                                     id="inline-form-custom-select-pref"

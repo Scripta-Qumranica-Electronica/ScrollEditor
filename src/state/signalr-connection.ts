@@ -1,5 +1,5 @@
 import { LogLevel, HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { StateManager } from '@/state';
+import { currentState } from './current';
 import { SignalRUtilities } from '@/dtos/sqe-signalr';
 import { NotificationHandler } from './notification-handler';
 import { HANDLED_EVENTS, UNHANDLED_EVENTS } from './notification-coverage';
@@ -133,7 +133,7 @@ export class SignalRWrapper {
 
         this._connection = new HubConnectionBuilder()
             .withUrl(process.env.VUE_APP_SIGNALR_URL!, {
-                accessTokenFactory: () => StateManager.instance.session.token || '',
+                accessTokenFactory: () => currentState().session.token || '',
                 // transport: HttpTransportType.LongPolling, // import HttpTransportType if needed
             }).configureLogging(process.env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Error)
             .withAutomaticReconnect()

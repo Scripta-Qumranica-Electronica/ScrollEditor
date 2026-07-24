@@ -2,14 +2,15 @@ import { ImagedObject } from '@/models/imaged-object';
 import { CommHelper } from './comm-helper';
 import { ApiRoutes } from '@/services/api-routes';
 import { ImagedObjectListDTO } from '@/dtos/sqe-dtos';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
+import type { StateManager } from '@/state';
 
 
 class ImagedObjectService {
     public stateManager: StateManager;
 
     constructor() {
-        this.stateManager = StateManager.instance;
+        this.stateManager = currentState();
     }
 
     public async getEditionImagedObjects(editionId: number): Promise<ImagedObject[]> {

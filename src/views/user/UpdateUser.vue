@@ -75,15 +75,28 @@ import router from '@/router';
 class UpdateUser extends Vue {
     // data
     public password: string = '';
-    public surname: string | undefined = this.$state.session.user!.surname;
-    public forename: string | undefined = this.$state.session.user!.forename;
-    public email: string = this.$state.session.user!.email;
-    public organization: string | undefined =
-        this.$state.session.user!.organization;
+    // NB: these must NOT read this.$state in field initializers — under Vue 3 the
+    // $state global isn't bound on the instance yet at class-field init time, so it
+    // threw "Cannot read properties of undefined (reading 'session')" and the whole
+    // page failed to render. Populate them in created() instead.
+    public surname: string | undefined = '';
+    public forename: string | undefined = '';
+    public email: string = '';
+    public organization: string | undefined = '';
     public errorMessage: string = '';
     public sessionService: SessionService = new SessionService();
     public errorService: ErrorService = new ErrorService(this);
     public waiting: boolean = false;
+
+    public created() {
+        const user = this.$state.session.user;
+        if (user) {
+            this.surname = user.surname;
+            this.forename = user.forename;
+            this.email = user.email;
+            this.organization = user.organization;
+        }
+    }
 
     // computed
 

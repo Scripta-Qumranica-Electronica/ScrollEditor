@@ -26,7 +26,7 @@
                 $t('misc.anotherCopy')
             }}</b-dropdown-item-button>
         </b-dropdown>
-        <copy-edition-modal></copy-edition-modal>
+        <copy-edition-modal v-model="showCopyEditionModal"></copy-edition-modal>
     </toolbox>
 </template>
 <script lang="ts">
@@ -46,15 +46,16 @@ import Toolbox from './toolbox.vue';
 class CopyEditionToolbox extends Vue {
     public editionService: EditionService = new EditionService();
     public variantEditions: EditionInfo[] = [];
+    public showCopyEditionModal = false;
 
     public get currentEdition(): EditionInfo | null {
         return this.$state.editions.current;
     }
 
     public openCopyEdtion() {
-        // TODO(vue3): copy-edition-modal not yet migrated; switch to a boolean v-model once that
-        // component exposes a modelValue prop instead of its :visible/:id bus pattern.
-        this.$root!.$bvModal.show('copy-edition-modal');
+        // bootstrap-vue-next removed the $bvModal bus; copy-edition-modal exposes a
+        // boolean modelValue, so toggle it via v-model instead.
+        this.showCopyEditionModal = true;
     }
 
     public async mounted() {

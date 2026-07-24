@@ -11,6 +11,10 @@
         "test:unit": "vitest run",
         "test:unit:watch": "vitest",
         "test:unit:cov": "vitest run --coverage",
+        "test:e2e": "playwright test --config playwright.config.mts",
+        "test:e2e:ui": "playwright test --config playwright.config.mts --ui",
+        "test:e2e:cov": "rm -rf .nyc_output && playwright test --config playwright.config.mts && nyc report --reporter=text-summary --reporter=html --temp-dir .nyc_output",
+        "coverage:combined": "node scripts/coverage-combined.mjs",
         "check:notifications": "node scripts/check-notification-coverage.js"
     },
     "dependencies": {
@@ -54,7 +58,9 @@
         "@babel/plugin-proposal-nullish-coalescing-operator": "^7.14.2",
         "@babel/plugin-proposal-optional-chaining": "^7.14.2",
         "@cypress/code-coverage": "^3",
+        "@playwright/test": "^1.61.1",
         "@vitejs/plugin-vue": "^6.0.8",
+        "@vitest/coverage-istanbul": "4",
         "@vitest/coverage-v8": "^4.1.10",
         "@vue/test-utils": "^2.4.11",
         "cross-env": "^7.0.3",

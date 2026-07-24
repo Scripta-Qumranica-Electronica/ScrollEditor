@@ -1,4 +1,5 @@
-import { StateManager } from '@/state';
+import type { StateManager } from '@/state';
+import { currentState } from './current';
 import EditionService from '@/services/edition';
 import ImagedObjectService from '@/services/imaged-object';
 import ArtefactService from '@/services/artefact';
@@ -76,7 +77,13 @@ type ProcessProperties =
 
 export default class StateService {
     private static alreadyCreated = false;
-    private _state: StateManager;
+    // Resolve the singleton lazily via currentState() so every access goes through
+    // the shared REACTIVE proxy (StateService is constructed inside the StateManager
+    // constructor, i.e. before the proxy exists — caching the raw instance here would
+    // make all its writes, e.g. editions.current, bypass reactivity).
+    private get _state(): StateManager {
+        return currentState();
+    }
     private _notificationHandler: NotificationHandler;
 
     private allEditionsProcess: ProcessTracking | undefined;
@@ -95,12 +102,12 @@ export default class StateService {
     private editionMetadataProcess: ProcessTracking | undefined;
     // TODO: Add process for artefactGroups
 
-    public constructor(state: StateManager) {
+    public constructor(_state?: StateManager) {
         if (StateService.alreadyCreated) {
             console.error("Can't initialize StateService more than once");
             throw new Error("Can't initialize StateService more than once");
         }
-        this._state = state;
+        // _state is now resolved lazily via the getter above (currentState()).
         this.imageManifestProcesses = new Map<string, ProcessTracking>();
         this._notificationHandler = new NotificationHandler();
         SignalRWrapper.instance.registerNotificationHandler(

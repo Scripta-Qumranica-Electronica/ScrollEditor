@@ -21,12 +21,12 @@
                 @onSideArtefactChanged="sideArtefactChanged($event)"
             >
                 <toolbox>
-                    <b-btn
+                    <b-button
                         v-if="canEdit"
                         variant="outline-secondary"
                         class="btn"
                         @click="showNewModal = true"
-                        >{{ $t('misc.new') }}</b-btn
+                        >{{ $t('misc.new') }}</b-button
                     >
                 </toolbox>
             </imaged-object-editor-toolbar>
@@ -241,6 +241,7 @@ import EditionIcons from '@/components/cues/edition-icons.vue';
 import { ImagedObjectState } from '../../state/imaged-object';
 import Toolbox from '@/components/toolbars/toolbox.vue';
 import ResizeBar from '@/components/misc/resizeBar.vue';
+import { currentState } from '@/state/current';
 
 @Component({
     name: 'imaged-object-editor',
@@ -300,8 +301,10 @@ class ImagedObjectEditor
                 continue;
             }
             try {
+                // artefact.editionId (not this.editionId) so save does not depend on
+                // this.$route, which is undefined in the autosave saving-agent context.
                 await this.artefactService.changeArtefact(
-                    this.editionId,
+                    artefact.editionId,
                     artefact
                 );
 
@@ -316,7 +319,7 @@ class ImagedObjectEditor
         return true;
     }
     public get imagedObjectState(): ImagedObjectState {
-        return this.$state.imagedObject;
+        return currentState().imagedObject;
     }
     public get params(): ImagedObjectEditorParams {
         return this.imagedObjectState.params || new ImagedObjectEditorParams();
@@ -341,11 +344,11 @@ class ImagedObjectEditor
         try {
             this.waiting = true;
 
-            await this.$state.prepare.edition(this.editionId);
+            await currentState().prepare.edition(this.editionId);
             // Imaged objects are loaded lazily (not on edition open); this editor needs them.
-            await this.$state.prepare.imagedObjects(this.editionId);
+            await currentState().prepare.imagedObjects(this.editionId);
 
-            this.$state.imagedObjects.current = this.$state.imagedObjects.find(
+            currentState().imagedObjects.current = currentState().imagedObjects.find(
                 String(this.$route.params.imagedObjectId)
             );
 
@@ -378,13 +381,13 @@ class ImagedObjectEditor
 
             const images = [...rectoImages, ...versoImages];
             const promises = images.map((img) =>
-                this.$state.prepare.imageManifest(img)
+                currentState().prepare.imageManifest(img)
             );
             await Promise.all(promises);
 
             // Masks are loaded lazily; the editor draws and edits the artefact
             // outlines for this imaged object, so ensure their masks are present.
-            await this.$state.prepare.ensureArtefactMasks(
+            await currentState().prepare.ensureArtefactMasks(
                 this.imagedObject.artefacts
             );
 
@@ -412,11 +415,13 @@ class ImagedObjectEditor
     }
 
     public mounted() {
-        this.$state.operationsManager = this.operationsManager;
+        currentState().operationsManager = this.operationsManager;
     }
 
     public unmounted() {
-        this.$state.operationsManager = null;
+        // Cancel any pending autosave so it can't fire against this torn-down editor.
+        this.operationsManager.dispose();
+        currentState().operationsManager = null;
     }
 
     public get artefact(): Artefact | undefined {
@@ -429,7 +434,11 @@ class ImagedObjectEditor
     }
 
     public get imagedObject(): ImagedObject | null {
-        return this.$state.imagedObjects.current;
+        // Use currentState() (the module singleton) rather than currentState(): the
+        // OperationsManager autosave invokes saveEntities on a saving-agent reference
+        // whose `this` is NOT the public component proxy, so currentState()/$route/$t are
+        // undefined there. currentState() always resolves the store.
+        return currentState().imagedObjects.current;
     }
 
     public get editionId(): number {
@@ -437,7 +446,7 @@ class ImagedObjectEditor
     }
 
     public get edition(): EditionInfo | null {
-        return this.$state.editions.current;
+        return currentState().editions.current;
     }
 
     public get removeColor() {
@@ -445,7 +454,7 @@ class ImagedObjectEditor
     }
 
     public get canEdit(): boolean {
-        return this.$state.editions.current?.permission?.mayWrite || false;
+        return currentState().editions.current?.permission?.mayWrite || false;
     }
 
     public get visibleArtefacts(): Artefact[] {
@@ -679,7 +688,8 @@ class ImagedObjectEditor
 
     public showMessage(msg: string, type: string = 'info') {
         // TODO(vue3): $toasted was removed; replace with a Vue 3 notification plugin
-        const text = this.$t(msg) as string;
+        // this.$t may be unavailable when called from the autosave saving-agent context.
+        const text = (this.$t ? this.$t(msg) : msg) as string;
         if (type === 'error') {
             console.error(text);
         } else {

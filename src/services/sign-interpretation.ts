@@ -1,5 +1,6 @@
 import { CommHelper } from './comm-helper';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
+import type { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { EditionInfo } from '@/models/edition';
 import { SignInterpretation } from '@/models/text';
@@ -14,7 +15,7 @@ export default class SignInterpretationService {
      */
 
     constructor() {
-        this.stateManager = StateManager.instance;
+        this.stateManager = currentState();
     }
 
     public async updateAttribute(edition: EditionInfo, signInterpretation: SignInterpretation, oldValueId: number, attribute: InterpretationAttributeDTO) {

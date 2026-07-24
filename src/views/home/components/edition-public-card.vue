@@ -4,7 +4,7 @@
             <img
                 class="card-img-top"
                 v-if="thumbnailSource"
-                v-lazy="thumbnailSource"
+                :src="thumbnailSource" loading="lazy"
                 :alt="edition.name"
             />
             <p class="no-images" v-else>{{ $t('misc.noImages') }}</p>

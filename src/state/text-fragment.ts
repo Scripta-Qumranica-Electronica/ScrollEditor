@@ -1,11 +1,11 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData, TextFragment, Sign, Line } from '@/models/text';
-import { StateManager } from '.';
+import { currentState } from './current';
 
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 export type editSignInterpretationModeType = 'edit' | 'create';
 export type TextEditingMode = 'manuscript' | 'artefact';

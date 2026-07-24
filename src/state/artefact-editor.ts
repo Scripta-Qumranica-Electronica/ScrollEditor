@@ -1,12 +1,12 @@
 import { InterpretationAttributeDTO } from '@/dtos/sqe-dtos';
 import { Artefact } from '@/models/artefact';
 import { SignInterpretation, InterpretationRoi, ArtefactTextFragmentData } from '@/models/text';
-import { StateManager } from '.';
+import { currentState } from './current';
 import { ArtefactEditorParams } from '../views/artefact-editor/types';
 
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 export class ArtefactEditorState {
     public selectedInterpretationRoi: InterpretationRoi | null = null;

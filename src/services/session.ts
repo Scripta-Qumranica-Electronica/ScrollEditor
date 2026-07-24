@@ -8,7 +8,8 @@ import { LoginRequestDTO, DetailedUserDTO, UserDTO, ResetLoggedInUserPasswordReq
     GithubIssueReportDTO} from '@/dtos/sqe-dtos';
 import { CommHelper } from './comm-helper';
 import { UserInfo } from '@/models/edition';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
+import type { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { SignalRWrapper } from '@/state/signalr-connection';
 
@@ -18,7 +19,7 @@ class SessionService {
     private signalR: SignalRWrapper;
 
     constructor() {
-        this.stateManager = StateManager.instance;
+        this.stateManager = currentState();
         this.signalR = SignalRWrapper.instance;
     }
 

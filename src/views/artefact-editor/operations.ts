@@ -1,13 +1,13 @@
 import { Operation } from '@/utils/operations-manager';
 import { Artefact } from '@/models/artefact';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 import { InterpretationAttributeDTO, SignDTO, LineDTO } from '@/dtos/sqe-dtos';
 import TextService from '@/services/text';
 import { NumberFormatResult } from 'vue-i18n';
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 
 export type ArtefactEditorOperationType = 'rotate' | 'draw' | 'erase' | 'attr' | 'commentary' | 'sign' | 'editLine' | 'addLine' | 'deleteLine';

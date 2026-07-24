@@ -7,7 +7,7 @@
             <b-form-input
                 id="filter"
                 v-model="internalValue.filter"
-                @input="onFilterChange($event)"
+                @update:model-value="onFilterChange($event)"
             ></b-form-input>
         </b-form-group>
         <b-form-group v-if="params.side">
@@ -18,7 +18,7 @@
                 name="side"
                 class="ml-2 size"
                 v-model="internalValue.side"
-                @change="onViewChange($event)"
+                @update:model-value="onViewChange($event)"
             >
                 <b-form-select-option value="recto and verso"
                     >Both</b-form-select-option
@@ -35,7 +35,7 @@
                 name="sort"
                 class="ml-2"
                 v-model="internalValue.sort"
-                @change="onSortChange($event)"
+                @update:model-value="onSortChange($event)"
             >
                 <!-- <b-form-select-option :value="null"
                     >Please select an option</b-form-select-option
@@ -85,15 +85,17 @@ class SearchBar extends Vue {
         this.onSearch();
     }
 
-    public onFilterChange(inputEvent: string | undefined) {
+    // The arg (the new bvn model value) is unused — we just re-emit the current
+    // internalValue via onSearch. Typed `unknown` so bvn's model-value types fit.
+    public onFilterChange(_inputEvent?: unknown) {
         this.onSearch();
     }
 
-    public onViewChange(viewEvent: string | undefined) {
+    public onViewChange(_viewEvent?: unknown) {
         this.onSearch();
     }
 
-    public onSortChange(selectEvent: string | undefined) {
+    public onSortChange(_selectEvent?: unknown) {
         this.onSearch();
     }
 

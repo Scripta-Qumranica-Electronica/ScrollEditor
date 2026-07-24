@@ -15,7 +15,7 @@ import ConfirmInvitation from './views/edition/components/confirm-invitation.vue
 import ArtefactEditor from './views/artefact-editor/artefact-editor.vue';
 import ImagedObjectEditor from './views/imaged-object-editor/imaged-object-editor.vue';
 import EditionMetadata from './views/edition/components/metadata.vue';
-import { StateManager } from './state';
+import { currentState } from '@/state/current';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,7 +57,13 @@ const router = createRouter({
                 },
                 {
                     path: '',
-                    redirect: '/editions/:editionId/artefacts'
+                    // vue-router 4 does NOT interpolate params in a static-string
+                    // redirect, so a literal ':editionId' would reach the child as
+                    // the string ":editionId" (parsed as NaN -> 400 -> bounced home).
+                    // Use a function redirect that carries the real param through.
+                    redirect: (to) => ({
+                        path: `/editions/${to.params.editionId}/artefacts`,
+                    }),
                 }
             ]
         },
@@ -110,7 +116,7 @@ const router = createRouter({
 router.beforeEach((to) => {
     if (to.matched.some((record) => record.meta.activeUserRoute)) {
         // This route requires an activated user. If not activated, redirect home.
-        const user = StateManager.instance.session.user;
+        const user = currentState().session.user;
         const activated = user ? user.activated : false;
         if (!activated) {
             return { path: '/' };

@@ -82,6 +82,7 @@
 </template>
 
 <script lang="ts">
+import { currentState } from '@/state/current';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import ResizeBar from '@/components/misc/resizeBar.vue';
 import Waiting from '@/components/misc/Waiting.vue';
@@ -102,7 +103,6 @@ import { ArtefactEditorOperation } from '../artefact-editor/operations';
 import { ScrollEditorParams } from '../artefact-editor/types';
 import { EditorParamsChangedArgs } from '../imaged-object-editor/types';
 import AddArtefactModal from './add-artefact-modal.vue';
-import ArtefactToolbox from './artefact-toolbox.vue'; // TBD
 import ManuscriptToolbar from './manuscript-toolbar.vue';
 import {
     ArtefactPlacementOperation,
@@ -125,7 +125,6 @@ import TextToolbar from './text-toolbar.vue';
         zoomer: Zoomer,
         'add-artefact-modal': AddArtefactModal,
         'edition-icons': EditionIcons,
-        'artefact-toolbox': ArtefactToolbox, // TBD
         'scroll-area': ScrollArea,
         'scroll-ruler': ScrollRuler,
         'scroll-map': ScrollMap,
@@ -152,7 +151,7 @@ class ScrollEditor
     //
 
     public get scrollEditorState(): ScrollEditorState {
-        return this.$state.scrollEditor;
+        return currentState().scrollEditor;
     }
     public get selectedArtefacts() {
         return this.scrollEditorState.selectedArtefacts;
@@ -167,7 +166,7 @@ class ScrollEditor
         return this.scrollEditorState.params || new ScrollEditorParams();
     }
     public get edition() {
-        return this.$state.editions.current! || {};
+        return currentState().editions.current! || {};
     }
     public get editionWidth(): number {
         return this.edition.metrics.width;
@@ -244,7 +243,7 @@ class ScrollEditor
         try {
             // save artefacts in bulk
             const allMovedArtefacts = Array.from(allMovedArtefactIds).map(
-                (artId) => this.$state.artefacts.find(artId)!
+                (artId) => currentState().artefacts.find(artId)!
             );
             allMovedArtefacts.forEach((art) => art.prepareForBackend());
             //            console.debug('Artefacts after preparing for backend ', allMovedArtefacts.map(art => JSON.stringify(art.placement)));
@@ -323,35 +322,35 @@ class ScrollEditor
     }
 
     public get artefacts() {
-        return this.$state.artefacts.items || [];
+        return currentState().artefacts.items || [];
     }
     public get placedArtefacts() {
         return this.artefacts.filter((x) => x.isPlaced);
     }
 
     public created() {
-        this.$state.eventBus.on('select-group', this.selectGroup);
-        this.$state.eventBus.on('save-group', this.saveGroupArtefacts);
-        this.$state.eventBus.on('delete-group', this.deleteGroup);
-        this.$state.eventBus.on('update-operation-id', this.updateOperationId);
-        this.$state.eventBus.on('new-operation', this.onNewOperation);
-        this.$state.eventBus.on(
+        currentState().eventBus.on('select-group', this.selectGroup);
+        currentState().eventBus.on('save-group', this.saveGroupArtefacts);
+        currentState().eventBus.on('delete-group', this.deleteGroup);
+        currentState().eventBus.on('update-operation-id', this.updateOperationId);
+        currentState().eventBus.on('new-operation', this.onNewOperation);
+        currentState().eventBus.on(
             'new-bulk-operations',
             this.onNewBulkOperations
         );
         this.observer = new ResizeObserver((entries) => this.onResize(entries));
 
         // Moved to created() to avoid unclear material or text mode
-        this.$state.scrollEditor = new ScrollEditorState();
+        currentState().scrollEditor = new ScrollEditorState();
     }
 
     public unmounted() {
-        this.$state.eventBus.off('select-group', this.selectGroup);
-        this.$state.eventBus.off('save-group', this.saveGroupArtefacts);
-        this.$state.eventBus.off('delete-group', this.deleteGroup);
-        this.$state.eventBus.off('update-operation-id', this.updateOperationId);
-        this.$state.eventBus.off('new-operation', this.onNewOperation);
-        this.$state.eventBus.off(
+        currentState().eventBus.off('select-group', this.selectGroup);
+        currentState().eventBus.off('save-group', this.saveGroupArtefacts);
+        currentState().eventBus.off('delete-group', this.deleteGroup);
+        currentState().eventBus.off('update-operation-id', this.updateOperationId);
+        currentState().eventBus.off('new-operation', this.onNewOperation);
+        currentState().eventBus.off(
             'new-bulk-operations',
             this.onNewBulkOperations
         );
@@ -360,7 +359,9 @@ class ScrollEditor
             this.observer.disconnect();
         }
 
-        this.$state.operationsManager = null;
+        // Cancel any pending autosave so it can't fire against this torn-down editor.
+        this.operationsManager.dispose();
+        currentState().operationsManager = null;
     }
 
     public async mounted() {
@@ -369,22 +370,22 @@ class ScrollEditor
         // an asynchornous created to finish before calling mounted. Instead of adding a synchronization
         // between created and mounted, we just moved it to mounted.
         this.editionId = parseInt(String(this.$route.params.editionId), 10);
-        await this.$state.prepare.edition(this.editionId);
-        await this.$state.prepare.editionFullText(this.editionId);
+        await currentState().prepare.edition(this.editionId);
+        await currentState().prepare.editionFullText(this.editionId);
         // Imaged objects are loaded lazily (not on edition open); the scroll editor
         // needs them for adding/copying artefacts.
-        await this.$state.prepare.imagedObjects(this.editionId);
+        await currentState().prepare.imagedObjects(this.editionId);
         // The scroll layout (viewBox / bounds) is derived from every placed
         // artefact's mask bounding box, so ensure their masks are loaded up front.
-        await this.$state.prepare.ensureArtefactMasks(this.placedArtefacts);
+        await currentState().prepare.ensureArtefactMasks(this.placedArtefacts);
 
-        const edition = this.$state.editions.find(this.editionId); // Set the current scroll
+        const edition = currentState().editions.find(this.editionId); // Set the current scroll
         if (!edition) {
             this.$router.push({ path: '/' });
         }
-        this.$state.editions.current = edition;
-        this.$state.artefacts.current = null;
-        this.$state.imagedObjects.current = null;
+        currentState().editions.current = edition;
+        currentState().artefacts.current = null;
+        currentState().imagedObjects.current = null;
         this.waiting = false;
         await this.$nextTick();
         // TODO(vue3): bv::modal::hide event bus is not available in Vue 3; replace with a boolean v-model prop on add-artefact-modal and listen to @hide or @update:model-value
@@ -398,14 +399,14 @@ class ScrollEditor
         this.observer!.observe(this.$refs.artefactContainer as Element);
         this.observer!.observe(this.$refs.artefactSidebar as Element);
         this.onResize([]);
-        this.$state.operationsManager = this.operationsManager;
-        this.$state.textFragmentEditor.textEditingMode = 'manuscript';
+        currentState().operationsManager = this.operationsManager;
+        currentState().textFragmentEditor.textEditingMode = 'manuscript';
     }
 
     public async beforeRouteUpdate(to: any, from: any, next: () => void) {
         this.editionId = parseInt(to.params.editionId, 10);
-        await this.$state.prepare.edition(this.editionId);
-        await this.$state.prepare.editionFullText(this.editionId);
+        await currentState().prepare.edition(this.editionId);
+        await currentState().prepare.editionFullText(this.editionId);
         next();
     }
 
@@ -422,7 +423,7 @@ class ScrollEditor
     }
 
     public async onAddArtefactModalClose(artIds: number[]) {
-        const artefacts = this.$state.artefacts.items.filter((art: Artefact) =>
+        const artefacts = currentState().artefacts.items.filter((art: Artefact) =>
             artIds.includes(art.id)
         );
         if (artefacts) {
@@ -436,8 +437,8 @@ class ScrollEditor
             // Place close to topleft corner of viewport
             // const placement = new Placement({
             //     translate: {
-            //         x: (this.$state.scrollEditor.viewport?.x || 0) + 50,
-            //         y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
+            //         x: (currentState().scrollEditor.viewport?.x || 0) + 50,
+            //         y: (currentState().scrollEditor.viewport?.y || 0) + 50,
             //     },
             //     scale: 1,
             //     rotate: 0,
@@ -449,10 +450,10 @@ class ScrollEditor
                 const placement = new Placement({
                     translate: {
                         x:
-                            (this.$state.scrollEditor.viewport?.x || 0) +
+                            (currentState().scrollEditor.viewport?.x || 0) +
                             50 +
                             index * 500,
-                        y: (this.$state.scrollEditor.viewport?.y || 0) + 50,
+                        y: (currentState().scrollEditor.viewport?.y || 0) + 50,
                     },
                     scale: 1,
                     rotate: 0,
@@ -475,7 +476,7 @@ class ScrollEditor
             No need, ROIs were already loaded
             await Promise.all(
                 artefact.textFragments.map((tf: ArtefactTextFragmentData) => {
-                    this.$state.prepare.textFragment(artefact.editionId, tf.id);
+                    currentState().prepare.textFragment(artefact.editionId, tf.id);
                 })
             ); */
 
@@ -566,8 +567,8 @@ class ScrollEditor
         top += this.edition.metrics.yOrigin * this.edition.ppm;
 
         const viewport = new BoundingBox(left, top, width, height);
-        // Vue.set(this.$state.scrollEditor, 'viewport', viewport);
-        this.$state.scrollEditor.viewport = viewport;
+        // Vue.set(currentState().scrollEditor, 'viewport', viewport);
+        currentState().scrollEditor.viewport = viewport;
     }
 
     public calculateSecondaryToolbarHeight() {
@@ -610,7 +611,7 @@ class ScrollEditor
 
     public navigateToPoint(pt: Point) {
         const div = this.$refs.artefactContainer as Element;
-        const viewport = this.$state.scrollEditor.viewport;
+        const viewport = currentState().scrollEditor.viewport;
         const zoom = this.params?.zoom || 1;
 
         if (!viewport) {
@@ -792,7 +793,7 @@ class ScrollEditor
         editor: VirtualArtefactEditor;
     }) {
         const editedArtefact =
-            this.$state.textFragmentEditor.editedVirtualArtefact;
+            currentState().textFragmentEditor.editedVirtualArtefact;
 
         if (!editedArtefact) {
             console.error(

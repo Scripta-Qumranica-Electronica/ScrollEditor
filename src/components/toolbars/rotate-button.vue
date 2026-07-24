@@ -1,5 +1,6 @@
 <template>
     <toolbar-icon-button
+        @click="emitClick"
         @mousedown="onMouseDown"
         @mouseup="onMouseUp"
         @mouseleave="onMouseLeave"
@@ -51,9 +52,12 @@ class RepeatButton extends Vue {
             return;
         }
 
+        // The single (first) rotation now comes from @click, which reliably fires
+        // through bootstrap-vue-next's BButton; mousedown only drives the
+        // press-and-hold REPEAT, so we don't emit immediately here (that would
+        // double-rotate on a normal click if native mousedown forwarding revives).
         this.pressed = true;
         this.timer = window.setInterval(() => this.emitClick(), this.repeatDelay);
-        this.emitClick();
     }
 
     public onMouseUp() {

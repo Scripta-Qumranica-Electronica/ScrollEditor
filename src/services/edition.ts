@@ -28,7 +28,8 @@ import {
     PlacementDTO,
     EditionManuscriptMetadataDTO
 } from '@/dtos/sqe-dtos';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
+import type { StateManager } from '@/state';
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
 
@@ -36,7 +37,7 @@ class EditionService {
     public stateManager: StateManager;
 
     constructor() {
-        this.stateManager = StateManager.instance;
+        this.stateManager = currentState();
     }
 
     public async getAllEditions(): Promise<EditionInfo[]> {

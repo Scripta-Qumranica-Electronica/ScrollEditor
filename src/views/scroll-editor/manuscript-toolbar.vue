@@ -57,7 +57,7 @@
                 <b-form-checkbox
                     switch
                     size="sm"
-                    @input="onDisplayROIs($event)"
+                    @update:model-value="onDisplayROIs(!!$event)"
                     >Display ROIs
                 </b-form-checkbox>
             </b-col>
@@ -69,9 +69,7 @@
                     switch
                     size="sm"
                     disabled
-                    @input="
-                        onDisplayReconstructedText($event)
-                    "
+                    @update:model-value="onDisplayReconstructedText(!!$event)"
                     >Display Reconstructed Text
                 </b-form-checkbox>
             </b-col>
@@ -85,7 +83,7 @@
                     size="sm"
                      disabled
                     v-model ="isDisplayText"
-                    @input="onDisplayText($event)"
+                    @update:model-value="onDisplayText(!!$event)"
                     >Display Text
                 </b-form-checkbox>
             </b-col>

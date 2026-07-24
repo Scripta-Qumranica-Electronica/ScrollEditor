@@ -2,6 +2,7 @@
     <span contenteditable=true>
         <span
             class="text-sign"
+            :id="'popover-si-' + si.signInterpretationId"
             :class="[
                 { selected: isSelected,notSelected:!isSelected, highlighted: isHighlighted },
                 cssStrings,
@@ -12,11 +13,12 @@
             "
             v-html="si.htmlCharacter"
         />
-        <!-- <b-popover
+        <b-popover
             v-if="withMenu && !readOnly"
+            v-model="signMenuVisible"
             custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
-            triggers="blur"
+            manual
             @shown="focusPopover($event)"
         >
             <div
@@ -61,7 +63,7 @@
                     </li>
                 </ul>
             </div>
-        </b-popover> -->
+        </b-popover>
 
         <b-modal lazy
             v-model="showQwbVariantsModal"
@@ -117,6 +119,7 @@ class TextSign extends Vue {
     @Prop() public sign!: Sign;
     @Prop() public withMenu!: boolean;
     public previousMenuId: string = '';
+    public signMenuVisible = false;
     public qwbVariants: QwbWordVariantListDTO | null = null;
     public contenteditable: boolean = false;
     public showQwbVariantsModal: boolean = false;
@@ -243,8 +246,9 @@ class TextSign extends Vue {
         event.preventDefault();
         this.$state.textFragmentEditor.selectSign(this.si);
 
-        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::show::popover', signMenuId);
+        // Vue 3: the bv::show::popover bus is gone — control the per-instance
+        // <b-popover> via its boolean v-model instead.
+        this.signMenuVisible = true;
         this.previousMenuId = signMenuId;
     }
 
@@ -271,8 +275,8 @@ class TextSign extends Vue {
     }
 
     public closeSignMenu() {
-        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::hide::popover', this.previousMenuId);
+        // Vue 3: hide the per-instance <b-popover> via its boolean v-model.
+        this.signMenuVisible = false;
     }
 
     public focusPopover() {

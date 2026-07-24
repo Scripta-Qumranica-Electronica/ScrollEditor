@@ -12,7 +12,7 @@ import {
     ArtefactGroupDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions, ArtefactGroup } from '@/models/edition';
-import { StateManager } from '.';
+import { currentState } from './current';
 import { Artefact } from '@/models/artefact';
 import { Placement } from '@/utils/Placement';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
@@ -21,7 +21,7 @@ import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
 /* This file contains the implementation of all the incoming events from SignalR */
 
 function state() {
-    return StateManager.instance;
+    return currentState();
 }
 
 /*
@@ -32,7 +32,7 @@ function state() {
  */
 export class NotificationHandler {
     public handleUpdatedEdition(edition: EditionDTO): void {
-        const storedEdition = StateManager.instance.editions.find(edition.id);
+        const storedEdition = currentState().editions.find(edition.id);
 
         if (storedEdition) {
             const editionInfo = new EditionInfo(edition);
@@ -53,7 +53,7 @@ export class NotificationHandler {
         const newArtefact = new Artefact(artefact);
         state().artefacts.add(newArtefact, false); // Safely ignore error if artefact is already there
         if (state().imagedObjects.current?.id === artefact.imagedObjectId) {
-            addToArray(newArtefact, StateManager.instance.imagedObjects.current?.artefacts);
+            addToArray(newArtefact, currentState().imagedObjects.current?.artefacts);
         }
     }
 

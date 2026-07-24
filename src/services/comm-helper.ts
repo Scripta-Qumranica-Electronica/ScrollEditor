@@ -1,13 +1,13 @@
 // import { authHeader } from '@/store/session';
 import axios from 'axios';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
 /*
  * This file provides handy utility functions for Axios transactions.
  */
 
 function authHeader() {
-    if (StateManager.instance.session.token) {
-        return {Authorization: 'Bearer ' + StateManager.instance.session.token };
+    if (currentState().session.token) {
+        return {Authorization: 'Bearer ' + currentState().session.token };
     } else {
         return {};
     }

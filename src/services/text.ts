@@ -1,5 +1,6 @@
 import { CommHelper } from './comm-helper';
-import { StateManager } from '@/state';
+import { currentState } from '@/state/current';
+import type { StateManager } from '@/state';
 import {
     TextFragmentDataListDTO,
     TextEditionDTO,
@@ -31,7 +32,7 @@ import { integrifyPosition } from '@/models/misc';
 class TextService {
     public stateManager: StateManager;
     constructor() {
-        this.stateManager = StateManager.instance;
+        this.stateManager = currentState();
     }
 
     public async getEditionTextFragments(editionId: number) {

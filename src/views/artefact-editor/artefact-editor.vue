@@ -39,7 +39,7 @@
                         </toolbox>
                         <toolbox subject="" v-if="!readOnly">
                             <toolbar-icon-button
-                                :title="$t('misc.cancel')"
+                                :title="$t('misc.deleteRoi')"
                                 @click="onDeleteRoi"
                                 :disabled="!isDeleteEnabled"
                                 icon="trash"
@@ -68,7 +68,7 @@
                                 @click="openCopyToEdtion()"
                                 :show-text="true"
                             />
-                            <copy-to-edition-modal></copy-to-edition-modal>
+                            <copy-to-edition-modal v-model="showCopyToEditionModal"></copy-to-edition-modal>
                         </toolbox>
                         <toolbox subject="">
                             <toolbar-icon-button
@@ -162,6 +162,7 @@
 </template>
 
 <script lang="ts">
+import { currentState } from '@/state/current';
 import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
 import { showModal } from '@/utils/modal-bus';
 import Waiting from '@/components/misc/Waiting.vue';
@@ -260,6 +261,7 @@ class ArtefactEditor
     public errorMessage = '';
     public waiting = true;
     public saving = false;
+    public showCopyToEditionModal = false;
     public imageStack: ImageStack | undefined = undefined;
     public boundingBox = new BoundingBox();
     public boundingBoxCenter = { x: 0, y: 0 } as Position;
@@ -280,10 +282,10 @@ class ArtefactEditor
     public textFragment: TextFragment | null = null; // The single Text Fragment in text-fragment mode
 
     public get artefact() {
-        return this.$state.artefacts.current!;
+        return currentState().artefacts.current!;
     }
     public get params(): ArtefactEditorParams {
-        return this.$state.artefactEditor.params || new ArtefactEditorParams();
+        return currentState().artefactEditor.params || new ArtefactEditorParams();
     }
 
     public get visibleRois() {
@@ -291,10 +293,10 @@ class ArtefactEditor
     }
 
     public get artefactEditorState() {
-        return this.$state.artefactEditor;
+        return currentState().artefactEditor;
     }
     public get textFragmentEditorState() {
-        return this.$state.textFragmentEditor;
+        return currentState().textFragmentEditor;
     }
 
     public get selectedSignInterpretations(): SignInterpretation[] {
@@ -340,12 +342,13 @@ class ArtefactEditor
         return true;
     }
     public openCopyToEdtion() {
-        // TODO(vue3): $bvModal.show is gone in bootstrap-vue-next — expose a v-model boolean on copy-to-edition-modal and toggle it here
-        (this.$root as any).$bvModal?.show('copy-to-edition-modal');
+        // bootstrap-vue-next removed the $bvModal bus; copy-to-edition-modal exposes a
+        // boolean modelValue, so toggle it via v-model instead.
+        this.showCopyToEditionModal = true;
     }
 
     public openReportMask() {
-        this.$state.misc.reportIssueData = {
+        currentState().misc.reportIssueData = {
             'title': `Problem with mask of artefact ${this.artefactId} in edition ${this.edition.name} (${this.edition.id})`,
             'description': '',
         };
@@ -369,7 +372,7 @@ class ArtefactEditor
 
         const op: ArtefactROIOperation = new ArtefactROIOperation('draw', roi);
         op.redo(true);
-        this.$state.artefactEditor.selectRoi(roi);
+        currentState().artefactEditor.selectRoi(roi);
         this.statusTextFragment(roi);
 
         this.onNewOperation(op);
@@ -381,10 +384,10 @@ class ArtefactEditor
     }
 
     public placeRoi(roi: InterpretationRoi) {
-        let newRoi = this.$state.interpretationRois.get(roi.id);
+        let newRoi = currentState().interpretationRois.get(roi.id);
         if (!newRoi) {
             newRoi = roi;
-            this.$state.interpretationRois.put(newRoi);
+            currentState().interpretationRois.put(newRoi);
             // const roiDTO: SetInterpretationRoiDTO = {
             //     artefactId: roi.artefactId,
             //     shape: roi.shape.wkt,
@@ -398,14 +401,14 @@ class ArtefactEditor
         }
         // For now the status 'update' doesn't do the save, we put 'new' to save it
         newRoi.status = 'new';
-        const si = this.$state.signInterpretations.get(
+        const si = currentState().signInterpretations.get(
             roi.signInterpretationId!
         );
         if (si) {
             si.rois.push(newRoi);
         }
         this.visibleRois.push(newRoi);
-        this.$state.artefactEditor.selectRoi(newRoi);
+        currentState().artefactEditor.selectRoi(newRoi);
         this.statusTextFragment(newRoi);
 
         return newRoi;
@@ -420,32 +423,34 @@ class ArtefactEditor
 
     public async created() {
         const editionId = parseInt(String(this.$route.params.editionId));
-        await this.$state.prepare.edition(editionId);
+        await currentState().prepare.edition(editionId);
         // Imaged objects are loaded lazily (not on edition open); the artefact
         // editor works with the full imaged-object image stack.
-        await this.$state.prepare.imagedObjects(editionId);
-        this.$state.eventBus.on(
+        await currentState().prepare.imagedObjects(editionId);
+        currentState().eventBus.on(
             'change-artefact-rotation',
             (angle: number) => (this.params.rotationAngle = angle)
         );
-        this.$state.eventBus.on('remove-roi', this.removeRoi);
-        this.$state.eventBus.on('new-operation', this.onNewOperation);
-        this.$state.eventBus.on(
+        currentState().eventBus.on('remove-roi', this.removeRoi);
+        currentState().eventBus.on('new-operation', this.onNewOperation);
+        currentState().eventBus.on(
             'new-bulk-operations',
             this.onNewBulkOperations
         );
     }
 
     public unmounted() {
-        this.$state.eventBus.off('change-artefact-rotation');
-        this.$state.eventBus.off('remove-roi', this.removeRoi);
-        this.$state.eventBus.off('new-operation', this.onNewOperation);
-        this.$state.eventBus.off(
+        currentState().eventBus.off('change-artefact-rotation');
+        currentState().eventBus.off('remove-roi', this.removeRoi);
+        currentState().eventBus.off('new-operation', this.onNewOperation);
+        currentState().eventBus.off(
             'new-bulk-operations',
             this.onNewBulkOperations
         );
 
-        this.$state.operationsManager = null;
+        // Cancel any pending autosave so it can't fire against this torn-down editor.
+        this.operationsManager.dispose();
+        currentState().operationsManager = null;
     }
 
     public async mounted() {
@@ -469,19 +474,19 @@ class ArtefactEditor
             await Promise.all(
                 this.artefact.textFragments.map(
                     (tf: ArtefactTextFragmentData) =>
-                        this.$state.prepare.textFragment(
+                        currentState().prepare.textFragment(
                             this.artefact.editionId,
                             tf.id
                         )
                 )
             );
         } else if (this.textFragmentMode) {
-            await this.$state.prepare.textFragment(
+            await currentState().prepare.textFragment(
                 this.editionId,
                 this.textFragmentId
             );
             this.textFragment =
-                this.$state.textFragments.get(this.textFragmentId) || null;
+                currentState().textFragments.get(this.textFragmentId) || null;
 
             await this.selectArtefact(this.artefacts[0].id);
         }
@@ -495,16 +500,16 @@ class ArtefactEditor
                 });
             });
         });
-        this.$state.operationsManager = this.operationsManager;
-        this.$state.textFragmentEditor.textEditingMode = 'artefact';
+        currentState().operationsManager = this.operationsManager;
+        currentState().textFragmentEditor.textEditingMode = 'artefact';
     }
 
     public get edition(): EditionInfo {
-        return this.$state.editions.current!;
+        return currentState().editions.current!;
     }
 
     public get artefacts(): Artefact[] {
-        return this.$state.artefacts.items || [];
+        return currentState().artefacts.items || [];
     }
 
     public get masterImage(): IIIFImage {
@@ -569,13 +574,13 @@ class ArtefactEditor
     }
 
     public async prepareArtefact(artefactId: number) {
-        await this.$state.prepare.artefact(this.editionId, artefactId);
+        await currentState().prepare.artefact(this.editionId, artefactId);
         // The artefact editor works directly with the mask (clipping, bounding
         // box); ensure it is loaded before we use it.
-        await this.$state.prepare.artefactMask(this.artefact);
+        await currentState().prepare.artefactMask(this.artefact);
 
         if (!this.artefact?.isVirtual) {
-            const imagedObject = this.$state.imagedObjects.find(
+            const imagedObject = currentState().imagedObjects.find(
                 this.artefact.imagedObjectId
             );
             if (!imagedObject) {
@@ -596,7 +601,7 @@ class ArtefactEditor
 
             // Prepare the image manifests of all images
             const promises = this.imageStack.images.map((img) =>
-                this.$state.prepare.imageManifest(img)
+                currentState().prepare.imageManifest(img)
             );
             await Promise.all(promises);
         }
@@ -607,13 +612,13 @@ class ArtefactEditor
     }
 
     public statusTextFragment(roi: InterpretationRoi) {
-        const si = this.$state.signInterpretations.get(
+        const si = currentState().signInterpretations.get(
             roi.signInterpretationId!
         );
         if (si) {
             const tfId = si.sign.line.textFragment.textFragmentId;
             const visibleSIs = this.visibleRois.map((r) =>
-                this.$state.signInterpretations.get(r.signInterpretationId!)
+                currentState().signInterpretations.get(r.signInterpretationId!)
             );
             const visiblesTf = visibleSIs.map(
                 (s) => s!.sign.line.textFragment.textFragmentId
@@ -789,7 +794,7 @@ class ArtefactEditor
     }
 
     public onHighlightComment(checked: unknown) {
-        this.$state.artefactEditor.highlightCommentMode = Boolean(checked);
+        currentState().artefactEditor.highlightCommentMode = Boolean(checked);
     }
 
     public fillImageSettings() {
@@ -853,7 +858,7 @@ class ArtefactEditor
             this.textFragmentEditorState.selectedSignInterpretations = [];
         } else {
             const si =
-                this.$state.signInterpretations.get(roi.signInterpretationId) ||
+                currentState().signInterpretations.get(roi.signInterpretationId) ||
                 null;
             this.textFragmentEditorState.selectSign(si);
         }
@@ -902,13 +907,13 @@ class ArtefactEditor
                     const createOp = op as CreateSignInterpretationOperation;
                     if (op.undone) {
                         await this.signInterpretationService.deleteSignInterpretation(
-                            this.$state.editions.current!,
+                            currentState().editions.current!,
                             createOp.signInterpretation,
                             true
                         );
                     } else {
                         await this.signInterpretationService.createSignInterpretation(
-                            this.$state.editions.current!,
+                            currentState().editions.current!,
                             createOp.signInterpretation
                         );
                     }
@@ -919,13 +924,13 @@ class ArtefactEditor
                     if (op.undone) {
                         const si = deleteOp.signInterpretation;
                         await this.signInterpretationService.createSignInterpretation(
-                            this.$state.editions.current!,
+                            currentState().editions.current!,
                             si
                         );
                         deleteOp.signInterpretationId = si.signInterpretationId; // The id has changed to a negative number after the deletion
                     } else {
                         await this.signInterpretationService.deleteSignInterpretation(
-                            this.$state.editions.current!,
+                            currentState().editions.current!,
                             deleteOp.signInterpretation
                         );
                     }
@@ -934,7 +939,7 @@ class ArtefactEditor
                 case 'update':
                     const updateOp = op as UpdateSignInterperationOperation;
                     await this.signInterpretationService.updateSignInterpretation(
-                        this.$state.editions.current!,
+                        currentState().editions.current!,
                         op.signInterpretation
                     );
                     break;
@@ -945,7 +950,7 @@ class ArtefactEditor
     public async saveAttributes(ops: TextFragmentAttributeOperation[]) {
         for (const op of ops) {
             const opType = op.attributeOperationType;
-            const si = this.$state.signInterpretations.get(
+            const si = currentState().signInterpretations.get(
                 op.signInterpretationId
             );
             if (!si) {
@@ -1052,7 +1057,7 @@ class ArtefactEditor
 
     public async saveCommentaries(ops: SignInterpretationCommentOperation[]) {
         for (const op of ops) {
-            const si = this.$state.signInterpretations.get(
+            const si = currentState().signInterpretations.get(
                 op.signInterpretationId
             );
             if (!si) {
@@ -1063,7 +1068,7 @@ class ArtefactEditor
                 continue;
             }
             await this.signInterpretationService.updateCommentary(
-                this.$state.editions.current!,
+                currentState().editions.current!,
                 si
             );
         }

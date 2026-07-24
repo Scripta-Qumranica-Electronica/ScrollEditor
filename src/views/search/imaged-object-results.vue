@@ -22,7 +22,7 @@
                             </span>
                         </div>
                         <div class="col-8">
-                            <img class="card-img" v-lazy="im.rectoThumbnail || im.versoThumbnail" v-if="im.rectoThumbnail || im.versoThumbnail" alt="Imaged-Object">
+                            <img class="card-img" :src="im.rectoThumbnail || im.versoThumbnail" loading="lazy" v-if="im.rectoThumbnail || im.versoThumbnail" alt="Imaged-Object">
                         </div>
                     </div>
                 </b-card>
