@@ -86,7 +86,7 @@
                 <b-nav-item-dropdown
                     id="register"
                     right
-                    v-b-tooltip.hover.bottomleft="'User Account'"
+                    v-b-tooltip.hover.bottom="'User Account'"
                 >
                     <template v-slot:button-content>
                         <b-button variant="outline-secondary" size="sm">
@@ -614,5 +614,13 @@ $foreground: $qumran-white;
     .dropdown-divider {
         border-color: $foreground !important;
     }
+}
+
+/* The account toggle sits at the very top of the viewport, so its hover tooltip has no room
+   above and floating-ui places it BELOW — right where this menu opens. Bootstrap gives the
+   tooltip a higher z-index (1080) than the dropdown menu (1000), so the tooltip would cover
+   the first menu item. Lift this menu above the tooltip so its items stay clickable. */
+#register-menu.dropdown-menu {
+    z-index: 1090;
 }
 </style>

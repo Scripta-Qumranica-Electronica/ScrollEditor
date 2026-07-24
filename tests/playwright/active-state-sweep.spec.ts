@@ -187,7 +187,13 @@ for (const width of WIDTHS) {
                 if ((await item.count()) === 0) continue;
                 await item.click({ trial: true, timeout: 8_000 });
             }
-            expect(errors, `user-account menu pageerrors: ${errors.join(' | ')}`).toEqual([]);
+
+            // Regression guard: the toggle's "User Account" hover-tooltip (z-index 1080) used to
+            // land on top of the first menu item because the toggle sits at the very top of the
+            // viewport and the tooltip flips downward onto the menu. The menu is lifted above it
+            // (#register-menu z-index:1090) so NO menu control — including the name row — is
+            // covered by a foreign element.
+            await assertClean(page, errors, `user-account-menu@${width}`, '.dropdown-menu.show');
         } finally {
             await collectCoverage(context);
             await context.close();
