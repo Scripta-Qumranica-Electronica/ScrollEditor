@@ -268,7 +268,7 @@ clientHeight`), (c) no `pageerror`. Images are dropped (this env's IIIF host cer
 | /search | ✅ | ✅ | |
 | /editions/:id/artefacts | ✅ | ✅ | |
 | /editions/:id/imaged-objects | ✅ | ✅ | |
-| /editions/:id/scroll-editor | ⚠️ | ⚠️ | **KNOWN ISSUE (found by this audit):** top toolbar sits in a fixed-height CSS-grid row; at 1280–1440 its controls wrap to a 2nd row but grid sizes the `auto` track by the flex bar's *unwrapped* max-content (1 row), so **~55px of buttons spill onto the canvas**. Partial mitigation applied (`grid-template-rows: minmax($toolbar-height,auto)`); the real fix is to lift the toolbar out of the fixed grid row (re-assign the row-2 grid children + `resize-bar`). Test asserts it doesn't regress past 90px until fixed. |
+| /editions/:id/scroll-editor | ✅ | ✅ | **FIXED** (was: top toolbar in a fixed-height grid row spilled ~55px of wrapped controls onto the canvas). Lifted the toolbar out of the grid into a flex-column `.editor-shell` (toolbar = natural-height `flex:0 0 auto` item above a `flex:1` grid; content heights → `100%`). Asserted strictly now. |
 | /editions/:id/artefacts/:id | ✅ | ✅ | |
 | /editions/:id/imaged-objects/:id | ✅ | ✅ | |
 | /editions/:id/text-fragments/:id | ✅ | ✅ | |

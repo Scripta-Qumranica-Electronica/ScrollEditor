@@ -4,7 +4,10 @@
             <Waiting></Waiting>
         </div>
         <div v-if="!waiting" tabindex="0" @keydown="onKeyDown" @keyup="onKeyUp" v-on:keypress="onKeyPress">
-            <div id="editor-grid" ref="editorGrid" class="mb-1 border-bottom">
+            <div class="editor-shell mb-1 border-bottom">
+                <!-- Toolbar lives ABOVE the grid (as a natural-height flex item), not in a
+                     fixed grid row, so when its controls wrap at ~1280–1440 the bar grows
+                     instead of spilling onto the canvas. The grid below fills the rest. -->
                 <scroll-top-toolbar
                     ref="topToolbar"
                     id="toolbar"
@@ -13,6 +16,7 @@
                     @zoomChangedGlobal="onZoomChangedGlobal($event)"
                 />
 
+                <div id="editor-grid" ref="editorGrid">
                 <div id="artefact-row" no-gutters>
                     <div
                         id="artefact-container"
@@ -73,6 +77,7 @@
                             @cancel-group="cancelGroup()"
                         ></manuscript-toolbar>
                     </div>
+                </div>
                 </div>
 
                 <add-artefact-modal></add-artefact-modal>
@@ -882,37 +887,44 @@ export default toNative(ScrollEditor);
     background-color: $white;
 }
 
-#editor-grid {
+// Flex column: the toolbar takes its natural (possibly wrapped) height, the grid fills
+// the rest. This replaces the old fixed-height toolbar grid row that clipped wrapped
+// controls and spilled them onto the canvas.
+.editor-shell {
     @extend .editor;
-    display: grid;
-
-    grid-template-columns: 70% 1fr 30%;
-    // The toolbar row must GROW to fit its controls when they wrap (at ~1280–1440 the
-    // scroll-top-toolbar wraps to two rows). A fixed `$toolbar-height` track clipped it,
-    // spilling ~57px of buttons onto the canvas below; minmax keeps the floor but lets
-    // the row expand. Mirrors the min-height (not height) fix in toolbar.vue.
-    grid-template-rows: minmax($toolbar-height, auto) 1fr;
+    display: flex;
+    flex-direction: column;
 }
 #toolbar {
-    grid-column: 1 / span 3;
-    grid-row: 1 / 2;
+    // Keep the toolbar at its natural (possibly wrapped) height. Without flex-shrink:0 the
+    // flex column shrinks it down to its 70px min-height to make room for the grid's tall
+    // canvas content, re-clipping the wrapped controls.
+    flex: 0 0 auto;
+}
+#editor-grid {
+    display: grid;
+    grid-template-columns: 70% 1fr 30%;
+    grid-template-rows: 1fr;
+    flex: 1 1 auto;
+    min-height: 0; // allow the grid to shrink within the flex column
 }
 #artefact-row {
     grid-column: 1 / 3;
-    grid-row: 2 / 2;
+    grid-row: 1 / 2;
 }
 
 #artefact-container {
     position: relative;
     overflow: auto;
     padding: 0;
-    height: calc(100vh - 169px);
-    /* height: calc(100vh - 249px); */
+    // Fill the grid cell (the space left below the natural-height toolbar) rather than a
+    // fixed calc that assumed a one-row 74px toolbar.
+    height: 100%;
     touch-action: none;
 }
 #scroll-map-container {
     grid-column: 3 / 3;
-    grid-row: 2 / 2;
+    grid-row: 1 / 2;
 }
 #artefact-container.active {
     width: calc(100vw - 42px);
@@ -920,7 +932,7 @@ export default toNative(ScrollEditor);
 
 .scroll-editor-col {
     position: relative;
-    height: calc(100vh - 169px);
+    height: 100%;
 }
 
 #secondary-toolbar {

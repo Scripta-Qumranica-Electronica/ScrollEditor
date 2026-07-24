@@ -42,14 +42,7 @@ const ROUTES: Array<{ name: string; path: () => string; knownToolbarOverflow?: b
     { name: 'search', path: () => '/search' },
     { name: 'edition-artefacts', path: () => `/editions/${ed}/artefacts` },
     { name: 'edition-imaged-objects', path: () => `/editions/${ed}/imaged-objects` },
-    // KNOWN ISSUE (found by this audit): the scroll-editor top toolbar sits in a
-    // fixed-height CSS-grid row (`.editor` height + `grid-template-rows`). At 1280–1440
-    // its many controls wrap to a 2nd row, but grid sizes the `auto` track by the flex
-    // bar's *unwrapped* max-content (1 row), so ~55px of buttons spill onto the canvas.
-    // A pure-grid track can't fit wrapped flex content; the real fix is to lift the
-    // toolbar out of the fixed grid row (re-assigning the row-2 grid children +
-    // resize-bar). Tracked in UI-COVERAGE.md; the assertion is relaxed here until then.
-    { name: 'scroll-editor', path: () => `/editions/${ed}/scroll-editor`, knownToolbarOverflow: true },
+    { name: 'scroll-editor', path: () => `/editions/${ed}/scroll-editor` },
     { name: 'artefact-editor', path: () => `/editions/${ed}/artefacts/${artId}` },
     { name: 'imaged-object-editor', path: () => `/editions/${ed}/imaged-objects/${ioId}` },
     { name: 'text-fragment-editor', path: () => `/editions/${ed}/text-fragments/${tfId}` },
