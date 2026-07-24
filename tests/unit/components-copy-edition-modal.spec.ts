@@ -28,12 +28,12 @@ function makeState(over: any = {}) {
     };
 }
 
-function mountModal(stateOver: any = {}) {
+function mountModal(stateOver: any = {}, routeParams: any = {}) {
     const router = { push: vi.fn(), go: vi.fn() };
     const w = mountComponent(CopyEditionModal, {
         props: { modelValue: false },
         state: makeState(stateOver),
-        mocks: { $router: router },
+        mocks: { $router: router, $route: { params: routeParams } },
         stubs: {
             'b-modal': true, 'b-row': true, 'b-col': true, 'b-form-input': true,
             'b-button': true, 'font-awesome-icon': true,
@@ -101,15 +101,26 @@ describe('copy-edition-modal', () => {
         expect(copyEdition).not.toHaveBeenCalled();
     });
 
-    it('copyEdition() copies, navigates and reloads on success', async () => {
-        const { w, router } = mountModal();
+    it('copyEdition() copies and full-page navigates to the new edition overview', async () => {
+        const assign = vi.spyOn(window.location, 'assign').mockImplementation(() => undefined);
+        const { w } = mountModal();
         w.vm.newCopyName = '  New Name  ';
         await w.vm.copyEdition({ preventDefault: vi.fn() } as any);
         expect(copyEdition).toHaveBeenCalledWith(3, 'New Name');
-        expect(router.push).toHaveBeenCalledWith({ path: '/editions/99' });
-        expect(router.go).toHaveBeenCalledWith(0);
+        // A single full navigation (not router.push + go(0), which raced and reloaded the old url).
+        expect(assign).toHaveBeenCalledWith('/editions/99');
         expect(w.vm.internalVisible).toBe(false);
         expect(w.vm.waiting).toBe(false);
+        assign.mockRestore();
+    });
+
+    it('copyEdition() preserves the imaged-object view on the new edition', async () => {
+        const assign = vi.spyOn(window.location, 'assign').mockImplementation(() => undefined);
+        const { w } = mountModal({}, { editionId: '3', imagedObjectId: 'IAA-648-1' });
+        w.vm.newCopyName = 'New Name';
+        await w.vm.copyEdition({ preventDefault: vi.fn() } as any);
+        expect(assign).toHaveBeenCalledWith('/editions/99/imaged-objects/IAA-648-1');
+        assign.mockRestore();
     });
 
     it('copyEdition() records an error message on failure', async () => {

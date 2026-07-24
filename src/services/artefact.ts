@@ -165,6 +165,14 @@ class ArtefactService {
         editionId: number,
         artefact: Artefact
     ): Promise<ArtefactDTO> {
+        // Send the master image of the artefact's side. The server needs it the FIRST time a
+        // mask is written (a newly-created artefact has no shape row yet) so it can record the
+        // artefact's side; it is ignored once a shape exists. Look it up defensively — if the
+        // owning imaged object isn't in state, we simply omit it (prior behaviour).
+        const imagedObject = this.stateManager.imagedObjects.find(artefact.imagedObjectId);
+        const masterImageId = imagedObject
+            ?.getImageStack(artefact.side)
+            ?.images.find((im) => im.master)?.id;
         const body = {
             mask: artefact.mask.wkt,
             placement: artefact.placement,
@@ -172,7 +180,8 @@ class ArtefactService {
             positionEditorId: 0,
             // zOrder: artefact.zOrder,
             name: artefact.name,
-            statusMessage: ''
+            statusMessage: '',
+            masterImageId
         } as UpdateArtefactDTO;
 
         // opId reconciliation: tag this mutation with a sortable UUIDv7 so we

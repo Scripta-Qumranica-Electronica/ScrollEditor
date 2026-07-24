@@ -547,6 +547,12 @@ class ImagedObjectEditor
                 this.side as Side
             );
 
+            // A new artefact is created without a mask, so the server can't yet know its side
+            // and returns it as recto. Reflect the side we actually created it on so it shows in
+            // (and is selected within) the current side's list rather than vanishing from the
+            // sidebar. Once the user draws a mask, changeArtefact() persists this side.
+            newArtefact.side = this.side as Side;
+
             this.showNewModal = false;
             this.onArtefactChanged(newArtefact);
 

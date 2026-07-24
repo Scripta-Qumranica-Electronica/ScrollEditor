@@ -60,6 +60,7 @@ export interface UpdateArtefactDTO {
     placement?: PlacementDTO;
     name?: string;
     statusMessage?: string;
+    masterImageId?: number;
 }
 
 export interface UpdateArtefactPlacementDTO {
