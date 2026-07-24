@@ -47,3 +47,6 @@ cypress/videos
 
 # Env-guarded API-audit recorder output (throwaway)
 tests/playwright/.api-audit.jsonl
+
+# Generated istanbul HTML report
+/coverage/

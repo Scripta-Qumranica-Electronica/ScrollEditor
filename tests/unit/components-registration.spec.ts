@@ -4,16 +4,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // (network) and $toasted; exercises the disabledReg / identicalError validation
 // getters and the register() submit handler (success + error branches).
 
-const { register, showModal } = vi.hoisted(() => ({
-    register: vi.fn().mockResolvedValue({}),
-    showModal: vi.fn(),
-}));
+const { register, showModal, registerModalListener, dispose } = vi.hoisted(() => {
+    const dispose = vi.fn();
+    return {
+        register: vi.fn().mockResolvedValue({}),
+        showModal: vi.fn(),
+        dispose,
+        registerModalListener: vi.fn(() => dispose),
+    };
+});
 vi.mock('@/services/session', () => ({
     default: vi.fn(function () { return { register }; }),
 }));
 vi.mock('@/utils/modal-bus', () => ({
     showModal,
-    registerModalListener: vi.fn(() => vi.fn()),
+    registerModalListener,
 }));
 
 import Registration from '@/views/user/Registration.vue';
@@ -102,5 +107,23 @@ describe('registration', () => {
         expect(w.vm.errorMessage).toContain('boom');
         expect(w.vm.waiting).toBe(false);
         expect(w.vm.modalVisible).toBe(false);
+    });
+
+    it('mounted registers a modal listener whose callbacks toggle visibility', () => {
+        const w = mountReg();
+        expect(registerModalListener).toHaveBeenCalledWith(
+            'registerModal', expect.any(Function), expect.any(Function)
+        );
+        const [, onShow, onHide] = registerModalListener.mock.calls[0];
+        onShow();
+        expect(w.vm.modalVisible).toBe(true);
+        onHide();
+        expect(w.vm.modalVisible).toBe(false);
+    });
+
+    it('beforeUnmount disposes the modal listener', () => {
+        const w = mountReg();
+        w.unmount();
+        expect(dispose).toHaveBeenCalledTimes(1);
     });
 });

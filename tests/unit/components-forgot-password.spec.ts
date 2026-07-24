@@ -4,14 +4,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // $toasted; exercises disabledSubmit, submit() (guard, success, error) and the
 // show()/close()/shown() helpers.
 
-const { forgotPassword } = vi.hoisted(() => ({
-    forgotPassword: vi.fn().mockResolvedValue({}),
-}));
+const { forgotPassword, registerModalListener, dispose } = vi.hoisted(() => {
+    const dispose = vi.fn();
+    return {
+        forgotPassword: vi.fn().mockResolvedValue({}),
+        dispose,
+        registerModalListener: vi.fn(() => dispose),
+    };
+});
 vi.mock('@/services/session', () => ({
     default: vi.fn(function () { return { forgotPassword }; }),
 }));
 vi.mock('@/utils/modal-bus', () => ({
-    registerModalListener: vi.fn(() => vi.fn()),
+    registerModalListener,
 }));
 
 import ForgotPassword from '@/views/user/ForgotPassword.vue';
@@ -86,5 +91,23 @@ describe('forgot-password', () => {
         expect(w.vm.errorMessage).toBe('');
         expect(w.vm.waiting).toBe(false);
         expect(focus).toHaveBeenCalled();
+    });
+
+    it('mounted registers a modal listener whose callbacks toggle visibility', () => {
+        const w = mountFP();
+        expect(registerModalListener).toHaveBeenCalledWith(
+            'passwordModal', expect.any(Function), expect.any(Function)
+        );
+        const [, onShow, onHide] = registerModalListener.mock.calls[0];
+        onShow();
+        expect(w.vm.modalVisible).toBe(true);
+        onHide();
+        expect(w.vm.modalVisible).toBe(false);
+    });
+
+    it('beforeUnmount disposes the modal listener', () => {
+        const w = mountFP();
+        w.unmount();
+        expect(dispose).toHaveBeenCalledTimes(1);
     });
 });

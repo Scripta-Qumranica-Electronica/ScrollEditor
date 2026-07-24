@@ -173,6 +173,87 @@ describe('edit-line-modal', () => {
             'change-artefact-edit-line',
             expect.any(Function)
         );
+        // Invoke the registered callback body (the console.log line).
+        const cb = state.eventBus.on.mock.calls.find(
+            (c: any[]) => c[0] === 'change-artefact-edit-line'
+        )[1];
+        expect(() => cb({} as any)).not.toThrow();
         expect(() => w.unmount()).not.toThrow();
+    });
+
+    it('editorState + selectedSignInterpretation getters read state', () => {
+        const si = makeSi();
+        const w = mountModal(makeState([si]));
+        expect(w.vm.editorState).toBe((w.vm as any).$state.textFragmentEditor);
+        expect(w.vm.selectedSignInterpretation).toBe(si);
+    });
+
+    // shown() and checkDifference() read a dynamic $ref that the stubbed modal
+    // slot won't register under @vue/compat. Exercise them by invoking the
+    // compiled methods against a hand-built `this` with a fake $refs entry.
+    const methods = (EditLineModal as any).methods as Record<string, any>;
+
+    it('shown() focuses the rendered line container and records prevText', async () => {
+        const container = document.createElement('div');
+        container.className = 'line-container';
+        container.appendChild(document.createTextNode('a'));
+        container.appendChild(document.createTextNode('b'));
+        Object.defineProperty(container, 'innerText', {
+            configurable: true,
+            get: () => 'PREV',
+        });
+        const el = document.createElement('div');
+        el.appendChild(container);
+        document.body.appendChild(el);
+        const ctx: any = {
+            line: { lineId: 7 },
+            $refs: { 'line-7': { $el: el } },
+            $nextTick: (cb: any) => cb(),
+            prevText: '',
+        };
+        methods.shown.call(ctx);
+        expect(ctx.prevText).toBe('PREV');
+        document.body.removeChild(el);
+    });
+
+    it('shown() is a no-op when there is no .line-container', () => {
+        const el = document.createElement('div');
+        (el as any).innerText = '';
+        const ctx: any = {
+            line: { lineId: 8 },
+            $refs: { 'line-8': { $el: el } },
+            $nextTick: (cb: any) => cb(),
+            prevText: 'orig',
+        };
+        // No .line-container -> `line` is null; reading line.innerText throws.
+        expect(() => methods.shown.call(ctx)).toThrow();
+    });
+
+    it('checkDifference builds an edit-line op, replaces text, and hides the modal', () => {
+        const container = document.createElement('div');
+        container.className = 'line-container';
+        (container as any).innerText = '  hel\nlo  ';
+        const el = document.createElement('div');
+        el.appendChild(container);
+        const addOperation = vi.fn();
+        const ctx: any = {
+            line: {
+                lineId: 5,
+                signs: [
+                    { signInterpretations: [{ id: 11 }] },
+                    { signInterpretations: [{ id: 22 }] },
+                ],
+            },
+            editionId: 9,
+            prevText: 'old',
+            $refs: { 'line-5': { $el: el } },
+            operationsManager: { addOperation },
+            checkText: { replaceText },
+            modalVisible: true,
+        };
+        methods.checkDifference.call(ctx);
+        expect(addOperation).toHaveBeenCalledTimes(1);
+        expect(replaceText).toHaveBeenCalledWith(9, 11, 22, 'hello');
+        expect(ctx.modalVisible).toBe(false);
     });
 });
