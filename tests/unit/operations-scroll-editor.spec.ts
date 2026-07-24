@@ -137,6 +137,26 @@ describe('ArtefactPlacementOperation', () => {
         const op = new ArtefactPlacementOperation(404, 'translate', placement(0, 0), placement(0, 1), true, true);
         expect(() => op.redo(true)).toThrow(/Couldn't find artefact/);
     });
+
+    it('redo() to unplaced emits select-artefact undefined and sets isPlaced=false', () => {
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 9 })));
+        const events: any[] = [];
+        st.eventBus.on('select-artefact', a => events.push(a));
+        const op = new ArtefactPlacementOperation(9, 'delete', placement(0, 100), placement(0, 0), true, false);
+        op.redo(true);
+        expect(st.artefacts.find(9)!.isPlaced).toBe(false);
+        expect(events[events.length - 1]).toBeUndefined();
+    });
+
+    it('undo() to unplaced emits select-artefact undefined', () => {
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 8 })));
+        const events: any[] = [];
+        const op = new ArtefactPlacementOperation(8, 'add', placement(0, 0), placement(0, 300), false, true);
+        op.redo(true);
+        st.eventBus.on('select-artefact', a => events.push(a));
+        op.undo();
+        expect(events[events.length - 1]).toBeUndefined();
+    });
 });
 
 describe('EditGroupOperation', () => {
@@ -308,5 +328,97 @@ describe('GroupPlacementOperation', () => {
         const a = new GroupPlacementOperation(10, [], 'edit');
         const b = new GroupPlacementOperation(10, [], 'edit');
         expect(a.uniteWith(b)).toBeUndefined();
+    });
+
+    it('redo flips to delete, undo recreates the group and re-issues a new group id', () => {
+        const edition = seedEdition();
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 1 })));
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 2 })));
+        const c1 = new ArtefactPlacementOperation(1, 'translate', placement(0, 0), placement(0, 10), true, true);
+        const c2 = new ArtefactPlacementOperation(2, 'translate', placement(0, 0), placement(0, 20), true, true);
+        const group = new GroupPlacementOperation(10, [c1, c2], 'placement');
+
+        group.redo(true);
+        expect(group.type).toBe('delete');
+
+        // Undo the delete: the group must be recreated and pushed back into the edition.
+        const before = edition.artefactGroups.length;
+        group.undo();
+        expect(group.type).toBe('placement');
+        expect(edition.artefactGroups.length).toBe(before + 1);
+    });
+
+    it('redo of a group already typed delete keeps it in the delete branch', () => {
+        seedEdition();
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 1 })));
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 2 })));
+        const c1 = new ArtefactPlacementOperation(1, 'translate', placement(0, 0), placement(0, 10), true, true);
+        const c2 = new ArtefactPlacementOperation(2, 'translate', placement(0, 0), placement(0, 20), true, true);
+        const group = new GroupPlacementOperation(10, [c1, c2], 'delete');
+        group.redo(true);
+        expect(group.type).toBe('delete');
+    });
+
+    it('uniteWith returns undefined when the child ops cannot themselves unite', () => {
+        seedEdition();
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 1 })));
+        // 'add' children never unite, so the group unite must bail out.
+        const prevGroup = new GroupPlacementOperation(10, [
+            new ArtefactPlacementOperation(1, 'add', placement(0, 0), placement(0, 10), true, true),
+        ], 'placement');
+        const nextGroup = new GroupPlacementOperation(10, [
+            new ArtefactPlacementOperation(1, 'add', placement(0, 10), placement(0, 30), true, true),
+        ], 'placement');
+        expect(nextGroup.uniteWith(prevGroup)).toBeUndefined();
+    });
+
+    it('uniteWith sorts children by id before comparing (descending input still merges)', () => {
+        seedEdition();
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 1 })));
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 2 })));
+        // Children supplied in descending id order so the sort comparator returns 1.
+        const prevGroup = new GroupPlacementOperation(10, [
+            new ArtefactPlacementOperation(2, 'translate', placement(0, 0), placement(0, 20), true, true),
+            new ArtefactPlacementOperation(1, 'translate', placement(0, 0), placement(0, 10), true, true),
+        ], 'placement');
+        const nextGroup = new GroupPlacementOperation(10, [
+            new ArtefactPlacementOperation(2, 'translate', placement(0, 20), placement(0, 40), true, true),
+            new ArtefactPlacementOperation(1, 'translate', placement(0, 10), placement(0, 30), true, true),
+        ], 'placement');
+        expect(nextGroup.uniteWith(prevGroup)).toBeInstanceOf(GroupPlacementOperation);
+    });
+
+    it('redo of a single-artefact group emits select-group for that artefact', () => {
+        seedEdition();
+        st.artefacts.add(new Artefact(makeArtefactDto({ id: 1 })));
+        const child = new ArtefactPlacementOperation(1, 'translate', placement(0, 0), placement(0, 10), true, true);
+        const group = new GroupPlacementOperation(10, [child], 'placement');
+        const grps: any[] = [];
+        st.eventBus.on('select-group', g => grps.push(g));
+        group.redo(true);
+        expect(grps.length).toBeGreaterThan(0);
+    });
+});
+
+describe('EditGroupOperation / EditionMetricOperation error paths', () => {
+    beforeEach(() => {
+        st.artefacts.items = [];
+        st.editions.items = [];
+    });
+
+    it('EditGroupOperation.internalRedo throws when the group is missing from the edition', () => {
+        const edition = makeEdition();
+        edition.artefactGroups = [];
+        st.editions.items = [edition];
+        st.editions.current = edition;
+        const op = new EditGroupOperation(4040, [1], [1, 2]);
+        expect(() => op.redo(true)).toThrow(/Couldn't find group/);
+    });
+
+    it('EditionMetricOperation.internalRedo throws when there is no current edition', () => {
+        st.editions.items = [];
+        st.editions.current = null;
+        const op = new EditionMetricOperation(100, {} as any, {} as any);
+        expect(() => op.redo(true)).toThrow(/Couldn't find editon/);
     });
 });

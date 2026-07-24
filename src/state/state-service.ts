@@ -351,9 +351,13 @@ export default class StateService {
 
         const promise = internal(id);
         if (postInternal) {
+            // Fire-and-forget side effect: run postInternal once the load succeeds. The
+            // caller awaits pt.promise and surfaces any rejection there, so swallow it
+            // here — without the .catch a failed load rejects this derived promise
+            // unhandled (crashes tests, and warns in production).
             promise.then(() => {
                 postInternal(id);
-            });
+            }).catch(() => undefined);
         }
 
         pt = new ProcessTracking(promise, id);

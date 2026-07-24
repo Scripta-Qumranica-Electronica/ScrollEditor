@@ -205,6 +205,21 @@ describe('ArtefactAddLineOperation / ArtefactDeleteLineOperation', () => {
         op.undo();
         expect(createLine).toHaveBeenCalledWith(100, 3, line, 10, 20);
     });
+
+    it('delete: uniteWith merges into a new delete op', () => {
+        seedCurrentArtefact();
+        const a = new ArtefactDeleteLineOperation(100, line, 3, 10, 20);
+        const b = new ArtefactDeleteLineOperation(100, line, 3, 10, 20);
+        expect(a.uniteWith(b)).toBeInstanceOf(ArtefactDeleteLineOperation);
+    });
+
+    it('delete/add/editLine uniteWith return undefined for a foreign op type', () => {
+        seedCurrentArtefact();
+        const foreign = { type: 'rotate' } as any;
+        expect(new ArtefactDeleteLineOperation(100, line, 3, 10, 20).uniteWith(foreign)).toBeUndefined();
+        expect(new ArtefactAddLineOperation(100, line, 3, 10, 20).uniteWith(foreign)).toBeUndefined();
+        expect(new ArtefactEditLineOperation(100, 5, 9, 'N', 'O').uniteWith(foreign)).toBeUndefined();
+    });
 });
 
 describe('ArtefactROIOperation', () => {
@@ -251,6 +266,37 @@ describe('ArtefactROIOperation', () => {
         op.undo();
         expect(st.interpretationRois.get(op.roi.id)).toBeTruthy();
         expect(op.roi.status).toBe('new');
+    });
+
+    it("erase: resolves the ROI via the frontend->server id map when the frontend id isn't in state", () => {
+        const art = seedCurrentArtefact();
+        const si = buildSignInterpretation(makeSiDto({ signInterpretationId: 2004 }));
+        st.signInterpretations.put(si);
+
+        const roi = makeRoi(art, si);
+        const op = new ArtefactROIOperation('erase', roi);
+
+        // The op holds a clone with the frontend id, but state only holds the ROI
+        // under a *server* id. removeRoi must follow the id map to find it.
+        const serverId = op.roi.id + 100000;
+        const serverRoi = roi.clone();
+        serverRoi.interpretationRoiId = serverId; // id getter = interpretationRoiId || internalId
+        st.interpretationRois.put(serverRoi);
+        serverRoi.status = 'new';
+        st.interpretationRois.mapFrontendIdToServerId(op.roi.id, serverId);
+
+        op.redo(true);
+        expect(st.interpretationRois.get(serverId)!.status).toBe('deleted');
+    });
+
+    it("erase: does nothing (logs) when the ROI can't be found anywhere in state", () => {
+        const art = seedCurrentArtefact();
+        const si = buildSignInterpretation(makeSiDto({ signInterpretationId: 2005 }));
+        st.signInterpretations.put(si);
+        const roi = makeRoi(art, si);
+        const op = new ArtefactROIOperation('erase', roi);
+        // Nothing seeded into interpretationRois -> removeRoi bails out early.
+        expect(() => op.redo(true)).not.toThrow();
     });
 
     it('constructor clones the incoming ROI (does not hold the original)', () => {
@@ -349,6 +395,32 @@ describe('TextFragmentAttributeOperation', () => {
         const b = new TextFragmentAttributeOperation(3005, 5, attr(6));
         expect(a.uniteWith(b)).toBeUndefined();
     });
+
+    it('uniteWith returns undefined for a foreign op type', () => {
+        seedCurrentArtefact();
+        seedSi(3006, [attr(5)]);
+        const a = new TextFragmentAttributeOperation(3006, 5, attr(6));
+        expect(a.uniteWith({ type: 'rotate' } as any)).toBeUndefined();
+    });
+
+    it('create: undo warns and no-ops when the attribute is already gone', () => {
+        seedCurrentArtefact();
+        const si = seedSi(3007, []);
+        const op = new TextFragmentAttributeOperation(3007, 5, attr(5)); // create (no prev)
+        // Directly undo without redo: no prev and nothing at that index -> warn branch.
+        op.undo();
+        expect(si.attributes.length).toBe(0);
+    });
+
+    it('delete: redo warns and no-ops when the attribute is already gone', () => {
+        seedCurrentArtefact();
+        const si = seedSi(3008, [attr(5)]);
+        const op = new TextFragmentAttributeOperation(3008, 5, undefined); // delete (has prev)
+        // Remove it out-of-band so redo finds no existing index and hits the warn branch.
+        si.attributes.splice(0, 1);
+        op.redo(true);
+        expect(si.attributes.length).toBe(0);
+    });
 });
 
 describe('SignInterpretationCommentOperation', () => {
@@ -388,6 +460,13 @@ describe('SignInterpretationCommentOperation', () => {
         const a = new SignInterpretationCommentOperation(4002, 'b');
         const b = new SignInterpretationCommentOperation(4003, 'b');
         expect(a.uniteWith(b)).toBeUndefined();
+    });
+
+    it('uniteWith returns undefined for a foreign op type', () => {
+        seedCurrentArtefact();
+        seedSi(4004, 'a');
+        const a = new SignInterpretationCommentOperation(4004, 'b');
+        expect(a.uniteWith({ type: 'rotate' } as any)).toBeUndefined();
     });
 });
 
@@ -435,6 +514,14 @@ describe('UpdateSignInterperationOperation', () => {
         seedSi(5004, 'א');
         const op = new UpdateSignInterperationOperation(5004, 'ב', 1, 'LETTER');
         expect(op.getId()).toBe(11);
+    });
+
+    it("prev character falls back to '' when the SI has no character", () => {
+        seedCurrentArtefact();
+        const si = seedSi(5005, 'א');
+        si.character = ''; // getPrevSignData uses `si.character || ''`
+        const op = new UpdateSignInterperationOperation(5005, 'ב', 1, 'LETTER');
+        expect(op.prev.character).toBe('');
     });
 });
 
@@ -503,5 +590,22 @@ describe('Create/Delete SignInterpretationOperation', () => {
         const create = new CreateSignInterpretationOperation(6200, 'ה', 1, 'LETTER');
         expect(del.uniteWith(create)).toBeUndefined();
         expect(create.uniteWith(del)).toBeUndefined();
+    });
+
+    it('sign-edit uniteWith returns undefined for a foreign (non-sign) op type', () => {
+        seedCurrentArtefact();
+        seedLineWithTwoSigns(6300, 6301);
+        const del = new DeleteSignInterpretationOperation(6301);
+        expect(del.uniteWith({ type: 'rotate' } as any)).toBeUndefined();
+    });
+
+    it('delete constructor marks state corrupt when the SI is missing', () => {
+        seedCurrentArtefact();
+        expect(() => new DeleteSignInterpretationOperation(999999)).toThrow(/corrupt/i);
+    });
+
+    it('create constructor marks state corrupt when the anchor SI is missing', () => {
+        seedCurrentArtefact();
+        expect(() => new CreateSignInterpretationOperation(999999, 'x', 1, 'LETTER')).toThrow(/corrupt/i);
     });
 });
