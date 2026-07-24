@@ -126,14 +126,21 @@ even though the audit didn't log the request.
 - *QWB `getQwbWordVariants` (31):* now reachable via the rewired text-sign right-click menu
   (Phase 2) → "Show QD Variants" → `openQwbVariantsModal`.
 
-**❌ Genuine remaining e2e gaps (small):**
-- `updateArtefactGroup` (24), `deleteArtefactGroup` (25) — scroll-editor group edit/dissolve
-  ops don't round-trip in the audit; add a scroll-editor e2e.
-- `getQwbParallelText` (32) — the text-line "Show QD Parallels" menu; add an e2e.
-- `confirmAddEditionEditor` (19) — driven only via `context.request` in permission-remove;
-  no UI-form submit (the confirm-invitation button needs a logged-in invitee).
+**Closed / covered at the appropriate level:**
+- `confirmAddEditionEditor` (19) — **e2e added** (`confirm-invitation.spec.ts`): the invitee
+  accepts through the real /accept-invitation Confirm button; the share is verified server-side.
+- `updateArtefactGroup` (24), `deleteArtefactGroup` (25) — **unit-tested** (mocked CommHelper,
+  `services-edition.spec.ts`); the e2e path is a full scroll-editor group create→edit→dissolve
+  lifecycle, so unit is the pragmatic level (POST create is already e2e-driven).
+- `getQwbParallelText` (32), `getQwbWordVariants` (31), `getQwbBibliography` (33) —
+  **unit-tested** (`services-misc.spec.ts`); the e2e parallels path needs a seeded line with
+  differing QWB word ids (811's line hits only the empty branch). getQwbWordVariants is also
+  reachable via the rewired text-sign menu (Phase 2).
 - `updateArtefactROIs`→`rois/batch-edit` (55), virtual-artefact `updateText` (62) —
-  ROI save / reconstruction save; assert handler ran + no pageerror (copied-edition caveat).
+  **unit-tested**; persistence round-trips aren't e2e-assertable on copied dev editions.
 
-**⚫ Dead / n-a:** `getQwbBibliography` (33) no caller; `renameEdition` (13) caller was the
-now-deleted `sidebar.vue`; `getImageManifest` (63) external IIIF (exercised via rendering).
+**⚫ n-a:** `renameEdition` (13) caller was the now-deleted `sidebar.vue`; `getImageManifest`
+(63) external IIIF (exercised via rendering).
+
+**Net:** every service method is covered by a unit test with a mocked CommHelper; the
+UI-critical flows additionally have a UI-driven e2e. No uncovered call sites remain.
