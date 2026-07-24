@@ -70,13 +70,16 @@ for (const file in e2eHits) {
     if (t > 0) e2e[file] = { total: t, covered: c };
 }
 
-// Per file, take whichever run (unit or the e2e union) covered MORE statements —
-// unit/e2e instrument the same source differently, so they can't be merged
-// per-statement, but a file is realistically covered well by one or the other.
+// Per file, take whichever run (unit or the e2e union) covered the file BETTER, by
+// PERCENTAGE. unit (vitest istanbul) and e2e (vite-plugin-istanbul) instrument the same
+// source with DIFFERENT statement maps, so a file's statement COUNT differs between runs;
+// comparing absolute covered counts is apples-to-oranges (e.g. a file unit-covered 100/100
+// would lose to an e2e 102/137 and be scored 74% instead of its true 100%). Comparing
+// percentage and keeping the winning run's covered/total is the honest per-file measure.
 for (const file of new Set([...Object.keys(unit), ...Object.keys(e2e)])) {
     const u = unit[file];
     const e = e2e[file];
-    best.set(file, !u ? e : !e ? u : e.covered >= u.covered ? e : u);
+    best.set(file, !u ? e : !e ? u : e.covered / e.total >= u.covered / u.total ? e : u);
 }
 
 // Always excluded from the coverage denominator (not user-facing, not testable):
