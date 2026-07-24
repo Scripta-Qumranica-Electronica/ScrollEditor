@@ -78,3 +78,67 @@ function auditFn(rootSelector: string): SweepResult {
 export async function auditControls(page: Page, rootSelector = ''): Promise<SweepResult> {
     return page.evaluate(auditFn, rootSelector);
 }
+
+// --- Data-leak / i18n scanner ---------------------------------------------------------------
+// Runs IN THE BROWSER. Collects the VISIBLE text and flags generic "something rendered that a
+// user should never see" — no per-page spec needed. Catches the class of bug where a raw object
+// / array / undefined value / untranslated i18n key leaks into the UI (e.g. the copyright modal
+// that printed `Collaborators [ { "email": ... } ]`).
+
+export interface LeakFinding {
+    kind: 'object' | 'json' | 'undefined' | 'nan' | 'i18n-key';
+    match: string;
+    context: string;
+}
+
+function scanFn(rootSelector: string): LeakFinding[] {
+    const root: Element = (rootSelector ? document.querySelector(rootSelector) : document.body) || document.body;
+    // Gather visible text only (skip script/style/hidden and off-DOM nodes).
+    const parts: string[] = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+            const el = node.parentElement;
+            if (!el) return NodeFilter.FILTER_REJECT;
+            const tag = el.tagName;
+            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') return NodeFilter.FILTER_REJECT;
+            const cs = getComputedStyle(el);
+            if (cs.display === 'none' || cs.visibility === 'hidden') return NodeFilter.FILTER_REJECT;
+            if (!(node.textContent || '').trim()) return NodeFilter.FILTER_REJECT;
+            // Also require the element to occupy layout (guards against display:contents wrappers).
+            if (!el.getClientRects().length) return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
+        },
+    });
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) parts.push((n.textContent || '').trim());
+    // Also scan values sitting in inputs/textareas.
+    for (const el of Array.from(root.querySelectorAll('input, textarea'))) {
+        const v = (el as HTMLInputElement).value;
+        if (v && v.trim()) parts.push(v.trim());
+    }
+    const text = parts.join('  •  ');
+
+    const out: LeakFinding[] = [];
+    const seen = new Set<string>();
+    const push = (kind: LeakFinding['kind'], match: string, idx: number) => {
+        const key = kind + '::' + match;
+        if (seen.has(key)) return;
+        seen.add(key);
+        out.push({ kind, match, context: text.slice(Math.max(0, idx - 40), idx + match.length + 40) });
+    };
+
+    // A raw object stringified.
+    for (const m of text.matchAll(/\[object [A-Z]\w+\]/g)) push('object', m[0], m.index!);
+    // A JSON object/array leaked: an array-of-objects, or an object literal with a quoted key.
+    for (const m of text.matchAll(/\[\s*\{|\{\s*"[\w-]+"\s*:\s*/g)) push('json', m[0].trim(), m.index!);
+    // A standalone `undefined` / `NaN` token (not part of a longer identifier or a URL).
+    for (const m of text.matchAll(/(?<![\w/.:@-])undefined(?![\w-])/g)) push('undefined', 'undefined', m.index!);
+    for (const m of text.matchAll(/(?<![\w/.])NaN(?![\w-])/g)) push('nan', 'NaN', m.index!);
+    // An untranslated i18n key that fell through to its dotted path (vue-i18n renders the key).
+    for (const m of text.matchAll(/(?<![\w/@.])(error|home|misc|navbar|toasts)\.[a-z][A-Za-z0-9_.]+/g)) push('i18n-key', m[0], m.index!);
+
+    return out;
+}
+
+export async function scanLeaks(page: Page, rootSelector = ''): Promise<LeakFinding[]> {
+    return page.evaluate(scanFn, rootSelector);
+}
