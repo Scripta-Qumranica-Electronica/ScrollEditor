@@ -280,8 +280,12 @@ resize**, **text-fragment (not line) realtime**, and the remaining **account flo
   so `previousLineId` stayed 0 and every add-line POST 500'd. The modal bus now carries an optional
   payload; the two callers pass `'before'`/`'after'` and the modal sets `position` on show. Add-line
   works end-to-end (round-trip test un-fixme'd, passes).
+- **✅ FIXED — realtime text fragments** — CreatedTextFragment/UpdatedTextFragment now upsert a
+  fragment's id+name, so a collaborator's new/renamed fragment appears live (and the local rename,
+  whose response was previously discarded, now refreshes too). Two-client test in
+  `realtime-text.spec.ts`. Fragment *content* (lines) still loads per-fragment on open.
 - **🐞 (superseded) realtime text editing** — original umbrella item; line handling done above.
-  Remaining: wire text-fragment create/update if/when that payload (needs `textFragmentId`
+  Remaining: (obsolete note) text-fragment create/update if/when that payload (needs `textFragmentId`
   in the broadcast DTOs; see §8). Until fixed, a two-client text-sync test should be written to
   **fail** (documenting the bug) or skipped with a reference here.
 - **✨ Build "resend activation email"** — add the UI for `POST /v1/users/resend-activation-email`

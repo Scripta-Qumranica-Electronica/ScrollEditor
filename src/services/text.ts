@@ -27,7 +27,7 @@ import {
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
 import { InterpretationRoi } from '@/models/text';
-import { applyCreatedLine, applyDeletedLine } from '@/state/notification-handler';
+import { applyCreatedLine, applyDeletedLine, applyTextFragmentMeta } from '@/state/notification-handler';
 import { integrifyPosition } from '@/models/misc';
 
 class TextService {
@@ -103,10 +103,10 @@ class TextService {
             ApiRoutes.editionTextFragmentUrl(editionId, fragment.id),
             body
         );
-        // Update the state
-        const changed = new TextFragment(response.data);
-        // todo find the update of textfragmentstate manager
-        // this.stateManager.artefacts.update(changed);
+        // Apply our own rename locally — the broadcast excludes the originating client, so
+        // without this the renamed fragment wouldn't refresh until reload. Same reducer the
+        // SignalR handler uses.
+        applyTextFragmentMeta(response.data.textFragmentId, response.data.textFragmentName);
         this.stateManager.touchEdition(editionId);
         return response.data;
     }

@@ -63,3 +63,50 @@ test('a line added by one editor appears live for another (no reload)', async ({
     await ctxA.close();
     await ctxB.close();
 });
+
+function fragmentName(page: Page, tfId: number): Promise<string | undefined> {
+    return page.evaluate((id) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+        return st.textFragments.get(id)?.textFragmentName as string | undefined;
+    }, tfId);
+}
+
+test('renaming a text fragment appears live for another editor (no reload)', async ({ browser }) => {
+    const ctxA = await authedContext(browser, token);
+    const ed = Number(((await (await ctxA.request.post(`${API}/v1/editions/811`, { headers: auth(), data: { name: `pw-rttfrename-${Date.now()}` } })).text()).match(/"id":\s*(\d+)/) || [])[1]);
+    const tf = (await (await ctxA.request.get(`${API}/v1/editions/${ed}/text-fragments`, { headers: auth() })).json()).textFragments[0];
+
+    const pageA = await ctxA.newPage();
+    const ctxB = await authedContext(browser, token);
+    const pageB = await ctxB.newPage();
+    for (const p of [pageA, pageB]) {
+        await p.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+        await p.setViewportSize({ width: 1400, height: 900 });
+        await p.goto(`/editions/${ed}/text-fragments/${tf.id}`);
+        await expect(p.locator('#text-side .text-line').first()).toBeVisible({ timeout: 40_000 });
+    }
+    await pageB.waitForTimeout(1500); // let SignalR settle
+
+    const newName = `pw-tf-renamed-${Date.now()}`;
+    await pageA.evaluate(async (args) => {
+        const { edId, tfId, name } = args;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+        const frag = st.textFragments.get(tfId);
+        frag.textFragmentName = name;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const el = document.querySelector('#text-side'); let cur: any = (el as any)?.__vueParentComponent; let svc: any;
+        while (cur) { if (cur.ctx && cur.ctx.textService?.changeTextFragment) { svc = cur.ctx.textService; break; } cur = cur.parent; }
+        await svc.changeTextFragment(edId, frag);
+    }, { edId: ed, tfId: tf.id, name: newName });
+
+    // A applied its own rename; B receives it live over SignalR.
+    await expect.poll(() => fragmentName(pageA, tf.id), { timeout: 10_000 }).toBe(newName);
+    await expect.poll(() => fragmentName(pageB, tf.id), { timeout: 20_000 }).toBe(newName);
+
+    await collectCoverage(ctxA);
+    await collectCoverage(ctxB);
+    await ctxA.close();
+    await ctxB.close();
+});

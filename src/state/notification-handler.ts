@@ -9,14 +9,14 @@ import {
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
     DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO, DeleteIntIdDTO,
-    ArtefactGroupDTO, LineDataDTO, LineDTO
+    ArtefactGroupDTO, LineDataDTO, LineDTO, TextFragmentDataDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions, ArtefactGroup } from '@/models/edition';
 import { currentState } from './current';
 import { Artefact } from '@/models/artefact';
 import { Placement } from '@/utils/Placement';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
-import { InterpretationRoi, Sign, SignInterpretation, Line } from '@/models/text';
+import { InterpretationRoi, Sign, SignInterpretation, Line, TextFragment } from '@/models/text';
 
 /* This file contains the implementation of all the incoming events from SignalR */
 
@@ -265,6 +265,17 @@ export class NotificationHandler {
     public handleDeletedLine(dto: DeleteIntIdDTO): void {
         console.debug('handleDeletedLine', dto);
         applyDeletedLine(dto.ids ?? []);
+    }
+
+    // The API broadcasts CreatedTextFragment for both create and rename.
+    public handleCreatedTextFragment(dto: TextFragmentDataDTO): void {
+        console.debug('handleCreatedTextFragment', dto);
+        applyTextFragmentMeta(dto.id, dto.name);
+    }
+
+    public handleUpdatedTextFragment(dto: TextFragmentDataDTO): void {
+        console.debug('handleUpdatedTextFragment', dto);
+        applyTextFragmentMeta(dto.id, dto.name);
     }
 }
 
@@ -535,4 +546,17 @@ export function applyUpdatedLine(dto: LineDataDTO): void {
             break;
         }
     }
+}
+
+// Upsert a text fragment's metadata (id + name). The API broadcasts CreatedTextFragment for BOTH
+// create and rename (metadata-only DTO), so this handles both: rename an existing fragment in
+// place, or add a new (empty-lined) fragment. Called by the broadcast handler and by the local
+// rename (whose HTTP response was previously discarded — the rename didn't refresh locally).
+export function applyTextFragmentMeta(id: number, name: string): void {
+    const existing = state().textFragments.get(id);
+    if (existing) {
+        existing.textFragmentName = name;
+        return;
+    }
+    state().textFragments.put(new TextFragment({ textFragmentId: id, textFragmentName: name, editorId: 0, lines: [] }));
 }

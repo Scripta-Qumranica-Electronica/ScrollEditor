@@ -41,16 +41,16 @@ export const HANDLED_EVENTS: ReadonlyArray<[string, keyof NotificationHandler]> 
     ['CreatedLine', 'handleCreatedLine'],
     ['UpdatedLine', 'handleUpdatedLine'],
     ['DeletedLine', 'handleDeletedLine'],
+    // Text fragments: the API broadcasts CreatedTextFragment for create AND rename (metadata
+    // only); both upsert the fragment's id+name so a collaborator's new/renamed fragment appears.
+    ['CreatedTextFragment', 'handleCreatedTextFragment'],
+    ['UpdatedTextFragment', 'handleUpdatedTextFragment'],
 ];
 
 // Broadcast by the API but intentionally not yet processed. Each is wired to a
 // dev-only logger so an ignored broadcast is visible instead of silently dropped.
 // To start handling one, move it into HANDLED_EVENTS and implement the method.
 export const UNHANDLED_EVENTS: ReadonlyArray<string> = [
-    // Text fragments (create/update) — still metadata-only broadcasts (TextFragmentDataDTO has no
-    // line structure), so a new/renamed fragment isn't applied live yet. Lines (CreatedLine /
-    // UpdatedLine / DeletedLine) ARE now handled — see HANDLED_EVENTS.
-    'CreatedTextFragment', 'UpdatedTextFragment',
     // Tier B — real but less frequent (wire when needed). Note: sign-level
     // attribute *values* already propagate via UpdatedSignInterpretation; these
     // are edition-level attribute definitions.
