@@ -268,10 +268,17 @@ anywhere) and **mutation round-trips** (every create/update survives a reload).
   `0`, so `updateArtefactDTOs(0)` threw before any PUT and the change was lost on reload.
   `saveEntities` now resolves the edition from the store. Guarded by the round-trip sweep's
   "moving a placed artefact survives a reload" test.
-- **🐞 Fix "add line" local update** — adding a text line doesn't show until reload (the editor
-  relies on the ignored `CreatedLine` broadcast even for the local user's own add); part of the
-  realtime-text bug below.
-- **🐞 Fix realtime text editing** — wire line/text-fragment SignalR events (needs `textFragmentId`
+- **✅ FIXED — realtime text lines** — line add/rename/delete now apply BOTH locally (from the HTTP
+  response — the broadcast excludes the sender) and live to collaborators. `LineDataDTO` now
+  carries `textFragmentId`; shared apply funcs feed the local service and the new
+  handleCreatedLine/Updated/Deleted handlers. Guarded by `realtime-text.spec.ts` (two clients).
+  Text-FRAGMENT create/update are still metadata-only broadcasts (not applied live) — lower value.
+- **🐞 Fix add-line MODAL (SEVERE, separate)** — `addLineBefore`/`addLineAfter` are identical and
+  never set the modal's `position`, so `previousLineId` stays 0 and every add-line POST **500s**.
+  The whole add-line UI is broken; the realtime fix above is only reachable via the API until this
+  is fixed. (The UI round-trip test is `test.fixme` until then.)
+- **🐞 (superseded) realtime text editing** — original umbrella item; line handling done above.
+  Remaining: wire text-fragment create/update if/when that payload (needs `textFragmentId`
   in the broadcast DTOs; see §8). Until fixed, a two-client text-sync test should be written to
   **fail** (documenting the bug) or skipped with a reference here.
 - **✨ Build "resend activation email"** — add the UI for `POST /v1/users/resend-activation-email`
