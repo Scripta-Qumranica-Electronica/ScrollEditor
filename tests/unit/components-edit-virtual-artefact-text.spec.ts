@@ -84,7 +84,7 @@ describe('edit-virtual-artefact-text', () => {
         w.vm.onHide();
         expect(hide).toHaveBeenCalled();
         expect(edited.isPlaced).toBe(true);
-        const close = w.emitted().close?.[0]?.[0] as any;
+        const close = (w.emitted().close as any)?.[0]?.[0] as any;
         expect(close.text).toBe('changed');
         expect(close.originalText).toBe('שלום');
         expect(w.vm.editor).toBeUndefined();

@@ -29,6 +29,7 @@ function makeFragment(lineNames: string[]) {
         lineId: 100 + i,
         editorId: 7,
         signs: [],
+        textFragment: {} as any,
     }));
     const textFragment: any = { textFragmentId: 55, lines };
     lines.forEach(l => (l.textFragment = textFragment));

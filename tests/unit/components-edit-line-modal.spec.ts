@@ -176,7 +176,7 @@ describe('edit-line-modal', () => {
         // Invoke the registered callback body (the console.log line).
         const cb = state.eventBus.on.mock.calls.find(
             (c: any[]) => c[0] === 'change-artefact-edit-line'
-        )[1];
+        )![1];
         expect(() => cb({} as any)).not.toThrow();
         expect(() => w.unmount()).not.toThrow();
     });

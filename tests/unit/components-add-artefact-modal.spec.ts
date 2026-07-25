@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const dispose = vi.fn();
-const registerModalListener = vi.fn(() => dispose);
+const registerModalListener = vi.fn((_id: string, _onShow: () => void, _onHide: () => void) => dispose);
 vi.mock('@/utils/modal-bus', () => ({
-    registerModalListener: (...a: any[]) => registerModalListener(...a),
+    registerModalListener: (...a: [string, () => void, () => void]) => registerModalListener(...a),
 }));
 
 import AddArtefactModal from '@/views/scroll-editor/add-artefact-modal.vue';

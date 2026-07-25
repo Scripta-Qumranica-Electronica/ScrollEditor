@@ -9,7 +9,7 @@ const { forgotPassword, registerModalListener, dispose } = vi.hoisted(() => {
     return {
         forgotPassword: vi.fn().mockResolvedValue({}),
         dispose,
-        registerModalListener: vi.fn(() => dispose),
+        registerModalListener: vi.fn((_id: string, _onShow: () => void, _onHide: () => void) => dispose),
     };
 });
 vi.mock('@/services/session', () => ({

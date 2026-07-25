@@ -76,7 +76,7 @@ vi.mock('@/models/text', async (importActual) => {
         ...actual,
         InterpretationRoi: Object.assign(
             class {},
-            { new: (...args: any[]) => roiNew(...args) }
+            { new: (...args: [any, any, any, any]) => roiNew(...args) }
         ),
     };
 });

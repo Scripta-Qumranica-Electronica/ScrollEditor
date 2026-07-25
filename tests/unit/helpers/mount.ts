@@ -1,4 +1,4 @@
-import { mount, type MountingOptions } from '@vue/test-utils';
+import { mount, VueWrapper, type MountingOptions } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import { localizedTexts } from '@/i18n';
 
@@ -21,8 +21,9 @@ export function mountComponent(component: any, opts: {
     shallow?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     slots?: Record<string, any>;
-} = {}) {
-    const options: MountingOptions<unknown> = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = {}): VueWrapper<any> {
+    const options: MountingOptions<any> = {
         props: opts.props,
         slots: opts.slots,
         shallow: opts.shallow,
@@ -32,5 +33,8 @@ export function mountComponent(component: any, opts: {
             stubs: { 'toolbar-icon-button': true, ...(opts.stubs ?? {}) },
         },
     };
-    return mount(component, options);
+    // The unit tests read component internals via `w.vm.<prop>`; typing vm as `any` keeps that
+    // ergonomic (the alternative — ComponentPublicInstance<unknown> — makes every access a TS2339).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return mount(component, options as any) as unknown as VueWrapper<any>;
 }

@@ -119,10 +119,11 @@ class SearchForm extends Vue {
     }
 
     public textToArray(
-        input: string,
+        input: string | number | null,
         field: 'textReference' | 'artefactDesignation'
     ) {
-        const list = input.split('\n').filter((s) => !!s); // Remove empty items from the list
+        // bootstrap-vue-next's textarea emits Numberish | null; coerce before splitting.
+        const list = String(input ?? '').split('\n').filter((s) => !!s); // Remove empty items
         this.searchData[field] = list;
     }
 

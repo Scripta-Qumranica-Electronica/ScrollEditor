@@ -10,7 +10,7 @@ const { register, showModal, registerModalListener, dispose } = vi.hoisted(() =>
         register: vi.fn().mockResolvedValue({}),
         showModal: vi.fn(),
         dispose,
-        registerModalListener: vi.fn(() => dispose),
+        registerModalListener: vi.fn((_id: string, _onShow: () => void, _onHide: () => void) => dispose),
     };
 });
 vi.mock('@/services/session', () => ({

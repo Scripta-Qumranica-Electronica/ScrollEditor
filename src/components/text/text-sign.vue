@@ -19,13 +19,13 @@
             custom-class="popover-sign-body"
             :target="'popover-si-' + si.signInterpretationId"
             manual
-            @shown="focusPopover($event)"
+            @shown="focusPopover()"
         >
             <div
                 class="character-popover"
                 tabindex="-1"
                 ref="signMenu"
-                @blur="closeSignMenu($event)"
+                @blur="closeSignMenu()"
             >
                 <ul>
                     <li>
@@ -205,12 +205,14 @@ class TextSign extends Vue {
     }
 
     // @Emit()
-    // private editLine() {
-    //     return true;
-    // }
-    // private openEditLineModal() {
-    //     this.$root.$emit('bv::show::modal', 'editLineModal');
-    // }
+    // Open the edit-line modal for THIS sign's line (the sign-context-menu "Edit Line" item).
+    // Select the sign first (the edit-line modal edits the selected sign's line), mirroring
+    // text-line's openEditLineModal. Was previously commented out (dead $root.$emit), so the
+    // menu item did nothing.
+    public openEditLineModal() {
+        this.$state.textFragmentEditor.selectSign(this.si);
+        showModal('editLineModal');
+    }
 
     public openEditSignModal() {
         this.$state.textFragmentEditor.modeSignModal = 'edit';

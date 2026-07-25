@@ -8,7 +8,7 @@ const { registerModalListener, dispose } = vi.hoisted(() => {
     const dispose = vi.fn();
     return {
         dispose,
-        registerModalListener: vi.fn(() => dispose),
+        registerModalListener: vi.fn((_id: string, _onShow: () => void, _onHide: () => void) => dispose),
     };
 });
 vi.mock('@/utils/modal-bus', () => ({ registerModalListener }));
