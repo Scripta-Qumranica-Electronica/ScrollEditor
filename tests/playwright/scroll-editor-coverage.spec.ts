@@ -758,12 +758,10 @@ test('scroll-editor: a saved artefact group persists across a reload', async ({ 
     await ctx.close();
 });
 
-// KNOWN BUG: an "Add" resize can't persist — PUT /v1/editions/{id} with a `metrics` body 404s
-// because UpdateEditionMetricsAsync throws DataNotFoundException when the edition has no
-// manuscript_metrics row (copies show width:0 / no row). Separate from the scroll-save fix.
-// Un-fixme once editions carry a metrics row. (The in-session resize + blocked-Cut branch is
-// still covered above.)
-test.fixme('scroll-editor: an "Add" resize persists the new scroll width across a reload', async ({ browser }) => {
+// An "Add" resize persists across a reload. This 404'd until DB migration 0.33.1 de-duplicated
+// manuscript_metrics ownership (some editions owned 2 identical metrics rows, and the metrics
+// update requires exactly one). Now editions have one metrics row, so the resize persists.
+test('scroll-editor: an "Add" resize persists the new scroll width across a reload', async ({ browser }) => {
     const { ctx, page, errors } = await openEditor(browser);
     const before = (await scrollState(page)).editionWidth!;
 

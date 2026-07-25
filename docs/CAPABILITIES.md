@@ -261,10 +261,12 @@ resize**, **text-fragment (not line) realtime**, and the remaining **account flo
 
 ### Known work items (product, not just tests)
 
-- **🐞 Scroll canvas resize can't persist** — `PUT /v1/editions/{id}` with a `metrics` body 404s
-  (`UpdateEditionMetricsAsync` throws when the edition has no `manuscript_metrics` row; copies show
-  `width:0`). So a resize is lost on reload. Separate from the scroll-save fix; resize round-trip
-  test is `test.fixme` until editions carry a metrics row.
+- **✅ FIXED — scroll canvas resize persists** — the metrics `PUT` 404'd because ~381 editions
+  owned TWO identical `manuscript_metrics` rows (the metrics update requires exactly one). This
+  was a data error from the 0.17.3 seed migration (a cardinality-mismatched ownership seed), NOT
+  the API — the versioning Update correctly keeps 1 owner row, and copy-edition only propagated
+  bad sources. Fixed by DB migration `SQE_Database/Changes/0.33.1` (de-dup, lossless). Resize
+  round-trip test un-fixme'd and passing.
 
 - **✅ FIXED — scroll-editor save** — toolbar edits (nudge/rotate/scale/mirror/z-index) were not
   persisted: the autosave ran on a detached saving-agent `this` whose `editionId` field was still
