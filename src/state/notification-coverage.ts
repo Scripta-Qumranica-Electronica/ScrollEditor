@@ -45,16 +45,22 @@ export const HANDLED_EVENTS: ReadonlyArray<[string, keyof NotificationHandler]> 
     // only); both upsert the fragment's id+name so a collaborator's new/renamed fragment appears.
     ['CreatedTextFragment', 'handleCreatedTextFragment'],
     ['UpdatedTextFragment', 'handleUpdatedTextFragment'],
+    // Imaged objects added/removed from the edition propagate live to the imaged-object list.
+    ['CreatedImagedObject', 'handleCreatedImagedObject'],
+    ['DeletedImagedObject', 'handleDeletedImagedObject'],
 ];
 
 // Broadcast by the API but intentionally not yet processed. Each is wired to a
 // dev-only logger so an ignored broadcast is visible instead of silently dropped.
 // To start handling one, move it into HANDLED_EVENTS and implement the method.
 export const UNHANDLED_EVENTS: ReadonlyArray<string> = [
-    // Tier B — real but less frequent (wire when needed). Note: sign-level
-    // attribute *values* already propagate via UpdatedSignInterpretation; these
-    // are edition-level attribute definitions.
-    'CreatedImagedObject', 'DeletedImagedObject',
+    // Tier B — real but narrower / lower-frequency (wire when the feature needs it):
+    //  - Attribute *definitions* at the edition level. (Sign-level attribute VALUES already
+    //    propagate via UpdatedSignInterpretation.)
+    //  - RequestedEditor / UpdatedEditorEmail: an admin's pending-invitation & editor-email list.
+    //    CreatedEditor (an accepted editor) IS handled; these two affect only the admin's
+    //    Collaborators modal, which reloads its invitations on open.
+    //  - CreatedEdition / DeletedEdition are effectively global (the home list), not edition-scoped.
     'CreatedAttribute', 'UpdatedAttribute', 'DeletedAttribute',
     'RequestedEditor', 'UpdatedEditorEmail', 'CreatedEdition', 'DeletedEdition',
     // Tier C — scribal-font editor (specialized; wire when that feature is worked on)

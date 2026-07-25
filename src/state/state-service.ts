@@ -652,23 +652,28 @@ export default class StateService {
     ) {
         await this.edition(editionId);
 
-        // See if the text fragment has already been loaded into the store
-        const textFragment = this._state.textFragments.get(textFragmentId);
-        if (textFragment) {
+        // See if the text fragment's CONTENT has already been loaded into the store. A
+        // metadata-only entry (id + name, no lines) can exist from a realtime CreatedTextFragment
+        // broadcast — fall through and fetch its content rather than showing it empty.
+        const cached = this._state.textFragments.get(textFragmentId);
+        if (cached && cached.lines.length > 0) {
             return;
         }
 
-        // Make sure the fragment really exists with the edition
-        const textFragmentData = this._state.editions.current!.textFragments!.find(
-            tf => tf.id === textFragmentId
-        );
-        if (!textFragmentData) {
-            console.error(
-                `Can't located text fragment ID ${textFragmentId} in edition ${editionId}`
+        // Make sure the fragment really exists with the edition (skip when we already know of it
+        // from a broadcast — then just fetch it by id below).
+        if (!cached) {
+            const textFragmentData = this._state.editions.current!.textFragments!.find(
+                tf => tf.id === textFragmentId
             );
-            throw new Error(
-                `Can't located text fragment ID ${textFragmentId} in edition ${editionId}`
-            );
+            if (!textFragmentData) {
+                console.error(
+                    `Can't located text fragment ID ${textFragmentId} in edition ${editionId}`
+                );
+                throw new Error(
+                    `Can't located text fragment ID ${textFragmentId} in edition ${editionId}`
+                );
+            }
         }
 
         // Load the text fragment from the server

@@ -110,3 +110,41 @@ test('renaming a text fragment appears live for another editor (no reload)', asy
     await ctxA.close();
     await ctxB.close();
 });
+
+test('a metadata-only text fragment loads its content on open (broadcast -> open, not empty)', async ({ browser }) => {
+    // A CreatedTextFragment broadcast adds a fragment with only id+name (no lines). Opening it
+    // must FETCH its content, not short-circuit on the cached metadata and show it empty.
+    const ctx = await authedContext(browser, token);
+    const ed = Number(((await (await ctx.request.post(`${API}/v1/editions/811`, { headers: auth(), data: { name: `pw-tfcontent-${Date.now()}` } })).text()).match(/"id":\s*(\d+)/) || [])[1]);
+    const tfs = (await (await ctx.request.get(`${API}/v1/editions/${ed}/text-fragments`, { headers: auth() })).json()).textFragments;
+    const [a, b] = [tfs[0].id, tfs[1].id];
+
+    const page = await ctx.newPage();
+    await page.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+    await page.setViewportSize({ width: 1400, height: 900 });
+    await page.goto(`/editions/${ed}/text-fragments/${a}`);
+    await expect(page.locator('#text-side .text-line').first()).toBeVisible({ timeout: 40_000 });
+
+    const result = await page.evaluate(async (args) => {
+        const { edId, fa, fb } = args;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+        const before = st.textFragments.get(fa)?.lines?.length ?? 0;
+        // Simulate the state left by a CreatedTextFragment broadcast: the fragment is known but
+        // has no lines yet.
+        st.textFragments.get(fa).lines = [];
+        const emptied = st.textFragments.get(fa)?.lines?.length ?? 0;
+        // Move the tracked load process to another fragment, then re-open A: it must re-fetch.
+        await st.prepare.textFragment(edId, fb);
+        await st.prepare.textFragment(edId, fa);
+        const after = st.textFragments.get(fa)?.lines?.length ?? 0;
+        return { before, emptied, after };
+    }, { edId: ed, fa: a, fb: b });
+
+    expect(result.before, 'fragment A had content to begin with').toBeGreaterThan(0);
+    expect(result.emptied, 'we emulated a metadata-only entry').toBe(0);
+    expect(result.after, 'opening the metadata-only fragment re-fetched its content').toBeGreaterThan(0);
+
+    await collectCoverage(ctx);
+    await ctx.close();
+});

@@ -95,6 +95,25 @@ describe('notification reducer — realtime state sync', () => {
         new NotificationHandler().handleUpdatedArtefact(makeArtefactDto({ id: 404 }));
         expect(st.artefacts.find(404)).toBeNull();
     });
+
+    it('handleCreatedImagedObject adds it (idempotent); handleDeletedImagedObject removes it', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        st.editions.current = {} as any; // handler only needs a truthy current edition
+        const h = new NotificationHandler();
+        // A sideless DTO: with no recto/verso the ImagedObject ctor skips ImageStack construction.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const io = { id: 'IO-RT', artefacts: [] } as any;
+
+        h.handleCreatedImagedObject(io);
+        expect(st.imagedObjects.find('IO-RT')).toBeTruthy();
+
+        h.handleCreatedImagedObject(io); // own echo / re-broadcast -> no duplicate
+        expect(st.imagedObjects.items.filter((x) => x.id === 'IO-RT').length).toBe(1);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        h.handleDeletedImagedObject({ ids: ['IO-RT'] } as any);
+        expect(st.imagedObjects.find('IO-RT')).toBeNull();
+    });
 });
 
 describe('notification coverage contract', () => {

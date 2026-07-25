@@ -504,12 +504,14 @@ describe('artefact (single)', () => {
 // textFragment() — early return, error, and full load path
 // ---------------------------------------------------------------------------
 describe('textFragment (single)', () => {
-    it('returns early when the fragment is already in the store', async () => {
+    it('returns early when the fragment is already fully loaded (has content)', async () => {
         stubEditionPipeline();
-        // Run edition() first (it clears the fragment map), then seed the map so
-        // the second textFragment() call takes the already-loaded early return.
+        // Run edition() first (it clears the fragment map), then seed the map with a fragment
+        // that HAS lines so the second textFragment() call takes the already-loaded early return.
+        // (A metadata-only entry — 0 lines, e.g. from a CreatedTextFragment broadcast — instead
+        // falls through and re-fetches its content; covered by the realtime-text e2e.)
         await svc.edition(100);
-        st.textFragments.put({ id: 400, lines: [] } as any);
+        st.textFragments.put({ id: 400, lines: [{ lineId: 1 }] } as any);
         await svc.textFragment(100, 400);
         expect(textSvc.getTextFragment).not.toHaveBeenCalled();
     });

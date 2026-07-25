@@ -9,11 +9,12 @@ import {
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
     DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO, DeleteIntIdDTO,
-    ArtefactGroupDTO, LineDataDTO, LineDTO, TextFragmentDataDTO
+    ArtefactGroupDTO, LineDataDTO, LineDTO, TextFragmentDataDTO, ImagedObjectDTO, DeleteStringIdDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions, ArtefactGroup } from '@/models/edition';
 import { currentState } from './current';
 import { Artefact } from '@/models/artefact';
+import { ImagedObject } from '@/models/imaged-object';
 import { Placement } from '@/utils/Placement';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
 import { InterpretationRoi, Sign, SignInterpretation, Line, TextFragment } from '@/models/text';
@@ -276,6 +277,21 @@ export class NotificationHandler {
     public handleUpdatedTextFragment(dto: TextFragmentDataDTO): void {
         console.debug('handleUpdatedTextFragment', dto);
         applyTextFragmentMeta(dto.id, dto.name);
+    }
+
+    public handleCreatedImagedObject(dto: ImagedObjectDTO): void {
+        console.debug('handleCreatedImagedObject', dto);
+        const edition = state().editions.current;
+        if (!edition) return;
+        if (state().imagedObjects.find(dto.id)) return; // idempotent (own echo / re-broadcast)
+        state().imagedObjects.add(new ImagedObject(dto, edition), false);
+    }
+
+    public handleDeletedImagedObject(dto: DeleteStringIdDTO): void {
+        console.debug('handleDeletedImagedObject', dto);
+        for (const id of dto.ids ?? []) {
+            state().imagedObjects.remove(id, false);
+        }
     }
 }
 
