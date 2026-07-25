@@ -261,6 +261,11 @@ resize**, **text-fragment (not line) realtime**, and the remaining **account flo
 
 ### Known work items (product, not just tests)
 
+- **🐞 Scroll canvas resize can't persist** — `PUT /v1/editions/{id}` with a `metrics` body 404s
+  (`UpdateEditionMetricsAsync` throws when the edition has no `manuscript_metrics` row; copies show
+  `width:0`). So a resize is lost on reload. Separate from the scroll-save fix; resize round-trip
+  test is `test.fixme` until editions carry a metrics row.
+
 - **✅ FIXED — scroll-editor save** — toolbar edits (nudge/rotate/scale/mirror/z-index) were not
   persisted: the autosave ran on a detached saving-agent `this` whose `editionId` field was still
   `0`, so `updateArtefactDTOs(0)` threw before any PUT and the change was lost on reload.

@@ -700,3 +700,92 @@ test('artefact-image-group GROUP: pointer drag moves every member and records on
     await collectCoverage(ctx);
     await ctx.close();
 });
+
+// ---------------------------------------------------------------------------
+// PERSISTENCE across a reload. The existing group/metric tests assert the save branch runs;
+// these assert the change actually STICKS on the server — the guarantee the scroll-save fix
+// (saveEntities resolving the edition from the store, not a stale editionId=0) restored.
+// ---------------------------------------------------------------------------
+
+test('scroll-editor: a saved artefact group persists across a reload', async ({ browser }) => {
+    const { ctx, page, errors } = await openEditor(browser);
+    const members = await ungroupedRenderedIds(page, 3);
+    const [a, b, c] = members;
+
+    // Build a manageGroup of the three.
+    await selectArtefact(page, a);
+    await page.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (document.querySelector('#editor-grid') as any).__vueParentComponent.ctx.params.mode = 'manageGroup';
+    });
+    await expect.poll(() => scrollState(page).then((s) => s.paramsMode), { timeout: 10_000 }).toBe('manageGroup');
+    for (const id of [b, c]) {
+        await page.evaluate((artId) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const cmp = (document.querySelector('#editor-grid') as any).__vueParentComponent.ctx;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+            cmp.selectArtefact(st.artefacts.find(artId));
+        }, id);
+    }
+    await expect.poll(() => scrollState(page).then((s) => s.selectedCount), { timeout: 10_000 }).toBeGreaterThan(1);
+
+    // Save the group, then run the real save (persist to server).
+    await page.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (document.querySelector('#editor-grid') as any).__vueParentComponent.ctx.saveGroupArtefacts();
+    });
+    await page.evaluate(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state.operationsManager.save();
+    });
+    await page.waitForTimeout(500);
+
+    // Reload from the server: a group containing all three members must be there.
+    await page.reload();
+    await expect(page.locator('#the-scroll')).toBeVisible({ timeout: 40_000 });
+    await expect.poll(() => renderedArtefactIds(page).then((r) => r.length), { timeout: 40_000 }).toBeGreaterThan(0);
+    const persisted = await page.evaluate((ids) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+        const groups = (st.editions.current?.artefactGroups ?? []) as { artefactIds: number[] }[];
+        return groups.some((g) => ids.every((id) => g.artefactIds.includes(id)));
+    }, members);
+    expect(persisted, 'the saved group (with its members) survives a reload').toBe(true);
+
+    expect(errors).toEqual([]);
+    await collectCoverage(ctx);
+    await ctx.close();
+});
+
+// KNOWN BUG: an "Add" resize can't persist — PUT /v1/editions/{id} with a `metrics` body 404s
+// because UpdateEditionMetricsAsync throws DataNotFoundException when the edition has no
+// manuscript_metrics row (copies show width:0 / no row). Separate from the scroll-save fix.
+// Un-fixme once editions carry a metrics row. (The in-session resize + blocked-Cut branch is
+// still covered above.)
+test.fixme('scroll-editor: an "Add" resize persists the new scroll width across a reload', async ({ browser }) => {
+    const { ctx, page, errors } = await openEditor(browser);
+    const before = (await scrollState(page)).editionWidth!;
+
+    // Grow the scroll on the right (an Add always fits — no crop check to fail).
+    await page.locator('.manuscript-toolbar, #secondary-toolbar').first().waitFor({ timeout: 10_000 });
+    await page.locator('select').first().selectOption('right');
+    await page.locator('#secondary-toolbar input[type="number"]').first().fill('50');
+    await page.getByRole('button', { name: /^Add$/ }).first().click();
+    await expect.poll(() => scrollState(page).then((s) => s.editionWidth), { timeout: 10_000 }).toBeGreaterThan(before);
+    const after = (await scrollState(page)).editionWidth!;
+
+    // Persist to the server, then reload: the widened metric must survive.
+    await page.evaluate(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state.operationsManager.save();
+    });
+    await page.waitForTimeout(500);
+    await page.reload();
+    await expect(page.locator('#the-scroll')).toBeVisible({ timeout: 40_000 });
+    await expect.poll(() => scrollState(page).then((s) => s.editionWidth), { timeout: 40_000 }).toBe(after);
+
+    expect(errors).toEqual([]);
+    await collectCoverage(ctx);
+    await ctx.close();
+});
