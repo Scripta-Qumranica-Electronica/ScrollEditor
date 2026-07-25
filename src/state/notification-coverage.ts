@@ -36,21 +36,20 @@ export const HANDLED_EVENTS: ReadonlyArray<[string, keyof NotificationHandler]> 
     ['CreatedArtefactGroup', 'handleCreatedArtefactGroup'],
     ['UpdatedArtefactGroup', 'handleUpdatedArtefactGroup'],
     ['DeletedArtefactGroup', 'handleDeletedArtefactGroup'],
+    // Text lines: a collaborator's line add/rename/delete now applies live. CreatedLine
+    // carries textFragmentId (added to LineDataDTO on the API); Updated/Deleted are id-searched.
+    ['CreatedLine', 'handleCreatedLine'],
+    ['UpdatedLine', 'handleUpdatedLine'],
+    ['DeletedLine', 'handleDeletedLine'],
 ];
 
 // Broadcast by the API but intentionally not yet processed. Each is wired to a
 // dev-only logger so an ignored broadcast is visible instead of silently dropped.
 // To start handling one, move it into HANDLED_EVENTS and implement the method.
 export const UNHANDLED_EVENTS: ReadonlyArray<string> = [
-    // Tier A — lines & text fragments. NOT handled because their broadcast
-    // payloads are under-specified for a safe client-side apply:
-    //  - LineDataDTO carries no parent textFragmentId, so a CreatedLine cannot be
-    //    attached to the right fragment. (UpdatedLine/DeletedLine could be done by
-    //    id-search, but are kept here for symmetry until create is fixable.)
-    //  - TextFragmentDataDTO is metadata only.
-    // The fix is an API-payload change (add textFragmentId to LineDataDTO), tracked
-    // with the P3 API work. (Artefact groups ARE handled — see HANDLED_EVENTS.)
-    'CreatedLine', 'UpdatedLine', 'DeletedLine',
+    // Text fragments (create/update) — still metadata-only broadcasts (TextFragmentDataDTO has no
+    // line structure), so a new/renamed fragment isn't applied live yet. Lines (CreatedLine /
+    // UpdatedLine / DeletedLine) ARE now handled — see HANDLED_EVENTS.
     'CreatedTextFragment', 'UpdatedTextFragment',
     // Tier B — real but less frequent (wire when needed). Note: sign-level
     // attribute *values* already propagate via UpdatedSignInterpretation; these

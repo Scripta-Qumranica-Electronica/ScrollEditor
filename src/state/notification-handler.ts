@@ -9,14 +9,14 @@ import {
     UpdatedInterpretationRoiDTOList,
     DeleteDTO,
     DetailedEditorRightsDTO, SignInterpretationDTO, SignInterpretationListDTO, SignDTO, DeleteIntIdDTO,
-    ArtefactGroupDTO
+    ArtefactGroupDTO, LineDataDTO, LineDTO
 } from '@/dtos/sqe-dtos';
 import { EditionInfo, ShareInfo, Permissions, ArtefactGroup } from '@/models/edition';
 import { currentState } from './current';
 import { Artefact } from '@/models/artefact';
 import { Placement } from '@/utils/Placement';
 import { removeFromArray, addToArray } from '@/utils/collection-utils';
-import { InterpretationRoi, Sign, SignInterpretation } from '@/models/text';
+import { InterpretationRoi, Sign, SignInterpretation, Line } from '@/models/text';
 
 /* This file contains the implementation of all the incoming events from SignalR */
 
@@ -251,6 +251,21 @@ export class NotificationHandler {
             sign.line.addSign(sign);
         }
     }
+
+    public handleCreatedLine(dto: LineDataDTO): void {
+        console.debug('handleCreatedLine', dto);
+        applyCreatedLine(dto);
+    }
+
+    public handleUpdatedLine(dto: LineDataDTO): void {
+        console.debug('handleUpdatedLine', dto);
+        applyUpdatedLine(dto);
+    }
+
+    public handleDeletedLine(dto: DeleteIntIdDTO): void {
+        console.debug('handleDeletedLine', dto);
+        applyDeletedLine(dto.ids ?? []);
+    }
 }
 
 /*
@@ -464,4 +479,60 @@ function handleUpdatedSignInterpretation(dto: SignInterpretationDTO): void {
 
 function notifyRoiChanged() {
     state().eventBus.emit('roi-changed');
+}
+
+// --- Text lines: one reactive write path for local + realtime -------------------------------
+// These apply a line create/delete/rename to the in-memory text model. They are called by BOTH
+// the local editor (from the HTTP response — the broadcast excludes the originating client, so
+// the local user must apply their own change) and the SignalR broadcast handlers (a
+// collaborator's change). Ordering: a local create passes previousLineId/subsequentLineId; a
+// remote CreatedLine has no position hint, so it appends (a reload resolves exact order).
+
+export function applyCreatedLine(
+    dto: LineDataDTO,
+    textFragmentId?: number,
+    previousLineId?: number,
+    subsequentLineId?: number
+): void {
+    const tfId = textFragmentId ?? (dto as { textFragmentId?: number }).textFragmentId;
+    if (tfId === undefined) {
+        console.warn('applyCreatedLine: no textFragmentId; cannot place the line');
+        return;
+    }
+    const tf = state().textFragments.get(tfId);
+    if (!tf) return; // fragment not loaded on this client — nothing to update
+    if (tf.lines.some(l => l.lineId === dto.lineId)) return; // idempotent (own echo / re-broadcast)
+
+    const line = new Line(dto as unknown as LineDTO, tf);
+    let idx = tf.lines.length;
+    if (previousLineId) {
+        const p = tf.lines.findIndex(l => l.lineId === previousLineId);
+        if (p >= 0) idx = p + 1;
+    } else if (subsequentLineId) {
+        const s = tf.lines.findIndex(l => l.lineId === subsequentLineId);
+        if (s >= 0) idx = s;
+    }
+    tf.lines.splice(idx, 0, line);
+}
+
+export function applyDeletedLine(lineIds: number[]): void {
+    for (const id of lineIds) {
+        for (const tf of state().textFragments.getItems()) {
+            const i = tf.lines.findIndex((l: Line) => l.lineId === id);
+            if (i >= 0) {
+                tf.lines.splice(i, 1);
+                break;
+            }
+        }
+    }
+}
+
+export function applyUpdatedLine(dto: LineDataDTO): void {
+    for (const tf of state().textFragments.getItems()) {
+        const line = tf.lines.find((l: Line) => l.lineId === dto.lineId);
+        if (line) {
+            line.lineName = dto.lineName;
+            break;
+        }
+    }
 }

@@ -108,6 +108,46 @@ test('round-trip: moving a placed artefact survives a reload', async ({ browser 
     await context.close();
 });
 
-// NOTE: an add-line round-trip belongs here too, but the text editor currently doesn't reflect
-// a newly-added line locally (it relies on the CreatedLine SignalR broadcast, which is ignored —
-// the realtime-text bug). Its regression test is added with that fix; see docs/CAPABILITIES.md §8.
+// The realtime fix (createLine now applies locally + broadcasts) is proven in
+// realtime-text.spec.ts. This UI round-trip stays fixme because the add-line MODAL has a
+// SEPARATE bug: addLineBefore/addLineAfter never set `position`, so previousLineId stays 0 and
+// every add-line POST 500s. Un-fixme when that modal bug is fixed.
+test.fixme('round-trip: adding a text line updates locally and survives a reload', async ({ browser }) => {
+    const context = await authedContext(browser, token);
+    const ed = await copy(context, 811, `pw-rt-line-${Date.now()}`);
+    const tf = (await (await context.request.get(`${API}/v1/editions/${ed}/text-fragments`, { headers: auth() })).json()).textFragments[0];
+
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 1400, height: 900 });
+    await page.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+    await page.goto(`/editions/${ed}/text-fragments/${tf.id}`);
+    await expect(page.locator('#text-side .text-line').first()).toBeVisible({ timeout: 40_000 });
+    const lineCount = () => page.locator('#text-side .text-line').count();
+    const before = await lineCount();
+
+    // Add a line after the first line, then Save.
+    const opened = await page.evaluate(() => {
+        const lines = document.querySelectorAll('#text-side .text-line');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let cur: any = (lines[0] as any)?.__vueParentComponent;
+        while (cur && (!cur.ctx || typeof cur.ctx.addLineAfter !== 'function')) cur = cur.parent;
+        if (!cur) return false;
+        cur.ctx.addLineAfter(cur.ctx.line);
+        return true;
+    });
+    expect(opened, 'opened add-line modal').toBe(true);
+    await expect(page.locator('#addLineModal')).toBeVisible({ timeout: 10_000 });
+    await page.locator('#addLineModal').getByRole('button', { name: /^Save$/ }).click();
+    await expect(page.locator('#addLineModal')).toBeHidden({ timeout: 15_000 });
+
+    // Local update: the new line shows immediately (previously it only appeared after a reload).
+    await expect.poll(lineCount, { timeout: 15_000 }).toBe(before + 1);
+
+    // …and it persisted.
+    await page.reload();
+    await expect(page.locator('#text-side .text-line').first()).toBeVisible({ timeout: 40_000 });
+    await expect.poll(lineCount, { timeout: 20_000 }).toBe(before + 1);
+
+    await collectCoverage(context);
+    await context.close();
+});

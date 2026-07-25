@@ -27,6 +27,7 @@ import {
 import { ApiRoutes } from '@/services/api-routes';
 import { Artefact } from '@/models/artefact';
 import { InterpretationRoi } from '@/models/text';
+import { applyCreatedLine, applyDeletedLine } from '@/state/notification-handler';
 import { integrifyPosition } from '@/models/misc';
 
 class TextService {
@@ -129,6 +130,10 @@ class TextService {
         const dto: CreateLineDTO = {previousLineId, subsequentLineId, lineName: line.lineName};
         const url = ApiRoutes.createLine(editionId, textFragmentId);
         const response = await CommHelper.post<LineDataDTO>(url , dto);
+        // Apply our own change locally — the broadcast excludes the originating client, so
+        // without this the new line wouldn't appear until reload. Same reducer the SignalR
+        // handler uses (position is known here from previous/subsequent line ids).
+        applyCreatedLine(response.data, textFragmentId, previousLineId, subsequentLineId);
         this.stateManager.touchEdition(editionId);
         return response.data;
 
@@ -136,6 +141,7 @@ class TextService {
     public async deleteLine(editionId: number, lineId: number) {
         const url = ApiRoutes.deleteLine(editionId, lineId);
         const response = await CommHelper.delete(url);
+        applyDeletedLine([lineId]);
         this.stateManager.touchEdition(editionId);
         return response.data;
 

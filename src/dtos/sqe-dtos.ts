@@ -774,6 +774,7 @@ export interface TextFragmentDTO {
 export interface LineDataDTO extends UpdateLineDTO {
     lineId: number;
     editorId: number;
+    textFragmentId: number;
 }
 
 export interface LineDataListDTO {
