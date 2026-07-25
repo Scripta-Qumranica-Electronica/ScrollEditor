@@ -273,10 +273,10 @@ anywhere) and **mutation round-trips** (every create/update survives a reload).
   carries `textFragmentId`; shared apply funcs feed the local service and the new
   handleCreatedLine/Updated/Deleted handlers. Guarded by `realtime-text.spec.ts` (two clients).
   Text-FRAGMENT create/update are still metadata-only broadcasts (not applied live) — lower value.
-- **🐞 Fix add-line MODAL (SEVERE, separate)** — `addLineBefore`/`addLineAfter` are identical and
-  never set the modal's `position`, so `previousLineId` stays 0 and every add-line POST **500s**.
-  The whole add-line UI is broken; the realtime fix above is only reachable via the API until this
-  is fixed. (The UI round-trip test is `test.fixme` until then.)
+- **✅ FIXED — add-line MODAL** — `addLineBefore`/`addLineAfter` never set the modal's `position`,
+  so `previousLineId` stayed 0 and every add-line POST 500'd. The modal bus now carries an optional
+  payload; the two callers pass `'before'`/`'after'` and the modal sets `position` on show. Add-line
+  works end-to-end (round-trip test un-fixme'd, passes).
 - **🐞 (superseded) realtime text editing** — original umbrella item; line handling done above.
   Remaining: wire text-fragment create/update if/when that payload (needs `textFragmentId`
   in the broadcast DTOs; see §8). Until fixed, a two-client text-sync test should be written to

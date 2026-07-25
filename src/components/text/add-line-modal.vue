@@ -83,7 +83,12 @@ class AddLineModal extends Vue {
         this.$state.operationsManager = this.operationsManager;
         this.disposeModalListener = registerModalListener(
             'addLineModal',
-            () => { this.modalVisible = true; },
+            (data?: unknown) => {
+                // 'before' | 'after' — drives which side of the selected line to insert on
+                // (without it, previousLineId is never computed and the create request 500s).
+                this.position = (data as string) || 'after';
+                this.modalVisible = true;
+            },
             () => { this.modalVisible = false; },
         );
     }

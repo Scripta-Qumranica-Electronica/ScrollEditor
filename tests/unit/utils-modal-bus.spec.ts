@@ -65,4 +65,16 @@ describe('modal-bus', () => {
         disposeA();
         disposeB();
     });
+
+    it('passes the optional payload to onShow (add-line before/after)', () => {
+        const onShow = vi.fn();
+        const dispose = registerModalListener('addLineModal', onShow, vi.fn());
+
+        showModal('addLineModal', 'after');
+        expect(onShow).toHaveBeenCalledWith('after');
+
+        showModal('addLineModal'); // no payload -> undefined, still fires
+        expect(onShow).toHaveBeenLastCalledWith(undefined);
+        dispose();
+    });
 });

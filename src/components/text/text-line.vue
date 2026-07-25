@@ -240,11 +240,10 @@ class TextLineComponent extends Vue {
         showModal('editLineModal');
     }
     public addLineBefore(line: Line) {
-        console.log(this.$state.textFragmentEditor.selectedSignInterpretations)
         this.$state.textFragmentEditor.selectSign(
             line.signs[0].signInterpretations[0]
         );
-        showModal('addLineModal');
+        showModal('addLineModal', 'before');
     }
     public deleteLine(line: Line) {
         this.$state.textFragmentEditor.selectSign(
@@ -256,11 +255,10 @@ class TextLineComponent extends Vue {
         // ts.deleteLine(line.editorId, line.lineId);
     }
     public addLineAfter(line: Line) {
-        console.log(this.$state.textFragmentEditor.selectedSignInterpretations)
         this.$state.textFragmentEditor.selectSign(
         line.signs[0].signInterpretations[0]
         );
-        showModal('addLineModal');
+        showModal('addLineModal', 'after');
     }
 
     public onPaste(event: any) {

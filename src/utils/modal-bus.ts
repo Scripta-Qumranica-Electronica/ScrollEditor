@@ -11,15 +11,19 @@ import mitt from 'mitt';
  * hideModal(). This is the systemic replacement for the ~30 dead `bv::` emits
  * left as TODO(vue3) by the migration.
  */
+type ShowPayload = { id: string; data?: unknown };
 type ModalEvents = {
-    show: string;
+    show: ShowPayload;
     hide: string;
 };
 
 const bus = mitt<ModalEvents>();
 
-export function showModal(id: string): void {
-    bus.emit('show', id);
+// `data` is an optional payload handed to the modal's onShow (e.g. the add-line modal needs to
+// know whether it was opened "before" or "after" the selected line). Existing callers/listeners
+// that ignore it are unaffected.
+export function showModal(id: string, data?: unknown): void {
+    bus.emit('show', { id, data });
 }
 
 export function hideModal(id: string): void {
@@ -30,12 +34,12 @@ export function hideModal(id: string): void {
 // beforeUnmount(). onShow/onHide flip the component's local `visible` boolean.
 export function registerModalListener(
     id: string,
-    onShow: () => void,
+    onShow: (data?: unknown) => void,
     onHide: () => void,
 ): () => void {
-    const show = (mid: string) => {
-        if (mid === id) {
-            onShow();
+    const show = (payload: ShowPayload) => {
+        if (payload.id === id) {
+            onShow(payload.data);
         }
     };
     const hide = (mid: string) => {

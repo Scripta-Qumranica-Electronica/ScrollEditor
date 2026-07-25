@@ -108,11 +108,10 @@ test('round-trip: moving a placed artefact survives a reload', async ({ browser 
     await context.close();
 });
 
-// The realtime fix (createLine now applies locally + broadcasts) is proven in
-// realtime-text.spec.ts. This UI round-trip stays fixme because the add-line MODAL has a
-// SEPARATE bug: addLineBefore/addLineAfter never set `position`, so previousLineId stays 0 and
-// every add-line POST 500s. Un-fixme when that modal bug is fixed.
-test.fixme('round-trip: adding a text line updates locally and survives a reload', async ({ browser }) => {
+// Full UI round-trip: open the add-line modal (which now receives before/after via the modal
+// bus, so previousLineId is computed and the POST doesn't 500), Save, and assert the new line
+// shows locally (realtime apply) and survives a reload.
+test('round-trip: adding a text line updates locally and survives a reload', async ({ browser }) => {
     const context = await authedContext(browser, token);
     const ed = await copy(context, 811, `pw-rt-line-${Date.now()}`);
     const tf = (await (await context.request.get(`${API}/v1/editions/${ed}/text-fragments`, { headers: auth() })).json()).textFragments[0];
