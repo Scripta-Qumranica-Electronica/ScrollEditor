@@ -8,6 +8,7 @@ export namespace ApiRoutes {
     const users = 'users';
     const login = 'login';
     const forgotPassword = 'forgot-password';
+    const resendActivation = 'resend-activation-email';
     const changePassword = 'change-password';
     const changeForgottenPassword = 'change-forgotten-password';
     const confirmRegistration = 'confirm-registration';
@@ -121,6 +122,10 @@ export namespace ApiRoutes {
 
     export function forgotPasswordUrl() {
         return `/${baseUrl}/${users}/${forgotPassword}`;
+    }
+
+    export function resendActivationUrl() {
+        return `/${baseUrl}/${users}/${resendActivation}`;
     }
 
     export function changePasswordUrl() {

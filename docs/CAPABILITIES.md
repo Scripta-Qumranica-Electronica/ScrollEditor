@@ -69,14 +69,12 @@ About, FAQ, EULA, Cite, User Guide, Report Problem, Contact).
 | Change password (logged in) | user menu → `/changePassword` | current + new×2; → `/` | `POST /v1/users/change-password` |
 | Update user details | user menu → `/updateUserDetails` | requires password; email change re-sends activation | `PUT /v1/users` |
 | Report a problem | navbar / hamburger | title + description (+ email if logged out) → GitHub issue | `POST /v1/utils/report-github-issue` |
-| Resend activation | **TODO — to build** | a user who registered but never clicked the activation link must be able to re-request it | `POST /v1/users/resend-activation-email` |
+| Resend activation | login modal → "Didn't get an activation email? Resend" | re-requests the activation email using the entered email; generic confirmation (never reveals if the account exists) | `POST /v1/users/resend-activation-email` |
 
 **Invariants:** submit buttons disabled until valid; mismatched passwords show an error; account
 routes redirect to `/` when not activated.
 
-**⚠ TODO (feature to build):** the API endpoint `POST /v1/users/resend-activation-email` exists
-but has **no UI**. Registered-but-unactivated users need a "resend activation email" button
-(e.g. on the login modal / when a login fails due to an inactive account).
+**Resend activation** is wired on the login modal ("Didn't get an activation email? Resend"): it re-sends the activation email for the entered address, with a generic confirmation.
 
 ---
 

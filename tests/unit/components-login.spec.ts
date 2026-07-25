@@ -4,13 +4,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // modal-bus and location.reload; exercises disabledLogin, login() (guard,
 // success, error), shown(), and the forgotPassword()/register() nav helpers.
 
-const { login, routerPush, showModal } = vi.hoisted(() => ({
+const { login, resendActivation, routerPush, showModal } = vi.hoisted(() => ({
     login: vi.fn().mockResolvedValue({}),
+    resendActivation: vi.fn().mockResolvedValue({}),
     routerPush: vi.fn(),
     showModal: vi.fn(),
 }));
 vi.mock('@/services/session', () => ({
-    default: vi.fn(function () { return { login }; }),
+    default: vi.fn(function () { return { login, resendActivation }; }),
 }));
 vi.mock('@/router', () => ({ default: { push: routerPush } }));
 vi.mock('@/utils/modal-bus', () => ({
@@ -105,5 +106,23 @@ describe('login', () => {
         w.vm.register();
         expect(w.vm.visible).toBe(false);
         expect(showModal).toHaveBeenCalledWith('registerModal');
+    });
+
+    it('resendActivation() requires an email (no service call, shows prompt)', async () => {
+        const w = mountLogin();
+        w.vm.email = '';
+        await w.vm.resendActivation();
+        expect(resendActivation).not.toHaveBeenCalled();
+        expect(w.vm.errorMessage).toMatch(/enter your email/i);
+        expect(w.vm.resendMessage).toBe('');
+    });
+
+    it('resendActivation() with an email calls the service and shows a generic confirmation', async () => {
+        const w = mountLogin();
+        w.vm.email = 'someone@example.com';
+        await w.vm.resendActivation();
+        expect(resendActivation).toHaveBeenCalledWith('someone@example.com');
+        expect(w.vm.resendMessage).toMatch(/on its way/i);
+        expect(w.vm.waiting).toBe(false);
     });
 });

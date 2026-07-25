@@ -72,6 +72,17 @@ class SessionService {
         }
     }
 
+    // Re-send the account-activation email for a registered-but-unactivated user. Errors are
+    // swallowed (like forgotPassword) so the response never reveals whether the email exists.
+    public async resendActivation(email: string) {
+        const body = { email } as ResendUserAccountActivationRequestDTO;
+        try {
+            await CommHelper.post<any>(ApiRoutes.resendActivationUrl(), body);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     public async register(data: NewUserRequestDTO): Promise<UserInfo> {
         const response = await CommHelper.post<UserDTO>(ApiRoutes.usersUrl(), data, false);
         return new UserInfo(response.data);

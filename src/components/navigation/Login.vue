@@ -37,6 +37,18 @@
                         {{ $t('navbar.forgotPassword') }}?
                     </b-link>
                 </b-row>
+                <b-row class="justify-content-end">
+                    <b-link
+                        id="resend-activation-link"
+                        @click="resendActivation"
+                        class="sign-link"
+                    >
+                        Didn't get an activation email? Resend
+                    </b-link>
+                </b-row>
+                <b-row v-if="resendMessage">
+                    <b-col class="text-success">{{ resendMessage }}</b-col>
+                </b-row>
                 <b-row>
                     <b-col class="text-danger">{{ errorMessage }}</b-col>
                 </b-row>
@@ -93,6 +105,7 @@ class Login extends Vue {
     // email: this.$state.session ? this.$state.session.user!.email : '',
     public password: string = '';
     public errorMessage: string = '';
+    public resendMessage: string = '';
     public sessionService: SessionService = new SessionService();
     public errorService: ErrorService = new ErrorService(this);
     public waiting: boolean = false;
@@ -141,8 +154,29 @@ class Login extends Vue {
         }
     }
 
+    // Re-send the activation email for a registered-but-unactivated account (uses the email
+    // typed above). The response is deliberately generic so it never reveals whether the
+    // account exists.
+    public async resendActivation() {
+        this.resendMessage = '';
+        this.errorMessage = '';
+        if (!this.email) {
+            this.errorMessage = 'Enter your email above, then click resend.';
+            return;
+        }
+        this.waiting = true;
+        try {
+            await this.sessionService.resendActivation(this.email);
+            this.resendMessage =
+                'If that account exists and is not yet activated, a new activation email is on its way.';
+        } finally {
+            this.waiting = false;
+        }
+    }
+
     public shown(): void {
         this.errorMessage = '';
+        this.resendMessage = '';
         this.waiting = false;
         // Focus the email input after the modal opens
         this.$nextTick(() => {
