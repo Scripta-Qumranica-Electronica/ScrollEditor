@@ -263,6 +263,15 @@ anywhere) and **mutation round-trips** (every create/update survives a reload).
 
 ### Known work items (product, not just tests)
 
+- **🐞 Fix scroll-editor save (SEVERE)** — toolbar edits (nudge/rotate/scale/mirror/z-index) are
+  **not persisted**. The operation is created (dirty, undoable) but the autosave never completes a
+  network write (`isDirty` stays true, no PUT fires), so the change is lost on reload. Drag-on-
+  canvas may use a different path — verify. Confirmed via the round-trip sweep (that test is
+  `test.fixme` until this is fixed). Localised to `OperationsManager.save()` /
+  `scroll-editor.saveEntities()` not reaching `updateArtefactDTOs`.
+- **🐞 Fix "add line" local update** — adding a text line doesn't show until reload (the editor
+  relies on the ignored `CreatedLine` broadcast even for the local user's own add); part of the
+  realtime-text bug below.
 - **🐞 Fix realtime text editing** — wire line/text-fragment SignalR events (needs `textFragmentId`
   in the broadcast DTOs; see §8). Until fixed, a two-client text-sync test should be written to
   **fail** (documenting the bug) or skipped with a reference here.
