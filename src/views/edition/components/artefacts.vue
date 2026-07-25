@@ -105,6 +105,16 @@ class EditionArtefacts extends Vue {
         this.filteredArtefacts = this.getFilteredArtefacts();
     }
 
+    public created() {
+        // The parent Edition view only renders this child after prepare.edition
+        // (which loads the artefacts) resolves, so the store is already populated
+        // here. Seed the list synchronously so the very first render shows the
+        // cards — otherwise filteredArtefacts stays [] until the async mounted()
+        // below settles, leaving a blank flash after the parent spinner stops.
+        this.editionId = parseInt(String(this.$route.params.editionId), 10);
+        this.filteredArtefacts = this.getFilteredArtefacts();
+    }
+
     public async mounted() {
         this.editionId = parseInt(String(this.$route.params.editionId), 10);
         await this.$state.prepare.edition(this.editionId);

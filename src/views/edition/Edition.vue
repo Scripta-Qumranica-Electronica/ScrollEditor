@@ -150,7 +150,22 @@ class Edition extends Vue {
     }
 
     public get imagedObjectsLength(): number {
-        return this.$state.imagedObjects.items.length;
+        // Imaged objects are deferred — they are NOT loaded with the edition (a
+        // deliberate perf win: the artefacts view renders from each artefact's own
+        // master image, so the ~40MB imaged-object payload is only fetched when the
+        // Imaged Objects tab/editor is entered). Once loaded, use the real count;
+        // until then derive it for free from the already-loaded artefacts' distinct
+        // imaged objects so the tab shows a number instead of a blank.
+        const loaded = this.$state.imagedObjects.items.length;
+        if (loaded > 0) {
+            return loaded;
+        }
+        const ids = new Set(
+            this.$state.artefacts.items
+                .filter((a: Artefact) => !a.isVirtual)
+                .map((a: Artefact) => a.imagedObjectId)
+        );
+        return ids.size;
     }
 
     // This code is not in the created method since it's asynchronous,
