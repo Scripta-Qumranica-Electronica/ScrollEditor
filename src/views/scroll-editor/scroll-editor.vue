@@ -221,6 +221,12 @@ class ScrollEditor
     }
 
     public async saveEntities(ops: ScrollEditorOperation[]): Promise<boolean> {
+        // The OperationsManager autosave calls this on a detached saving-agent `this` whose
+        // reactive `editionId` field can still be its `= 0` default (the same context problem
+        // the imaged-object editor documents — `this` is not the live component here). Resolve
+        // the edition from the store instead, so the save targets the real edition and not 0.
+        const editionId = currentState().editions.current?.id || this.editionId;
+
         const allMovedArtefactIds = new Set<number>();
         const allEditedGroupIds = new Set<number>();
         const allDeletedGroupIds = new Set<number>();
@@ -255,7 +261,7 @@ class ScrollEditor
 
             if (allMovedArtefacts) {
                 await this.editionService.updateArtefactDTOs(
-                    this.editionId,
+                    editionId,
                     allMovedArtefacts
                 );
             }
@@ -277,7 +283,7 @@ class ScrollEditor
                         if (group.artefactIds.length >= 2) {
                             const savedGroup =
                                 await this.editionService.newArtefactGroup(
-                                    this.editionId,
+                                    editionId,
                                     group
                                 );
                             group.groupId = savedGroup.id;
@@ -289,12 +295,12 @@ class ScrollEditor
                         if (group.artefactIds.length >= 2) {
                             const savedGroup =
                                 await this.editionService.updateArtefactGroup(
-                                    this.editionId,
+                                    editionId,
                                     group
                                 );
                         } else {
                             await this.editionService.deleteArtefactGroup(
-                                this.editionId,
+                                editionId,
                                 groupId
                             );
                         }
@@ -305,7 +311,7 @@ class ScrollEditor
             // delete groups
             allDeletedGroupIds.forEach(async (groupId) => {
                 await this.editionService.deleteArtefactGroup(
-                    this.editionId,
+                    editionId,
                     groupId
                 );
             });
@@ -313,7 +319,7 @@ class ScrollEditor
             // save metrics
             if (saveMetrics) {
                 await this.editionService.updateMetrics(
-                    this.editionId,
+                    editionId,
                     this.edition.metrics
                 );
             }

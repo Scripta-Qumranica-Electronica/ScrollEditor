@@ -63,11 +63,10 @@ test('round-trip: renaming an artefact survives a reload', async ({ browser }) =
     await context.close();
 });
 
-// KNOWN BUG (confirmed): scroll-editor toolbar edits don't persist. A nudge creates an
-// operation (dirty=true, undoable) but the autosave never completes a network write — isDirty
-// stays true and no PUT fires — so the move is lost on reload. Un-fixme when the save path is
-// fixed. See docs/CAPABILITIES.md §6 "Known work items".
-test.fixme('round-trip: moving a placed artefact survives a reload', async ({ browser }) => {
+// Regression for the scroll-editor save bug: a nudge's autosave used this.editionId, which is
+// 0 on the detached saving-agent `this`, so updateArtefactDTOs(0) threw and nothing persisted.
+// saveEntities now resolves the edition from the store. This asserts the move survives a reload.
+test('round-trip: moving a placed artefact survives a reload', async ({ browser }) => {
     const context = await authedContext(browser, token);
     const ed = await copy(context, 899, `pw-rt-move-${Date.now()}`);
     const arts = (await (await context.request.get(`${API}/v1/editions/${ed}/artefacts`, { headers: auth() })).json()).artefacts;
