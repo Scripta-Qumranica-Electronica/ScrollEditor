@@ -249,15 +249,15 @@ draws a ROI / makes a group → client B sees it appear live.
 Already guarded by tests (unit + Playwright): edition load/thumbnails, imaged-object master
 image render, create/delete artefact in the listing, mask-draw autosave, opacity slider, copy
 navigation + display, verso side persistence, the four workflow journeys, layout/visibility
-sweeps, logged-out & in-app modal sweeps.
+sweeps, logged-out & in-app modal sweeps, **data-leak/i18n scanner**, **mutation round-trips**
+(artefact rename, scroll move persistence, add-line), **realtime text lines** (two-client),
+**resend-activation**, **read-only permission gating** (imaged-object + artefact editors),
+search exact-match.
 
-Biggest untested areas (candidates for the next test pass): **collaboration/permissions**
-(invite→accept, permission changes, read-only gating actually blocking writes), **text editing**
-(add/edit/delete line, edit sign, attributes), **scroll-editor grouping & resize**, **realtime**
-(two-client sync), **search field/exact-match behaviour**, and the **account flows**
-(register/activate/reset/change/update). Plus the two generic invariant sweeps discussed
-separately: a **data-leak/i18n scanner** (no raw objects/undefined/missing translations rendered
-anywhere) and **mutation round-trips** (every create/update survives a reload).
+Remaining untested areas (next pass): **collaboration invite→accept** (needs a second user /
+email token — not yet automated), **scroll-editor group creation persistence** and **canvas
+resize**, **text-fragment (not line) realtime**, and the remaining **account flows**
+(register/activate/reset/change confirmation paths).
 
 ### Known work items (product, not just tests)
 
