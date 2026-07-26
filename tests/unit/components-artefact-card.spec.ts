@@ -103,31 +103,32 @@ describe('artefact-card', () => {
         warn.mockRestore();
     });
 
-    it('openLineMenu prevents default, emits show and records the id', () => {
+    it('openLineMenu prevents default, opens the popover (v-model) and records the id', () => {
         const ctx = makeCtx();
         const event = { preventDefault: vi.fn() } as any;
         ctx.openLineMenu(event, 'popover-line-42');
         expect(event.preventDefault).toHaveBeenCalled();
-        expect(ctx.$root.$emit).toHaveBeenCalledWith('bv::show::popover', 'popover-line-42');
+        // Vue-3: drives the <b-popover> via a boolean, not the removed bv:: bus.
+        expect(ctx.lineMenuVisible).toBe(true);
         expect(ctx.prevLineMenuId).toBe('popover-line-42');
     });
 
-    it('closeLineMenu emits hide for the previous popover', () => {
+    it('closeLineMenu hides the popover', () => {
         const ctx = makeCtx();
-        ctx.prevLineMenuId = 'popover-line-42';
+        ctx.lineMenuVisible = true;
         ctx.closeLineMenu();
-        expect(ctx.$root.$emit).toHaveBeenCalledWith('bv::hide::popover', 'popover-line-42');
+        expect(ctx.lineMenuVisible).toBe(false);
     });
 
     it('renameArtefact saves the new name and hides the popover', async () => {
         const artefact = { id: 42, name: 'old', side: 'recto' };
         const ctx = makeCtx({ artefact, editionId: '9' });
         ctx.newArtefactName = 'Renamed';
-        ctx.prevLineMenuId = 'popover-line-42';
+        ctx.lineMenuVisible = true;
         await ctx.renameArtefact();
         expect(artefact.name).toBe('Renamed');
         expect(changeArtefact).toHaveBeenCalledWith(9, artefact);
-        expect(ctx.$root.$emit).toHaveBeenCalledWith('bv::hide::popover', 'popover-line-42');
+        expect(ctx.lineMenuVisible).toBe(false);
     });
 
     it('unmounted disconnects a live observer', () => {

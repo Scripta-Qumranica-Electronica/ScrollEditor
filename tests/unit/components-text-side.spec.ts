@@ -97,30 +97,31 @@ describe('text-side', () => {
         expect(makeCtx({ editorMode: 'text-fragment' }).textFragmentMode).toBe(true);
     });
 
-    it('openLineMenu prevents default, emits show, and records the id', () => {
+    it('openLineMenu prevents default, opens the popover (v-model), and records the id', () => {
         const ctx = makeCtx();
         const ev = { preventDefault: vi.fn() } as any;
         ctx.openLineMenu(ev, 'popover-1');
         expect(ev.preventDefault).toHaveBeenCalled();
-        expect(ctx.$root.$emit).toHaveBeenCalledWith('bv::show::popover', 'popover-1');
+        // Vue-3: drives the rename <b-popover> via a boolean, not the removed bv:: bus.
+        expect(ctx.fragmentMenuVisible).toBe(true);
         expect(ctx.prevLineMenuId).toBe('popover-1');
     });
 
-    it('closeLineMenu emits hide for the previous id', () => {
+    it('closeLineMenu hides the popover', () => {
         const ctx = makeCtx();
-        ctx.prevLineMenuId = 'popover-9';
+        ctx.fragmentMenuVisible = true;
         ctx.closeLineMenu();
-        expect(ctx.$root.$emit).toHaveBeenCalledWith('bv::hide::popover', 'popover-9');
+        expect(ctx.fragmentMenuVisible).toBe(false);
     });
 
     it('renameFragment sets the name, persists it, and hides the popover', async () => {
         const ctx = makeCtx();
-        ctx.prevLineMenuId = 'popover-2';
+        ctx.fragmentMenuVisible = true;
         const frag: any = { textFragmentName: 'old' };
         await ctx.renameFragment(frag, 'newName');
         expect(frag.textFragmentName).toBe('newName');
         expect(changeTextFragment).toHaveBeenCalledWith(5, frag);
-        expect(ctx.$root.$emit).toHaveBeenCalledWith('bv::hide::popover', 'popover-2');
+        expect(ctx.fragmentMenuVisible).toBe(false);
     });
 
     it('allTextFragmentsData merges edition + artefact suggested/certain flags', () => {

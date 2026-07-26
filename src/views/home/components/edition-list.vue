@@ -30,6 +30,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { vBToggle } from 'bootstrap-vue-next';
 import { EditionInfo } from '@/models/edition';
 import EditionIcons from '@/components/cues/edition-icons.vue';
 import Waiting from '@/components/misc/Waiting.vue';
@@ -43,6 +44,11 @@ import CopyEditionModal from './copy-edition-modal.vue';
         EditionCard,
         // CopyPersonalEditionModal
         CopyEditionModal,
+    },
+    // v-b-toggle is registered per-component here (not globally); without this the
+    // collapse toggle on the list header is an unresolved directive and never fires.
+    directives: {
+        'b-toggle': vBToggle,
     },
 })
 class EditionsList extends Vue {

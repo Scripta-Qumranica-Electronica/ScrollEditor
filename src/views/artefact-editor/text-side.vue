@@ -61,7 +61,8 @@
                             </b-button
                             >
                             </span>
-                            <b-popover custom-class="popover-sign-body" :target="'popover-line-' + textFragment.textFragmentId">
+                            <b-popover custom-class="popover-sign-body" :target="'popover-line-' + textFragment.textFragmentId"
+                                v-model="fragmentMenuVisible" manual @shown="focusRenameInput()">
                 <div class="character-popover"  ref="lineMenu">
                  <b>
                     Rename this fragment
@@ -107,6 +108,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
+import { vBTooltip, vBToggle } from 'bootstrap-vue-next';
 import { Artefact } from '@/models/artefact';
 import { TextFragment, ArtefactTextFragmentData } from '@/models/text';
 import TextFragmentComponent from '@/components/text/text-fragment.vue';
@@ -126,6 +128,13 @@ import TextService from '@/services/text';
         'add-line-modal': AddLineModal,
         'delete-line-modal': DeleteLineModal,
     },
+    // These directives are registered per-component in this app (not globally).
+    // Without registration the v-b-tooltip title hints and the v-b-toggle
+    // accordion on each fragment header are unresolved directives — silently dead.
+    directives: {
+        'b-tooltip': vBTooltip,
+        'b-toggle': vBToggle,
+    },
 })
 class TextSide extends Vue {
     @Prop() public artefact!: Artefact;
@@ -136,19 +145,23 @@ class TextSide extends Vue {
     public newArtefactName: string = '';
     public newFragmentName: string = '';
     public prevLineMenuId: string = '';
+    // Drives the rename-fragment <b-popover> (v-model) — replaces the removed
+    // Vue-2 `$root.$emit('bv::show/hide::popover')` bus.
+    public fragmentMenuVisible: boolean = false;
     public textService = new TextService();
 
     public openLineMenu(event: MouseEvent, artefactId: any) {
         event.preventDefault();
-        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::show::popover', artefactId);
         this.prevLineMenuId = artefactId;
-
+        this.fragmentMenuVisible = true;
     }
 
     public closeLineMenu() {
-        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
+        this.fragmentMenuVisible = false;
+    }
+
+    public focusRenameInput() {
+        (this.$refs.newFragmentName as HTMLInputElement | undefined)?.focus();
     }
 
     public get artefactMode() {
@@ -164,8 +177,7 @@ class TextSide extends Vue {
             this.editionId,
             newFragment
         );
-        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
+        this.fragmentMenuVisible = false;
 
     }
     // @Prop() public selectedSignInterpretation!: SignInterpretation | null;

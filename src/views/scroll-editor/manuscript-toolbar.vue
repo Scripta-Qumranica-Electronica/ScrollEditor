@@ -326,6 +326,7 @@
 
 <script lang="ts">
 import { Component, Prop, Emit, Model, Vue, toNative } from 'vue-facing-decorator';
+import { vBToggle } from 'bootstrap-vue-next';
 import { showModal } from '@/utils/modal-bus';
 import { ScrollEditorState } from '@/state/scroll-editor';
 import { ArtefactDTO, EditionManuscriptMetricsDTO } from '@/dtos/sqe-dtos';
@@ -345,6 +346,11 @@ import {
 @Component({
     name: 'manuscript-toolbar',
     components: {
+    },
+    // v-b-toggle is registered per-component here (not globally); without this the
+    // "manage group" accordion toggle is an unresolved directive and never fires.
+    directives: {
+        'b-toggle': vBToggle,
     },
 })
 class ManuscriptToolbar extends Vue {

@@ -41,7 +41,8 @@
         <b-popover
             custom-class="popover-sign-body"
             :target="'popover-line-' + line.lineId"
-            triggers=""
+            v-model="lineMenuVisible"
+            manual
             @shown="focusPopover()"
         >
             <div
@@ -193,6 +194,9 @@ class TextLineComponent extends Vue {
     public parallels: QwbParallelListDTO | null = null;
     public variants: DetailedLineTextDTO[] = [];
     public prevLineMenuId: string = '';
+    // Drives the line-menu <b-popover> (v-model) — replaces the removed Vue-2
+    // `$root.$emit('bv::show/hide::popover')` bus.
+    public lineMenuVisible: boolean = false;
     public showParallelModal: boolean = false;
     public showVariantModal: boolean = false;
 
@@ -322,13 +326,11 @@ class TextLineComponent extends Vue {
         }
         // prevent usual menu to display
         event.preventDefault();
-        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::show::popover', lineMenuId);
         this.prevLineMenuId = lineMenuId;
+        this.lineMenuVisible = true;
     }
     public closeLineMenu() {
-        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
+        this.lineMenuVisible = false;
     }
     public focusPopover() {
         (this.$refs.lineMenu as any).focus();

@@ -56,6 +56,21 @@ const DEAD_PROP_RULES = [
     { re: /\btriggers\s*=\s*"(?!")[^"]+"/, fix: 'b-popover/b-tooltip: v2 `triggers="click blur"` string is dead → use boolean trigger props (click/hover/manual) or v-model' },
 ];
 
+// Vue-2 runtime APIs removed in Vue 3. Matched against raw (comment-stripped) lines,
+// so commented-out remnants don't trip. `$root.$emit('bv::...')` is the bootstrap-vue
+// v2 event bus (show/hide modals & popovers); Vue 3 removed `$root.$on`, so both the
+// emit and any listener are dead — control the component via v-model/refs instead.
+const DEAD_JS_RULES = [
+    { re: /\$root\s*!?\s*\.\s*\$emit\s*\(\s*['"]bv::/, fix: "Vue-2 `$root.$emit('bv::...')` bus is dead → drive the <b-modal>/<b-popover> with a boolean v-model (see text-sign.vue / modal-bus.ts)" },
+    { re: /\$root\s*!?\s*\.\s*\$(on|off|once)\s*\(/, fix: '`$root.$on/$off/$once` removed in Vue 3 → use a real event bus (mitt) or a store action' },
+];
+
+// bootstrap-vue directives are registered PER-COMPONENT in this app (createBootstrap
+// does not globally register them — the app-level directive registry holds only i18n's
+// `t`). So any v-b-<name> used in a template MUST be registered in that same file's
+// `directives: { ... }`; otherwise Vue can't resolve it and it silently no-ops.
+const BOOTSTRAP_DIRECTIVES = ['tooltip', 'toggle', 'modal', 'popover', 'visible', 'scrollspy'];
+
 // -------------------------------------------------------------------------------
 
 function walk(dir, out) {
@@ -131,7 +146,33 @@ for (const file of walk(srcDir, [])) {
                 hits.push({ file: rel, line: i + 1, token: line.trim().slice(0, 60), fix: rule.fix, kind: 'prop' });
             }
         }
+        for (const rule of DEAD_JS_RULES) {
+            if (rule.re.test(line)) {
+                hits.push({ file: rel, line: i + 1, token: line.trim().slice(0, 60), fix: rule.fix, kind: 'js' });
+            }
+        }
     });
+
+    // Per-file check: every v-b-<name> used must be registered in this file.
+    const whole = lines.join('\n');
+    for (const dir of BOOTSTRAP_DIRECTIVES) {
+        // `v-b-toggle`, `v-b-toggle.arg`, `v-b-toggle="x"`, `:v-b-...` — match the bare directive.
+        const useRe = new RegExp(`v-b-${dir}(?=[\\s.=>"']|$)`);
+        if (!useRe.test(whole)) continue;
+        // Registered if the file names it as a local directive key or imports its symbol.
+        const cap = dir[0].toUpperCase() + dir.slice(1);
+        const registered = new RegExp(`['"\`]b-${dir}['"\`]|vB${cap}\\b`).test(whole);
+        if (!registered) {
+            const idx = lines.findIndex((l) => useRe.test(l));
+            hits.push({
+                file: rel,
+                line: idx + 1,
+                token: `v-b-${dir}`,
+                fix: `v-b-${dir} used but not registered in this component's directives:{} — add \`'b-${dir}': vB${cap}\` (import from bootstrap-vue-next). Directives are per-component here, not global.`,
+                kind: 'directive',
+            });
+        }
+    }
 }
 
 if (hits.length === 0) {

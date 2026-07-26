@@ -7,7 +7,8 @@
                     maxWidth="150"></artefact-image></span>
             <img class="place-holder" v-if="artefact && !observed" src="@/assets/images/rings.svg" />
             <label class="side-edition">{{ artefact.name }} - {{ artefact.side }}</label>
-            <b-popover custom-class="popover-sign-body" :target="'popover-line-' + artefact.id">
+            <b-popover custom-class="popover-sign-body" :target="'popover-line-' + artefact.id"
+                v-model="lineMenuVisible" manual @shown="focusRenameInput()">
                 <div class="character-popover"  ref="lineMenu">
                  <b>
                     Rename this artefact
@@ -29,6 +30,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { vBTooltip } from 'bootstrap-vue-next';
 import ArtefactService from '@/services/artefact';
 import { Artefact } from '@/models/artefact';
 import ArtefactImage from '@/components/artefact/artefact-image.vue';
@@ -37,12 +39,20 @@ import ArtefactImage from '@/components/artefact/artefact-image.vue';
     name: 'artefact-card',
     components: {
         ArtefactImage,
-    }
+    },
+    // v-b-tooltip is registered per-component in this app (not globally); without
+    // this the "Rename this artefact" tooltip directive is unresolved and dead.
+    directives: {
+        'b-tooltip': vBTooltip,
+    },
 })
 class ArtefactCard extends Vue {
     @Prop() public readonly artefact!: Artefact;
     public newArtefactName: string = '';
     public observed = false;
+    // Controls the rename <b-popover> directly (v-model). Replaces the Vue-2
+    // `$root.$emit('bv::show/hide::popover')` bus, which no longer exists in Vue 3.
+    public lineMenuVisible = false;
     public prevLineMenuId: string = '';
     public intersectionObserver?: IntersectionObserver;
     public artefactService = new ArtefactService();
@@ -63,20 +73,20 @@ class ArtefactCard extends Vue {
             this.editionId,
             this.artefact
         );
-        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
-
+        this.lineMenuVisible = false;
     }
     public closeLineMenu() {
-        // TODO(vue3): replace bv::hide::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::hide::popover', this.prevLineMenuId);
+        this.lineMenuVisible = false;
     }
 
     public openLineMenu(event: MouseEvent, artefactId: any) {
         event.preventDefault();
-        // TODO(vue3): replace bv::show::popover bus event — use a per-instance boolean to control b-popover visibility
-        this.$root!.$emit('bv::show::popover', artefactId);
         this.prevLineMenuId = artefactId;
+        this.lineMenuVisible = true;
+    }
+
+    public focusRenameInput() {
+        (this.$refs.newArtefactName as HTMLInputElement | undefined)?.focus();
     }
 
     public onObserved(entries: IntersectionObserverEntry[]) {
