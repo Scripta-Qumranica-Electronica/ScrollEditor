@@ -29,6 +29,13 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn add wait-on
+      - name: Static parity checks
+        # Fail fast (before the expensive backend/build) if a dead Bootstrap-4
+        # class or an unhandled SignalR broadcast slipped in. Also runs via the
+        # pretest/pretest-ci hooks; kept explicit here so it is visible and gates
+        # even if the test runner changes. NB: `check:all`, not `check` — bare
+        # `yarn check` is a deprecated yarn v1 builtin, not our script.
+        run: yarn check:all
       - name: Run backend
         env:
           MAILER_EMAIL_ADDRESS: ${{ secrets.MAILER_EMAIL_ADDRESS }}
