@@ -1136,6 +1136,16 @@ export default toNative(ArtefactEditor);
     } */
 }
 
+// The shared #resize-bar defaults to `grid-row: 2 / span 3`, which is correct for
+// the imaged-object editor's 4-row grid (toolbar, menu, image, ...). THIS grid has
+// an extra $toolbar-height row (the artefact toolbar wraps to two rows), so every
+// content row is shifted down by one. Without this override the divider starts in
+// the SECOND TOOLBAR row and visibly bleeds up into the menu above the image;
+// shift it down one row so it starts at the menu row, matching production.
+#artefact-grid :deep(#resize-bar) {
+    grid-row: 3 / span 3;
+}
+
 #toolbar {
     grid-column: 1 / span 3;
     grid-row: 1 / 3;

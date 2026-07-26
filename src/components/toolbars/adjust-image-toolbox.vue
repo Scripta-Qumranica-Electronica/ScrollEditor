@@ -5,10 +5,18 @@
             ><img class="mr-1" src="@/assets/images/adjust.svg" />
             <span class="d-none d-xl-inline">Adjust image</span>
         </b-button>
+        <!--
+            bootstrap-vue-next dropped Bootstrap-Vue v2's `triggers="click blur"`
+            STRING api; the same markup left the popover with no working trigger, so
+            it never opened. The v2 "click blur" (open on click, close on outside
+            click) maps to the boolean `click` trigger prop, which toggles on target
+            click and auto-closes on an outside click while keeping the sliders
+            inside interactive.
+        -->
         <b-popover
             class="popover-body"
             target="popover-adjust"
-            triggers="click blur"
+            click
             placement="bottom"
         >
             <div>

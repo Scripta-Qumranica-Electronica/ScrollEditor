@@ -15,7 +15,8 @@
         "test:e2e:ui": "playwright test --config playwright.config.mts --ui",
         "test:e2e:cov": "rm -rf .nyc_output && playwright test --config playwright.config.mts && nyc report --reporter=text-summary --reporter=html --temp-dir .nyc_output",
         "coverage:combined": "node scripts/coverage-combined.mjs",
-        "check:notifications": "node scripts/check-notification-coverage.js"
+        "check:notifications": "node scripts/check-notification-coverage.js",
+        "check:bootstrap5": "node scripts/check-bootstrap5-parity.js"
     },
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^23.0.0",
