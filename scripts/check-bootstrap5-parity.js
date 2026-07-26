@@ -57,12 +57,15 @@ const DEAD_PROP_RULES = [
 ];
 
 // Vue-2 runtime APIs removed in Vue 3. Matched against raw (comment-stripped) lines,
-// so commented-out remnants don't trip. `$root.$emit('bv::...')` is the bootstrap-vue
-// v2 event bus (show/hide modals & popovers); Vue 3 removed `$root.$on`, so both the
-// emit and any listener are dead — control the component via v-model/refs instead.
+// so commented-out remnants don't trip.
 const DEAD_JS_RULES = [
-    { re: /\$root\s*!?\s*\.\s*\$emit\s*\(\s*['"]bv::/, fix: "Vue-2 `$root.$emit('bv::...')` bus is dead → drive the <b-modal>/<b-popover> with a boolean v-model (see text-sign.vue / modal-bus.ts)" },
+    // The whole `$root.$emit` bus is dead: Vue 3 removed `$root.$on`, so nothing can
+    // ever listen (this covers the bootstrap-vue `bv::` events AND app-custom ones like
+    // `delete-key-pressed`). Route through the app event bus / a store action instead.
+    { re: /\$root\s*!?\s*\.\s*\$emit\s*\(/, fix: "Vue-2 `$root.$emit(...)` bus is dead (Vue 3 removed $root.$on) → use $state.eventBus / a boolean v-model (see event-bus.ts, modal-bus.ts, text-sign.vue)" },
     { re: /\$root\s*!?\s*\.\s*\$(on|off|once)\s*\(/, fix: '`$root.$on/$off/$once` removed in Vue 3 → use a real event bus (mitt) or a store action' },
+    // Vue-2 lifecycle hooks renamed in Vue 3; the old names never fire (leaking listeners/timers).
+    { re: /\b(beforeDestroy|destroyed)\s*\(\s*\)/, fix: 'Vue-2 lifecycle removed in Vue 3 → rename beforeDestroy()→beforeUnmount(), destroyed()→unmounted()' },
 ];
 
 // bootstrap-vue directives are registered PER-COMPONENT in this app (createBootstrap
@@ -70,6 +73,13 @@ const DEAD_JS_RULES = [
 // `t`). So any v-b-<name> used in a template MUST be registered in that same file's
 // `directives: { ... }`; otherwise Vue can't resolve it and it silently no-ops.
 const BOOTSTRAP_DIRECTIVES = ['tooltip', 'toggle', 'modal', 'popover', 'visible', 'scrollspy'];
+
+// bootstrap-vue-next form controls emit `update:modelValue` / `input`, NOT `change`.
+// A `@change` handler on one silently never fires (this is the "washed out image"
+// class: the visibility checkbox's @change never re-ran normalizeOpacity). Matched
+// tag-aware against the whole (comment-stripped) file so we don't flag @change on a
+// plain native <input>/<select>.
+const FORM_CONTROL_CHANGE_RE = /<b-form-(?:checkbox|select|radio|input|textarea|spinbutton|checkbox-group|radio-group)\b[^>]*@change[.=]/;
 
 // -------------------------------------------------------------------------------
 
@@ -155,6 +165,23 @@ for (const file of walk(srcDir, [])) {
 
     // Per-file check: every v-b-<name> used must be registered in this file.
     const whole = lines.join('\n');
+
+    // Tag-aware check: @change on a bootstrap-vue-next form control (dead — they emit
+    // update:modelValue/input, not change). Report every such opening tag.
+    {
+        const re = new RegExp(FORM_CONTROL_CHANGE_RE.source, 'g');
+        let m;
+        while ((m = re.exec(whole))) {
+            const lineNo = whole.slice(0, m.index).split('\n').length;
+            hits.push({
+                file: rel,
+                line: lineNo,
+                token: m[0].replace(/\s+/g, ' ').slice(0, 60),
+                fix: 'bootstrap-vue-next form controls emit update:modelValue/input, NOT change → use @update:model-value',
+                kind: 'event',
+            });
+        }
+    }
     for (const dir of BOOTSTRAP_DIRECTIVES) {
         // `v-b-toggle`, `v-b-toggle.arg`, `v-b-toggle="x"`, `:v-b-...` — match the bare directive.
         const useRe = new RegExp(`v-b-${dir}(?=[\\s.=>"']|$)`);

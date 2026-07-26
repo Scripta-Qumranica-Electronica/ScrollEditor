@@ -1,7 +1,13 @@
 <template>
     <div class="row">
         <div class="col-5">
-            <b-form-checkbox v-model="settings.visible" @change="onVisibleChange">{{ type }}</b-form-checkbox>
+            <!--
+                bootstrap-vue-next's <b-form-checkbox> emits `update:modelValue`, NOT
+                `change` (that Vue-2 event is dead here). With @change the visibility
+                toggle never ran normalizeOpacity, so hiding a layer left the remaining
+                layer stuck at its multi-layer normalizedOpacity — the "washed out" image.
+            -->
+            <b-form-checkbox v-model="settings.visible" @update:model-value="onVisibleChange">{{ type }}</b-form-checkbox>
         </div>
         <div class="col">
             <b-form-input

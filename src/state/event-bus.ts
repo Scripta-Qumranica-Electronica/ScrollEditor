@@ -15,7 +15,8 @@ export type EventBusEvents =
 | 'new-bulk-operations'  // New bulk operations for the active operations manager
 | 'change-artefact-edit-line'
 | 'change-artefact-add-line'
-| 'change-artefact-delete-line';
+| 'change-artefact-delete-line'
+| 'delete-key-pressed';   // Delete key in the scroll editor -> remove selected artefact/group
 
 
 

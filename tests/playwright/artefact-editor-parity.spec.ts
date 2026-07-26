@@ -112,3 +112,80 @@ test('the opacity slider drives image-settings state live as it moves', async ({
     await collectCoverage(ctx);
     await ctx.close();
 });
+
+// Find an artefact whose imaged object exposes >=2 image layers (color/infrared/raking).
+async function findMultiLayerArtefact(page: Page): Promise<{ editionId: number; artefactId: number } | null> {
+    for (const editionId of [1, 3, 894, 923]) {
+        const res = await page.request.get(`${API}/v1/editions/${editionId}/imaged-objects?optional=artefacts`, { headers: auth() });
+        if (!res.ok()) continue;
+        const ios = (await res.json()).imagedObjects || [];
+        for (const io of ios) {
+            const imgs = (io.recto?.images || []).length;
+            const arts = io.artefacts || [];
+            if (imgs >= 2 && arts.length) return { editionId, artefactId: arts[0].id };
+        }
+    }
+    return null;
+}
+
+test('multi-layer adjust: hiding a layer re-normalizes the rest — no washed-out remainder', async ({ browser }) => {
+    // Regression for the "washed out infrared" bug: the visibility checkbox used @change,
+    // which bootstrap-vue-next never emits, so hiding a layer skipped normalizeOpacity and
+    // the remaining top layer stayed at its multi-layer opacity (~0.5-0.75) instead of 1.
+    const ctx = await authedContext(browser, token);
+    const page = await ctx.newPage();
+    const found = await findMultiLayerArtefact(page);
+    expect(found, 'a multi-layer artefact exists in the seed').not.toBeNull();
+
+    await page.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+    await page.setViewportSize({ width: 1500, height: 950 });
+    await page.goto(`/editions/${found!.editionId}/artefacts/${found!.artefactId}`);
+    await expect(page.locator('#popover-adjust')).toBeVisible({ timeout: 40_000 });
+    await page.locator('#popover-adjust').click();
+    await expect(page.locator('.popover input[type=checkbox]').first()).toBeVisible();
+
+    const result = await page.evaluate(async () => {
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        const checks = [...document.querySelectorAll('.popover input[type=checkbox]')] as HTMLInputElement[];
+        const ranges = [...document.querySelectorAll('.popover input[type=range]')] as HTMLInputElement[];
+        if (checks.length < 2) return { layers: checks.length, firstVisibleNorm: null };
+        const read = () => ranges.map((r) => { let el: any = r; while (el) { if (el.__vueParentComponent?.ctx?.settings) return el.__vueParentComponent.ctx.settings; el = el.parentElement; } return null; });
+        for (const c of checks) if (!c.checked) { c.click(); await sleep(80); }
+        checks[0].click(); await sleep(150); // hide the first (top) layer
+        const firstVisible = read().find((s: any) => s && s.visible);
+        return { layers: checks.length, firstVisibleNorm: firstVisible ? firstVisible.normalizedOpacity : null };
+    });
+
+    expect(result.layers, 'artefact has >=2 image layers').toBeGreaterThanOrEqual(2);
+    expect(result.firstVisibleNorm, 'remaining top layer is full opacity (not washed out)').toBeCloseTo(1, 5);
+
+    await collectCoverage(ctx);
+    await ctx.close();
+});
+
+test('right-click an artefact card opens the rename popover (bv:: bus → v-model)', async ({ browser }) => {
+    // Regression for the dead $root.$emit('bv::show::popover') bus: right-click must open
+    // the per-instance rename <b-popover> (now a boolean v-model) and Close must dismiss it.
+    const ctx = await authedContext(browser, token);
+    const page = await ctx.newPage();
+    await page.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+    await page.setViewportSize({ width: 1500, height: 950 });
+    await page.goto('/editions/808/artefacts');
+
+    const card = page.locator('.line-name[id^="popover-line-"]').first();
+    await expect(card).toBeVisible({ timeout: 40_000 });
+    // All card popovers are pre-rendered (teleported) in Bootstrap's fade state, so
+    // "shown" must be gated on the `.show` class, not Playwright visibility.
+    const shownPopover = page.locator('.popover.b-popover.show', { hasText: 'Rename this artefact' });
+    await expect(shownPopover, 'no rename popover is open initially').toHaveCount(0);
+
+    await card.click({ button: 'right' });
+    await expect(shownPopover, 'rename popover opens on right-click').toHaveCount(1);
+    await expect(shownPopover.locator('#newName'), 'rename input is present').toBeVisible();
+
+    await shownPopover.getByRole('button', { name: /close/i }).click();
+    await expect(shownPopover, 'popover closes via Close').toHaveCount(0);
+
+    await collectCoverage(ctx);
+    await ctx.close();
+});

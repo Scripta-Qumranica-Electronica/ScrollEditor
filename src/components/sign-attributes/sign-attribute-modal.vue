@@ -15,7 +15,7 @@
                     <b-form-select
                         id="selectAttr"
                         v-model="selected"
-                        @change="onAttributeValueChanged($event)"
+                        @update:model-value="onAttributeValueChanged($event as AttributeValueDTO)"
                         :disabled="readOnly"
                     >
                         <option :disabled="true" :value="null">{{attribute.attributeValueString}}</option>

@@ -595,11 +595,13 @@ describe('scroll-editor keyboard handlers', () => {
         expect(onKeyDown).toHaveBeenCalled();
     });
 
-    it('onKeyDown on Delete emits delete-key-pressed on the root', () => {
+    it('onKeyDown on Delete emits delete-key-pressed on the app event bus', () => {
         const { ctx } = makeCtx();
         ctx.$refs.artefactContainer = { scrollTop: 0, scrollLeft: 0, scrollTo: vi.fn() };
         ctx.onKeyDown({ key: 'Delete' } as any);
-        expect(ctx.$root.$emit).toHaveBeenCalledWith('delete-key-pressed');
+        // Vue-3: $root.$emit is gone; the Delete key now goes through the app event bus
+        // (currentState().eventBus), which manuscript-toolbar subscribes to.
+        expect(fakeState.eventBus.emit).toHaveBeenCalledWith('delete-key-pressed');
     });
 
     it('onKeyDown handles the remaining scroll keys', () => {

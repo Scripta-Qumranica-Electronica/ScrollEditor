@@ -864,8 +864,9 @@ class ScrollEditor
             }
         }
         if (event.key === 'Delete') {
-            // TODO(vue3): $root.$emit is removed in Vue 3; replace with a shared event bus or Pinia action
-            this.$root!.$emit('delete-key-pressed');
+            // $root.$emit is gone in Vue 3; route through the app event bus, which
+            // manuscript-toolbar subscribes to (-> removeArtefactOrGroup()).
+            currentState().eventBus.emit('delete-key-pressed');
         }
     }
 

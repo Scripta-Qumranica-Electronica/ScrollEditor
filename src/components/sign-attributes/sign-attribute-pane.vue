@@ -4,7 +4,7 @@
             <b-form-checkbox
                 name="allSiAreReconstructed-checkbox"
                 :checked="allSiAreReconstructed"
-                @change="onReconstructedCheckBoxChanged"
+                @update:model-value="onReconstructedCheckBoxChanged($event as boolean)"
             >Reconstructed</b-form-checkbox>
         </div>
         <ul class="attribute-list">

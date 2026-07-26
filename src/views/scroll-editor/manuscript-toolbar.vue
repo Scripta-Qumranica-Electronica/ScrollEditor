@@ -355,14 +355,17 @@ import {
 })
 class ManuscriptToolbar extends Vue {
 
-    public created() {
-        // TODO(vue3): $root.$on is removed in Vue 3; replace with a shared event bus or Pinia action
-        // this.$root.$on('delete-key-pressed', () => this.removeArtefactOrGroup());
+    // Bound once so on()/off() reference the same function identity.
+    private onDeleteKey = () => this.removeArtefactOrGroup();
+
+    public mounted() {
+        // Replaces the Vue-2 `$root.$on('delete-key-pressed', ...)`: the scroll editor
+        // emits this on the Delete key; remove the selected artefact/group.
+        this.$state.eventBus.on('delete-key-pressed', this.onDeleteKey);
     }
 
     public beforeUnmount() {
-        // TODO(vue3): $root.$off is removed in Vue 3; replace with a shared event bus or Pinia action
-        // this.$root.$off('delete-key-pressed', () => this.removeArtefactOrGroup());
+        this.$state.eventBus.off('delete-key-pressed', this.onDeleteKey);
     }
 
     // @Prop() private params!: ScrollEditorParams;

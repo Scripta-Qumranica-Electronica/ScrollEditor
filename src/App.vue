@@ -59,7 +59,9 @@ class App extends Vue {
         );
     }
 
-    public destroyed() {
+    public unmounted() {
+        // Vue 3 renamed the `destroyed` lifecycle hook to `unmounted`; the old
+        // name never fires, leaking these listeners.
         this.$state.eventBus.off(
             'corrupted-state',
             this.openCorruptedStateDialog
