@@ -29,7 +29,7 @@
                 <div>
                     <b-button
                         size="sm"
-                        class="btn btn-primary mr-2"
+                        class="btn btn-primary me-2"
                         :disabled="confirmation !== 'delete'"
                         @click="deleteEdition"
                     >

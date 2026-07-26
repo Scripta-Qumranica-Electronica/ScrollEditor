@@ -63,7 +63,7 @@
                         <div>
                             <b-button
                                 size="sm"
-                                class="btn btn-primary mr-2"
+                                class="btn btn-primary me-2"
                                 @click="checkedAllSide('recto')"
                             >
                                 Recto
@@ -79,7 +79,7 @@
                         <div>
                             <b-button
                                 size="sm"
-                                class="btn btn-primary mr-2"
+                                class="btn btn-primary me-2"
                                 @click="closeModal()"
                                 :disabled="!chekedArtefacts.length"
                             >

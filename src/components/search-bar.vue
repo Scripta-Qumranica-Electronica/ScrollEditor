@@ -11,12 +11,12 @@
             ></b-form-input>
         </b-form-group>
         <b-form-group v-if="params.side">
-            <label for="side" class="search-bar ml-2 mb-2">{{
+            <label for="side" class="search-bar ms-2 mb-2">{{
                 $t('home.side')
             }}</label>
             <b-form-select
                 name="side"
-                class="ml-2 size"
+                class="ms-2 size"
                 v-model="internalValue.side"
                 @update:model-value="onViewChange($event)"
             >
@@ -28,12 +28,12 @@
             </b-form-select>
         </b-form-group>
         <b-form-group v-if="params.sort">
-            <label for="sort" class="search-bar ml-2 mb-2">{{
+            <label for="sort" class="search-bar ms-2 mb-2">{{
                 $t('home.sort')
             }}</label>
             <b-form-select
                 name="sort"
-                class="ml-2"
+                class="ms-2"
                 v-model="internalValue.sort"
                 @update:model-value="onSortChange($event)"
             >

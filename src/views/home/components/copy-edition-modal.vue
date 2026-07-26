@@ -49,11 +49,11 @@
                 {{ errorMessage }}
             </p>
             <div v-if="currentEdition.copyright" class="mt-2">
-                <label class="font-weight-bold mb-0">Copyright</label>
+                <label class="fw-bold mb-0">Copyright</label>
                 <div class="small">{{ currentEdition.copyright }}</div>
             </div>
             <div v-if="collaboratorEmails" class="mt-2">
-                <label class="font-weight-bold mb-0">Collaborators</label>
+                <label class="fw-bold mb-0">Collaborators</label>
                 <div class="small">{{ collaboratorEmails }}</div>
             </div>
         </form>
@@ -77,7 +77,7 @@
                             ></font-awesome-icon>
                         </span>
                     </b-button>
-                    <b-button @click="onLogin" class="mr-2" v-if="!user">
+                    <b-button @click="onLogin" class="me-2" v-if="!user">
                         {{ $t('navbar.login') }}
                     </b-button>
                     <b-button @click="onRegister" v-if="!user">

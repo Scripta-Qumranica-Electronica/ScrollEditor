@@ -1,5 +1,5 @@
 <template>
-     <b-container no-gutters class="side-toolbar ml-0 mr-0 pl-1 pr-1">
+     <b-container no-gutters class="side-toolbar ms-0 me-0 ps-1 pe-1">
         <text-fragment
             v-if="textFragment"
             :fragment="textFragment"

@@ -32,7 +32,7 @@
             <!-- Edition navigation -->
             <b-navbar-nav
                 v-if="edition"
-                class="m-0 mt-mb-auto ml-xl-5 ml-lg-5 ml-md-0 ml-sm-0 d-flex"
+                class="m-0 mt-mb-auto ms-xl-5 ms-lg-5 ms-md-0 ms-sm-0 d-flex"
             >
                 <edition-toolbox />
                 <b-nav-item
@@ -57,7 +57,7 @@
             </b-navbar-nav>
 
             <!-- empty navbar just to right-align the rest -->
-            <b-navbar-nav class="ml-auto"></b-navbar-nav>
+            <b-navbar-nav class="ms-auto"></b-navbar-nav>
 
             <b-navbar-nav toggleable class="search-user-nav" align="end">
                 <b-nav-item active>
@@ -134,7 +134,7 @@
                 <b-nav-item-dropdown
                     id="hamburger"
                     right
-                    class="bm-0 p-0 pl-1 pr-1"
+                    class="bm-0 p-0 ps-1 pe-1"
                     no-caret
                 >
                     <template v-slot:button-content>

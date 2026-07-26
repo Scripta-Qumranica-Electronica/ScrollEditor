@@ -21,11 +21,11 @@
             <div class="status-edition-public-grid">
                 <span class="card-label">Edit: </span>
                 <span
-                    class="card-label card-date mr-1"
+                    class="card-label card-date me-1"
                     style="white-space: nowrap"
                     >{{ lastEditText }}
                 </span>
-                <p class="card-label ml-0 mr-9">
+                <p class="card-label ms-0 mr-9">
                     Status:
                     <b-badge
                         :class="
@@ -41,7 +41,7 @@
         </div>
 
         <b-row no-gutters style="align-items: end">
-            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mb-lg-1 mb-xl-0 mb-sm-1 mr-2">
+            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mb-lg-1 mb-xl-0 mb-sm-1 me-2">
                 <b-button
                     class="btn btn-secondary btn-sm w-100"
                     size="sm"

@@ -1,10 +1,10 @@
 <template>
     <div class="edition-icons">
         <label v-if="readOnly">
-            <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock ml-2"></i> {{ showText ? $t('home.lock') : '' }}
+            <i v-b-tooltip.hover.bottom :title="$t('home.lock')" class="fa fa-lock ms-2"></i> {{ showText ? $t('home.lock') : '' }}
         </label>
         <label v-if="shared">
-            <i v-b-tooltip.hover.bottom :title="$t('home.shared')" class="fa fa-users ml-2"></i> {{ showText ? $t('home.shared') : '' }}
+            <i v-b-tooltip.hover.bottom :title="$t('home.shared')" class="fa fa-users ms-2"></i> {{ showText ? $t('home.shared') : '' }}
         </label>
     </div>
 </template>

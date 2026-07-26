@@ -100,7 +100,7 @@
                     }"
                 >
                     <b-row class="py-2">
-                        <b-col class="col-2 col-xl-3 col-lg-2 pl-4 pt-1">
+                        <b-col class="col-2 col-xl-3 col-lg-2 ps-4 pt-1">
                             <span
                                 v-if="renameInputActive !== art"
                                 :class="{
@@ -128,7 +128,7 @@
                             >
                         </b-col>
                         <b-col
-                            class="col-4 col-xl-5 col-lg-5 col-md-4 mr-0 px-0"
+                            class="col-4 col-xl-5 col-lg-5 col-md-4 me-0 px-0"
                         >
                             <div v-if="canEdit">
                                 <b-button
@@ -163,7 +163,7 @@
                                     ></font-awesome-icon>
                                 </b-button>
                                 <b-button
-                                    class="btn btn-sm ml-2 mb-1"
+                                    class="btn btn-sm ms-2 mb-1"
                                     @click="onDeleteArtefact(art)"
                                     >Delete</b-button
                                 >

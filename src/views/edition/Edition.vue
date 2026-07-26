@@ -14,19 +14,19 @@
 
                 <b-col class="col-7 mt-4 mb-3">
                     <div class="btns-permiss" v-if="currentEdition">
-                        <b-button class="mr-2" @click="openMetadata">Manuscript Information</b-button>
+                        <b-button class="me-2" @click="openMetadata">Manuscript Information</b-button>
                         <b-button
-                            class="mr-2"
+                            class="me-2"
                             v-if="isAdmin"
                             @click="openPermissionModal"
                         >
-                            <i class="fa fa-lock mr-1"></i>
+                            <i class="fa fa-lock me-1"></i>
                             Collaborators
                         </b-button>
                         <b-button disabled v-if="!currentEdition.isPublic">
-                            <i class="fa fa-lock mr-1"></i>Publish
+                            <i class="fa fa-lock me-1"></i>Publish
                         </b-button>
-                        <b-button class="ml-2" @click="deleteEdition" v-if="!currentEdition.isPublic">Delete Edition</b-button>
+                        <b-button class="ms-2" @click="deleteEdition" v-if="!currentEdition.isPublic">Delete Edition</b-button>
                     </div>
                 </b-col>
             </b-row>

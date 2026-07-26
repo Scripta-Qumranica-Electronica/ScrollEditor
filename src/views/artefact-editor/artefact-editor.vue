@@ -98,7 +98,7 @@
                         :line="selectedLine"
                     />
                 </div>
-                <div id="artefact-image" class="border-right iiif-container" ref="infoBox">
+                <div id="artefact-image" class="border-end iiif-container" ref="infoBox">
                     <zoomer
                         :zoom="zoomLevel"
                         :angle="rotationAngle"

@@ -34,7 +34,7 @@
         </div>
         <div class="intro">
             <section class="row">
-                <div class="col-6 border-right">
+                <div class="col-6 border-end">
                     <h5>OUR STORY</h5>
                     <p class="description">
                         The Scripta Qumranica Electronica (SQE) is a
@@ -51,10 +51,10 @@
                         world to work together simultaneousy.
                     </p>
                     <div class="row">
-                        <div class="col-4 border-right font">
+                        <div class="col-4 border-end font">
                             <b-link href="https://qumranica.org" target="_blank">Learn more About the project</b-link>
                         </div>
-                        <div class="col-6 border-right font">
+                        <div class="col-6 border-end font">
                             <b-link href="https://www.deadseascrolls.org.il/home" target="_blank">
                                 The Leon Levy Dead Sea Scrolls Digital Library
                             </b-link>

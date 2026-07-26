@@ -17,7 +17,7 @@
             <div class="status-edition-public-grid">
                 <span class="card-label"> Published: </span>
 
-                <span class="card-label card-date mr-1"
+                <span class="card-label card-date me-1"
                     >{{
                         edition.lastEdit
                             ? edition.lastEdit.toDateString().substr(4)
@@ -27,7 +27,7 @@
             </div>
         </div>
         <b-row no-gutters style="align-items: end">
-            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mb-lg-1 mb-xl-0 mb-sm-1 mr-2">
+            <b-col class="col col-lg-12 col-xl-4 mb-md-1 mb-lg-1 mb-xl-0 mb-sm-1 me-2">
                 <b-button
                     size="sm"
                     class="btn btn-secondary btn-sm w-100"

@@ -2,22 +2,26 @@
     <div class="border-around">
         <b-row>
             <b-col class="col-10">
-                <label for="w-text-input" class="text-bar m-2 ml-3">
+                <label for="w-text-input" class="text-bar m-2 ms-3">
                 Edit Reconstructed Text
                 </label>
             </b-col>
                 <b-col class="col-2">
-                <b-button @click="onHide()" size="sm"
-                    title="Close" aria-label="Close"
-                    class="close m-0 mr-1" variant="secondary">
-                        <span aria-hidden="true">×</span>
-                </b-button>
+                <!-- BS4 `.close` (a styled × text button) was removed in BS5; use
+                     bootstrap-vue-next's <b-close-button>, which renders BS5's
+                     self-contained `.btn-close` × and matches the old borderless look. -->
+                <b-close-button
+                    @click="onHide()"
+                    title="Close"
+                    aria-label="Close"
+                    class="m-0 me-1"
+                />
             </b-col>
         </b-row>
         <b-row>
             <b-col>
                  <!---->
-                <div class="bottom-scroll-bar m-2 ml-1 mr-1">
+                <div class="bottom-scroll-bar m-2 ms-1 me-1">
                     <b-form-input
                         id="w-text-input"
                         type="text"

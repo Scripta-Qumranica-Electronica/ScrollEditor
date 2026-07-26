@@ -1,37 +1,37 @@
 <template>
 
-     <b-container no-gutters class="ml-0 mr-0 pl-0 pr-0">
-        <!-- <b-row class="ml-3 mb-3"> -->
+     <b-container no-gutters class="ms-0 me-0 ps-0 pe-0">
+        <!-- <b-row class="ms-3 mb-3"> -->
 
-        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0" v-if="edition.metrics">
-            <b-col cols="12" md="auto"  class="col-lg-6  no-gutters">
+        <b-row class="m-0 mb-2 ms-1 ps-0 pe-0" v-if="edition.metrics">
+            <b-col cols="12" md="auto"  class="col-lg-6  g-0">
                 <span
                     ><b>{{ $t('home.editionSize') }}:</b></span
                 >
             </b-col>
-             <b-col cols="12" md="auto" lg="auto" class="no-gutters">
+             <b-col cols="12" md="auto" lg="auto" class="g-0">
                 {{ edition.metrics.width }} mm X
                 {{ edition.metrics.height }} mm
             </b-col>
         </b-row>
 
-        <b-row class="m-0 mb-2 ml-1 pl-0 pr-0" v-if="scrollEditorState.viewport">
-             <b-col cols="12" md="auto"  class="col-xl-6 col-lg-7 no-gutters">
+        <b-row class="m-0 mb-2 ms-1 ps-0 pe-0" v-if="scrollEditorState.viewport">
+             <b-col cols="12" md="auto"  class="col-xl-6 col-lg-7 g-0">
                 <span
                     ><b>{{ $t('home.viewPortSize') }}:</b></span
                 >
             </b-col>
-             <b-col cols="12" md="auto" lg="auto" class="no-gutters">
+             <b-col cols="12" md="auto" lg="auto" class="g-0">
                 {{ viewportSizeWidth }} mm X
                 {{ viewportSizeHeight }} mm
             </b-col>
         </b-row>
 
-        <b-row class="m-0 mb-0 ml-1 pl-0 pr-0">
-             <b-col cols="12" md="auto"  class="col-lg-6 no-gutters">
+        <b-row class="m-0 mb-0 ms-1 ps-0 pe-0">
+             <b-col cols="12" md="auto"  class="col-lg-6 g-0">
                 <span><b>Position:</b></span>
             </b-col>
-            <b-col cols="12" md="auto" lg="auto" class="no-gutters">
+            <b-col cols="12" md="auto" lg="auto" class="g-0">
                 X: {{ pointerPositionX }}, Y:
                 {{ pointerPositionY }}
             </b-col>
@@ -52,7 +52,7 @@
             </b-col>
         </b-row> -->
 
-        <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12">
+        <b-row no-gutters class="btn-tf m-1 ms-3 mt-0 mb-0 p-1 col-12">
             <b-col class="col-12 ">
                 <b-form-checkbox
                     switch
@@ -63,7 +63,7 @@
             </b-col>
         </b-row>
 
-        <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12 ">
+        <b-row no-gutters class="btn-tf m-1 ms-3 mt-0 mb-0 p-1 col-12 ">
             <b-col class="col-12 ">
                 <b-form-checkbox
                     switch
@@ -76,7 +76,7 @@
         </b-row>
 
 
-         <b-row no-gutters class="btn-tf m-1 ml-3 mt-0 mb-0 p-1 col-12 ">
+         <b-row no-gutters class="btn-tf m-1 ms-3 mt-0 mb-0 p-1 col-12 ">
             <b-col class="col-12 ">
                 <b-form-checkbox
                     switch
@@ -96,7 +96,7 @@
                 <b-col sm md="auto" lg="auto" class="m-0 mt-1 p-2">
                     <b-button
                         size="sm"
-                        class="btn-add m-0 mr-1 p-1"
+                        class="btn-add m-0 me-1 p-1"
                         @click="openAddArtefactModal()"
                         >{{ $t('misc.add') }} artefact</b-button
                     >
@@ -121,7 +121,7 @@
 
         <hr class="solid">
 
-        <b-row no-gutters class="m-0 p-0 border-right add-cut-side ">
+        <b-row no-gutters class="m-0 p-0 border-end add-cut-side ">
 
             <b-col no-gutters cols="12" md="auto" lg="auto"
                    class="col-xl-8 col-lg-10 col-md-12 col-sm-12 m-0 mb-2 ">
@@ -133,7 +133,7 @@
                             v-model="selectedSide"
                             :options="sidesOptions"
                             size="sm"
-                            class="ml-2 mt-2"
+                            class="ms-2 mt-2"
                         ></b-form-select>
                     </b-col>
 
@@ -141,13 +141,13 @@
                            class="col-xl-4 col-lg-4 col-md-4 col-sm-8 m-0">
                         <b-form-input
                             size="sm"
-                            class="ml-2 mt-2"
+                            class="ms-2 mt-2"
                             min="1"
                             type="number"
                             v-model="metricsInput"
                         ></b-form-input>
                     </b-col>
-                    <span class="ml-2 mt-3">mm</span>
+                    <span class="ms-2 mt-3">mm</span>
 
                 </b-row>
             </b-col>
@@ -157,11 +157,11 @@
                    class="col-xl-3 col-lg-4 m-0" >
 
                 <b-row no-gutters>
-                    <!-- <b-col class=" ml-5"> -->
+                    <!-- <b-col class=" ms-5"> -->
                     <b-col>
                         <b-button-group>
                             <b-button
-                                class="m-1 ml-2"
+                                class="m-1 ms-2"
                                 size="sm"
                                 @click="resizeScroll(1)"
                                 >Add</b-button
@@ -185,11 +185,11 @@
 
         <b-row>
 
-            <b-col class="col-12 ml-0">
+            <b-col class="col-12 ms-0">
 
-                <b-row class="ml-0">
+                <b-row class="ms-0">
                    <b-col
-                      class="col-xl-8 col-lg-8 col-md-10 col-sm-12 col-xs-12 ml-0">
+                      class="col-xl-8 col-lg-8 col-md-10 col-sm-12 col-xs-12 ms-0">
                         <p v-b-toggle.accordion-manage-group  role="tab">
                             <i class="toggle-icon fa fa-angle-down"/>
                             <span class="toggle-icon">Group Actions</span>
@@ -204,7 +204,7 @@
                             <b-row>
                                <b-col  class="m-0"
                                        lg="auto" md="auto" sm="auto">
-                                <!-- <b-button-group class="ml-0"> -->
+                                <!-- <b-button-group class="ms-0"> -->
                                     <b-button
                                         class="m-1"
                                         size="sm"
@@ -222,7 +222,7 @@
                                 <!-- </b-button-group> -->
                                 </b-col>
 
-                                <b-col class="no-gutters "
+                                <b-col class="g-0 "
                                        lg="auto" md="auto" sm="auto">
 
                                     <b-row no-gutters>
@@ -286,7 +286,7 @@
 
         <b-row>
 
-            <b-col class="m-0 ml-4 p-0 pl-2 center-btn">
+            <b-col class="m-0 ms-4 p-0 ps-2 center-btn">
 
                 <!-- <section  class="mt-1"> -->
                     <b-button-group
@@ -294,7 +294,7 @@
                         class="m-0"
                     >
                         <b-button
-                            class="mr-2"
+                            class="me-2"
                             :disabled="
                                 !(selectedArtefacts && selectedArtefacts.length)
                             "

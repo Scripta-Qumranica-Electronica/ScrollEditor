@@ -4,7 +4,7 @@
             <rotate-button
                 direction="left"
                 @click="onRotateClick(-delta)"
-                class="mr-0"
+                class="me-0"
             />
             <b-form-input
                 :disabled="!enableText"

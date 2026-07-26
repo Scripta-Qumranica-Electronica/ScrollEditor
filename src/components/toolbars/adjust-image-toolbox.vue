@@ -2,7 +2,7 @@
     <toolbox :subject="subject">
         <!-- not using the toolbar-icon-button because we want our own popover -->
         <b-button id="popover-adjust" variant="outline-secondary"
-            ><img class="mr-1" src="@/assets/images/adjust.svg" />
+            ><img class="me-1" src="@/assets/images/adjust.svg" />
             <span class="d-none d-xl-inline">Adjust image</span>
         </b-button>
         <!--

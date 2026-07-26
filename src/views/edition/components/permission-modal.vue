@@ -17,7 +17,7 @@
                             ></b-form-input>
                             <b-form-select
                                 size="sm"
-                                class="col-3 ml-2"
+                                class="col-3 ms-2"
                                 id="inline-form-custom-select-pref"
                                 v-model="invitationRow.permission"
                             >
@@ -28,7 +28,7 @@
                             <b-button
                                 variant="primary"
                                 size="sm"
-                                class="flex-fill ml-2 btn-invite"
+                                class="flex-fill ms-2 btn-invite"
                                 @click="invite"
                                 :disabled="invitationRow.email === '' || !invitationRow.permission"
                             >
@@ -65,7 +65,7 @@
 
                                 <b-button
                                     size="sm"
-                                    class="ml-2"
+                                    class="ms-2"
                                     variant="success"
                                     @click="update(share)"
                                     :disabled="share.disableButton || share.disableRow|| waiting"
@@ -98,7 +98,7 @@
 
                                 <b-button
                                     size="sm"
-                                    class="ml-2"
+                                    class="ms-2"
                                     variant="success"
                                     @click="update(invit)"
                                     :disabled="invit.disableButton || waiting"

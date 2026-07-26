@@ -1,7 +1,7 @@
 <template>
     <div>
         <form>
-            <b-row class="mb-3 no-gutters">
+            <b-row class="mb-3 g-0">
                 <h4>{{ $t('navbar.updateUserDetails') }}</h4>
             </b-row>
 

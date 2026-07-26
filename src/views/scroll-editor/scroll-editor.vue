@@ -48,7 +48,7 @@
                     storageKey="scroll-editor-left-pane-width"
                 ></resize-bar>
                 <div
-                    class="border-right"
+                    class="border-end"
                     ref="artefactSidebar"
                     id="scroll-map-container"
                 >
