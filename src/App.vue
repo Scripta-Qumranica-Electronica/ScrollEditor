@@ -1,5 +1,7 @@
 <template>
-    <div id="app" :dir="$t('dir')" onResize="showScreenSizeAlert($event)">
+    <!-- `onResize` on a div never fired (only window fires resize) and was a string,
+         not a handler; window resize is handled by the listener added in mounted(). -->
+    <div id="app" :dir="$t('dir')">
         <navbar v-if="!waiting"></navbar>
         <div v-if="waiting">
             <Waiting></Waiting>

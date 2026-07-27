@@ -74,6 +74,18 @@ const DEAD_JS_RULES = [
 // `directives: { ... }`; otherwise Vue can't resolve it and it silently no-ops.
 const BOOTSTRAP_DIRECTIVES = ['tooltip', 'toggle', 'modal', 'popover', 'visible', 'scrollspy'];
 
+// Built-in Vue directives (always resolvable) + the only app-global directive (i18n `t`).
+// Any OTHER v-<name> must be registered per-component or Vue silently drops it.
+const BUILTIN_DIRECTIVES = new Set([
+    'if', 'else', 'else-if', 'for', 'on', 'bind', 'model', 'slot',
+    'pre', 'cloak', 'once', 'memo', 'html', 'text', 'show', 't',
+]);
+// Custom directives known-unresolved and tracked as a SEPARATE follow-up, so the guard
+// stays green while the real fix is scoped. `hammer` (zoomer.vue pinch/rotate) needs a
+// Vue-3 gesture directive + a hammer runtime (only @types/vue2-hammer is installed) and
+// touch-device testing. REMOVE from here when fixed so a future regression is caught.
+const KNOWN_UNREGISTERED_TODO = new Set(['hammer']);
+
 // bootstrap-vue-next form controls emit `update:modelValue` / `input`, NOT `change`.
 // A `@change` handler on one silently never fires (this is the "washed out image"
 // class: the visibility checkbox's @change never re-ran normalizeOpacity). Matched
@@ -196,6 +208,32 @@ for (const file of walk(srcDir, [])) {
                 line: idx + 1,
                 token: `v-b-${dir}`,
                 fix: `v-b-${dir} used but not registered in this component's directives:{} — add \`'b-${dir}': vB${cap}\` (import from bootstrap-vue-next). Directives are per-component here, not global.`,
+                kind: 'directive',
+            });
+        }
+    }
+
+    // Generalized: ANY custom v-<name> directive (not a built-in, not bootstrap's v-b-*
+    // which is handled above, not an allow-listed known-TODO) must be registered in this
+    // file. This catches the whole "unresolved directive silently no-ops" class — e.g.
+    // v-hammer (dead touch gestures) — not just the bootstrap ones.
+    const dirUseRe = /(?:^|[\s"'<>])v-([a-z][a-z0-9-]*)(?=[\s.:=>"'/]|$)/g;
+    const seenDir = new Set();
+    let dm;
+    while ((dm = dirUseRe.exec(whole))) {
+        const name = dm[1];
+        if (BUILTIN_DIRECTIVES.has(name) || KNOWN_UNREGISTERED_TODO.has(name)) continue;
+        if (name.startsWith('b-') || seenDir.has(name)) continue; // v-b-* covered above
+        seenDir.add(name);
+        const cap = name.replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase());
+        const registered = new RegExp(`['"\\\`]${name}['"\\\`]|v${cap}\\b`).test(whole);
+        if (!registered) {
+            const idx = lines.findIndex((l) => new RegExp(`v-${name}(?=[\\s.:=>"'/]|$)`).test(l));
+            hits.push({
+                file: rel,
+                line: (idx < 0 ? 0 : idx) + 1,
+                token: `v-${name}`,
+                fix: `v-${name} used but not registered in this component's directives:{} (app registers directives per-component, not globally) → Vue can't resolve it and it silently no-ops.`,
                 kind: 'directive',
             });
         }

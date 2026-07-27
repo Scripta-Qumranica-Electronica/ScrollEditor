@@ -20,11 +20,11 @@
             <b-container fluid>
                 <p>The images are licensed under a Creative Commons Attribution-Non Commercial 4.0 International (CC BY-NC 4.0).
 https://creativecommons.org/licenses/by-nc/4.0/
-<break/>
+<br/>
 
 You are permitted to use images for non-commercial uses such as lectures, public presentations and other educational uses.  To license images for commercial uses such as reproduction, publications, displays, etc., please contact the Israel Antiquities Authority Visual Archive at VisualArchive@israntique.org.il.  
 
-<break/>
+<br/>
 For more information on licensing please contact us at contact@deadseascrolls.org.il</p>
                 <p>
                     Text © Reinhard G. Kratz
