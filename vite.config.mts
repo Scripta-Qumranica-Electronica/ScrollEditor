@@ -38,8 +38,12 @@ export default defineConfig(({ mode }) => {
             vue({
                 template: {
                     compilerOptions: {
-                        // Vue 2 compatibility mode (via @vue/compat). The per-component
-                        // migration phase will progressively remove the need for this.
+                        // MODE 2 (Vue-2 compat) is REQUIRED: vue-facing-decorator's class
+                        // components lose reactivity under MODE 3 (data updates stop
+                        // re-rendering — verified). Our own source is Vue-3-clean, so the
+                        // remaining compat deprecation warnings are shim noise; fully
+                        // removing @vue/compat is blocked on migrating off
+                        // vue-facing-decorator (98 components) — tracked separately.
                         compatConfig: { MODE: 2 },
                     },
                 },

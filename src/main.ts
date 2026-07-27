@@ -39,13 +39,14 @@ import { StateManager } from '@/state';
 // import VueVirtualScroller from 'vue-virtual-scroller';
 // import CKEditor from '@ckeditor/ckeditor5-vue';
 
-// Enable global Vue 2 compat behavior. Individual components can opt out as
-// they are migrated to the Vue 3 idioms.
-// MODE 2 = full Vue-2 compat, EXCEPT COMPONENT_V_MODEL: bootstrap-vue-next is a
-// native Vue-3 library and reads `modelValue`/`update:modelValue`. Leaving the
-// Vue-2 v-model compat on made `v-model` compile to `value`/`input`, so bvn
-// modals (and other bvn v-model bindings) never received their value and never
-// opened. Custom components were migrated to the `modelValue` convention.
+// MODE 2 (Vue-2 compat) is REQUIRED for now, NOT for our own source (which is
+// Vue-3-clean) but because vue-facing-decorator's class components lose
+// reactivity under MODE 3 — data updates stop triggering re-renders (verified:
+// the artefact editor rendered blank). COMPONENT_V_MODEL: false keeps v-model on
+// Vue-3 semantics (modelValue/update:modelValue) so bootstrap-vue-next works.
+// Fully removing @vue/compat is blocked on migrating off vue-facing-decorator
+// (98 components → <script setup> or an upgrade) — a separate project. The
+// residual compat deprecation warnings are harmless shim noise until then.
 configureCompat({ MODE: 2, COMPONENT_V_MODEL: false });
 
 const app = createApp(App);
