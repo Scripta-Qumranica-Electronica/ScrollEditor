@@ -175,7 +175,7 @@ describe('sign-attribute-pane', () => {
         const w = mountPane(state);
         // The b-dropdown `attributesMenu` ref does not register under @vue/compat
         // stubbed markup, so the final `.hide()` call throws — we assert the
-        // meaningful effects (ops + emit + keepOpen) that run before it.
+        // meaningful effects (ops + emit) that run before it.
         try {
             w.vm.onAddAttribute({ attributeId: 10, attributeName: 'sign_type' } as any, { id: 100, value: 'LETTER' } as any);
         } catch {
@@ -184,7 +184,6 @@ describe('sign-attribute-pane', () => {
         expect(attrOps.length).toBe(1);
         expect(opRedo).toHaveBeenCalledWith(true);
         expect(state.eventBus.emit).toHaveBeenCalledWith('new-bulk-operations', expect.any(Array));
-        expect(w.vm.keepOpen).toBe(false);
     });
 
     it('onDeleteAttribute creates ops and emits bulk', () => {
@@ -267,18 +266,8 @@ describe('sign-attribute-pane', () => {
         expect(result[0].values.map((v: any) => v.id)).toEqual([101]);
     });
 
-    it('menu keep-open handlers toggle keepOpen and honor preventDefault', () => {
-        const w = mountPane(makeState());
-        w.vm.onValuesMenuShow();
-        expect(w.vm.keepOpen).toBe(true);
-        const ev: any = { preventDefault: vi.fn() };
-        w.vm.onAttributesMenuHide(ev);
-        expect(ev.preventDefault).toHaveBeenCalled();
-
-        w.vm.onValuesMenuHide();
-        expect(w.vm.keepOpen).toBe(false);
-        const ev2: any = { preventDefault: vi.fn() };
-        w.vm.onAttributesMenuHide(ev2);
-        expect(ev2.preventDefault).not.toHaveBeenCalled();
-    });
+    // (Removed: the keepOpen / onValuesMenuShow/Hide / onAttributesMenuHide handlers
+    // were dead — bootstrap-vue-next's <b-dropdown> never emits show/hide, so those
+    // @show/@hide handlers never fired. The nested "Add attribute" submenu now relies
+    // on bootstrap-vue-next's native auto-close.)
 });

@@ -16,7 +16,6 @@
                     size="sm"
                     boundary="viewport"
                     no-caret
-                    @hide="onAttributesMenuHide($event)"
                 >
                     <template v-slot:button-content>
                         <i
@@ -32,8 +31,6 @@
                         boundary="viewport"
                         class="attribute-pane-dropdown-attr"
                         drop-end
-                        @show="onValuesMenuShow()"
-                        @hide="onValuesMenuHide()"
                     >
                         <template v-slot:button-content>
                             <span class="attr-name">{{
@@ -67,7 +64,6 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, toNative } from 'vue-facing-decorator';
-import type { BvTriggerableEvent } from 'bootstrap-vue-next';
 import { SignInterpretation } from '@/models/text';
 import {
     AttributeDTO,
@@ -93,7 +89,6 @@ import CommentComponent from '../comment/comment.vue';
 })
 class SignAttributePane extends Vue {
     public status: boolean = false;
-    public keepOpen = false;
     public attributesMenu: AttributeDTO[] = [];
 
     public get readOnly(): boolean {
@@ -213,7 +208,6 @@ class SignAttributePane extends Vue {
             ops.push(op);
         }
         this.$state.eventBus.emit('new-bulk-operations', ops);
-        this.keepOpen = false;
         (this.$refs.attributesMenu as any).hide();
     }
 
@@ -321,20 +315,7 @@ class SignAttributePane extends Vue {
         return filteredAttributes;
     }
 
-    public onValuesMenuShow() {
-        this.keepOpen = true;
-    }
 
-    public onValuesMenuHide() {
-        this.keepOpen = false;
-        // (this.$refs.attributesMenu as any).hide();
-    }
-
-    public onAttributesMenuHide(event: Event | BvTriggerableEvent) {
-        if (this.keepOpen) {
-            event.preventDefault();
-        }
-    }
 }
 export default toNative(SignAttributePane);
 </script>

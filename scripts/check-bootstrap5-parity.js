@@ -93,6 +93,11 @@ const KNOWN_UNREGISTERED_TODO = new Set([]);
 // plain native <input>/<select>.
 const FORM_CONTROL_CHANGE_RE = /<b-form-(?:checkbox|select|radio|input|textarea|spinbutton|checkbox-group|radio-group)\b[^>]*@change[.=]/;
 
+// bootstrap-vue-next's <b-dropdown> only emits `click` — the v2 open/close events
+// (show/hide/shown/hidden) are gone, so a handler on one silently never fires (this
+// is what broke the sign-attribute "Add attribute" nested-menu keepOpen workaround).
+const DROPDOWN_EVENT_RE = /<b-dropdown\b[^>]*@(?:show|hide|shown|hidden)[.=]/;
+
 // -------------------------------------------------------------------------------
 
 function walk(dir, out) {
@@ -190,6 +195,20 @@ for (const file of walk(srcDir, [])) {
                 line: lineNo,
                 token: m[0].replace(/\s+/g, ' ').slice(0, 60),
                 fix: 'bootstrap-vue-next form controls emit update:modelValue/input, NOT change → use @update:model-value',
+                kind: 'event',
+            });
+        }
+    }
+    {
+        const re = new RegExp(DROPDOWN_EVENT_RE.source, 'g');
+        let m;
+        while ((m = re.exec(whole))) {
+            const lineNo = whole.slice(0, m.index).split('\n').length;
+            hits.push({
+                file: rel,
+                line: lineNo,
+                token: m[0].replace(/\s+/g, ' ').slice(0, 60),
+                fix: 'bootstrap-vue-next <b-dropdown> only emits `click` — show/hide/shown/hidden events are dead. Track open state another way.',
                 kind: 'event',
             });
         }
