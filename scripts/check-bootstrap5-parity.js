@@ -81,10 +81,10 @@ const BUILTIN_DIRECTIVES = new Set([
     'pre', 'cloak', 'once', 'memo', 'html', 'text', 'show', 't',
 ]);
 // Custom directives known-unresolved and tracked as a SEPARATE follow-up, so the guard
-// stays green while the real fix is scoped. `hammer` (zoomer.vue pinch/rotate) needs a
-// Vue-3 gesture directive + a hammer runtime (only @types/vue2-hammer is installed) and
-// touch-device testing. REMOVE from here when fixed so a future regression is caught.
-const KNOWN_UNREGISTERED_TODO = new Set(['hammer']);
+// stays green while the real fix is scoped. (Empty — v-hammer was replaced by native
+// Pointer Events in zoomer.vue.) Add a name here only to defer a known-unregistered
+// directive; remove it when fixed so a future regression is caught.
+const KNOWN_UNREGISTERED_TODO = new Set([]);
 
 // bootstrap-vue-next form controls emit `update:modelValue` / `input`, NOT `change`.
 // A `@change` handler on one silently never fires (this is the "washed out image"

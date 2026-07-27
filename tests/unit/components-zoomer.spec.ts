@@ -8,10 +8,10 @@ import Zoomer from '@/components/misc/zoomer.vue';
 // crashes inside compat's SSR-optimized `renderSlot` ("Cannot read properties
 // of null (reading 'ce')") because `currentRenderingInstance` is null — a known
 // compat/decorator incompatibility unrelated to this component's logic. So we
-// exercise the component's own handlers (onWheel / applyZoom / onPinch /
-// onRotate — the ~17 uncovered lines) directly against the compiled options'
-// `methods`, with a mock `this` that supplies `zoom`, `zoomTarget` and spies on
-// the @Emit-generated `newZoom` / `newRotate`.
+// exercise the component's own handlers (onWheel / applyZoom and the pointer
+// pinch/rotate handlers) directly against the compiled options' `methods`, with
+// a mock `this` that supplies `zoom`, `angle`, the pointer state, `zoomTarget`
+// and spies on the @Emit-generated `newZoom` / `newRotate`.
 
 const methods = (Zoomer as any).methods as Record<string, (...a: any[]) => any>;
 
@@ -25,30 +25,39 @@ function makeTarget() {
     };
 }
 
-function makeCtx(zoom: number) {
+function makeCtx(zoom: number, angle = 0) {
     const target = makeTarget();
     const ctx: any = {
         zoom,
+        angle,
         degel: false,
         zoomTarget: target,
+        // Pointer-gesture instance state (class fields on the real component).
+        pointers: new Map<number, { x: number; y: number }>(),
+        gestureStartDist: 0,
+        gestureStartAngle: 0,
+        gestureStartRotation: 0,
+        lastDist: 0,
         // @Emit wrappers — spied so we can assert emitted values.
         newZoom: vi.fn((z: number) => ({ zoom: z })),
         newRotate: vi.fn((r: number) => ({ rotate: r })),
     };
     // Bind the real methods to the ctx so `this` resolves.
-    ctx.onWheel = methods.onWheel.bind(ctx);
-    ctx.applyZoom = methods.applyZoom.bind(ctx);
-    ctx.onPinch = methods.onPinch.bind(ctx);
-    ctx.onRotate = methods.onRotate.bind(ctx);
+    for (const m of ['onWheel', 'applyZoom', 'onPointerDown', 'onPointerMove', 'onPointerEnd', 'distance', 'lineAngle']) {
+        ctx[m] = methods[m].bind(ctx);
+    }
     return ctx;
 }
+
+const touch = (over: Record<string, unknown>) => ({ pointerType: 'touch', preventDefault: vi.fn(), ...over });
 
 describe('zoomer', () => {
     it('exposes the expected handler methods', () => {
         expect(typeof methods.onWheel).toBe('function');
         expect(typeof methods.applyZoom).toBe('function');
-        expect(typeof methods.onPinch).toBe('function');
-        expect(typeof methods.onRotate).toBe('function');
+        expect(typeof methods.onPointerDown).toBe('function');
+        expect(typeof methods.onPointerMove).toBe('function');
+        expect(typeof methods.onPointerEnd).toBe('function');
     });
 
     it('onWheel ignores events without ctrlKey (guard)', () => {
@@ -102,21 +111,43 @@ describe('zoomer', () => {
         expect(ctx.zoomTarget.scrollTop).toBeCloseTo(10);
     });
 
-    it('onPinch zooms out on pinchin', () => {
+    it('ignores mouse pointers (the wheel handles the mouse)', () => {
         const ctx = makeCtx(0.5);
-        ctx.onPinch({ additionalEvent: 'pinchin', center: { x: 5, y: 5 } });
-        expect(ctx.newZoom.mock.calls[0][0]).toBeCloseTo(0.49);
+        ctx.onPointerDown({ pointerType: 'mouse', pointerId: 1, clientX: 0, clientY: 0 });
+        expect(ctx.pointers.size).toBe(0);
     });
 
-    it('onPinch zooms in on pinchout', () => {
+    it('two-finger spread (pinch-out) zooms in', () => {
         const ctx = makeCtx(0.5);
-        ctx.onPinch({ additionalEvent: 'pinchout', center: { x: 5, y: 5 } });
-        expect(ctx.newZoom.mock.calls[0][0]).toBeCloseTo(0.51);
+        ctx.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
+        ctx.onPointerDown(touch({ pointerId: 2, clientX: 10, clientY: 0 })); // start dist 10
+        ctx.onPointerMove(touch({ pointerId: 2, clientX: 12, clientY: 0 })); // dist 12 -> zoom in
+        expect(ctx.newZoom).toHaveBeenCalled();
+        expect(ctx.newZoom.mock.calls[0][0]).toBeGreaterThan(0.5);
     });
 
-    it('onRotate emits the event angle', () => {
+    it('two-finger pinch (pinch-in) zooms out', () => {
         const ctx = makeCtx(0.5);
-        ctx.onRotate({ angle: 42 });
-        expect(ctx.newRotate).toHaveBeenCalledWith(42);
+        ctx.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
+        ctx.onPointerDown(touch({ pointerId: 2, clientX: 10, clientY: 0 }));
+        ctx.onPointerMove(touch({ pointerId: 2, clientX: 8, clientY: 0 })); // dist 8 -> zoom out
+        expect(ctx.newZoom.mock.calls[0][0]).toBeLessThan(0.5);
+    });
+
+    it('rotating the two-finger line emits the new absolute angle', () => {
+        const ctx = makeCtx(0.5, 30); // rotation starts at 30deg
+        ctx.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
+        ctx.onPointerDown(touch({ pointerId: 2, clientX: 10, clientY: 0 })); // line angle 0
+        ctx.onPointerMove(touch({ pointerId: 2, clientX: 0, clientY: 10 })); // line angle +90 -> 30+90
+        const calls = ctx.newRotate.mock.calls;
+        expect(calls[calls.length - 1][0]).toBeCloseTo(120);
+    });
+
+    it('a single pointer does nothing (needs two fingers)', () => {
+        const ctx = makeCtx(0.5);
+        ctx.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
+        ctx.onPointerMove(touch({ pointerId: 1, clientX: 50, clientY: 0 }));
+        expect(ctx.newZoom).not.toHaveBeenCalled();
+        expect(ctx.newRotate).not.toHaveBeenCalled();
     });
 });
