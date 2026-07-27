@@ -34,17 +34,15 @@
         "@types/jsts": "^0.17.2",
         "@types/mathjs": "^4.4.5",
         "@vue/compat": "^3.5.40",
-        "axios": "^0.21.1",
+        "axios": "^1.13.0",
         "bootstrap": "^5",
         "bootstrap-vue-next": "^0.45.8",
         "core-js": "^3.13.0",
-        "elliptic": "^6.5.4",
         "js-clipper": "^1.0.1",
         "jsts": "^2.1.0",
         "mathjs": "^15.2.0",
         "mitt": "^3.0.1",
         "pinia": "^4.0.2",
-        "url-parse": "^1.5.1",
         "uuid": "^14.0.1",
         "vue": "^3",
         "vue-facing-decorator": "^4.0.1",
@@ -54,8 +52,16 @@
         "vue-toasted": "^1.1.28",
         "vue-virtual-scroller": "^1.0.10",
         "wait-on": "^9.0.10",
-        "y18n": "^3.2.2",
-        "yarn": "^1.22.10"
+        "y18n": "^4.0.3"
+    },
+    "resolutions": {
+        "cross-spawn": "^7.0.6",
+        "ansi-regex": "^5.0.1",
+        "lodash": "^4.17.24",
+        "js-yaml": "^4.3.0",
+        "node-fetch": "^2.7.0",
+        "qs": "^6.15.2",
+        "bn.js": "^4.12.3"
     },
     "devDependencies": {
         "@babel/plugin-proposal-nullish-coalescing-operator": "^7.14.2",
