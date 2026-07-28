@@ -372,14 +372,15 @@ class Navbar extends Vue {
     }
 
     public get userName(): string | undefined {
-        if (this.$state.session.user) {
-            return (
-                this.$state.session.user.forename +
-                ' ' +
-                this.$state.session.user.surname
-            );
+        const user = this.$state.session.user;
+        if (!user) {
+            return undefined;
         }
-        return undefined;
+        // Build from whichever name parts exist; fall back to the email so a user
+        // with no forename/surname shows their email instead of the literal
+        // "null null" (`null + ' ' + null`).
+        const name = [user.forename, user.surname].filter(Boolean).join(' ').trim();
+        return name || user.email;
     }
 
     public get isActive(): boolean {
