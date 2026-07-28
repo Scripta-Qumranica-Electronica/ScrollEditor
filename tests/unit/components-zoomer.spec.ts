@@ -25,25 +25,21 @@ function makeTarget() {
     };
 }
 
-function makeCtx(zoom: number, angle = 0) {
+function makeCtx(zoom: number) {
     const target = makeTarget();
     const ctx: any = {
         zoom,
-        angle,
         degel: false,
         zoomTarget: target,
         // Pointer-gesture instance state (class fields on the real component).
         pointers: new Map<number, { x: number; y: number }>(),
         gestureStartDist: 0,
-        gestureStartAngle: 0,
-        gestureStartRotation: 0,
-        lastDist: 0,
-        // @Emit wrappers — spied so we can assert emitted values.
+        gestureStartZoom: 0,
+        // @Emit wrapper — spied so we can assert emitted values.
         newZoom: vi.fn((z: number) => ({ zoom: z })),
-        newRotate: vi.fn((r: number) => ({ rotate: r })),
     };
     // Bind the real methods to the ctx so `this` resolves.
-    for (const m of ['onWheel', 'applyZoom', 'onPointerDown', 'onPointerMove', 'onPointerEnd', 'distance', 'lineAngle']) {
+    for (const m of ['onWheel', 'applyZoom', 'onPointerDown', 'onPointerMove', 'onPointerEnd', 'distance']) {
         ctx[m] = methods[m].bind(ctx);
     }
     return ctx;
@@ -134,13 +130,29 @@ describe('zoomer', () => {
         expect(ctx.newZoom.mock.calls[0][0]).toBeLessThan(0.5);
     });
 
-    it('rotating the two-finger line emits the new absolute angle', () => {
-        const ctx = makeCtx(0.5, 30); // rotation starts at 30deg
+    it('pinch zoom is LINEAR — same finger-spread gives the same zoom delta at any zoom', () => {
+        // low zoom
+        const lo = makeCtx(0.1);
+        lo.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
+        lo.onPointerDown(touch({ pointerId: 2, clientX: 100, clientY: 0 }));
+        lo.onPointerMove(touch({ pointerId: 2, clientX: 150, clientY: 0 })); // +50px spread
+        const loDelta = lo.newZoom.mock.calls[0][0] - 0.1;
+        // high zoom, same +50px spread
+        const hi = makeCtx(0.8);
+        hi.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
+        hi.onPointerDown(touch({ pointerId: 2, clientX: 100, clientY: 0 }));
+        hi.onPointerMove(touch({ pointerId: 2, clientX: 150, clientY: 0 })); // +50px spread
+        const hiDelta = hi.newZoom.mock.calls[0][0] - 0.8;
+        expect(loDelta).toBeCloseTo(hiDelta, 6); // uniform, not scaled by current zoom
+        expect(loDelta).toBeCloseTo(50 * 0.004, 6);
+    });
+
+    it('100% is reachable — a large spread saturates to 1', () => {
+        const ctx = makeCtx(0.5);
         ctx.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
-        ctx.onPointerDown(touch({ pointerId: 2, clientX: 10, clientY: 0 })); // line angle 0
-        ctx.onPointerMove(touch({ pointerId: 2, clientX: 0, clientY: 10 })); // line angle +90 -> 30+90
-        const calls = ctx.newRotate.mock.calls;
-        expect(calls[calls.length - 1][0]).toBeCloseTo(120);
+        ctx.onPointerDown(touch({ pointerId: 2, clientX: 100, clientY: 0 }));
+        ctx.onPointerMove(touch({ pointerId: 2, clientX: 500, clientY: 0 })); // +400px -> +1.6, clamps
+        expect(ctx.newZoom.mock.calls[0][0]).toBe(1);
     });
 
     it('a single pointer does nothing (needs two fingers)', () => {
@@ -148,6 +160,5 @@ describe('zoomer', () => {
         ctx.onPointerDown(touch({ pointerId: 1, clientX: 0, clientY: 0 }));
         ctx.onPointerMove(touch({ pointerId: 1, clientX: 50, clientY: 0 }));
         expect(ctx.newZoom).not.toHaveBeenCalled();
-        expect(ctx.newRotate).not.toHaveBeenCalled();
     });
 });

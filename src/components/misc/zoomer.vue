@@ -22,17 +22,27 @@
  * The zoomer component should be placed right inside the div with the scrollbars. Zooming occurs on the zoomer's
  * parent element.
  *
- * Touch gestures are implemented with native Pointer Events (no dependency). The old
+ * Touch pinch-zoom is implemented with native Pointer Events (no dependency). The old
  * vue2-hammer `v-hammer:pinch/:rotate` directive was dead under Vue 3 (Vue-2 plugin,
  * and only @types/vue2-hammer was ever installed — no runtime).
  */
 import { Component, Prop, Vue, Emit, toNative } from 'vue-facing-decorator';
 import { Point } from '@/utils/helpers';
 
+// Pinch sensitivity: how much zoom changes per pixel of finger-spread change. The map
+// is LINEAR and absolute from the gesture's start (target = startZoom + Δspread * this),
+// so the feel is uniform across the whole 0.05..1 range and 100% is always reachable —
+// unlike a multiplicative map, whose step scales with the current zoom (fast/near-min,
+// crawling/near-max). ~250px of spread covers the full range.
+const PINCH_ZOOM_PER_PX = 0.004;
+
 export interface ZoomEventArgs {
     zoom: number;
 }
 
+// Kept for the artefact editor's @new-rotate hook. Pinch-rotate is currently not
+// emitted (it interfered with pinch-zoom and wasn't needed); rotation is driven by
+// the rotate toolbar. Re-add a two-finger rotate emit here if that changes.
 export interface RotateEventArgs {
     rotate: number;
 }
@@ -47,20 +57,13 @@ class Zoomer extends Vue {
 
     // Active touch/pen pointers on the zoomer, keyed by pointerId.
     private pointers = new Map<number, Point>();
-    // Two-finger gesture baseline, captured when the second pointer lands.
+    // Two-finger pinch baseline, captured when the second pointer lands.
     private gestureStartDist = 0;
-    private gestureStartAngle = 0;   // angle (deg) of the line between the two pointers
-    private gestureStartRotation = 0; // this.angle prop at gesture start
-    private lastDist = 0;
+    private gestureStartZoom = 0; // this.zoom at gesture start
 
     @Emit()
     public newZoom(zoom: number): ZoomEventArgs {
         return { zoom };
-    }
-
-    @Emit()
-    public newRotate(rotate: number): RotateEventArgs {
-        return { rotate };
     }
     public onWheel(event: WheelEvent) {
         if (!event.ctrlKey) {
@@ -108,7 +111,7 @@ class Zoomer extends Vue {
         this.zoomTarget.scrollTop += scrollDelta.y;
     }
 
-    // --- Two-finger pinch (zoom) + rotate, via Pointer Events -------------------
+    // --- Two-finger pinch-zoom, via Pointer Events ------------------------------
     public onPointerDown(event: PointerEvent) {
         if (event.pointerType === 'mouse') {
             return; // mouse zoom is handled by the wheel
@@ -116,9 +119,8 @@ class Zoomer extends Vue {
         this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
         if (this.pointers.size === 2) {
             const [a, b] = [...this.pointers.values()];
-            this.gestureStartDist = this.lastDist = this.distance(a, b);
-            this.gestureStartAngle = this.lineAngle(a, b);
-            this.gestureStartRotation = this.angle;
+            this.gestureStartDist = this.distance(a, b);
+            this.gestureStartZoom = this.zoom;
         }
     }
 
@@ -127,7 +129,7 @@ class Zoomer extends Vue {
             return;
         }
         this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-        if (this.pointers.size !== 2) {
+        if (this.pointers.size !== 2 || this.gestureStartDist <= 0) {
             return;
         }
         event.preventDefault();
@@ -135,9 +137,14 @@ class Zoomer extends Vue {
         const dist = this.distance(a, b);
         const center: Point = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 
-        // Pinch -> multiplicative zoom about the pinch center, keeping it in place.
-        if (this.lastDist > 0 && dist > 0) {
-            const amount = this.zoom * (dist / this.lastDist - 1);
+        // Linear, absolute from the gesture start: the target zoom is the start zoom
+        // plus the finger-spread change scaled by a constant. Uniform feel across the
+        // range and 100% is always reachable. applyZoom does the clamp + keep the pinch
+        // centre in place; feeding it (target - current) makes the result converge to
+        // `target` regardless of any async lag in the `zoom` prop.
+        const target = this.gestureStartZoom + (dist - this.gestureStartDist) * PINCH_ZOOM_PER_PX;
+        const amount = Math.min(Math.max(target, 0.05), 1) - this.zoom;
+        if (amount !== 0) {
             const viewport = this.zoomTarget.getBoundingClientRect();
             const position: Point = {
                 x: center.x - viewport.left + this.zoomTarget.scrollLeft,
@@ -145,28 +152,17 @@ class Zoomer extends Vue {
             };
             this.applyZoom(amount, position);
         }
-        this.lastDist = dist;
-
-        // Rotate -> absolute angle = rotation at gesture start + finger-line delta.
-        let delta = this.lineAngle(a, b) - this.gestureStartAngle;
-        if (delta > 180) { delta -= 360; }
-        if (delta < -180) { delta += 360; }
-        this.newRotate(this.gestureStartRotation + delta);
     }
 
     public onPointerEnd(event: PointerEvent) {
         this.pointers.delete(event.pointerId);
         if (this.pointers.size < 2) {
-            this.lastDist = 0;
+            this.gestureStartDist = 0;
         }
     }
 
     private distance(a: Point, b: Point): number {
         return Math.hypot(b.x - a.x, b.y - a.y);
-    }
-
-    private lineAngle(a: Point, b: Point): number {
-        return (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
     }
 
     public get zoomTarget(): Element {
@@ -179,7 +175,7 @@ export default toNative(Zoomer);
 <style lang="scss" scoped>
 .zoomer {
     // Let the browser keep single-finger panning of the scroll parent, but route
-    // two-finger pinch/rotate to our pointer handlers instead of native page zoom.
+    // two-finger pinch to our pointer handlers instead of native page zoom.
     touch-action: pan-x pan-y;
 }
 </style>
