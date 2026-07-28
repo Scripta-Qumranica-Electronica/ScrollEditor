@@ -80,12 +80,12 @@ describe('imaged-objects', () => {
     it('renders a card per imaged object', async () => {
         const { w } = mountView([io(), io({ id: 'IO-2' })]);
         await w.vm.$nextTick();
-        expect(w.element.querySelectorAll('imaged-object-card').length).toBe(2);
+        expect(w.element.querySelectorAll('imaged-object-card-stub').length).toBe(2);
     });
 
     it('the search-bar @search event triggers filtering', async () => {
         const { w } = mountView([io({ name: 'Genesis' }), io({ id: 'x', name: 'Exodus' })]);
-        await w.find('search-bar').trigger('search', { filter: 'gen' } as any);
+        await w.find('search-bar-stub').trigger('search', { filter: 'gen' } as any);
         // event payload carries no detail here; verify the handler ran via a direct call too
         w.vm.onImagedObjectsSearch({ filter: 'gen' } as any);
         expect(w.vm.filteredImagedObjects.map((i: any) => i.name)).toEqual(['Genesis']);

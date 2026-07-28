@@ -3,8 +3,7 @@
             :title="title"
             :disabled="disabled"
             :pressed="pressed"
-            v-bind="$attrs"
-            v-on="listeners">
+            v-bind="$attrs">
         <font-awesome-icon v-if="icon" :icon="icon" />
         <span :class="classes">{{ title }}</span>
     </b-button>
@@ -29,16 +28,9 @@ class ToolbarIconButton extends Vue {
         return this.$refs.button;
     }
 
-    // Under @vue/compat MODE 2, a parent's `@click` (and other native listeners) on
-    // this component arrive via Vue-2-style `$listeners`, NOT `$attrs`. With
-    // inheritAttrs:false we forward `$attrs` to the inner <b-button>, but that alone
-    // drops the listeners — so every toolbar icon button's click was silently dead.
-    // Forward `$listeners` too. (Post-compat, listeners live in $attrs and this is an
-    // empty/undefined bind — harmless.)
-    public get listeners(): Record<string, unknown> {
-        return (this as unknown as { $listeners?: Record<string, unknown> }).$listeners ?? {};
-    }
-
+    // In Vue 3, native listeners (@click, ...) arrive via $attrs — already forwarded to
+    // the inner <b-button> by `v-bind="$attrs"` above (inheritAttrs:false). No separate
+    // $listeners forwarding needed (that Vue-2 API is gone).
     public get classes() {
         const classes = ['button-text'];
         if (!this.showText) {

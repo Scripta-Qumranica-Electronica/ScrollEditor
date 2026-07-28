@@ -37,7 +37,7 @@ describe('search main', () => {
 
     it('the search-form @search event runs onSearch', async () => {
         const w = mountMain();
-        await w.find('search-form').trigger('search');
+        await w.find('search-form-stub').trigger('search');
         expect(search).toHaveBeenCalled();
     });
 

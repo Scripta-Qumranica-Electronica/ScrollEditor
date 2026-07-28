@@ -30,7 +30,7 @@ describe('text-fragment-results', () => {
             { id: 2, name: 'col.2', editionId: 6, editionName: 'Exodus' },
         ];
         const w = mountResults(tfs);
-        expect(w.element.querySelectorAll('b-card').length).toBe(2);
+        expect(w.element.querySelectorAll('b-card-stub').length).toBe(2);
         expect(w.text()).toContain('col.1 in Genesis');
         expect(w.text()).toContain('col.2 in Exodus');
     });

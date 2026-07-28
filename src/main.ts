@@ -1,9 +1,4 @@
 import { createApp } from 'vue';
-// `configureCompat` is provided by @vue/compat at runtime (via the vite alias
-// vue -> @vue/compat). @vue/compat ships no types and `vue` does not re-export
-// this symbol, so its declaration is provided via a local ambient shim
-// (see src/globals.d.ts).
-import { configureCompat } from '@vue/compat';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
@@ -39,15 +34,9 @@ import { StateManager } from '@/state';
 // import VueVirtualScroller from 'vue-virtual-scroller';
 // import CKEditor from '@ckeditor/ckeditor5-vue';
 
-// MODE 2 (Vue-2 compat) is REQUIRED for now, NOT for our own source (which is
-// Vue-3-clean) but because vue-facing-decorator's class components lose
-// reactivity under MODE 3 — data updates stop triggering re-renders (verified:
-// the artefact editor rendered blank). COMPONENT_V_MODEL: false keeps v-model on
-// Vue-3 semantics (modelValue/update:modelValue) so bootstrap-vue-next works.
-// Fully removing @vue/compat is blocked on migrating off vue-facing-decorator
-// (98 components → <script setup> or an upgrade) — a separate project. The
-// residual compat deprecation warnings are harmless shim noise until then.
-configureCompat({ MODE: 2, COMPONENT_V_MODEL: false });
+// @vue/compat removed: the app now runs on real Vue 3. Our source is Vue-3-clean
+// and vue-facing-decorator v4 is Vue-3-native. (The earlier MODE-3 reactivity break
+// was a @vue/compat-build quirk, not a real-Vue-3 problem — using real `vue` avoids it.)
 
 const app = createApp(App);
 

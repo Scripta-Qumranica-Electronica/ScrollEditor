@@ -105,7 +105,7 @@ describe('public-editions', () => {
     it('show-copy-modal from the list opens the copy modal', async () => {
         const { w } = mountPub([ed()]);
         expect(w.vm.showCopyModal).toBe(false);
-        await w.find('editions-public-list').trigger('show-copy-modal');
+        await w.find('editions-public-list-stub').trigger('show-copy-modal');
         expect(w.vm.showCopyModal).toBe(true);
     });
 

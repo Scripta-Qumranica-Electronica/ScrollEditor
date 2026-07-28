@@ -34,12 +34,12 @@ describe('edition-public-row', () => {
 
     it('renders one card per row edition', () => {
         const { w } = mountRow(makeEditions(4), 0);
-        expect(w.element.querySelectorAll('edition-public-card').length).toBe(4);
+        expect(w.element.querySelectorAll('edition-public-card-stub').length).toBe(4);
     });
 
     it('the card edition-copy-click listener triggers editionCopyClick', async () => {
         const { w, state } = mountRow(makeEditions(4), 0);
-        const cards = w.findAll('edition-public-card');
+        const cards = w.findAll('edition-public-card-stub');
         await cards[2].trigger('edition-copy-click');
         expect(state.editions.current).toBe(w.vm.rowEditions[2]);
         const emitted = w.emitted();

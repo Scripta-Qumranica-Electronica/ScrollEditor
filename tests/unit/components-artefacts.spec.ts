@@ -93,13 +93,13 @@ describe('artefacts', () => {
     it('containerRef reads the scroll container ref', async () => {
         const { w } = mountView([art()]);
         await flush();
-        // $refs is not populated on this compat mount; the getter still executes.
-        expect(w.vm.containerRef).toBeUndefined();
+        // On real Vue 3 the ref is populated; the getter returns the scroll container element.
+        expect(w.vm.containerRef).toBe(w.find('.scroll-bar').element);
     });
 
     it('the search-bar @search event runs onArtefactsSearch', async () => {
         const { w } = mountView([art({ id: 1, side: 'recto' }), art({ id: 2, side: 'verso' })]);
-        await w.find('search-bar').trigger('search');
+        await w.find('search-bar-stub').trigger('search');
         // event carries no payload here; assert the handler path is wired by calling it too
         w.vm.onArtefactsSearch({ side: 'verso' } as any);
         expect(w.vm.filteredArtefacts.map((a: any) => a.id)).toEqual([2]);
@@ -108,6 +108,6 @@ describe('artefacts', () => {
     it('renders a card per sorted fragment', async () => {
         const { w } = mountView([art({ id: 1 }), art({ id: 2, name: 'C' })]);
         await flush();
-        expect(w.element.querySelectorAll('artefact-card').length).toBe(2);
+        expect(w.element.querySelectorAll('artefact-card-stub').length).toBe(2);
     });
 });

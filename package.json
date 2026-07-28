@@ -33,7 +33,6 @@
         "@types/js-clipper": "^0.0.28",
         "@types/jsts": "^0.17.2",
         "@types/mathjs": "^4.4.5",
-        "@vue/compat": "^3.5.40",
         "axios": "^1.13.0",
         "bootstrap": "^5",
         "bootstrap-vue-next": "^0.45.8",

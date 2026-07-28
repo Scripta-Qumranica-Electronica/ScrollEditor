@@ -37,7 +37,7 @@ describe('edition-list', () => {
     it('renders the title and a card per edition', () => {
         const { w } = mountList(makeEditions(3));
         expect(w.text()).toContain('My editions');
-        expect(w.element.querySelectorAll('edition-card').length).toBe(3);
+        expect(w.element.querySelectorAll('edition-card-stub').length).toBe(3);
     });
 
     it('renders no cards when the list is empty', () => {
@@ -56,7 +56,7 @@ describe('edition-list', () => {
 
     it('the card edition-copy-click listener opens the modal', async () => {
         const { w, state } = mountList(makeEditions(2));
-        const cards = w.findAll('edition-card');
+        const cards = w.findAll('edition-card-stub');
         await cards[0].trigger('edition-copy-click');
         expect(state.editions.current.id).toBe(1);
         expect(w.vm.copyModalVisible).toBe(true);

@@ -62,7 +62,7 @@ describe('edition-results', () => {
         for (let i = 1; i <= 30; i++) { byId[i] = { id: i, name: `E${i}` }; dtos.push({ id: i }); }
         const { w } = mountResults(dtos, byId);
         await flush();
-        expect(w.element.querySelectorAll('edition-card').length).toBe(24);
+        expect(w.element.querySelectorAll('edition-card-stub').length).toBe(24);
         expect(w.text()).toContain('Showing the first 24 of 30');
     });
 

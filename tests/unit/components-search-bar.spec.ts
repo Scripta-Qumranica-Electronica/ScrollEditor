@@ -53,9 +53,9 @@ describe('search-bar', () => {
 
     it('renders only the enabled control groups', () => {
         const filterOnly = mountBar({ filter: true, side: false, sort: false });
-        expect(filterOnly.element.querySelectorAll('b-form-group').length).toBe(1);
+        expect(filterOnly.element.querySelectorAll('b-form-group-stub').length).toBe(1);
         const all = mountBar({ filter: true, side: true, sort: true });
-        expect(all.element.querySelectorAll('b-form-group').length).toBe(3);
+        expect(all.element.querySelectorAll('b-form-group-stub').length).toBe(3);
     });
 
     it('defaults params when none is provided', () => {

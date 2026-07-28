@@ -81,7 +81,7 @@ describe('edition-public-list', () => {
 
     it('emits show-copy-modal upward from a row', async () => {
         const w = mountList(makeEditions(4));
-        const row = w.findAll('edition-public-row');
+        const row = w.findAll('edition-public-row-stub');
         expect(row.length).toBeGreaterThan(0);
         await row[0].trigger('show-copy-modal');
         expect(w.emitted('show-copy-modal')).toBeTruthy();

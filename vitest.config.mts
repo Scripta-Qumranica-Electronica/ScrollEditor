@@ -3,16 +3,15 @@ import vue from '@vitejs/plugin-vue';
 import path from 'path';
 
 // Vitest config for fast unit/component tests. Kept separate from vite.config.mts
-// so the app build/dev config stays clean. Uses the same @/ alias and the Vue-3
-// compat build the app runs on.
+// so the app build/dev config stays clean. Runs on real Vue 3 (no @vue/compat),
+// matching the app.
 export default defineConfig({
     plugins: [
-        vue({ template: { compilerOptions: { compatConfig: { MODE: 2 } } } }),
+        vue(),
     ],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
-            vue: '@vue/compat',
         },
     },
     define: {
@@ -25,6 +24,7 @@ export default defineConfig({
     test: {
         environment: 'happy-dom',
         globals: true,
+        setupFiles: ['tests/unit/setup.ts'],
         include: ['tests/unit/**/*.spec.ts'],
         // The app imports js-clipper (CJS/latin1); exclude heavy e2e dirs.
         exclude: ['node_modules', 'tests/e2e/**'],

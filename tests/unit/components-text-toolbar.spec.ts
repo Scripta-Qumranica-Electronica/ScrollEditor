@@ -32,19 +32,19 @@ describe('text-toolbar', () => {
 
     it('renders the sign-attribute pane when NOT editing recon text', () => {
         const w = mountToolbar(makeState({ showEditReconTextBar: false }));
-        expect(w.find('sign-attribute-pane').exists()).toBe(true);
-        expect(w.find('edit-virtual-artefact-text-pane').exists()).toBe(false);
+        expect(w.find('sign-attribute-pane-stub').exists()).toBe(true);
+        expect(w.find('edit-virtual-artefact-text-pane-stub').exists()).toBe(false);
     });
 
     it('renders the virtual-artefact text pane while editing recon text', () => {
         const w = mountToolbar(makeState({ showEditReconTextBar: true }));
-        expect(w.find('edit-virtual-artefact-text-pane').exists()).toBe(true);
-        expect(w.find('sign-attribute-pane').exists()).toBe(false);
+        expect(w.find('edit-virtual-artefact-text-pane-stub').exists()).toBe(true);
+        expect(w.find('sign-attribute-pane-stub').exists()).toBe(false);
     });
 
     it('renders the text-fragment when one is selected', () => {
         const w = mountToolbar(makeState({ textFragment: { id: 1 } }));
-        expect(w.find('text-fragment').exists()).toBe(true);
+        expect(w.find('text-fragment-stub').exists()).toBe(true);
     });
 
     it('onVirtualTextClose hides the bar and emits text-changed when the text changed', () => {

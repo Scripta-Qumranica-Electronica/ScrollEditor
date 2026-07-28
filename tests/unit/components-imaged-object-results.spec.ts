@@ -74,7 +74,7 @@ describe('imaged-object-results', () => {
         const byId = { 1: { id: 1, name: 'Ed A' } };
         const ios = [{ id: 'IO-1', editionIds: [1], rectoThumbnail: 'http://img/r' }];
         const { w } = mountResults(ios, byId);
-        expect(w.element.querySelectorAll('b-card').length).toBe(1);
+        expect(w.element.querySelectorAll('b-card-stub').length).toBe(1);
         expect(w.text()).toContain('IO-1');
         expect(w.text()).toContain('Ed A');
         expect(w.find('img.card-img').attributes('src')).toBe('http://img/r');
