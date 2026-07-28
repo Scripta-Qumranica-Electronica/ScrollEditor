@@ -538,20 +538,26 @@ class ArtefactEditor
         return this.masterImage.height;
     }
 
+    // During the first frames after mount the bounding box / zoom aren't computed yet, so
+    // these products can be NaN/Infinity. Feeding those to the SVG width/height/viewBox
+    // makes the browser reject the attributes ("Expected length, NaN") and log an error.
+    // Clamp to a finite value (0 = an invisible SVG for that transient frame).
+    private finite(n: number): number {
+        return Number.isFinite(n) ? n : 0;
+    }
+
     public get actualWidth(): number {
-        return this.boundingBox.width * this.zoomLevel;
+        return this.finite(this.boundingBox.width * this.zoomLevel);
     }
 
     public get actualHeight(): number {
-        return this.boundingBox.height * this.zoomLevel;
+        return this.finite(this.boundingBox.height * this.zoomLevel);
     }
 
     public get actualBoundingBox(): string {
-        return (
-            `${this.boundingBox.x * this.zoomLevel} ${
-                this.boundingBox.y * this.zoomLevel
-            } ` + `${this.actualWidth} ${this.actualHeight}`
-        );
+        const x = this.finite(this.boundingBox.x * this.zoomLevel);
+        const y = this.finite(this.boundingBox.y * this.zoomLevel);
+        return `${x} ${y} ${this.actualWidth} ${this.actualHeight}`;
     }
 
     public get isDrawingEnabled() {
@@ -728,8 +734,10 @@ class ArtefactEditor
     }
 
     public get transform(): string {
-        const zoom = `scale(${this.zoomLevel})`;
-        const rotate = `rotate(${this.rotationAngle}  ${this.boundingBoxCenter.x}  ${this.boundingBoxCenter.y})`;
+        // Guard against non-finite values before layout settles (scale(Infinity) / rotate(NaN …)
+        // make the SVG transform invalid and log a console error).
+        const zoom = `scale(${this.finite(this.zoomLevel)})`;
+        const rotate = `rotate(${this.finite(this.rotationAngle)}  ${this.finite(this.boundingBoxCenter.x)}  ${this.finite(this.boundingBoxCenter.y)})`;
 
         return `${zoom} ${rotate}`;
     }

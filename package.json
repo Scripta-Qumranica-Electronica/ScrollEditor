@@ -73,6 +73,7 @@
         "@vue/test-utils": "^2.4.11",
         "cross-env": "^7.0.3",
         "cypress": "14.5.4",
+        "fast-check": "^4.9.0",
         "happy-dom": "^20.11.1",
         "mailslurp-client": "^12.0.0",
         "nyc": "^18.0.0",
