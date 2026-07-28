@@ -99,8 +99,8 @@
                         selectedRow: art.id === artefact?.id,
                     }"
                 >
-                    <b-row class="py-2">
-                        <b-col class="col-2 col-xl-3 col-lg-2 ps-4 pt-1">
+                    <b-row class="py-2 align-items-center">
+                        <b-col class="col-2 col-xl-3 col-lg-2 ps-4">
                             <span
                                 v-if="renameInputActive !== art"
                                 :class="{
@@ -803,7 +803,10 @@ span.selected {
     border: solid 3px;
     height: 16px;
     width: 100%;
-    display: inline-block;
+    // block (not inline-block) so there is no inline line-box leading pushing the
+    // colour swatch off the row's vertical centre (the column is centred via
+    // align-items-center on the .row).
+    display: block;
     margin-right: 4px;
     cursor: pointer;
 }
