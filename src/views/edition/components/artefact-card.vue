@@ -7,24 +7,29 @@
                     maxWidth="150"></artefact-image></span>
             <img class="place-holder" v-if="artefact && !observed" src="@/assets/images/rings.svg" />
             <label class="side-edition">{{ artefact.name }} - {{ artefact.side }}</label>
-            <b-popover custom-class="popover-sign-body" :target="'popover-line-' + artefact.id"
-                v-model="lineMenuVisible" manual @shown="focusRenameInput()">
-                <div class="character-popover"  ref="lineMenu">
-                 <b>
-                    Rename this artefact
-                 </b>
-                    <input ref="newArtefactName" id="newName" v-model="newArtefactName" type="text" required
-                        :placeholder="$t('home.newArtefactName')" />
-                    <div>
-                        <b-button @click="renameArtefact()" size="sm">
-                            Rename
-                        </b-button>
-                        <b-button @click="closeLineMenu()" size="sm">Close</b-button>
-                    </div>
-
-                </div>
-            </b-popover>
         </router-link>
+        <!-- The rename popover lives OUTSIDE the <router-link> (it anchors to the span by its
+             target id, so nesting isn't needed). bootstrap-vue-next renders the popover in
+             place rather than teleporting it to <body> as old bootstrap-vue did; if it stayed
+             inside the link, clicking Rename/Close bubbled to the link and navigated to the
+             artefact editor instead of renaming in place. -->
+        <b-popover custom-class="popover-sign-body" :target="'popover-line-' + artefact.id"
+            v-model="lineMenuVisible" manual @shown="focusRenameInput()">
+            <div class="character-popover"  ref="lineMenu">
+             <b>
+                Rename this artefact
+             </b>
+                <input ref="newArtefactName" id="newName" v-model="newArtefactName" type="text" required
+                    :placeholder="$t('home.newArtefactName')" />
+                <div>
+                    <b-button @click="renameArtefact()" size="sm">
+                        Rename
+                    </b-button>
+                    <b-button @click="closeLineMenu()" size="sm">Close</b-button>
+                </div>
+
+            </div>
+        </b-popover>
     </div>
 </template>
 
