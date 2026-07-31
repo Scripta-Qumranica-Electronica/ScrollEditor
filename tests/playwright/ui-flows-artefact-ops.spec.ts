@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext, API } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext, API } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // UI flows for artefact-editor operations that don't depend on the IIIF image canvas:
@@ -50,6 +50,7 @@ test('FLOW: artefact editor rotate changes the rotation angle', async ({ browser
     await page.getByTitle('Right Rotate', { exact: true }).click();
     await expect.poll(async () => (await rotationAngle(page))!, { timeout: 5_000 }).not.toBe(before);
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
 
@@ -109,5 +110,6 @@ test('FLOW: undo and redo an ROI creation reverses and replays it', async ({ bro
         await expect.poll(async () => roiCount(page), { timeout: 10_000 }).toBe(before + 1);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

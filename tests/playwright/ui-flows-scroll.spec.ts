@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext, API } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext, API } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // UI flow for the SCROLL editor: select a placed artefact on the canvas, then move and rotate
@@ -84,5 +84,6 @@ test('FLOW: scroll editor — select a placed artefact, move it up and rotate it
             .not.toBe(before!.rotate);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

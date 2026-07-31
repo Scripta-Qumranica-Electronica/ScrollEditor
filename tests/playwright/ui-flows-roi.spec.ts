@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext, API } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext, API } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // UI flow for the signature scholarly manipulation: creating a Region Of Interest that maps a
@@ -108,6 +108,7 @@ test('FLOW: create a box ROI mapping a selected sign onto the artefact', async (
         expect(result.signHasRoi).toBe(true);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
 
@@ -136,5 +137,6 @@ test('FLOW: marking a sign Reconstructed changes its attribute and disables draw
         await expect(boxBtn).toBeDisabled({ timeout: 10_000 });
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

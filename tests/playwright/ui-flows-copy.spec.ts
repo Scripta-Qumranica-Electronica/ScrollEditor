@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext } from './fixtures';
 
 // UI flow for COPYING an edition: from the home edition list, open a card's copy dialog, name
 // the copy, confirm, and land in the newly-created edition. Real clicks/typing; the assertion
@@ -50,5 +50,6 @@ test('FLOW: copy an edition from the home list into a new edition', async ({ bro
         expect(ed.primary?.name ?? ed.name).toBe(copyName);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

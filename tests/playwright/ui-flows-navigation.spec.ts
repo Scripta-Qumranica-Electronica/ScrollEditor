@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext } from './fixtures';
 
 // UI flows for navigation/discovery: browsing an edition and searching. Real interactions,
 // visible-state assertions, named steps.
@@ -41,6 +41,7 @@ test('FLOW: browse an edition — tab counts, switch tabs, open an artefact', as
         await expect(page.locator('#popover-adjust')).toBeVisible({ timeout: 40_000 });
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
 
@@ -77,5 +78,6 @@ test('FLOW: search for a manuscript, expand the results, open an edition', async
         await expect(page).toHaveURL(/\/editions\/\d+/);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

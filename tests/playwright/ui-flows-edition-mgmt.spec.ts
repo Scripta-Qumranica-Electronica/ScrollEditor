@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext, API } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext, API } from './fixtures';
 
 // UI flows for EDITION MANAGEMENT from the edition overview: viewing manuscript metadata and
 // deleting an edition (a real destructive operation with a typed confirmation). Real clicks/
@@ -26,6 +26,7 @@ test('FLOW: open the Manuscript Information (metadata) modal', async ({ browser 
         await expect(page.locator('#editionMetadataModal')).toBeVisible({ timeout: 10_000 });
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
 
@@ -61,5 +62,6 @@ test('FLOW: delete an edition with typed confirmation removes it', async ({ brow
         }, { timeout: 15_000 }).toBeGreaterThanOrEqual(400);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

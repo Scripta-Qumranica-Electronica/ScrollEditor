@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext, API } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext, API } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // More SCROLL-editor manipulation flows: mirror, resize (scale), and keyboard-driven move/rotate.
@@ -51,6 +51,7 @@ test('FLOW: scroll editor Mirror flips the selected artefact', async ({ browser 
     await page.getByTitle('Mirror', { exact: true }).click();
     await expect.poll(async () => (await placement(page))!.mirrored, { timeout: 10_000 }).toBe(!before);
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
 
@@ -73,6 +74,7 @@ test('FLOW: scroll editor Resize (scale) then Reset the selected artefact', asyn
         await expect.poll(async () => (await placement(page))!.scale, { timeout: 10_000 }).toBe(1);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
 
@@ -97,5 +99,6 @@ test('FLOW: scroll editor arrow keys move and "<" rotates the selected artefact'
         await expect.poll(async () => (await placement(page))!.rotate, { timeout: 10_000 }).not.toBe(before);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

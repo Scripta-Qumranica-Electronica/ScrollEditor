@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext, API } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext, API } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // UI flow for the IMAGED-OBJECT editor artefact panel: the create → delete lifecycle of an
@@ -62,5 +62,6 @@ test('FLOW: imaged-object editor — create then delete an artefact', async ({ b
         await expect.poll(async () => (await serverArtefactNames(page, ed)).includes(created), { timeout: 15_000 }).toBe(false);
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

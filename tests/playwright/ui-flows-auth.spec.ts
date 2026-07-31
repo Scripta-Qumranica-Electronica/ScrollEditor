@@ -1,4 +1,4 @@
-import { test, expect, TEST_USER } from './fixtures';
+import { test, expect, collectCoverage, TEST_USER } from './fixtures';
 
 // UI flow for AUTHENTICATION: a logged-out visitor opens the user menu, logs in through the
 // real login modal, and the navbar reflects the logged-in session; then logs out and the
@@ -54,5 +54,6 @@ test('FLOW: log in through the navbar modal, then log out', async ({ browser }) 
         await expect(loginItem).toBeVisible({ timeout: 10_000 });
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });

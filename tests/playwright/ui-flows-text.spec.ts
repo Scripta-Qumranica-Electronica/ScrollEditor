@@ -1,4 +1,4 @@
-import { test, expect, loginToken, authedContext, API } from './fixtures';
+import { test, expect, collectCoverage, loginToken, authedContext, API } from './fixtures';
 import type { Page } from '@playwright/test';
 
 // UI flows for TEXT editing: adding a line through the right-click line menu + modal, and
@@ -54,6 +54,7 @@ test('FLOW: add a text line via the right-click line menu → the new line appea
         await expect(lines).toHaveCount(before + 1, { timeout: 10_000 });
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
 
@@ -87,5 +88,6 @@ test('FLOW: delete a text line via the right-click line menu → the line disapp
         await expect(lines).toHaveCount(before - 1, { timeout: 10_000 });
     });
 
+    await collectCoverage(ctx);
     await ctx.close();
 });
