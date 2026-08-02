@@ -80,7 +80,10 @@
                 </div>
                 </div>
 
-                <add-artefact-modal></add-artefact-modal>
+                <!-- The modal emits 'close' with the checked artefact ids on Add; wire it to the
+                     placement handler. (The Vue-2 $root 'bv::modal::hide' bus this used to rely on
+                     was removed in the Vue 3 migration, leaving Add-Artefact a no-op until now.) -->
+                <add-artefact-modal @close="onAddArtefactModalClose($event)"></add-artefact-modal>
             </div>
         </div>
     </div>
