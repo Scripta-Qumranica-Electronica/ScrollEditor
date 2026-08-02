@@ -75,3 +75,42 @@ test('COLLAB: a real toolbar rotate in one session reaches a second session live
     await editor.close();
     await observer.close();
 });
+
+test('COLLAB: renaming an artefact in one session updates the other session\'s grid live', async ({ browser }) => {
+    // A different broadcast than placement: changeArtefact -> ArtefactChanged. Both sessions view
+    // the artefacts grid; client A renames a card through its right-click popover and client B's
+    // grid must reflect the new name without a reload.
+    const editor = await authedContext(browser, token);
+    const observer = await authedContext(browser, token);
+    const editorPage = await editor.newPage();
+    const observerPage = await observer.newPage();
+    for (const p of [editorPage, observerPage]) {
+        await p.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+        await p.setViewportSize({ width: 1500, height: 950 });
+        await p.goto(`/editions/${editionId}/artefacts`);
+        await expect(p.locator('.line-name[id^="popover-line-"]').first()).toBeVisible({ timeout: 40_000 });
+    }
+
+    const newName = `rt-renamed-${Date.now()}`;
+
+    await test.step('client A renames the first artefact via its popover (real UI)', async () => {
+        const card = editorPage.locator('.line-name[id^="popover-line-"]').first();
+        await card.click({ button: 'right' });
+        const pop = editorPage.locator('.popover.b-popover.show', { hasText: 'Rename this artefact' });
+        await expect(pop.locator('#newName')).toBeVisible({ timeout: 10_000 });
+        await pop.locator('#newName').fill(newName);
+        await pop.getByRole('button', { name: /^rename$/i }).click();
+    });
+
+    await test.step("client A's grid shows the new name", async () => {
+        await expect(editorPage.locator('.side-edition', { hasText: newName }).first()).toBeVisible({ timeout: 10_000 });
+    });
+
+    await test.step("client B's grid converges to the new name via SignalR — no reload", async () => {
+        await expect(observerPage.locator('.side-edition', { hasText: newName }).first()).toBeVisible({ timeout: 25_000 });
+    });
+
+    for (const c of [editor, observer] as BrowserContext[]) await collectCoverage(c);
+    await editor.close();
+    await observer.close();
+});
