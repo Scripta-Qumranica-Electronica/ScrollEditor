@@ -209,3 +209,62 @@ test('COLLAB: adding a text line in one session appears in the other', async ({ 
     await editor.close();
     await observer.close();
 });
+
+test('COLLAB: creating an ROI in one session reaches the other via SignalR', async ({ browser }) => {
+    // Broadcast type: ROI create. Both sessions open the same artefact + fragment; A draws an ROI
+    // (real onNewPolygon), the artefact editor autosaves it (POST), the server broadcasts, and B's
+    // interpretation-ROI store grows by one without a reload.
+    const auth = { Authorization: `Bearer ${token}` };
+    const editor = await authedContext(browser, token);
+    const observer = await authedContext(browser, token);
+    const ed = (await (await editor.request.post(`${API}/v1/editions/899`, { headers: auth, data: { name: `pw-rt-roi-${Date.now()}` } })).json()).id;
+    const artId = (await (await editor.request.get(`${API}/v1/editions/${ed}/artefacts`, { headers: auth })).json()).artefacts.find((a: { isPlaced: boolean }) => a.isPlaced).id;
+    const editorPage = await editor.newPage();
+    const observerPage = await observer.newPage();
+    for (const p of [editorPage, observerPage]) {
+        await p.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+        await p.setViewportSize({ width: 1600, height: 1000 });
+        await p.goto(`/editions/${ed}/artefacts/${artId}`);
+        await expect(p.locator('#popover-adjust')).toBeVisible({ timeout: 40_000 });
+        // Both load the fragment so both hold the fragment's existing ROIs as a baseline.
+        await p.locator('#load-fragment input.select-text').fill('frg. 1');
+        await expect(p.locator('.text-sign').first()).toBeVisible({ timeout: 20_000 });
+    }
+
+    const roiCount = (page: Page) => page.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const st = (document.getElementById('app') as any)?.__vue_app__?.config?.globalProperties?.$state;
+        return st?.interpretationRois?.size ?? 0;
+    });
+    const observerBefore = await roiCount(observerPage);
+
+    await test.step('client A selects a sign and draws an ROI (real onNewPolygon)', async () => {
+        const boxBtn = editorPage.getByTitle('Box', { exact: true });
+        const signs = editorPage.locator('.text-sign');
+        const n = Math.min(await signs.count(), 6);
+        for (let i = 0; i < n; i++) { await signs.nth(i).click(); if (await boxBtn.isEnabled()) break; }
+        await expect(boxBtn).toBeEnabled({ timeout: 10_000 });
+        await boxBtn.click();
+        const editorBefore = await roiCount(editorPage);
+        await editorPage.evaluate(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let cur: any = (document.getElementById('artefact-image') as any)?.__vueParentComponent;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let comp: any; while (cur) { if (cur.ctx?.onNewPolygon) { comp = cur.ctx; break; } cur = cur.parent; }
+            const Polygon = st.interpretationRois.getItems().next().value.shape.constructor;
+            comp.onNewPolygon(new Polygon('M0 0 L400 0 L400 400 L0 400 Z'));
+        });
+        await expect.poll(() => roiCount(editorPage), { timeout: 10_000 }).toBe(editorBefore + 1);
+    });
+
+    await test.step('client B\'s ROI store grows by one via SignalR (after autosave) — no reload', async () => {
+        // The artefact editor autosaves the ROI operation (~3s) which POSTs + broadcasts.
+        await expect.poll(() => roiCount(observerPage), { timeout: 30_000 }).toBe(observerBefore + 1);
+    });
+
+    for (const c of [editor, observer] as BrowserContext[]) await collectCoverage(c);
+    await editor.close();
+    await observer.close();
+});
