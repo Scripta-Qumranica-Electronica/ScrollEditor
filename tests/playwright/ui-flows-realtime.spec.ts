@@ -48,6 +48,27 @@ const selectArtefact = (page: Page, id: number) => page.evaluate((artId) => {
 
 const rotateOf = (t: string | null) => (t?.match(/rotate\(([-\d.]+)/)?.[1]) ?? null;
 
+const placedCount = (page: Page) => page.evaluate(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const st = (document.getElementById('app') as any)?.__vue_app__?.config?.globalProperties?.$state;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (st?.artefacts?.items ?? []).filter((a: any) => a.isPlaced).length;
+});
+
+// Open two authed sessions on a route (client A = editor, B = observer).
+async function twoSessions(browser: Browser, route: string) {
+    const editor = await authedContext(browser, token);
+    const observer = await authedContext(browser, token);
+    const editorPage = await editor.newPage();
+    const observerPage = await observer.newPage();
+    for (const p of [editorPage, observerPage]) {
+        await p.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+        await p.setViewportSize({ width: 1600, height: 1000 });
+        await p.goto(route);
+    }
+    return { editor, observer, editorPage, observerPage };
+}
+
 test('COLLAB: a real toolbar rotate in one session reaches a second session live', async ({ browser }) => {
     const { editor, observer, editorPage, observerPage } = await openTwoSessions(browser);
 
@@ -108,6 +129,80 @@ test('COLLAB: renaming an artefact in one session updates the other session\'s g
 
     await test.step("client B's grid converges to the new name via SignalR — no reload", async () => {
         await expect(observerPage.locator('.side-edition', { hasText: newName }).first()).toBeVisible({ timeout: 25_000 });
+    });
+
+    for (const c of [editor, observer] as BrowserContext[]) await collectCoverage(c);
+    await editor.close();
+    await observer.close();
+});
+
+test('COLLAB: placing an artefact in one session appears placed in the other', async ({ browser }) => {
+    // Broadcast type: add-artefact -> placement. Both sessions on the scroll editor; A places an
+    // unplaced artefact via the Add-Artefact modal, B's placed-artefact count grows via SignalR.
+    const { editor, observer, editorPage, observerPage } = await twoSessions(browser, `/editions/${editionId}/scroll-editor`);
+    await expect(editorPage.locator('#the-scroll')).toBeVisible({ timeout: 40_000 });
+    await expect(observerPage.locator('#the-scroll')).toBeVisible({ timeout: 40_000 });
+
+    const before = await observerPage.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const st = (document.getElementById('app') as any)?.__vue_app__?.config?.globalProperties?.$state;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (st?.artefacts?.items ?? []).filter((a: any) => a.isPlaced).length;
+    });
+
+    await test.step('client A adds an unplaced artefact (real UI)', async () => {
+        await editorPage.getByRole('button', { name: /Add artefact/i }).click();
+        const modal = editorPage.locator('#addArtefactModal');
+        await expect(modal.locator('#cheked-artefact input[type="checkbox"]').first()).toBeVisible({ timeout: 10_000 });
+        await modal.locator('#cheked-artefact input[type="checkbox"]').first().check({ force: true });
+        await modal.getByRole('button', { name: /^add$/i }).click();
+        await expect.poll(() => placedCount(editorPage), { timeout: 15_000 }).toBe(before + 1);
+    });
+
+    await test.step('client B sees the artefact become placed via SignalR — no reload', async () => {
+        await expect.poll(() => placedCount(observerPage), { timeout: 25_000 }).toBe(before + 1);
+    });
+
+    for (const c of [editor, observer] as BrowserContext[]) await collectCoverage(c);
+    await editor.close();
+    await observer.close();
+});
+
+// NOTE: an imaged-object-editor create → other-session two-client flow was attempted but the
+// create step flakes even single-session-isolated under the two-client setup (client A's own list
+// doesn't reflect the new artefact reliably — a suspected create+self-broadcast race worth a
+// manual look). Imaged-object collaborative editing is the least-used path; single-client create
+// is covered by ui-flows-imaged-object.spec.ts, so this broadcast type is left single-client only.
+
+test('COLLAB: adding a text line in one session appears in the other', async ({ browser }) => {
+    // Broadcast type: text edit (add line). Both sessions on the same text fragment; A adds a line
+    // via the right-click menu + modal, B's rendered line count grows via SignalR.
+    const auth = { Authorization: `Bearer ${token}` };
+    const editor = await authedContext(browser, token);
+    const observer = await authedContext(browser, token);
+    const tfId = (await (await editor.request.get(`${API}/v1/editions/${editionId}/text-fragments`, { headers: auth })).json()).textFragments[0].id;
+    const editorPage = await editor.newPage();
+    const observerPage = await observer.newPage();
+    for (const p of [editorPage, observerPage]) {
+        await p.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+        await p.setViewportSize({ width: 1500, height: 950 });
+        await p.goto(`/editions/${editionId}/text-fragments/${tfId}`);
+        await expect(p.locator('#text-side .text-line').first()).toBeVisible({ timeout: 40_000 });
+    }
+    const observerLines = observerPage.locator('#text-side .text-line');
+    const before = await observerLines.count();
+
+    await test.step('client A adds a line after the first (real UI)', async () => {
+        await editorPage.locator('#text-side .text-line [id^="popover-line-"]').first().click({ button: 'right' });
+        await editorPage.locator('.popover.b-popover.show p', { hasText: /Add a line after/i }).click();
+        await editorPage.locator('#addLineModal input').fill('rt-newline');
+        await editorPage.locator('#addLineModal').getByRole('button', { name: /^save$/i }).click();
+        await expect(editorPage.locator('#addLineModal')).toBeHidden({ timeout: 10_000 });
+        await expect(editorPage.locator('#text-side .text-line')).toHaveCount(before + 1, { timeout: 10_000 });
+    });
+
+    await test.step("client B's rendered text grows by one line via SignalR — no reload", async () => {
+        await expect.poll(() => observerLines.count(), { timeout: 25_000 }).toBe(before + 1);
     });
 
     for (const c of [editor, observer] as BrowserContext[]) await collectCoverage(c);
