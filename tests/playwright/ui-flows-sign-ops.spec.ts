@@ -50,3 +50,37 @@ test('FLOW: delete a sign via the right-click sign menu → the sign disappears'
     await collectCoverage(ctx);
     await ctx.close();
 });
+
+test('FLOW: add a sign via the sign menu → the new sign appears in the line', async ({ browser }) => {
+    const ctx = await authedContext(browser, token);
+    const page = await ctx.newPage();
+    await newTextFragmentPage(page);
+
+    const signs = page.locator('#text-side .text-sign');
+    let before = 0;
+
+    await test.step('the fragment renders its signs', async () => {
+        await expect(signs.first()).toBeVisible({ timeout: 40_000 });
+        before = await signs.count();
+        expect(before).toBeGreaterThan(0);
+    });
+
+    await test.step('"Add to left" opens the sign editor modal', async () => {
+        await signs.first().click({ button: 'right' });
+        await expect(page.locator('.popover.b-popover.show', { hasText: /Add to left/i })).toBeVisible({ timeout: 10_000 });
+        await page.locator('.popover.b-popover.show p', { hasText: /Add to left/i }).click();
+        await expect(page.locator('#editSignModal')).toBeVisible({ timeout: 10_000 });
+    });
+
+    await test.step('choosing a sign type and Apply inserts a new sign', async () => {
+        // In create mode the modal offers a sign-type combobox (SPACE selected by default) +
+        // Reconstructed; there is no character field. Apply with the default type.
+        await page.locator('#editSignModal').getByRole('button', { name: /^apply$/i }).click();
+        await expect(page.locator('#editSignModal')).toBeHidden({ timeout: 10_000 });
+        // The new sign interpretation (CreateSignInterpretationOperation) is rendered in the line.
+        await expect(signs).toHaveCount(before + 1, { timeout: 10_000 });
+    });
+
+    await collectCoverage(ctx);
+    await ctx.close();
+});
