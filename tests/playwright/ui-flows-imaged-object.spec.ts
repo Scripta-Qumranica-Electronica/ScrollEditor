@@ -48,12 +48,12 @@ test('FLOW: imaged-object editor — create then delete an artefact', async ({ b
         const nameInput = page.getByPlaceholder('New Artefact Name');
         await expect(nameInput).toBeVisible({ timeout: 10_000 });
         await nameInput.fill(created);
-        await nameInput.press('Enter'); // @keyup.enter → newArtefact()
+        await nameInput.press('Enter'); // form @submit → newArtefact() (Enter still works)
         await expect(nameInput).toBeHidden({ timeout: 15_000 });
-        // The created artefact now shows in the panel (it can appear in more than one place — the
-        // list row and the auto-selected label — so assert "at least one", not exactly one).
-        await expect(names.filter({ hasText: created }).first()).toBeVisible({ timeout: 15_000 });
-        expect(await serverArtefactNames(page, ed)).toContain(created);
+        // EXACTLY one artefact — Enter used to fire newArtefact twice (input @keyup.enter + form
+        // @submit), creating two duplicates. Guards that fix.
+        await expect(names.filter({ hasText: created })).toHaveCount(1, { timeout: 15_000 });
+        expect((await serverArtefactNames(page, ed)).filter((n) => n === created)).toHaveLength(1);
     });
 
     await test.step('Delete removes it from the list and the server', async () => {

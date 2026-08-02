@@ -189,12 +189,14 @@
                     :label="$t('home.newArtefactName')"
                     label-for="newArtefactName"
                 >
+                    <!-- No @keyup.enter here: the wrapping <form @submit.stop.prevent> already
+                         calls newArtefact() on Enter. Having both fired it twice, creating two
+                         duplicate artefacts per Enter. -->
                     <b-form-input
                         ref="newArtefactName"
                         id="newName"
                         v-model="newArtefactName"
                         type="text"
-                        @keyup.enter="newArtefact"
                         required
                         :placeholder="$t('home.newArtefactName')"
                     ></b-form-input>
