@@ -102,3 +102,45 @@ test('FLOW: scroll editor arrow keys move and "<" rotates the selected artefact'
     await collectCoverage(ctx);
     await ctx.close();
 });
+
+test('FLOW: scroll editor Undo/Redo reverses and replays a Mirror operation', async ({ browser }) => {
+    // Exercises the ScrollEditorOperation undo/redo path: mirror the artefact, Undo restores the
+    // previous mirrored value, Redo re-applies it. Driven through the scroll editor's operations
+    // manager (the same one its undo/redo toolbar drives).
+    const ctx = await authedContext(browser, token);
+    const page = await ctx.newPage();
+    await openScrollWithSelection(page);
+
+    const undo = () => page.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state.operationsManager.undo();
+    });
+    const redo = () => page.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state.operationsManager.redo();
+    });
+
+    const before = (await placement(page))!.mirrored;
+
+    await test.step('mirroring registers an undoable operation', async () => {
+        await page.getByTitle('Mirror', { exact: true }).click();
+        await expect.poll(async () => (await placement(page))!.mirrored, { timeout: 10_000 }).toBe(!before);
+        expect(await page.evaluate(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return !!(document.getElementById('app') as any).__vue_app__.config.globalProperties.$state.operationsManager?.canUndo;
+        })).toBe(true);
+    });
+
+    await test.step('Undo restores the previous mirrored state', async () => {
+        await undo();
+        await expect.poll(async () => (await placement(page))!.mirrored, { timeout: 10_000 }).toBe(before);
+    });
+
+    await test.step('Redo re-applies the mirror', async () => {
+        await redo();
+        await expect.poll(async () => (await placement(page))!.mirrored, { timeout: 10_000 }).toBe(!before);
+    });
+
+    await collectCoverage(ctx);
+    await ctx.close();
+});
