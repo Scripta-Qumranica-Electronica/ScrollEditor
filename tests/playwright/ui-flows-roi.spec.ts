@@ -140,3 +140,38 @@ test('FLOW: marking a sign Reconstructed changes its attribute and disables draw
     await collectCoverage(ctx);
     await ctx.close();
 });
+
+test('FLOW: deleting a selected ROI removes it from the store', async ({ browser }) => {
+    // Create an ROI (which auto-selects it), then click Delete ROI and assert the store shrinks
+    // back — exercising ArtefactROIOperation('erase') via the real toolbar button.
+    const ctx = await authedContext(browser, token);
+    const page = await ctx.newPage();
+    const { boxBtn } = await openArtefactWithDrawableSign(page);
+    const delBtn = page.getByTitle('Delete ROI', { exact: true });
+
+    await boxBtn.click();
+    const before = await roiCount(page);
+
+    await test.step('drawing an ROI adds it and selects it (Delete ROI enables)', async () => {
+        await page.evaluate(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let cur: any = (document.getElementById('artefact-image') as any)?.__vueParentComponent;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let comp: any; while (cur) { if (cur.ctx?.onNewPolygon) { comp = cur.ctx; break; } cur = cur.parent; }
+            const Polygon = st.interpretationRois.getItems().next().value.shape.constructor;
+            comp.onNewPolygon(new Polygon('M0 0 L400 0 L400 400 L0 400 Z'));
+        });
+        await expect.poll(() => roiCount(page), { timeout: 10_000 }).toBe(before + 1);
+        await expect(delBtn).toBeEnabled({ timeout: 10_000 });
+    });
+
+    await test.step('Delete ROI removes it again', async () => {
+        await delBtn.click();
+        await expect.poll(() => roiCount(page), { timeout: 10_000 }).toBe(before);
+    });
+
+    await collectCoverage(ctx);
+    await ctx.close();
+});
