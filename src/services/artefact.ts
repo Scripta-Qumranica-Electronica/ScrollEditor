@@ -132,11 +132,18 @@ class ArtefactService {
         editionId: number,
         artefact: Artefact
     ): Promise<Artefact> {
+        // Prefer the artefact's own loaded imageStack. The artefact endpoints do NOT return
+        // imagedObjectId (it comes back empty), so imagedObjects.find(artefact.imagedObjectId)
+        // always misses from the artefact editor — copy-to-edition threw "no master image" and
+        // silently did nothing. getArtefacts(...'images') populates artefact.imageStack with the
+        // master image, so use that; fall back to the imaged-object lookup for other call sites.
         const artefactImagedObject = this.stateManager.imagedObjects.find(artefact.imagedObjectId);
-        const masterImage = artefactImagedObject?.getImageStack(artefact.side)?.images.find(im => im.master);
+        const masterImage =
+            artefact.imageStack?.master ??
+            artefactImagedObject?.getImageStack(artefact.side)?.images.find(im => im.master);
         if (!masterImage) {
             throw Error(
-                `ImagedObject ${artefactImagedObject?.id}, side ${artefact.side} has no master image`
+                `Artefact ${artefact.id}, side ${artefact.side} has no master image`
             );
         }
         const body = {

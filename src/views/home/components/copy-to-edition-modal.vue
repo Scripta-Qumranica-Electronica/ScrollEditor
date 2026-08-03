@@ -102,11 +102,12 @@ class CopyToEditionModal extends Vue {
 
             this.internalVisible = false;
 
-            this.$router.push({
-                path: `/editions/${this.editionTargetId}/artefacts/${artefactCopy.id}`,
-            });
-
-            this.$router.go(0);
+            // A single full-page navigation into the copy. Using router.push + router.go(0) raced:
+            // go(0) reloaded the current (source) URL before push committed, leaving the user on
+            // the source artefact. (Same fix as copy-edition-modal.)
+            window.location.assign(
+                `/editions/${this.editionTargetId}/artefacts/${artefactCopy.id}`,
+            );
         } catch (err: any) {
             this.errorMessage = err.toString();
             console.error('Error copying artefact', err);
