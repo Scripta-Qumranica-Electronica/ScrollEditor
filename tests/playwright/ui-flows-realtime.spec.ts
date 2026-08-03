@@ -270,3 +270,38 @@ test('COLLAB: creating an ROI in one session reaches the other via SignalR', asy
     await editor.close();
     await observer.close();
 });
+
+test('COLLAB: deleting a text line in one session removes it in the other', async ({ browser }) => {
+    // Broadcast type: text edit (delete line) — the inverse of add-line. A deletes a line via the
+    // right-click menu + confirm modal; B's rendered line count drops via SignalR without a reload.
+    const auth = { Authorization: `Bearer ${token}` };
+    const editor = await authedContext(browser, token);
+    const observer = await authedContext(browser, token);
+    const tfId = (await (await editor.request.get(`${API}/v1/editions/${editionId}/text-fragments`, { headers: auth })).json()).textFragments[0].id;
+    const editorPage = await editor.newPage();
+    const observerPage = await observer.newPage();
+    for (const p of [editorPage, observerPage]) {
+        await p.route('**/*', (r) => (r.request().resourceType() === 'image' ? r.abort() : r.continue()));
+        await p.setViewportSize({ width: 1500, height: 950 });
+        await p.goto(`/editions/${editionId}/text-fragments/${tfId}`);
+        await expect(p.locator('#text-side .text-line').first()).toBeVisible({ timeout: 40_000 });
+    }
+    const observerLines = observerPage.locator('#text-side .text-line');
+    const before = await observerLines.count();
+    expect(before).toBeGreaterThan(1);
+
+    await test.step('client A deletes a line (real UI)', async () => {
+        await editorPage.locator('#text-side .text-line [id^="popover-line-"]').first().click({ button: 'right' });
+        await editorPage.locator('.popover.b-popover.show p', { hasText: /Delete this line/i }).click();
+        await editorPage.locator('#deleteLineModal').getByRole('button', { name: /^confirm$/i }).click();
+        await expect(editorPage.locator('#text-side .text-line')).toHaveCount(before - 1, { timeout: 10_000 });
+    });
+
+    await test.step("client B's rendered text loses the line via SignalR — no reload", async () => {
+        await expect.poll(() => observerLines.count(), { timeout: 25_000 }).toBe(before - 1);
+    });
+
+    for (const c of [editor, observer] as BrowserContext[]) await collectCoverage(c);
+    await editor.close();
+    await observer.close();
+});
