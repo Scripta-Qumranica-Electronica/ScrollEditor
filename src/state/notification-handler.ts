@@ -53,6 +53,13 @@ export class NotificationHandler {
 
         const newArtefact = new Artefact(artefact);
         state().artefacts.add(newArtefact, false); // Safely ignore error if artefact is already there
+        // KNOWN GAP (needs a server fix): a freshly-created MASKLESS artefact broadcasts with
+        // imagedObjectId="" AND imageId=0 — the server records no imaged-object association until
+        // the artefact gets a mask — so a second client viewing the imaged object cannot place it
+        // in the list (only the creator can, because it locally knew which imaged object the user
+        // picked). The guard below only works once the artefact has a real imagedObjectId (e.g.
+        // mask-bearing artefacts from copy-to-edition). Fixing the maskless case requires the
+        // CreatedArtefact broadcast to carry the imagedObjectId.
         if (state().imagedObjects.current?.id === artefact.imagedObjectId) {
             addToArray(newArtefact, currentState().imagedObjects.current?.artefacts);
         }

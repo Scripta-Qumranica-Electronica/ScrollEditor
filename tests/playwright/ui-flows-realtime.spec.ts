@@ -168,11 +168,13 @@ test('COLLAB: placing an artefact in one session appears placed in the other', a
     await observer.close();
 });
 
-// NOTE: an imaged-object-editor create → other-session two-client flow was attempted but the
-// create step flakes even single-session-isolated under the two-client setup (client A's own list
-// doesn't reflect the new artefact reliably — a suspected create+self-broadcast race worth a
-// manual look). Imaged-object collaborative editing is the least-used path; single-client create
-// is covered by ui-flows-imaged-object.spec.ts, so this broadcast type is left single-client only.
+// NOTE: no imaged-object-editor create → other-session two-client flow here — it CANNOT pass yet.
+// Investigating found a confirmed bug (documented in notification-handler.handleCreatedArtefact):
+// a freshly-created MASKLESS artefact broadcasts with imagedObjectId="" and imageId=0, i.e. the
+// server records NO imaged-object association until it gets a mask. The creator sees it only
+// because its own client knew which imaged object the user picked; a second client has no data to
+// place it. Needs a server fix (CreatedArtefact must carry the imagedObjectId). Single-client
+// create is covered by ui-flows-imaged-object.spec.ts.
 
 test('COLLAB: adding a text line in one session appears in the other', async ({ browser }) => {
     // Broadcast type: text edit (add line). Both sessions on the same text fragment; A adds a line
