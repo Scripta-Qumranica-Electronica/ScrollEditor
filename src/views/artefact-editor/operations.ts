@@ -594,10 +594,15 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
         // Delete the sign from the line
         this.sign.line.removeSign(this.sign);
 
-        // Fix the linked list of signs
+        // Fix the linked list of signs. A first-in-line sign has no predecessor to relink; before
+        // this guard, prevSign was undefined and this threw AFTER removeSign() had already deleted
+        // the sign locally but BEFORE the operation was emitted — so deleting the first sign of a
+        // line vanished it on screen yet was never queued, saved, or broadcast (silent data loss).
         const SI = this.sign.signInterpretations[0];
-        const prevSI = this.prevSign.signInterpretations[0];
-        prevSI.nextSignInterpretations = SI.nextSignInterpretations;
+        const prevSign = this.prevSign;
+        if (prevSign) {
+            prevSign.signInterpretations[0].nextSignInterpretations = SI.nextSignInterpretations;
+        }
 
         state().signInterpretations.detachSignInterprerationFromArtefact(SI);
     }
@@ -606,11 +611,14 @@ export class DeleteSignInterpretationOperation extends SignInterpretationEditOpe
         // Add the sign back into the line
         this.sign.line.addSign(this.sign);
 
-        // Fix the linked list of signs
+        // Fix the linked list of signs (only if there is a predecessor — see internalRedo).
         const SI = this.sign.signInterpretations[0];
-        const prevSI = this.prevSign.signInterpretations[0];
-        SI.nextSignInterpretations = prevSI.nextSignInterpretations;
-        prevSI.nextSignInterpretations[0].nextSignInterpretationId = SI.signInterpretationId;
+        const prevSign = this.prevSign;
+        if (prevSign) {
+            const prevSI = prevSign.signInterpretations[0];
+            SI.nextSignInterpretations = prevSI.nextSignInterpretations;
+            prevSI.nextSignInterpretations[0].nextSignInterpretationId = SI.signInterpretationId;
+        }
         state().signInterpretations.attachSignInterpretationToArtefact(SI);
     }
 }

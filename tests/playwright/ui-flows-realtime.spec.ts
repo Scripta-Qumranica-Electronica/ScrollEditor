@@ -338,14 +338,15 @@ test('COLLAB: removing a placed artefact in one session unplaces it in the other
     await observer.close();
 });
 
-// NO two-client delete-sign flow — investigating one exposed a confirmed DATA-LOSS bug that is
-// deeper than a test can guard around: deleting a sign in the TEXT editor
-// (/editions/:ed/text-fragments/:tf, which renders ArtefactEditor in text-fragment mode) applies
-// locally but is NEVER persisted. Verified by reloading: the sign comes back; and no
-// sign-interpretation DELETE request is ever sent. So it also never broadcasts, and a second
-// client never sees it. This affects sign create/delete (and likely attribute/comment) edits made
-// from the text editor. Root cause is somewhere in the autosave→saveEntities pipeline for these
-// ops in text-fragment mode (saveEntities' first calls — saveRotation/saveROIs — dereference the
-// null current artefact, and the sign op never reaches a firing save). Two fix attempts
-// (guarding the artefact-only saves; capturing the SI before redo removes it) did NOT resolve it,
-// so it needs deeper work and is flagged here rather than papered over.
+// NO two-client delete-sign flow. Investigating one root-caused a real bug (now fixed) plus a
+// deeper layer that is not: 
+//  (1) FIXED — deleting the FIRST sign of a line threw in DeleteSignInterpretationOperation.
+//      internalRedo (prevSign undefined) AFTER removeSign() had already deleted it locally but
+//      BEFORE the op was emitted, so it was never queued/saved/broadcast (silent data loss).
+//      Guarded prevSign so the op completes. (Confirmed via a step-trace: the emit never fired
+//      because op.redo(true) threw "Cannot read properties of undefined (reading
+//      'signInterpretations')".)
+//  (2) NOT fixed — even a CONTENT sign delete (which persists) does not reach a second client:
+//      the save re-fires with the post-delete negative id (404), and
+//      handleDeletedSignInterpretation only removes signs whose sign has exactly one
+//      interpretation. Needs deeper work; documented rather than papered over.
