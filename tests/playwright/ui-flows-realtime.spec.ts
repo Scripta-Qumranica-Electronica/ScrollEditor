@@ -305,3 +305,47 @@ test('COLLAB: deleting a text line in one session removes it in the other', asyn
     await editor.close();
     await observer.close();
 });
+
+test('COLLAB: removing a placed artefact in one session unplaces it in the other', async ({ browser }) => {
+    // Broadcast type: placement delete. A selects a placed artefact and clicks Remove; B's
+    // placed-artefact count drops via SignalR without a reload.
+    const { editor, observer, editorPage, observerPage } = await twoSessions(browser, `/editions/${editionId}/scroll-editor`);
+    await expect(editorPage.locator('#the-scroll')).toBeVisible({ timeout: 40_000 });
+    await expect(observerPage.locator('#the-scroll')).toBeVisible({ timeout: 40_000 });
+    await expect.poll(() => editorPage.locator('#the-scroll g[pointer-events="all"]').count(), { timeout: 40_000 }).toBeGreaterThan(0);
+    const before = await placedCount(observerPage);
+    expect(before).toBeGreaterThan(0);
+
+    await test.step('client A selects a placed artefact and removes it (real UI)', async () => {
+        await editorPage.evaluate(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const st = (document.getElementById('app') as any).__vue_app__.config.globalProperties.$state;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const art = st.artefacts.items.find((a: any) => a.isPlaced);
+            st.eventBus.emit('select-artefact', art);
+        });
+        await expect(editorPage.getByTitle('Mirror', { exact: true })).toBeEnabled({ timeout: 10_000 });
+        await editorPage.getByRole('button', { name: /^Remove$/ }).click();
+        await expect.poll(() => placedCount(editorPage), { timeout: 15_000 }).toBe(before - 1);
+    });
+
+    await test.step('client B sees the artefact unplaced via SignalR — no reload', async () => {
+        await expect.poll(() => placedCount(observerPage), { timeout: 25_000 }).toBe(before - 1);
+    });
+
+    for (const c of [editor, observer] as BrowserContext[]) await collectCoverage(c);
+    await editor.close();
+    await observer.close();
+});
+
+// NO two-client delete-sign flow — investigating one exposed a confirmed DATA-LOSS bug that is
+// deeper than a test can guard around: deleting a sign in the TEXT editor
+// (/editions/:ed/text-fragments/:tf, which renders ArtefactEditor in text-fragment mode) applies
+// locally but is NEVER persisted. Verified by reloading: the sign comes back; and no
+// sign-interpretation DELETE request is ever sent. So it also never broadcasts, and a second
+// client never sees it. This affects sign create/delete (and likely attribute/comment) edits made
+// from the text editor. Root cause is somewhere in the autosave→saveEntities pipeline for these
+// ops in text-fragment mode (saveEntities' first calls — saveRotation/saveROIs — dereference the
+// null current artefact, and the sign op never reaches a firing save). Two fix attempts
+// (guarding the artefact-only saves; capturing the SI before redo removes it) did NOT resolve it,
+// so it needs deeper work and is flagged here rather than papered over.
