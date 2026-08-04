@@ -346,7 +346,13 @@ test('COLLAB: removing a placed artefact in one session unplaces it in the other
 //      Guarded prevSign so the op completes. (Confirmed via a step-trace: the emit never fired
 //      because op.redo(true) threw "Cannot read properties of undefined (reading
 //      'signInterpretations')".)
-//  (2) NOT fixed — even a CONTENT sign delete (which persists) does not reach a second client:
-//      the save re-fires with the post-delete negative id (404), and
-//      handleDeletedSignInterpretation only removes signs whose sign has exactly one
-//      interpretation. Needs deeper work; documented rather than papered over.
+//  (2) NOT fixed (backend/data-model) — a sign delete never reaches a second client because the
+//      DELETE itself FAILS server-side. Traced with A network + B all-SignalR-events capture: on
+//      delete, A sends `POST /rois/batch-edit` (200 — erases the sign's ROIs) then
+//      `DELETE /editions/<ed>/sign-interpretations/<id>?optional=delete-all-variants` -> 404. So
+//      the sign-interpretation is never removed on the server and no DeletedSignInterpretation is
+//      broadcast; the observer only ever receives the ROI change (`EditedRoisBatch`) and its sign
+//      count never drops. The route is correct, so the 404 is an id/edition mismatch — consistent
+//      with SQE's shared-text model (text/sign-interpretations are shared across editions and fork
+//      on edit; a copied edition's sign carries an id the delete endpoint won't remove directly).
+//      Fixing needs backend/data work (fork-on-delete or an edition-scoped id), out of this scope.
